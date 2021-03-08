@@ -45,7 +45,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 	requires: [
 		'DSS.state.MapStateTools',
 		'DSS.state.BrowseOrCreate',
-		'DSS.state.CreateNew',
+		'DSS.state.CreateNew_wfs',
 		'DSS.state.Manage',
 		'DSS.state.Scenario'
 	],

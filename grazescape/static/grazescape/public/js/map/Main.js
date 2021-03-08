@@ -1,11 +1,11 @@
-//DSS.utils.addStyle('.popup-eye { opacity: 0.9; overflow: visible!important;background-color: #f8f7ef; border-radius: .5rem; border: 1px solid #999; box-shadow: 0 6px 6px rgba(0,0,0,0.5);pointer-events:none; }')
-//DSS.utils.addStyle('.popup-eye:after { transform: rotate(-45deg); overflow: visible!important; display: block; position: absolute; bottom: -0.32rem; left: calc(100px - 0.32rem); content: ""; background-color: #f8f7ef; width: 0.5rem; height: 0.5rem; border-left: 1px solid #999; border-bottom: 1px solid #999; box-shadow: -6px 6px 6px rgba(0,0,0,0.5) }')
-//
-//DSS.utils.addStyle('path.boundary { fill: #ff00001f; stroke: red;}');
-//DSS.utils.addStyle('path.boundary:hover { fill: #ff00005f; stroke: red;}');
-//
-//DSS.utils.addStyle('.layer-menu {margin: 6px;background:rgba(0,0,0,0.4);border-radius: 4px;padding: 0.23rem; color: #27c; font-size: 1.25rem; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.3), 0 0 6px rgba(0,0,0,0.4)}');
-//DSS.utils.addStyle('.layer-menu:hover {background:rgba(0,0,0,0.6);color: #48f; text-shadow: 0 2px 2px rgba(0,0,0,0.8), 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.4)}');
+DSS.utils.addStyle('.popup-eye { opacity: 0.9; overflow: visible!important;background-color: #f8f7ef; border-radius: .5rem; border: 1px solid #999; box-shadow: 0 6px 6px rgba(0,0,0,0.5);pointer-events:none; }')
+DSS.utils.addStyle('.popup-eye:after { transform: rotate(-45deg); overflow: visible!important; display: block; position: absolute; bottom: -0.32rem; left: calc(100px - 0.32rem); content: ""; background-color: #f8f7ef; width: 0.5rem; height: 0.5rem; border-left: 1px solid #999; border-bottom: 1px solid #999; box-shadow: -6px 6px 6px rgba(0,0,0,0.5) }')
+
+DSS.utils.addStyle('path.boundary { fill: #ff00001f; stroke: red;}');
+DSS.utils.addStyle('path.boundary:hover { fill: #ff00005f; stroke: red;}');
+
+DSS.utils.addStyle('.layer-menu {margin: 6px;background:rgba(0,0,0,0.4);border-radius: 4px;padding: 0.23rem; color: #27c; font-size: 1.25rem; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.3), 0 0 6px rgba(0,0,0,0.4)}');
+DSS.utils.addStyle('.layer-menu:hover {background:rgba(0,0,0,0.6);color: #48f; text-shadow: 0 2px 2px rgba(0,0,0,0.8), 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.4)}');
 
 /*
 // Grossly publicly shared OpenLayers access points...
@@ -47,6 +47,7 @@ DSS.popupContainer
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
+
 	extend: 'Ext.Container',//Component',
 	alias: 'widget.main_map',
 	
@@ -77,10 +78,7 @@ Ext.define('DSS.map.Main', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-        console.log("THis is the map ")
-        console.log(me)
-        console.log(this)
-        console.log("should be something here")
+
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'component',
@@ -115,7 +113,7 @@ Ext.define('DSS.map.Main', {
 						}
 					});
 				}
-			}
+			}					
 		});
 		
 		setTimeout(function() {
@@ -184,7 +182,7 @@ Ext.define('DSS.map.Main', {
 	instantiateMap: function() {
 		let me = this;
 		me.DSS_zoomStyles = {};
-		console.log("initiate map!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+		
 		for (let idx = 3; idx <= 16; idx++) {
 			let sw = Math.floor(Math.sqrt(idx));
 			if (sw < 1) sw = 1;
@@ -266,7 +264,19 @@ Ext.define('DSS.map.Main', {
 				imageExtent: extent
 			})
 		})
-		
+		var pointStyle = new ol.style.Style({
+			image: new ol.style.Circle({
+			  radius: 7,
+			  stroke: new ol.style.Stroke({
+					color: 'orange',
+					width: 1
+			  }),
+			  fill: new ol.style.Fill({
+					color: '#ffe4b3'
+			  })
+			})
+	});
+
 		//---------------------------------------
 		let defaultFieldStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
@@ -324,15 +334,15 @@ Ext.define('DSS.map.Main', {
 			})
 			fd.loadRawData(records);
 		})
+		
 */		
 		let farmSource = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			loader: function(extent, resolution, projection) {
-//				let url = location.origin + '/get_farms'
-				let url = grazeUrl + '/get_farms'
+				//let url = grazeUrl + '/get_farms'
+				let url = location.origin + '/get_farms'
 				let xhr = new XMLHttpRequest();
 				xhr.open('GET', url);
-//				xhr.withCredentials = true;
 				var onError = function() {
 					farmSource.removeLoadedExtent(extent);
 				}
@@ -340,7 +350,7 @@ Ext.define('DSS.map.Main', {
 				xhr.onload = function() {
 					if (xhr.status == 200) {
 						farmSource.addFeatures(farmSource.getFormat().readFeatures(xhr.responseText));
-						DSS.viewModel.master.set("farm_count", farmSource.getFeatures().length);
+						//DSS.viewModel.master.set("farm_count", farmSource.getFeatures().length);
 					}
 					else {
 						onError();
@@ -364,6 +374,62 @@ Ext.define('DSS.map.Main', {
 				return me.DSS_zoomStyles['style' + r];
 			}
 		});
+
+		//--------------------------------------------------------- 
+		var farms_1Source = new ol.source.Vector({
+			format: new ol.format.GeoJSON(),
+			url: function(extent) {
+				return 'http://localhost:8081/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=Farms:farm_1&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857';
+			},
+		});
+		var fields_1Source = new ol.source.Vector({
+			format: new ol.format.GeoJSON(),
+			url: function(extent) {
+				return 'http://localhost:8081/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=Farms:field_1&' +
+				//'maxfeatures=50&'+
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857';
+			},
+		});
+		DSS.layer.farms_1 = new ol.layer.Vector({
+			title: 'farms_1',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: farms_1Source,
+			style: function(feature, resolution) {
+				let r = 1.0 - resolution / 94.0;
+				if (r < 0) r = 0
+				else if (r > 1) r = 1
+				// value from 3 to 16
+				r = Math.round(Math.pow(r, 3) * 13 + 3)
+				return me.DSS_zoomStyles['style' + r];
+			}
+		})
+		DSS.layer.fields_1 = new ol.layer.Vector({
+			title: 'fields_1',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: fields_1Source,
+			style: function(feature, resolution) {
+				
+				if (DSS.fieldStyleFunction) {
+					return DSS.fieldStyleFunction(feature, resolution);
+				}
+				else return defaultFieldStyle;
+			},
+		});
 		
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
@@ -375,8 +441,11 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
 //				DSS.layer.fields,
-				DSS.layer.farms,
-			],//------------------------------------------------------------------------
+				//DSS.layer.farms,
+				DSS.layer.farms_1,
+				DSS.layer.fields_1
+				 ],
+				//------------------------------------------------------------------------
 			view: new ol.View({
 				center: [-10118000,5375100],
 				zoom: 12,
@@ -415,7 +484,7 @@ Ext.define('DSS.map.Main', {
 				easing: ol.easing.easeOut
 			}
 		});
-
+		
 		me.map.addOverlay(me.overlay);
 		
 		me.ol_uid = false;
@@ -436,7 +505,7 @@ Ext.define('DSS.map.Main', {
 			}
 		});
 		me.drawTools 	= Ext.create('DSS.map.DrawAndModify').instantiate(me.map, DSS.layer.fields.getSource());
-
+		
 		me.boxModelTool = Ext.create('DSS.map.BoxModel').instantiate(me.map);
 		
 		me.addMarkerLayer(me.map);
@@ -505,7 +574,7 @@ Ext.define('DSS.map.Main', {
 		]];
 		
 		var spot = new ol.geom.MultiPolygon(multiPoly);
-	    console.log(spot);
+	    //console.log(spot);
 		DSS.layer.mask.getSource().addFeature(new ol.Feature(spot));
 		map.addLayer(DSS.layer.mask);                        
 	},
@@ -635,4 +704,3 @@ var CanvasLayer = /*@__PURE__*/(function (Layer) {
 
 	return CanvasLayer;
 }(ol.layer.Tile));
-

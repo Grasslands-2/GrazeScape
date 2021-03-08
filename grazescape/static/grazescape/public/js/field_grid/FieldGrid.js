@@ -1,6 +1,52 @@
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
 
+//Monday:  Find way to get attribute values out of WFS GetFeature instance.  Once you have that make one show up in the table.  Then hook up the rest.  
+//After that set up transition function to up data fields table with values from table view.
+
+var fieldObj = {}
+
+var url = 'http://localhost:8081/geoserver/wfs?'+
+'service=wfs&'+
+'?version=2.0.0&'+
+'request=GetFeature&'+
+'typeName=Farms:field_1&' +
+'outputformat=application/json&'+
+'srsname=EPSG:4326'
+function getWFS() {
+	return $.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: url,
+		async: false,
+		dataType: 'json',
+		success:function(response)
+		{
+			fieldObj = response.features
+			//console.log('hi');
+			//for (i in fieldObj) {
+			//	console.log(fieldObj[i].properties)}
+		}
+	})
+}
+//empty array to catch feature objects 
+dataArray = [],
+
+getWFS()
+function popRow(obj) {
+	for (i in obj) 
+	dataArray.push({
+		name: obj[i].id,
+		soilP: obj[i].properties.soil_p,
+		soilOM: obj[i].properties.om,
+		rotationVal: obj[i].properties.rotation,
+	});
+}
+
+popRow(fieldObj);
+console.log(dataArray[0])
+
+
 Ext.create('Ext.data.Store', {
 	storeId: 'rotationList',
 	fields:[ 'display', 'value'],
@@ -72,7 +118,9 @@ Ext.create('Ext.data.Store', {
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCrop', 
 		'onContour', 'manurePastures', 'grazeDairyLactating', 'grazeDairyNonLactating', 'grazeBeefCattle',
 		'grassVal', 'grassDisp'],
-	data: [{ 
+	data: dataArray
+	/*[
+		{ 
 		name: 'East 50', soilP: 35, soilOM: 1.4,
 		rotationVal: 'dr1', rotationDisp: 'Dairy Rotation (cg/cs/alf_3x)', 
 		tillageVal: 'scu', tillageDisp: 'Spring Cultivation',
@@ -81,8 +129,9 @@ Ext.create('Ext.data.Store', {
 		name: 'West 50', soilP: 35, soilOM: 1.4,
 		rotationVal: 'dr1', rotationDisp: 'Dairy Rotation (cg/cs/alf_3x)', 
 		tillageVal: 'nt', tillageDisp: 'Spring Cultivation',
-		onContour: false, manurePastures: false
-	}]
+		onContour: false, manurePastures: falseS
+	}
+]*/
 });
 
 //------------------------------------------------------------------------------
@@ -112,6 +161,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
     		if (!self.isAnimating) self.internalHeight = newH;
     	}
     },
+	//requires: ['DSS.map.Main'],
 
     //-----------------------------------------------------
     initComponent: function() {
@@ -250,8 +300,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
     	
-    	
-    	
     	//------------------------------------------------------------------------------
     	Ext.applyIf(me, {
     		
@@ -301,6 +349,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		AppEvents.registerListener('show_field_grid', function() {
 			let height = me.getHeight();
 			if (height == 0) height = me.internalHeight;
+			//console.log(fields_1Source_table)
+			//console.log(fields_1_table)
 			
 			me.setHidden(false);
 			me.isAnimating = true;
@@ -316,5 +366,4 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			})
 		})
     }
-	
 });

@@ -1,3 +1,87 @@
+var fields_1Source = new ol.source.Vector({
+	url:'http://localhost:8081/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=Farms:field_1&' +
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857',
+	format: new ol.format.GeoJSON()
+});
+
+function wfs_field_insert(feat,geomType) {  
+    var formatWFS = new ol.format.WFS();
+    var formatGML = new ol.format.GML({
+        featureNS: 'http://geoserver.org/Farms',
+		Geometry: 'geom',
+        featureType: 'field_1',
+        srsName: 'EPSG:3857'
+    });
+    console.log(feat)
+    node = formatWFS.writeTransaction([feat], null, null, formatGML);
+	console.log(node);
+    s = new XMLSerializer();
+    str = s.serializeToString(node);
+    console.log(str);
+    $.ajax('http://localhost:8081/geoserver/wfs?',{
+        type: 'POST',
+        dataType: 'xml',
+        processData: false,
+        contentType: 'text/xml',
+        data: str,
+		success: function (data) {
+			console.log("uploaded data successfully!: "+ data);
+		},
+        error: function (xhr, exception) {
+            var msg = "";
+            if (xhr.status === 0) {
+                msg = "Not connect.\n Verify Network." + xhr.responseText;
+            } else if (xhr.status == 404) {
+                msg = "Requested page not found. [404]" + xhr.responseText;
+            } else if (xhr.status == 500) {
+                msg = "Internal Server Error [500]." +  xhr.responseText;
+            } else if (exception === "parsererror") {
+                msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+                msg = "Time out error." + xhr.responseText;
+            } else if (exception === "abort") {
+                msg = "Ajax request aborted.";
+            } else {
+                msg = "Error:" + xhr.status + " " + xhr.responseText;
+            }
+			console.log(msg);
+        }
+    }).done();
+}
+function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
+	
+	DSS.draw = new ol.interaction.Draw({
+		source: source,
+		type: 'MultiPolygon',
+		geometryName: 'geom'
+	});
+	DSS.map.addInteraction(DSS.draw);
+	console.log("draw is on")
+	DSS.draw.on('drawend', function (e) {
+		e.feature.setProperties({
+			id: 200,
+			soil_p: soil_pInput,
+			om: 10,
+			rotation: 'PS',
+			graze_beef_cattle: beef,
+			graze_dairy_lactating: lac,
+			graze_dairy_non_lactating: non_lac,
+			cover_crop: crop,
+			tillage: tillageInput
+		})
+		var geomType = 'polygon'
+		wfs_field_insert(e.feature, geomType)
+		console.log("HI! WFS feild Insert ran!")
+	})     
+}
+//------------------working variables--------------------
+var type = "Polygon";
+var source = fields_1Source;
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.field_shapes.DrawAndApply', {
@@ -44,12 +128,12 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				},
 				tillage: {
 					is_active: false,
-					value: 'SCU'
+					value: {tillage: 'SCU'}
 				},
 				graze_animals: {
 					is_active: false,
-					'dairy-lactating': true,
-					'dairy-nonlactating': true,
+					dairy_lactating: true,
+					dairy_nonlactating: true,
 					beef: false
 				},
 				/*fertilizer: {
@@ -89,12 +173,28 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					xtype: 'field_shapes_apply_tillage'
 				},{
 					xtype: 'field_shapes_apply_soil_p'
-				/*},{
-					xtype: 'field_shapes_apply_fertilizer'*/
-				}]
+				},/*{
+					xtype: 'field_shapes_apply_fertilizer'
+				}*/
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Draw Field',
+					formBind: true,
+					handler: function() { 
+						var data = me.viewModel.data;
+						console.log(data.tillage.value.tillage);
+						createField(data.graze_animals.dairy_lactating,
+							data.graze_animals.dairy_nonlactating,
+							data.graze_animals.beef,
+							data.crop.value,
+							data.tillage.value.tillage,
+							data.soil_p.value,);
+					}
+			    }]
 			}]
 		});
-		
 		me.callParent(arguments);
 	},
 	
