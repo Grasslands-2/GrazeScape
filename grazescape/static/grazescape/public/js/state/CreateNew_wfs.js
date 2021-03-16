@@ -4,20 +4,61 @@ DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
 DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
 
 //--------------Geoserver WFS source connection-------------------
+//wfs farm layer url for general use
+var farmUrl = 
+'http://localhost:8081/geoserver/wfs?'+
+'service=wfs&'+
+'?version=2.0.0&'+
+'request=GetFeature&'+
+'typeName=Farms:farm_1&' +
+'outputformat=json&'+
+'srsname=EPSG:3857'
+//declaring farm source var
 var farms_1Source = new ol.source.Vector({
-    url: 'http://localhost:8081/geoserver/wfs?'+
-        'service=wfs&'+
-        '?version=2.0.0&'+
-        'request=GetFeature&'+
-        'typeName=Farms:farm_1&' +
-        'outputformat=json&'+
-        'srsname=EPSG:3857',
+    url: farmUrl,
     format: new ol.format.GeoJSON()
 });
-//Old hardcoded farm form values
-//fname = "Kats Cat Farm"
-//fowner = "Kat"
-//faddress = "456 Vixen Lane"
+//bring in farm layer table as object for iteration
+function getWFS() {
+	return $.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: farmUrl,
+		async: false,
+		dataType: 'json',
+		success:function(response)
+		{
+			farmObj = response.features
+			//console.log(farmObj[0])
+		}
+	})
+}
+//empty array to catch feature objects 
+farmArray = [],
+// call getWFS to get farm table object
+getWFS()
+//define function to populate data array with farm table data
+function popArray(obj) {
+	for (i in obj) 
+	farmArray.push({
+		id: obj[i].id,
+		gid: obj[i].properties.gid,
+		name: obj[i].properties.farm_name
+	});
+}
+//populate data array with farm object data from each farm
+popArray(farmObj);
+//var to hold onto largest gid value of current farms before another is added
+highestFarmId = 0;
+//loops through data array gids to find largest value and hold on to it with highestfarmid
+for (i in farmArray){
+	//console.log(farmArray[i].gid)
+	if (farmArray[i].gid > highestFarmId){
+		highestFarmId = farmArray[i].gid
+	};
+};
+//console.log(highestFarmId);
+
 
 //---------------------------------Working Functions-------------------------------
 function wfs_farm_insert(feat,geomType) {  
@@ -73,7 +114,8 @@ function createFarm(fname,fowner,faddress){
 	console.log("draw is on")
 	DSS.draw.on('drawend', function (e) {
 		e.feature.setProperties({
-			id: 5,
+			//plugs in highestFarmId and gives it an id +1 to make sure its unique
+			id: highestFarmId + 1,
 			farm_name: fname,
 			farm_owner: fowner,
 			farm_addre: faddress
@@ -177,9 +219,9 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					handler: function() { 
 						var form = this.up('form').getForm();
 						if (form.isValid()) {
-							createFarm(this.up('form').getForm().findField('operation').getSubmitValue(),
-							this.up('form').getForm().findField('owner').getSubmitValue(),
-							this.up('form').getForm().findField('address').getSubmitValue());
+							createFarm(form.findField('operation').getSubmitValue(),
+							form.findField('owner').getSubmitValue(),
+							form.findField('address').getSubmitValue());
 						}
 			        }
 				}],

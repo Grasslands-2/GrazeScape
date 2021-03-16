@@ -1,4 +1,61 @@
+var fields_1Source = new ol.source.Vector({
+	url:'http://localhost:8081/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=Farms:field_1&' +
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857',
+	format: new ol.format.GeoJSON()
+});
 
+function wfs_field_update(feat,geomType) {  
+	console.log('in field update func')
+    var formatWFS = new ol.format.WFS();
+    var formatGML = new ol.format.GML({
+        featureNS: 'http://geoserver.org/Farms',
+		Geom: 'geom',
+        featureType: 'field_1',
+        srsName: 'EPSG:3857'
+    });
+    console.log(feat)
+    node = formatWFS.writeTransaction(null, [feat], null, formatGML);
+	console.log(node);
+    s = new XMLSerializer();
+    str = s.serializeToString(node);
+	str=str.replace("feature:field_1","Farms:field_1");
+	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
+    console.log(str);
+    $.ajax('http://localhost:8081/geoserver/wfs',{
+        type: 'POST',
+        dataType: 'xml',
+        processData: false,
+        contentType: 'text/xml',
+		data: str,
+		success: function (data) {
+			console.log("uploaded data successfully!: "+ data);
+		},
+        error: function (xhr, exception) {
+            var msg = "";
+            if (xhr.status === 0) {
+                msg = "Not connect.\n Verify Network." + xhr.responseText;
+            } else if (xhr.status == 404) {
+                msg = "Requested page not found. [404]" + xhr.responseText;
+            } else if (xhr.status == 500) {
+                msg = "Internal Server Error [500]." +  xhr.responseText;
+            } else if (exception === "parsererror") {
+                msg = "Requested JSON parse failed.";
+            } else if (exception === "timeout") {
+                msg = "Time out error." + xhr.responseText;
+            } else if (exception === "abort") {
+                msg = "Ajax request aborted.";
+            } else {
+                msg = "Error:" + xhr.status + " " + xhr.responseText;
+            }
+			console.log(msg);
+        }
+    }).done();
+}
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Scenario', {
@@ -99,6 +156,47 @@ Ext.define('DSS.state.Scenario', {
 //						DSS.ApplicationFlow.instance.showNewOperationPage();
 					}
 				},{//------------------------------------------
+					xtype: 'component',
+					cls: 'information med-text',
+					html: 'Update Field Data'
+				},{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					toggleGroup: 'create-scenario',
+					allowDepress: false,
+					text: 'Update Attributes',
+					handler: function() { 
+						console.log(selectedField);
+						console.log(fieldArray);
+						for (i in fieldArray){
+							console.log(fieldArray[i].name);
+							if(fieldArray[i].name === selectedField.id_){
+								console.log(fieldArray[i].name);
+								//console.log(selectedField);
+								//console.log("here is the selected fields soil p: "+selectedField.values_.soil_p);
+								//selectedField.soil_p = i.soilP;
+								//selectedField.values_.soil_p = 65;
+								selectedField.setProperties({
+									soil_p: fieldArray[i].soilP,
+									rotation: fieldArray[i].rotationVal,
+									om: fieldArray[i].soilOM
+								});
+								console.log(selectedField);
+								console.log('Update Attributes');
+								wfs_field_update(selectedField);
+							}
+						}
+						//console.log(DSS.activeFarm);
+						//console.log(fieldArray[1].soilP);
+						//for( f in fieldArray){
+						//	console.log(fieldArray[f].name);
+						//	wfs_field_update(f,'MultiPolygon')
+					}
+				},
+						//wfs_field_update();
+					//
+				{//------------------------------------------
 					xtype: 'component',
 					height: 32
 				},{//------------------------------------------

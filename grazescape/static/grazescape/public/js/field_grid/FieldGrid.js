@@ -1,50 +1,96 @@
+
+
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
 
-//Monday:  Find way to get attribute values out of WFS GetFeature instance.  Once you have that make one show up in the table.  Then hook up the rest.  
-//After that set up transition function to up data fields table with values from table view.
 
-var fieldObj = {}
+//Trying to only show active farms fields.  This script runs when the app starts
+//How do we interrupt that so it runs when an active farm is selected?
+//Can the redraw of the selected fields help?
+//look into how exactly that happens again, then try to retrace
+//for this problem.
 
-var url = 'http://localhost:8081/geoserver/wfs?'+
+//trying to update geoserver features based on their reps and changes on the table
+//Could grab use a for loop to loop through all fields, and another to loop through 
+//fieldsarray(table rows), if they're ids match, place table row tables in the selected rows 
+//values, and run update transation.  
+//Another thought might be to run an jquery ajax request.  not sure that will work
+//Last optoin.  remove tables, have pop up with field values, edit there trigger update to 
+//geoserver when deselected, or with button.
+
+var fieldArray = [];
+var fieldObj = {};
+
+var fieldUrl = 
+'http://localhost:8081/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
 'typeName=Farms:field_1&' +
 'outputformat=application/json&'+
-'srsname=EPSG:4326'
-function getWFS() {
+'srsname=EPSG:3857';
+
+var fields_1Source = new ol.source.Vector({
+	format: new ol.format.GeoJSON(),
+	url: fieldUrl
+});
+var fields_1Layer = new ol.layer.Vector({
+	title: 'fields_1',
+	//visible: true,
+	//updateWhileAnimating: true,
+	//updateWhileInteracting: true,
+	source: fields_1Source
+})
+console.log(fields_1Layer)
+
+function getWFSfields() {
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: url,
+		url: fieldUrl,
 		async: false,
 		dataType: 'json',
 		success:function(response)
 		{
+			responseObj = response
 			fieldObj = response.features
-			//console.log('hi');
-			//for (i in fieldObj) {
-			//	console.log(fieldObj[i].properties)}
+			console.log(responseObj);
+			console.log(fieldObj[0]);
 		}
 	})
 }
-//empty array to catch feature objects 
-dataArray = [],
 
-getWFS()
-function popRow(obj) {
+function popFieldsArray(obj) {
+	//console.log(activeFarm);
+	//.properties values ar coming from the postGIS/Geoserver layers
 	for (i in obj) 
-	dataArray.push({
-		name: obj[i].id,
+	fieldArray.push({
+		id: obj[i].id,
+		name: obj[i].properties.field_name,
+		owningFarmid: obj[i].properties.scenario_i,
 		soilP: obj[i].properties.soil_p,
 		soilOM: obj[i].properties.om,
 		rotationVal: obj[i].properties.rotation,
+		//rotationDisp: obj[i].properties. ,
+		tillageVal: obj[i].properties.tillage ,
+		//tillageDisp: obj[i].properties ,
+		coverCrop: obj[i].properties.has_cover_crop ,
+		onContour: obj[i].properties.on_contour ,
+		manurePastures: obj[i].properties.spread_confined_manure_on_pastures,
+		grazeDairyLactating: obj[i].properties.graze_dairy_lactating,
+		grazeDairyNonLactating: obj[i].properties.graze_dairy_non_lactating,
+		grazeBeefCattle: obj[i].properties.graze_beef_cattle,
+		grassVal: obj[i].properties.grass_species ,
+		//grassDisp: obj[i].properties ,
 	});
 }
+console.log(fieldArray);
+console.log(DSS.activeFarm);
 
-popRow(fieldObj);
-console.log(dataArray[0])
+//empty array to catch feature objects 
+
+getWFSfields();
+popFieldsArray(fieldObj);
 
 
 Ext.create('Ext.data.Store', {
@@ -112,26 +158,13 @@ Ext.create('Ext.data.Store', {
 		display: 'Fall Moldboard Plow'
 	}]
 });
-
+//-----------------------------------fieldStore!---------------------------------
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCrop', 
 		'onContour', 'manurePastures', 'grazeDairyLactating', 'grazeDairyNonLactating', 'grazeBeefCattle',
 		'grassVal', 'grassDisp'],
-	data: dataArray
-	/*[
-		{ 
-		name: 'East 50', soilP: 35, soilOM: 1.4,
-		rotationVal: 'dr1', rotationDisp: 'Dairy Rotation (cg/cs/alf_3x)', 
-		tillageVal: 'scu', tillageDisp: 'Spring Cultivation',
-		coverCrop: false, onContour: false, manurePastures: false
-	},{ 
-		name: 'West 50', soilP: 35, soilOM: 1.4,
-		rotationVal: 'dr1', rotationDisp: 'Dairy Rotation (cg/cs/alf_3x)', 
-		tillageVal: 'nt', tillageDisp: 'Spring Cultivation',
-		onContour: false, manurePastures: falseS
-	}
-]*/
+	data: fieldArray
 });
 
 //------------------------------------------------------------------------------
@@ -139,57 +172,57 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	//------------------------------------------------------------------------------
 	extend: 'Ext.grid.Panel',
 	alias: 'widget.field_grid',
-    alternateClassName: 'DSS.FieldGrid',
-    singleton: true,	
-    autoDestroy: false,
+	alternateClassName: 'DSS.FieldGrid',
+	singleton: true,	
+	autoDestroy: false,
 	
 	hidden: true,
 	
-    height: 0,
-    internalHeight: 200,
-    isAnimating: false,
-    
-    resizable: true,
-    resizeHandles: 'n',
-    
+	height: 0,
+	internalHeight: 200,
+	isAnimating: false,
+	
+	resizable: true,
+	resizeHandles: 'n',
+	
 	store: Ext.data.StoreManager.lookup('fieldStore'),
 	
-    minHeight: 40,
-    maxHeight: 600,
-    listeners: {
-    	resize: function(self, newW, newH, oldW, oldH) {
-    		if (!self.isAnimating) self.internalHeight = newH;
-    	}
-    },
+	minHeight: 40,
+	maxHeight: 600,
+	listeners: {
+		resize: function(self, newW, newH, oldW, oldH) {
+			if (!self.isAnimating) self.internalHeight = newH;
+		}
+	},
 	//requires: ['DSS.map.Main'],
 
-    //-----------------------------------------------------
-    initComponent: function() {
-    	let me = this;
-    	
-    	//------------------------------------------------------------------------------
-    	let fieldNameColumn = { 
-    		editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
-    		locked: true, draggable: false, 
+	//-----------------------------------------------------
+	initComponent: function() {
+		let me = this;
+		
+		//------------------------------------------------------------------------------
+		let fieldNameColumn = { 
+			editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
+			locked: true, draggable: false, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 
 		};
-    	//------------------------------------------------------------------------------
-    	let soilP_Column = {
+		//------------------------------------------------------------------------------
+		let soilP_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
 			}, text: 'Soil-P', dataIndex: 'soilP', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let soilOM_Column = {
+		//------------------------------------------------------------------------------
+		let soilOM_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5
 			}, text: 'Soil-OM', dataIndex: 'soilOM', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let cropRotationColumn = {
+		//------------------------------------------------------------------------------
+		let cropRotationColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
 			text: 'Crop Rotation', dataIndex: 'rotationDisp', width: 200, 
@@ -202,22 +235,22 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-			        select: function(combo, value, eOpts){
-			            var record = combo.getWidgetRecord();
-			            record.set('rotationVal', value.get('value'));
-			            record.set('rotationDisp', value.get('display'));
-			            me.getView().refresh();
-			        }
-			    }
+					select: function(combo, value, eOpts){
+						var record = combo.getWidgetRecord();
+						record.set('rotationVal', value.get('value'));
+						record.set('rotationDisp', value.get('display'));
+						me.getView().refresh();
+					}
+				}
 			}
 		};
-    	//------------------------------------------------------------------------------
-    	let coverCropColumn = {
+		//------------------------------------------------------------------------------
+		let coverCropColumn = {
 			xtype: 'checkcolumn', text: 'Cover<br>Crop?', dataIndex: 'coverCrop', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let tillageColumn = {
+		//------------------------------------------------------------------------------
+		let tillageColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
 			text: 'Tillage', dataIndex: 'tillageDisp', width: 200, 
@@ -237,41 +270,42 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-			        select: function(combo, value, eOpts){
-			            var record = combo.getWidgetRecord();
-			            record.set('tillageVal', value.get('value'));
-			            record.set('tillageDisp', value.get('display'));
-			        }
-			    }
+					select: function(combo, value, eOpts){
+						var record = combo.getWidgetRecord();
+						record.set('tillageVal', value.get('value'));
+						record.set('tillageDisp', value.get('display'));
+					}
+				}
 			}
 		};
-    	//------------------------------------------------------------------------------
-    	let onContourColumn = {
+		//------------------------------------------------------------------------------
+		let onContourColumn = {
 			xtype: 'checkcolumn', text: 'On<br>Contour', dataIndex: 'onContour', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let grazeDairyLactating = {
+		//------------------------------------------------------------------------------
+		let grazeDairyLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let grazeDairyNonLactating = {
+		//------------------------------------------------------------------------------
+		let grazeDairyNonLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Non-Lactating', dataIndex: 'grazeDairyNonLactating', width: 120, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let grazeBeefCattle = {
+		//------------------------------------------------------------------------------
+		let grazeBeefCattle = {
 			xtype: 'checkcolumn', text: 'Graze<br>Beef Cattle', dataIndex: 'grazeBeefCattle', width: 100, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let canManurePastures = {
+		//------------------------------------------------------------------------------
+		let canManurePastures = {
 			xtype: 'checkcolumn', text: 'Confined Manure<br>to Pastures', dataIndex: 'manurePastures', width: 125, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-    	//------------------------------------------------------------------------------
-    	let grassComposition = {
+		//------------------------------------------------------------------------------
+
+		let grassComposition = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
 			text: 'Grass Composition', dataIndex: 'grassDisp', width: 200, 
@@ -291,18 +325,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-			        select: function(combo, value, eOpts){
-			            var record = combo.getWidgetRecord();
-			            record.set('grassVal', value.get('value'));
-			            record.set('grassDisp', value.get('display'));
-			        }
-			    }
+					select: function(combo, value, eOpts){
+						var record = combo.getWidgetRecord();
+						record.set('grassVal', value.get('value'));
+						record.set('grassDisp', value.get('display'));
+					}
+				}
 			}
 		};
-    	
-    	//------------------------------------------------------------------------------
-    	Ext.applyIf(me, {
-    		
+		
+		//------------------------------------------------------------------------------
+		Ext.applyIf(me, {
+
 			columns: [
 				fieldNameColumn,
 				soilP_Column,
@@ -316,6 +350,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				grazeDairyNonLactating,
 				grazeBeefCattle,
 				canManurePastures,
+				//updateButton
 			],
 			
 			plugins: {
@@ -327,10 +362,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					}
 				}
 			}
-    	});
-    	
-    	me.callParent(arguments);
-    	
+		});
+		
+		me.callParent(arguments);
+		
 		AppEvents.registerListener('hide_field_grid', function() {
 			me.isAnimating = true;
 			me.stopAnimation().animate({
@@ -347,10 +382,24 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		})
 		
 		AppEvents.registerListener('show_field_grid', function() {
+			console.log('hi from grid view')
+			selectField()
+
+			//Fun with trying to only show fields for active farm FIX ME LATER
+			//console.log(DSS.activeFarm);
+			//fieldArray = fieldArray.filter(i => i.owningFarmid == DSS.activeFarm)
+			//console.log(fieldObj);
+			//onsole.log(fieldArray);
+			//DSS.FieldGrid.store.reload()
+			//DSS.FieldGrid.initComponent
+			//popFieldsArray(fieldObj);
+
+			//Maybe shove entire grid opps into this function?
+			
+
+
 			let height = me.getHeight();
-			if (height == 0) height = me.internalHeight;
-			//console.log(fields_1Source_table)
-			//console.log(fields_1_table)
+			if (height == 0) height = me.internalHeight;			
 			
 			me.setHidden(false);
 			me.isAnimating = true;
@@ -365,5 +414,5 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				}
 			})
 		})
-    }
+	}
 });

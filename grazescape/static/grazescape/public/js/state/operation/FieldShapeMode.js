@@ -37,38 +37,8 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 				toggleHandler: function(self, pressed) {
 
 					if (pressed) {
-						DSS.DrawFieldShapes.addModeControl();
-						//createField();
-						
+						DSS.DrawFieldShapes.addModeControl();	
 					}
-					/*if (pressed) {
-						DSS.MapState.fieldDrawMode();
-						DSS.mouseMoveFunction = undefined;
-						DSS.mapClickFunction = undefined;
-						source = source,
-						type = 'Polygon',
-						geometry = 'geom'
-						DSS.drawEndEvent = function(evt,feature) {
-							console.log(evt.feature)
-							//me.addField(feature, DSS.activeFarm);
-							wfs_field_insert(evt.feature,'polygon')
-						}
-						
-						// TODO: FIXME: should check for a field ID on ModifyStart. Otherwise newly drawn fields that haven't persisted
-						//	and returned their ID for binding will not properly work on modifyEnd
-						DSS.modifyEndEvent = function(evt, segments) {
-							console.log("field Shaped modify", evt)
-							me.modifyField(segments);
-						} 
-						
-						DSS.DrawFieldShapes.addModeControl();
-					}
-					else {
-						DSS.MapState.disableFieldDraw();
-						DSS.draw.setActive(false);
-						DSS.modify.setActive(false);
-						DSS.fieldStyleFunction = undefined;	DSS.layer.fields.changed();
-					}*/
 				}
 			},{
 				text: 'Split',

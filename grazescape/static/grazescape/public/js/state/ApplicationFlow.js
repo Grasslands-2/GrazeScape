@@ -197,6 +197,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.layer.farms.setVisible(false);
 		
 		DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+		DSS.FieldGrid
 		
 		DSS.popupOverlay.setPosition(false);
 	},

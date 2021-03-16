@@ -61,10 +61,14 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 		geometryName: 'geom'
 	});
 	DSS.map.addInteraction(DSS.draw);
-	console.log("draw is on")
-	DSS.draw.on('drawend', function (e) {
+	console.log("draw is on");
+	//console.log(DSS.activeFarm);
+	var af = parseInt(DSS.activeFarm,10)
+
+	DSS.draw.on('drawend', function (e,) {
 		e.feature.setProperties({
-			id: 200,
+			id: af,
+			scenario_i: af,
 			soil_p: soil_pInput,
 			om: 10,
 			rotation: 'PS',
@@ -96,6 +100,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
     scrollable: 'y',
 
 	requires: [
+		//'DSS.ApplicationFlow.activeFarm',
 		'DSS.field_shapes.apply.SoilP',
 		'DSS.field_shapes.apply.Landcover',
 		'DSS.field_shapes.apply.Tillage',
@@ -152,7 +157,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				cls: 'section-title light-text text-drp-20',
 				html: 'Field Shapes <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
 				height: 35
-			},{
+				},{
 				xtype: 'container',
 				style: 'background-color: #666; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
@@ -184,7 +189,8 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					formBind: true,
 					handler: function() { 
 						var data = me.viewModel.data;
-						console.log(data.tillage.value.tillage);
+						//console.log(DSS.activeFarm);
+
 						createField(data.graze_animals.dairy_lactating,
 							data.graze_animals.dairy_nonlactating,
 							data.graze_animals.beef,

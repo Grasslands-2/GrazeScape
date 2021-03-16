@@ -93,7 +93,9 @@ Ext.define('DSS.map.Main', {
 						AppEvents.triggerEvent('map_resize');
 					}
 				}
-			},DSS.FieldGrid]
+			},
+			DSS.FieldGrid
+		]
 		});
 		me.callParent(arguments);
 		
@@ -396,7 +398,6 @@ Ext.define('DSS.map.Main', {
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
 				'typeName=Farms:field_1&' +
-				//'maxfeatures=50&'+
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},

@@ -8,7 +8,8 @@ Ext.define('DSS.state.MapStateTools', {
     singleton: true,	
 
 	requires: [
-		'DSS.map.Legend'
+		'DSS.map.Legend',
+		//'DSS.field_grid.FieldGrid'
 	],
 	
     // Style elements
@@ -122,9 +123,19 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
     showFieldsForFarm: function(farmId, opacity) {
     	
-		DSS.layer.fields.getSource().setUrl("get_fields?farm="+ farmId);
-		DSS.layer.fields.getSource().refresh();
+		DSS.layer.fields_1.getSource().setUrl(
+		'http://localhost:8081/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=Farms:field_1&'+
+		'CQL_filter=id='+farmId+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857');
+		DSS.layer.fields_1.getSource().refresh();
 		this.showFields(opacity);
+		//console.log(farmId);
+		console.log("showfieldsforfarm ran");
     },
     
     //
@@ -222,11 +233,12 @@ Ext.define('DSS.state.MapStateTools', {
 					if (f.get('scenario_i') != undefined) {
 						cursor = 'pointer';
 						hitAny = true;
+						//console.log(f)
 						if (lastFp !== f) {
-							DSS.popupOverlay.setPosition(g.getCoordinates());
+							DSS.popupOverlay.setPosition(evt.coordinate);
 							DSS.popupContainer.update('Soil P: ' + f.get('soil_p') + '<br>' +
 									'Rotation: ' + f.get('rotation') + '<br>' +
-									'Owner : ' + f.get('farm_addre') + '<br>');
+									'Owner : ' + f.get('id') + '<br>');
 							lastFp = f;
 						}
 						/*if (lastF !== f) {
@@ -283,6 +295,7 @@ Ext.define('DSS.state.MapStateTools', {
 					AppEvents.triggerEvent('activate_operation')
 //					console.log(DSS.layer.fields.getSource());
 					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
+					
 					break;
 				}
 			}
