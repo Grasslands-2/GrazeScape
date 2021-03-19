@@ -8,7 +8,6 @@ from django.core.files import File
 from django.conf import settings
 import os
 # Create your views here.
-from grazescape.model_run import *
 import grazescape.raster_data as rd
 from grazescape.model_defintions.grass_yield import GrassYield
 raster_data= None

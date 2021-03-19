@@ -18,6 +18,9 @@ class ModelBase:
         self.file_name = file_name
         self.model_data_inputs_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs',
                                                    file_name + '.csv')
+
+        if not os.path.exists(os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs')):
+            os.makedirs(os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs'))
         self.raster_image_file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs',
                                                    file_name + ".png")
 
