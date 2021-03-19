@@ -9,8 +9,7 @@ Ext.define('DSS.state.MapStateTools', {
 
 	requires: [
 		'DSS.map.Legend',
-		'DSS.map.DrawAndModify'
-
+		//'DSS.field_grid.FieldGrid'
 	],
 	
     // Style elements
@@ -124,25 +123,28 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
     showFieldsForFarm: function(farmId, opacity) {
     	
-//		DSS.layer.fields.getSource().setUrl("get_fields?farm="+ farmId);
-		DSS.layer.fields.getSource().setUrl(grazeUrl + "/get_fields?farm="+ farmId);
-		DSS.layer.fields.getSource().refresh();
+		DSS.layer.fields_1.getSource().setUrl(
+		'http://localhost:8081/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=Farms:field_1&'+
+		'CQL_filter=id='+farmId+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857');
+		DSS.layer.fields_1.getSource().refresh();
 		this.showFields(opacity);
+		//console.log(farmId);
+		console.log("showfieldsforfarm ran");
     },
     
     //
     //----------------------------------------
     disableFieldDraw: function() {
-        var me = this;
-    	console.log(DSS);
-//    	console.log(DSS.map.DrawAndModify);
-//		DSS.draw.setActive(false);
-//		DSS.snap.setActive(false);
-//		DSS.modify.setActive(false);
-
+    	
 		DSS.draw.setActive(false);
 		DSS.snap.setActive(false);
-		DSS.modify.setActive(false);
+		DSS.modify.setActive(false);    	
     },
     
     //----------------------------------------
@@ -185,7 +187,7 @@ Ext.define('DSS.state.MapStateTools', {
 		DSS.selectionTool.getFeatures().clear();
 		DSS.selectionTool.setActive(false);
     },
-    
+
     //-------------------------------------------------------------
     mouseoverFarmHandler: function(evt) {
     	
@@ -201,22 +203,51 @@ Ext.define('DSS.state.MapStateTools', {
 				let g = f.getGeometry();
 				if (!g) return;
 				if (g.getType() === "Point") {
-					if (f.get('name') != undefined) {
+					if (f.get('farm_name') != undefined) {
 						cursor = 'pointer';
 						hitAny = true;
-						if (lastFp !== f) {
+						/*if (lastFp !== f) {
 							DSS.popupOverlay.setPosition(g.getCoordinates());
 							DSS.popupContainer.update('Farm: ' + f.get('name') + '<br>' +
 									'Owner: ' + f.get('owner') + '<br>' +
 									'Address: ' + f.get('address') + '<br>');
 							lastFp = f;
+						}*/
+						if (lastFp !== f) {
+							DSS.popupOverlay.setPosition(g.getCoordinates());
+							DSS.popupContainer.update('Farm: ' + f.get('farm_name') + '<br>' +
+									'Owner: ' + f.get('farm_owner') + '<br>' +
+									'Address: ' + f.get('farm_addre') + '<br>');
+							lastFp = f;
 						}
-						if (lastF !== f) {
-							DSS.layer.fields.getSource().setUrl(grazeUrl + "/get_fields?farm="+ f.get("id"));
+						/*if (lastF !== f) {
+							DSS.layer.fields.getSource().setUrl("get_fields?farm="+ f.get("id"));
+
 							DSS.layer.fields.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
+						}*/
+						break;
+					}
+				}
+				if (g.getType() === "MultiPolygon") {
+					if (f.get('scenario_i') != undefined) {
+						cursor = 'pointer';
+						hitAny = true;
+						//console.log(f)
+						if (lastFp !== f) {
+							DSS.popupOverlay.setPosition(evt.coordinate);
+							DSS.popupContainer.update('Soil P: ' + f.get('soil_p') + '<br>' +
+									'Rotation: ' + f.get('rotation') + '<br>' +
+									'Owner : ' + f.get('id') + '<br>');
+							lastFp = f;
 						}
+						/*if (lastF !== f) {
+							DSS.layer.fields.getSource().setUrl("get_fields?field="+ f.get("id"));
+							DSS.layer.fields.getSource().refresh();
+							DSS.MapState.showFields(0.9);
+							lastF = f;
+						}*/
 						break;
 					}
 				}
@@ -265,6 +296,7 @@ Ext.define('DSS.state.MapStateTools', {
 					AppEvents.triggerEvent('activate_operation')
 //					console.log(DSS.layer.fields.getSource());
 					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
+					
 					break;
 				}
 			}

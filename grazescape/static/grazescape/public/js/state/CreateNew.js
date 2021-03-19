@@ -51,8 +51,7 @@ Ext.define('DSS.state.CreateNew', {
 				html: '<b style="color:#27b">Select <i class="fas fa-map-marker-alt"></i></b> a location for this operation on the map'
 			},{
 				xtype: 'form',
-//				url: 'create_operation',
-				url: grazeUrl + '/create_operation',
+				url: 'create_operation',
 				jsonSubmit: true,
 				header: false,
 				border: false,
@@ -106,10 +105,11 @@ Ext.define('DSS.state.CreateNew', {
 							form.submit({
 								success: function(form, action) {
 									var obj = JSON.parse(action.response.responseText);
-
+									console.log(obj)
+									
 									DSS.activeFarm = obj.farm.id;
 									DSS.activeScenario = obj.farm.scenario;
-
+									
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									AppEvents.triggerEvent('activate_operation')
 									// TODO: centralize
@@ -120,8 +120,6 @@ Ext.define('DSS.state.CreateNew', {
 								}
 							});
 						}
-//
-
 			        }
 				}]
 			}]
@@ -140,6 +138,7 @@ Ext.define('DSS.state.CreateNew', {
 			me.down('#location_y').setValue(coords[1]);
 			DSS.MapState.setPinMarker(coords, 1);
 		}
+		console.log(DSS.mapClickFunction)
 	}
 
 });

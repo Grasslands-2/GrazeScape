@@ -18,6 +18,7 @@ from django.urls import include, path
 
 
 urlpatterns = [
+    #path('', views.index,name = 'index'),
     path('grazescape/', include('grazescape.urls')),
     path('admin/', admin.site.urls),
 ]

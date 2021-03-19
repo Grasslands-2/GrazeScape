@@ -20,6 +20,7 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.field_shapes.Split',
 		'DSS.field_shapes.Join',
 		'DSS.field_shapes.Delete',
+		'DSS.field_shapes.ModelRunning',
 
 		'DSS.results.ResultsMain',
 	],

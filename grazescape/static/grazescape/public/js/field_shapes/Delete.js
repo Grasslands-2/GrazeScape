@@ -1,4 +1,81 @@
 
+/*var selectInteraction = new ol.interaction.Select({
+	layers: function(layer) {
+	  return layer.get('selectable') == true;
+	},
+	//style: [selectFrancePoints, selectEuropa]
+  });*/
+var selectedField = {}
+function selectField(){
+	DSS.select = new ol.interaction.Select({
+		features: new ol.Collection(),
+			toggleCondition: ol.events.condition.never,
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: 'white',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(0,0,0,0)'
+				}),
+				zIndex: 5
+			})
+		});
+	DSS.map.addInteraction(DSS.select);
+	console.log("select is on")
+	DSS.select.on('select', function(f) {
+		console.log('select on happened');
+		selectedField = f.selected[0];
+		console.log(selectedField);
+	});
+}
+function deleteField(feat){
+	{
+		var formatWFS = new ol.format.WFS();
+		var formatGML = new ol.format.GML({
+			featureNS: 'http://geoserver.org/Farms',
+			Geometry: 'geom',
+			featureType: 'field_1',
+			srsName: 'EPSG:3857'
+		});
+		console.log(feat)
+		node = formatWFS.writeTransaction(null, null, [feat], formatGML);
+		console.log(node);
+		s = new XMLSerializer();
+		str = s.serializeToString(node);
+		console.log(str);
+		$.ajax('http://localhost:8081/geoserver/wfs?',{
+			type: 'POST',
+			dataType: 'xml',
+			processData: false,
+			contentType: 'text/xml',
+			data: str,
+			success: function (data) {
+				console.log("data deleted successfully!: "+ data);
+			},
+			error: function (xhr, exception) {
+				var msg = "";
+				if (xhr.status === 0) {
+					msg = "Not connect.\n Verify Network." + xhr.responseText;
+				} else if (xhr.status == 404) {
+					msg = "Requested page not found. [404]" + xhr.responseText;
+				} else if (xhr.status == 500) {
+					msg = "Internal Server Error [500]." +  xhr.responseText;
+				} else if (exception === "parsererror") {
+					msg = "Requested JSON parse failed.";
+				} else if (exception === "timeout") {
+					msg = "Time out error." + xhr.responseText;
+				} else if (exception === "abort") {
+					msg = "Ajax request aborted.";
+				} else {
+					msg = "Error:" + xhr.status + " " + xhr.responseText;
+				}
+				console.log(msg);
+			}
+		}).done();
+	}
+}
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.field_shapes.Delete', {
 //------------------------------------------------------------------------------
@@ -40,7 +117,26 @@ Ext.define('DSS.field_shapes.Delete', {
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
 					html: 'Click a field to delete it',
-				}]
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'delete button',
+					formBind: true,
+					handler: function() {
+						//var data = me.viewModel.data;
+						console.log("delete Button");
+						var geomType = 'polygon'
+						if (selectedField != {}) {
+							deleteField(selectedField);
+							DSS.map.render;
+						}
+						else {
+							console.log("no field selected")
+						}
+					}
+			    }]
 			}]
 		});
 		
@@ -51,6 +147,9 @@ Ext.define('DSS.field_shapes.Delete', {
 	addModeControl: function(owner) {
 		let me = this;
 		let c = DSS_viewport.down('#DSS-mode-controls');
+		console.log('delete mode on')
+		selectField()
+		
 		
 		if (!c.items.has(me)) {
 			Ext.suspendLayouts();
@@ -72,7 +171,7 @@ Ext.define('DSS.field_shapes.Delete', {
 			let mouseList = [];
 			fs.forEach(function(f) {
 				let g = f.getGeometry();
-				if (g && g.getType() === "Polygon") {
+				if (g && g.getType() === "MultiPolygon") {
 					cursor = 'pointer';
 					mouseList.push(f);
 					

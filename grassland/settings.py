@@ -25,15 +25,17 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = []
-CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:8000',
-    'http://127.0.0.1:9000'
-]
+
+
+ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
+
+
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -91,9 +93,9 @@ WSGI_APPLICATION = 'grassland.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gis',
+        'NAME': 'GrazeScape',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'Badbass85!',
         'HOST': 'localhost',
         'PORT': '5432'
     }
