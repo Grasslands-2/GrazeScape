@@ -1,4 +1,5 @@
 var grazeUrl = "http://localhost:9000"
+
 Ext.tip.QuickTipManager.init(true, {shadow: false}); // Instantiate the QuickTipManager
 Ext.Loader.setConfig({
 	enabled: true,
@@ -19,8 +20,7 @@ Ext.application({
 	],
 	mainView: 'DSS.view.AppViewport',
 	init: function() {
-	console.log(this)
-	console.log('Unmatchedafasdfsdsdf');
+
 		Ext.state.Manager.setProvider(
 			Ext.create('Ext.state.CookieProvider', {
 				path: '/'

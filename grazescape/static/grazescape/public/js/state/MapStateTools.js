@@ -212,7 +212,7 @@ Ext.define('DSS.state.MapStateTools', {
 							lastFp = f;
 						}
 						if (lastF !== f) {
-							DSS.layer.fields.getSource().setUrl("get_fields?farm="+ f.get("id"));
+							DSS.layer.fields.getSource().setUrl(grazeUrl + "/get_fields?farm="+ f.get("id"));
 							DSS.layer.fields.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
