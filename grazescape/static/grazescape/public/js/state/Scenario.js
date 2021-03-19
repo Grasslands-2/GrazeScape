@@ -213,7 +213,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Compute',
+					text: 'Run Models',
 					handler: function(self) {
 						console.log("compute hi")
 						//DSS.DrawFieldShapes.addModeControl()
