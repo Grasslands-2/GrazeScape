@@ -212,7 +212,7 @@ Ext.define('DSS.map.Main', {
 			visible: DSS.layer['baselayer:visible'] == "1" ? true : false,
 			source: new ol.source.BingMaps({
 				key: me.BING_KEY,
-				imagerySet: 'AerialWithLabels',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey  
+				imagerySet: 'AerialWithLabels',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey
 				hidpi:true,
 				maxZoom:18,
 				minZoom:11,
@@ -336,8 +336,7 @@ Ext.define('DSS.map.Main', {
 			})
 			fd.loadRawData(records);
 		})
-		
-*/		
+
 		let farmSource = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			loader: function(extent, resolution, projection) {
@@ -376,6 +375,7 @@ Ext.define('DSS.map.Main', {
 				return me.DSS_zoomStyles['style' + r];
 			}
 		});
+
 
 		//--------------------------------------------------------- 
 		var farms_1Source = new ol.source.Vector({
@@ -431,7 +431,7 @@ Ext.define('DSS.map.Main', {
 				else return defaultFieldStyle;
 			},
 		});
-		
+
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
 			target: me.down('#ol_map').getEl().dom,
@@ -447,6 +447,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.fields_1
 				 ],
 				//------------------------------------------------------------------------
+
+
 			view: new ol.View({
 				center: [-10118000,5375100],
 				zoom: 12,
