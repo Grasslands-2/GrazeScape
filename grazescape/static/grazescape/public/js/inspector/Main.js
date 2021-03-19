@@ -1,16 +1,17 @@
 
 //--------------------------------------------------------------------------
-var filter_task = new Ext.util.DelayedTask(function(){
-	if (!DSS.layer) return;
-	DSS.Inspector.computeResults(undefined, DSS.layer.ModelResult);
-});
-
-var DSS_Refilter = function() {
-	filter_task.delay(0);
-}
-var DSS_RefilterDelayed = function(msDelay) {
-	filter_task.delay(msDelay);
-}
+//var filter_task = new Ext.util.DelayedTask(function(){
+//	if (!DSS.layer) return;
+//
+//	DSS.Inspector.computeResults(undefined, DSS.layer.ModelResult);
+//});
+//
+//var DSS_Refilter = function() {
+//	filter_task.delay(0);
+//}
+//var DSS_RefilterDelayed = function(msDelay) {
+//	filter_task.delay(msDelay);
+//}
 
 DSS.utils.addStyle('.fa-spin-fast {-webkit-animation: fa-spin 1s linear infinite;animation:fa-spin 1s linear infinite}')
 DSS.utils.addStyle('.spinner-working { color: #d41; display: block}')//#3892d4
@@ -105,7 +106,13 @@ Ext.define('DSS.inspector.Main', {
 		
 		AppEvents.registerListener('set_inspector_bounds', function(extents, silent) {
 			if (!silent) {
-				me.computeResults(extents,DSS.layer.ModelResult);
+			    console.log("Drawing bounding box")
+			     if(DSS_isDataLoaded == false){
+				    alert("data not loaded!")
+                }
+                else{
+				    me.computeResults(extents,DSS.layer.ModelResult);
+                }
 			}
 		})
 	},
@@ -167,8 +174,8 @@ Ext.define('DSS.inspector.Main', {
 	
 	//-------------------------------------------------------------------------------------------------
 	computeResults: function(extents, modelResultsLayer) {
+
 		let me = this;
-		
 		// TODO: busy feedback
 		if (me.DSS_isWorking) {
 			DSS_RefilterDelayed(250);
@@ -190,32 +197,33 @@ Ext.define('DSS.inspector.Main', {
 		
 		let options = me.down('#dss-data-source').getOptions();
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
-		
+//		external js library is used to simply getting the token
+		var csrftoken = Cookies.get('csrftoken');
+        console.log(extents)
 		let data = {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
-			"extent": extents,
+			"extents": extents,
 			"model": me.DSS_mode,
 			"options": options,
 			"restrictions": restrictions,
+			"grass_type":"bluegrass"
 		};
-		
-		var obj = Ext.Ajax.request({
-//			url: location.origin + '/fetch_image',
-			url: grazeUrl + '/fetch_image',
-			cors:true,
-			withCredentials: true,
-			jsonData: data,
-			timeout: 90 * 1000,
-			success: function(response, opts) {
-				var obj = JSON.parse(response.responseText);
+            $.ajaxSetup({
+                    headers: { "X-CSRFToken": csrftoken }
+                });
 
+            $.ajax({
+            'url' : '/grazescape/get_model_results',
+            'type' : 'POST',
+            'data' : data,
+			success: function(response, opts) {
+                obj = response;
 				let e = obj.extent;
 				let pt1 = ol.proj.transform([e[0],e[3]], 'EPSG:3071', 'EPSG:3857'),
 				pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3071', 'EPSG:3857');
 				pt3 = ol.proj.transform([e[2],e[1]], 'EPSG:3071', 'EPSG:3857');
 				pt4 = ol.proj.transform([e[0],e[1]], 'EPSG:3071', 'EPSG:3857');
-				
 				let p = new ol.geom.Polygon([
 					[pt1, pt2, pt3, pt4, pt1]
 				]);
@@ -225,14 +233,12 @@ Ext.define('DSS.inspector.Main', {
 				s.addFeature(new ol.Feature({
 					geometry: p
 				}));
-				
 				if (obj.key) {
 					DSS.MapState.showClassifiedLegend(obj.key)
 				}
 				else {
 					DSS.MapState.showContinuousLegend(obj.palette, obj.values);
 				}
-				
 				if (obj.fields) {
 			//		DSS.fieldList.addStats(me.DSS_mode, obj.fields)
 				}
@@ -248,26 +254,25 @@ Ext.define('DSS.inspector.Main', {
 	validateImageOL: function(json, layer, tryCount) {
 		var me = this;
 		tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
-		
 		Ext.defer(function() {
-				
+		    console.log("New image")
 			var src = new ol.source.ImageStatic({
-//				url: json.url,
-				url: grazeUrl + '/' + json.url,
+				url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
 				crossOrigin: '',
 				imageExtent: json.extent,
 				projection: 'EPSG:3071',
 				imageSmoothing: false
 			});			
 			src.on('imageloadend', function() {
-
+			    console.log("set source of image")
+			    console.log(src)
 				layer.setSource(src);
 				layer.setVisible(true);	
 				me.stopWorkerAnimation();
 			});
 			src.on('imageloaderror', function() {
 				tryCount++;
-				if (tryCount < 20) {
+				if (tryCount < 2) {
 					me.validateImageOL(json, layer, tryCount);
 				}
 				else {

@@ -212,7 +212,7 @@ Ext.define('DSS.map.Main', {
 			visible: DSS.layer['baselayer:visible'] == "1" ? true : false,
 			source: new ol.source.BingMaps({
 				key: me.BING_KEY,
-				imagerySet: 'AerialWithLabels',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey  
+				imagerySet: 'AerialWithLabels',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey
 				hidpi:true,
 				maxZoom:18,
 				minZoom:11,
@@ -324,7 +324,60 @@ Ext.define('DSS.map.Main', {
 			})
 			fd.loadRawData(records);
 		})
-*/		
+*/
+        var farms_1Source = new ol.source.Vector({
+            format: new ol.format.GeoJSON(),
+            url: function(extent) {
+                return 'http://localhost:8081/geoserver/wfs?'+
+                'service=wfs&'+
+                '?version=2.0.0&'+
+                'request=GetFeature&'+
+                'typeName=Farms:farm_1&' +
+                'outputformat=application/json&'+
+                'srsname=EPSG:3857';
+            },
+        });
+        var fields_1Source = new ol.source.Vector({
+            format: new ol.format.GeoJSON(),
+            url: function(extent) {
+                return 'http://localhost:8081/geoserver/wfs?'+
+                'service=wfs&'+
+                '?version=2.0.0&'+
+                'request=GetFeature&'+
+                'typeName=Farms:field_1&' +
+                //'maxfeatures=50&'+
+                'outputformat=application/json&'+
+                'srsname=EPSG:4326';
+            },
+        });
+        DSS.layer.farms_1 = new ol.layer.Vector({
+            title: 'farms_1',
+            visible: true,
+            updateWhileAnimating: true,
+            updateWhileInteracting: true,
+            source: farms_1Source,
+            style: function(feature, resolution) {
+                let r = 1.0 - resolution / 94.0;
+                if (r < 0) r = 0
+                else if (r > 1) r = 1
+                // value from 3 to 16
+                r = Math.round(Math.pow(r, 3) * 13 + 3)
+                return me.DSS_zoomStyles['style' + r];
+            }
+        })
+        DSS.layer.fields_1 = new ol.layer.Vector({
+            title: 'fields_1',
+            visible: true,
+            updateWhileAnimating: true,
+            updateWhileInteracting: true,
+            source: fields_1Source,
+            style: function(feature, resolution) {
+                if (DSS.fieldStyleFunction) {
+                    return DSS.fieldStyleFunction(feature, resolution);
+                }
+                else return defaultFieldStyle;
+            },
+        });
 		let farmSource = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			loader: function(extent, resolution, projection) {
@@ -364,7 +417,7 @@ Ext.define('DSS.map.Main', {
 				return me.DSS_zoomStyles['style' + r];
 			}
 		});
-		
+
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
 			target: me.down('#ol_map').getEl().dom,
@@ -375,7 +428,9 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
 //				DSS.layer.fields,
-				DSS.layer.farms,
+//				DSS.layer.farms,
+                DSS.layer.farms_1,
+                DSS.layer.fields_1
 			],//------------------------------------------------------------------------
 			view: new ol.View({
 				center: [-10118000,5375100],
