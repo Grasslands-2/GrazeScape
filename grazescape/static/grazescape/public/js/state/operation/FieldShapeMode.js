@@ -40,7 +40,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 						DSS.DrawFieldShapes.addModeControl();	
 					}
 				}
-			},{
+			},/*{
 				text: 'Split',
 				tooltip: 'Split field shapes',
 				width: 64,
@@ -58,7 +58,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 						DSS.JoinFieldShapes.addModeControl();
 					}
 				}
-			},{
+			},*/{
 				text: 'Delete',
 				tooltip: 'Delete field shapes',
 				width: 78,

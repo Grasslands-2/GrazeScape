@@ -166,36 +166,42 @@ Ext.define('DSS.state.Scenario', {
 					toggleGroup: 'create-scenario',
 					allowDepress: false,
 					text: 'Update Attributes',
-					handler: function() { 
-						console.log(selectedField);
-						console.log(fieldArray);
-						for (i in fieldArray){
-							console.log(fieldArray[i].name);
-							if(fieldArray[i].name === selectedField.id_){
-								console.log(fieldArray[i].name);
-								//console.log(selectedField);
-								//console.log("here is the selected fields soil p: "+selectedField.values_.soil_p);
-								//selectedField.soil_p = i.soilP;
-								//selectedField.values_.soil_p = 65;
-								selectedField.setProperties({
-									soil_p: fieldArray[i].soilP,
-									rotation: fieldArray[i].rotationVal,
-									om: fieldArray[i].soilOM
-								});
-								console.log(selectedField);
-								console.log('Update Attributes');
-								wfs_field_update(selectedField);
+					handler: function() {
+						DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+							var feildFeature = f;
+							console.log(feildFeature.id_);
+							for (i in fieldArray){
+								console.log(fieldArray[i].id);
+								if(fieldArray[i].id === feildFeature.id_){
+									console.log(fieldArray[i].name);
+									feildFeature.setProperties({
+										field_name: fieldArray[i].name,
+										soil_p: fieldArray[i].soilP,
+										om: fieldArray[i].soilOM,
+										rotation: fieldArray[i].rotationVal,
+										rotation_disp: fieldArray[i].rotationDisp,
+										tillage: fieldArray[i].tillageVal,
+										tillage_disp: fieldArray[i].tillageDisp,
+										cover_crop: fieldArray[i].coverCropVal,
+										cover_crop_disp: fieldArray[i].coverCropDisp,
+										on_contour: fieldArray[i].onContour,
+										fertilizerpercent:fieldArray[i].fertPerc,
+										manurepercent: fieldArray[i].manuPerc,
+										grass_speciesval: fieldArray[i].grassSpeciesVal,
+										grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
+										interseededclover: fieldArray[i].interseededClover,
+										grazingdensityval: fieldArray[i].grazeDensityVal,
+										grazingdensitydisp: fieldArray[i].grazeDensityDisp
+									});
+									console.log(feildFeature.id_+"Just Ran!");
+									console.log('Update Attributes');
+									wfs_field_update(feildFeature);
+								}
 							}
-						}
-						//console.log(DSS.activeFarm);
-						//console.log(fieldArray[1].soilP);
-						//for( f in fieldArray){
-						//	console.log(fieldArray[f].name);
-						//	wfs_field_update(f,'MultiPolygon')
+						})
 					}
 				},
-						//wfs_field_update();
-					//
+						
 				{//------------------------------------------
 					xtype: 'component',
 					height: 32
@@ -209,6 +215,9 @@ Ext.define('DSS.state.Scenario', {
 					componentCls: 'button-margin',
 					text: 'Compute',
 					handler: function(self) {
+						console.log("compute hi")
+						//DSS.DrawFieldShapes.addModeControl()
+						DSS.ModelRunTools.addModeControl()
 					}
 				}]
 			}]

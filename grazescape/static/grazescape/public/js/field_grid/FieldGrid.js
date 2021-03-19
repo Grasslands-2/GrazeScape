@@ -71,17 +71,25 @@ function popFieldsArray(obj) {
 		soilP: obj[i].properties.soil_p,
 		soilOM: obj[i].properties.om,
 		rotationVal: obj[i].properties.rotation,
-		//rotationDisp: obj[i].properties. ,
-		tillageVal: obj[i].properties.tillage ,
-		//tillageDisp: obj[i].properties ,
-		coverCrop: obj[i].properties.has_cover_crop ,
-		onContour: obj[i].properties.on_contour ,
+		rotationDisp: obj[i].properties.rotation_disp,
+		tillageVal: obj[i].properties.tillage,
+		tillageDisp: obj[i].properties.tillage_disp,
+		coverCropVal: obj[i].properties.cover_crop,
+		coverCropDisp: obj[i].properties.cover_crop_disp,
+		onContour: obj[i].properties.on_contour,
+		fertPerc:obj[i].properties.fertilizerpercent,
+		manuPerc:obj[i].properties.manurepercent,
+		//animalsVal:obj[i].properties.animalsval,
+		//animalsDisp:obj[i].properties.animalsdisp,
+		grassSpeciesVal:obj[i].properties.grass_speciesval,
+		grassSpeciesDisp:obj[i].properties.grass_speciesdisp,
+		interseededClover: obj[i].properties.interseededclover,
+		grazeDensityVal:obj[i].properties.grazingdensityval,
+		grazeDensityDisp:obj[i].properties.grazingdensitydisp,
 		manurePastures: obj[i].properties.spread_confined_manure_on_pastures,
 		grazeDairyLactating: obj[i].properties.graze_dairy_lactating,
 		grazeDairyNonLactating: obj[i].properties.graze_dairy_non_lactating,
 		grazeBeefCattle: obj[i].properties.graze_beef_cattle,
-		grassVal: obj[i].properties.grass_species ,
-		//grassDisp: obj[i].properties ,
 	});
 }
 console.log(fieldArray);
@@ -97,11 +105,14 @@ Ext.create('Ext.data.Store', {
 	storeId: 'rotationList',
 	fields:[ 'display', 'value'],
 	data: [{
-		value: 'ep',
+		value: 'pt',
 		display: 'Pasture - Establish'
 	},{ 
 		value: 'ps',
-		display: 'Pasture - 30% Legumes'
+		display: 'pasture seeding'
+	},{ 
+		value: 'dl',
+		display: 'pasture, dry lot'
 	},{ 
 		value: 'cc',
 		display: 'Continuous Corn'
@@ -109,26 +120,44 @@ Ext.create('Ext.data.Store', {
 		value: 'cg',
 		display: 'Cash Grain (cg/sb)'
 	},{ 
-		value: 'dr1',
-		display: 'Dairy Rotation (cg/cs/alf_x3)'
+		value: 'dr',
+		display: 'corn silage to corn grain to alfalfa(3x)'
 	},{ 
-		value: 'dr2',
-		display: 'Dairy Rot. alt (cs/sb/oat)'
+		value: 'cso',
+		display: 'corn silage to soybeans to oats'
 	}]
 });
 
 Ext.create('Ext.data.Store', {
-	storeId: 'grassComposition',
+	storeId: 'coverCrop',
+	fields:[ 'display', 'value'],
+	data: [{
+		value: 'sg',
+		display: 'Small Grain'
+	},{ 
+		value: 'gi',
+		display: 'Grazed/Interseeded'
+	},{ 
+		value: 'gd',
+		display: 'Grazed/Direct Seeded'
+	},{ 
+		value: 'no',
+		display: 'None'
+	}]
+});
+
+Ext.create('Ext.data.Store', {
+	storeId: 'grassSpecies',
 	fields:[ 'display', 'value'],
 	data: [{
 		value: 'bw',
 		display: 'Bluegrass - White Clover'
 	},{ 
 		value: 'oa',
-		display: 'Orchardgrass - Alsike'
+		display: 'Orchard grass - Alsike'
 	},{ 
 		value: 'or',
-		display: 'Orchardgrass - Red Clover'
+		display: 'Orchard grass - Red Clover'
 	},{ 
 		value: 'ta',
 		display: 'Timothy - Alsike'
@@ -158,12 +187,25 @@ Ext.create('Ext.data.Store', {
 		display: 'Fall Moldboard Plow'
 	}]
 });
+
+Ext.create('Ext.data.Store', {
+	storeId: 'grazingDensity',
+	fields:[ 'display', 'value'],
+	data: [{
+		value: 'high',
+		display: 'high'
+	},{ 
+		value: 'low',
+		display: 'low'
+	}]
+});
 //-----------------------------------fieldStore!---------------------------------
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCrop', 
-		'onContour', 'manurePastures', 'grazeDairyLactating', 'grazeDairyNonLactating', 'grazeBeefCattle',
-		'grassVal', 'grassDisp'],
+		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
+		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp',],
 	data: fieldArray
 });
 
@@ -246,8 +288,34 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		};
 		//------------------------------------------------------------------------------
 		let coverCropColumn = {
-			xtype: 'checkcolumn', text: 'Cover<br>Crop?', dataIndex: 'coverCrop', width: 80, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			xtype: 'widgetcolumn',
+			editor: {}, // workaround for exception
+			text: 'Cover Crop', dataIndex: 'coverCrop', width: 200, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			onWidgetAttach: function(col, widget, rec) {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
+					widget.setDisabled(true);
+				}
+				 else {
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'combobox',
+				queryMode: 'local',
+				store: 'coverCrop',
+				displayField: 'display',
+				valueField: 'value',
+				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
+				listeners:{
+					select: function(combo, value, eOpts){
+						var record = combo.getWidgetRecord();
+						record.set('coverCropVal', value.get('value'));
+						record.set('coverCropDisp', value.get('display'));
+						me.getView().refresh();
+					}
+				}
+			}
 		};
 		//------------------------------------------------------------------------------
 		let tillageColumn = {
@@ -284,6 +352,51 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
+		let fertPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Percent<br>Fertilizer', dataIndex: 'fertPerc', width: 80, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		let manuPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		let animalColumn = {
+			xtype: 'widgetcolumn',
+			editor: {}, // workaround for exception
+			text: 'Animals', dataIndex: 'animals', width: 200, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			onWidgetAttach: function(col, widget, rec) {
+				if (rec.get('coverCropVal') == 'sg' || rec.get('coverCropVal') == 'no') {
+					widget.setDisabled(true);
+				}
+				 else {
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'combobox',
+				queryMode: 'local',
+				store: 'coverCrop',
+				displayField: 'display',
+				valueField: 'value',
+				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
+				listeners:{
+					select: function(combo, value, eOpts){
+						var record = combo.getWidgetRecord();
+						record.set('animalVal', value.get('value'));
+						record.set('animalDisp', value.get('display'));
+						me.getView().refresh();
+					}
+				}
+			}
+		};
+		//------------------------------------------------------------------------------
 		let grazeDairyLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
@@ -305,13 +418,13 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		};
 		//------------------------------------------------------------------------------
 
-		let grassComposition = {
+		let grassSpeciesColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			text: 'Grass Composition', dataIndex: 'grassDisp', width: 200, 
+			text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'ps') {
+				if (rec.get('rotationVal') == 'pt') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
@@ -320,15 +433,49 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
-				store: 'grassComposition',
+				store: 'grassSpecies',
 				displayField: 'display',
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
 					select: function(combo, value, eOpts){
 						var record = combo.getWidgetRecord();
-						record.set('grassVal', value.get('value'));
-						record.set('grassDisp', value.get('display'));
+						record.set('grassSpeciesVal', value.get('value'));
+						record.set('grassSpeciesDisp', value.get('display'));
+					}
+				}
+			}
+		};
+		//------------------------------------------------------------------------------
+		let interseededCloverColumn = {
+			xtype: 'checkcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 125, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		let grazeDensityColumn = {
+			xtype: 'widgetcolumn',
+			editor: {}, // workaround for exception
+			text: 'Grazing Density', dataIndex: 'grazingDensity', width: 200, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			onWidgetAttach: function(col, widget, rec) {
+				if (rec.get('rotationVal') == 'pt') {
+					widget.setDisabled(false);
+				} else {
+					widget.setDisabled(true);
+				}
+			},
+			widget: {
+				xtype: 'combobox',
+				queryMode: 'local',
+				store: 'grazingDensity',
+				displayField: 'display',
+				valueField: 'value',
+				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
+				listeners:{
+					select: function(combo, value, eOpts){
+						var record = combo.getWidgetRecord();
+						record.set('grazeDensityVal', value.get('value'));
+						record.set('grazeDensityDisp', value.get('display'));
 					}
 				}
 			}
@@ -345,12 +492,16 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				tillageColumn,
 				coverCropColumn,
 				onContourColumn,
-				grassComposition,
+				fertPerc_Column,
+				manuPerc_Column,
+				//animalColumn,
 				grazeDairyLactating,
 				grazeDairyNonLactating,
 				grazeBeefCattle,
-				canManurePastures,
-				//updateButton
+				grassSpeciesColumn,
+				interseededCloverColumn,
+				//canManurePastures,
+				grazeDensityColumn
 			],
 			
 			plugins: {

@@ -1,0 +1,55 @@
+//Used to select which model will be run
+//------------------------------------------------------------------------------
+Ext.define('DSS.field_shapes.apply.ModelSelection', {
+//------------------------------------------------------------------------------
+	extend: 'Ext.Container',
+	alias: 'widget.modelSelection',
+	
+	cls: 'restriction-widget',
+	margin: '2 0 4 0',
+	padding: 2,
+	
+	layout: DSS.utils.layout('vbox', 'start', 'center'),
+	
+	DSS_sectionHeight: 148,
+	
+	//--------------------------------------------------------------------------
+	initComponent: function() {
+		let me = this;
+
+		Ext.applyIf(me, {
+			items: [{
+				xtype: 'container',
+				width: '100%',
+				layout: 'absolute',
+				items: [{
+					xtype: 'component',
+					x: 0, y: -6,
+					width: '100%',
+					height: 28,
+					cls: 'information accent-text bold',
+					html: "Choose Model",
+				},
+					//getToggle(me, 'modelSelection.is_active') // Helper defined in DrawAndApply.js
+				]
+			},{
+				xtype: 'radiogroup',
+				itemId: 'contents',
+				style: 'padding: 0px; margin: 0px', // fixme: eh...
+				hideEmptyLabel: true,
+				columns: 1, 
+				vertical: true,
+				bind: { value: '{modelSelected}' },
+				defaults: {
+					name: 'modelSelection'
+				},
+				items: [{ 
+					boxLabel: 'Grass Model', 			inputValue: 'GM',
+				}]
+			}]
+		});
+		
+		me.callParent(arguments);
+	},
+	
+});

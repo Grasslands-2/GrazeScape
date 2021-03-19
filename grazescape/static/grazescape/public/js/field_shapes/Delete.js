@@ -30,7 +30,7 @@ function selectField(){
 	});
 }
 function deleteField(feat){
-	{  
+	{
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
 			featureNS: 'http://geoserver.org/Farms',
