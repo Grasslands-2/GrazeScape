@@ -5,16 +5,15 @@ let rotationFreq = Ext.create('Ext.data.Store', {
 	fields: ['label', 'enum'],
 	autoLoad: true,
 	proxy: {
-//		type: 'ajax',
-		type: 'jsonp',
-//		url: '/get_options',
-		url: grazeUrl + '/get_options',
+		type: 'ajax',
+		url: '/get_options',
 		reader: 'json',
 		extraParams: {
 			type: 'rotationalFrequency'
 		}
 	}
 });
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.scenario.AnimalDialog', {
 //------------------------------------------------------------------------------

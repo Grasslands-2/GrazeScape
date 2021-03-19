@@ -45,7 +45,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 	requires: [
 		'DSS.state.MapStateTools',
 		'DSS.state.BrowseOrCreate',
-		'DSS.state.CreateNew',
+		'DSS.state.CreateNew_wfs',
 		'DSS.state.Manage',
 		'DSS.state.Scenario'
 	],
@@ -197,6 +197,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.layer.farms.setVisible(false);
 		
 		DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+		DSS.FieldGrid
 		
 		DSS.popupOverlay.setPosition(false);
 	},

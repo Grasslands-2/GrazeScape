@@ -1,4 +1,5 @@
 
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.operation.FieldShapeMode', {
 //------------------------------------------------------------------------------
@@ -14,6 +15,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 	
 	style: 'border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); background-color: rgba(0,0,0,0.5)',
 	layout: DSS.utils.layout('hbox', 'start'),
+	
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
@@ -33,31 +35,12 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 				tooltip: 'Draw field shapes',
 				width: 68,
 				toggleHandler: function(self, pressed) {
+
 					if (pressed) {
-						DSS.MapState.fieldDrawMode();
-						DSS.mouseMoveFunction = undefined;
-						DSS.mapClickFunction = undefined;
-						DSS.drawEndEvent = function(evt, feature) {
-							me.addField(feature, DSS.activeFarm);
-						}
-						
-						// TODO: FIXME: should check for a field ID on ModifyStart. Otherwise newly drawn fields that haven't persisted
-						//	and returned their ID for binding will not properly work on modifyEnd
-						DSS.modifyEndEvent = function(evt, segments) {
-							console.log("field Shaped modify", evt)
-							me.modifyField(segments);
-						} 
-						
-						DSS.DrawFieldShapes.addModeControl();
-					}
-					else {
-						DSS.MapState.disableFieldDraw();
-						DSS.draw.setActive(false);
-						DSS.modify.setActive(false);
-						DSS.fieldStyleFunction = undefined;	DSS.layer.fields.changed();
+						DSS.DrawFieldShapes.addModeControl();	
 					}
 				}
-			},{
+			},/*{
 				text: 'Split',
 				tooltip: 'Split field shapes',
 				width: 64,
@@ -75,7 +58,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 						DSS.JoinFieldShapes.addModeControl();
 					}
 				}
-			},{
+			},*/{
 				text: 'Delete',
 				tooltip: 'Delete field shapes',
 				width: 78,
@@ -142,9 +125,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 		let wkt = new ol.format.WKT();
 		
 		var obj = Ext.Ajax.request({
-//			url: location.origin + '/add_field',
-			url: grazeUrl + '/add_field',
-			 cors: true,
+			url: location.origin + '/add_field',
 			jsonData: {
 				farm_id: farm_id,
 				wkt: wkt.writeFeature(feature,{decimals:1}),
@@ -193,8 +174,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 		
 		console.log(finalSet);
 		var obj = Ext.Ajax.request({
-//			url: location.origin + '/modify_fields',
-			url: grazeUrl + '/modify_fields',
+			url: location.origin + '/modify_fields',
 			jsonData: finalSet,
 			timeout: 30 * 1000, // 30 seconds
 			
@@ -223,8 +203,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 		console.log(d_fields);
 		
 		var obj = Ext.Ajax.request({
-//			url: location.origin + '/delete_fields',
-			url: grazeUrl + '/delete_fields',
+			url: location.origin + '/delete_fields',
 			jsonData: {
 				farm_id: farm_id,
 				fields: d_fields

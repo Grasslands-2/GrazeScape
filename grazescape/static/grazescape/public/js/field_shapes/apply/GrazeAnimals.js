@@ -40,9 +40,9 @@ Ext.define('DSS.field_shapes.apply.GrazeAnimals', {
 				columns: 1, 
 				vertical: true,
 				items: [{ 
-					boxLabel: 'Dairy - Lactating', 		bind: '{graze_animals.dairy-lactating}',
+					boxLabel: 'Dairy - Lactating', 		bind: '{graze_animals.dairy_lactating}',
 				},{
-					boxLabel: 'Dairy - Non-Lactating', 	bind: '{graze_animals.dairy-nonlactating}',
+					boxLabel: 'Dairy - Non-Lactating', 	bind: '{graze_animals.dairy_nonlactating}',
 				},{
 					boxLabel: 'Beef Cattle', 			bind: '{graze_animals.beef}',
 				}]

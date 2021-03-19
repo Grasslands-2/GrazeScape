@@ -10,6 +10,7 @@ Ext.define('DSS.state.Manage', {
 	requires: [
 		'DSS.state.operation.FieldShapeMode',
 		'DSS.state.Scenario',
+		
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -55,7 +56,9 @@ Ext.define('DSS.state.Manage', {
 					flex: 1,
 					cls: 'section-title accent-text right-pad',
 					html: 'Manage'
-				}]
+				},
+				//DSS.FieldGrid
+			]
 			},{ 
 				xtype: 'container',
 				layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -72,6 +75,7 @@ Ext.define('DSS.state.Manage', {
 					toggleGroup: 'manage-operation',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
+							//DSS.ApplicationFlow.FieldGrid
 							AppEvents.triggerEvent('show_field_shape_mode')
 						}
 						else {
