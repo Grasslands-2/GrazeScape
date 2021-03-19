@@ -42,6 +42,22 @@ Ext.define('DSS.map.BoxModel', {
 				],
 			})
 		});
+//		Test layer for loading raster
+//			DSS.layer.ModelResult1 = new ol.layer.Image({
+//			updateWhileAnimating: true,
+//			updateWhileInteracting: true,
+//			source: new ol.source.ImageStatic({
+//				url: '/static/grazescape/public/images/myfile1.png',
+//				crossOrigin: '',
+//				projection: 'EPSG:3071',
+//				imageSmoothing: false,
+//
+//				imageExtent: [
+//					440000,314000,
+//					455000,340000
+//				]
+//			})
+//		});
 		//  box model outline, area of computation
 		DSS.layer.ModelBox = new ol.layer.Vector({
 			updateWhileAnimating: true,
@@ -64,6 +80,8 @@ Ext.define('DSS.map.BoxModel', {
 			layers: [
 				DSS.layer.ModelBox,
 				DSS.layer.ModelResult,
+//				DSS.layer.ModelResult1,
+
 			]
 		})
 		map.addLayer(DSS.layer.ModelGroup);
