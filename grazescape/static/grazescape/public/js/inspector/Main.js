@@ -1,17 +1,17 @@
 
 //--------------------------------------------------------------------------
-//var filter_task = new Ext.util.DelayedTask(function(){
-//	if (!DSS.layer) return;
-//
-//	DSS.Inspector.computeResults(undefined, DSS.layer.ModelResult);
-//});
-//
-//var DSS_Refilter = function() {
-//	filter_task.delay(0);
-//}
-//var DSS_RefilterDelayed = function(msDelay) {
-//	filter_task.delay(msDelay);
-//}
+var filter_task = new Ext.util.DelayedTask(function(){
+	if (!DSS.layer) return;
+
+	DSS.Inspector.computeResults(undefined, DSS.layer.ModelResult);
+});
+
+var DSS_Refilter = function() {
+	filter_task.delay(0);
+}
+var DSS_RefilterDelayed = function(msDelay) {
+	filter_task.delay(msDelay);
+}
 
 DSS.utils.addStyle('.fa-spin-fast {-webkit-animation: fa-spin 1s linear infinite;animation:fa-spin 1s linear infinite}')
 DSS.utils.addStyle('.spinner-working { color: #d41; display: block}')//#3892d4
