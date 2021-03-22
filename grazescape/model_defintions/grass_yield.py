@@ -46,7 +46,7 @@ class GrassYield(ModelBase):
         r = R(RCMD=self.r_file_path, use_pandas=True)
         print("RRRR")
         print(self.model_data_inputs_path)
-        # print(r("install.packages('randomForest')"))
+        print(r("install.packages('randomForest')"))
         r("library(randomForest)")
         r("savedRF <- readRDS('" + self.model_file_path + "')")
         r("grass <- read.csv('" + self.model_data_inputs_path + "')")

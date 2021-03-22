@@ -321,7 +321,7 @@ Ext.define('DSS.map.Main', {
 		});	
 
 		// Populate grid
-/*		DSS.layer.fields.getSource().on('change', function(evt) {
+		DSS.layer.fields.getSource().on('change', function(evt) {
 			
 			let fd = Ext.StoreMgr.lookup('field_data');
 			let records = [];
