@@ -1,14 +1,46 @@
 // Module is used to run the compute models functions of the app
-var fields_1Source = new ol.source.Vector({
-	url:'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857',
-	format: new ol.format.GeoJSON()
-});
+
+function runModels(layer) {
+	
+	 extentsArray = [];
+	 layer.getSource().forEachFeature(function(f) {
+		
+		var extentTransform = function(fieldFeature){
+			let e = fieldFeature.values_.geometry.extent_;
+			let pt1 = ol.proj.transform([e[0],e[1]], 'EPSG:3857', 'EPSG:3071'),
+			pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3857', 'EPSG:3071');
+
+			let p =	pt1.concat(pt2);
+
+			extentsArray.push(p)
+
+		};
+		extentTransform(f)
+	})
+
+	const callModelRun = (extent) => {
+		DSS.Inspector.computeResults(extent,DSS.layer.ModelResult);
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve();
+			}, 1000);
+	  	});
+	}
+	
+	const startTime = Date.now();
+	const doNextPromise = (z) => {
+		callModelRun(extentsArray[z]).then(x => {
+			console.log("just ran this extent: " + x);
+			z++;
+
+			if(z < extentsArray.length)
+				doNextPromise(z)
+			else 
+				console.log("DONE IN MODEL RUNNING!")
+		})
+	}
+	doNextPromise(0);
+}
 
 function wfs_field_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
@@ -182,13 +214,14 @@ Ext.define('DSS.field_shapes.ModelRunning', {
 					formBind: true,
 					handler: function() { 
 						console.log("run model")
+						runModels(DSS.layer.fields_1);
 					}
 			    }]
 			}]
 		});
 		me.callParent(arguments);
 	},
-	
+
 	//--------------------------------------------------------------------------
 	addModeControl: function() {
 		let me = this;

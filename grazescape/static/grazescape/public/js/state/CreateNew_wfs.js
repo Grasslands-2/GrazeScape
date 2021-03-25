@@ -82,6 +82,7 @@ function wfs_farm_insert(feat,geomType) {
         data: str,
 		success: function (data) {
 			console.log("uploaded data successfully!: "+ data);
+			DSS.map.refresh();
 		},
         error: function (xhr, exception) {
             var msg = "";

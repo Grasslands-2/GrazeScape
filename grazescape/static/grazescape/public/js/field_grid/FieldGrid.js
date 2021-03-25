@@ -106,13 +106,13 @@ Ext.create('Ext.data.Store', {
 	fields:[ 'display', 'value'],
 	data: [{
 		value: 'pt',
-		display: 'Pasture - Establish'
+		display: 'Pasture'
 	},{ 
 		value: 'ps',
-		display: 'pasture seeding'
+		display: 'New Pasture'
 	},{ 
 		value: 'dl',
-		display: 'pasture, dry lot'
+		display: 'Dry Lot'
 	},{ 
 		value: 'cc',
 		display: 'Continuous Corn'
@@ -121,10 +121,10 @@ Ext.create('Ext.data.Store', {
 		display: 'Cash Grain (cg/sb)'
 	},{ 
 		value: 'dr',
-		display: 'corn silage to corn grain to alfalfa(3x)'
+		display: 'Corn Silage to Corn Grain to Alfalfa(3x)'
 	},{ 
 		value: 'cso',
-		display: 'corn silage to soybeans to oats'
+		display: 'Corn Silage to Soybeans to Oats'
 	}]
 });
 
@@ -287,6 +287,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
 		//------------------------------------------------------------------------------
+		//Turn off for new pasture.
 		let coverCropColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
@@ -318,6 +319,23 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
 		//------------------------------------------------------------------------------
+		//turn off for pasture and drylot, Keep on for new pasture, since pasture needs to be seeded.
+
+		//If cont corn, or cash grains
+		//and coverage is small grain, tillage can only be spring cult, spring chisel no disk or no till.
+
+		//SPring chisel no disk needs to be added.
+
+		//If no any of the pastures or dry lot and cover crop is one of graze options.
+		//then tillage can be no till, spring cult, or spring chisel + disk
+
+		//for any crop rotations besides pasture, new pasturem or dry lot. and no cover crop
+		//tillage options include: fall chisel disk, fall moldboard plow, no till, spring chisel no disk, spring vertical, spring cult.
+
+		//if crop rotation corn silage to alfalfa, or corn silage to sb to oats. and cover crop is small grain,
+		//tillage optoins: no till, spring chisel plus disk, spring cult
+		
+		//if crop rotation new pasture, tillage options: fall chisel disk, fall moldboard plow, no till, spring chisel disk, spring chisel no disk, spring cult.
 		let tillageColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
@@ -350,6 +368,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let onContourColumn = {
 			xtype: 'checkcolumn', text: 'On<br>Contour', dataIndex: 'onContour', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			//turn off for pasture and drylot
 		};
 		//------------------------------------------------------------------------------
 		let fertPerc_Column = {
@@ -397,16 +416,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
 		//------------------------------------------------------------------------------
+		//Turn on for pasture only
 		let grazeDairyLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
+		//Turn on for pasture only
 		let grazeDairyNonLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Non-Lactating', dataIndex: 'grazeDairyNonLactating', width: 120, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
+		//Turn on for pasture only
 		let grazeBeefCattle = {
 			xtype: 'checkcolumn', text: 'Graze<br>Beef Cattle', dataIndex: 'grazeBeefCattle', width: 100, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
@@ -424,7 +446,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt') {
+				if (rec.get('rotationVal') == 'pt'|| rec.get('rotationVal') == 'ps') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
@@ -447,6 +469,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
 		//------------------------------------------------------------------------------
+		//turn on only for pasture and new pasture crop rotation
 		let interseededCloverColumn = {
 			xtype: 'checkcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 125, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
@@ -455,10 +478,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let grazeDensityColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			text: 'Grazing Density', dataIndex: 'grazingDensity', width: 200, 
+			text: 'Animal Density', dataIndex: 'grazingDensity', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt') {
+				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
@@ -489,8 +512,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				soilP_Column,
 				soilOM_Column,
 				cropRotationColumn,
-				tillageColumn,
 				coverCropColumn,
+				tillageColumn,
 				onContourColumn,
 				fertPerc_Column,
 				manuPerc_Column,

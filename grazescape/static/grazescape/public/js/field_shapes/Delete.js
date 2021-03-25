@@ -52,6 +52,7 @@ function deleteField(feat){
 			data: str,
 			success: function (data) {
 				console.log("data deleted successfully!: "+ data);
+				DSS.layer.fields_1.getSource().refresh();
 			},
 			error: function (xhr, exception) {
 				var msg = "";
