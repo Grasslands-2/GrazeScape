@@ -11,7 +11,7 @@ import uuid
 
 class ModelBase:
 
-    def __init__(self, file_name=None):
+    def __init__(self, request, file_name=None):
 
         if file_name is None:
             file_name = str(uuid.uuid4())
@@ -28,6 +28,8 @@ class ModelBase:
         self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'input_models')
         self.color_ramp_hex = []
         self.data_range = []
+        self.model_parameters = request
+        self.bounds = {"x": 0, "y": 0}
     def get_file_name(self):
         return self.file_name
 
@@ -106,7 +108,9 @@ class ModelBase:
         print(y1, x1, x2, y2)
         for key in input_raster_dic:
             clipped_raster_dic[key] = input_raster_dic[key][y1:y2, x1:x2]
-        return clipped_raster_dic, {"y": y2 - y1, "x": x2 - x1}
+        self.bounds["x"] = x2 - x1
+        self.bounds["y"] = y2 - y1
+        return clipped_raster_dic, self.bounds
 
     def create_color_ramp(self, min_value, max_value, num_cat=9):
         interval_step = (max_value - min_value) / num_cat
@@ -150,24 +154,24 @@ class ModelBase:
                 return val[2]
         return color_ramp[-1][2]
 
-    def get_model_raster(self, data, bounds):
+    def reshape_model_output(self, data, bounds):
+        data = np.reshape(data, (bounds["y"], bounds["x"]))
+        return data
+
+    def get_model_raster(self, data):
         max_v = max(data)
         min_v = min(data)
-        print("Done 2")
-        print(max_v)
-        print(min_v)
-        rows = bounds["y"]
-        cols = bounds["x"]
+        rows = self.bounds["y"]
+        cols = self.bounds["x"]
 
-        three_d = np.empty([bounds["y"], bounds["x"], 3])
-        datanm = np.reshape(data, (rows, cols))
+        three_d = np.empty([rows, cols, 3])
+        datanm = self.reshape_model_output(data,self.bounds)
         color_ramp = self.create_color_ramp(min_v, max_v)
-        print(color_ramp)
-        for y in range(0, bounds["y"]):
-            for x in range(0, bounds["x"]):
+        for y in range(0, rows):
+            for x in range(0, cols):
                 color = self.calculate_color(color_ramp, datanm[y][x])
-                if color is None:
-                    print(datanm[y][x])
+                # if color is None:
+                #     print(datanm[y][x])
                 three_d[y][x][0] = color[0]
                 three_d[y][x][1] = color[1]
                 three_d[y][x][2] = color[2]
@@ -178,6 +182,8 @@ class ModelBase:
         print(self.raster_image_file_path)
         im.save(self.raster_image_file_path)
         return color_ramp
-    def get_legend(self):
 
+    def get_legend(self):
         return self.color_ramp_hex, self.data_range
+    def aggregate(self, data):
+        return np.mean(data)

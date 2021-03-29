@@ -12,9 +12,7 @@ Ext.Loader.setConfig({
 Ext.application({
 	name: 'DSS',
 	appFolder: '/static/grazescape/public/js',
-//	requires: ['http://localhost:8000/static/grazescape/public/js/view/AppViewport'],
-//	requires: ['AppViewport'],
-//	requires: ['/static/grazescape/public/js/view/AppViewport'],
+
     views: [
 		'AppViewport'
 	],
