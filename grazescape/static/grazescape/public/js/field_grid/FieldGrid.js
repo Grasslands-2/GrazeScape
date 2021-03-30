@@ -10,14 +10,6 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 //look into how exactly that happens again, then try to retrace
 //for this problem.
 
-//trying to update geoserver features based on their reps and changes on the table
-//Could grab use a for loop to loop through all fields, and another to loop through 
-//fieldsarray(table rows), if they're ids match, place table row tables in the selected rows 
-//values, and run update transation.  
-//Another thought might be to run an jquery ajax request.  not sure that will work
-//Last optoin.  remove tables, have pop up with field values, edit there trigger update to 
-//geoserver when deselected, or with button.
-
 var fieldArray = [];
 var fieldObj = {};
 
@@ -61,8 +53,6 @@ function getWFSfields() {
 }
 
 function popFieldsArray(obj) {
-	//console.log(activeFarm);
-	//.properties values ar coming from the postGIS/Geoserver layers
 	for (i in obj) 
 	fieldArray.push({
 		id: obj[i].id,
@@ -163,7 +153,6 @@ Ext.create('Ext.data.Store', {
 		display: 'Timothy - Alsike'
 	}]
 });
-
 Ext.create('Ext.data.Store', {
 	storeId: 'tillageList',
 	fields:[ 'display', 'value'],
@@ -177,6 +166,12 @@ Ext.create('Ext.data.Store', {
 		value: 'sch',
 		display: 'Spring Chisel + Disk'
 	},{ 
+		value: 'sn',
+		display: 'Spring Chisel No Disk'
+	},{ 
+		value: 'sv',
+		display: 'Spring Vertical'
+	},{ 
 		value: 'smb',
 		display: 'Spring Moldboard Plow'
 	},{ 
@@ -187,7 +182,83 @@ Ext.create('Ext.data.Store', {
 		display: 'Fall Moldboard Plow'
 	}]
 });
-
+Ext.create('Ext.data.Store', {
+	storeId: 'tillageList_cashCrop',
+	fields:[ 'display', 'value'],
+	data: [{
+		value: 'nt',
+		display: 'No-Till'
+	},{ 
+		value: 'scu',
+		display: 'Spring Cultivation'
+	},{ 
+		value: 'sn',
+		display: 'Spring Chisel No Disk'
+	}]
+});
+Ext.create('Ext.data.Store', {
+	storeId: 'tillageList_crop_grazing',
+	fields:[ 'display', 'value'],
+	data: [{
+		value: 'nt',
+		display: 'No-Till'
+	},{ 
+		value: 'scu',
+		display: 'Spring Cultivation'
+	},{ 
+		value: 'sch',
+		display: 'Spring Chisel + Disk'
+	}]
+});
+Ext.create('Ext.data.Store', {
+	storeId: 'tillageList_noCoverCrop',
+	fields:[ 'display', 'value'],
+	data: [{
+		value: 'nt',
+		display: 'No-Till'
+	},{ 
+		value: 'scu',
+		display: 'Spring Cultivation'
+	},{ 
+		value: 'sn',
+		display: 'Spring Chisel No Disk'
+	},{ 
+		value: 'sv',
+		display: 'Spring Vertical'
+	},{ 
+		value: 'fch',
+		display: 'Fall Chisel + Disk'
+	},{ 
+		value: 'fmb',
+		display: 'Fall Moldboard Plow'
+	}]
+});
+Ext.create('Ext.data.Store', {
+	storeId: 'tillageList_newPasture',
+	fields:[ 'display', 'value'],
+	data: [{
+		value: 'nt',
+		display: 'No-Till'
+	},{ 
+		value: 'scu',
+		display: 'Spring Cultivation'
+	},{ 
+		value: 'sch',
+		display: 'Spring Chisel + Disk'
+	},{ 
+		value: 'sn',
+		display: 'Spring Chisel No Disk'
+	},{ 
+		value: 'smb',
+		display: 'Spring Moldboard Plow'
+	},{ 
+		value: 'fch',
+		display: 'Fall Chisel + Disk'
+	},{ 
+		value: 'fmb',
+		display: 'Fall Moldboard Plow'
+	}]
+});
 Ext.create('Ext.data.Store', {
 	storeId: 'grazingDensity',
 	fields:[ 'display', 'value'],
@@ -202,10 +273,10 @@ Ext.create('Ext.data.Store', {
 //-----------------------------------fieldStore!---------------------------------
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
-	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCrop', 
+	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
 		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
 		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp',],
+		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp'],
 	data: fieldArray
 });
 
@@ -287,11 +358,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
 		//------------------------------------------------------------------------------
-		//Turn off for new pasture.
 		let coverCropColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			text: 'Cover Crop', dataIndex: 'coverCrop', width: 200, 
+			text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
@@ -319,35 +389,21 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
 		//------------------------------------------------------------------------------
-		//turn off for pasture and drylot, Keep on for new pasture, since pasture needs to be seeded.
 
-		//If cont corn, or cash grains
-		//and coverage is small grain, tillage can only be spring cult, spring chisel no disk or no till.
-
-		//SPring chisel no disk needs to be added.
-
-		//If no any of the pastures or dry lot and cover crop is one of graze options.
-		//then tillage can be no till, spring cult, or spring chisel + disk
-
-		//for any crop rotations besides pasture, new pasturem or dry lot. and no cover crop
-		//tillage options include: fall chisel disk, fall moldboard plow, no till, spring chisel no disk, spring vertical, spring cult.
-
-		//if crop rotation corn silage to alfalfa, or corn silage to sb to oats. and cover crop is small grain,
-		//tillage optoins: no till, spring chisel plus disk, spring cult
 		
-		//if crop rotation new pasture, tillage options: fall chisel disk, fall moldboard plow, no till, spring chisel disk, spring chisel no disk, spring cult.
 		let tillageColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
 			text: 'Tillage', dataIndex: 'tillageDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'ps') {
+				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
-				} else {
+				}else {
 					widget.setDisabled(false);
 				}
 			},
+			//working on making this having different tillage options available from the launch of the grid.  currently user has to click on and off to show new options.
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
@@ -356,19 +412,73 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, eOpts){
+				select: function(combo, value, eOpts,rec,widget){
 						var record = combo.getWidgetRecord();
+						console.log(record.get('rotationVal'));
+//**If crop rotation is cont corn, or cash grains
+//**and coverage is small grain, tillage can only be spring cult, spring chisel no disk or no till.
+
+//**If no any of the pastures or dry lot and cover crop is one of graze options.
+//**then tillage can be no till, spring cult, or spring chisel + disk
+
+//**for any crop rotations besides pasture, new pasturem or dry lot. and no cover crop
+//**tillage options include: fall chisel disk, fall moldboard plow, no till, spring chisel no disk, spring vertical, spring cult.
+
+//**if crop rotation corn silage to alfalfa, or corn silage to sb to oats. and cover crop is small grain,
+//**tillage optoins: no till, spring chisel plus disk, spring cult
+
+//**if crop rotation new pasture, tillage options: fall chisel disk, fall moldboard plow, no till, spring chisel disk, spring chisel no disk, spring cult.
+//come back too.  none critical at this point. VALUE IS THE CURRENT TABLE VALUE. RECORD IS WHAT IS COMING FROM FIELD ARRAY
+//Think I just figured it out. had to move the record.set blocks up above the ifs...check in the morning.
 						record.set('tillageVal', value.get('value'));
 						record.set('tillageDisp', value.get('display'));
+						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg') && record.get('coverCropVal') == 'sg');
+						{
+							combo.setStore('tillageList_cashCrop');
+						}
+						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && record.get('coverCropVal') == 'no' );
+						{
+							combo.setStore('tillageList_noCoverCrop');
+						}
+						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && (record.get('coverCropVal') == 'gi' || record.get('coverCropVal') == 'gd'));
+						{
+							combo.setStore('tillageList_crop_grazing');
+						}
+						if ((record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso' ) && record.get('coverCropVal') == 'sg');
+						{
+							combo.setStore('tillageList_crop_grazing');
+						}
+						if (record.get('rotationVal') == 'ps');
+						{
+							combo.setStore('tillageList_newPasture');
+						}
+
+						
 					}
 				}
 			}
 		};
 		//------------------------------------------------------------------------------
+		//still need to find a way to turn off on contour for dry lot and pasture crop rotations
 		let onContourColumn = {
 			xtype: 'checkcolumn', text: 'On<br>Contour', dataIndex: 'onContour', width: 80, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-			//turn off for pasture and drylot
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			/*renderer: function (value, meta,rec) {
+
+				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
+					meta['tdCls'] = 'x-item-disabled';
+				} else {
+					meta['tdCls'] = '';
+				}
+				//return new Ext.ux.CheckColumn().renderer(value);
+			},
+			onWidgetAttach: function(col, widget, rec) {
+				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
+					widget.setDisabled(true);
+				} else {
+					widget.setDisabled(false);
+				}
+			},*/
 		};
 		//------------------------------------------------------------------------------
 		let fertPerc_Column = {

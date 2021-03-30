@@ -2,23 +2,24 @@
 
 function runModels(layer) {
 	
-	 extentsArray = [];
-	 layer.getSource().forEachFeature(function(f) {
-		
+	 extentsArray = []; //empty array for extents list
+	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
 		var extentTransform = function(fieldFeature){
+			//let fObj = [];
+			//let fGrass = fieldFeature.values_.;
 			let e = fieldFeature.values_.geometry.extent_;
 			let pt1 = ol.proj.transform([e[0],e[1]], 'EPSG:3857', 'EPSG:3071'),
 			pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3857', 'EPSG:3071');
 
 			let p =	pt1.concat(pt2);
 
-			extentsArray.push(p)
+			extentsArray.push(p) //push each extent to array
 
 		};
-		extentTransform(f)
+		extentTransform(f)//runs extent transform
 	})
-
-	const callModelRun = (extent) => {
+	//function inside of callmodelrun that actually calls computeresults on each field
+	const callModelRun = (extent) => { 
 		DSS.Inspector.computeResults(extent,DSS.layer.ModelResult);
 		return new Promise((resolve) => {
 			setTimeout(() => {
@@ -28,6 +29,7 @@ function runModels(layer) {
 	}
 	
 	const startTime = Date.now();
+	//Sets up each callModelRun to run after each promise is resolved. IOW, makes them run one at a time.
 	const doNextPromise = (z) => {
 		callModelRun(extentsArray[z]).then(x => {
 			console.log("just ran this extent: " + x);
