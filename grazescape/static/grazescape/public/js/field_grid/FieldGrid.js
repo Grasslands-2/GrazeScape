@@ -122,17 +122,17 @@ Ext.create('Ext.data.Store', {
 	storeId: 'coverCrop',
 	fields:[ 'display', 'value'],
 	data: [{
-		value: 'sg',
+		value: 'cc',
 		display: 'Small Grain'
 	},{ 
-		value: 'gi',
+		value: 'gcis',
 		display: 'Grazed/Interseeded'
 	},{ 
-		value: 'gd',
+		value: 'gcds',
 		display: 'Grazed/Direct Seeded'
 	},{ 
-		value: 'no',
-		display: 'None'
+		value: 'nc',
+		display: 'No Cover'
 	}]
 });
 
@@ -140,17 +140,14 @@ Ext.create('Ext.data.Store', {
 	storeId: 'grassSpecies',
 	fields:[ 'display', 'value'],
 	data: [{
-		value: 'bw',
-		display: 'Bluegrass - White Clover'
+		value: 'Bluegrass-clover',
+		display: 'Bluegrass'
 	},{ 
-		value: 'oa',
-		display: 'Orchard grass - Alsike'
+		value: 'Orchardgrass-clover',
+		display: 'Orchardgrass'
 	},{ 
-		value: 'or',
-		display: 'Orchard grass - Red Clover'
-	},{ 
-		value: 'ta',
-		display: 'Timothy - Alsike'
+		value: 'Timothy-clover',
+		display: 'Timothy'
 	}]
 });
 Ext.create('Ext.data.Store', {
@@ -160,10 +157,10 @@ Ext.create('Ext.data.Store', {
 		value: 'nt',
 		display: 'No-Till'
 	},{ 
-		value: 'scu',
+		value: 'su',
 		display: 'Spring Cultivation'
 	},{ 
-		value: 'sch',
+		value: 'sc',
 		display: 'Spring Chisel + Disk'
 	},{ 
 		value: 'sn',
@@ -178,7 +175,7 @@ Ext.create('Ext.data.Store', {
 		value: 'fch',
 		display: 'Fall Chisel + Disk'
 	},{ 
-		value: 'fmb',
+		value: 'fm',
 		display: 'Fall Moldboard Plow'
 	}]
 });
@@ -189,7 +186,7 @@ Ext.create('Ext.data.Store', {
 		value: 'nt',
 		display: 'No-Till'
 	},{ 
-		value: 'scu',
+		value: 'su',
 		display: 'Spring Cultivation'
 	},{ 
 		value: 'sn',
@@ -203,10 +200,10 @@ Ext.create('Ext.data.Store', {
 		value: 'nt',
 		display: 'No-Till'
 	},{ 
-		value: 'scu',
+		value: 'su',
 		display: 'Spring Cultivation'
 	},{ 
-		value: 'sch',
+		value: 'sc',
 		display: 'Spring Chisel + Disk'
 	}]
 });
@@ -217,7 +214,7 @@ Ext.create('Ext.data.Store', {
 		value: 'nt',
 		display: 'No-Till'
 	},{ 
-		value: 'scu',
+		value: 'su',
 		display: 'Spring Cultivation'
 	},{ 
 		value: 'sn',
@@ -229,7 +226,7 @@ Ext.create('Ext.data.Store', {
 		value: 'fch',
 		display: 'Fall Chisel + Disk'
 	},{ 
-		value: 'fmb',
+		value: 'fm',
 		display: 'Fall Moldboard Plow'
 	}]
 });
@@ -240,10 +237,10 @@ Ext.create('Ext.data.Store', {
 		value: 'nt',
 		display: 'No-Till'
 	},{ 
-		value: 'scu',
+		value: 'su',
 		display: 'Spring Cultivation'
 	},{ 
-		value: 'sch',
+		value: 'sc',
 		display: 'Spring Chisel + Disk'
 	},{ 
 		value: 'sn',
@@ -255,7 +252,7 @@ Ext.create('Ext.data.Store', {
 		value: 'fch',
 		display: 'Fall Chisel + Disk'
 	},{ 
-		value: 'fmb',
+		value: 'fm',
 		display: 'Fall Moldboard Plow'
 	}]
 });
@@ -263,10 +260,10 @@ Ext.create('Ext.data.Store', {
 	storeId: 'grazingDensity',
 	fields:[ 'display', 'value'],
 	data: [{
-		value: 'high',
+		value: 'hi',
 		display: 'high'
 	},{ 
-		value: 'low',
+		value: 'lo',
 		display: 'low'
 	}]
 });
@@ -430,30 +427,28 @@ Ext.define('DSS.field_grid.FieldGrid', {
 //**if crop rotation new pasture, tillage options: fall chisel disk, fall moldboard plow, no till, spring chisel disk, spring chisel no disk, spring cult.
 //come back too.  none critical at this point. VALUE IS THE CURRENT TABLE VALUE. RECORD IS WHAT IS COMING FROM FIELD ARRAY
 //Think I just figured it out. had to move the record.set blocks up above the ifs...check in the morning.
-						record.set('tillageVal', value.get('value'));
+						/*record.set('tillageVal', value.get('value'));
 						record.set('tillageDisp', value.get('display'));
-						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg') && record.get('coverCropVal') == 'sg');
+						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg') && record.get('coverCropVal') == 'cc');
 						{
 							combo.setStore('tillageList_cashCrop');
 						}
-						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && record.get('coverCropVal') == 'no' );
+						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && record.get('coverCropVal') == 'nc' );
 						{
 							combo.setStore('tillageList_noCoverCrop');
 						}
-						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && (record.get('coverCropVal') == 'gi' || record.get('coverCropVal') == 'gd'));
+						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && (record.get('coverCropVal') == 'gcis' || record.get('coverCropVal') == 'gcds'));
 						{
 							combo.setStore('tillageList_crop_grazing');
 						}
-						if ((record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso' ) && record.get('coverCropVal') == 'sg');
+						if ((record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso' ) && record.get('coverCropVal') == 'cc');
 						{
 							combo.setStore('tillageList_crop_grazing');
 						}
 						if (record.get('rotationVal') == 'ps');
 						{
 							combo.setStore('tillageList_newPasture');
-						}
-
-						
+						}*/
 					}
 				}
 			}
@@ -501,7 +496,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Animals', dataIndex: 'animals', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('coverCropVal') == 'sg' || rec.get('coverCropVal') == 'no') {
+				if (rec.get('coverCropVal') == 'cc' || rec.get('coverCropVal') == 'nc') {
 					widget.setDisabled(true);
 				}
 				 else {

@@ -173,7 +173,7 @@ Ext.define('DSS.inspector.Main', {
 	
 	//-------------------------------------------------------------------------------------------------
 	computeResults: function(extents, modelResultsLayer) {
-		console.log("new computeResults run: " + extents)
+		//console.log("new computeResults run: " + extents)
 
 		let me = this;
 		// TODO: busy feedback
@@ -192,11 +192,10 @@ Ext.define('DSS.inspector.Main', {
 		}
 		if (!me.DSS_mode) me.DSS_mode = 'slope';//crop-yield';
 		
-		me['DSS_extents'] = extents;
-		console.log("current extents before run: " + extents);
+		me['DSS_extents'] = extents[0];
+		console.log("current extents before run: " + extents[0]);
 		//do i need to round to get to a whole number?
 		
-		console.log(extents)
 		me.startWorkerAnimation();
 		
 		let options = me.down('#dss-data-source').getOptions();
@@ -206,11 +205,11 @@ Ext.define('DSS.inspector.Main', {
 		let data = {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
-			"extents": extents,
+			"extents": extents[0],
 			"model": me.DSS_mode,
 			"options": options,
 			"restrictions": restrictions,
-			"grass_type":"bluegrass"//start here in morning get feilds data.
+			"grass_type":extents[1]//start here in morning get feilds data.
 		};
 		console.log(data)
 

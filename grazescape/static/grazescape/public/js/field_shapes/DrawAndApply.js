@@ -56,6 +56,7 @@ function wfs_field_insert(feat,geomType) {
 	//.done();
 	//console.log("Field wrote to Geoserver")
 	//DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+	DSS.layer.fields_1.getSource().refresh();
 }
 function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 	
@@ -137,7 +138,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				},
 				tillage: {
 					is_active: false,
-					value: {tillage: 'SCU'}
+					value: {tillage: 'su'}
 				},
 				graze_animals: {
 					is_active: false,
