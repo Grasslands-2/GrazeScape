@@ -210,7 +210,7 @@ Ext.define('DSS.inspector.Main', {
 			"model": me.DSS_mode,
 			"options": options,
 			"restrictions": restrictions,
-			"grass_type":"bluegrass"
+			"grass_type":"bluegrass"//start here in morning get feilds data.
 		};
 		console.log(data)
 
