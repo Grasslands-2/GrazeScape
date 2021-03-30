@@ -43,9 +43,10 @@ Ext.define('DSS.field_shapes.apply.ModelSelection', {
 				defaults: {
 					name: 'modelSelection'
 				},
-				items: [{ 
-					boxLabel: 'Grass Model', 			inputValue: 'GM',
-				}]
+				items: [{boxLabel: 'Grass Yeild', inputValue: 'GM'},
+					{boxLabel: 'Erosion', inputValue: 'ER'},
+					{boxLabel: 'P-Loss', inputValue: 'PL'}
+				]
 			}]
 		});
 		

@@ -1,4 +1,3 @@
-
 //--------------------------------------------------------------------------
 var filter_task = new Ext.util.DelayedTask(function(){
 	if (!DSS.layer) return;
@@ -174,6 +173,7 @@ Ext.define('DSS.inspector.Main', {
 	
 	//-------------------------------------------------------------------------------------------------
 	computeResults: function(extents, modelResultsLayer) {
+		//console.log("new computeResults run: " + extents)
 
 		let me = this;
 		// TODO: busy feedback
@@ -192,23 +192,27 @@ Ext.define('DSS.inspector.Main', {
 		}
 		if (!me.DSS_mode) me.DSS_mode = 'slope';//crop-yield';
 		
-		me['DSS_extents'] = extents;
+		me['DSS_extents'] = extents[0];
+		console.log("current extents before run: " + extents[0]);
+		//do i need to round to get to a whole number?
+		
 		me.startWorkerAnimation();
 		
 		let options = me.down('#dss-data-source').getOptions();
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
 //		external js library is used to simply getting the token
 		var csrftoken = Cookies.get('csrftoken');
-        console.log(extents)
 		let data = {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
-			"extents": extents,
+			"extents": extents[0],
 			"model": me.DSS_mode,
 			"options": options,
 			"restrictions": restrictions,
-			"grass_type":"bluegrass"
+			"grass_type":extents[1]//start here in morning get feilds data.
 		};
+		console.log(data)
+
             $.ajaxSetup({
                     headers: { "X-CSRFToken": csrftoken }
                 });
@@ -217,9 +221,11 @@ Ext.define('DSS.inspector.Main', {
             'url' : '/grazescape/get_model_results',
             'type' : 'POST',
             'data' : data,
+
 			success: function(response, opts) {
                 obj = response;
 				let e = obj.extent;
+				//console.log("this is e: " + e)
 				let pt1 = ol.proj.transform([e[0],e[3]], 'EPSG:3071', 'EPSG:3857'),
 				pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3071', 'EPSG:3857');
 				pt3 = ol.proj.transform([e[2],e[1]], 'EPSG:3071', 'EPSG:3857');
@@ -227,6 +233,7 @@ Ext.define('DSS.inspector.Main', {
 				let p = new ol.geom.Polygon([
 					[pt1, pt2, pt3, pt4, pt1]
 				]);
+				//console.log("this is P: "+p)
 				me.validateImageOL(obj, modelResultsLayer);
 				let s = DSS.layer.ModelBox.getSource();
 				s.clear();
@@ -234,25 +241,32 @@ Ext.define('DSS.inspector.Main', {
 					geometry: p
 				}));
 				if (obj.key) {
+					console.log("hi from showClassifiedLegend")
 					DSS.MapState.showClassifiedLegend(obj.key)
+					
 				}
 				else {
+					console.log("hi from showContinuousLegend")
 					DSS.MapState.showContinuousLegend(obj.palette, obj.values);
 				}
 				if (obj.fields) {
 			//		DSS.fieldList.addStats(me.DSS_mode, obj.fields)
 				}
+				
+				
 			},
 			
 			failure: function(response, opts) {
 				me.stopWorkerAnimation();
 			}
 		});
+		
 	},
 	
 	//---------------------------------------------------------------------------------
 	validateImageOL: function(json, layer, tryCount) {
 		var me = this;
+		console.log("validateImageOL run");
 		tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
 		Ext.defer(function() {
 		    console.log("New image")
@@ -262,7 +276,8 @@ Ext.define('DSS.inspector.Main', {
 				imageExtent: json.extent,
 				projection: 'EPSG:3071',
 				imageSmoothing: false
-			});			
+			});
+			
 			src.on('imageloadend', function() {
 			    console.log("set source of image")
 			    console.log(src)
@@ -272,7 +287,7 @@ Ext.define('DSS.inspector.Main', {
 			});
 			src.on('imageloaderror', function() {
 				tryCount++;
-				if (tryCount < 2) {
+				if (tryCount < 5) {
 					me.validateImageOL(json, layer, tryCount);
 				}
 				else {
