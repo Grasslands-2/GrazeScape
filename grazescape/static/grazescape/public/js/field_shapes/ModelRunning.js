@@ -1,89 +1,55 @@
 // Module is used to run the compute models functions of the app
-var fields_1Source = new ol.source.Vector({
-	url:'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857',
-	format: new ol.format.GeoJSON()
-});
 
-function wfs_field_insert(feat,geomType) {  
-    var formatWFS = new ol.format.WFS();
-    var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/Farms',
-		Geometry: 'geom',
-        featureType: 'field_1',
-        srsName: 'EPSG:3857'
-    });
-    console.log(feat)
-    node = formatWFS.writeTransaction([feat], null, null, formatGML);
-	console.log(node);
-    s = new XMLSerializer();
-    str = s.serializeToString(node);
-    console.log(str);
-    $.ajax('http://localhost:8081/geoserver/wfs?',{
-        type: 'POST',
-        dataType: 'xml',
-        processData: false,
-        contentType: 'text/xml',
-        data: str,
-		success: function (data) {
-			console.log("uploaded data successfully!: "+ data);
-		},
-        error: function (xhr, exception) {
-            var msg = "";
-            if (xhr.status === 0) {
-                msg = "Not connect.\n Verify Network." + xhr.responseText;
-            } else if (xhr.status == 404) {
-                msg = "Requested page not found. [404]" + xhr.responseText;
-            } else if (xhr.status == 500) {
-                msg = "Internal Server Error [500]." +  xhr.responseText;
-            } else if (exception === "parsererror") {
-                msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-                msg = "Time out error." + xhr.responseText;
-            } else if (exception === "abort") {
-                msg = "Ajax request aborted.";
-            } else {
-                msg = "Error:" + xhr.status + " " + xhr.responseText;
-            }
-			console.log(msg);
-        }
-    }).done();
-}
-function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
+function runModels(layer) {
 	
-	DSS.draw = new ol.interaction.Draw({
-		source: source,
-		type: 'MultiPolygon',
-		geometryName: 'geom'
-	});
-	DSS.map.addInteraction(DSS.draw);
-	console.log("draw is on");
-	//console.log(DSS.activeFarm);
-	var af = parseInt(DSS.activeFarm,10)
+	 extentsArray = []; //empty array for extents list
+	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
+		var extentTransform = function(fieldFeature){
+			let fObj = [];
+			let fGrass = fieldFeature.values_.grass_speciesval;
+			let fTillage = fieldFeature.values_.tillage;
+			let fOnContour = fieldFeature.values_.on_contour;
+			let e = fieldFeature.values_.geometry.extent_;
+			let pt1 = ol.proj.transform([e[0],e[1]], 'EPSG:3857', 'EPSG:3071'),
+			pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3857', 'EPSG:3071');
 
-	DSS.draw.on('drawend', function (e,) {
-		e.feature.setProperties({
-			id: af,
-			scenario_i: af,
-			soil_p: soil_pInput,
-			om: 10,
-			rotation: 'PS',
-			graze_beef_cattle: beef,
-			graze_dairy_lactating: lac,
-			graze_dairy_non_lactating: non_lac,
-			cover_crop: crop,
-			tillage: tillageInput
+			let p =	pt1.concat(pt2);
+			
+			fObj.push(p,fGrass,fTillage,fOnContour) //push p and field grass type to fObj
+			extentsArray.push(fObj) //push each extent to array
+			console.log(fObj);
+		};
+		extentTransform(f)//runs extent transform
+	})
+	//function inside of callmodelrun that actually calls computeresults on each field
+	const callModelRun = (extent,runningLayer) => {
+
+		DSS.Inspector.computeResults(extent,runningLayer);
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve();
+			}, 1000);
+	  	});
+	}
+	
+	const startTime = Date.now();
+	//Sets up each callModelRun to run after each promise is resolved. IOW, makes them run one at a time.
+	const doNextPromise = (z) => {
+		runningLayers = [DSS.layer.ModelResult_field1,DSS.layer.ModelResult_field2,DSS.layer.ModelResult_field3]
+		
+		callModelRun(extentsArray[z],runningLayers[z]).then(x => {
+			console.log("just ran this extent: " + x);
+			z++;
+			if(z < extentsArray.length){
+			doNextPromise(z)}
+			else 
+				console.log("DONE IN MODEL RUNNING!")
 		})
-		var geomType = 'polygon'
-		wfs_field_insert(e.feature, geomType)
-		console.log("HI! WFS feild Insert ran!")
-	})     
+	}
+	doNextPromise(0);
 }
+
+
 //------------------working variables--------------------
 var type = "Polygon";
 var source = fields_1Source;
@@ -182,13 +148,14 @@ Ext.define('DSS.field_shapes.ModelRunning', {
 					formBind: true,
 					handler: function() { 
 						console.log("run model")
+						runModels(DSS.layer.fields_1);
 					}
 			    }]
 			}]
 		});
 		me.callParent(arguments);
 	},
-	
+
 	//--------------------------------------------------------------------------
 	addModeControl: function() {
 		let me = this;

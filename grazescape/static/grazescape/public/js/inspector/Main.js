@@ -1,4 +1,3 @@
-
 //--------------------------------------------------------------------------
 var filter_task = new Ext.util.DelayedTask(function(){
 	if (!DSS.layer) return;
@@ -176,6 +175,7 @@ Ext.define('DSS.inspector.Main', {
 	
 	//-------------------------------------------------------------------------------------------------
 	computeResults: function(extents, modelResultsLayer) {
+		//console.log("new computeResults run: " + modelResultsLayer)
 
 		let me = this;
 		// TODO: busy feedback
@@ -194,15 +194,18 @@ Ext.define('DSS.inspector.Main', {
 		}
 		if (!me.DSS_mode) me.DSS_mode = 'slope';//crop-yield';
 		
+
+		me['DSS_extents'] = extents[0];
+		console.log("current extents before run: " + extents[0]);
+		//do i need to round to get to a whole number?
+		
 		me.startWorkerAnimation();
-		me['DSS_extents'] = extents;
 
 		let options = me.down('#dss-data-source').getOptions();
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
 //		external js library is used to simply getting the token
 		var csrftoken = Cookies.get('csrftoken');
-        console.log(extents)
-        console.log(me.DSS_mode)
+
 
         grass_type = "timothy"
 //        model_type = me.DSS_mode
@@ -219,15 +222,26 @@ Ext.define('DSS.inspector.Main', {
             "crop":"corn"
         }
 
+// 		let data = {
+// 			"farm_id": DSS.activeFarm,
+// 			"scenario_id": DSS.activeScenario,
+// 			"options": options,
+// 			"restrictions": restrictions,
+// 			"model": model_type,
+// 			"extents": extents,
+// 			"model_parameters": model_parameters
 		let data = {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
+			"extents": extents[0],
+			"model": me.DSS_mode,
 			"options": options,
 			"restrictions": restrictions,
-			"model": model_type,
-			"extents": extents,
-			"model_parameters": model_parameters
+      "model_parameters": model_parameters
+			"grass_type":extents[1]//start here in morning get feilds data.
 		};
+		console.log(data)
+
             $.ajaxSetup({
                     headers: { "X-CSRFToken": csrftoken }
                 });
@@ -236,10 +250,13 @@ Ext.define('DSS.inspector.Main', {
             'url' : '/grazescape/get_model_results',
             'type' : 'POST',
             'data' : data,
+
 			success: function(response, opts) {
 			    console.log(response)
                 obj = response;
+				console.log("response(obj): " + obj);
 				let e = obj.extent;
+				//console.log("this is e: " + e)
 				let pt1 = ol.proj.transform([e[0],e[3]], 'EPSG:3071', 'EPSG:3857'),
 				pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3071', 'EPSG:3857');
 				pt3 = ol.proj.transform([e[2],e[1]], 'EPSG:3071', 'EPSG:3857');
@@ -247,6 +264,7 @@ Ext.define('DSS.inspector.Main', {
 				let p = new ol.geom.Polygon([
 					[pt1, pt2, pt3, pt4, pt1]
 				]);
+				//console.log("this is P: "+p)
 				me.validateImageOL(obj, modelResultsLayer);
 				let s = DSS.layer.ModelBox.getSource();
 				s.clear();
@@ -254,9 +272,12 @@ Ext.define('DSS.inspector.Main', {
 					geometry: p
 				}));
 				if (obj.key) {
+					console.log("hi from showClassifiedLegend")
 					DSS.MapState.showClassifiedLegend(obj.key)
+					
 				}
 				else {
+					console.log("hi from showContinuousLegend")
 					DSS.MapState.showContinuousLegend(obj.palette, obj.values);
 				}
 				if (obj.fields) {
@@ -264,63 +285,56 @@ Ext.define('DSS.inspector.Main', {
 				}
 //                window.open('/grazescape/chart_data?data=[5,2,8]&labels=["field1","field2", "field3"]')
 
-                var chartPopup = new Ext.form.Panel({
-                    width: 500,
-                    height: 400,
-                    title: 'Model Results',
-                    floating: true,
-                    closable : true,
-                    draggable:true,
-                    resizable:true,
-                    html: '<div id="container"><canvas id="canvas"></canvas></div>'
-                });
-                var color = Chart.helpers.color;
-                var barChartData = {
-                    labels: [response.units],
-                    datasets: [{
-                        label: 'Farm',
-                        backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
-                        borderColor: window.chartColors.red,
-                        borderWidth: 1,
-                        data: [response.avg]
+        var chartPopup = new Ext.form.Panel({
+            width: 500,
+            height: 400,
+            title: 'Model Results',
+            floating: true,
+            closable : true,
+            draggable:true,
+            resizable:true,
+            html: '<div id="container"><canvas id="canvas"></canvas></div>'
+        });
+        var color = Chart.helpers.color;
+        var barChartData = {
+            labels: [response.units],
+            datasets: [{
+                label: 'Farm',
+                backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+                borderColor: window.chartColors.red,
+                borderWidth: 1,
+                data: [response.avg]
+            }]
+
+        };
+
+        chartPopup.show();
+        var ctx = document.getElementById('canvas').getContext('2d');
+        window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Model Output'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        scaleLabel: {
+                        display: true,
+                        labelString: response.units
+                      }
                     }]
-
-                };
-
-                chartPopup.show();
-                var ctx = document.getElementById('canvas').getContext('2d');
-                window.myBar = new Chart(ctx, {
-                    type: 'bar',
-                    data: barChartData,
-                    options: {
-                        responsive: true,
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Model Output'
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true
-                                },
-                                scaleLabel: {
-                                display: true,
-                                labelString: response.units
-                              }
-                            }]
-                        }
-                    }
-                });
-
-
-
-
-
-
-
+                }
+            }
+        });
 
 
 			},
@@ -329,11 +343,14 @@ Ext.define('DSS.inspector.Main', {
 				me.stopWorkerAnimation();
 			}
 		});
+		
 	},
 	
 	//---------------------------------------------------------------------------------
 	validateImageOL: function(json, layer, tryCount) {
 		var me = this;
+		console.log("validateImageOL run");
+		console.log(layer)
 		tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
 		Ext.defer(function() {
 			var src = new ol.source.ImageStatic({
@@ -342,7 +359,8 @@ Ext.define('DSS.inspector.Main', {
 				imageExtent: json.extent,
 				projection: 'EPSG:3071',
 				imageSmoothing: false
-			});			
+			});
+			
 			src.on('imageloadend', function() {
 				layer.setSource(src);
 				layer.setVisible(true);	
@@ -350,7 +368,7 @@ Ext.define('DSS.inspector.Main', {
 			});
 			src.on('imageloaderror', function() {
 				tryCount++;
-				if (tryCount < 2) {
+				if (tryCount < 5) {
 					me.validateImageOL(json, layer, tryCount);
 				}
 				else {
