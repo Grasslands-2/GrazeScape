@@ -31,7 +31,6 @@ Ext.define('DSS.inspector.Main', {
     	'DSS.inspector.DataSource',
     	'DSS.inspector.RestrictResults',
     	'DSS.results.ResultsMain',
-
     ],
     
     scrollable: 'y',
@@ -176,7 +175,8 @@ Ext.define('DSS.inspector.Main', {
 	//-------------------------------------------------------------------------------------------------
 	computeResults: function(extents, modelResultsLayer) {
 		//console.log("new computeResults run: " + modelResultsLayer)
-
+        console.log("Getting table object")
+        console.log(extents)
 		let me = this;
 		// TODO: busy feedback
 		if (me.DSS_isWorking) {
@@ -237,7 +237,7 @@ Ext.define('DSS.inspector.Main', {
 			"model": me.DSS_mode,
 			"options": options,
 			"restrictions": restrictions,
-      "model_parameters": model_parameters
+            "model_parameters": model_parameters,
 			"grass_type":extents[1]//start here in morning get feilds data.
 		};
 		console.log(data)

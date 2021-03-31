@@ -24,9 +24,6 @@ class GrassYield(ModelBase):
             # TODO ask Elissa about ways to remove these
             f.write(
                 "slope,elev,sand,silt,clay,om,ksat,cec,ph,total.depth\n")
-            # f.write("Orchardgrass-clover, 0, 30.770267,834.0,44.4,41.4,14.2,1.88,0.17,8.04,6.09,200.0\n")
-            # f.write("Bluegrass-clover, 0, 28.377039,826.0,44.4,41.4,14.2,1.88,0.17,8.04,6.09,200.0\n")
-            # f.write("Timothy-clover, 0, 25.208582,818.0,44.4,41.4,14.2,1.88,0.17,8.04,6.09,200.0\n")
             for y in range(0, bounds["y"]):
                 for x in range(0, bounds["x"]):
                     f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
