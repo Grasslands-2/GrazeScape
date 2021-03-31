@@ -14,6 +14,7 @@ from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.erosion import Erosion
+from grazescape.model_defintions.crop_yield import CropYield
 
 raster_data = None
 
@@ -69,6 +70,11 @@ def get_model_results(request):
         model = PhosphorousLoss(request)
     elif model_type == 'ero':
         model = Erosion(request)
+    elif model_type == 'crop':
+        print("crop")
+        if request.POST.getlist('model_parameters[crop]')[0] == 'corn':
+            print("corn")
+            model = CropYield(request,"corn_output")
     else:
         model = GenericModel(request, model_type)
         # data = {"error": "Could not find a suitable model"}
@@ -81,7 +87,7 @@ def get_model_results(request):
     model.write_model_input(clipped_rasters, bounds)
     print("Running model")
     results = model.run_model()
-    stats = model.aggregate(results)
+    avg = model.aggregate(results)
     print("Creating png")
     color_ramp = model.get_model_raster(results)
     for cat in color_ramp:
@@ -95,7 +101,9 @@ def get_model_results(request):
         "palette": palette,
         "url": model.file_name + ".png",
         "values": values,
-        "stats": stats
+        "avg": avg,
+        "units": model.get_units()
+
     }
 
     print("Displaying model")

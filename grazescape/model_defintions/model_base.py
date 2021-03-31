@@ -30,6 +30,8 @@ class ModelBase:
         self.data_range = []
         self.model_parameters = request
         self.bounds = {"x": 0, "y": 0}
+        self.units = ""
+
     def get_file_name(self):
         return self.file_name
 
@@ -187,3 +189,5 @@ class ModelBase:
         return self.color_ramp_hex, self.data_range
     def aggregate(self, data):
         return np.mean(data)
+    def get_units(self):
+        return self.units

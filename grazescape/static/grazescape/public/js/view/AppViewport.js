@@ -67,7 +67,7 @@ Ext.define('DSS.view.AppViewport', {
 //				me.stopWorkerAnimation();
                 console.log("fail")
 			}
-			})
+        })
 
 		Ext.applyIf(me, {
 			items: [{

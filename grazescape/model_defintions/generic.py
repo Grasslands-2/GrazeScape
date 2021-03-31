@@ -9,7 +9,6 @@ import numpy as np
 class GenericModel(ModelBase):
     def __init__(self,request, model_type, file_name=None):
         super().__init__(request, file_name)
-        self.model_file_path = os.path.join(self.model_file_path, self.model_name)
         self.model_type = model_type
 
     # overwriting abstract method
