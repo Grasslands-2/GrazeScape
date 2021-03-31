@@ -238,7 +238,7 @@ Ext.define('DSS.inspector.Main', {
 			"options": options,
 			"restrictions": restrictions,
             "model_parameters": model_parameters,
-			"grass_type":extents[1]//start here in morning get feilds data.
+			"grass_type":extents[1]
 		};
 		console.log(data)
 
