@@ -29,36 +29,77 @@ Ext.define('DSS.map.BoxModel', {
 		}
 
 		// raster image result
-		DSS.layer.ModelResult = new ol.layer.Image({
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source: new ol.source.ImageStatic({
-				imageSmoothing: false,
-				projection: 'EPSG:3071',
-				// Something is required here or there will be an exception whilst trying to draw this layer
-				imageExtent: [
-					44240,328120,
-					448350,335420
-				],
-			})
-		});
-//		Test layer for loading raster
-//			DSS.layer.ModelResult1 = new ol.layer.Image({
-//			updateWhileAnimating: true,
-//			updateWhileInteracting: true,
-//			source: new ol.source.ImageStatic({
-//				url: '/static/grazescape/public/images/myfile1.png',
-//				crossOrigin: '',
-//				projection: 'EPSG:3071',
-//				imageSmoothing: false,
-//
-//				imageExtent: [
-//					440000,314000,
-//					455000,340000
-//				]
-//			})
-//		});
-		//  box model outline, area of computation
+		function newmodelresults(v){
+			DSS.layer.v = new ol.layer.Image({
+				updateWhileAnimating: true,
+				updateWhileInteracting: true,
+				source: new ol.source.ImageStatic({
+					imageSmoothing: false,
+					projection: 'EPSG:3071',
+					// Something is required here or there will be an exception whilst trying to draw this layer
+					imageExtent: [
+						44240,328120,
+						448350,335420
+					],
+				})
+			});
+		}
+	DSS.layer.ModelResult = new ol.layer.Image({
+		updateWhileAnimating: true,
+		updateWhileInteracting: true,
+		source: new ol.source.ImageStatic({
+			imageSmoothing: false,
+			projection: 'EPSG:3071',
+			// Something is required here or there will be an exception whilst trying to draw this layer
+			imageExtent: [
+				44240,328120,
+				448350,335420
+			],
+		})
+	});
+	DSS.layer.ModelResult_field1 = new ol.layer.Image({
+		updateWhileAnimating: true,
+		updateWhileInteracting: true,
+		source: new ol.source.ImageStatic({
+			imageSmoothing: false,
+			projection: 'EPSG:3071',
+			// Something is required here or there will be an exception whilst trying to draw this layer
+			imageExtent: [
+				44240,328121,
+				448350,335421
+			],
+		}),
+		//opacity: 0.9,
+	});
+	DSS.layer.ModelResult_field2 = new ol.layer.Image({
+		updateWhileAnimating: true,
+		updateWhileInteracting: true,
+		source: new ol.source.ImageStatic({
+			imageSmoothing: false,
+			projection: 'EPSG:3071',
+			// Something is required here or there will be an exception whilst trying to draw this layer
+			imageExtent: [
+				44240,328122,
+				448350,335422
+			],
+		}),
+		//opacity: 0.5,
+	});
+	DSS.layer.ModelResult_field3 = new ol.layer.Image({
+		updateWhileAnimating: true,
+		updateWhileInteracting: true,
+		source: new ol.source.ImageStatic({
+			imageSmoothing: false,
+			projection: 'EPSG:3071',
+			// Something is required here or there will be an exception whilst trying to draw this layer
+			imageExtent: [
+				44240,328123,
+				448350,335420
+			],
+		}),
+		//opacity: 0.3,
+	});
+
 		DSS.layer.ModelBox = new ol.layer.Vector({
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
@@ -80,8 +121,9 @@ Ext.define('DSS.map.BoxModel', {
 			layers: [
 				DSS.layer.ModelBox,
 				DSS.layer.ModelResult,
-//				DSS.layer.ModelResult1,
-
+				DSS.layer.ModelResult_field1,
+				DSS.layer.ModelResult_field2,
+				DSS.layer.ModelResult_field3,
 			]
 		})
 		map.addLayer(DSS.layer.ModelGroup);

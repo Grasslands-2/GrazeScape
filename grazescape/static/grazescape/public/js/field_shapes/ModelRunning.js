@@ -22,8 +22,9 @@ function runModels(layer) {
 		extentTransform(f)//runs extent transform
 	})
 	//function inside of callmodelrun that actually calls computeresults on each field
-	const callModelRun = (extent) => { 
-		DSS.Inspector.computeResults(extent,DSS.layer.ModelResult);
+	const callModelRun = (extent,runningLayer) => {
+
+		DSS.Inspector.computeResults(extent,runningLayer);
 		return new Promise((resolve) => {
 			setTimeout(() => {
 				resolve();
@@ -34,12 +35,13 @@ function runModels(layer) {
 	const startTime = Date.now();
 	//Sets up each callModelRun to run after each promise is resolved. IOW, makes them run one at a time.
 	const doNextPromise = (z) => {
-		callModelRun(extentsArray[z]).then(x => {
+		runningLayers = [DSS.layer.ModelResult_field1,DSS.layer.ModelResult_field2,DSS.layer.ModelResult_field3]
+		
+		callModelRun(extentsArray[z],runningLayers[z]).then(x => {
 			console.log("just ran this extent: " + x);
 			z++;
-
-			if(z < extentsArray.length)
-				doNextPromise(z)
+			if(z < extentsArray.length){
+			doNextPromise(z)}
 			else 
 				console.log("DONE IN MODEL RUNNING!")
 		})
