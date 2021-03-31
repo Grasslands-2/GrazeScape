@@ -127,13 +127,13 @@ Ext.define('DSS.inspector.sourceParameters.PLoss', {
 				items: [{
 					boxLabel: 'No-till', name: 'tillage', inputValue: 'nt', checked: true
 				},{
-					boxLabel: 'Sp Cult', name: 'tillage', inputValue: 'scu'
+					boxLabel: 'Sp Cult', name: 'tillage', inputValue: 'su'
 				},{
-					boxLabel: 'Fall C+D', name: 'tillage', inputValue: 'fch'
+					boxLabel: 'Fall C+D', name: 'tillage', inputValue: 'fc'
 				},{
-					boxLabel: 'Sp C+D', name: 'tillage', inputValue: 'sch'
+					boxLabel: 'Sp C+D', name: 'tillage', inputValue: 'sc'
 				},{
-					boxLabel: 'Fall MBP', name: 'tillage', inputValue: 'fmb'
+					boxLabel: 'Fall MBP', name: 'tillage', inputValue: 'fm'
 				},{
 					boxLabel: 'Sp MBP', name: 'tillage', inputValue: 'smb'
 				}],

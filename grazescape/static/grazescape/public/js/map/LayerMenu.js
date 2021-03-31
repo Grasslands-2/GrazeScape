@@ -167,10 +167,12 @@ Ext.define('DSS.map.LayerMenu', {
                 menu: makeOpacityMenu("inspector", DSS.layer.ModelGroup, 50),
                 listeners: {
                 	afterrender: function(self) {
+						console.log("hi from LayerMenu afterrender")
                 		self.setChecked(DSS.layer.ModelResult.getVisible());
                 	}
                 },
                 handler: function(self) {
+					console.log("hi from LayerMenu handler")
                 	Ext.util.Cookies.set("inpsector:visible", self.checked ? "1" : "0");                	
                 	DSS.layer.ModelResult.setVisible(self.checked);                    	
                 }
