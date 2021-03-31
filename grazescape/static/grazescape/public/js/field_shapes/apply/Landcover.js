@@ -70,23 +70,22 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 					}
 				//	boxLabelCls: 'hover'
 				},
-				items: [{ 
+				items: [{
+					boxLabel: 'Pasture', 			inputValue: 'pt',
+				},{ 
+					boxLabel: 'New Pasture', 			inputValue: 'ps',
+				},{ 
 					boxLabel: 'Dry Lot', 			inputValue: 'dl',
-				},{
-					boxLabel: 'Pasture', 			inputValue: 'ps',
-			/*	},{
-					xtype: 'component',
-					style: 'border-bottom: 1px solid rgba(0,0,0,0.1); margin: 2px -32px'*/
 				},{
 					boxLabel: 'Continuous Corn',	inputValue: 'cc',
 				},{
 					boxLabel: 'Cash Grain',			inputValue: 'cg',
 					boxLabelAttrTpl: 'data-qtip="Two-year rotation: Corn Grain & Soybeans"',
 				},{
-					boxLabel: 'Dairy Rotation 1',	inputValue: 'd1',
+					boxLabel: 'Dairy Rotation 1',	inputValue: 'dr',
 					boxLabelAttrTpl: 'data-qtip="Five-year rotation: Corn Grain, Corn Silage, Three years of Alfalfa"',
 				},{
-					boxLabel: 'Dairy Rotation 2', 	inputValue: 'd2',
+					boxLabel: 'Dairy Rotation 2', 	inputValue: 'cso',
 					boxLabelAttrTpl: 'data-qtip="Three-year rotation: Corn Silage, Soybeans, Oats"',
 				}]
 			}]
