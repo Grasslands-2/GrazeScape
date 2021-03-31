@@ -8,6 +8,26 @@ var fields_1Source = new ol.source.Vector({
 		'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
 });
+/*fieldArrayToSave = []
+const callFieldSave = (field) => { 
+	wfs_field_update(field);
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve();
+		}, 1000);
+	});
+}
+const doNextPromise = (z) => {
+	callFieldSave(fieldArray[z]).then(x => {
+		console.log("just ran this field: " + x);
+		z++;
+
+		if(z < fieldArray.length)
+			doNextPromise(z)
+		else 
+			console.log("DONE SAVING FIELDS!")
+	})
+}*/
 
 function wfs_field_update(feat,geomType) {  
 	console.log('in field update func')
@@ -169,9 +189,9 @@ Ext.define('DSS.state.Scenario', {
 					handler: function() {
 						DSS.layer.fields_1.getSource().forEachFeature(function(f) {
 							var feildFeature = f;
-							console.log(feildFeature.id_);
+							console.log("from fields_1 loop through: " + feildFeature.id_);
 							for (i in fieldArray){
-								console.log(fieldArray[i].id);
+								console.log("Fieldarray id: " +fieldArray[i].id);
 								if(fieldArray[i].id === feildFeature.id_){
 									console.log(fieldArray[i].name);
 									feildFeature.setProperties({
@@ -193,13 +213,12 @@ Ext.define('DSS.state.Scenario', {
 										grazingdensityval: fieldArray[i].grazeDensityVal,
 										grazingdensitydisp: fieldArray[i].grazeDensityDisp
 									});
-									console.log(feildFeature.id_+"Just Ran!");
-									console.log('Update Attributes');
 									wfs_field_update(feildFeature);
-								}
-							}
+									break;
+								}				
+							}				
 						})
-					}
+					},
 				},
 						
 				{//------------------------------------------
