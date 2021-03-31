@@ -29,7 +29,7 @@ function getWFS() {
 		success:function(response)
 		{
 			farmObj = response.features
-			//console.log(farmObj[0])
+			console.log(farmObj[0])
 		}
 	})
 }
