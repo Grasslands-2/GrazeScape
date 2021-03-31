@@ -18,23 +18,20 @@ class PhosphorousLoss(ModelBase):
     def write_model_input(self, input_raster_dic, bounds):
         # Phos model needs erosion model as input
         model = Erosion(self.model_parameters)
-        model.write_model_input(input_raster_dic,bounds)
+        model.write_model_input(input_raster_dic, bounds)
         results = model.run_model()
-        results = model.reshape_model_output(results,bounds)
+        results = model.reshape_model_output(results, bounds)
         input_raster_dic['erosion'] = results
-
         with open(self.model_data_inputs_path, "w") as f:
             f.write(
-                "PI,Erosion,tillage,slope,Contour,initialP,OM,totalP2O5_lbs,total_DM_lbs,slopelenusle.r,silt,k,"
+                "Erosion,slope,initialP,OM,totalP2O5_lbs,total_DM_lbs,slopelenusle.r,silt,k,"
                 "total.depth,LSsurgo\n")
+
             for y in range(0, bounds["y"]):
                 for x in range(0, bounds["x"]):
-                    f.write(str(0) + ", " +
-                            str(input_raster_dic["erosion"][y][x]) + "," +
-                            str(self.model_parameters.POST.getlist("model_parameters[tillage]")[0]) + "," +
+                    f.write(str(input_raster_dic["erosion"][y][x]) + "," +
                             str(input_raster_dic["slope_data"][y][x]) + "," +
-                            str(self.model_parameters.POST.getlist("model_parameters[contour]")[0]) + "," +
-                            str(self.model_parameters.POST.getlist("model_parameters[intial_p]")[0]) + "," +
+                            str(self.model_parameters.POST.getlist("model_parameters[initial_p]")[0]) + "," +
                             str(input_raster_dic["om"][y][x]) + "," +
                             str(0) + "," +
                             str(0) + "," +
@@ -49,16 +46,30 @@ class PhosphorousLoss(ModelBase):
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
         print("RRRR")
+        tillage = self.model_parameters.POST.getlist("model_parameters[tillage]")[0]
+        contour = self.model_parameters.POST.getlist("model_parameters[contour]")[0]
         print(self.model_data_inputs_path)
         # print(r("install.packages('randomForest')"))
         r("library(randomForest)")
+        r("library(dplyr)")
+
         r("savedRF <- readRDS('" + self.model_file_path + "')")
-        r("grass <- read.csv('" + self.model_data_inputs_path + "')")
-        r("new_dat <- data.frame(grass)")
-        r("new_dat$cropname <- as.factor(new_dat$cropname)")
-        r("pred <- predict(savedRF, new_dat)")
+        r("new_dat <- read.csv('" + self.model_data_inputs_path + "')")
+
+        r('tillage <- factor(c("fm","nt","sn","su","sv","fc"))')
+        r('Contour <- factor(c("0", "1"))')
+
+        r("df_repeated <- new_dat %>% slice(rep(1:n(), each=length(tillage)))")
+        r("new_df <- cbind(tillage, df_repeated)")
+        r('pred_df <- new_df %>% filter(tillage == "' + tillage + '")')
+
+        r("df_repeated <- pred_df %>% slice(rep(1:n(), each=length(Contour)))")
+        r("new_df <- cbind(Contour, df_repeated)")
+        r('pred_df <- new_df %>% filter(Contour =="'+contour+'")')
+        r("pred <- predict(savedRF, newdata = pred_df)")
+
         pred = r.get("pred")
         print("Model Results")
         print(pred)
-        return
+        return pred
 

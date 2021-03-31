@@ -20,13 +20,10 @@ class Erosion(ModelBase):
             print(self.model_parameters)
             print(self.model_parameters.POST.getlist("model_parameters[contour]"))
             f.write(
-                "Erosion,tillage,slope,Contour,total_DM_lbs,slopelenusle.r,sand,silt,clay,k\n")
+                "slope,total_DM_lbs,slopelenusle.r,sand,silt,clay,k\n")
             for y in range(0, bounds["y"]):
                 for x in range(0, bounds["x"]):
-                    f.write(str(0) + ", " +
-                            str(self.model_parameters.POST.getlist("model_parameters[tillage]")[0]) + "," +
-                            str(input_raster_dic["slope_data"][y][x]) + "," +
-                            str(self.model_parameters.POST.getlist("model_parameters[contour]")[0]) + "," +
+                    f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
                             # constant will be provided value later
                             "5000" + "," +
                             str(input_raster_dic["slope_length"][y][x]) + "," +
@@ -40,28 +37,31 @@ class Erosion(ModelBase):
     def run_model(self):
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
+        tillage = self.model_parameters.POST.getlist("model_parameters[tillage]")[0]
+        contour = self.model_parameters.POST.getlist("model_parameters[contour]")[0]
+
         print("RRRR")
         print(self.model_data_inputs_path)
         # print(r("install.packages('randomForest')"))
         r("library(randomForest)")
+        r("library(dplyr)")
+
         r("savedRF <- readRDS('" + self.model_file_path + "')")
-        r("ero <- read.csv('" + self.model_data_inputs_path + "')")
-        r("new_dat <- data.frame(ero)")
+        r("new_dat <- read.csv('" + self.model_data_inputs_path + "')")
 
-        r("new_dat$tillage <- as.factor(new_dat$tillage)")
-        r("new_dat$Contour <- as.factor(new_dat$Contour)")
-        r("tillage_levels <- as.factor(c('fm','nt','sn','su','sv','fc'))")
-        r("contour_levels <- as.factor(c('0', '1'))")
+        r('tillage <- factor(c("fm","nt","sn","su","sv","fc"))')
+        r('Contour <- factor(c("0", "1"))')
+        r("df_repeated <- new_dat %>% slice(rep(1:n(), each=length(tillage)))")
+        r("new_df <- cbind(tillage, df_repeated)")
+        r('pred_df <- new_df %>% filter(tillage == "' + tillage + '")')
 
-        r("levels(new_dat$tillage) <- tillage_levels")
-        r("levels(new_dat$Contour) <- contour_levels")
-        print(r("pred <- predict(savedRF, new_dat)"))
+        r("df_repeated <- pred_df %>% slice(rep(1:n(), each=length(Contour)))")
+        r("new_df <- cbind(Contour, df_repeated)")
+        r('pred_df <- new_df %>% filter(Contour =="'+contour+'")')
+        r("pred <- predict(savedRF, newdata = pred_df)")
+
         pred = r.get("pred")
         print("Model Results")
         # Remove the three dummy references
         return pred
 
-
-if __name__ == '__main__':
-    model = GrassYield()
-    print(model.get_file_name())

@@ -206,15 +206,17 @@ Ext.define('DSS.inspector.Main', {
 
         grass_type = "timothy"
 //        model_type = me.DSS_mode
-//        model_type = "grass"
-        model_type = "ero"
+        model_type = "grass"
+//        model_type = "ero"
 //        model_type = "pl"
+//        model_type = "crop"
 
         model_parameters = {"grass_type": grass_type,
-        "tillage":"fc",
-        "contour": "1",
-        "initial_p": "35",
-        "total_DM_lbs": "5000"
+            "tillage":"fc",
+            "contour": "1",
+            "initial_p": "35",
+            "total_DM_lbs": "5000",
+            "crop":"corn"
         }
 
 		let data = {
@@ -261,33 +263,31 @@ Ext.define('DSS.inspector.Main', {
 			//		DSS.fieldList.addStats(me.DSS_mode, obj.fields)
 				}
 //                window.open('/grazescape/chart_data?data=[5,2,8]&labels=["field1","field2", "field3"]')
-                data_from_django = {"labels":["hello"],"data":["1"]}
-                console.log("heeeeeeeeeeeeeee")
-                console.log(data_from_django)
 
                 var chartPopup = new Ext.form.Panel({
                     width: 500,
                     height: 400,
-                    title: 'Foo',
+                    title: 'Model Results',
                     floating: true,
                     closable : true,
+                    draggable:true,
+                    resizable:true,
                     html: '<div id="container"><canvas id="canvas"></canvas></div>'
                 });
                 var color = Chart.helpers.color;
                 var barChartData = {
-                    labels: data_from_django['labels'],
+                    labels: [response.units],
                     datasets: [{
                         label: 'Farm',
                         backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
                         borderColor: window.chartColors.red,
                         borderWidth: 1,
-                        data: data_from_django['data']
+                        data: [response.avg]
                     }]
 
                 };
 
                 chartPopup.show();
-                console.log(data_from_django)
                 var ctx = document.getElementById('canvas').getContext('2d');
                 window.myBar = new Chart(ctx, {
                     type: 'bar',
@@ -305,7 +305,11 @@ Ext.define('DSS.inspector.Main', {
                             yAxes: [{
                                 ticks: {
                                     beginAtZero: true
-                                }
+                                },
+                                scaleLabel: {
+                                display: true,
+                                labelString: response.units
+                              }
                             }]
                         }
                     }
