@@ -173,7 +173,7 @@ Ext.define('DSS.inspector.Main', {
 	
 	//-------------------------------------------------------------------------------------------------
 	computeResults: function(extents, modelResultsLayer) {
-		//console.log("new computeResults run: " + extents)
+		//console.log("new computeResults run: " + modelResultsLayer)
 
 		let me = this;
 		// TODO: busy feedback
@@ -224,6 +224,7 @@ Ext.define('DSS.inspector.Main', {
 
 			success: function(response, opts) {
                 obj = response;
+				console.log("response(obj): " + obj);
 				let e = obj.extent;
 				//console.log("this is e: " + e)
 				let pt1 = ol.proj.transform([e[0],e[3]], 'EPSG:3071', 'EPSG:3857'),
@@ -267,6 +268,7 @@ Ext.define('DSS.inspector.Main', {
 	validateImageOL: function(json, layer, tryCount) {
 		var me = this;
 		console.log("validateImageOL run");
+		console.log(layer)
 		tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
 		Ext.defer(function() {
 		    console.log("New image")
