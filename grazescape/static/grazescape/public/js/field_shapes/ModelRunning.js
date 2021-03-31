@@ -6,16 +6,18 @@ function runModels(layer) {
 	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
 		var extentTransform = function(fieldFeature){
 			let fObj = [];
+			let fname = fieldFeature.values_.field_name;
 			let fGrass = fieldFeature.values_.grass_speciesval;
 			let fTillage = fieldFeature.values_.tillage;
 			let fOnContour = fieldFeature.values_.on_contour;
+			let fsoilP = fieldFeature.values_.soil_p;
 			let e = fieldFeature.values_.geometry.extent_;
 			let pt1 = ol.proj.transform([e[0],e[1]], 'EPSG:3857', 'EPSG:3071'),
 			pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3857', 'EPSG:3071');
 
 			let p =	pt1.concat(pt2);
 			
-			fObj.push(p,fGrass,fTillage,fOnContour) //push p and field grass type to fObj
+			fObj.push(p,fGrass,fTillage,fOnContour,fsoilP,fname) //push p and field grass type to fObj
 			extentsArray.push(fObj) //push each extent to array
 			console.log(fObj);
 		};
@@ -28,7 +30,9 @@ function runModels(layer) {
 		return new Promise((resolve) => {
 			setTimeout(() => {
 				resolve();
-			}, 1000);
+				//find way to get this to actually wait for models to complete,
+				//not just 3 seconds
+			}, 3000);
 	  	});
 	}
 	
@@ -38,12 +42,12 @@ function runModels(layer) {
 		runningLayers = [DSS.layer.ModelResult_field1,DSS.layer.ModelResult_field2,DSS.layer.ModelResult_field3]
 		
 		callModelRun(extentsArray[z],runningLayers[z]).then(x => {
-			console.log("just ran this extent: " + x);
+			console.log("just ran this extent: " + extentsArray[z]);
 			z++;
 			if(z < extentsArray.length){
 			doNextPromise(z)}
 			else 
-				console.log("DONE IN MODEL RUNNING!")
+				console.log("DONE IN MODEL RUNNING!")	
 		})
 	}
 	doNextPromise(0);

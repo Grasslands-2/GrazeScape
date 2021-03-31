@@ -205,19 +205,23 @@ Ext.define('DSS.inspector.Main', {
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
 //		external js library is used to simply getting the token
 		var csrftoken = Cookies.get('csrftoken');
+		if(extents[3] === true){
+			extents[3] = "1"
+		}else{extents[3]="0"}
 
 
-        grass_type = "timothy"
+        grass_type = extents[1]
 //        model_type = me.DSS_mode
         model_type = "grass"
-//        model_type = "ero"
+       // model_type = "ero"
 //        model_type = "pl"
 //        model_type = "crop"
 
-        model_parameters = {"grass_type": grass_type,
-            "tillage":"fc",
-            "contour": "1",
-            "initial_p": "35",
+        model_parameters = {
+			"grass_type": grass_type,
+            "tillage":extents[2],
+            "contour": extents[3],
+            "initial_p": extents[4],
             "total_DM_lbs": "5000",
             "crop":"corn"
         }
@@ -234,14 +238,15 @@ Ext.define('DSS.inspector.Main', {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
 			"extents": extents[0],
-			"model": me.DSS_mode,
+			"model": model_type,
 			"options": options,
 			"restrictions": restrictions,
             "model_parameters": model_parameters,
 			"grass_type":extents[1]
 		};
-		console.log(data)
-
+		console.log(data);
+		chartLabels = [];
+		chartData = [];
             $.ajaxSetup({
                     headers: { "X-CSRFToken": csrftoken }
                 });
@@ -284,28 +289,28 @@ Ext.define('DSS.inspector.Main', {
 			//		DSS.fieldList.addStats(me.DSS_mode, obj.fields)
 				}
 //                window.open('/grazescape/chart_data?data=[5,2,8]&labels=["field1","field2", "field3"]')
-
+			chartData.push(response.avg);
+			chartLabels.push(extents[5]);
         var chartPopup = new Ext.form.Panel({
             width: 500,
             height: 400,
             title: 'Model Results',
             floating: true,
-            closable : true,
+            closable: true,
             draggable:true,
             resizable:true,
             html: '<div id="container"><canvas id="canvas"></canvas></div>'
         });
         var color = Chart.helpers.color;
         var barChartData = {
-            labels: [response.units],
+            labels: chartLabels,
             datasets: [{
                 label: 'Farm',
                 backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
                 borderColor: window.chartColors.red,
                 borderWidth: 1,
-                data: [response.avg]
+                data: chartData
             }]
-
         };
 
         chartPopup.show();

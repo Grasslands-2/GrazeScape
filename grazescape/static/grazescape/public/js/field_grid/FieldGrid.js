@@ -411,7 +411,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				listeners:{
 				select: function(combo, value, eOpts,rec,widget){
 						var record = combo.getWidgetRecord();
-						console.log(record.get('rotationVal'));
+						record.set('tillageVal', value.get('value'));
+						record.set('tillageDisp', value.get('display'));
+						//console.log(record.get('rotationVal'));
 //**If crop rotation is cont corn, or cash grains
 //**and coverage is small grain, tillage can only be spring cult, spring chisel no disk or no till.
 
@@ -427,8 +429,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 //**if crop rotation new pasture, tillage options: fall chisel disk, fall moldboard plow, no till, spring chisel disk, spring chisel no disk, spring cult.
 //come back too.  none critical at this point. VALUE IS THE CURRENT TABLE VALUE. RECORD IS WHAT IS COMING FROM FIELD ARRAY
 //Think I just figured it out. had to move the record.set blocks up above the ifs...check in the morning.
-						/*record.set('tillageVal', value.get('value'));
-						record.set('tillageDisp', value.get('display'));
+						/*
 						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg') && record.get('coverCropVal') == 'cc');
 						{
 							combo.setStore('tillageList_cashCrop');
