@@ -44,13 +44,13 @@ Ext.define('DSS.field_shapes.apply.Tillage', {
 					name: 'tillage'
 				},
 				items: [{ 
-					boxLabel: 'No-till', 			inputValue: 'NT',
+					boxLabel: 'No-till', 			inputValue: 'nt',
 				},{
 					boxLabel: 'Spring Cultivation',	inputValue: 'su',
 				},{
 					boxLabel: 'Spring Chisel + Disk',inputValue: 'sc',
 				},{
-					boxLabel: 'Spring Moldboard', 	inputValue: 'SMB'
+					boxLabel: 'Spring Moldboard', 	inputValue: 'smb'
 				},{
 					boxLabel: 'Fall Chisel + Disk',inputValue: 'fc',
 				},{

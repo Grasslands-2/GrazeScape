@@ -53,9 +53,9 @@ function wfs_field_insert(feat,geomType) {
 			console.log(msg);
         }
     })
-	//.done();
+	.done();
 	//console.log("Field wrote to Geoserver")
-	//DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
 	DSS.layer.fields_1.getSource().refresh();
 }
 function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
@@ -81,7 +81,8 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 			graze_dairy_lactating: lac,
 			graze_dairy_non_lactating: non_lac,
 			cover_crop: crop,
-			tillage: tillageInput
+			tillage: tillageInput,
+			on_contour: false
 		})
 		var geomType = 'polygon'
 		wfs_field_insert(e.feature, geomType)
@@ -201,7 +202,9 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 							data.graze_animals.beef,
 							data.crop.value,
 							data.tillage.value.tillage,
-							data.soil_p.value,);
+							data.soil_p.value,
+							//probably wrong, look up data schema
+							data.on_contour);
 					}
 			    }]
 			}]
