@@ -29,7 +29,9 @@ Ext.define('DSS.inspector.Main', {
 	
     requires: [
     	'DSS.inspector.DataSource',
-    	'DSS.inspector.RestrictResults'    	
+    	'DSS.inspector.RestrictResults',
+    	'DSS.results.ResultsMain',
+
     ],
     
     scrollable: 'y',
@@ -192,16 +194,42 @@ Ext.define('DSS.inspector.Main', {
 		}
 		if (!me.DSS_mode) me.DSS_mode = 'slope';//crop-yield';
 		
+
 		me['DSS_extents'] = extents[0];
 		console.log("current extents before run: " + extents[0]);
 		//do i need to round to get to a whole number?
 		
 		me.startWorkerAnimation();
-		
+
 		let options = me.down('#dss-data-source').getOptions();
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
 //		external js library is used to simply getting the token
 		var csrftoken = Cookies.get('csrftoken');
+
+
+        grass_type = "timothy"
+//        model_type = me.DSS_mode
+        model_type = "grass"
+//        model_type = "ero"
+//        model_type = "pl"
+//        model_type = "crop"
+
+        model_parameters = {"grass_type": grass_type,
+            "tillage":"fc",
+            "contour": "1",
+            "initial_p": "35",
+            "total_DM_lbs": "5000",
+            "crop":"corn"
+        }
+
+// 		let data = {
+// 			"farm_id": DSS.activeFarm,
+// 			"scenario_id": DSS.activeScenario,
+// 			"options": options,
+// 			"restrictions": restrictions,
+// 			"model": model_type,
+// 			"extents": extents,
+// 			"model_parameters": model_parameters
 		let data = {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
@@ -209,6 +237,7 @@ Ext.define('DSS.inspector.Main', {
 			"model": me.DSS_mode,
 			"options": options,
 			"restrictions": restrictions,
+      "model_parameters": model_parameters
 			"grass_type":extents[1]//start here in morning get feilds data.
 		};
 		console.log(data)
@@ -223,6 +252,7 @@ Ext.define('DSS.inspector.Main', {
             'data' : data,
 
 			success: function(response, opts) {
+			    console.log(response)
                 obj = response;
 				console.log("response(obj): " + obj);
 				let e = obj.extent;
@@ -253,8 +283,60 @@ Ext.define('DSS.inspector.Main', {
 				if (obj.fields) {
 			//		DSS.fieldList.addStats(me.DSS_mode, obj.fields)
 				}
-				
-				
+//                window.open('/grazescape/chart_data?data=[5,2,8]&labels=["field1","field2", "field3"]')
+
+        var chartPopup = new Ext.form.Panel({
+            width: 500,
+            height: 400,
+            title: 'Model Results',
+            floating: true,
+            closable : true,
+            draggable:true,
+            resizable:true,
+            html: '<div id="container"><canvas id="canvas"></canvas></div>'
+        });
+        var color = Chart.helpers.color;
+        var barChartData = {
+            labels: [response.units],
+            datasets: [{
+                label: 'Farm',
+                backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+                borderColor: window.chartColors.red,
+                borderWidth: 1,
+                data: [response.avg]
+            }]
+
+        };
+
+        chartPopup.show();
+        var ctx = document.getElementById('canvas').getContext('2d');
+        window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Model Output'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        scaleLabel: {
+                        display: true,
+                        labelString: response.units
+                      }
+                    }]
+                }
+            }
+        });
+
+
 			},
 			
 			failure: function(response, opts) {
@@ -271,7 +353,6 @@ Ext.define('DSS.inspector.Main', {
 		console.log(layer)
 		tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
 		Ext.defer(function() {
-		    console.log("New image")
 			var src = new ol.source.ImageStatic({
 				url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
 				crossOrigin: '',
@@ -281,8 +362,6 @@ Ext.define('DSS.inspector.Main', {
 			});
 			
 			src.on('imageloadend', function() {
-			    console.log("set source of image")
-			    console.log(src)
 				layer.setSource(src);
 				layer.setVisible(true);	
 				me.stopWorkerAnimation();
