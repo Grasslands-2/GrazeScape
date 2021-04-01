@@ -12,6 +12,23 @@ var DSS_RefilterDelayed = function(msDelay) {
 	filter_task.delay(msDelay);
 }
 
+var chartPopup = new Ext.form.Panel({
+    width: 500,
+    height: 400,
+    title: 'Model Results',
+    floating: true,
+    closable: true,
+    draggable:true,
+    resizable:true,
+    html: '<div id="container"><canvas id="canvas"></canvas></div>'
+});
+var barChartData = {
+    labels: ["Fields"],
+    datasets: []
+};
+var barChart;
+//var
+
 DSS.utils.addStyle('.fa-spin-fast {-webkit-animation: fa-spin 1s linear infinite;animation:fa-spin 1s linear infinite}')
 DSS.utils.addStyle('.spinner-working { color: #d41; display: block}')//#3892d4
 DSS.utils.addStyle('.spinner-working-lt { color: #f87; display: block}')//#0ff
@@ -215,7 +232,7 @@ Ext.define('DSS.inspector.Main', {
         model_type = "grass"
        // model_type = "ero"
 //        model_type = "pl"
-//        model_type = "crop"
+        model_type = "crop"
 
         model_parameters = {
 			"grass_type": grass_type,
@@ -245,8 +262,11 @@ Ext.define('DSS.inspector.Main', {
 			"grass_type":extents[1]
 		};
 		console.log(data);
-		chartLabels = [];
-		chartData = [];
+
+
+
+
+
             $.ajaxSetup({
                     headers: { "X-CSRFToken": csrftoken }
                 });
@@ -259,6 +279,11 @@ Ext.define('DSS.inspector.Main', {
 			success: function(response, opts) {
 			    console.log(response)
                 obj = response;
+                if(response.error){
+                    console.log("model did not run")
+                    me.stopWorkerAnimation();
+                    return
+                }
 				console.log("response(obj): " + obj);
 				let e = obj.extent;
 				//console.log("this is e: " + e)
@@ -289,57 +314,33 @@ Ext.define('DSS.inspector.Main', {
 			//		DSS.fieldList.addStats(me.DSS_mode, obj.fields)
 				}
 //                window.open('/grazescape/chart_data?data=[5,2,8]&labels=["field1","field2", "field3"]')
-			chartData.push(response.avg);
-			chartLabels.push(extents[5]);
-        var chartPopup = new Ext.form.Panel({
-            width: 500,
-            height: 400,
-            title: 'Model Results',
-            floating: true,
-            closable: true,
-            draggable:true,
-            resizable:true,
-            html: '<div id="container"><canvas id="canvas"></canvas></div>'
-        });
+
+//			chartLabels.push(extents[5]);
+
         var color = Chart.helpers.color;
-        var barChartData = {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Farm',
+//        var barChartData = {
+//            labels: chartLabels,
+//            datasets: [{
+//                label: 'Farm',
+//                backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+//                borderColor: window.chartColors.red,
+//                borderWidth: 1,
+//                data: chartData
+//            }]
+//        };
+        newData ={
+                label: extents[5],
                 backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
                 borderColor: window.chartColors.red,
                 borderWidth: 1,
-                data: chartData
-            }]
-        };
-
-        chartPopup.show();
-        var ctx = document.getElementById('canvas').getContext('2d');
-        window.myBar = new Chart(ctx, {
-            type: 'bar',
-            data: barChartData,
-            options: {
-                responsive: true,
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Model Output'
-                },
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        },
-                        scaleLabel: {
-                        display: true,
-                        labelString: response.units
-                      }
-                    }]
-                }
+                data: [response.avg]
             }
-        });
+        window.barChartData.datasets.push(newData)
+        console.log(window.barChart)
+        console.log(window.barChartData)
+            chartPopup.show()
+
+        window.barChart.update();
 
 
 			},
