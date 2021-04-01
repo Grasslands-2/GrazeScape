@@ -12,7 +12,7 @@ class PhosphorousLoss(ModelBase):
         super().__init__(request, file_name)
         self.model_name = "ContCorn_NoCoverPI.rds"
         self.model_file_path = os.path.join(self.model_file_path, self.model_name)
-
+        self.units = "PI"
     # overwriting abstract method
 
     def write_model_input(self, input_raster_dic, bounds):
@@ -33,7 +33,7 @@ class PhosphorousLoss(ModelBase):
                             str(input_raster_dic["slope_data"][y][x]) + "," +
                             str(self.model_parameters.POST.getlist("model_parameters[initial_p]")[0]) + "," +
                             str(input_raster_dic["om"][y][x]) + "," +
-                            str(0) + "," +
+                            str(60) + "," +
                             str(0) + "," +
                             str(input_raster_dic["slope_length"][y][x]) + "," +
                             str(input_raster_dic["silt"][y][x]) + "," +

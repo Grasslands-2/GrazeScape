@@ -11,7 +11,7 @@ class Erosion(ModelBase):
         super().__init__(request, file_name)
         self.model_name = "ContCorn_NoCoverErosion.rds"
         self.model_file_path = os.path.join( self.model_file_path, self.model_name)
-
+        self.units = "tons of soil / acre"
     # overwriting abstract method
     def write_model_input(self, input_raster_dic,bounds):
         with open(self.model_data_inputs_path, "w") as f:
@@ -25,7 +25,7 @@ class Erosion(ModelBase):
                 for x in range(0, bounds["x"]):
                     f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
                             # constant will be provided value later
-                            "5000" + "," +
+                            "0" + "," +
                             str(input_raster_dic["slope_length"][y][x]) + "," +
                             str(input_raster_dic["sand"][y][x]) + "," +
                             str(input_raster_dic["silt"][y][x]) + "," +

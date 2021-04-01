@@ -60,12 +60,15 @@ def get_model_results(request):
     global raster_data
 
     extents = request.POST.getlist('extents[]')
-    print(request.POST.getlist('model_parameters[initial_p]'))
+    print(request.POST)
     model_type = request.POST.get('model')
     values = []
     if model_type == 'grass':
         print("grass")
-        model = GrassYield(request)
+        if request.POST.getlist('model_parameters[grass_type]')[0].lower() != "":
+            model = GrassYield(request)
+        else:
+            return JsonResponse({"error": "No valid model selected"})
     elif model_type == 'pl':
         model = PhosphorousLoss(request)
     elif model_type == 'ero':
@@ -74,7 +77,7 @@ def get_model_results(request):
         print("crop")
         if request.POST.getlist('model_parameters[crop]')[0] == 'corn':
             print("corn")
-            model = CropYield(request,"corn_output")
+            model = CropYield(request, "corn_output")
     else:
         model = GenericModel(request, model_type)
         # data = {"error": "Could not find a suitable model"}
