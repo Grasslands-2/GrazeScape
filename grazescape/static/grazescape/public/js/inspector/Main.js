@@ -230,9 +230,9 @@ Ext.define('DSS.inspector.Main', {
         grass_type = extents[1]
 //        model_type = me.DSS_mode
         model_type = "grass"
-       // model_type = "ero"
+        model_type = "ero"
 //        model_type = "pl"
-        model_type = "crop"
+//        model_type = "crop"
 
         model_parameters = {
 			"grass_type": grass_type,
@@ -339,7 +339,7 @@ Ext.define('DSS.inspector.Main', {
         console.log(window.barChart)
         console.log(window.barChartData)
             chartPopup.show()
-
+        window.barChart.options.scales.yAxes[0].scaleLabel.labelString = response.units
         window.barChart.update();
 
 
