@@ -14,7 +14,7 @@ class GrassYield(ModelBase):
         print(self.model_parameters.POST.getlist('model_parameters[grass_type]'))
         print(self.model_parameters.POST.getlist('model_parameters[grass_type]')[0].lower())
         self.grass_type = self.model_parameters.POST.getlist('model_parameters[grass_type]')[0].lower()
-        self.units = "tons/ac"
+        self.units = "Dry Mass tons/ac"
     # overwriting abstract method
     def write_model_input(self, input_raster_dic, bounds):
 

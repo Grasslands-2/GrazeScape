@@ -1,7 +1,34 @@
 // Module is used to run the compute models functions of the app
 
 function runModels(layer,modelChoice) {
-	
+    chartPopup.show()
+    var ctx = document.getElementById('canvas').getContext('2d');
+
+    barChart = new Chart(ctx, {
+    type: 'bar',
+    data: barChartData,
+    options: {
+        responsive: true,
+        legend: {
+            position: 'top',
+        },
+        title: {
+            display: true,
+            text: 'Model Output'
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                },
+                scaleLabel: {
+                display: true,
+                labelString:" response.units"
+              }
+            }]
+        }
+    }
+});
 	 extentsArray = []; //empty array for extents list
 	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
 		var extentTransform = function(fieldFeature){
