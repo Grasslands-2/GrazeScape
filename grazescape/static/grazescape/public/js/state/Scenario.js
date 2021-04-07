@@ -247,7 +247,7 @@ Ext.define('DSS.state.Scenario', {
 		DSS.MapState.disableFieldDraw();
 		DSS.draw.setActive(false);
 		DSS.modify.setActive(false);
-		DSS.fieldStyleFunction = undefined;	DSS.layer.fields.changed();
+		DSS.fieldStyleFunction = undefined;	DSS.layer.fields_1.changed();
 
 		me.initViewModel();
 	},

@@ -40,6 +40,18 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					text: 'Create New',
 					handler: function() {
 						DSS.ApplicationFlow.instance.showNewOperationPage();
+						DSS.MapState.removeMapInteractions();
+					}
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Delete Operation',
+					handler: function() {
+						DSS.ApplicationFlow.instance.showDeleteOperationPage();
+						DSS.MapState.removeMapInteractions();
+						selectOperation();
 					}
 				}]
 			}]

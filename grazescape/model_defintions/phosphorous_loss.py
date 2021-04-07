@@ -50,23 +50,23 @@ class PhosphorousLoss(ModelBase):
         contour = self.model_parameters.POST.getlist("model_parameters[contour]")[0]
         print(self.model_data_inputs_path)
         # print(r("install.packages('randomForest')"))
-        r("library(randomForest)")
-        r("library(dplyr)")
+        print(r("library(randomForest)"))
+        print(r("library(dplyr)"))
 
-        r("savedRF <- readRDS('" + self.model_file_path + "')")
-        r("new_dat <- read.csv('" + self.model_data_inputs_path + "')")
+        print(r("savedRF <- readRDS('" + self.model_file_path + "')"))
+        print(r("new_dat <- read.csv('" + self.model_data_inputs_path + "')"))
 
-        r('tillage <- factor(c("fm","nt","sn","su","sv","fc"))')
-        r('Contour <- factor(c("0", "1"))')
+        print(r('tillage <- factor(c("fm","nt","sn","su","sv","fc"))'))
+        print(r('Contour <- factor(c("0", "1"))'))
 
-        r("df_repeated <- new_dat %>% slice(rep(1:n(), each=length(tillage)))")
-        r("new_df <- cbind(tillage, df_repeated)")
-        r('pred_df <- new_df %>% filter(tillage == "' + tillage + '")')
+        print(r("df_repeated <- new_dat %>% slice(rep(1:n(), each=length(tillage)))"))
+        print(r("new_df <- cbind(tillage, df_repeated)"))
+        print(r('pred_df <- new_df %>% filter(tillage == "' + tillage + '")'))
 
-        r("df_repeated <- pred_df %>% slice(rep(1:n(), each=length(Contour)))")
-        r("new_df <- cbind(Contour, df_repeated)")
-        r('pred_df <- new_df %>% filter(Contour =="'+contour+'")')
-        r("pred <- predict(savedRF, newdata = pred_df)")
+        print(r("df_repeated <- pred_df %>% slice(rep(1:n(), each=length(Contour)))"))
+        print(r("new_df <- cbind(Contour, df_repeated)"))
+        print(r('pred_df <- new_df %>% filter(Contour =="'+contour+'")'))
+        print(r("pred <- predict(savedRF, newdata = pred_df)"))
 
         pred = r.get("pred")
         print("Model Results")
