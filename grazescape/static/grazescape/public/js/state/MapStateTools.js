@@ -115,8 +115,8 @@ Ext.define('DSS.state.MapStateTools', {
     showFields: function(opacity) {
     	
     	opacity = opacity || 1;
-		DSS.layer.fields.setOpacity(opacity);
-		DSS.layer.fields.setVisible(true);
+		DSS.layer.fields_1.setOpacity(opacity);
+		DSS.layer.fields_1.setVisible(true);
     },
     
     // Opacity defaults to opacity for showFields()
@@ -138,7 +138,12 @@ Ext.define('DSS.state.MapStateTools', {
 		console.log("showfieldsforfarm ran");
     },
     
-    //
+    //----------------------------------------
+	removeMapInteractions: function(){
+		DSS.map.removeInteraction(DSS.draw);
+		DSS.map.removeInteraction(DSS.select);
+		console.log("removeMapInteractions")
+	},
     //----------------------------------------
     disableFieldDraw: function() {
     	
@@ -181,7 +186,7 @@ Ext.define('DSS.state.MapStateTools', {
 		    }
 		    return me.DSS_fieldStyles.defaultStyle;
 		}
-		DSS.layer.fields.changed(); //needs to be "poked" after style change...
+		DSS.layer.fields_1.changed(); //needs to be "poked" after style change...
 		
 		// Selection can't be on
 		DSS.selectionTool.getFeatures().clear();
@@ -221,9 +226,9 @@ Ext.define('DSS.state.MapStateTools', {
 							lastFp = f;
 						}
 						/*if (lastF !== f) {
-							DSS.layer.fields.getSource().setUrl("get_fields?farm="+ f.get("id"));
+							DSS.layer.fields_1.getSource().setUrl("get_fields?farm="+ f.get("id"));
 
-							DSS.layer.fields.getSource().refresh();
+							DSS.layer.fields_1.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
 						}*/
@@ -243,8 +248,8 @@ Ext.define('DSS.state.MapStateTools', {
 							lastFp = f;
 						}
 						/*if (lastF !== f) {
-							DSS.layer.fields.getSource().setUrl("get_fields?field="+ f.get("id"));
-							DSS.layer.fields.getSource().refresh();
+							DSS.layer.fields_1.getSource().setUrl("get_fields?field="+ f.get("id"));
+							DSS.layer.fields_1.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
 						}*/
@@ -265,6 +270,7 @@ Ext.define('DSS.state.MapStateTools', {
 	//	console.log("TODO: many farms at the click location: " + fs.length);
     //-------------------------------------------------------------
     clickActivateFarmHandler: function(evt) {
+		console.log("in active farm handler")
     	
     	let me = this;
     	
@@ -276,15 +282,16 @@ Ext.define('DSS.state.MapStateTools', {
 				let g = f.getGeometry();
 				if (g && g.getType() === "Point") {
 					DSS.activeFarm = f.get("id");
-					DSS.activeScenario = f.get("scenario");
+					//DSS.activeScenario = f.get("scenario");
 					
 					let pos = g.getFirstCoordinate()
 					me.setPinMarker(pos);
+					console.log("pin set in activatefarmhandler")
 					let ex = ol.extent;
 					let extent = [pos[0], pos[1], pos[0], pos[1]];
-					DSS.layer.fields.getSource().forEachFeature(function(f) {
-						extent = ex.extend(extent, f.getGeometry().getExtent());
-					});
+					//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+					//	extent = ex.extend(extent, f.getGeometry().getExtent());
+					//});
 					ex.buffer(extent, 250, extent);
 					me.zoomToRealExtent(extent);
 					
@@ -294,7 +301,7 @@ Ext.define('DSS.state.MapStateTools', {
 					
 					DSS.map.getViewport().style.cursor = '';
 					AppEvents.triggerEvent('activate_operation')
-//					console.log(DSS.layer.fields.getSource());
+//					console.log(DSS.layer.fields_1.getSource());
 					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
 					
 					break;

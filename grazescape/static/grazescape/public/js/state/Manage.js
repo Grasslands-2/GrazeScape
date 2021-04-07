@@ -77,9 +77,11 @@ Ext.define('DSS.state.Manage', {
 						if (pressed) {
 							//DSS.ApplicationFlow.FieldGrid
 							AppEvents.triggerEvent('show_field_shape_mode')
+							DSS.MapState.removeMapInteractions()
 						}
 						else {
-							AppEvents.triggerEvent('hide_field_shape_mode')
+							AppEvents.triggerEvent('hide_field_shape_mode');
+							DSS.MapState.removeMapInteractions()
 						}
 					//	DSS.ApplicationFlow.instance.showNewOperationPage();
 					}

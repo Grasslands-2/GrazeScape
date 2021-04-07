@@ -96,7 +96,7 @@ function runModels(layer,modelChoice) {
 
 //------------------working variables--------------------
 var type = "Polygon";
-var source = fields_1Source;
+var source = fields_1Source_loc;
 
 Ext.create('Ext.data.Store', {
 	storeId: 'modelList',
