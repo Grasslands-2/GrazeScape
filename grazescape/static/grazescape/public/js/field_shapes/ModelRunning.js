@@ -1,6 +1,6 @@
 // Module is used to run the compute models functions of the app
 
-function runModels(layer) {
+function runModels(layer,modelChoice) {
     chartPopup.show()
     var ctx = document.getElementById('canvas').getContext('2d');
 
@@ -33,19 +33,32 @@ function runModels(layer) {
 	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
 		var extentTransform = function(fieldFeature){
 			let fObj = [];
-			let fname = fieldFeature.values_.field_name;
+			let fName = fieldFeature.values_.field_name;
+			let fRotation = fieldFeature.values_.rotation;
 			let fGrass = fieldFeature.values_.grass_speciesval;
 			let fTillage = fieldFeature.values_.tillage;
 			let fOnContour = fieldFeature.values_.on_contour;
-			let fsoilP = fieldFeature.values_.soil_p;
+			let fSoilP = fieldFeature.values_.soil_p;
 			let e = fieldFeature.values_.geometry.extent_;
 			let pt1 = ol.proj.transform([e[0],e[1]], 'EPSG:3857', 'EPSG:3071'),
 			pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3857', 'EPSG:3071');
-
 			let p =	pt1.concat(pt2);
-			
-			fObj.push(p,fGrass,fTillage,fOnContour,fsoilP,fname) //push p and field grass type to fObj
-			extentsArray.push(fObj) //push each extent to array
+
+			fObj.push(p,fGrass,fTillage,fOnContour,fSoilP,fName,modelChoice) //push p and field grass type to fObj
+			//extentsArray.push(fObj)
+			//Selection by model type for field rotation
+			if(modelChoice === 'grass' && (fRotation === 'pt' || fRotation === 'ps')){
+				extentsArray.push(fObj) //push each extent to array
+			};
+			if(modelChoice === 'crop' && (fRotation === 'cc' || fRotation === 'dr' || fRotation === 'cso')){
+				extentsArray.push(fObj) //push each extent to array
+			};
+			if(modelChoice === 'ero'){
+				extentsArray.push(fObj) //push each extent to array
+			}; 
+			if(modelChoice === 'pl'){
+				extentsArray.push(fObj) //push each extent to array
+			};//push each extent to array
 			console.log(fObj);
 		};
 		extentTransform(f)//runs extent transform
@@ -84,7 +97,7 @@ function runModels(layer) {
 
 //------------------working variables--------------------
 var type = "Polygon";
-var source = fields_1Source;
+var source = fields_1Source_loc;
 
 Ext.create('Ext.data.Store', {
 	storeId: 'modelList',
@@ -179,8 +192,11 @@ Ext.define('DSS.field_shapes.ModelRunning', {
 					text: 'Run Model',
 					formBind: true,
 					handler: function() { 
-						console.log("run model")
-						runModels(DSS.layer.fields_1);
+						var data = me.viewModel.data;
+						var modelChoice = data.modelSelected.modelSelection
+						console.log(modelChoice);
+						console.log("run model");
+						runModels(DSS.layer.fields_1,modelChoice);
 					}
 			    },
 			    {

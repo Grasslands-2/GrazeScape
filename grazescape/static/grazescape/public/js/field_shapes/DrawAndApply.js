@@ -1,4 +1,4 @@
-var fields_1Source = new ol.source.Vector({
+var fields_1Source_loc = new ol.source.Vector({
 	url:'http://localhost:8081/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
@@ -85,13 +85,15 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 			on_contour: false
 		})
 		var geomType = 'polygon'
+		
+		DSS.MapState.removeMapInteractions()
 		wfs_field_insert(e.feature, geomType)
 		console.log("HI! WFS feild Insert ran!")
 	})     
 }
 //------------------working variables--------------------
 var type = "Polygon";
-var source = fields_1Source;
+var source = fields_1Source_loc
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.field_shapes.DrawAndApply', {
@@ -195,6 +197,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					formBind: true,
 					handler: function() { 
 						var data = me.viewModel.data;
+						DSS.map.removeInteraction(DSS.select);
 						//console.log(DSS.activeFarm);
 
 						createField(data.graze_animals.dairy_lactating,
