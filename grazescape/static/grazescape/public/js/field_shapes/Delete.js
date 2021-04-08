@@ -1,10 +1,3 @@
-
-/*var selectInteraction = new ol.interaction.Select({
-	layers: function(layer) {
-	  return layer.get('selectable') == true;
-	},
-	//style: [selectFrancePoints, selectEuropa]
-  });*/
 var selectedField = {}
 function selectField(){
 	DSS.select = new ol.interaction.Select({
@@ -167,7 +160,7 @@ Ext.define('DSS.field_shapes.Delete', {
 		
 		DSS.mouseMoveFunction = function(evt) {
 			let coordinate  =  DSS.map.getEventCoordinate(evt.originalEvent);
-			let fs = DSS.layer.fields.getSource().getFeaturesAtCoordinate(coordinate);
+			let fs = DSS.layer.fields_1.getSource().getFeaturesAtCoordinate(coordinate);
 			let cursor = '';
 			let mouseList = [];
 			fs.forEach(function(f) {
@@ -191,7 +184,7 @@ Ext.define('DSS.field_shapes.Delete', {
     	
     	DSS.mapClickFunction = function(evt) {
 			let coordinate  =  DSS.map.getEventCoordinate(evt.originalEvent);
-			let fs = DSS.layer.fields.getSource().getFeaturesAtCoordinate(coordinate);
+			let fs = DSS.layer.fields_1.getSource().getFeaturesAtCoordinate(coordinate);
 			let deleteList = [];
 			fs.forEach(function(f) {
 				let g = f.getGeometry();

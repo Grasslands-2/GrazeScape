@@ -94,7 +94,7 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'GrazeScape',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'Badbass85!',
         'HOST': 'localhost',
         'PORT': '5432'
     }

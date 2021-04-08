@@ -37,7 +37,15 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 				toggleHandler: function(self, pressed) {
 
 					if (pressed) {
-						DSS.DrawFieldShapes.addModeControl();	
+						DSS.MapState.removeMapInteractions();
+						DSS.DrawFieldShapes.addModeControl(me);	
+						//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
+						DSS.mapClickFunction = undefined;
+						DSS.mouseMoveFunction = undefined;
+					}
+					else {
+						DSS.mouseMoveFunction = undefined;
+						DSS.mapClickFunction = undefined;
 					}
 				}
 			},/*{
@@ -139,7 +147,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 				console.log(obj);
 				feature.setProperties({'f_id': obj.f_id});
 				DSS_RefilterDelayed(25);
-				DSS.layerSource.fields.refresh();
+				DSS.layerSource.fields_1.refresh();
 //				DSS.layer.cropOverlay.changed(); //needs to be "poked" after add??
 			},
 			
@@ -212,8 +220,8 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 			
 			success: function(response, opts) {
 				DSS_RefilterDelayed(25);
-				DSS.layerSource.fields.refresh();
-//				DSS.layerSource.fields.refresh();
+				DSS.layerSource.fields_1.refresh();
+//				DSS.layerSource.fields_1.refresh();
 //				DSS.layer.cropOverlay.changed(); //needs to be "poked" after add??
 			},
 			
