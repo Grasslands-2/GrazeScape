@@ -53,7 +53,7 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
                             select: function(combo, record, index) {
 //                              alert(combo.getValue()); // Return Unitad States and no USA
                               calc_cost(combo.getValue(), per_cost.getValue(), per_result)
-                              per_length.setValue(combo.getValue().toFixed(2))
+                              per_length.setValue((combo.getValue()*3.28084).toFixed(2))
                             }
                         }
                 })
@@ -203,5 +203,7 @@ function calc_slope_distance(point1, point2){
     return {"slope_distance":Math.sqrt(x_dis + y_dis + z_dis), "distance":Math.sqrt(x_dis + y_dis)}
 }
 function calc_cost(length, cost, res_obj) {
+//    convert feet to meters
+    length = length * 3.28084
     res_obj.setValue((length * cost).toFixed(2))
 }
