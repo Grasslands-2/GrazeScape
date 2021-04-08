@@ -27,6 +27,7 @@ class GrassYield(ModelBase):
             for y in range(0, bounds["y"]):
                 for x in range(0, bounds["x"]):
                     f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
+                            # raster elevation is in feet so convert to meters
                             str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
                             str(input_raster_dic["sand"][y][x]) + "," +
                             str(input_raster_dic["silt"][y][x]) + "," +

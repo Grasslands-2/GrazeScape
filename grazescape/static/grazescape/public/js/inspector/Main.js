@@ -230,7 +230,7 @@ Ext.define('DSS.inspector.Main', {
         grass_type = extents[1]
 //        model_type = me.DSS_mode
         model_type = "grass"
-        model_type = "ero"
+//        model_type = "ero"
 //        model_type = "pl"
 //        model_type = "crop"
 
@@ -291,6 +291,11 @@ Ext.define('DSS.inspector.Main', {
 				pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3071', 'EPSG:3857');
 				pt3 = ol.proj.transform([e[2],e[1]], 'EPSG:3071', 'EPSG:3857');
 				pt4 = ol.proj.transform([e[0],e[1]], 'EPSG:3071', 'EPSG:3857');
+
+                console.log("points")
+				console.log(e[0], e[3])
+				console.log(pt1)
+
 				let p = new ol.geom.Polygon([
 					[pt1, pt2, pt3, pt4, pt1]
 				]);
