@@ -5,30 +5,30 @@ function runModels(layer,modelChoice) {
     var ctx = document.getElementById('canvas').getContext('2d');
 
     barChart = new Chart(ctx, {
-    type: 'bar',
-    data: barChartData,
-    options: {
-        responsive: true,
-        legend: {
-            position: 'top',
-        },
-        title: {
-            display: true,
-            text: 'Model Output'
-        },
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                },
-                scaleLabel: {
+        type: 'bar',
+        data: barChartData,
+        options: {
+            responsive: true,
+            legend: {
+                position: 'top',
+            },
+            title: {
                 display: true,
-                labelString:" response.units"
-              }
-            }]
+                text: 'Model Output'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    },
+                    scaleLabel: {
+                    display: true,
+                    labelString:" response.units"
+                  }
+                }]
+            }
         }
-    }
-});
+    });
 	 extentsArray = []; //empty array for extents list
 	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
 		var extentTransform = function(fieldFeature){
@@ -92,6 +92,7 @@ function runModels(layer,modelChoice) {
 	}
 	doNextPromise(0);
 }
+
 
 
 //------------------working variables--------------------
@@ -196,6 +197,17 @@ Ext.define('DSS.field_shapes.ModelRunning', {
 						console.log(modelChoice);
 						console.log("run model");
 						runModels(DSS.layer.fields_1,modelChoice);
+					}
+			    },
+			    {
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Get perimeter',
+					formBind: true,
+					handler: function() {
+						console.log("get perimeter")
+						getPerimeter(DSS.layer.fields_1);
 					}
 			    }]
 			}]

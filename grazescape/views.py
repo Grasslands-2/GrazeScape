@@ -122,3 +122,51 @@ def get_image(response):
     response = FileResponse(img)
 
     return response
+
+
+def point_elevations(request):
+    global raster_data
+    # print("calc distance")
+    print(request.POST)
+    # print(request.POST.get('points'))
+    # print(request.POST.getlist('points'))
+    # print(request.POST.getlist('points[]'))
+    # print(request.POST.getlist('points[1][]'))
+    elevations = raster_data.get_raster_data()['elevation']
+    coor_ele = []
+    for point in request.POST:
+        if "points" in point:
+
+            print(request.POST.getlist(point))
+            coor = request.POST.getlist(point)
+            local_coor = to_local_space(coor)
+            print(elevations[local_coor[1]][local_coor[0]])
+            elevation = elevations[local_coor[1]][local_coor[0]]
+            # convert from ft to meters
+            coor_ele.append([coor[0], coor[1], elevation * 0.3048,coor[2],coor[3]])
+    content = {
+        "success": True,
+        "points": coor_ele
+    }
+    return JsonResponse(content)
+
+
+def to_local_space(m_extent):
+    # actual values of extents bounding box
+    area_extents = [440000, 314000, 455000, 340000]
+    m_x1 = int(round(float(m_extent[0]) / 10.0) * 10)
+    m_y1 = int(round(float(m_extent[1]) / 10.0) * 10)
+    # Checking if bounding box is outside area extents
+    if m_x1 < area_extents[0]:
+        m_x1 = area_extents[0]
+    elif m_x1 > area_extents[2]:
+        m_x1 = area_extents[2]
+    if m_y1 < area_extents[1]:
+        m_y1 = area_extents[1]
+    elif m_y1 > area_extents[3]:
+        m_y1 = area_extents[3]
+    # // re-index
+    m_x1 = int((m_x1 - area_extents[0]) / 10)
+    m_y1 = int(-(m_y1 - area_extents[3]) / 10)
+
+    return [m_x1, m_y1]
