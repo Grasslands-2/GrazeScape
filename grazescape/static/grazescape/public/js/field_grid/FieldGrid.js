@@ -3,18 +3,10 @@
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
 
-
-//Trying to only show active farms fields.  This script runs when the app starts
-//How do we interrupt that so it runs when an active farm is selected?
-//Can the redraw of the selected fields help?
-//look into how exactly that happens again, then try to retrace
-//for this problem.
-
 var fieldArray = [];
 var fieldObj = {};
 
-var fieldUrl = 
-'http://localhost:8081/geoserver/wfs?'+
+var fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -28,9 +20,6 @@ var fields_1Source = new ol.source.Vector({
 });
 var fields_1Layer = new ol.layer.Vector({
 	title: 'fields_1',
-	//visible: true,
-	//updateWhileAnimating: true,
-	//updateWhileInteracting: true,
 	source: fields_1Source
 })
 console.log(fields_1Layer)
@@ -47,11 +36,10 @@ function getWFSfields() {
 			responseObj = response
 			fieldObj = response.features
 			console.log(responseObj);
-			//fieldArray = [];
+			fieldArray = [];
 			//console.log(fieldObj[0]);
 			popFieldsArray(fieldObj);
-			//clean this up in the morning..
-			//placed data store in call function to make sure it was locally available.
+			//placed data store in call function to make sure it was locally available.	
 			Ext.create('Ext.data.Store', {
 				storeId: 'fieldStore1',
 				alternateClassName: 'DSS.FieldStore',
@@ -61,26 +49,12 @@ function getWFSfields() {
 					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp'],
 				data: fieldArray
 			});
-			//DSS.field_grid.FieldGrid.store.config.data = fieldArray;
-			//DSS.FieldStore.reload(fieldArray)
+			//Setting store to just declared store fieldStore1, and reloading the store to the grid
 			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
 			DSS.field_grid.FieldGrid.store.reload();
-			//DSS.field_grid.FieldGrid.render();
-			//DSS.field_grid.FieldGrid.store.commitChanges(fieldArray);
-			//DSS.field_grid.FieldGrid.store.data.refresh();
-			//DSS.field_grid.FieldGrid.data.reload(fieldArray);
-			//DSS.field_grid.FieldGrid.initComponent()
-			//DSS.field_grid.FieldGrid.store.refresh(fieldArray);
-			console.log(fieldArray);
-			console.log('DSS.field_grid.FieldGrid.store.config.data')
-			console.log(DSS.field_grid.FieldGrid.store.config.data);
-			console.log(DSS.field_grid.FieldGrid.store.config);
-			console.log(DSS.field_grid.FieldGrid.store);
-			console.log(DSS.field_grid.FieldGrid.store.data);
-			console.log(DSS.field_grid.FieldGrid);
-			//DSS.FieldGrid.rerender()
-			//DSS.field_grid.FieldGrid.getView()
-			//DSS.FieldGrid.getView().refresh();
+			//console.log(fieldArray);
+			//console.log('DSS.field_grid.FieldGrid')
+			//console.log(DSS.field_grid.FieldGrid);
 		}
 	})
 }
@@ -117,21 +91,23 @@ function popFieldsArray(obj) {
 	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 }
 console.log(fieldArray);
-//console.log(DSS.activeFarm);
 
 //empty array to catch feature objects 
 function gatherTableData() {
+	//redeclaring fieldUrl to only show filtered fields
+	fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=Farms:field_1&'+
+	'CQL_filter=id='+DSS.activeFarm+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+	//--------------------------------------------
 	getWFSfields();
-	//popFieldsArray(fieldObj);
 	console.log("gatherTableData ran");
-	//console.log(fieldArray);
-	fieldArray = [];
 	console.log(fieldArray);
-	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 };
-console.log(fieldArray);
-//buildTable()
-//gatherTableData();
 //console.log(fieldArray);
 
 Ext.create('Ext.data.Store', {
