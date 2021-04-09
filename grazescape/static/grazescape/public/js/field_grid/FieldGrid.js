@@ -47,7 +47,40 @@ function getWFSfields() {
 			responseObj = response
 			fieldObj = response.features
 			console.log(responseObj);
-			console.log(fieldObj[0]);
+			//fieldArray = [];
+			//console.log(fieldObj[0]);
+			popFieldsArray(fieldObj);
+			//clean this up in the morning..
+			//placed data store in call function to make sure it was locally available.
+			Ext.create('Ext.data.Store', {
+				storeId: 'fieldStore1',
+				alternateClassName: 'DSS.FieldStore',
+				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
+					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
+					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp'],
+				data: fieldArray
+			});
+			//DSS.field_grid.FieldGrid.store.config.data = fieldArray;
+			//DSS.FieldStore.reload(fieldArray)
+			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
+			DSS.field_grid.FieldGrid.store.reload();
+			//DSS.field_grid.FieldGrid.render();
+			//DSS.field_grid.FieldGrid.store.commitChanges(fieldArray);
+			//DSS.field_grid.FieldGrid.store.data.refresh();
+			//DSS.field_grid.FieldGrid.data.reload(fieldArray);
+			//DSS.field_grid.FieldGrid.initComponent()
+			//DSS.field_grid.FieldGrid.store.refresh(fieldArray);
+			console.log(fieldArray);
+			console.log('DSS.field_grid.FieldGrid.store.config.data')
+			console.log(DSS.field_grid.FieldGrid.store.config.data);
+			console.log(DSS.field_grid.FieldGrid.store.config);
+			console.log(DSS.field_grid.FieldGrid.store);
+			console.log(DSS.field_grid.FieldGrid.store.data);
+			console.log(DSS.field_grid.FieldGrid);
+			//DSS.FieldGrid.rerender()
+			//DSS.field_grid.FieldGrid.getView()
+			//DSS.FieldGrid.getView().refresh();
 		}
 	})
 }
@@ -81,15 +114,25 @@ function popFieldsArray(obj) {
 		grazeDairyNonLactating: obj[i].properties.graze_dairy_non_lactating,
 		grazeBeefCattle: obj[i].properties.graze_beef_cattle,
 	});
+	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 }
 console.log(fieldArray);
-console.log(DSS.activeFarm);
+//console.log(DSS.activeFarm);
 
 //empty array to catch feature objects 
-
-getWFSfields();
-popFieldsArray(fieldObj);
-
+function gatherTableData() {
+	getWFSfields();
+	//popFieldsArray(fieldObj);
+	console.log("gatherTableData ran");
+	//console.log(fieldArray);
+	fieldArray = [];
+	console.log(fieldArray);
+	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
+};
+console.log(fieldArray);
+//buildTable()
+//gatherTableData();
+//console.log(fieldArray);
 
 Ext.create('Ext.data.Store', {
 	storeId: 'rotationList',
@@ -270,6 +313,7 @@ Ext.create('Ext.data.Store', {
 //-----------------------------------fieldStore!---------------------------------
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
+	alternateClassName: 'DSS.FieldStore',
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
 		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
 		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
@@ -297,6 +341,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	
 	store: Ext.data.StoreManager.lookup('fieldStore'),
 	
+	
 	minHeight: 40,
 	maxHeight: 600,
 	listeners: {
@@ -307,7 +352,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	//requires: ['DSS.map.Main'],
 
 	//-----------------------------------------------------
+	
 	initComponent: function() {
+		console.log("INITCOMPONENT FROM FIELDGRID RAN!!!!!")
 		let me = this;
 		
 		//------------------------------------------------------------------------------
@@ -662,8 +709,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		})
 		
 		AppEvents.registerListener('show_field_grid', function() {
+			me
 			console.log('hi from grid view')
-			selectField()
+			//selectField()
 
 			//Fun with trying to only show fields for active farm FIX ME LATER
 			//console.log(DSS.activeFarm);

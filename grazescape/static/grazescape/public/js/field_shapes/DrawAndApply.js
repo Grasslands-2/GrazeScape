@@ -32,6 +32,7 @@ function wfs_field_insert(feat,geomType) {
 		success: function (data) {
 			console.log("uploaded data successfully!: "+ data);
 			DSS.layer.fields_1.getSource().refresh();
+			DSS.layer.farms_1.getSource().refresh();
 		},
         error: function (xhr, exception) {
             var msg = "";
