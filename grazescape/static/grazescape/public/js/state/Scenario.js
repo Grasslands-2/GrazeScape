@@ -8,26 +8,6 @@ var fields_1Source = new ol.source.Vector({
 		'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
 });
-/*fieldArrayToSave = []
-const callFieldSave = (field) => { 
-	wfs_field_update(field);
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve();
-		}, 1000);
-	});
-}
-const doNextPromise = (z) => {
-	callFieldSave(fieldArray[z]).then(x => {
-		console.log("just ran this field: " + x);
-		z++;
-
-		if(z < fieldArray.length)
-			doNextPromise(z)
-		else 
-			console.log("DONE SAVING FIELDS!")
-	})
-}*/
 
 function wfs_field_update(feat,geomType) {  
 	console.log('in field update func')
@@ -183,14 +163,21 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Field Properties',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
-							AppEvents.triggerEvent('show_field_grid')
+							//console.log(DSS.field_grid.FieldGrid.getView()); 
+							DSS.MapState.removeMapInteractions();
+							//Running gatherTableData before showing grid to get latest
+							gatherTableData();
+							AppEvents.triggerEvent('show_field_grid');
 						}
 						else {
 							AppEvents.triggerEvent('hide_field_grid')
+							DSS.field_grid.FieldGrid.store.clearData();
+							console.log(fieldArray);
 						}
-//						DSS.ApplicationFlow.instance.showNewOperationPage();
 					}
-				},{//------------------------------------------
+				},
+				//------------------------------------------
+				{
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Update Field Data'

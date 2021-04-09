@@ -121,6 +121,7 @@ Ext.define('DSS.state.MapStateTools', {
     
     // Opacity defaults to opacity for showFields()
     //-------------------------------------------------------------
+	//used to limit return of fields to just active farm
     showFieldsForFarm: function(farmId, opacity) {
     	
 		DSS.layer.fields_1.getSource().setUrl(
@@ -133,12 +134,28 @@ Ext.define('DSS.state.MapStateTools', {
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		DSS.layer.fields_1.getSource().refresh();
-		this.showFields(opacity);
-		//console.log(farmId);
 		console.log("showfieldsforfarm ran");
     },
     
     //----------------------------------------
+	//-------------------------------------------------------------
+	//shows all fields in db
+	showAllFields: function(opacity) {
+			
+		DSS.layer.fields_1.getSource().setUrl(
+		'http://localhost:8081/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=Farms:field_1&' +
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857');
+		DSS.layer.fields_1.getSource().refresh();
+		console.log("showAllFields ran");
+	},
+
+	//----------------------------------------
+
 	removeMapInteractions: function(){
 		DSS.map.removeInteraction(DSS.draw);
 		DSS.map.removeInteraction(DSS.select);
@@ -281,7 +298,7 @@ Ext.define('DSS.state.MapStateTools', {
 				let f = fs[idx];
 				let g = f.getGeometry();
 				if (g && g.getType() === "Point") {
-					DSS.activeFarm = f.get("id");
+					DSS.activeFarm = f.get("gid");
 					//DSS.activeScenario = f.get("scenario");
 					
 					let pos = g.getFirstCoordinate()
@@ -303,6 +320,8 @@ Ext.define('DSS.state.MapStateTools', {
 					AppEvents.triggerEvent('activate_operation')
 //					console.log(DSS.layer.fields_1.getSource());
 					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
+					DSS.MapState.removeMapInteractions()
+					DSS.layer.farms_1.getSource().refresh();
 					
 					break;
 				}
