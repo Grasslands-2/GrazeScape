@@ -3,18 +3,10 @@
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
 
-
-//Trying to only show active farms fields.  This script runs when the app starts
-//How do we interrupt that so it runs when an active farm is selected?
-//Can the redraw of the selected fields help?
-//look into how exactly that happens again, then try to retrace
-//for this problem.
-
 var fieldArray = [];
 var fieldObj = {};
 
-var fieldUrl = 
-'http://localhost:8081/geoserver/wfs?'+
+var fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -28,9 +20,6 @@ var fields_1Source = new ol.source.Vector({
 });
 var fields_1Layer = new ol.layer.Vector({
 	title: 'fields_1',
-	//visible: true,
-	//updateWhileAnimating: true,
-	//updateWhileInteracting: true,
 	source: fields_1Source
 })
 console.log(fields_1Layer)
@@ -47,7 +36,25 @@ function getWFSfields() {
 			responseObj = response
 			fieldObj = response.features
 			console.log(responseObj);
-			console.log(fieldObj[0]);
+			fieldArray = [];
+			//console.log(fieldObj[0]);
+			popFieldsArray(fieldObj);
+			//placed data store in call function to make sure it was locally available.	
+			Ext.create('Ext.data.Store', {
+				storeId: 'fieldStore1',
+				alternateClassName: 'DSS.FieldStore',
+				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
+					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
+					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp'],
+				data: fieldArray
+			});
+			//Setting store to just declared store fieldStore1, and reloading the store to the grid
+			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
+			DSS.field_grid.FieldGrid.store.reload();
+			//console.log(fieldArray);
+			//console.log('DSS.field_grid.FieldGrid')
+			//console.log(DSS.field_grid.FieldGrid);
 		}
 	})
 }
@@ -81,15 +88,27 @@ function popFieldsArray(obj) {
 		grazeDairyNonLactating: obj[i].properties.graze_dairy_non_lactating,
 		grazeBeefCattle: obj[i].properties.graze_beef_cattle,
 	});
+	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 }
 console.log(fieldArray);
-console.log(DSS.activeFarm);
 
 //empty array to catch feature objects 
-
-getWFSfields();
-popFieldsArray(fieldObj);
-
+function gatherTableData() {
+	//redeclaring fieldUrl to only show filtered fields
+	fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=Farms:field_1&'+
+	'CQL_filter=id='+DSS.activeFarm+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+	//--------------------------------------------
+	getWFSfields();
+	console.log("gatherTableData ran");
+	console.log(fieldArray);
+};
+//console.log(fieldArray);
 
 Ext.create('Ext.data.Store', {
 	storeId: 'rotationList',
@@ -270,6 +289,7 @@ Ext.create('Ext.data.Store', {
 //-----------------------------------fieldStore!---------------------------------
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
+	alternateClassName: 'DSS.FieldStore',
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
 		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
 		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
@@ -297,6 +317,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	
 	store: Ext.data.StoreManager.lookup('fieldStore'),
 	
+	
 	minHeight: 40,
 	maxHeight: 600,
 	listeners: {
@@ -307,7 +328,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	//requires: ['DSS.map.Main'],
 
 	//-----------------------------------------------------
+	
 	initComponent: function() {
+		console.log("INITCOMPONENT FROM FIELDGRID RAN!!!!!")
 		let me = this;
 		
 		//------------------------------------------------------------------------------
@@ -662,8 +685,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		})
 		
 		AppEvents.registerListener('show_field_grid', function() {
+			me
 			console.log('hi from grid view')
-			selectField()
+			//selectField()
 
 			//Fun with trying to only show fields for active farm FIX ME LATER
 			//console.log(DSS.activeFarm);
