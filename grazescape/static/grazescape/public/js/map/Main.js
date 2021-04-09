@@ -321,7 +321,7 @@ Ext.define('DSS.map.Main', {
 		});	
 
 		// Populate grid
-		DSS.layer.fields.getSource().on('change', function(evt) {
+		/*DSS.layer.fields.getSource().on('change', function(evt) {
 			
 			let fd = Ext.StoreMgr.lookup('field_data');
 			let records = [];
@@ -374,7 +374,7 @@ Ext.define('DSS.map.Main', {
 				r = Math.round(Math.pow(r, 3) * 13 + 3)
 				return me.DSS_zoomStyles['style' + r];
 			}
-		});
+		});*/
 
 		//--------------------------------------------------------- 
 		var farms_1Source = new ol.source.Vector({
