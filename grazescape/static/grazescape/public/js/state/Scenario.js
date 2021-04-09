@@ -66,8 +66,7 @@ Ext.define('DSS.state.Scenario', {
 
 	requires: [
 		'DSS.state.scenario.CropNutrientMode',
-		'DSS.state.scenario.AnimalDialog',
-		//'DSS.field_grid.FieldGrid'
+		'DSS.state.scenario.AnimalDialog'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -149,26 +148,21 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Field Properties',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
-							console.log(DSS.field_grid.FieldGrid.getView()); 
-							//figured out how to make the table reload when the field
-							//properties button is pushed.  next limit table to fields
-							//owned by active farm
-							//build in fieldArray clean out
+							//console.log(DSS.field_grid.FieldGrid.getView()); 
 							DSS.MapState.removeMapInteractions();
+							//Running gatherTableData before showing grid to get latest
 							gatherTableData();
-							//console.log(DSS.field_grid.FieldGrid.store)
-							//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 							AppEvents.triggerEvent('show_field_grid');
 						}
 						else {
 							AppEvents.triggerEvent('hide_field_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
-							fieldArray = [];
 							console.log(fieldArray);
 						}
-//						DSS.ApplicationFlow.instance.showNewOperationPage();
 					}
-				},{//------------------------------------------
+				},
+				//------------------------------------------
+				{
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Update Field Data'
