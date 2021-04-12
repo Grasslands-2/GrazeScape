@@ -9,85 +9,107 @@ from django.conf import settings
 import os
 # Create your views here.
 import grazescape.raster_data as rd
+import json
 from grazescape.model_defintions.grass_yield import GrassYield
-raster_data= None
+from grazescape.model_defintions.generic import GenericModel
+from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
+from grazescape.model_defintions.erosion import Erosion
+from grazescape.model_defintions.crop_yield import CropYield
+
+raster_data = None
+
+
 def load_data(request):
-    print("Loading data!!")
     global raster_data
+    print("Loading data!!")
     raster_data = rd.RasterData()
-    return HttpResponse('')
+    message = "pickle"
+    # http: // localhost: 8000 / grazescape / load_data?load_txt = true
+    if request.GET.get("load_txt"):
+        print("Raster CSV")
+        message = 'csv'
+        raster_data.load_raster_csv()
+    raster_data.load_raster_pickle()
+    print("loaded pickle")
+    if 'ls' not in raster_data.get_raster_data():
+        print("create ls")
+        raster_data.create_ls_file()
+    return HttpResponse(message)
+
+
 def index(request):
-    print("hello world")
     context = {
-        'num_books': "d",
-        'num_instances': "d",
-        'num_instances_available': "d",
-        'num_authors': "d",
+
     }
-    # import requests module
-    import requests
-
-    # # Making a get request
-    # response = requests.get('http://localhost:9000/get_model_data')
-    #
-    # # print response
-    # print(response)
-    #
-    # # print json content
-    # print(response.json())
-
-
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+def chart(request):
+    print(request.GET)
+    print(request.POST)
+    data = json.loads(request.GET.get('data'))
+    labels = json.loads(request.GET.get('labels'))
+    print(data)
+    print(data[0])
+    package = {"data":data,"labels":labels}
+    # package = json.dumps(package)
+    return render(request, 'chart.html', context={"my_data":package})
+
+
 @ensure_csrf_cookie
 def get_model_results(request):
     global raster_data
 
     extents = request.POST.getlist('extents[]')
-    print(extents)
-    # # extents, rounded_extents = to_raster_space(extents = [445971.32902102446, 326947.92331442796, 449571.5308751964, 331080.5252420306])
-    # extents, rounded_extents = to_raster_space(extents)
-    # # raster_data = get_raster_inputs()
-    # # raster = rd.RasterData()
-    # # raster_data = raster.get_raster_data()
-    # clipped_raster, bounds = clip_input(extents, raster_data.get_raster_data())
-    # file_path = write_model_input(clipped_raster)
-    # print(clipped_raster)
-    # results = run_r(file_path)
-    #
-    # color_ramp, output_name = get_model_raster(results, bounds)
-    palette = [
-        "#204484",
-        "#3e75b2",
-        "#90b9e4",
-        "#d2f0fa",
-        "#fcffd8",
-        "#ffdaa0",
-        "#eb9159",
-        "#d25c34",
-        "#a52d18"
-    ]
+    print(request.POST)
+    model_type = request.POST.get('model')
     values = []
-
-
-    model = GrassYield()
+    if model_type == 'grass':
+        print("grass")
+        if request.POST.getlist('model_parameters[grass_type]')[0].lower() != "":
+            model = GrassYield(request)
+        else:
+            return JsonResponse({"error": "No valid model selected"})
+    elif model_type == 'pl':
+        model = PhosphorousLoss(request)
+    elif model_type == 'ero':
+        model = Erosion(request)
+    elif model_type == 'crop':
+        print("crop")
+        if request.POST.getlist('model_parameters[crop]')[0] == 'corn':
+            print("corn")
+            model = CropYield(request, "corn_output")
+    else:
+        model = GenericModel(request, model_type)
+        # data = {"error": "Could not find a suitable model"}
+        # return JsonResponse(data)
+    print("Calculating Extents")
     extents, rounded_extents = model.to_raster_space(extents)
-    clipped_rasters, bounds = model.clip_input(extents,raster_data.get_raster_data())
-    model.write_model_input(clipped_rasters)
+    print("Clipping Extents")
+    clipped_rasters, bounds = model.clip_input(extents, raster_data.get_raster_data())
+    print("Preparing model input")
+    model.write_model_input(clipped_rasters, bounds)
+    print("Running model")
     results = model.run_model()
-    color_ramp = model.get_model_raster(results, bounds)
+    avg = model.aggregate(results)
+    print("Creating png")
+    color_ramp = model.get_model_raster(results)
     for cat in color_ramp:
         # palette.append(cat[2])
         values.append(cat[1])
     print(model.file_name)
     palette, values = model.get_legend()
     data = {
-        "extent":rounded_extents,
-        "model-results":"None",
-        "palette":palette,
-        "url":model.file_name + ".png",
-        "values":values
+        "extent": rounded_extents,
+        "model-results": "None",
+        "palette": palette,
+        "url": model.file_name + ".png",
+        "values": values,
+        "avg": avg,
+        "units": model.get_units()
+
     }
+
+    print("Displaying model")
     return JsonResponse(data)
 
 def get_image(response):
@@ -100,3 +122,51 @@ def get_image(response):
     response = FileResponse(img)
 
     return response
+
+
+def point_elevations(request):
+    global raster_data
+    # print("calc distance")
+    print(request.POST)
+    # print(request.POST.get('points'))
+    # print(request.POST.getlist('points'))
+    # print(request.POST.getlist('points[]'))
+    # print(request.POST.getlist('points[1][]'))
+    elevations = raster_data.get_raster_data()['elevation']
+    coor_ele = []
+    for point in request.POST:
+        if "points" in point:
+
+            print(request.POST.getlist(point))
+            coor = request.POST.getlist(point)
+            local_coor = to_local_space(coor)
+            print(elevations[local_coor[1]][local_coor[0]])
+            elevation = elevations[local_coor[1]][local_coor[0]]
+            # convert from ft to meters
+            coor_ele.append([coor[0], coor[1], elevation * 0.3048,coor[2],coor[3]])
+    content = {
+        "success": True,
+        "points": coor_ele
+    }
+    return JsonResponse(content)
+
+
+def to_local_space(m_extent):
+    # actual values of extents bounding box
+    area_extents = [440000, 314000, 455000, 340000]
+    m_x1 = int(round(float(m_extent[0]) / 10.0) * 10)
+    m_y1 = int(round(float(m_extent[1]) / 10.0) * 10)
+    # Checking if bounding box is outside area extents
+    if m_x1 < area_extents[0]:
+        m_x1 = area_extents[0]
+    elif m_x1 > area_extents[2]:
+        m_x1 = area_extents[2]
+    if m_y1 < area_extents[1]:
+        m_y1 = area_extents[1]
+    elif m_y1 > area_extents[3]:
+        m_y1 = area_extents[3]
+    # // re-index
+    m_x1 = int((m_x1 - area_extents[0]) / 10)
+    m_y1 = int(-(m_y1 - area_extents[3]) / 10)
+
+    return [m_x1, m_y1]

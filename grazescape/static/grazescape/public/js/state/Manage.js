@@ -47,6 +47,8 @@ Ext.define('DSS.state.Manage', {
 							c.getEl().getFirstChild().el.on({
 								click: function(self) {
 									DSS.ApplicationFlow.instance.showLandingPage();
+									//DSS.layer.fields_1.getSource().refresh();
+									DSS.MapState.showAllFields();
 								}
 							});
 						}
@@ -57,7 +59,6 @@ Ext.define('DSS.state.Manage', {
 					cls: 'section-title accent-text right-pad',
 					html: 'Manage'
 				},
-				//DSS.FieldGrid
 			]
 			},{ 
 				xtype: 'container',
@@ -75,11 +76,12 @@ Ext.define('DSS.state.Manage', {
 					toggleGroup: 'manage-operation',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
-							//DSS.ApplicationFlow.FieldGrid
 							AppEvents.triggerEvent('show_field_shape_mode')
+							DSS.MapState.removeMapInteractions()
 						}
 						else {
-							AppEvents.triggerEvent('hide_field_shape_mode')
+							AppEvents.triggerEvent('hide_field_shape_mode');
+							DSS.MapState.removeMapInteractions()
 						}
 					//	DSS.ApplicationFlow.instance.showNewOperationPage();
 					}

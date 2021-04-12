@@ -1,6 +1,6 @@
 var grazeUrl = "http://localhost:9000"
 
-Ext.tip.QuickTipManager.init(true, {shadow: false}); // Instantiate the QuickTipManager
+//Ext.tip.QuickTipManager.init(true, {shadow: false}); // Instantiate the QuickTipManager
 Ext.Loader.setConfig({
 	enabled: true,
 //	disableCaching:false,
@@ -12,9 +12,7 @@ Ext.Loader.setConfig({
 Ext.application({
 	name: 'DSS',
 	appFolder: '/static/grazescape/public/js',
-//	requires: ['http://localhost:8000/static/grazescape/public/js/view/AppViewport'],
-//	requires: ['AppViewport'],
-//	requires: ['/static/grazescape/public/js/view/AppViewport'],
+
     views: [
 		'AppViewport'
 	],

@@ -1,34 +1,43 @@
-var selectedField = {}
-function selectField(){
+DSS.utils.addStyle('.underlined-input { border: none; border-bottom: 1px solid #ddd; display:table; width: 100%; height:100%; padding: 0 0 2px}')   
+DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
+DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
+
+var selectedOperation = {}
+function selectOperation(){
 	DSS.select = new ol.interaction.Select({
 		features: new ol.Collection(),
 			toggleCondition: ol.events.condition.never,
 			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: 'white',
-					width: 4
-				}),
 				fill: new ol.style.Fill({
-					color: 'rgba(0,0,0,0)'
+				  color: 'rgba(255, 255, 255, 0.2)',
 				}),
-				zIndex: 5
-			})
-		});
+				stroke: new ol.style.Stroke({
+				  color: '#ffcc33',
+				  width: 2,
+				}),
+				image: new ol.style.Circle({
+				  radius: 7,
+				  fill: new ol.style.Fill({
+					color: '#ffcc33'
+				}),
+			}),
+		})
+	});
 	DSS.map.addInteraction(DSS.select);
 	console.log("select is on")
 	DSS.select.on('select', function(f) {
 		console.log('select on happened');
-		selectedField = f.selected[0];
-		console.log(selectedField);
+		selectedOperation = f.selected[0];
+		console.log(selectedOperation);
 	});
 }
-function deleteField(feat){
+function deleteOperation(feat){
 	{
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
 			featureNS: 'http://geoserver.org/Farms',
 			Geometry: 'geom',
-			featureType: 'field_1',
+			featureType: 'farm_1',
 			srsName: 'EPSG:3857'
 		});
 		console.log(feat)
@@ -45,7 +54,7 @@ function deleteField(feat){
 			data: str,
 			success: function (data) {
 				console.log("data deleted successfully!: "+ data);
-				DSS.layer.fields_1.getSource().refresh();
+				DSS.layer.farms_1.getSource().refresh();
 			},
 			error: function (xhr, exception) {
 				var msg = "";
@@ -71,18 +80,21 @@ function deleteField(feat){
 }
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.field_shapes.Delete', {
+Ext.define('DSS.state.DeleteOperation', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.Container',
-	alias: 'widget.field_delete',
-    alternateClassName: 'DSS.DeleteFieldShapes',
-    singleton: true,	
+	alias: 'widget.operation_delete',
+    //alternateClassName: 'DSS.DeleteOperations',
+    //singleton: true,	
 	
-    autoDestroy: false,
+    //autoDestroy: false,
     
-    scrollable: 'y',
+    //scrollable: 'y',
 
-	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
+	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
+	cls: 'section',
+
+	DSS_singleText: '"Delete Current Operation"',
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
@@ -91,8 +103,22 @@ Ext.define('DSS.field_shapes.Delete', {
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'component',
-				cls: 'section-title light-text text-drp-20',
-				html: 'Field Shapes <i class="fas fa-trash-alt fa-fw accent-text text-drp-50"></i>',
+				cls: 'back-button',
+				tooltip: 'Back',
+				html: '<i class="fas fa-reply"></i>',
+				listeners: {
+					render: function(c) {
+						c.getEl().getFirstChild().el.on({
+							click: function(self) {
+								DSS.ApplicationFlow.instance.showLandingPage();
+							}
+						});
+					}
+				}					
+			},{
+				xtype: 'component',
+				cls: 'section-title accent-text right-pad',
+				html: 'Field Shapes',
 				height: 35
 			},{
 				xtype: 'container',
@@ -106,11 +132,11 @@ Ext.define('DSS.field_shapes.Delete', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Delete Field',
+					html: 'Delete Operation',
 				},{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Click a field to delete it',
+					html: 'Click an operation to delete it',
 				},
 				{
 					xtype: 'button',
@@ -121,9 +147,8 @@ Ext.define('DSS.field_shapes.Delete', {
 					handler: function() {
 						//var data = me.viewModel.data;
 						console.log("delete Button");
-						var geomType = 'polygon'
-						if (selectedField != {}) {
-							deleteField(selectedField);
+						if (selectedOperation != {}) {
+							deleteOperation(selectedOperation);
 							DSS.map.render;
 						}
 						else {
@@ -142,7 +167,7 @@ Ext.define('DSS.field_shapes.Delete', {
 		let me = this;
 		let c = DSS_viewport.down('#DSS-mode-controls');
 		console.log('delete mode on')
-		selectField()
+		selectOperation()
 		
 		
 		if (!c.items.has(me)) {
@@ -152,7 +177,7 @@ Ext.define('DSS.field_shapes.Delete', {
 			Ext.resumeLayouts(true);
 		}
 		me.mouseMoveDeleteHandler(owner);
-		me.clickDeleteFieldHandler(owner);
+		me.clickdeleteOperationHandler(owner);
 	},
 	
     //-------------------------------------------------------------
@@ -165,7 +190,7 @@ Ext.define('DSS.field_shapes.Delete', {
 			let mouseList = [];
 			fs.forEach(function(f) {
 				let g = f.getGeometry();
-				if (g && g.getType() === "MultiPolygon") {
+				if (g && g.getType() === "Point") {
 					cursor = 'pointer';
 					mouseList.push(f);
 					
@@ -180,7 +205,7 @@ Ext.define('DSS.field_shapes.Delete', {
 	},
 	
     //-------------------------------------------------------------
-    clickDeleteFieldHandler: function(owner) {
+    clickdeleteOperationHandler: function(owner) {
     	
     	DSS.mapClickFunction = function(evt) {
 			let coordinate  =  DSS.map.getEventCoordinate(evt.originalEvent);
@@ -188,13 +213,13 @@ Ext.define('DSS.field_shapes.Delete', {
 			let deleteList = [];
 			fs.forEach(function(f) {
 				let g = f.getGeometry();
-				if (g && g.getType() === "Polygon") {
+				if (g && g.getType() === "Point") {
 					deleteList.push({'f':f, 'f_id': f.getProperties().f_id});
 //					deleteList.push(f.getProperties().f_id);
 				}
 			})
 			if (deleteList.length > 0) {
-				owner.deleteFields(deleteList,DSS.activeFarm);
+				owner.deleteOperation(deleteList,DSS.activeFarm);
 			}
 		}		
     },

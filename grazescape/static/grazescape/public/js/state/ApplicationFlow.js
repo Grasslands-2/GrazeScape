@@ -46,6 +46,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		'DSS.state.MapStateTools',
 		'DSS.state.BrowseOrCreate',
 		'DSS.state.CreateNew_wfs',
+		'DSS.state.DeleteOperation',
 		'DSS.state.Manage',
 		'DSS.state.Scenario'
 	],
@@ -165,8 +166,8 @@ Ext.define('DSS.state.ApplicationFlow', {
 		
 		DSS.MapState.disableFieldDraw();
 		
-		DSS.layer.farms.setVisible(true);
-		DSS.layer.farms.setOpacity(1);
+		DSS.layer.farms_1.setVisible(true);
+		DSS.layer.farms_1.setOpacity(1);
 		DSS.layer.markers.setVisible(false);
 	},
 	
@@ -177,7 +178,21 @@ Ext.define('DSS.state.ApplicationFlow', {
 		Ext.suspendLayouts();
 			me.setControlBlock({xtype:'operation_create'});
 			DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
-			DSS.layer.farms.setOpacity(0.5);
+			DSS.layer.farms_1.setOpacity(0.5);
+		Ext.resumeLayouts(true);
+	},
+
+	//----------------------------------------------------------------------------------
+	showDeleteOperationPage: function() {
+		let me = this;
+		
+		Ext.suspendLayouts();
+			me.setControlBlock({xtype:'operation_delete'});
+			//DSS.MapState.clickActivateFarmHandler.setActive(false)
+			DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
+			//DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
+			DSS.mapClickFunction = undefined;
+			DSS.layer.farms_1.setOpacity(0.5);
 		Ext.resumeLayouts(true);
 	},
 	
@@ -194,10 +209,9 @@ Ext.define('DSS.state.ApplicationFlow', {
 		Ext.resumeLayouts(true);
 		
 		DSS.mouseMoveFunction = undefined;
-		DSS.layer.farms.setVisible(false);
+		DSS.layer.farms_1.setVisible(false);
 		
 		DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-		DSS.FieldGrid
 		
 		DSS.popupOverlay.setPosition(false);
 	},

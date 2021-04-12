@@ -1,56 +1,103 @@
 // Module is used to run the compute models functions of the app
 
-function runModels(layer) {
-	
+function runModels(layer,modelChoice) {
+    chartPopup.show()
+    var ctx = document.getElementById('canvas').getContext('2d');
+
+    barChart = new Chart(ctx, {
+        type: 'bar',
+        data: barChartData,
+        options: {
+            responsive: true,
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Model Output'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    },
+                    scaleLabel: {
+                    display: true,
+                    labelString:" response.units"
+                  }
+                }]
+            }
+        }
+    });
 	 extentsArray = []; //empty array for extents list
 	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
 		var extentTransform = function(fieldFeature){
 			let fObj = [];
+			let fName = fieldFeature.values_.field_name;
+			let fRotation = fieldFeature.values_.rotation;
 			let fGrass = fieldFeature.values_.grass_speciesval;
 			let fTillage = fieldFeature.values_.tillage;
 			let fOnContour = fieldFeature.values_.on_contour;
+			let fSoilP = fieldFeature.values_.soil_p;
 			let e = fieldFeature.values_.geometry.extent_;
 			let pt1 = ol.proj.transform([e[0],e[1]], 'EPSG:3857', 'EPSG:3071'),
 			pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3857', 'EPSG:3071');
-
 			let p =	pt1.concat(pt2);
-			
-			fObj.push(p,fGrass,fTillage,fOnContour) //push p and field grass type to fObj
-			extentsArray.push(fObj) //push each extent to array
+
+			fObj.push(p,fGrass,fTillage,fOnContour,fSoilP,fName,modelChoice) //push p and field grass type to fObj
+			//extentsArray.push(fObj)
+			//Selection by model type for field rotation
+			if(modelChoice === 'grass' && (fRotation === 'pt' || fRotation === 'ps')){
+				extentsArray.push(fObj) //push each extent to array
+			};
+			if(modelChoice === 'crop' && (fRotation === 'cc' || fRotation === 'dr' || fRotation === 'cso')){
+				extentsArray.push(fObj) //push each extent to array
+			};
+			if(modelChoice === 'ero'){
+				extentsArray.push(fObj) //push each extent to array
+			}; 
+			if(modelChoice === 'pl'){
+				extentsArray.push(fObj) //push each extent to array
+			};//push each extent to array
 			console.log(fObj);
 		};
 		extentTransform(f)//runs extent transform
 	})
 	//function inside of callmodelrun that actually calls computeresults on each field
-	const callModelRun = (extent) => { 
-		DSS.Inspector.computeResults(extent,DSS.layer.ModelResult);
+	const callModelRun = (extent,runningLayer) => {
+
+		DSS.Inspector.computeResults(extent,runningLayer);
 		return new Promise((resolve) => {
 			setTimeout(() => {
 				resolve();
-			}, 1000);
+				//find way to get this to actually wait for models to complete,
+				//not just 3 seconds
+			}, 3000);
 	  	});
 	}
 	
 	const startTime = Date.now();
 	//Sets up each callModelRun to run after each promise is resolved. IOW, makes them run one at a time.
 	const doNextPromise = (z) => {
-		callModelRun(extentsArray[z]).then(x => {
-			console.log("just ran this extent: " + x);
+		runningLayers = [DSS.layer.ModelResult_field1,DSS.layer.ModelResult_field2,DSS.layer.ModelResult_field3]
+		
+		callModelRun(extentsArray[z],runningLayers[z]).then(x => {
+			console.log("just ran this extent: " + extentsArray[z]);
 			z++;
-
-			if(z < extentsArray.length)
-				doNextPromise(z)
+			if(z < extentsArray.length){
+			doNextPromise(z)}
 			else 
-				console.log("DONE IN MODEL RUNNING!")
+				console.log("DONE IN MODEL RUNNING!")	
 		})
 	}
 	doNextPromise(0);
 }
 
 
+
 //------------------working variables--------------------
 var type = "Polygon";
-var source = fields_1Source;
+var source = fields_1Source_loc;
 
 Ext.create('Ext.data.Store', {
 	storeId: 'modelList',
@@ -145,8 +192,22 @@ Ext.define('DSS.field_shapes.ModelRunning', {
 					text: 'Run Model',
 					formBind: true,
 					handler: function() { 
-						console.log("run model")
-						runModels(DSS.layer.fields_1);
+						var data = me.viewModel.data;
+						var modelChoice = data.modelSelected.modelSelection
+						console.log(modelChoice);
+						console.log("run model");
+						runModels(DSS.layer.fields_1,modelChoice);
+					}
+			    },
+			    {
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Get perimeter',
+					formBind: true,
+					handler: function() {
+						console.log("get perimeter")
+						getPerimeter(DSS.layer.fields_1);
 					}
 			    }]
 			}]

@@ -132,7 +132,7 @@ Ext.define('DSS.results.ResultsMain', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-
+        console.log("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'container',
