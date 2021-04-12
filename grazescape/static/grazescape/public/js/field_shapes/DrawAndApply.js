@@ -1,4 +1,4 @@
-var fields_1Source = new ol.source.Vector({
+var fields_1Source_loc = new ol.source.Vector({
 	url:'http://localhost:8081/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
@@ -32,6 +32,7 @@ function wfs_field_insert(feat,geomType) {
 		success: function (data) {
 			console.log("uploaded data successfully!: "+ data);
 			DSS.layer.fields_1.getSource().refresh();
+			DSS.layer.farms_1.getSource().refresh();
 		},
         error: function (xhr, exception) {
             var msg = "";
@@ -53,9 +54,9 @@ function wfs_field_insert(feat,geomType) {
 			console.log(msg);
         }
     })
-	//.done();
+	.done();
 	//console.log("Field wrote to Geoserver")
-	//DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
 	DSS.layer.fields_1.getSource().refresh();
 }
 function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
@@ -81,16 +82,19 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 			graze_dairy_lactating: lac,
 			graze_dairy_non_lactating: non_lac,
 			cover_crop: crop,
-			tillage: tillageInput
+			tillage: tillageInput,
+			on_contour: false
 		})
 		var geomType = 'polygon'
+		
+		DSS.MapState.removeMapInteractions()
 		wfs_field_insert(e.feature, geomType)
 		console.log("HI! WFS feild Insert ran!")
 	})     
 }
 //------------------working variables--------------------
 var type = "Polygon";
-var source = fields_1Source;
+var source = fields_1Source_loc
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.field_shapes.DrawAndApply', {
@@ -194,6 +198,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					formBind: true,
 					handler: function() { 
 						var data = me.viewModel.data;
+						DSS.map.removeInteraction(DSS.select);
 						//console.log(DSS.activeFarm);
 
 						createField(data.graze_animals.dairy_lactating,
@@ -201,7 +206,9 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 							data.graze_animals.beef,
 							data.crop.value,
 							data.tillage.value.tillage,
-							data.soil_p.value,);
+							data.soil_p.value,
+							//probably wrong, look up data schema
+							data.on_contour);
 					}
 			    }]
 			}]

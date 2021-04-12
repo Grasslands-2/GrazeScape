@@ -29,14 +29,14 @@ function getWFS() {
 		success:function(response)
 		{
 			farmObj = response.features
-			//console.log(farmObj[0])
+			console.log(farmObj[0])
 		}
 	})
 }
 //empty array to catch feature objects 
-farmArray = [],
+farmArray = [];
 // call getWFS to get farm table object
-getWFS()
+//getWFS()
 //define function to populate data array with farm table data
 function popArray(obj) {
 	for (i in obj) 
@@ -47,17 +47,29 @@ function popArray(obj) {
 	});
 }
 //populate data array with farm object data from each farm
-popArray(farmObj);
+//popArray(farmObj);
 //var to hold onto largest gid value of current farms before another is added
 highestFarmId = 0;
 //loops through data array gids to find largest value and hold on to it with highestfarmid
-for (i in farmArray){
-	//console.log(farmArray[i].gid)
-	if (farmArray[i].gid > highestFarmId){
-		highestFarmId = farmArray[i].gid
+
+//for (i in farmArray){
+//console.log(farmArray[i].gid)
+//	if (farmArray[i].gid > highestFarmId){
+//		highestFarmId = farmArray[i].gid
+//	};
+//};
+function getHighestFarmId(){
+	getWFS()
+	popArray(farmObj);
+	for (i in farmArray){
+		//console.log(farmArray[i].gid)
+		if (farmArray[i].gid > highestFarmId){
+			highestFarmId = farmArray[i].gid
+		};
 	};
-};
-//console.log(highestFarmId);
+}
+getHighestFarmId()
+console.log(highestFarmId);
 
 
 //---------------------------------Working Functions-------------------------------
@@ -69,6 +81,7 @@ function wfs_farm_insert(feat,geomType) {
         srsName: 'EPSG:3857'
     });
     console.log(feat)
+	console.log(feat.values_.id)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log(node);
     s = new XMLSerializer();
@@ -80,9 +93,14 @@ function wfs_farm_insert(feat,geomType) {
         processData: false,
         contentType: 'text/xml',
         data: str,
-		success: function (data) {
-			console.log("uploaded data successfully!: "+ data);
-			DSS.map.refresh();
+		success: function (response) {
+			console.log("uploaded data successfully!: "+ response[0]);
+			DSS.layer.farms_1.getSource().refresh();
+			DSS.MapState.removeMapInteractions()
+			getHighestFarmId();
+			console.log(highestFarmId);
+			DSS.activeFarm = highestFarmId;
+			console.log(DSS.activeFarm);
 		},
         error: function (xhr, exception) {
             var msg = "";

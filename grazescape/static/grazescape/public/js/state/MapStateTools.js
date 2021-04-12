@@ -115,12 +115,13 @@ Ext.define('DSS.state.MapStateTools', {
     showFields: function(opacity) {
     	
     	opacity = opacity || 1;
-		DSS.layer.fields.setOpacity(opacity);
-		DSS.layer.fields.setVisible(true);
+		DSS.layer.fields_1.setOpacity(opacity);
+		DSS.layer.fields_1.setVisible(true);
     },
     
     // Opacity defaults to opacity for showFields()
     //-------------------------------------------------------------
+	//used to limit return of fields to just active farm
     showFieldsForFarm: function(farmId, opacity) {
     	
 		DSS.layer.fields_1.getSource().setUrl(
@@ -133,12 +134,33 @@ Ext.define('DSS.state.MapStateTools', {
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		DSS.layer.fields_1.getSource().refresh();
-		this.showFields(opacity);
-		//console.log(farmId);
 		console.log("showfieldsforfarm ran");
     },
     
-    //
+    //----------------------------------------
+	//-------------------------------------------------------------
+	//shows all fields in db
+	showAllFields: function(opacity) {
+			
+		DSS.layer.fields_1.getSource().setUrl(
+		'http://localhost:8081/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=Farms:field_1&' +
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857');
+		DSS.layer.fields_1.getSource().refresh();
+		console.log("showAllFields ran");
+	},
+
+	//----------------------------------------
+
+	removeMapInteractions: function(){
+		DSS.map.removeInteraction(DSS.draw);
+		DSS.map.removeInteraction(DSS.select);
+		console.log("removeMapInteractions")
+	},
     //----------------------------------------
     disableFieldDraw: function() {
     	
@@ -181,7 +203,7 @@ Ext.define('DSS.state.MapStateTools', {
 		    }
 		    return me.DSS_fieldStyles.defaultStyle;
 		}
-		DSS.layer.fields.changed(); //needs to be "poked" after style change...
+		DSS.layer.fields_1.changed(); //needs to be "poked" after style change...
 		
 		// Selection can't be on
 		DSS.selectionTool.getFeatures().clear();
@@ -221,9 +243,9 @@ Ext.define('DSS.state.MapStateTools', {
 							lastFp = f;
 						}
 						/*if (lastF !== f) {
-							DSS.layer.fields.getSource().setUrl("get_fields?farm="+ f.get("id"));
+							DSS.layer.fields_1.getSource().setUrl("get_fields?farm="+ f.get("id"));
 
-							DSS.layer.fields.getSource().refresh();
+							DSS.layer.fields_1.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
 						}*/
@@ -243,8 +265,8 @@ Ext.define('DSS.state.MapStateTools', {
 							lastFp = f;
 						}
 						/*if (lastF !== f) {
-							DSS.layer.fields.getSource().setUrl("get_fields?field="+ f.get("id"));
-							DSS.layer.fields.getSource().refresh();
+							DSS.layer.fields_1.getSource().setUrl("get_fields?field="+ f.get("id"));
+							DSS.layer.fields_1.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
 						}*/
@@ -265,6 +287,7 @@ Ext.define('DSS.state.MapStateTools', {
 	//	console.log("TODO: many farms at the click location: " + fs.length);
     //-------------------------------------------------------------
     clickActivateFarmHandler: function(evt) {
+		console.log("in active farm handler")
     	
     	let me = this;
     	
@@ -275,16 +298,17 @@ Ext.define('DSS.state.MapStateTools', {
 				let f = fs[idx];
 				let g = f.getGeometry();
 				if (g && g.getType() === "Point") {
-					DSS.activeFarm = f.get("id");
-					DSS.activeScenario = f.get("scenario");
+					DSS.activeFarm = f.get("gid");
+					//DSS.activeScenario = f.get("scenario");
 					
 					let pos = g.getFirstCoordinate()
 					me.setPinMarker(pos);
+					console.log("pin set in activatefarmhandler")
 					let ex = ol.extent;
 					let extent = [pos[0], pos[1], pos[0], pos[1]];
-					DSS.layer.fields.getSource().forEachFeature(function(f) {
-						extent = ex.extend(extent, f.getGeometry().getExtent());
-					});
+					//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+					//	extent = ex.extend(extent, f.getGeometry().getExtent());
+					//});
 					ex.buffer(extent, 250, extent);
 					me.zoomToRealExtent(extent);
 					
@@ -294,8 +318,10 @@ Ext.define('DSS.state.MapStateTools', {
 					
 					DSS.map.getViewport().style.cursor = '';
 					AppEvents.triggerEvent('activate_operation')
-//					console.log(DSS.layer.fields.getSource());
+//					console.log(DSS.layer.fields_1.getSource());
 					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
+					DSS.MapState.removeMapInteractions()
+					DSS.layer.farms_1.getSource().refresh();
 					
 					break;
 				}

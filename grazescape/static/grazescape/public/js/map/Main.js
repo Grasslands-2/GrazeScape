@@ -321,7 +321,7 @@ Ext.define('DSS.map.Main', {
 		});	
 
 		// Populate grid
-		DSS.layer.fields.getSource().on('change', function(evt) {
+		/*DSS.layer.fields.getSource().on('change', function(evt) {
 			
 			let fd = Ext.StoreMgr.lookup('field_data');
 			let records = [];
@@ -374,8 +374,7 @@ Ext.define('DSS.map.Main', {
 				r = Math.round(Math.pow(r, 3) * 13 + 3)
 				return me.DSS_zoomStyles['style' + r];
 			}
-		});
-
+		});*/
 
 		//--------------------------------------------------------- 
 		var farms_1Source = new ol.source.Vector({
@@ -441,8 +440,6 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.osm,
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
-//				DSS.layer.fields,
-				//DSS.layer.farms,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1
 				 ],
@@ -507,14 +504,14 @@ Ext.define('DSS.map.Main', {
 				return;
 			}
 		});
-		me.drawTools 	= Ext.create('DSS.map.DrawAndModify').instantiate(me.map, DSS.layer.fields.getSource());
+		me.drawTools 	= Ext.create('DSS.map.DrawAndModify').instantiate(me.map, DSS.layer.fields_1.getSource());
 		
 		me.boxModelTool = Ext.create('DSS.map.BoxModel').instantiate(me.map);
 		
 		me.addMarkerLayer(me.map);
 		me.addWorkAreaMask(me.map);
 		me.addSelectionTools(me.map);
-		me.map.addLayer(DSS.layer.fields);
+		//me.map.addLayer(DSS.layer.fields_1);
 		
 		me.cropRotationOverlay = Ext.create('DSS.map.RotationLayer').instantiate(me.map);
 		
