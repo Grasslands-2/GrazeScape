@@ -299,10 +299,6 @@ Ext.define('DSS.state.MapStateTools', {
 				let f = fs[idx];
 				let g = f.getGeometry();
 				if (g && g.getType() === "Point") {
-				    console.log("getting gid")
-				    console.log(f)
-				    console.log(f.get("gid"))
-
 
 					DSS.activeFarm = f.get("gid");
 					//DSS.activeScenario = f.get("scenario");
