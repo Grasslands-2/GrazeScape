@@ -134,6 +134,7 @@ Ext.define('DSS.state.MapStateTools', {
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		DSS.layer.fields_1.getSource().refresh();
+		console.log(DSS.layer.fields_1)
 		console.log("showfieldsforfarm ran");
     },
     
@@ -298,12 +299,18 @@ Ext.define('DSS.state.MapStateTools', {
 				let f = fs[idx];
 				let g = f.getGeometry();
 				if (g && g.getType() === "Point") {
+				    console.log("getting gid")
+				    console.log(f)
+				    console.log(f.get("gid"))
+
+
 					DSS.activeFarm = f.get("gid");
 					//DSS.activeScenario = f.get("scenario");
 					
 					let pos = g.getFirstCoordinate()
 					me.setPinMarker(pos);
 					console.log("pin set in activatefarmhandler")
+					console.log(DSS.activeFarm)
 					let ex = ol.extent;
 					let extent = [pos[0], pos[1], pos[0], pos[1]];
 					//DSS.layer.fields_1.getSource().forEachFeature(function(f) {

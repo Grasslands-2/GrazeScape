@@ -25,6 +25,7 @@ var fields_1Layer = new ol.layer.Vector({
 console.log(fields_1Layer)
 
 function getWFSfields() {
+    console.log("getting wfs fields")
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
@@ -46,13 +47,15 @@ function getWFSfields() {
 				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
 					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
 					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp'],
+					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp', 'area', 'perimeter','fence_type',
+					'fence_cost'],
 				data: fieldArray
 			});
 			//Setting store to just declared store fieldStore1, and reloading the store to the grid
 			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
 			DSS.field_grid.FieldGrid.store.reload();
-			//console.log(fieldArray);
+			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			console.log(response);
 			//console.log('DSS.field_grid.FieldGrid')
 			//console.log(DSS.field_grid.FieldGrid);
 		}
@@ -60,7 +63,8 @@ function getWFSfields() {
 }
 
 function popFieldsArray(obj) {
-	for (i in obj) 
+
+	for (i in obj)
 	fieldArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.field_name,
@@ -87,6 +91,10 @@ function popFieldsArray(obj) {
 		grazeDairyLactating: obj[i].properties.graze_dairy_lactating,
 		grazeDairyNonLactating: obj[i].properties.graze_dairy_non_lactating,
 		grazeBeefCattle: obj[i].properties.graze_beef_cattle,
+        area: obj[i].properties.area,
+        perimeter: obj[i].properties.perimeter,
+        fence_type: obj[i].properties.fence_type,
+        fence_cost: obj[i].properties.fence_cost
 	});
 	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 }
@@ -293,7 +301,8 @@ Ext.create('Ext.data.Store', {
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
 		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
 		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp'],
+		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp','area', 'perimeter','fence_type',
+        'fence_cost'],
 	data: fieldArray
 });
 
@@ -632,6 +641,30 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				}
 			}
 		};
+        let area_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Area', dataIndex: 'area', width: 80,
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+        let perimeter_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Perimeter', dataIndex: 'perimeter', width: 80,
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+        let fence_type_Column = {
+			editor: 'textfield', text: 'Fence Type', dataIndex: 'fence_type', width: 120,
+			draggable: false,
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+
+		};
+        let fence_cost_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Fence Cost', dataIndex: 'fence_cost', width: 80,
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
 		
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
@@ -653,7 +686,11 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				grassSpeciesColumn,
 				interseededCloverColumn,
 				//canManurePastures,
-				grazeDensityColumn
+				grazeDensityColumn,
+				area_Column,
+				perimeter_Column,
+				fence_type_Column,
+				fence_cost_Column
 			],
 			
 			plugins: {
