@@ -54,14 +54,15 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
             queryMode: 'local',
             labelAlign: 'left',
             displayField: 'name',
-
             labelStyle: 'color: white;',
             valueField: 'perimeter',
             listeners:{
                 select: function(combo, record, index) {
                   calc_cost(combo.getValue(), per_cost.getValue(), per_result)
                   console.log(combo.getValue())
-                  per_length.setValue((combo.getValue()*3.28084).toFixed(2))
+//                  per_length.setValue((combo.getValue()*3.28084).toFixed(2))
+                  per_length.setValue((combo.getValue()).toFixed(2))
+                  update_fence_att(per_field.getDisplayValue(), per_fence_type, per_cost)
                 }
             }
         })
@@ -83,7 +84,7 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
                 })
         var per_length = Ext.create('Ext.form.field.Text', {
                name: 'name',
-                fieldLabel: 'Perimeter (ft)',
+                fieldLabel: 'Perimeter (m)',
                 labelStyle: 'color: white;',
                 readOnly: true,
                  fieldStyle: 'background-color: #bfbfbf; background-image: none;',
@@ -91,7 +92,7 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
         var per_cost = Ext.create('Ext.form.Number',     {
                         xtype: 'numberfield',
                         name: 'Fence Cost',
-                        fieldLabel: 'Cost per linear foot',
+                        fieldLabel: 'Cost per linear meter',
 
                         labelStyle: 'color: white;',
                         value: 2.0,
@@ -120,7 +121,7 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
             componentCls: 'button-margin',
             text: 'Save',
             handler: function(self) {
-                save_per(per_field.getDisplayValue(), per_result.getValue(), per_fence_type.getDisplayValue(),per_length.getValue(), 5)
+                save_per(per_field.getDisplayValue(), per_result.getValue(), per_fence_type.getDisplayValue(),per_length.getValue(), 5,per_cost.getValue())
             }
         })
 
@@ -242,24 +243,24 @@ function calc_slope_distance(point1, point2){
 function calc_cost(length, cost, res_obj) {
     console.log(length)
 //    convert feet to meters
-    length = length * 3.28084
+//    length = length * 3.28084
     res_obj.setValue((length * cost).toFixed(2))
 }
-function save_per(field_name, fence_cost, fence_type, perimeter,area){
+function save_per(field_name, fence_cost, fence_type, perimeter,area,fence_unit_cost){
 DSS.layer.fields_1.getSource().forEachFeature(function(f) {
     console.log(f)
-    console.log(field_name, fence_cost, fence_type, perimeter,area)
+    console.log(field_name, fence_cost, fence_type, perimeter,area, fence_unit_cost)
     console.log(field_name)
     console.log(f.get('field_name'))
     if(field_name == f.get('field_name')){
         console.log(field_name)
         console.log("matches")
         f.setProperties({
-        area:area,
-        perimeter:perimeter,
-        fence_type:fence_type,
-        fence_cost:fence_cost
-
+            area:area,
+            perimeter:perimeter,
+            fence_type:fence_type,
+            fence_cost:fence_cost,
+            fence_unit_cost:fence_unit_cost
         })
         wfs_field_update(f)
     }
@@ -267,4 +268,19 @@ DSS.layer.fields_1.getSource().forEachFeature(function(f) {
 console.log(f)
 console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 })
+}
+
+function update_fence_att(field_name, type, cost){
+    DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+        console.log(f)
+        console.log(type)
+        console.log(cost)
+        console.log(field_name)
+        console.log(f.get('field_name'))
+        if(field_name == f.get('field_name')){
+            type.setValue(f.get('fence_type'))
+            cost.setValue(f.get('fence_unit_cost'))
+        }
+    })
+
 }

@@ -218,7 +218,8 @@ Ext.define('DSS.state.Scenario', {
 										area: fieldArray[i].area,
 										perimeter: fieldArray[i].perimeter,
 										fence_type: fieldArray[i].fence_type,
-										fence_cost: fieldArray[i].fence_cost
+										fence_cost: fieldArray[i].fence_cost,
+										fence_unit_cost: fieldArray[i].fence_unit_cost
 									});
 									wfs_field_update(feildFeature);
 									break;

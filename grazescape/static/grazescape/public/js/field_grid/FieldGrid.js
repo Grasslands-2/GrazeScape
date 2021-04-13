@@ -48,7 +48,7 @@ function getWFSfields() {
 					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
 					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
 					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp', 'area', 'perimeter','fence_type',
-					'fence_cost'],
+					'fence_cost', 'fence_unit_cost'],
 				data: fieldArray
 			});
 			//Setting store to just declared store fieldStore1, and reloading the store to the grid
@@ -94,7 +94,8 @@ function popFieldsArray(obj) {
         area: obj[i].properties.area,
         perimeter: obj[i].properties.perimeter,
         fence_type: obj[i].properties.fence_type,
-        fence_cost: obj[i].properties.fence_cost
+        fence_cost: obj[i].properties.fence_cost,
+        fence_unit_cost:obj[i].properties.fence_unit_cost
 	});
 	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 }
@@ -302,7 +303,7 @@ Ext.create('Ext.data.Store', {
 		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
 		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
 		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp','area', 'perimeter','fence_type',
-        'fence_cost'],
+        'fence_cost','fence_unit_cost'],
 	data: fieldArray
 });
 
@@ -648,7 +649,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
         let perimeter_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
+			xtype: 'numbercolumn', format: '0.00',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
 			}, text: 'Perimeter', dataIndex: 'perimeter', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
@@ -660,9 +661,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 
 		};
         let fence_cost_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Fence Cost', dataIndex: 'fence_cost', width: 80,
+			xtype: 'numbercolumn', format: '0.00',editor: {
+				xtype:'numberfield', minValue: 0, maxValue: 100000000, step: 5
+			}, text: 'Fence Cost', dataIndex: 'fence_cost', width: 160,
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		let fence_unit_cost_Column = {
+			xtype: 'numbercolumn', format: '0.00',editor: {
+				xtype:'numberfield', minValue: 0, maxValue: 100000000, step: 5
+			}, text: 'Fence Cost Per Ft', dataIndex: 'fence_unit_cost', width: 160,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		
@@ -690,7 +697,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				area_Column,
 				perimeter_Column,
 				fence_type_Column,
-				fence_cost_Column
+				fence_cost_Column,
+				fence_unit_cost_Column
+
 			],
 			
 			plugins: {
