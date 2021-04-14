@@ -9,7 +9,9 @@ var fields_1Source = new ol.source.Vector({
 	format: new ol.format.GeoJSON()
 });
 
-function wfs_field_update(feat,geomType) {  
+function wfs_field_update(feat,geomType) {
+    console.log(feat)
+    console.log(geomType)
 	console.log('in field update func')
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
@@ -213,7 +215,11 @@ Ext.define('DSS.state.Scenario', {
 										grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
 										interseededclover: fieldArray[i].interseededClover,
 										grazingdensityval: fieldArray[i].grazeDensityVal,
-										grazingdensitydisp: fieldArray[i].grazeDensityDisp
+										area: fieldArray[i].area,
+										perimeter: fieldArray[i].perimeter,
+										fence_type: fieldArray[i].fence_type,
+										fence_cost: fieldArray[i].fence_cost,
+										fence_unit_cost: fieldArray[i].fence_unit_cost
 									});
 									wfs_field_update(feildFeature);
 									break;
