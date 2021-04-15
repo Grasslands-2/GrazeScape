@@ -377,6 +377,21 @@ Ext.define('DSS.map.Main', {
 		});*/
 
 		//--------------------------------------------------------- 
+		DSS.layer.DEM_image = new ol.layer.Image({
+			source: new ol.source.ImageWMS({
+				ratio: 1,
+				url: 'http://localhost:8081/geoserver/GS_Rasters/wms',
+				params: {'FORMAT': 'image/png',
+						 'VERSION': '1.1.1',
+						 'TRANSPARENT': 'true',
+					  "STYLES": '',
+					  "LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
+					  "exceptions": 'application/vnd.ogc.se_inimage',
+				}
+			})
+		})
+
+
 		var farms_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent) {
@@ -440,6 +455,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.osm,
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
+				DSS.layer.DEM_image,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1
 				 ],
@@ -514,24 +530,6 @@ Ext.define('DSS.map.Main', {
 		//me.map.addLayer(DSS.layer.fields_1);
 		
 		me.cropRotationOverlay = Ext.create('DSS.map.RotationLayer').instantiate(me.map);
-		
-	/*	// Convenience: TODO: re-evalutate need 
-		DSS.layer.MouseOver = new ol.layer.Vector({
-			visible: false,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			useSpatialIndex: false,
-			source: new ol.source.Vector({
-				//features: new ol.Collection()
-			}),
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#a00',
-					width: 4
-				})
-			})
-		});
-		me.map.addLayer(DSS.layer.MouseOver);*/
 	},
 	
 	
