@@ -277,9 +277,43 @@ Ext.define('DSS.map.Main', {
 					color: '#ffe4b3'
 			  })
 			})
-	});
+		});
+		var getText = function(feature, resolution) {
+			var text =feature.get('field_name');
+			return text;
+		}
+		var createTextStyle = function(feature,resolution){
+			return new ol.style.Text({
+				text: getText(feature, resolution),
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 3,
+				}),
+			  })
+		}
 
 		//---------------------------------------
+		let fieldLabel = new ol.style.Style({
+			text: new ol.style.Text({
+				//text: "hi there",
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 3,
+				}),
+			  }),
+			zIndex: 0
+		});
+		//------------------------------------------------
 		let defaultFieldStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
 				color: 'rgba(255,200,32,0.8)',
@@ -288,8 +322,35 @@ Ext.define('DSS.map.Main', {
 			fill: new ol.style.Fill({
 				color: 'rgba(0,0,0,0.1)',
 			}),
+			//text: createTextStyle(feature,resolution,dom),
+			/*text: new ol.style.Text({
+				//text: "hi there",
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 3,
+				}),
+			  }),*/
 			zIndex: 0
 		});
+		/*let fieldLabel = new ol.style.Style({
+			text: new ol.style.Text({
+				//text: "hi there",
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 3,
+				}),
+			  }),
+		})*/
 //		let rotationStyles = { };
 /*		DSS.fieldStyleFunction = function(feature, resolution, defaultStyle) {
 			if (feature && feature.getProperties()) {
@@ -394,7 +455,7 @@ Ext.define('DSS.map.Main', {
 
 		var farms_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
-			url: function(extent) {
+			/*url: function(extent) {
 				return 'http://localhost:8081/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
@@ -402,16 +463,34 @@ Ext.define('DSS.map.Main', {
 				'typeName=Farms:farm_1&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
+			},*/
+			url: function(extent) {
+				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=GrazeScape_Vector:farm_1&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857';
 			},
 		});
 		var fields_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
-			url: function(extent) {
+			/*url: function(extent) {
 				return 'http://localhost:8081/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
 				'typeName=Farms:field_1&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857';
+			},*/
+			url: function(extent) {
+				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=GrazeScape_Vector:field_1&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},
@@ -431,6 +510,18 @@ Ext.define('DSS.map.Main', {
 				return me.DSS_zoomStyles['style' + r];
 			}
 		})
+		DSS.layer.fieldsLabels = new ol.layer.Vector({
+			minZoom: 14,
+			title: 'fieldsLabels',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: fields_1Source,
+			style: function(feature, resolution) {
+				fieldLabel.getText().setText(feature.values_.field_name);
+				return fieldLabel;
+			}
+		})
 		DSS.layer.fields_1 = new ol.layer.Vector({
 			title: 'fields_1',
 			visible: true,
@@ -438,13 +529,20 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: fields_1Source,
 			style: function(feature, resolution) {
-				
 				if (DSS.fieldStyleFunction) {
 					return DSS.fieldStyleFunction(feature, resolution);
 				}
-				else return defaultFieldStyle;
+				else //defaultFieldStyle.setText(feature.get('field_name'));
+				//console.log(feature)
+				//defaultFieldStyle.getText().setText(feature.values_.field_name)
+				return defaultFieldStyle;
 			},
-		});
+			//style: 
+				//defaultFieldStyle
+				//defaultFieldStyle.getText().setText('hi')
+			
+			//text: fieldLabel.getText().setText('hi there')
+		})
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
@@ -455,9 +553,10 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.osm,
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
-				DSS.layer.DEM_image,
+				//DSS.layer.DEM_image,
 				DSS.layer.farms_1,
-				DSS.layer.fields_1
+				DSS.layer.fields_1,
+				DSS.layer.fieldsLabels
 				 ],
 				//------------------------------------------------------------------------
 
