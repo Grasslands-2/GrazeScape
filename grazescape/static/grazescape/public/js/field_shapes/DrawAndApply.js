@@ -59,7 +59,7 @@ function wfs_field_insert(feat,geomType) {
 	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
 	DSS.layer.fields_1.getSource().refresh();
 }
-function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
+function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
 	
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
@@ -75,6 +75,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 		e.feature.setProperties({
 			id: af,
 			scenario_i: af,
+			field_name: field_nameInput,
 			soil_p: soil_pInput,
 			om: 10,
 			rotation: 'PS',
@@ -110,6 +111,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 
 	requires: [
 		//'DSS.ApplicationFlow.activeFarm',
+		'DSS.field_shapes.apply.FieldName',
 		'DSS.field_shapes.apply.SoilP',
 		'DSS.field_shapes.apply.Landcover',
 		'DSS.field_shapes.apply.Tillage',
@@ -132,6 +134,10 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				}
 			},
 			data: {
+				field_name: {
+					is_active: true,
+					value: '',
+				},
 				soil_p: {
 					is_active: true,
 					value: 35,
@@ -180,6 +186,8 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					cls: 'information light-text text-drp-20',
 					html: 'Draw and Apply',
 				},{
+					xtype: 'field_shapes_apply_field_name'
+				},{
 					xtype: 'field_shapes_apply_graze_animals'
 				},{
 					xtype: 'field_shapes_apply_landcover'
@@ -207,6 +215,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 							data.crop.value,
 							data.tillage.value.tillage,
 							data.soil_p.value,
+							data.field_name.value,
 							//probably wrong, look up data schema
 							data.on_contour);
 					}
