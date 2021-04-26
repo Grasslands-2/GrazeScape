@@ -1,18 +1,26 @@
 var fields_1Source_loc = new ol.source.Vector({
-	url:'http://localhost:8081/geoserver/wfs?'+
+	url:'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_1&' +
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857'
+	/*'http://localhost:8081/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=Farms:field_1&' +
 		'outputformat=application/json&'+
-		'srsname=EPSG:3857',
+		'srsname=EPSG:3857'*/,
 	format: new ol.format.GeoJSON()
 });
 
 function wfs_field_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/Farms',
+        featureNS: 'http://geoserver.org/GrazeScape_Vector'
+		/*'http://geoserver.org/Farms'*/,
 		Geometry: 'geom',
         featureType: 'field_1',
         srsName: 'EPSG:3857'
@@ -23,7 +31,8 @@ function wfs_field_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://localhost:8081/geoserver/wfs?',{
+    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
         processData: false,
@@ -59,7 +68,7 @@ function wfs_field_insert(feat,geomType) {
 	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
 	DSS.layer.fields_1.getSource().refresh();
 }
-function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
+function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
 	
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
@@ -75,6 +84,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 		e.feature.setProperties({
 			id: af,
 			scenario_i: af,
+			field_name: field_nameInput,
 			soil_p: soil_pInput,
 			om: 10,
 			rotation: 'PS',
@@ -110,6 +120,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 
 	requires: [
 		//'DSS.ApplicationFlow.activeFarm',
+		'DSS.field_shapes.apply.FieldName',
 		'DSS.field_shapes.apply.SoilP',
 		'DSS.field_shapes.apply.Landcover',
 		'DSS.field_shapes.apply.Tillage',
@@ -132,6 +143,10 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				}
 			},
 			data: {
+				field_name: {
+					is_active: true,
+					value: '',
+				},
 				soil_p: {
 					is_active: true,
 					value: 35,
@@ -180,6 +195,8 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					cls: 'information light-text text-drp-20',
 					html: 'Draw and Apply',
 				},{
+					xtype: 'field_shapes_apply_field_name'
+				},{
 					xtype: 'field_shapes_apply_graze_animals'
 				},{
 					xtype: 'field_shapes_apply_landcover'
@@ -207,6 +224,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 							data.crop.value,
 							data.tillage.value.tillage,
 							data.soil_p.value,
+							data.field_name.value,
 							//probably wrong, look up data schema
 							data.on_contour);
 					}
