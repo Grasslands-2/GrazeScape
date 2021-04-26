@@ -6,11 +6,18 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 var fieldArray = [];
 var fieldObj = {};
 
-var fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
+var fieldUrl = /*'http://localhost:8081/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
 'typeName=Farms:field_1&' +
+'outputformat=application/json&'+
+'srsname=EPSG:3857'*/
+'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+'service=wfs&'+
+'?version=2.0.0&'+
+'request=GetFeature&'+
+'typeName=GrazeScape_Vector:field_1&' +
 'outputformat=application/json&'+
 'srsname=EPSG:3857';
 
@@ -104,11 +111,17 @@ console.log(fieldArray);
 //empty array to catch feature objects 
 function gatherTableData() {
 	//redeclaring fieldUrl to only show filtered fields
-	fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
+	fieldUrl = 
+	/*'http://localhost:8081/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=Farms:field_1&'+
+	'typeName=Farms:field_1&'+*/
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_1&' +
 	'CQL_filter=id='+DSS.activeFarm+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
