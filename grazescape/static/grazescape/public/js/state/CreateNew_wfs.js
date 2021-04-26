@@ -6,13 +6,21 @@ DSS.utils.addStyle('.right-pad { padding-right: 32px }')
 //--------------Geoserver WFS source connection-------------------
 //wfs farm layer url for general use
 var farmUrl = 
+'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+'service=wfs&'+
+'?version=2.0.0&'+
+'request=GetFeature&'+
+'typeName=GrazeScape_Vector:farm_1&' +
+'outputformat=application/json&'+
+'srsname=EPSG:3857'
+/*var farmUrl = 
 'http://localhost:8081/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
 'typeName=Farms:farm_1&' +
 'outputformat=json&'+
-'srsname=EPSG:3857'
+'srsname=EPSG:3857'*/
 //declaring farm source var
 var farms_1Source = new ol.source.Vector({
     url: farmUrl,
@@ -52,12 +60,6 @@ function popArray(obj) {
 highestFarmId = 0;
 //loops through data array gids to find largest value and hold on to it with highestfarmid
 
-//for (i in farmArray){
-//console.log(farmArray[i].gid)
-//	if (farmArray[i].gid > highestFarmId){
-//		highestFarmId = farmArray[i].gid
-//	};
-//};
 function getHighestFarmId(){
 	getWFS()
 	popArray(farmObj);
@@ -69,6 +71,7 @@ function getHighestFarmId(){
 	};
 }
 getHighestFarmId()
+//highestFarmId = 0
 console.log(highestFarmId);
 
 
@@ -76,7 +79,8 @@ console.log(highestFarmId);
 function wfs_farm_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/Farms',
+        featureNS: 'http://geoserver.org/GrazeScape_Vector'
+		/*'http://geoserver.org/Farms'*/,
         featureType: 'farm_1',
         srsName: 'EPSG:3857'
     });
@@ -87,7 +91,8 @@ function wfs_farm_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://localhost:8081/geoserver/wfs?',{
+    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
         processData: false,

@@ -1,13 +1,57 @@
 var fields_1Source = new ol.source.Vector({
-	url:'http://localhost:8081/geoserver/wfs?'+
+	url:/*'http://localhost:8081/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=Farms:field_1&' +
 		'outputformat=application/json&'+
+		'srsname=EPSG:3857'*/
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:field_1&' +
+		'outputformat=application/json&'+
 		'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
 });
+function runFieldUpdate(){
+	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+		var feildFeature = f;
+		console.log("from fields_1 loop through: " + feildFeature.id_);
+		for (i in fieldArray){
+			console.log("Fieldarray id: " +fieldArray[i].id);
+			if(fieldArray[i].id === feildFeature.id_){
+				console.log(fieldArray[i].name);
+				feildFeature.setProperties({
+					field_name: fieldArray[i].name,
+					soil_p: fieldArray[i].soilP,
+					om: fieldArray[i].soilOM,
+					rotation: fieldArray[i].rotationVal,
+					rotation_disp: fieldArray[i].rotationDisp,
+					tillage: fieldArray[i].tillageVal,
+					tillage_disp: fieldArray[i].tillageDisp,
+					cover_crop: fieldArray[i].coverCropVal,
+					cover_crop_disp: fieldArray[i].coverCropDisp,
+					on_contour: fieldArray[i].onContour,
+					fertilizerpercent:fieldArray[i].fertPerc,
+					manurepercent: fieldArray[i].manuPerc,
+					grass_speciesval: fieldArray[i].grassSpeciesVal,
+					grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
+					interseededclover: fieldArray[i].interseededClover,
+					grazingdensityval: fieldArray[i].grazeDensityVal,
+					area: fieldArray[i].area,
+					perimeter: fieldArray[i].perimeter,
+					fence_type: fieldArray[i].fence_type,
+					fence_cost: fieldArray[i].fence_cost,
+					fence_unit_cost: fieldArray[i].fence_unit_cost
+				});
+				wfs_field_update(feildFeature);
+				break;
+			}				
+		}				
+	})
+};
 
 function wfs_field_update(feat,geomType) {
     console.log(feat)
@@ -15,7 +59,8 @@ function wfs_field_update(feat,geomType) {
 	console.log('in field update func')
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/Farms',
+        featureNS: 'http://geoserver.org/GrazeScape_Vector'
+		/*'http://geoserver.org/Farms'*/,
 		Geom: 'geom',
         featureType: 'field_1',
         srsName: 'EPSG:3857'
@@ -28,7 +73,8 @@ function wfs_field_update(feat,geomType) {
 	str=str.replace("feature:field_1","Farms:field_1");
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
     console.log(str);
-    $.ajax('http://localhost:8081/geoserver/wfs',{
+    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
         processData: false,
@@ -174,6 +220,7 @@ Ext.define('DSS.state.Scenario', {
 						else {
 							AppEvents.triggerEvent('hide_field_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
+							runFieldUpdate()
 							console.log(fieldArray);
 						}
 					}
@@ -191,41 +238,7 @@ Ext.define('DSS.state.Scenario', {
 					allowDepress: false,
 					text: 'Update Attributes',
 					handler: function() {
-						DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-							var feildFeature = f;
-							console.log("from fields_1 loop through: " + feildFeature.id_);
-							for (i in fieldArray){
-								console.log("Fieldarray id: " +fieldArray[i].id);
-								if(fieldArray[i].id === feildFeature.id_){
-									console.log(fieldArray[i].name);
-									feildFeature.setProperties({
-										field_name: fieldArray[i].name,
-										soil_p: fieldArray[i].soilP,
-										om: fieldArray[i].soilOM,
-										rotation: fieldArray[i].rotationVal,
-										rotation_disp: fieldArray[i].rotationDisp,
-										tillage: fieldArray[i].tillageVal,
-										tillage_disp: fieldArray[i].tillageDisp,
-										cover_crop: fieldArray[i].coverCropVal,
-										cover_crop_disp: fieldArray[i].coverCropDisp,
-										on_contour: fieldArray[i].onContour,
-										fertilizerpercent:fieldArray[i].fertPerc,
-										manurepercent: fieldArray[i].manuPerc,
-										grass_speciesval: fieldArray[i].grassSpeciesVal,
-										grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
-										interseededclover: fieldArray[i].interseededClover,
-										grazingdensityval: fieldArray[i].grazeDensityVal,
-										area: fieldArray[i].area,
-										perimeter: fieldArray[i].perimeter,
-										fence_type: fieldArray[i].fence_type,
-										fence_cost: fieldArray[i].fence_cost,
-										fence_unit_cost: fieldArray[i].fence_unit_cost
-									});
-									wfs_field_update(feildFeature);
-									break;
-								}				
-							}				
-						})
+						runFieldUpdate()
 					},
 				},
 						

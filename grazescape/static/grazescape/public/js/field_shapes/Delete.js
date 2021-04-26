@@ -26,7 +26,8 @@ function deleteField(feat){
 	{
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
-			featureNS: 'http://geoserver.org/Farms',
+			featureNS: 'http://geoserver.org/GrazeScape_Vector'
+			/*'http://geoserver.org/Farms'*/,
 			Geometry: 'geom',
 			featureType: 'field_1',
 			srsName: 'EPSG:3857'
@@ -37,7 +38,8 @@ function deleteField(feat){
 		s = new XMLSerializer();
 		str = s.serializeToString(node);
 		console.log(str);
-		$.ajax('http://localhost:8081/geoserver/wfs?',{
+		$.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+	/*'http://localhost:8081/geoserver/wfs?'*/,{
 			type: 'POST',
 			dataType: 'xml',
 			processData: false,
