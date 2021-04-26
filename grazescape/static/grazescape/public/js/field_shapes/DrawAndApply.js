@@ -1,18 +1,26 @@
 var fields_1Source_loc = new ol.source.Vector({
-	url:'http://localhost:8081/geoserver/wfs?'+
+	url:'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_1&' +
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857'
+	/*'http://localhost:8081/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=Farms:field_1&' +
 		'outputformat=application/json&'+
-		'srsname=EPSG:3857',
+		'srsname=EPSG:3857'*/,
 	format: new ol.format.GeoJSON()
 });
 
 function wfs_field_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/Farms',
+        featureNS: 'http://geoserver.org/GrazeScape_Vector'
+		/*'http://geoserver.org/Farms'*/,
 		Geometry: 'geom',
         featureType: 'field_1',
         srsName: 'EPSG:3857'
@@ -23,7 +31,8 @@ function wfs_field_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://localhost:8081/geoserver/wfs?',{
+    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
         processData: false,
