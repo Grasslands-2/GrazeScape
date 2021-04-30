@@ -193,7 +193,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Draw and Apply',
+					html: 'Add Field Options',
 				},{
 					xtype: 'field_shapes_apply_field_name'
 				},{

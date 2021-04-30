@@ -147,6 +147,21 @@ Ext.define('DSS.state.MapStateTools', {
     },
     
     //----------------------------------------
+	showInfrasForFarm: function(farmId, opacity) {
+    	
+		DSS.layer.infrastructure.getSource().setUrl(
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:Infrastructure&'+
+		'CQL_filter=id='+farmId+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857');
+		console.log(DSS.layer.infrastructure.getStyle())
+		DSS.layer.infrastructure.getSource().refresh();
+		console.log("showInfrasforfarm ran");
+    },
 	//-------------------------------------------------------------
 	//shows all fields in db
 	showAllFields: function(opacity) {
