@@ -8,6 +8,7 @@ Ext.define('DSS.state.Manage', {
 	alias: 'widget.operation_manage',
 
 	requires: [
+		'DSS.state.operation.InfraShapeMode',
 		'DSS.state.operation.FieldShapeMode',
 		'DSS.state.Scenario',
 		
@@ -85,7 +86,27 @@ Ext.define('DSS.state.Manage', {
 						}
 					//	DSS.ApplicationFlow.instance.showNewOperationPage();
 					}
-				},{//------------------------------------------
+				},
+				//-----------------------------------------------------
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Infrastructure Lines',
+//					allowDepress:
+					toggleGroup: 'manage-operation',
+					toggleHandler: function(self, pressed) {
+						if (pressed) {
+							AppEvents.triggerEvent('show_infra_line_mode')
+							DSS.MapState.removeMapInteractions()
+						}
+						else {
+							AppEvents.triggerEvent('hide_infra_line_mode');
+							DSS.MapState.removeMapInteractions()
+						}
+					}
+				},
+				{//------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Design a scenario'
