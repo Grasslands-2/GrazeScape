@@ -9,7 +9,8 @@ Ext.define('DSS.state.MapStateTools', {
 
 	requires: [
 		'DSS.map.Legend',
-		//'DSS.field_grid.FieldGrid'
+		//'DSS.field_grid.FieldGrid',
+		//'DSS.infra_grid.InfraGrid'
 	],
 	
     // Style elements
@@ -284,7 +285,7 @@ Ext.define('DSS.state.MapStateTools', {
 					}
 				}
 				if (g.getType() === "MultiPolygon") {
-					if (f.get('scenario_i') != undefined) {
+					if (f.get('owner_id') != undefined) {
 						cursor = 'pointer';
 						hitAny = true;
 						//console.log(f)
