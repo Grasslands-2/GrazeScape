@@ -75,7 +75,7 @@ function popFieldsArray(obj) {
 	fieldArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.field_name,
-		owningFarmid: obj[i].properties.scenario_i,
+		owningFarmid: obj[i].properties.owner_id,
 		soilP: obj[i].properties.soil_p,
 		soilOM: obj[i].properties.om,
 		rotationVal: obj[i].properties.rotation,

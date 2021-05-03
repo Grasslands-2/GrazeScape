@@ -1,9 +1,11 @@
 
+DSS.utils.addStyle('.hover {cursor: pointer}');
+
 //------------------------------------------------------------------------------
-Ext.define('DSS.infra_shapes.apply.infraType', {
+Ext.define('DSS.infra_shapes.apply.laneMaterial', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.Container',
-	alias: 'widget.infra_shapes_apply_infra_type',
+	alias: 'widget.infra_shapes_apply_lane_material',
 	
 	cls: 'restriction-widget',
 	margin: '2 0 4 0',
@@ -11,13 +13,13 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 	
 	layout: DSS.utils.layout('vbox', 'start', 'center'),
 	
-	DSS_sectionHeight: 75,
+	DSS_sectionHeight: 150,
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-
-		let rbName = "infraType";
+		
+		let rbName = "laneMaterial";
 		
 		Ext.applyIf(me, {
 			items: [{
@@ -30,9 +32,9 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 					width: '100%',
 					height: 28,
 					cls: 'information accent-text bold',
-					html: "Infrastructure Type",
+					html: "Set Fence Material",
 				},
-					getToggle(me, 'infraType.is_active') // Helper defined in DrawAndApply.js
+					getToggle(me, 'laneMaterial.is_active') // Helper defined in DrawAndApply.js
 				]
 			},{
 				xtype: 'radiogroup',
@@ -43,20 +45,20 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 				vertical: true,
 				viewModel: {
 					formulas: {
-						infraTypeValue: {
-							bind: '{infraType.value}', // inherited from parent
+						laneMaterialValue: {
+							bind: '{laneMaterial.value}', // inherited from parent
 							get: function(val) {
 								let obj = {};
 								obj[rbName] = val;
 								return obj;
 							},
 							set: function(val) {
-								this.set('infraType.value', val[rbName]);
+								this.set('laneMaterial.value', val[rbName]);
 							}
 						}
 					}
 				},
-				bind: '{infraTypeValue}', // formula from viewModel above
+				bind: '{laneMaterialValue}', // formula from viewModel above
 				defaults: {
 					name: rbName,
 					listeners: {
@@ -69,11 +71,15 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 				//	boxLabelCls: 'hover'
 				},
 				items: [{
-					boxLabel: 'Fencing', inputValue: 'fl',
+					boxLabel: 'Raised Earth Walkway', inputValue: 're',
 				},{ 
-					boxLabel: 'Water Line', inputValue: 'wl',
+					boxLabel: 'Gravel Walkway', inputValue: 'gw',
 				},{ 
-					boxLabel: 'Lane Line', inputValue: 'll',
+					boxLabel: 'Gravel over Geotextile', inputValue: 'gg',
+				},{ 
+					boxLabel: 'Gravel Over Graded Rock', inputValue: 'ggr',
+				},{ 
+					boxLabel: 'Gravel Over Graded Rock and Geotextile', inputValue: 'ggrg',
 				}]
 			}]
 		});

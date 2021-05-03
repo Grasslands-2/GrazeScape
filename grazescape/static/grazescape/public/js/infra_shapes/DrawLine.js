@@ -106,6 +106,8 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 		//'DSS.ApplicationFlow.activeFarm',
 		'DSS.infra_shapes.apply.infraType',
 		'DSS.infra_shapes.apply.fenceMaterial',
+		'DSS.infra_shapes.apply.waterPipe',
+		'DSS.infra_shapes.apply.laneMaterial'
 	],
 	
 	//--------------------------------------------------------------------------
@@ -120,6 +122,14 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 					value: '',
 				},
 				fenceMaterial: {
+					is_active: true,
+					value: '',
+				},
+				waterPipe: {
+					is_active: true,
+					value: '',
+				},
+				laneMaterial: {
 					is_active: true,
 					value: '',
 				}
@@ -151,6 +161,10 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 					xtype: 'infra_shapes_apply_infra_type'
 				},{
 					xtype: 'infra_shapes_apply_fence_material'
+				},{
+					xtype: 'infra_shapes_apply_lane_material'
+				},{
+					xtype: 'infra_shapes_apply_water_pipe'
 				},
 				{
 					xtype: 'button',
@@ -165,7 +179,9 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 
 						createinfra(
 							data.infraType.value,
-							data.fenceMaterial.value
+							data.fenceMaterial.value,
+							data.waterPipe.value,
+							data.laneMaterial.value
 						);
 					}
 			    }]

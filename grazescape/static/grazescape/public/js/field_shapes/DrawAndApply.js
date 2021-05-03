@@ -83,7 +83,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 	DSS.draw.on('drawend', function (e,) {
 		e.feature.setProperties({
 			id: af,
-			scenario_i: af,
+			owner_id: af,
 			field_name: field_nameInput,
 			soil_p: soil_pInput,
 			om: 10,

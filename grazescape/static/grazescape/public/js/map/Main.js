@@ -62,6 +62,7 @@ Ext.define('DSS.map.Main', {
 		'DSS.map.LayerMenu',
 		'DSS.map.RotationLayer',
 		'DSS.field_grid.FieldGrid',
+		'DSS.infrastructure_grid.InfrastructureGrid'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
@@ -94,7 +95,8 @@ Ext.define('DSS.map.Main', {
 					}
 				}
 			},
-			DSS.FieldGrid
+			DSS.FieldGrid,
+			DSS.InfraGrid
 		]
 		});
 		me.callParent(arguments);

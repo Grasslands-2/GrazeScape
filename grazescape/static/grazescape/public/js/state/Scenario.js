@@ -208,7 +208,7 @@ Ext.define('DSS.state.Scenario', {
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
 					allowDepress: true,
-					text: 'Field Properties',
+					text: 'Field Attributes',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
 							//console.log(DSS.field_grid.FieldGrid.getView()); 
@@ -220,6 +220,28 @@ Ext.define('DSS.state.Scenario', {
 						else {
 							AppEvents.triggerEvent('hide_field_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
+							runFieldUpdate()
+							console.log(fieldArray);
+						}
+					}
+				},
+				//-------------------------------------------------------
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					toggleGroup: 'create-scenario',
+					allowDepress: true,
+					text: 'Infrastructure Attributes',
+					toggleHandler: function(self, pressed) {
+						if (pressed) {
+							DSS.MapState.removeMapInteractions();
+							gatherInfraTableData();
+							AppEvents.triggerEvent('show_infra_grid');
+						}
+						else {
+							AppEvents.triggerEvent('hide_infra_grid')
+							DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 							runFieldUpdate()
 							console.log(fieldArray);
 						}
