@@ -401,6 +401,28 @@ Ext.define('DSS.map.Main', {
 				'srsname=EPSG:3857';
 			},
 		});
+		DSS.layer.test_raster = new ol.layer.Image({
+			source: new ol.source.ImageStatic({
+				url: '/static/grazescape/public/shapeFiles/Farms-geotiff_coverage.png',
+				imageExtent: extent
+			})
+		})
+        var format = 'image/png';
+		DSS.layer.untiled = new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+          ratio: 1,
+          url: 'http://localhost:8081/geoserver/Rasters/wms',
+          params: {'FORMAT': format,
+                   'VERSION': '1.1.1',
+                "STYLES": '',
+                "LAYERS": 'Rasters:test_raster',
+                "exceptions": 'application/vnd.ogc.se_inimage',
+          }
+        })
+      });
+
+
+
 		DSS.layer.farms_1 = new ol.layer.Vector({
 			title: 'farms_1',
 			visible: true,
@@ -431,6 +453,7 @@ Ext.define('DSS.map.Main', {
 			},
 		});
 
+
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
 			target: me.down('#ol_map').getEl().dom,
@@ -441,7 +464,10 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
 				DSS.layer.farms_1,
-				DSS.layer.fields_1
+				DSS.layer.fields_1,
+//				DSS.layer.test_raster,
+//				DSS.layer.untiled
+
 				 ],
 				//------------------------------------------------------------------------
 
@@ -492,7 +518,19 @@ Ext.define('DSS.map.Main', {
 		//-----------------------------------------------------------
 		me.map.on('click', function(e) {
 			let coords = me.map.getEventCoordinate(e.originalEvent);
-			
+
+
+
+        var view = me.map.getView();
+        var viewResolution = view.getResolution();
+        var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
+        console.log(view)
+        console.log(viewResolution)
+
+
+
+        var pixel1 = me.map.getPixelFromCoordinate(coords);
+        console.log(pixel1)
 			console.log(e, coords, ol.proj.transform(coords, 'EPSG:3857', 'EPSG:3071'));  
 			if (DSS.mapClickFunction) DSS.mapClickFunction(e, coords);
 		});

@@ -8,7 +8,8 @@ from django.core.files import File
 from django.conf import settings
 import os
 # Create your views here.
-import grazescape.raster_data as rd
+import grazescape.raster_data_local as rd
+from grazescape.raster_data import RasterData
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
@@ -22,19 +23,22 @@ raster_data = None
 def load_data(request):
     global raster_data
     print("Loading data!!")
-    raster_data = rd.RasterData()
-    message = "pickle"
-    # http: // localhost: 8000 / grazescape / load_data?load_txt = true
-    if request.GET.get("load_txt"):
-        print("Raster CSV")
-        message = 'csv'
-        raster_data.load_raster_csv()
-    raster_data.load_raster_pickle()
-    print("loaded pickle")
-    if 'ls' not in raster_data.get_raster_data():
-        print("create ls")
-        raster_data.create_ls_file()
-    return HttpResponse(message)
+    raster_data = RasterData([-20117712.22501242, 4382245.47625754, 10117334.07055232, 6382523.44235636])
+    raster_data.load_layers()
+    # raster_data = rd.RasterData()
+    # message = "pickle"
+    # # http: // localhost: 8000 / grazescape / load_data?load_txt = true
+    # if request.GET.get("load_txt"):
+    #     print("Raster CSV")
+    #     message = 'csv'
+    #     raster_data.load_raster_csv()
+    # raster_data.load_raster_pickle()
+    # print("loaded pickle")
+    # if 'ls' not in raster_data.get_raster_data():
+    #     print("create ls")
+    #     raster_data.create_ls_file()
+
+    return HttpResponse("data loaded")
 
 
 def index(request):
@@ -43,6 +47,8 @@ def index(request):
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+
+
 def chart(request):
     print(request.GET)
     print(request.POST)
@@ -58,10 +64,10 @@ def chart(request):
 @ensure_csrf_cookie
 def get_model_results(request):
     global raster_data
-
+    print("running model")
     extents = request.POST.getlist('extents[]')
     print(request.POST)
-    model_type = request.POST.get('model')
+    model_type = request.POST.get('model_parameters[model_type]')
     values = []
     if model_type == 'grass':
         print("grass")
@@ -80,34 +86,49 @@ def get_model_results(request):
             model = CropYield(request, "corn_output")
     else:
         model = GenericModel(request, model_type)
-        # data = {"error": "Could not find a suitable model"}
-        # return JsonResponse(data)
-    print("Calculating Extents")
-    extents, rounded_extents = model.to_raster_space(extents)
-    print("Clipping Extents")
-    clipped_rasters, bounds = model.clip_input(extents, raster_data.get_raster_data())
+
+    field_coors = []
+    # format field geometry
+    for input in request.POST:
+        if "field_coors" in input:
+            field_coors.append(request.POST.getlist(input))
+    geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"))
+    geo_data.load_layers()
+    geo_data.create_clip(field_coors)
+    clipped_rasters, bounds = geo_data.clip_raster()
+
+    model.bounds["x"] = geo_data.bounds["x"]
+    model.bounds["y"] = geo_data.bounds["y"]
+    # print("Calculating Extents")
+    # extents, rounded_extents = model.to_raster_space(extents)
+    # print("Clipping Extents")
+    # clipped_rasters, bounds = model.clip_input(extents, raster_data.get_raster_data())
+
+
+
     print("Preparing model input")
-    model.write_model_input(clipped_rasters, bounds)
+    model.write_model_input(clipped_rasters)
     print("Running model")
     results = model.run_model()
     avg = model.aggregate(results)
     print("Creating png")
-    color_ramp = model.get_model_raster(results)
-    for cat in color_ramp:
-        # palette.append(cat[2])
-        values.append(cat[1])
+    color_ramp = model.get_model_png(results, geo_data.bounds)
+    # for cat in color_ramp:
+    #     values.append(cat[1])
     print(model.file_name)
     palette, values = model.get_legend()
     data = {
-        "extent": rounded_extents,
+        # "extent": rounded_extents,
+        "extent": [*bounds],
         "model-results": "None",
         "palette": palette,
         "url": model.file_name + ".png",
         "values": values,
         "avg": avg,
         "units": model.get_units()
-
     }
+    print(data)
+
 
     print("Displaying model")
     return JsonResponse(data)

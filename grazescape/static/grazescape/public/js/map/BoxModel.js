@@ -35,7 +35,7 @@ Ext.define('DSS.map.BoxModel', {
 				updateWhileInteracting: true,
 				source: new ol.source.ImageStatic({
 					imageSmoothing: false,
-					projection: 'EPSG:3071',
+					projection: 'EPSG:3857',
 					// Something is required here or there will be an exception whilst trying to draw this layer
 					imageExtent: [
 						44240,328120,
@@ -49,7 +49,7 @@ Ext.define('DSS.map.BoxModel', {
 		updateWhileInteracting: true,
 		source: new ol.source.ImageStatic({
 			imageSmoothing: false,
-			projection: 'EPSG:3071',
+			projection: 'EPSG:3857',
 			// Something is required here or there will be an exception whilst trying to draw this layer
 			imageExtent: [
 				44240,328120,
@@ -62,7 +62,7 @@ Ext.define('DSS.map.BoxModel', {
 		updateWhileInteracting: true,
 		source: new ol.source.ImageStatic({
 			imageSmoothing: false,
-			projection: 'EPSG:3071',
+			projection: 'EPSG:3857',
 			// Something is required here or there will be an exception whilst trying to draw this layer
 			imageExtent: [
 				44240,328121,
@@ -76,7 +76,7 @@ Ext.define('DSS.map.BoxModel', {
 		updateWhileInteracting: true,
 		source: new ol.source.ImageStatic({
 			imageSmoothing: false,
-			projection: 'EPSG:3071',
+			projection: 'EPSG:3857',
 			// Something is required here or there will be an exception whilst trying to draw this layer
 			imageExtent: [
 				44240,328122,
@@ -90,7 +90,7 @@ Ext.define('DSS.map.BoxModel', {
 		updateWhileInteracting: true,
 		source: new ol.source.ImageStatic({
 			imageSmoothing: false,
-			projection: 'EPSG:3071',
+			projection: 'EPSG:3857',
 			// Something is required here or there will be an exception whilst trying to draw this layer
 			imageExtent: [
 				44240,328123,

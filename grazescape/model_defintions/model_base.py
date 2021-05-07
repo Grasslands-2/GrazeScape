@@ -6,7 +6,8 @@ from django.conf import settings
 import os
 import json
 import uuid
-
+import grazescape.model_defintions.utilities as ut
+import pickle
 
 
 class ModelBase:
@@ -28,10 +29,63 @@ class ModelBase:
         self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'input_models')
         self.color_ramp_hex = []
         self.data_range = []
-        self.model_parameters = request
         self.bounds = {"x": 0, "y": 0}
         self.units = ""
+        self.no_data = -9999
+        self.model_parameters = self.parse_model_parameters(request)
+        self.raster_inputs={}
+        print(self.model_parameters)
+    def parse_model_parameters(self, request):
 
+        nutrient_dict = {"ccgcdsnana": {"Pneeds":65,"grazed_DM_lbs":196.8,"grazed_P2O5_lbs":2.46},
+            "ccgcisnana": {"Pneeds":65,"grazed_DM_lbs":196.8,"grazed_P2O5_lbs":2.46},
+            "ccncnana": {"Pneeds":60,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "ccccnana": {"Pneeds":60,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "cggcdsnana": {"Pneeds":47.5,"grazed_DM_lbs":196.8,"grazed_P2O5_lbs":2.46},
+            "cggcisnana": {"Pneeds":47.5,"grazed_DM_lbs":196.8,"grazed_P2O5_lbs":2.46},
+            "cgncnana": {"Pneeds":50,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "cgccnana": {"Pneeds":50,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "drgcdsnana": {"Pneeds":49,"grazed_DM_lbs":38.4,"grazed_P2O5_lbs":0.48},
+            "drgcisnana": {"Pneeds":49,"grazed_DM_lbs":38.4,"grazed_P2O5_lbs":0.48},
+            "drncnana": {"Pneeds":49,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "drccnana": {"Pneeds":49,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "csogcdsnana": {"Pneeds":46.67,"grazed_DM_lbs":64.8,"grazed_P2O5_lbs":0.81},
+            "csogcisnana": {"Pneeds":46.67,"grazed_DM_lbs":64.8,"grazed_P2O5_lbs":0.81},
+            "csoncnana": {"Pneeds":46.67,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "csoccnana": {"Pneeds":46.67,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+            "dlnanalo": {"Pneeds":0,"grazed_DM_lbs":4802.4,"grazed_P2O5_lbs":60.03},
+            "dlnanahi": {"Pneeds":0,"grazed_DM_lbs":24009.6,"grazed_P2O5_lbs":300.12},
+            "ptnacnhi": {"Pneeds":40,"grazed_DM_lbs":3602.4,"grazed_P2O5_lbs":45.03},
+            "ptnacnlo": {"Pneeds":40,"grazed_DM_lbs":1200,"grazed_P2O5_lbs":15},
+            "ptnartna": {"Pneeds":40,"grazed_DM_lbs":2400,"grazed_P2O5_lbs":30},
+            "psnanana": {"Pneeds":15,"grazed_DM_lbs":0,"grazed_P2O5_lbs":0},
+
+         }
+
+        parameters = {
+            "f_name": request.POST.getlist("model_parameters[f_name]")[0],
+            "grass_type": request.POST.getlist("model_parameters[grass_type]")[0],
+            "contour": request.POST.getlist("model_parameters[contour]")[0],
+            "soil_p": request.POST.getlist("model_parameters[soil_p]")[0],
+            "tillage": request.POST.getlist("model_parameters[tillage]")[0],
+            "fert": request.POST.getlist("model_parameters[fert]")[0],
+            "manure": request.POST.getlist("model_parameters[manure]")[0],
+            "crop": request.POST.getlist("model_parameters[crop]")[0],
+            "crop_cover": request.POST.getlist("model_parameters[crop_cover]")[0],
+            "rotation": request.POST.getlist("model_parameters[rotation]")[0],
+            "density": request.POST.getlist("model_parameters[density]")[0],
+        }
+        for val in parameters:
+            if parameters[val] == "":
+                parameters[val] = "NA"
+
+        nutrient_key = parameters["crop"] + parameters["crop_cover"] + parameters["rotation"] + parameters["density"]
+        nutrient_key = nutrient_key.lower()
+        parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
+        parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
+        parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
+
+        return parameters
     def get_file_name(self):
         return self.file_name
 
@@ -151,6 +205,8 @@ class ModelBase:
         return cat_list
 
     def calculate_color(self, color_ramp, value):
+        if value == self.no_data:
+            return (256,256,256)
         for index, val in enumerate(color_ramp):
             if val[1] >= value:
                 return val[2]
@@ -160,14 +216,25 @@ class ModelBase:
         data = np.reshape(data, (bounds["y"], bounds["x"]))
         return data
 
-    def get_model_raster(self, data):
-        max_v = max(data)
-        min_v = min(data)
-        rows = self.bounds["y"]
-        cols = self.bounds["x"]
+    def min_value(self,data, max):
+        min = max
+        for val in data:
+            if val < min and val != self.no_data:
+                min = val
+        return min
 
-        three_d = np.empty([rows, cols, 3])
-        datanm = self.reshape_model_output(data,self.bounds)
+    def get_model_png(self, data, bounds):
+        # pickle.dump(data, open("data", "wb"))
+        max_v = max(data)
+        # max_v = 100
+        min_v = self.min_value(data,max_v)
+        print("min value!!!!!!!!!!!!!!!!!!")
+        print(min_v)
+        rows = bounds["y"]
+        cols = bounds["x"]
+
+        three_d = np.empty([rows, cols, 4])
+        datanm = self.reshape_model_output(data, bounds)
         color_ramp = self.create_color_ramp(min_v, max_v)
         for y in range(0, rows):
             for x in range(0, cols):
@@ -177,9 +244,15 @@ class ModelBase:
                 three_d[y][x][0] = color[0]
                 three_d[y][x][1] = color[1]
                 three_d[y][x][2] = color[2]
+                three_d[y][x][3] = 255
+                if self.no_data == datanm[y][x] or datanm[y][x] >1000 :
+                #     three_d[y][x][0] = 131
+                #     three_d[y][x][1] = 8
+                #     three_d[y][x][2] = 149
+                    three_d[y][x][3] = 0
         three_d = three_d.astype(np.uint8)
-        im = Image.fromarray(three_d, mode='RGB')
-        im.convert('RGB')
+        im = Image.fromarray(three_d)
+        im.convert('RGBA')
         print("raster image")
         print(self.raster_image_file_path)
         im.save(self.raster_image_file_path)
@@ -187,7 +260,15 @@ class ModelBase:
 
     def get_legend(self):
         return self.color_ramp_hex, self.data_range
+
     def aggregate(self, data):
-        return np.mean(data)
+        data_size = 0
+        sum_data = 0
+        for val in data:
+            if val != self.no_data:
+                sum_data = sum_data + val
+                data_size = data_size + 1
+        return sum_data/data_size
+
     def get_units(self):
         return self.units
