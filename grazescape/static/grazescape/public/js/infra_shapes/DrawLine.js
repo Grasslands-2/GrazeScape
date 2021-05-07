@@ -61,14 +61,68 @@ function wfs_infra_insert(feat,geomType) {
 	DSS.MapState.showInfrasForFarm(DSS.activeFarm);
 	DSS.layer.infrastructure.getSource().refresh();
 }
-function createinfra(infra_typeInput,fence_materialInput){
-	
+function createinfra(infra_nameInput,
+infra_typeInput,
+fence_materialInput,
+water_pipeInput,
+lane_materialInput){
+	infra_typeDisp = '';
+	fence_materialDisp = '';
+	water_pipeDisp = '';
+	lane_materialDisp = '';
+	costPerFoot = 0;
+
+	console.log(infra_nameInput);
+	//---------------Setting Infra Values-----------------------
+	if(infra_typeInput == 'fl') {infra_typeDisp = 'Fencing'
+		if(fence_materialInput == 'hte1') {
+			fence_materialDisp = 'High Tensile Electric, 1 Strand'
+			costPerFoot = 0.84}
+		else if(fence_materialInput == 'hte'){ 
+			fence_materialDisp = 'Electric - High Tensile'
+			costPerFoot = 1.81}
+		else if(fence_materialInput == 'pp'){ 
+			fence_materialDisp = 'Pasture Paddock'
+			costPerFoot = 0.37}
+		}
+	else if (infra_typeInput == 'wl') {infra_typeDisp = 'Water Line'
+		if(water_pipeInput == 'sup') {
+			water_pipeDisp = 'Surface HDPE or PVC Pipe'
+			costPerFoot = 1.17;}
+		else if(water_pipeInput == 'sbp'){ 
+			water_pipeDisp = 'Shallow Buried HDPE or PVC Pipe'
+			costPerFoot = 2.31;}
+		}
+	else if(infra_typeInput == 'll'){ infra_typeDisp = 'Lane Line'
+		if(lane_materialInput == 're') {
+			lane_materialDisp = 'Raised Earth Walkway'
+			costPerFoot = 0.16}
+		else if(lane_materialInput == 'gw') {
+			lane_materialDisp = 'Gravel Walkway'
+			costPerFoot = 0.37}
+		else if(lane_materialInput == 'gg') {
+			lane_materialDisp = 'Gravel over Geotextile'
+			costPerFoot = 0.56}
+		else if(lane_materialInput == 'ggr'){ 
+			lane_materialDisp = 'Gravel Over Graded Rock'
+			costPerFoot = 0.96}
+		if(lane_materialInput == 'ggrg'){ 
+			lane_materialDisp = 'Gravel Over Graded Rock and Geotextile'
+			costPerFoot = 1.33}
+		}
+
+	//-------------------Now for the actual function-----------------
+
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
 		type: 'LineString',
 		geometryName: 'geom'
 	});
+	DSS.snap = new ol.interaction.Snap({
+		source:DSS.layer.fields_1.getSource()
+	});
 	DSS.map.addInteraction(DSS.draw);
+	DSS.map.addInteraction(DSS.snap);
 	console.log("draw is on");
 	//console.log(DSS.activeFarm);
 	var af = parseInt(DSS.activeFarm,10)
@@ -76,8 +130,18 @@ function createinfra(infra_typeInput,fence_materialInput){
 	DSS.draw.on('drawend', function (e,) {
 		e.feature.setProperties({
 			id: af,
+			owner_id: af,
+			infra_name: infra_nameInput,
 			infra_type: infra_typeInput,
-			fence_material: fence_materialInput
+			infra_type_disp: infra_typeDisp,
+			fence_material: fence_materialInput,
+			fence_material_disp: fence_materialDisp,
+			water_pipe: water_pipeInput,
+			water_pipe_disp: water_pipeDisp,
+			lane_material: lane_materialInput,
+			lane_material_disp:lane_materialDisp,
+			cost_per_foot: costPerFoot
+
 		})
 		var geomType = 'Line'
 		
@@ -104,6 +168,7 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 
 	requires: [
 		//'DSS.ApplicationFlow.activeFarm',
+		'DSS.infra_shapes.apply.infraName',
 		'DSS.infra_shapes.apply.infraType',
 		'DSS.infra_shapes.apply.fenceMaterial',
 		'DSS.infra_shapes.apply.waterPipe',
@@ -117,20 +182,24 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 		if (!DSS['viewModel']) DSS['viewModel'] = {}
 		DSS.viewModel.drawLine = new Ext.app.ViewModel({
 			data: {
+				infraName: {
+					is_active: true,
+					value: '',
+				},
 				infraType: {
 					is_active: true,
 					value: '',
 				},
 				fenceMaterial: {
-					is_active: true,
+					is_active: false,
 					value: '',
 				},
 				waterPipe: {
-					is_active: true,
+					is_active: false,
 					value: '',
 				},
 				laneMaterial: {
-					is_active: true,
+					is_active: false,
 					value: '',
 				}
 			}
@@ -158,6 +227,8 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 					cls: 'information light-text text-drp-20',
 					html: 'Infrastructure Options',
 				},{
+					xtype: 'infra_shapes_apply_infra_name'
+				},{
 					xtype: 'infra_shapes_apply_infra_type'
 				},{
 					xtype: 'infra_shapes_apply_fence_material'
@@ -178,6 +249,7 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 						//console.log(DSS.activeFarm);
 
 						createinfra(
+							data.infraName.value,
 							data.infraType.value,
 							data.fenceMaterial.value,
 							data.waterPipe.value,

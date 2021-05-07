@@ -50,6 +50,8 @@ Ext.define('DSS.state.Manage', {
 									DSS.ApplicationFlow.instance.showLandingPage();
 									//DSS.layer.fields_1.getSource().refresh();
 									DSS.MapState.showAllFields();
+									DSS.viewModel.scenario = !DSS['viewModel']
+									console.log("back to square 1")
 								}
 							});
 						}
@@ -116,6 +118,7 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Scenarios',
 					handler: function(self) {
+						gatherfarmTableData()
 						AppEvents.triggerEvent('hide_field_shape_mode')
 						DSS.ApplicationFlow.instance.showScenarioPage();
 					}

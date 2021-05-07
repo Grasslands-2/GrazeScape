@@ -39,13 +39,14 @@ function getWFSinfra() {
 			infraObj = response.features
 			console.log(responseObj);
 			infraArray = [];
-			//console.log(infraObj[0]);
-			popFieldsArray(infraObj);
+			console.log(infraObj[0]);
+			popInfraArray(infraObj);
 			//placed data store in call function to make sure it was locally available.	
 			Ext.create('Ext.data.Store', {
 				storeId: 'infraStore1',
 				alternateClassName: 'DSS.infraStore',
-				fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe','waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot'],
+				fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe',
+				'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','totalCost'],
 				data: infraArray
 			});
 			//Setting store to just declared store fieldStore1, and reloading the store to the grid
@@ -59,9 +60,10 @@ function getWFSinfra() {
 	})
 }
 
-function popFieldsArray(obj) {
+function popInfraArray(obj) {
 
 	for (i in obj)
+	//console.log(i);
 	infraArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.infra_name,
@@ -74,7 +76,9 @@ function popFieldsArray(obj) {
 		waterPipeDisp: obj[i].properties.water_pipe_disp,
 		laneMaterial: obj[i].properties.lane_material,
 		laneMaterialDisp: obj[i].properties.lane_material_disp,
-        costPerFoot: obj[i].properties.cost_per_foot
+		laneWidth: obj[i].properties.lane_width,
+        costPerFoot: obj[i].properties.cost_per_foot,
+		totalCost: obj[i].properties.total_cost
 	});
 	//DSS.infrastructure_grid.InfrastructureGrid.store.reload(infraArray);
 }
@@ -116,55 +120,66 @@ Ext.create('Ext.data.Store', {
 
 Ext.create('Ext.data.Store', {
 	storeId: 'fenceMaterialStore',
-	fields:[ 'display', 'value'],
+	fields:[ 'display', 'value','cost'],
 	data: [{
 		value: 'hte1',
-		display: 'High Tensile Electric, 1 Strand'
+		display: 'High Tensile Electric, 1 Strand',
+		cost: 0.84
 	},{ 
 		value: 'hte',
-		display: 'Electric - High Tensile'
+		display: 'Electric - High Tensile',
+		cost:1.81
 	},{ 
 		value: 'pp',
-		display: 'Pasture Paddock'
+		display: 'Pasture Paddock',
+		cost:0.37
 	}]
 });
 
 Ext.create('Ext.data.Store', {
 	storeId: 'waterPipeStore',
-	fields:[ 'display', 'value'],
+	fields:[ 'display', 'value','cost'],
 	data: [{
 		value: 'sup',
-		display: 'Surface HDPE or PVC Pipe'
+		display: 'Surface HDPE or PVC Pipe',
+		cost:1.17
 	},{ 
 		value: 'sbp',
-		display: 'Shallow Buried HDPE or PVC Pipe'
+		display: 'Shallow Buried HDPE or PVC Pipe',
+		cost:2.31
 	}]
 });
 Ext.create('Ext.data.Store', {
 	storeId: 'laneMaterialStore',
-	fields:[ 'display', 'value'],
+	fields:[ 'display', 'value','cost',],
 	data: [{
 		value: 're',
-		display: 'Raised Earth Walkway'
+		display: 'Raised Earth Walkway',
+		cost:0.16
 	},{ 
 		value: 'gw',
-		display: 'Gravel Walkway'
+		display: 'Gravel Walkway',
+		cost:0.37
 	},{ 
 		value: 'gg',
-		display: 'Gravel over Geotextile'
+		display: 'Gravel over Geotextile',
+		cost:0.56
 	},{ 
 		value: 'ggr',
-		display: 'Gravel Over Graded Rock'
+		display: 'Gravel Over Graded Rock',
+		cost:0.96
 	},{ 
 		value: 'ggrg',
-		display: 'Gravel Over Graded Rock and Geotextile'
+		display: 'Gravel Over Graded Rock and Geotextile',
+		cost:1.33
 	}]
 });
 //-----------------------------------fieldStore!---------------------------------
 Ext.create('Ext.data.Store', {
 	storeId: 'InfraStore',
-	alternateClassName: 'DSS.FieldStore',
-	fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe','waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot'],
+	alternateClassName: 'DSS.InfraStore',
+	fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe',
+	'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','totalCost'],
 	data: infraArray
 });
 
@@ -242,10 +257,10 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('infraType') == 'fl') {
-					widget.setDisabled(true);
+					widget.setDisabled(false);
 				}
 				 else {
-					widget.setDisabled(false);
+					widget.setDisabled(true);
 				}
 			},
 			widget: {
@@ -256,10 +271,11 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, eOpts){
+					select: function(combo, value, cost, eOpts){
 						var record = combo.getWidgetRecord();
 						record.set('fenceMaterial', value.get('value'));
 						record.set('fenceMaterialDisp', value.get('display'));
+						record.set('costPerFoot',value.get('cost'));
 						me.getView().refresh();
 					}
 				}
@@ -273,9 +289,9 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('infraType') == 'wl') {
-					widget.setDisabled(true);
-				}else {
 					widget.setDisabled(false);
+				}else {
+					widget.setDisabled(true);
 				}
 			},
 			widget: {
@@ -286,10 +302,12 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-				select: function(combo, value, eOpts,rec,widget){
+					select: function(combo, value, cost, eOpts,rec,widget){
 						var record = combo.getWidgetRecord();
 						record.set('waterPipe', value.get('value'));
 						record.set('waterPipeDisp', value.get('display'));
+						record.set('costPerFoot',value.get('cost'));
+						me.getView().refresh();
 					}
 				}
 			}
@@ -302,9 +320,9 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('infraType') == 'll') {
-					widget.setDisabled(true);
-				}else {
 					widget.setDisabled(false);
+				}else {
+					widget.setDisabled(true);
 				}
 			},
 			widget: {
@@ -315,27 +333,42 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-				select: function(combo, value, eOpts,rec,widget){
+					select: function(combo, value, cost, eOpts,rec,widget){
 						var record = combo.getWidgetRecord();
 						record.set('laneMaterial', value.get('value'));
 						record.set('laneMaterialDisp', value.get('display'));
+						record.set('costPerFoot',value.get('cost'));
+						me.getView().refresh();
 					}
 				}
 			}
 		};
 		//------------------------------------------------------------------
-		let costPerFootColumn = {
+		let widthColumn = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Percent<br>Fertilizer', dataIndex: 'costPerFoot', width: 80, 
+			}, text: 'Width', dataIndex: 'laneWidth', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-		
+		//------------------------------------------------------------------------------
+		let costPerFootColumn = {
+			xtype: 'numbercolumn', format: '0.00',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Cost Per<br>Foot', dataIndex: 'costPerFoot', width: 80, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		let totalCostColumn = {
+			xtype: 'numbercolumn', format: '0.00',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Total<br>Cost', dataIndex: 'totalCost', width: 80, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
 
 			columns: [infraNameColumn,infraTypeColumn,fenceMaterialColumn,
-				waterPipeColumn,laneLineColumn,costPerFootColumn],
+				waterPipeColumn,laneLineColumn,widthColumn,costPerFootColumn,totalCostColumn],
 			
 			plugins: {
 				ptype: 'cellediting',
