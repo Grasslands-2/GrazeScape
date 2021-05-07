@@ -1,100 +1,159 @@
-from django.conf import settings
-import os
-import json
+from osgeo import gdal
+from osgeo import gdalconst as gc
+import matplotlib.pyplot as plt
+import requests
 import numpy as np
-import pickle
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Polygon
+import io
+import os
+import uuid
+from django.conf import settings
 import math
-# Class for loading and managing raster data from the tainter creek watershed
-"""
+
 
 """
+This class will manage retrieving data from geoserver and manage the clipping of extents to fields
+Created by Matthew Bayles 2021
+"""
+
+
 class RasterData:
-    def __init__(self):
-        self.is_loaded = False
-        self.input_raster_dic = {}
-        self.file_dir = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs')
 
-        # self.load_raster_csv()
-        self.load_raster_pickle()
-    #     load data in a dictionary with filename as key
+    def __init__(self, extents):
+        """
 
-    def load_raster_csv(self):
-        print("Loading data")
-        for file in os.listdir(self.file_dir):
+        Parameters
+        ----------
+        data_layer String name of the layer to retrieve from geoserver
+        extents array x and y coordinates of the extents of the field in a 1d array
+        """
+        print("creating")
+        print(extents)
+        # self.data_layer = data_layer
+        self.extents = extents
+        self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
+                        "request=GetCoverage&CoverageId="
+        self.file_name = str(uuid.uuid4())
+        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs',self.file_name)
+        if not os.path.exists(self.dir_path):
+            os.makedirs(self.dir_path)
+        self.extents_string_x = ""
+        self.extents_string_y = ""
+        if extents is not None:
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+        self.crs = "epsg:3857"
+
+        self.no_data = -9999
+        self.layer_dic = {
+          "elevation": "InputRasters:TC_DEM",
+          "slope_data": "InputRasters:TC_Slope",
+          "sand": "InputRasters:TC_sand_10m",
+          "silt": "InputRasters:TC_silt_10m",
+          "clay": "InputRasters:TC_clay_10m",
+          "k": "InputRasters:TC_k_10m",
+          "ksat": "InputRasters:TC_ksat_10m",
+          "om": "InputRasters:TC_om_10m",
+          "cec": "InputRasters:TC_cec_10m",
+          "ph": "InputRasters:TC_ph_10m",
+          "total_depth": "InputRasters:TC_totaldepth_10m",
+          "slope_length": "InputRasters:TC_slopelenusler_10m",
+          "awc": "InputRasters:TC_awc_10m",
+          "ls": "InputRasters:LS_10m"
+        }
+        # self.layer_dic = {"corn_yield": "InputRasters:awc"}
+        self.bounds = {"x": 0, "y": 0}
+
+    def load_layers(self):
+        """
+        Download data from geoserver
+        Returns
+        -------
+
+        """
+        # layer_list = requests.get("http://localhost:8081/geoserver/rest/layers.json")
+        for layer in self.layer_dic:
+            url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
+            print(url)
+            r = requests.get(url)
+
+            raster_file_path = os.path.join(self.dir_path, layer + ".tif")
+            with open(raster_file_path, "wb") as f:
+                f.write(r.content)
+
+    def create_clip(self, field_geom_array):
+        """
+        Create a shapefile to clip the raster with
+        Parameters
+        ----------
+        field_geom_array
+
+        Returns
+        -------
+
+        """
+        geom_array_float = []
+        for coor in field_geom_array:
+            print(coor)
+            geom_array_float.append([float(coor[0]), float(coor[1])])
+        polygon_geom = Polygon(geom_array_float)
+
+        crs = {'init': self.crs}
+        polygon = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])
+        polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
+        print(polygon.total_bounds)
+        return polygon.total_bounds
+    def clip_raster(self):
+        """
+        Clip raster and return a rectangular array
+
+        Returns array of values of the raster
+        -------
+
+        """
+        raster_data_dic = {}
+        bounds = 0
+        for file in os.listdir(self.dir_path):
             print("Loading file: " + file)
-            with open(os.path.join(self.file_dir, file)) as f:
-                if '.asc' in file:
-                    data = np.loadtxt(f, skiprows = 6)
-                    self.input_raster_dic[file.split(".")[0]] = np.array(data)
-                elif '.txt' in file:
-                    data = json.load(f)
-                    # convert ft to meters
-                    # if file == "elevation.txt":
-                    #     data = data * 0.3048
-                    self.input_raster_dic[file.split(".")[0]] = np.array(data)
-                else:
-                    pass
+            print("no data value")
+            if '.tif' in file:
+                data_name = file.split(".")[0]
+                image = gdal.Open(os.path.join(self.dir_path, file))
+                band = image.GetRasterBand(1)
+                # arr1 = np.asarray(band.ReadAsArray())
+                print(band.GetNoDataValue())
 
-        self.is_loaded = True
-        self.pickle_raster_data()
+                # set all output rasters to have float 32 data type
+                # this allows for the use of -9999 as no data value
+                ds_clip = gdal.Warp(os.path.join(self.dir_path, file + "_clipped.tif"), image,
+                                    cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
+                                    cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32 )
+                geoTransform = ds_clip.GetGeoTransform()
+                minx = geoTransform[0]
+                maxy = geoTransform[3]
+                maxx = minx + geoTransform[1] * ds_clip.RasterXSize
+                miny = maxy + geoTransform[5] * ds_clip.RasterYSize
+                bounds = [minx, miny, maxx, maxy]
 
-    def load_raster_pickle(self):
-        file_dir = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', "raster_data.p")
-        if not os.path.exists(file_dir):
-            self.load_raster_csv()
-        self.input_raster_dic = pickle.load(open(os.path.join(self.file_dir, "raster_data.p"), "rb"))
-        self.is_loaded = True
+                band = ds_clip.GetRasterBand(1)
+                arr = np.asarray(band.ReadAsArray())
+                raster_data_dic[data_name] = arr
+        self.check_raster_data(raster_data_dic)
+        return raster_data_dic, bounds
 
-    def get_raster_data(self):
-        if not self.is_loaded:
-            self.load_raster_csv()
-        return self.input_raster_dic
+    def check_raster_data(self, raster_dic):
+        print(raster_dic.keys())
+        # raster_shape = raster_dic[next(raster_dic_it)].shape
 
-    def pickle_raster_data(self):
-        file_dir = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', "raster_data.p")
-        pickle.dump(self.input_raster_dic, open(file_dir, "wb"))
-
-    def create_ls_file(self):
-        ls_list = []
-        with open(os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', "ls.txt"), "w") as f:
-            slopes = self.input_raster_dic["slope_data"]
-            slope_lengths = self.input_raster_dic["slope_length"]
-            for y in range(0, len(self.input_raster_dic["slope_data"])):
-                row_ls = []
-                for x in range(0, len(self.input_raster_dic["slope_data"][0])):
-                    # f.write("{}, ".format(grass) +
-                    slope = slopes[y][x]
-                    slope_length = slope_lengths[y][x]
-                    if slope_length < 0:
-                        slope_length = 0
-                    if 3.0 < slope <= 4:
-                        factor = .4
-                    elif 1 <= slope <= 3:
-                        factor = 0.3
-                    elif slope < 1:
-                        factor = 0.2
-                    else:
-                        factor = 0.5
-                    ls = 10000 + math.pow(slope, 2)
-                    ls1 = slope / (math.pow(ls, 0.5))
-                    ls2 = ls1 * 4.56
-                    ls3 = math.pow(ls1, 2)
-                    ls4 = ls3 * 65.41 + 0.065
-                    ls5 = (slope_length * 3.3) / 72.6
-                    ls6 = math.pow(ls5, factor)
-
-                    ls_final = (ls2 + ls4) * ls6
-                    row_ls.append(ls_final)
-                ls_list.append(row_ls)
-        ls_list = np.array(ls_list)
-
-        self.input_raster_dic['ls'] = ls_list
-        self.pickle_raster_data()
-        # ls = (((slope.r / ((10000 + (slope.r ^ 2)) ^ 0.5)) * 4.56) + (slope.r / (10000 + (slope.r ^ 2)) ^ 0.5) ^ 2 * (
-        #     65.41) + 0.065) * ((slopelenusle.r * 3.3) / 72.6) ^ (factor)
-        # newFloatLayer("ls_dem").init();
-
-
-if __name__ == '__main__':
-    print("hi")
-    data = RasterData()
+        # print(next(raster_shape))
+        raster_dic_key_list = [*raster_dic.keys()]
+        raster_shape = raster_dic[raster_dic_key_list[0]].shape
+        print(raster_shape)
+        for raster in raster_dic_key_list:
+            print(raster)
+            print(raster_dic[raster].shape)
+            if raster_shape != raster_dic[raster].shape:
+                raise Exception("Raster dimensions do not match")
+        self.bounds["y"], self.bounds["x"] = raster_shape

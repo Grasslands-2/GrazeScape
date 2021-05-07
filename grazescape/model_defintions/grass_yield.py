@@ -11,21 +11,17 @@ class GrassYield(ModelBase):
         super().__init__(request, file_name)
         self.model_name = "Grass_pred_noAWC.rds"
         self.model_file_path = os.path.join( self.model_file_path, self.model_name)
-        print(self.model_parameters.POST.getlist('model_parameters[grass_type]'))
-        print(self.model_parameters.POST.getlist('model_parameters[grass_type]')[0].lower())
         self.grass_type = self.model_parameters.POST.getlist('model_parameters[grass_type]')[0].lower()
         self.units = "Dry Mass tons/ac"
     # overwriting abstract method
-    def write_model_input(self, input_raster_dic, bounds):
 
-
+    def write_model_input(self, input_raster_dic):
         with open(self.model_data_inputs_path, "w") as f:
             # dummy references to get model to run. Are removed later
-            # TODO ask Elissa about ways to remove these
             f.write(
                 "slope,elev,sand,silt,clay,om,ksat,cec,ph,total.depth\n")
-            for y in range(0, bounds["y"]):
-                for x in range(0, bounds["x"]):
+            for y in range(0, self.bounds["y"]):
+                for x in range(0, self.bounds["x"]):
                     f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
                             # raster elevation is in feet so convert to meters
                             str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
