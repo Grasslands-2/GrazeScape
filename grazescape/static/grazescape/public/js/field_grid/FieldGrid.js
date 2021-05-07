@@ -43,10 +43,11 @@ function getWFSfields() {
 		{
 			responseObj = response
 			fieldObj = response.features
-			console.log(responseObj);
+			console.log(fieldObj);
 			fieldArray = [];
-			//console.log(fieldObj[0]);
+			console.log(fieldObj[0]);
 			popFieldsArray(fieldObj);
+			//console.log("PopFieldsArray should have fired if you are reading this")
 			//placed data store in call function to make sure it was locally available.	
 			Ext.create('Ext.data.Store', {
 				storeId: 'fieldStore1',
@@ -70,8 +71,10 @@ function getWFSfields() {
 }
 
 function popFieldsArray(obj) {
+	//console.log('hi from popFieldsArray')
 
 	for (i in obj)
+	//console.log(i);
 	fieldArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.field_name,

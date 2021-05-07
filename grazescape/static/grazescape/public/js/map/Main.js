@@ -7,43 +7,6 @@ DSS.utils.addStyle('path.boundary:hover { fill: #ff00005f; stroke: red;}');
 DSS.utils.addStyle('.layer-menu {margin: 6px;background:rgba(0,0,0,0.4);border-radius: 4px;padding: 0.23rem; color: #27c; font-size: 1.25rem; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.3), 0 0 6px rgba(0,0,0,0.4)}');
 DSS.utils.addStyle('.layer-menu:hover {background:rgba(0,0,0,0.6);color: #48f; text-shadow: 0 2px 2px rgba(0,0,0,0.8), 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.4)}');
 
-/*
-// Grossly publicly shared OpenLayers access points...
-DSS.map
-DSS.mouseMoveFunction(event)
-DSS.mapClickFunction(event)
-
-DSS.layer {.bingAerial, .bingRoad, .osm, .watershed, .hillshade, .fields, .farms, .markers, .mask}
-
-//-----------------------------
-DSS.dragBox
-DSS.dragBoxFunction(dragBox)
-
-DSS.markerStyleFunction(feature)
-
-// Generally field edit hijacks
-//-----------------------------
-DSS.fieldStyleFunction(feature, resolution)
-
-DSS.draw
-DSS.drawEndEvent(evt, feature, target, type)
-
-DSS.modify
-DSS.modifyEndEvent(evt, features, target, type) // note that features is plural
-DSS.snap
-
-//-----------------------------
-DSS.selectionTool
-DSS.selectionFunction(event)
-
-//-----------------------------
-DSS.popupOverlay
-DSS.popupContainer
-
-//-----------------------------
-*/
-
-
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------

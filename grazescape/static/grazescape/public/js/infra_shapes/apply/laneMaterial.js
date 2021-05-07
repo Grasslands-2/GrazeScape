@@ -32,7 +32,7 @@ Ext.define('DSS.infra_shapes.apply.laneMaterial', {
 					width: '100%',
 					height: 28,
 					cls: 'information accent-text bold',
-					html: "Set Fence Material",
+					html: "Set Lane Material",
 				},
 					getToggle(me, 'laneMaterial.is_active') // Helper defined in DrawAndApply.js
 				]
@@ -79,7 +79,7 @@ Ext.define('DSS.infra_shapes.apply.laneMaterial', {
 				},{ 
 					boxLabel: 'Gravel Over Graded Rock', inputValue: 'ggr',
 				},{ 
-					boxLabel: 'Gravel Over Graded Rock and Geotextile', inputValue: 'ggrg',
+					boxLabel: 'Gravel Over Graded Rock <br>and Geotextile', inputValue: 'ggrg',
 				}]
 			}]
 		});

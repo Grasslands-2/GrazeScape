@@ -32,7 +32,7 @@ Ext.define('DSS.infra_shapes.apply.waterPipe', {
 					width: '100%',
 					height: 28,
 					cls: 'information accent-text bold',
-					html: "Set Fence Material",
+					html: "Set Water Infrastructure",
 				},
 					getToggle(me, 'waterPipe.is_active') // Helper defined in DrawAndApply.js
 				]
