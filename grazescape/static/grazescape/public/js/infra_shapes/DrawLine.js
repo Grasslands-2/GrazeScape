@@ -1,28 +1,21 @@
-var fields_1Source_loc = new ol.source.Vector({
+var InfrastructureSource_loc = new ol.source.Vector({
 	url:'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_1&' +
+	'typeName=GrazeScape_Vector:Infrastructure&' +
 	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-	/*'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'*/,
+	'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
 });
 
-function wfs_field_insert(feat,geomType) {  
+function wfs_infra_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
 		/*'http://geoserver.org/Farms'*/,
 		Geometry: 'geom',
-        featureType: 'field_1',
+        featureType: 'Infrastructure',
         srsName: 'EPSG:3857'
     });
     console.log(feat)
@@ -40,7 +33,7 @@ function wfs_field_insert(feat,geomType) {
         data: str,
 		success: function (data) {
 			console.log("uploaded data successfully!: "+ data);
-			DSS.layer.fields_1.getSource().refresh();
+			DSS.layer.infrastructure.getSource().refresh();
 			DSS.layer.farms_1.getSource().refresh();
 		},
         error: function (xhr, exception) {
@@ -64,18 +57,72 @@ function wfs_field_insert(feat,geomType) {
         }
     })
 	.done();
-	//console.log("Field wrote to Geoserver")
-	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-	DSS.layer.fields_1.getSource().refresh();
+	//console.log("Infra wrote to Geoserver")
+	DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+	DSS.layer.infrastructure.getSource().refresh();
 }
-function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
-	
+function createinfra(infra_nameInput,
+infra_typeInput,
+fence_materialInput,
+water_pipeInput,
+lane_materialInput){
+	infra_typeDisp = '';
+	fence_materialDisp = '';
+	water_pipeDisp = '';
+	lane_materialDisp = '';
+	costPerFoot = 0;
+
+	console.log(infra_nameInput);
+	//---------------Setting Infra Values-----------------------
+	if(infra_typeInput == 'fl') {infra_typeDisp = 'Fencing'
+		if(fence_materialInput == 'hte1') {
+			fence_materialDisp = 'High Tensile Electric, 1 Strand'
+			costPerFoot = 0.84}
+		else if(fence_materialInput == 'hte'){ 
+			fence_materialDisp = 'Electric - High Tensile'
+			costPerFoot = 1.81}
+		else if(fence_materialInput == 'pp'){ 
+			fence_materialDisp = 'Pasture Paddock'
+			costPerFoot = 0.37}
+		}
+	else if (infra_typeInput == 'wl') {infra_typeDisp = 'Water Line'
+		if(water_pipeInput == 'sup') {
+			water_pipeDisp = 'Surface HDPE or PVC Pipe'
+			costPerFoot = 1.17;}
+		else if(water_pipeInput == 'sbp'){ 
+			water_pipeDisp = 'Shallow Buried HDPE or PVC Pipe'
+			costPerFoot = 2.31;}
+		}
+	else if(infra_typeInput == 'll'){ infra_typeDisp = 'Lane Line'
+		if(lane_materialInput == 're') {
+			lane_materialDisp = 'Raised Earth Walkway'
+			costPerFoot = 0.16}
+		else if(lane_materialInput == 'gw') {
+			lane_materialDisp = 'Gravel Walkway'
+			costPerFoot = 0.37}
+		else if(lane_materialInput == 'gg') {
+			lane_materialDisp = 'Gravel over Geotextile'
+			costPerFoot = 0.56}
+		else if(lane_materialInput == 'ggr'){ 
+			lane_materialDisp = 'Gravel Over Graded Rock'
+			costPerFoot = 0.96}
+		if(lane_materialInput == 'ggrg'){ 
+			lane_materialDisp = 'Gravel Over Graded Rock and Geotextile'
+			costPerFoot = 1.33}
+		}
+
+	//-------------------Now for the actual function-----------------
+
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
-		type: 'MultiPolygon',
+		type: 'LineString',
 		geometryName: 'geom'
 	});
+	DSS.snap = new ol.interaction.Snap({
+		source:DSS.layer.fields_1.getSource()
+	});
 	DSS.map.addInteraction(DSS.draw);
+	DSS.map.addInteraction(DSS.snap);
 	console.log("draw is on");
 	//console.log(DSS.activeFarm);
 	var af = parseInt(DSS.activeFarm,10)
@@ -84,34 +131,35 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 		e.feature.setProperties({
 			id: af,
 			owner_id: af,
-			field_name: field_nameInput,
-			soil_p: soil_pInput,
-			om: 10,
-			rotation: 'PS',
-			graze_beef_cattle: beef,
-			graze_dairy_lactating: lac,
-			graze_dairy_non_lactating: non_lac,
-			cover_crop: crop,
-			tillage: tillageInput,
-			on_contour: false
+			infra_name: infra_nameInput,
+			infra_type: infra_typeInput,
+			infra_type_disp: infra_typeDisp,
+			fence_material: fence_materialInput,
+			fence_material_disp: fence_materialDisp,
+			water_pipe: water_pipeInput,
+			water_pipe_disp: water_pipeDisp,
+			lane_material: lane_materialInput,
+			lane_material_disp:lane_materialDisp,
+			cost_per_foot: costPerFoot
+
 		})
-		var geomType = 'polygon'
+		var geomType = 'Line'
 		
 		DSS.MapState.removeMapInteractions()
-		wfs_field_insert(e.feature, geomType)
-		console.log("HI! WFS feild Insert ran!")
+		wfs_infra_insert(e.feature, geomType)
+		console.log("HI! WFS infra Insert ran!")
 	})     
 }
 //------------------working variables--------------------
-var type = "Polygon";
-var source = fields_1Source_loc
+var type = "Line";
+var source = InfrastructureSource_loc
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.field_shapes.DrawAndApply', {
+Ext.define('DSS.infra_shapes.DrawLine', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.Container',
-	alias: 'widget.field_draw_apply',
-    alternateClassName: 'DSS.DrawFieldShapes',
+	alias: 'widget.infra_drawline',
+    alternateClassName: 'DSS.DrawInfraShapes',
     singleton: true,	
 	
     autoDestroy: false,
@@ -120,13 +168,11 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 
 	requires: [
 		//'DSS.ApplicationFlow.activeFarm',
-		'DSS.field_shapes.apply.FieldName',
-		'DSS.field_shapes.apply.SoilP',
-		'DSS.field_shapes.apply.Landcover',
-		'DSS.field_shapes.apply.Tillage',
-		'DSS.field_shapes.apply.SpreadManure',
-		'DSS.field_shapes.apply.Fertilizer',
-		'DSS.field_shapes.apply.GrazeAnimals',
+		'DSS.infra_shapes.apply.infraName',
+		'DSS.infra_shapes.apply.infraType',
+		'DSS.infra_shapes.apply.fenceMaterial',
+		'DSS.infra_shapes.apply.waterPipe',
+		'DSS.infra_shapes.apply.laneMaterial'
 	],
 	
 	//--------------------------------------------------------------------------
@@ -134,52 +180,38 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 		let me = this;
 
 		if (!DSS['viewModel']) DSS['viewModel'] = {}
-		DSS.viewModel.drawAndApply = new Ext.app.ViewModel({
-			formulas: {
-				tillageValue: { 
-					bind: '{tillage.value}',
-					get: function(value) { return {tillage: value }; 			},
-					set: function(value) { this.set('tillage.value', value); 	}
-				}
-			},
+		DSS.viewModel.drawLine = new Ext.app.ViewModel({
 			data: {
-				field_name: {
+				infraName: {
 					is_active: true,
 					value: '',
 				},
-				soil_p: {
+				infraType: {
 					is_active: true,
-					value: 35,
+					value: '',
 				},
-				crop: {
-					is_active: true,
-					value: 'ps',
-				},
-				tillage: {
+				fenceMaterial: {
 					is_active: false,
-					value: {tillage: 'su'}
+					value: '',
 				},
-				graze_animals: {
+				waterPipe: {
 					is_active: false,
-					dairy_lactating: true,
-					dairy_nonlactating: true,
-					beef: false
+					value: '',
 				},
-				/*fertilizer: {
+				laneMaterial: {
 					is_active: false,
-					extRecs: 100, // %
-					canManurePastures: true
-				}*/
+					value: '',
+				}
 			}
 		})
 		
-		me.setViewModel(DSS.viewModel.drawAndApply);
+		me.setViewModel(DSS.viewModel.drawLine);
 		
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'component',
 				cls: 'section-title light-text text-drp-20',
-				html: 'Field Shapes <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
+				html: 'infrastructure Lines <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
 				height: 35
 				},{
 				xtype: 'container',
@@ -193,40 +225,36 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Add Field Options',
+					html: 'Infrastructure Options',
 				},{
-					xtype: 'field_shapes_apply_field_name'
+					xtype: 'infra_shapes_apply_infra_name'
 				},{
-					xtype: 'field_shapes_apply_graze_animals'
+					xtype: 'infra_shapes_apply_infra_type'
 				},{
-					xtype: 'field_shapes_apply_landcover'
+					xtype: 'infra_shapes_apply_fence_material'
 				},{
-					xtype: 'field_shapes_apply_tillage'
+					xtype: 'infra_shapes_apply_lane_material'
 				},{
-					xtype: 'field_shapes_apply_soil_p'
-				},/*{
-					xtype: 'field_shapes_apply_fertilizer'
-				}*/
+					xtype: 'infra_shapes_apply_water_pipe'
+				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Draw Field',
+					text: 'Draw Infrastructure',
 					formBind: true,
 					handler: function() { 
 						var data = me.viewModel.data;
 						DSS.map.removeInteraction(DSS.select);
 						//console.log(DSS.activeFarm);
 
-						createField(data.graze_animals.dairy_lactating,
-							data.graze_animals.dairy_nonlactating,
-							data.graze_animals.beef,
-							data.crop.value,
-							data.tillage.value.tillage,
-							data.soil_p.value,
-							data.field_name.value,
-							//probably wrong, look up data schema
-							data.on_contour);
+						createinfra(
+							data.infraName.value,
+							data.infraType.value,
+							data.fenceMaterial.value,
+							data.waterPipe.value,
+							data.laneMaterial.value
+						);
 					}
 			    }]
 			}]
@@ -248,61 +276,3 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 	}
 	
 });
-
-//TODO: move to a better place...
-let getToggle = function(owner, stateRef, activatedHandler, deactivatedHandler) {
-	
-	return {
-		xtype: 'component',
-		style: 'right: 1px; top: 2px',
-		cls: 'accent-text fa-hover',
-		html: '<i class="fas fa-plus-circle"></i>',
-		listeners: {
-			afterrender: function(c) {
-				let vm = owner.lookupViewModel();
-				let active = vm.get(stateRef) ;
-				c.addCls(active ? 'to-close' : 'to-add')
-				
-				let ct = owner.down('#contents');
-				let ht = owner.DSS_sectionHeight;
-				ct.setHeight(active ? ht : 0);
-				
-				c.getEl().getFirstChild().el.on({
-					click: function(self) {
-						if (c.hasCls('to-add')) {
-							c.removeCls('to-add')
-							c.addCls('to-close');
-							vm.set(stateRef, true);
-							ct.animate({
-								duration: 300,
-								dynamic: true,
-								to: {
-									height: ht
-								}
-							});
-							if (typeof activatedHandler === 'function') {
-								activatedHandler.call()
-							}
-						}
-						else {
-							c.addCls('to-add')
-							c.removeCls('to-close');
-							vm.set(stateRef, false);
-							ct.animate({
-								duration: 300,
-								dynamic: true,
-								to: {
-									height: 0
-								}
-							});
-							if (typeof deactivatedHandler === 'function') {
-								deactivatedHandler.call()
-							}
-						}	
-					}
-				});
-			}
-		}					
-	}	
-}
-
