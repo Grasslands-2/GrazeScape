@@ -9,7 +9,8 @@ Ext.define('DSS.state.MapStateTools', {
 
 	requires: [
 		'DSS.map.Legend',
-		//'DSS.field_grid.FieldGrid'
+		//'DSS.field_grid.FieldGrid',
+		//'DSS.infra_grid.InfraGrid'
 	],
 	
     // Style elements
@@ -147,6 +148,21 @@ Ext.define('DSS.state.MapStateTools', {
     },
     
     //----------------------------------------
+	showInfrasForFarm: function(farmId, opacity) {
+    	
+		DSS.layer.infrastructure.getSource().setUrl(
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:Infrastructure&'+
+		'CQL_filter=id='+farmId+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857');
+		console.log(DSS.layer.infrastructure.getStyle())
+		DSS.layer.infrastructure.getSource().refresh();
+		console.log("showInfrasforfarm ran");
+    },
 	//-------------------------------------------------------------
 	//shows all fields in db
 	showAllFields: function(opacity) {
@@ -269,7 +285,7 @@ Ext.define('DSS.state.MapStateTools', {
 					}
 				}
 				if (g.getType() === "MultiPolygon") {
-					if (f.get('scenario_i') != undefined) {
+					if (f.get('owner_id') != undefined) {
 						cursor = 'pointer';
 						hitAny = true;
 						//console.log(f)
