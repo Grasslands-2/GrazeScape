@@ -16,24 +16,29 @@ class GrassYield(ModelBase):
     # overwriting abstract method
 
     def write_model_input(self, input_raster_dic):
+        print(input_raster_dic["slope_data"])
+        print(input_raster_dic["slope_data"][12])
         with open(self.model_data_inputs_path, "w") as f:
             # dummy references to get model to run. Are removed later
             f.write(
                 "slope,elev,sand,silt,clay,om,ksat,cec,ph,total.depth\n")
             for y in range(0, self.bounds["y"]):
+
                 for x in range(0, self.bounds["x"]):
-                    f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
+                    # print(input_raster_dic["elevation"][y])
+                    f.write(str(input_raster_dic["slope_data"].iloc[y][x]) + "," +
                             # raster elevation is in feet so convert to meters
-                            str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
-                            str(input_raster_dic["sand"][y][x]) + "," +
-                            str(input_raster_dic["silt"][y][x]) + "," +
-                            str(input_raster_dic["clay"][y][x]) + "," +
-                            str(input_raster_dic["om"][y][x]) + "," +
-                            str(input_raster_dic["k"][y][x]) + "," +
-                            str(input_raster_dic["cec"][y][x]) + "," +
-                            str(input_raster_dic["ph"][y][x]) + "," +
+                            # str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
+                            str(input_raster_dic["elevation"].iloc[y][x]) + "," +
+                            str(input_raster_dic["sand"].iloc[y][x]) + "," +
+                            str(input_raster_dic["silt"].iloc[y][x]) + "," +
+                            str(input_raster_dic["clay"].iloc[y][x]) + "," +
+                            str(input_raster_dic["om"].iloc[y][x]) + "," +
+                            str(input_raster_dic["k"].iloc[y][x]) + "," +
+                            str(input_raster_dic["cec"].iloc[y][x]) + "," +
+                            str(input_raster_dic["ph"].iloc[y][x]) + "," +
                             # str(.2) + "," +
-                            str(input_raster_dic["total_depth"][y][x]) + "\n"
+                            str(input_raster_dic["total_depth"].iloc[y][x]) + "\n"
                             # str(75) + ", " +
                             # str(.15) + "\n"
                             )
@@ -41,12 +46,14 @@ class GrassYield(ModelBase):
     def run_model(self):
         # path to R instance
         grass = ''
+        print(self.model_parameters)
+        print(self.model_parameters["grass_type"])
         r = R(RCMD=self.r_file_path, use_pandas=True)
-        if 'bluegrass' in self.grass_type:
+        if 'bluegrass' in self.model_parameters["grass_type"].lower():
             grass = "Bluegrass-clover"
-        elif 'orchard' in self.grass_type:
+        elif 'orchard' in self.model_parameters["grass_type"].lower():
             grass = "Orchardgrass-clover"
-        elif 'timothy' in self.grass_type:
+        elif 'timothy' in self.model_parameters["grass_type"].lower():
             grass = "Timothy-clover"
         pred = [1,2,3]
             # "{}, ".format(grass)

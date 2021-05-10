@@ -1,53 +1,16 @@
 from abc import ABC
 
 from grazescape.model_defintions.model_base import ModelBase
-from pyper import R
-from django.conf import settings
-import os
-from grazescape.model_defintions.erosion import Erosion
-import numpy as np
-import pandas as pd
 from pyper import *
 
 
 class PhosphorousLoss(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
-        # self.model_name = "ContCorn_NoCoverPI.rds"
-        # self.model_file_path = os.path.join(self.model_file_path, self.model_name)
         self.units = "PI"
-    # overwriting abstract method
 
     def write_model_input(self, input_raster_dic):
         self.raster_inputs = input_raster_dic
-        # Phos model needs erosion model as input
-
-        # model = Erosion(self.model_parameters)
-        # model.bounds["x"] = self.bounds["x"]
-        # model.bounds["y"] = self.bounds["y"]
-        # model.write_model_input(input_raster_dic)
-        # results = model.run_model()
-        # results = model.reshape_model_output(results)
-        # input_raster_dic['erosion'] = results
-        # with open(self.model_data_inputs_path, "w") as f:
-        #     f.write(
-        #         "Erosion,slope,initialP,OM,totalP2O5_lbs,total_DM_lbs,slopelenusle.r,silt,k,"
-        #         "total.depth,LSsurgo\n")
-        #
-        #     for y in range(0, self.bounds["y"]):
-        #         for x in range(0, self.bounds["x"]):
-        #             f.write(str(input_raster_dic["erosion"][y][x]) + "," +
-        #                     str(input_raster_dic["slope_data"][y][x]) + "," +
-        #                     str(self.model_parameters.POST.getlist("model_parameters[initial_p]")[0]) + "," +
-        #                     str(input_raster_dic["om"][y][x]) + "," +
-        #                     str(60) + "," +
-        #                     str(0) + "," +
-        #                     str(input_raster_dic["slope_length"][y][x]) + "," +
-        #                     str(input_raster_dic["silt"][y][x]) + "," +
-        #                     str(input_raster_dic["k"][y][x]) + "," +
-        #                     str(input_raster_dic["total_depth"][y][x]) + "," +
-        #                     str(input_raster_dic["ls"][y][x]) + "\n"
-        #                     )
         return
 
     def run_model(self):
@@ -105,9 +68,6 @@ class PhosphorousLoss(ModelBase):
         r.assign("pt_erosion_file", os.path.join(self.model_file_path,"pastureErosion.rds"))
         r.assign("dl_erosion_file", os.path.join(self.model_file_path,"dryLotErosionErosion.rds"))
 
-
-
-
         r.assign("cc_pi_file", os.path.join(self.model_file_path,"ContCornTidyPI.rds"))
         r.assign("cg_pi_file", os.path.join(self.model_file_path,"CornGrain_tidyPI.rds"))
         r.assign("cso_pi_file", os.path.join(self.model_file_path,"CSO_tidyPI.rds"))
@@ -127,23 +87,12 @@ class PhosphorousLoss(ModelBase):
         library(tidyverse)
         library(tidymodels)
         library(randomForest)
+
+
         print("loading  models")
         # load erosion models
-        cc_erosion <- readRDS(cc_erosion_file);
-        cg_erosion <- readRDS(cg_erosion_file)
-        cso_erosion <- readRDS(cso_erosion_file)
-        dr_erosion <- readRDS(dr_erosion_file)
-        ps_erosion <- readRDS(ps_erosion_file)
-        pt_erosion <- readRDS(pt_erosion_file)
-        dl_erosion <- readRDS(dl_erosion_file)
         # load PI models
-        cc_pi <- readRDS(cc_pi_file)
-        cg_pi <- readRDS(cg_pi_file)
-        cso_pi <- readRDS(cso_pi_file)
-        dr_pi <- readRDS(dr_pi_file)
-        ps_pi <- readRDS(ps_pi_file)
-        pt_pi <- readRDS(pt_pi_file)
-        dl_pi <- readRDS(dl_pi_file)
+       
 
         # crop = cc, cso ...
         # cover = cc, nc, cgis...
@@ -179,7 +128,8 @@ class PhosphorousLoss(ModelBase):
         ##TODO the current output for Erosion and PI are tibbles (data frames) so we need to extract the data point from the tibble 
         # run models for different crops
         if (full_df$crop == "cc") {{
-
+            cc_erosion <- readRDS(cc_erosion_file);
+            cc_pi <- readRDS(cc_pi_file)
           #create factor levels
           tillage <- factor(cc_erosion$preproc$xlevels$tillage)
           cover <- factor(cc_erosion$preproc$xlevels$cover)
@@ -216,6 +166,9 @@ class PhosphorousLoss(ModelBase):
           pi_CI <- predict(cc_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "cg") {{
+        cg_erosion <- readRDS(cg_erosion_file)
+                cg_pi <- readRDS(cg_pi_file)
+
           cover <- factor(cg_erosion$preproc$xlevels$cover)
           tillage <- factor(cg_erosion$preproc$xlevels$tillage)
           Contour <- factor(cg_erosion$preproc$xlevels$Contour)
@@ -241,6 +194,9 @@ class PhosphorousLoss(ModelBase):
           pi_CI <- predict(cg_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "cso") {{
+        cso_erosion <- readRDS(cso_erosion_file)
+        cso_pi <- readRDS(cso_pi_file)
+
           cover <- factor(cso_erosion$preproc$xlevels$cover)
           tillage <- factor(cso_erosion$preproc$xlevels$tillage)
           Contour <- factor(cso_erosion$preproc$xlevels$Contour)
@@ -266,6 +222,8 @@ class PhosphorousLoss(ModelBase):
           pi_CI <- predict(cso_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "dr") {{
+        dr_erosion <- readRDS(dr_erosion_file)
+        dr_pi <- readRDS(dr_pi_file)
 
           cover <- factor(dr_erosion$preproc$xlevels$cover)
           tillage <- factor(dr_erosion$preproc$xlevels$tillage)
@@ -292,6 +250,9 @@ class PhosphorousLoss(ModelBase):
           pi_CI <- predict(dr_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "ps") {{
+        ps_erosion <- readRDS(ps_erosion_file)
+        ps_pi <- readRDS(ps_pi_file)
+
           tillage <- factor(ps_erosion$preproc$xlevels$tillage)
           Contour <- factor(ps_erosion$preproc$xlevels$Contour)
 
@@ -316,6 +277,9 @@ class PhosphorousLoss(ModelBase):
           pi_CI <- predict(ps_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "pt") {{
+        pt_erosion <- readRDS(pt_erosion_file)
+        pt_pi <- readRDS(pt_pi_file)
+
           density <- factor(pt_erosion$preproc$xlevels$density)
           rotational <- factor(pt_erosion$preproc$xlevels$rotational)
 
@@ -345,6 +309,9 @@ class PhosphorousLoss(ModelBase):
           pi_CI <- predict(pt_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "dl") {{
+        dl_erosion <- readRDS(dl_erosion_file)
+        dl_pi <- readRDS(dl_pi_file)
+
           density <- factor(dl_erosion$preproc$xlevels$density)
 
           df <- full_df %>%
