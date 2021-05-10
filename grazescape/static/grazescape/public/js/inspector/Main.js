@@ -208,7 +208,6 @@ Ext.define('DSS.inspector.Main', {
 		let options = me.down('#dss-data-source').getOptions();
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
 //		external js library is used to simply getting the token
-		var csrftoken = Cookies.get('csrftoken');
 //		if(extents[3] === true){
 //			extents[3] = "1"
 //		}else{extents[3]="0"}
@@ -228,6 +227,7 @@ Ext.define('DSS.inspector.Main', {
 		console.log("RUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUING")
 		console.log(data);
 
+		var csrftoken = Cookies.get('csrftoken');
             $.ajaxSetup({
                     headers: { "X-CSRFToken": csrftoken }
                 });
@@ -236,7 +236,6 @@ Ext.define('DSS.inspector.Main', {
             'url' : '/grazescape/get_model_results',
             'type' : 'POST',
             'data' : data,
-
 			success: function(response, opts) {
 			    console.log(response)
                 obj = response;
