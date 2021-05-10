@@ -7,11 +7,11 @@ import os
 
 
 class GrassYield(ModelBase):
-    def __init__(self, request,file_name=None):
+    def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
         self.model_name = "Grass_pred_noAWC.rds"
         self.model_file_path = os.path.join( self.model_file_path, self.model_name)
-        self.grass_type = self.model_parameters.POST.getlist('model_parameters[grass_type]')[0].lower()
+        self.grass_type = self.model_parameters['grass_type']
         self.units = "Dry Mass tons/ac"
     # overwriting abstract method
 

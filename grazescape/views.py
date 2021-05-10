@@ -124,7 +124,7 @@ def get_model_results(request):
         "palette": palette,
         "url": model.file_name + ".png",
         "values": values,
-        "avg": avg,
+        "avg": 5,
         "units": model.get_units()
     }
     print(data)

@@ -138,7 +138,7 @@ class RasterData:
                 bounds = [minx, miny, maxx, maxy]
 
                 band = ds_clip.GetRasterBand(1)
-                arr = np.asarray(band.ReadAsArray())
+                arr = pd.DataFrame(band.ReadAsArray())
                 raster_data_dic[data_name] = arr
         self.check_raster_data(raster_data_dic)
         return raster_data_dic, bounds

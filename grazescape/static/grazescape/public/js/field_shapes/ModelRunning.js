@@ -75,14 +75,14 @@ function runModels(layer,modelChoice) {
 //			doesn't appear to be in the table at this time
             rotation: rotation,
             density: f.get("grazingdensityval"),
-//            model_type: modelChoice
-            model_type: "other"
+            model_type: modelChoice
+//            model_type: "other"
         }
         extentsArray.push(model_para)
 	})
 	//function inside of callmodelrun that actually calls computeresults on each field
 	const callModelRun = (extent,runningLayer) => {
-
+        console.log("Runing model in model running!!!!!!!!!!!!!!!!!!!!!!!!!")
 		DSS.Inspector.computeResults(extent,runningLayer);
 		return new Promise((resolve) => {
 			setTimeout(() => {

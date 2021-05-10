@@ -225,6 +225,7 @@ Ext.define('DSS.inspector.Main', {
 			"model_parameters":extents
 
 		};
+		console.log("RUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUING")
 		console.log(data);
 
             $.ajaxSetup({
