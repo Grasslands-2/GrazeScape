@@ -7,43 +7,6 @@ DSS.utils.addStyle('path.boundary:hover { fill: #ff00005f; stroke: red;}');
 DSS.utils.addStyle('.layer-menu {margin: 6px;background:rgba(0,0,0,0.4);border-radius: 4px;padding: 0.23rem; color: #27c; font-size: 1.25rem; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.3), 0 0 6px rgba(0,0,0,0.4)}');
 DSS.utils.addStyle('.layer-menu:hover {background:rgba(0,0,0,0.6);color: #48f; text-shadow: 0 2px 2px rgba(0,0,0,0.8), 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.4)}');
 
-/*
-// Grossly publicly shared OpenLayers access points...
-DSS.map
-DSS.mouseMoveFunction(event)
-DSS.mapClickFunction(event)
-
-DSS.layer {.bingAerial, .bingRoad, .osm, .watershed, .hillshade, .fields, .farms, .markers, .mask}
-
-//-----------------------------
-DSS.dragBox
-DSS.dragBoxFunction(dragBox)
-
-DSS.markerStyleFunction(feature)
-
-// Generally field edit hijacks
-//-----------------------------
-DSS.fieldStyleFunction(feature, resolution)
-
-DSS.draw
-DSS.drawEndEvent(evt, feature, target, type)
-
-DSS.modify
-DSS.modifyEndEvent(evt, features, target, type) // note that features is plural
-DSS.snap
-
-//-----------------------------
-DSS.selectionTool
-DSS.selectionFunction(event)
-
-//-----------------------------
-DSS.popupOverlay
-DSS.popupContainer
-
-//-----------------------------
-*/
-
-
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
@@ -62,6 +25,7 @@ Ext.define('DSS.map.Main', {
 		'DSS.map.LayerMenu',
 		'DSS.map.RotationLayer',
 		'DSS.field_grid.FieldGrid',
+		'DSS.infrastructure_grid.InfrastructureGrid'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
@@ -94,7 +58,8 @@ Ext.define('DSS.map.Main', {
 					}
 				}
 			},
-			DSS.FieldGrid
+			DSS.FieldGrid,
+			DSS.InfraGrid
 		]
 		});
 		me.callParent(arguments);
@@ -277,9 +242,42 @@ Ext.define('DSS.map.Main', {
 					color: '#ffe4b3'
 			  })
 			})
-	});
+		});
+		var getText = function(feature, resolution) {
+			var text =feature.get('field_name');
+			return text;
+		}
+		var createTextStyle = function(feature,resolution){
+			return new ol.style.Text({
+				text: getText(feature, resolution),
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 3,
+				}),
+			  })
+		}
 
 		//---------------------------------------
+		let fieldLabel = new ol.style.Style({
+			text: new ol.style.Text({
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 3,
+				}),
+			  }),
+			zIndex: 0
+		});
+		//------------------------------------------------
 		let defaultFieldStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
 				color: 'rgba(255,200,32,0.8)',
@@ -290,6 +288,20 @@ Ext.define('DSS.map.Main', {
 			}),
 			zIndex: 0
 		});
+		/*let fieldLabel = new ol.style.Style({
+			text: new ol.style.Text({
+				//text: "hi there",
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 3,
+				}),
+			  }),
+		})*/
 //		let rotationStyles = { };
 /*		DSS.fieldStyleFunction = function(feature, resolution, defaultStyle) {
 			if (feature && feature.getProperties()) {
@@ -320,66 +332,37 @@ Ext.define('DSS.map.Main', {
 			},
 		});	
 
-		// Populate grid
-		/*DSS.layer.fields.getSource().on('change', function(evt) {
-			
-			let fd = Ext.StoreMgr.lookup('field_data');
-			let records = [];
-			let fid = 1;
-			DSS.layer.fields.getSource().forEachFeature(function(f) {
-				records.push({
-					id: f.get('f_id'),
-					name: 'field' + fid,
-					acres: ol.sphere.getArea(f.getGeometry()) / 4046.8564224
-				});
-				fid++;
-			})
-			fd.loadRawData(records);
-		})
-
-		let farmSource = new ol.source.Vector({
-			format: new ol.format.GeoJSON(),
-			loader: function(extent, resolution, projection) {
-				//let url = grazeUrl + '/get_farms'
-				let url = location.origin + '/get_farms'
-				let xhr = new XMLHttpRequest();
-				xhr.open('GET', url);
-				var onError = function() {
-					farmSource.removeLoadedExtent(extent);
-				}
-				xhr.onerror = onError;
-				xhr.onload = function() {
-					if (xhr.status == 200) {
-						farmSource.addFeatures(farmSource.getFormat().readFeatures(xhr.responseText));
-						//DSS.viewModel.master.set("farm_count", farmSource.getFeatures().length);
-					}
-					else {
-						onError();
-					}
-				}
-				xhr.send();
-			},
-		}) 
-		//--------------------------------------------------------------
-		DSS.layer.farms = new ol.layer.Vector({
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source: farmSource,
-			style: function(feature, resolution) {
-				let r = 1.0 - resolution / 94.0;
-				if (r < 0) r = 0
-				else if (r > 1) r = 1
-				// value from 3 to 16
-				r = Math.round(Math.pow(r, 3) * 13 + 3)
-				return me.DSS_zoomStyles['style' + r];
-			}
-		});*/
-
 		//--------------------------------------------------------- 
-		var farms_1Source = new ol.source.Vector({
+		DSS.layer.DEM_image = new ol.layer.Image({
+			source: new ol.source.ImageWMS({
+				ratio: 1,
+				url: 'http://localhost:8081/geoserver/GS_Rasters/wms',
+				params: {'FORMAT': 'image/png',
+						 'VERSION': '1.1.1',
+						 'TRANSPARENT': 'true',
+					  "STYLES": '',
+					  "LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
+					  "exceptions": 'application/vnd.ogc.se_inimage',
+				}
+			})
+		})
+		var infrastructure_Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent) {
+				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=GrazeScape_Vector:Infrastructure&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857';
+			},
+		});
+
+
+		var farms_1Source = new ol.source.Vector({
+			format: new ol.format.GeoJSON(),
+			/*url: function(extent) {
 				return 'http://localhost:8081/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
@@ -387,11 +370,20 @@ Ext.define('DSS.map.Main', {
 				'typeName=Farms:farm_1&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
+			},*/
+			url: function(extent) {
+				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=GrazeScape_Vector:farm_1&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857';
 			},
 		});
 		var fields_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
-			url: function(extent) {
+			/*url: function(extent) {
 				return 'http://localhost:8081/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
@@ -399,30 +391,68 @@ Ext.define('DSS.map.Main', {
 				'typeName=Farms:field_1&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
+			},*/
+			url: function(extent) {
+				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=GrazeScape_Vector:field_1&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857';
 			},
 		});
-		DSS.layer.test_raster = new ol.layer.Image({
-			source: new ol.source.ImageStatic({
-				url: '/static/grazescape/public/shapeFiles/Farms-geotiff_coverage.png',
-				imageExtent: extent
+
+		//------------------------------------infra styles and layer-----------------------
+		var fenceStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: '#bfac32',
+				width: 4,
 			})
 		})
-        var format = 'image/png';
-		DSS.layer.untiled = new ol.layer.Image({
-        source: new ol.source.ImageWMS({
-          ratio: 1,
-          url: 'http://localhost:8081/geoserver/Rasters/wms',
-          params: {'FORMAT': format,
-                   'VERSION': '1.1.1',
-                "STYLES": '',
-                "LAYERS": 'Rasters:test_raster',
-                "exceptions": 'application/vnd.ogc.se_inimage',
-          }
-        })
-      });
-
-
-
+		var laneStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: '#bd490f',
+				width: 4,
+			})
+		})
+		var waterLineStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: '#0072fc',
+				width: 4,
+			})
+		})
+		var infraDefaultStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: '#ff0825',
+				width: 4,
+			})
+		})
+		function infraStyle(feature, resolution){
+			var infraType = feature.get("infra_type");
+			//var fenceMat = feature.get('fence_material');
+			if(infraType == 'fl'){
+				return fenceStyle
+			}
+			if(infraType == 'll'){
+				return laneStyle
+			}
+			if(infraType == 'wl'){
+				return waterLineStyle
+			}
+			else{
+				return infraDefaultStyle
+			}
+		};
+		DSS.layer.infrastructure = new ol.layer.Vector({
+			title: 'infrastructure',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: infrastructure_Source,
+			style: infraStyle		
+		});
+		
 		DSS.layer.farms_1 = new ol.layer.Vector({
 			title: 'farms_1',
 			visible: true,
@@ -438,6 +468,18 @@ Ext.define('DSS.map.Main', {
 				return me.DSS_zoomStyles['style' + r];
 			}
 		})
+		DSS.layer.fieldsLabels = new ol.layer.Vector({
+			minZoom: 14,
+			title: 'fieldsLabels',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: fields_1Source,
+			style: function(feature, resolution) {
+				fieldLabel.getText().setText(feature.values_.field_name);
+				return fieldLabel;
+			}
+		})
 		DSS.layer.fields_1 = new ol.layer.Vector({
 			title: 'fields_1',
 			visible: true,
@@ -445,13 +487,20 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: fields_1Source,
 			style: function(feature, resolution) {
-				
 				if (DSS.fieldStyleFunction) {
 					return DSS.fieldStyleFunction(feature, resolution);
 				}
-				else return defaultFieldStyle;
+				else //defaultFieldStyle.setText(feature.get('field_name'));
+				//console.log(feature)
+				//defaultFieldStyle.getText().setText(feature.values_.field_name)
+				return defaultFieldStyle;
 			},
-		});
+			//style: 
+				//defaultFieldStyle
+				//defaultFieldStyle.getText().setText('hi')
+			
+			//text: fieldLabel.getText().setText('hi there')
+		})
 
 
 		//--------------------------------------------------------------
@@ -463,11 +512,12 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.osm,
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
+				//DSS.layer.DEM_image,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1,
-//				DSS.layer.test_raster,
-//				DSS.layer.untiled
 
+				DSS.layer.fieldsLabels,
+				DSS.layer.infrastructure
 				 ],
 				//------------------------------------------------------------------------
 
@@ -486,7 +536,7 @@ Ext.define('DSS.map.Main', {
 
 		me.map.addControl(new ol.control.ScaleLine({
 			bar: true, 
-			minWidth: 112,
+			minwidth: 112,
 			units: 'us',
 //			units: 'metric'
 		}));
@@ -495,7 +545,7 @@ Ext.define('DSS.map.Main', {
 		ol.proj.proj4.register(proj4);	
 		
 		me.popup = DSS.popupContainer = Ext.create('Ext.Container', {
-			minWidth: 200,
+			minwidth: 200,
 			cls: 'popup-eye',
 			padding: 8,
 			floating: true,
@@ -552,24 +602,6 @@ Ext.define('DSS.map.Main', {
 		//me.map.addLayer(DSS.layer.fields_1);
 		
 		me.cropRotationOverlay = Ext.create('DSS.map.RotationLayer').instantiate(me.map);
-		
-	/*	// Convenience: TODO: re-evalutate need 
-		DSS.layer.MouseOver = new ol.layer.Vector({
-			visible: false,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			useSpatialIndex: false,
-			source: new ol.source.Vector({
-				//features: new ol.Collection()
-			}),
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#a00',
-					width: 4
-				})
-			})
-		});
-		me.map.addLayer(DSS.layer.MouseOver);*/
 	},
 	
 	
@@ -709,19 +741,19 @@ var CanvasLayer = /*@__PURE__*/(function (Layer) {
 		var d3Path = d3.geoPath().projection(d3Projection);
 		
 		var pixelBounds = d3Path.bounds(this.features);
-		var pixelBoundsWidth = pixelBounds[1][0] - pixelBounds[0][0];
+		var pixelBoundswidth = pixelBounds[1][0] - pixelBounds[0][0];
 		var pixelBoundsHeight = pixelBounds[1][1] - pixelBounds[0][1];
 		
 		var geoBounds = d3.geoBounds(this.features);
 		var geoBoundsLeftBottom = ol.proj.fromLonLat(geoBounds[0], projection);
 		var geoBoundsRightTop = ol.proj.fromLonLat(geoBounds[1], projection);
-		var geoBoundsWidth = geoBoundsRightTop[0] - geoBoundsLeftBottom[0];
-		if (geoBoundsWidth < 0) {
-			geoBoundsWidth += ol.extent.getWidth(projection.getExtent());
+		var geoBoundswidth = geoBoundsRightTop[0] - geoBoundsLeftBottom[0];
+		if (geoBoundswidth < 0) {
+			geoBoundswidth += ol.extent.getwidth(projection.getExtent());
 		}
 	    var geoBoundsHeight = geoBoundsRightTop[1] - geoBoundsLeftBottom[1];
 	
-	    var widthResolution = geoBoundsWidth / pixelBoundsWidth;
+	    var widthResolution = geoBoundswidth / pixelBoundswidth;
 	    var heightResolution = geoBoundsHeight / pixelBoundsHeight;
 	    var r = Math.max(widthResolution, heightResolution);
 	    var scale = r / frameState.viewState.resolution;

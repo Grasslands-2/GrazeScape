@@ -9,7 +9,8 @@ Ext.define('DSS.state.MapStateTools', {
 
 	requires: [
 		'DSS.map.Legend',
-		//'DSS.field_grid.FieldGrid'
+		//'DSS.field_grid.FieldGrid',
+		//'DSS.infra_grid.InfraGrid'
 	],
 	
     // Style elements
@@ -125,30 +126,60 @@ Ext.define('DSS.state.MapStateTools', {
     showFieldsForFarm: function(farmId, opacity) {
     	
 		DSS.layer.fields_1.getSource().setUrl(
-		'http://localhost:8081/geoserver/wfs?'+
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:field_1&'+
+		'CQL_filter=id='+farmId+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857'
+		/*'http://localhost:8081/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=Farms:field_1&'+
 		'CQL_filter=id='+farmId+'&'+
 		'outputformat=application/json&'+
-		'srsname=EPSG:3857');
+		'srsname=EPSG:3857'*/);
+		console.log(DSS.layer.fields_1.getStyle())
 		DSS.layer.fields_1.getSource().refresh();
-		console.log(DSS.layer.fields_1)
 		console.log("showfieldsforfarm ran");
     },
     
     //----------------------------------------
+	showInfrasForFarm: function(farmId, opacity) {
+    	
+		DSS.layer.infrastructure.getSource().setUrl(
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:Infrastructure&'+
+		'CQL_filter=id='+farmId+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857');
+		console.log(DSS.layer.infrastructure.getStyle())
+		DSS.layer.infrastructure.getSource().refresh();
+		console.log("showInfrasforfarm ran");
+    },
 	//-------------------------------------------------------------
 	//shows all fields in db
 	showAllFields: function(opacity) {
 			
 		DSS.layer.fields_1.getSource().setUrl(
-		'http://localhost:8081/geoserver/wfs?'+
+		/*'http://localhost:8081/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=Farms:field_1&' +
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857'*/
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:field_1&' +
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		DSS.layer.fields_1.getSource().refresh();
@@ -254,7 +285,7 @@ Ext.define('DSS.state.MapStateTools', {
 					}
 				}
 				if (g.getType() === "MultiPolygon") {
-					if (f.get('scenario_i') != undefined) {
+					if (f.get('owner_id') != undefined) {
 						cursor = 'pointer';
 						hitAny = true;
 						//console.log(f)
@@ -306,7 +337,7 @@ Ext.define('DSS.state.MapStateTools', {
 					let pos = g.getFirstCoordinate()
 					me.setPinMarker(pos);
 					console.log("pin set in activatefarmhandler")
-					console.log(DSS.activeFarm)
+					//console.log(DSS.activeFarm)
 					let ex = ol.extent;
 					let extent = [pos[0], pos[1], pos[0], pos[1]];
 					//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
@@ -324,7 +355,7 @@ Ext.define('DSS.state.MapStateTools', {
 //					console.log(DSS.layer.fields_1.getSource());
 					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
 					DSS.MapState.removeMapInteractions()
-					DSS.layer.farms_1.getSource().refresh();
+					//DSS.layer.farms_1.getSource().refresh();
 					
 					break;
 				}
