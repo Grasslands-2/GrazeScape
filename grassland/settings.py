@@ -31,7 +31,6 @@ DEBUG = True
 # CORS_ORIGIN_ALLOW_ALL = True
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,7 +48,6 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -94,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'GrazeScape',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'Badbass85!',
         'HOST': 'localhost',
         'PORT': '5432'
     }

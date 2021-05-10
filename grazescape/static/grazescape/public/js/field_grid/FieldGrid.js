@@ -6,11 +6,18 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 var fieldArray = [];
 var fieldObj = {};
 
-var fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
+var fieldUrl = /*'http://localhost:8081/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
 'typeName=Farms:field_1&' +
+'outputformat=application/json&'+
+'srsname=EPSG:3857'*/
+'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+'service=wfs&'+
+'?version=2.0.0&'+
+'request=GetFeature&'+
+'typeName=GrazeScape_Vector:field_1&' +
 'outputformat=application/json&'+
 'srsname=EPSG:3857';
 
@@ -36,10 +43,11 @@ function getWFSfields() {
 		{
 			responseObj = response
 			fieldObj = response.features
-			console.log(responseObj);
+			console.log(fieldObj);
 			fieldArray = [];
-			//console.log(fieldObj[0]);
+			console.log(fieldObj[0]);
 			popFieldsArray(fieldObj);
+			//console.log("PopFieldsArray should have fired if you are reading this")
 			//placed data store in call function to make sure it was locally available.	
 			Ext.create('Ext.data.Store', {
 				storeId: 'fieldStore1',
@@ -63,12 +71,14 @@ function getWFSfields() {
 }
 
 function popFieldsArray(obj) {
+	//console.log('hi from popFieldsArray')
 
 	for (i in obj)
+	//console.log(i);
 	fieldArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.field_name,
-		owningFarmid: obj[i].properties.scenario_i,
+		owningFarmid: obj[i].properties.owner_id,
 		soilP: obj[i].properties.soil_p,
 		soilOM: obj[i].properties.om,
 		rotationVal: obj[i].properties.rotation,
@@ -104,11 +114,17 @@ console.log(fieldArray);
 //empty array to catch feature objects 
 function gatherTableData() {
 	//redeclaring fieldUrl to only show filtered fields
-	fieldUrl = 'http://localhost:8081/geoserver/wfs?'+
+	fieldUrl = 
+	/*'http://localhost:8081/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=Farms:field_1&'+
+	'typeName=Farms:field_1&'+*/
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_1&' +
 	'CQL_filter=id='+DSS.activeFarm+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';

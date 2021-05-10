@@ -1,44 +1,31 @@
-DSS.utils.addStyle('.underlined-input { border: none; border-bottom: 1px solid #ddd; display:table; width: 100%; height:100%; padding: 0 0 2px}')   
-DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
-DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
-
-var selectedOperation = {}
-function selectOperation(){
+var selectedInfra = {}
+function selectInfra(){
 	DSS.select = new ol.interaction.Select({
 		features: new ol.Collection(),
 			toggleCondition: ol.events.condition.never,
 			style: new ol.style.Style({
-				fill: new ol.style.Fill({
-				  color: 'rgba(255, 255, 255, 0.2)',
-				}),
 				stroke: new ol.style.Stroke({
-				  color: '#ffcc33',
-				  width: 2,
+					color: 'white',
+					width: 4
 				}),
-				image: new ol.style.Circle({
-				  radius: 7,
-				  fill: new ol.style.Fill({
-					color: '#ffcc33'
-				}),
-			}),
-		})
-	});
+			})
+		});
 	DSS.map.addInteraction(DSS.select);
 	console.log("select is on")
 	DSS.select.on('select', function(f) {
 		console.log('select on happened');
-		selectedOperation = f.selected[0];
-		console.log(selectedOperation);
+		selectedInfra = f.selected[0];
+		console.log(selectedInfra);
 	});
 }
-function deleteOperation(feat){
+function deleteInfra(feat){
 	{
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
 			featureNS: 'http://geoserver.org/GrazeScape_Vector'
 			/*'http://geoserver.org/Farms'*/,
 			Geometry: 'geom',
-			featureType: 'farm_1',
+			featureType: 'Infrastructure',
 			srsName: 'EPSG:3857'
 		});
 		console.log(feat)
@@ -56,7 +43,7 @@ function deleteOperation(feat){
 			data: str,
 			success: function (data) {
 				console.log("data deleted successfully!: "+ data);
-				DSS.layer.farms_1.getSource().refresh();
+				DSS.layer.infrastructure.getSource().refresh();
 			},
 			error: function (xhr, exception) {
 				var msg = "";
@@ -82,21 +69,18 @@ function deleteOperation(feat){
 }
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.state.DeleteOperation', {
+Ext.define('DSS.infra_shapes.DeleteLine', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.Container',
-	alias: 'widget.operation_delete',
-    //alternateClassName: 'DSS.DeleteOperations',
-    //singleton: true,	
+	alias: 'widget.Infra_delete',
+    alternateClassName: 'DSS.DeleteInfraShapes',
+    singleton: true,	
 	
-    //autoDestroy: false,
+    autoDestroy: false,
     
-    //scrollable: 'y',
+    scrollable: 'y',
 
-	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
-	cls: 'section',
-
-	DSS_singleText: '"Delete Current Operation"',
+	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
@@ -105,22 +89,8 @@ Ext.define('DSS.state.DeleteOperation', {
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'component',
-				cls: 'back-button',
-				tooltip: 'Back',
-				html: '<i class="fas fa-reply"></i>',
-				listeners: {
-					render: function(c) {
-						c.getEl().getFirstChild().el.on({
-							click: function(self) {
-								DSS.ApplicationFlow.instance.showLandingPage();
-							}
-						});
-					}
-				}					
-			},{
-				xtype: 'component',
-				cls: 'section-title accent-text right-pad',
-				html: 'Field Shapes',
+				cls: 'section-title light-text text-drp-20',
+				html: 'Infrastructure Lines <i class="fas fa-trash-alt fa-fw accent-text text-drp-50"></i>',
 				height: 35
 			},{
 				xtype: 'container',
@@ -134,11 +104,11 @@ Ext.define('DSS.state.DeleteOperation', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Delete Operation',
+					html: 'Delete Field',
 				},{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Click an operation to delete it',
+					html: 'Click a field to delete it',
 				},
 				{
 					xtype: 'button',
@@ -149,12 +119,13 @@ Ext.define('DSS.state.DeleteOperation', {
 					handler: function() {
 						//var data = me.viewModel.data;
 						console.log("delete Button");
-						if (selectedOperation != {}) {
-							deleteOperation(selectedOperation);
+						var geomType = 'line'
+						if (selectedInfra != {}) {
+							deleteInfra(selectedInfra);
 							DSS.map.render;
 						}
 						else {
-							console.log("no field selected")
+							console.log("no infra selected")
 						}
 					}
 			    }]
@@ -169,7 +140,7 @@ Ext.define('DSS.state.DeleteOperation', {
 		let me = this;
 		let c = DSS_viewport.down('#DSS-mode-controls');
 		console.log('delete mode on')
-		selectOperation()
+		selectInfra()
 		
 		
 		if (!c.items.has(me)) {
@@ -179,7 +150,7 @@ Ext.define('DSS.state.DeleteOperation', {
 			Ext.resumeLayouts(true);
 		}
 		me.mouseMoveDeleteHandler(owner);
-		me.clickdeleteOperationHandler(owner);
+		me.clickdeleteInfraHandler(owner);
 	},
 	
     //-------------------------------------------------------------
@@ -192,7 +163,7 @@ Ext.define('DSS.state.DeleteOperation', {
 			let mouseList = [];
 			fs.forEach(function(f) {
 				let g = f.getGeometry();
-				if (g && g.getType() === "Point") {
+				if (g && g.getType() === "LineString") {
 					cursor = 'pointer';
 					mouseList.push(f);
 					
@@ -207,7 +178,7 @@ Ext.define('DSS.state.DeleteOperation', {
 	},
 	
     //-------------------------------------------------------------
-    clickdeleteOperationHandler: function(owner) {
+    clickdeleteInfraHandler: function(owner) {
     	
     	DSS.mapClickFunction = function(evt) {
 			let coordinate  =  DSS.map.getEventCoordinate(evt.originalEvent);
@@ -215,13 +186,13 @@ Ext.define('DSS.state.DeleteOperation', {
 			let deleteList = [];
 			fs.forEach(function(f) {
 				let g = f.getGeometry();
-				if (g && g.getType() === "Point") {
+				if (g && g.getType() === "Line") {
 					deleteList.push({'f':f, 'f_id': f.getProperties().f_id});
 //					deleteList.push(f.getProperties().f_id);
 				}
 			})
 			if (deleteList.length > 0) {
-				owner.deleteOperation(deleteList,DSS.activeFarm);
+				owner.deleteInfras(deleteList,DSS.activeFarm);
 			}
 		}		
     },
