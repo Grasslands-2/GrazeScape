@@ -139,12 +139,15 @@ Ext.create('Ext.data.Store', {
 	storeId: 'rotationList',
 	fields:[ 'display', 'value'],
 	data: [{
-		value: 'pt',
-		display: 'Pasture'
-	},{ 
+		value: 'pt-cn',
+		display: 'Continuous Pasture'
+	},{
+		value: 'pt-rt',
+		display: 'Rotational Pasture'
+	},{
 		value: 'ps',
 		display: 'New Pasture'
-	},{ 
+	},{
 		value: 'dl',
 		display: 'Dry Lot'
 	},{ 
@@ -601,7 +604,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt'|| rec.get('rotationVal') == 'ps') {
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
@@ -636,7 +639,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Animal Density', dataIndex: 'grazingDensity', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
+
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt' || rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
