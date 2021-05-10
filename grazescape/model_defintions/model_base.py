@@ -26,7 +26,7 @@ class ModelBase:
                                                    file_name + ".png")
 
         self.r_file_path = "C://Program Files/R/R-4.0.4/bin/x64/R.exe"
-        self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'input_models')
+        self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'input_models','tidyModels')
         self.color_ramp_hex = []
         self.data_range = []
         self.bounds = {"x": 0, "y": 0}
@@ -196,11 +196,11 @@ class ModelBase:
                            (165, 45, 24)
                            ]
         counter = 0
-        self.data_range.append(min_value)
+        self.data_range.append(float(min_value))
         while counter < num_cat:
             cat_list.append([cate_value, cate_value + interval_step, color_ramp[counter]])
             cate_value = cate_value + interval_step
-            self.data_range.append(cate_value)
+            self.data_range.append(float(cate_value))
             counter = counter + 1
         return cat_list
 
@@ -245,7 +245,7 @@ class ModelBase:
                 three_d[y][x][1] = color[1]
                 three_d[y][x][2] = color[2]
                 three_d[y][x][3] = 255
-                if self.no_data == datanm[y][x] or datanm[y][x] >1000 :
+                if self.no_data == datanm[y][x]:
                 #     three_d[y][x][0] = 131
                 #     three_d[y][x][1] = 8
                 #     three_d[y][x][2] = 149
@@ -265,6 +265,8 @@ class ModelBase:
         data_size = 0
         sum_data = 0
         for val in data:
+            # print("agg value")
+            # print(val)
             if val != self.no_data:
                 sum_data = sum_data + val
                 data_size = data_size + 1

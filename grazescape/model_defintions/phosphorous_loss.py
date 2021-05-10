@@ -13,8 +13,8 @@ from pyper import *
 class PhosphorousLoss(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
-        self.model_name = "ContCorn_NoCoverPI.rds"
-        self.model_file_path = os.path.join(self.model_file_path, self.model_name)
+        # self.model_name = "ContCorn_NoCoverPI.rds"
+        # self.model_file_path = os.path.join(self.model_file_path, self.model_name)
         self.units = "PI"
     # overwriting abstract method
 
@@ -51,27 +51,28 @@ class PhosphorousLoss(ModelBase):
         return
 
     def run_model(self):
+        print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
-        slope = self.raster_inputs["slope_data"].flatten
-        slope_length = self.raster_inputs["slope_length"].flatten
-        sand = self.raster_inputs["sand"].flatten
-        silt = self.raster_inputs["silt"].flatten
-        clay = self.raster_inputs["clay"].flatten
-        k = self.raster_inputs["clay"].flatten
-        om = self.raster_inputs["om"].flatten
-        total_depth = self.raster_inputs["total_depth"].flatten
-        ls = self.raster_inputs["ls"].flatten
+        slope = self.raster_inputs["slope_data"]
+        slope_length = self.raster_inputs["slope_length"]
+        sand = self.raster_inputs["sand"]
+        silt = self.raster_inputs["silt"]
+        clay = self.raster_inputs["clay"]
+        k = self.raster_inputs["clay"]
+        om = self.raster_inputs["om"]
+        total_depth = self.raster_inputs["total_depth"]
+        ls = self.raster_inputs["ls"]
 
-        slope = np.asarray([[5], [10]]).flatten()
-        slope_length = np.asarray([5, 10])
-        sand = np.asarray([5, 10])
-        silt = np.asarray([5, 10])
-        clay = np.asarray([5, 10])
-        k = np.asarray([5, 10])
-        om = np.asarray([5, 10])
-        total_depth = pd.DataFrame([5, 10])
-        ls = np.asarray([5, 10])
+        # slope = pd.DataFrame([[5,10]])
+        # slope_length = pd.DataFrame([5, 10])
+        # sand = pd.DataFrame([5, 10])
+        # silt = pd.DataFrame([5, 10])
+        # clay = pd.DataFrame([5, 10])
+        # k = pd.DataFrame([5, 10])
+        # om = pd.DataFrame([5, 10])
+        # total_depth = pd.DataFrame([5, 10])
+        # ls = pd.DataFrame([5, 10])
 
         r.assign("slope", slope)
         r.assign("slope_length", slope_length)
@@ -88,13 +89,32 @@ class PhosphorousLoss(ModelBase):
         r.assign("p205", 0)
         r.assign("manure", 10)
         r.assign("fert", 5)
-        r.assign("crop", "cg")
+        r.assign("crop", "cc")
         r.assign("cover", "cc")
         r.assign("contour", "1")
         r.assign("tillage", "sc")
         r.assign("rotational", "NA")
         r.assign("density", "NA")
         r.assign("initialP", 35)
+
+        r.assign("cc_erosion_file", os.path.join(self.model_file_path,"ContCornErosion.rds"))
+        r.assign("cg_erosion_file", os.path.join(self.model_file_path,"cornGrainErosion.rds"))
+        r.assign("cso_erosion_file", os.path.join(self.model_file_path,"cornSoyOatErosion.rds"))
+        r.assign("dr_erosion_file", os.path.join(self.model_file_path,"dairyRotationErosion.rds"))
+        r.assign("ps_erosion_file", os.path.join(self.model_file_path,"pastureSeedingErosion.rds"))
+        r.assign("pt_erosion_file", os.path.join(self.model_file_path,"pastureErosion.rds"))
+        r.assign("dl_erosion_file", os.path.join(self.model_file_path,"dryLotErosionErosion.rds"))
+
+
+
+
+        r.assign("cc_pi_file", os.path.join(self.model_file_path,"ContCornTidyPI.rds"))
+        r.assign("cg_pi_file", os.path.join(self.model_file_path,"CornGrain_tidyPI.rds"))
+        r.assign("cso_pi_file", os.path.join(self.model_file_path,"CSO_tidyPI.rds"))
+        r.assign("dr_pi_file", os.path.join(self.model_file_path,"dairyRot_tidyPI.rds"))
+        r.assign("ps_pi_file", os.path.join(self.model_file_path,"pastureSeedingTidyPI.rds"))
+        r.assign("pt_pi_file", os.path.join(self.model_file_path,"PasturePI.rds"))
+        r.assign("dl_pi_file", os.path.join(self.model_file_path,"DryLot_tidyPI.rds"))
 
 
 
@@ -107,23 +127,23 @@ class PhosphorousLoss(ModelBase):
         library(tidyverse)
         library(tidymodels)
         library(randomForest)
-
+        print("loading  models")
         # load erosion models
-        cc_erosion <- readRDS("tidyModels/ContCornErosion.rds");
-        cg_erosion <- readRDS("tidyModels/cornGrainErosion.rds")
-        cso_erosion <- readRDS("tidyModels/cornSoyOatErosion.rds")
-        dr_erosion <- readRDS("tidyModels/dairyRotationErosion.rds")
-        ps_erosion <- readRDS("tidyModels/pastureSeedingErosion.rds")
-        pt_erosion <- readRDS("tidyModels/pastureErosion.rds")
-        dl_erosion <- readRDS("tidyModels/dryLotErosionErosion.rds")
+        cc_erosion <- readRDS(cc_erosion_file);
+        cg_erosion <- readRDS(cg_erosion_file)
+        cso_erosion <- readRDS(cso_erosion_file)
+        dr_erosion <- readRDS(dr_erosion_file)
+        ps_erosion <- readRDS(ps_erosion_file)
+        pt_erosion <- readRDS(pt_erosion_file)
+        dl_erosion <- readRDS(dl_erosion_file)
         # load PI models
-        cc_pi <- readRDS("C:/Users/mmbay/PycharmProjects/Work/ModelTesting/tidyModels/ContCornTidyPI.rds")
-        cg_pi <- readRDS("C:/Users/mmbay/PycharmProjects/Work/ModelTesting/tidyModels/CornGrain_tidyPI.rds")
-        cso_pi <- readRDS("C:/Users/mmbay/PycharmProjects/Work/ModelTesting/tidyModels/CSO_tidyPI.rds")
-        dr_pi <- readRDS("C:/Users/mmbay/PycharmProjects/Work/ModelTesting/tidyModels/dairyRot_tidyPI.rds")
-        ps_pi <- readRDS("C:/Users/mmbay/PycharmProjects/Work/ModelTesting/tidyModels/pastureSeedingTidyPI.rds")
-        pt_pi <- readRDS("C:/Users/mmbay/PycharmProjects/Work/ModelTesting/tidyModels/PasturePI.rds")
-        dl_pi <- readRDS("C:/Users/mmbay/PycharmProjects/Work/ModelTesting/tidyModels/DryLot_tidyPI.rds")
+        cc_pi <- readRDS(cc_pi_file)
+        cg_pi <- readRDS(cg_pi_file)
+        cso_pi <- readRDS(cso_pi_file)
+        dr_pi <- readRDS(dr_pi_file)
+        ps_pi <- readRDS(ps_pi_file)
+        pt_pi <- readRDS(pt_pi_file)
+        dl_pi <- readRDS(dl_pi_file)
 
         # crop = cc, cso ...
         # cover = cc, nc, cgis...
@@ -203,8 +223,8 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(cover, tillage, Contour)
 
           df <- full_df %>%
-            select(c(slope:totalP2O5_lbs)) %>% 
-            slice(rep(1:n(), each=nrow(level_df)))
+              select(c(total_DM_lbs:LSsurgo)) %>% 
+              slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df)
 
@@ -352,5 +372,12 @@ class PhosphorousLoss(ModelBase):
 
         pred = r.get("pi")
         print(pred)
-        return pred
+        print(type(pred))
+        results = []
+        pred1 = pred.to_numpy()
+        for val in pred1:
+            print(val[0])
+            results.append(val[0])
+        print(results)
+        return results
 
