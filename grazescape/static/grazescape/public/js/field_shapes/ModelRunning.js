@@ -1,9 +1,30 @@
 // Module is used to run the compute models functions of the app
-
+var chartPopup
+var barChartData
+var barChart;
 function runModels(layer,modelChoice) {
+
+    barChartData = {
+        labels: ["Fields"],
+        datasets: []
+    };
+//if (chartPopup != undefined){
+//    chartPopup.hide()
+//}
+    chartPopup = new Ext.form.Panel({
+    autoDestroy: true,
+    width: 500,
+    height: 400,
+    title: 'Model Results',
+    floating: true,
+    closable: true,
+    draggable:true,
+    resizable:true,
+    html: '<div id="container"><canvas id="canvas"></canvas></div>'
+});
+    chartPopup.hide()
     chartPopup.show()
     var ctx = document.getElementById('canvas').getContext('2d');
-
     barChart = new Chart(ctx, {
         type: 'bar',
         data: barChartData,
@@ -31,41 +52,37 @@ function runModels(layer,modelChoice) {
     });
 	 extentsArray = []; //empty array for extents list
 	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
-		var extentTransform = function(fieldFeature){
-			let fObj = [];
-			let fName = fieldFeature.values_.field_name;
-			let fRotation = fieldFeature.values_.rotation;
-			let fGrass = fieldFeature.values_.grass_speciesval;
-			let fTillage = fieldFeature.values_.tillage;
-			let fOnContour = fieldFeature.values_.on_contour;
-			let fSoilP = fieldFeature.values_.soil_p;
-			let e = fieldFeature.values_.geometry.extent_;
-			let pt1 = ol.proj.transform([e[0],e[1]], 'EPSG:3857', 'EPSG:3071'),
-			pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3857', 'EPSG:3071');
-			let p =	pt1.concat(pt2);
+	    console.log(f)
+	    console.log(f.get("rotation"))
+        let rotation_split = f.get("rotation").split("-")
+        crop = rotation_split[0]
+        rotation = rotation_split.length > 1 ?rotation_split[1]:null
 
-			fObj.push(p,fGrass,fTillage,fOnContour,fSoilP,fName,modelChoice) //push p and field grass type to fObj
-			//extentsArray.push(fObj)
-			//Selection by model type for field rotation
-			if(modelChoice === 'grass' && (fRotation === 'pt' || fRotation === 'ps')){
-				extentsArray.push(fObj) //push each extent to array
-			};
-			if(modelChoice === 'crop' && (fRotation === 'cc' || fRotation === 'dr' || fRotation === 'cso')){
-				extentsArray.push(fObj) //push each extent to array
-			};
-			if(modelChoice === 'ero'){
-				extentsArray.push(fObj) //push each extent to array
-			}; 
-			if(modelChoice === 'pl'){
-				extentsArray.push(fObj) //push each extent to array
-			};//push each extent to array
-			console.log(fObj);
-		};
-		extentTransform(f)//runs extent transform
+        model_para = {
+            f_name: f.get("field_name"),
+            extent: f.getGeometry().getExtent(),
+            // at this point fields wont have any holes so just get the first entry
+            field_coors: f.getGeometry().getCoordinates()[0],
+            grass_type: f.get("grass_speciesval"),
+//            need to convert this to integer
+            contour: f.get("on_contour")?1:0,
+            soil_p: f.get("soil_p"),
+            tillage: f.get("tillage"),
+            fert: f.get("fertilizerpercent"),
+            manure: f.get("manurepercent"),
+            crop:crop,
+            crop_cover: f.get("cover_crop"),
+//			doesn't appear to be in the table at this time
+            rotation: rotation,
+            density: f.get("grazingdensityval"),
+            model_type: modelChoice
+//            model_type: "other"
+        }
+        extentsArray.push(model_para)
 	})
 	//function inside of callmodelrun that actually calls computeresults on each field
 	const callModelRun = (extent,runningLayer) => {
-
+        console.log("Runing model in model running!!!!!!!!!!!!!!!!!!!!!!!!!")
 		DSS.Inspector.computeResults(extent,runningLayer);
 		return new Promise((resolve) => {
 			setTimeout(() => {
@@ -199,17 +216,7 @@ Ext.define('DSS.field_shapes.ModelRunning', {
 						runModels(DSS.layer.fields_1,modelChoice);
 					}
 			    },
-			    {
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Get perimeter',
-					formBind: true,
-					handler: function() {
-						console.log("get perimeter")
-						getPerimeter(DSS.layer.fields_1);
-					}
-			    }]
+			 ]
 			}]
 		});
 		me.callParent(arguments);

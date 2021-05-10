@@ -402,6 +402,7 @@ Ext.define('DSS.map.Main', {
 				'srsname=EPSG:3857';
 			},
 		});
+
 		//------------------------------------infra styles and layer-----------------------
 		var fenceStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
@@ -501,6 +502,7 @@ Ext.define('DSS.map.Main', {
 			//text: fieldLabel.getText().setText('hi there')
 		})
 
+
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
 			target: me.down('#ol_map').getEl().dom,
@@ -513,6 +515,7 @@ Ext.define('DSS.map.Main', {
 				//DSS.layer.DEM_image,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1,
+
 				DSS.layer.fieldsLabels,
 				DSS.layer.infrastructure
 				 ],
@@ -565,7 +568,19 @@ Ext.define('DSS.map.Main', {
 		//-----------------------------------------------------------
 		me.map.on('click', function(e) {
 			let coords = me.map.getEventCoordinate(e.originalEvent);
-			
+
+
+
+        var view = me.map.getView();
+        var viewResolution = view.getResolution();
+        var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
+        console.log(view)
+        console.log(viewResolution)
+
+
+
+        var pixel1 = me.map.getPixelFromCoordinate(coords);
+        console.log(pixel1)
 			console.log(e, coords, ol.proj.transform(coords, 'EPSG:3857', 'EPSG:3071'));  
 			if (DSS.mapClickFunction) DSS.mapClickFunction(e, coords);
 		});

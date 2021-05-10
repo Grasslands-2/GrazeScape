@@ -1,17 +1,5 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
-let rotationFreq1 = Ext.create('Ext.data.Store', {
-	fields: ['label', 'enum'],
-	autoLoad: true,
-	proxy: {
-		type: 'ajax',
-		url: '/get_options',
-		reader: 'json',
-		extraParams: {
-			type: 'rotationalFrequency'
-		}
-	}
-});
 let field_names = Ext.create('Ext.data.Store', {
                 fields: ['name', 'perimeter'],
                 data : []
@@ -67,21 +55,21 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
             }
         })
         var per_fence_type = Ext.create('Ext.form.ComboBox', {
-                        fieldLabel: 'Choose Fence Type',
-                        store: fence_types,
-                        queryMode: 'local',
-                        labelAlign: 'left',
-                        displayField: 'fence',
+            fieldLabel: 'Choose Fence Type',
+            store: fence_types,
+            queryMode: 'local',
+            labelAlign: 'left',
+            displayField: 'fence',
 
-                        labelStyle: 'color: white;',
-                        valueField: 'cost',
-                        listeners:{
-                            select: function(combo, record, index) {
+            labelStyle: 'color: white;',
+            valueField: 'cost',
+            listeners:{
+                select: function(combo, record, index) {
 //                              calc_cost(combo.getValue(), per_cost.getValue(), per_result)
-                              per_cost.setValue(combo.getValue())
-                            }
-                        }
-                })
+                  per_cost.setValue(combo.getValue())
+                }
+            }
+        })
         var per_length = Ext.create('Ext.form.field.Text', {
                name: 'name',
                 fieldLabel: 'Perimeter (m)',
@@ -90,23 +78,23 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
                  fieldStyle: 'background-color: #bfbfbf; background-image: none;',
         })
         var per_cost = Ext.create('Ext.form.Number',     {
-                        xtype: 'numberfield',
-                        name: 'Fence Cost',
-                        fieldLabel: 'Cost per linear meter',
+            xtype: 'numberfield',
+            name: 'Fence Cost',
+            fieldLabel: 'Cost per linear meter',
 
-                        labelStyle: 'color: white;',
-                        value: 2.0,
-                        maxValue: 100000,
-                        minValue: 0,
-                        ItemId: "number_field",
-                        step: .2,
-                        listeners:{
-                         change: function(num, record, index) {
-                              console.log(num.getValue()); // Return Unitad States and no USA
-                              calc_cost(per_field.getValue(), num.getValue(), per_result)
-                            }
-                            }
-                    })
+            labelStyle: 'color: white;',
+            value: 2.0,
+            maxValue: 100000,
+            minValue: 0,
+            ItemId: "number_field",
+            step: .2,
+            listeners:{
+             change: function(num, record, index) {
+                  console.log(num.getValue()); // Return Unitad States and no USA
+                  calc_cost(per_field.getValue(), num.getValue(), per_result)
+                }
+                }
+        })
         var per_result = Ext.create('Ext.form.field.Text', {
            name: 'name',
             fieldLabel: 'Cost ($)',
@@ -141,26 +129,13 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
                         cls: 'information light-text text-drp-20',
                         html: 'Fence Settings',
                     },
-
-//                    {
-//                        xtype: 'button',
-//                        cls: 'button-text-pad',
-//                        componentCls: 'button-margin',
-//                        text: 'Get perimeter',
-//                        formBind: true,
-//                        handler: function() {
-//                            console.log("get perimeter")
-//                            getPerimeter(DSS.layer.fields_1);
-//                        }
-//                    },
                     per_field,
-
                     per_length,
                     per_fence_type,
                     per_cost,
                     per_result,
                     per_save
-                             ]
+                ]
 			}]
 
 		});
@@ -184,7 +159,9 @@ function getPerimeter(layer) {
 			console.log(fieldFeature)
 			ls = new ol.geom.LineString(fieldFeature.getGeometry().getCoordinates()[0][0])
 			console.log(ls.getLength())
-
+            area = fieldFeature.getGeometry().getArea()
+            console.log("area meters" , area)
+            console.log("area acres" , area/4046.86)
 			point_array = []
 			for (coor in fieldFeature.getGeometry().getCoordinates()[0][0]){
 //			    console.log(fieldFeature.getGeometry().getCoordinates()[0][0][coor])
@@ -202,21 +179,20 @@ function getPerimeter(layer) {
             'url' : '/grazescape/point_elevations',
             'type' : 'POST',
             'data' : {"points": point_array,"extra_data":"test"},
-
-                success: function(response, opts) {
-                    console.log(response)
-                    var total_dis = 0
-                    for (i = 0; i< response.points.length - 1; i++){
-                        total_dis += calc_slope_distance(response.points[i], response.points[i+1]).slope_distance
-                    }
-                    console.log(total_dis)
-//                    per_result.setValue(total_dis)
-			        field_names.add({"name":fieldFeature.get("field_name"),"perimeter":total_dis})
-
-                },
-                failure: function(response, opts) {
-    //				me.stopWorkerAnimation();
+            success: function(response, opts) {
+                console.log(response)
+                var total_dis = 0
+                for (i = 0; i< response.points.length - 1; i++){
+                    total_dis += calc_slope_distance(response.points[i], response.points[i+1]).slope_distance
                 }
+                console.log(total_dis)
+//                    per_result.setValue(total_dis)
+                field_names.add({"name":fieldFeature.get("field_name"),"perimeter":total_dis})
+
+            },
+            failure: function(response, opts) {
+//				me.stopWorkerAnimation();
+            }
 	    	});
 
 		};
@@ -247,36 +223,24 @@ function calc_cost(length, cost, res_obj) {
     res_obj.setValue((length * cost).toFixed(2))
 }
 function save_per(field_name, fence_cost, fence_type, perimeter,area,fence_unit_cost){
-DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-    console.log(f)
-    console.log(field_name, fence_cost, fence_type, perimeter,area, fence_unit_cost)
-    console.log(field_name)
-    console.log(f.get('field_name'))
-    if(field_name == f.get('field_name')){
-        console.log(field_name)
-        console.log("matches")
-        f.setProperties({
-            area:area,
-            perimeter:perimeter,
-            fence_type:fence_type,
-            fence_cost:fence_cost,
-            fence_unit_cost:fence_unit_cost
-        })
-        wfs_field_update(f)
-    }
-//    f.getValue('name')
-console.log(f)
-console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-})
+    DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+        if(field_name == f.get('field_name')){
+            console.log(field_name)
+            console.log("matches")
+            f.setProperties({
+                area:area,
+                perimeter:perimeter,
+                fence_type:fence_type,
+                fence_cost:fence_cost,
+                fence_unit_cost:fence_unit_cost
+            })
+            wfs_field_update(f)
+        }
+    })
 }
 
 function update_fence_att(field_name, type, cost){
     DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-        console.log(f)
-        console.log(type)
-        console.log(cost)
-        console.log(field_name)
-        console.log(f.get('field_name'))
         if(field_name == f.get('field_name')){
             type.setValue(f.get('fence_type'))
             cost.setValue(f.get('fence_unit_cost'))
