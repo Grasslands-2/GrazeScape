@@ -160,6 +160,7 @@ function runFieldUpdate(){
 		console.log("from fields_1 loop through: " + feildFeature.id_);
 		for (i in fieldArray){
 			console.log("Fieldarray id: " +fieldArray[i].id);
+			console.log(fieldArray[i]);
 			if(fieldArray[i].id === feildFeature.id_){
 				console.log(fieldArray[i].name);
 				feildFeature.setProperties({
@@ -177,6 +178,7 @@ function runFieldUpdate(){
 					manurepercent: fieldArray[i].manuPerc,
 					grass_speciesval: fieldArray[i].grassSpeciesVal,
 					grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
+					grass_specialdisp: fieldArray[i].grassSpeciesDisp,
 					interseededclover: fieldArray[i].interseededClover,
 					grazingdensityval: fieldArray[i].grazeDensityVal,
 					area: fieldArray[i].area,

@@ -573,7 +573,7 @@ Ext.define('DSS.map.Main', {
 
         var view = me.map.getView();
         var viewResolution = view.getResolution();
-        var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
+//        var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
         console.log(view)
         console.log(viewResolution)
 
