@@ -112,7 +112,7 @@ def get_model_results(request):
     results = model.run_model()
     avg = model.aggregate(results)
     print("Creating png")
-    color_ramp = model.get_model_png(results, geo_data.bounds)
+    color_ramp = model.get_model_png(results, geo_data.bounds, geo_data.no_data_aray)
     # for cat in color_ramp:
     #     values.append(cat[1])
     print(model.file_name)
