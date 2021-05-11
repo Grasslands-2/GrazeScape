@@ -263,7 +263,8 @@ class ModelBase:
                 min = val
         return min
 
-    def get_model_png(self, data, bounds):
+    def get_model_png(self, data, bounds, no_data_array):
+        print(no_data_array)
         # pickle.dump(data, open("data", "wb"))
         max_v = max(data)
         # max_v = 100
@@ -285,7 +286,8 @@ class ModelBase:
                 three_d[y][x][1] = color[1]
                 three_d[y][x][2] = color[2]
                 three_d[y][x][3] = 255
-                if self.no_data == datanm[y][x]:
+                # if no_data_array.iloc[y][x] == self.no_data:
+                if no_data_array[y][x] == 1:
                     #     three_d[y][x][0] = 131
                     #     three_d[y][x][1] = 8
                     #     three_d[y][x][2] = 149
