@@ -145,19 +145,26 @@ class RasterData:
         self.check_raster_data(raster_data_dic)
         self.create_no_data_array(raster_data_dic)
         return raster_data_dic, bounds
+
     def create_no_data_array(self,raster_data_dic):
 
         first_entry = [*raster_data_dic.keys()][0]
         size = raster_data_dic[first_entry].shape
+        print(size)
+        print(raster_data_dic[first_entry])
         self.no_data_aray = np.zeros(size)
         for y in range(0, self.bounds["y"]):
             for x in range(0, self.bounds["x"]):
                 for val in raster_data_dic:
+                    # if (y == 0):
+                    #     print(val, y, x)
+                    #     print(raster_data_dic[val].iloc[y][x])
                     if raster_data_dic[val].iloc[y][x] == self.no_data:
-                        print(val,y, x)
-                        print(raster_data_dic[val].iloc[y][x])
+                        # if(y==0):
+                        #     print(val, y, x)
+                        #     print(raster_data_dic[val].iloc[y][x])
                         self.no_data_aray[y][x] = 1
-                        break
+                        # break
 
 
     def check_raster_data(self, raster_dic):

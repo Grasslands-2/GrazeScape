@@ -180,6 +180,10 @@ Ext.create('Ext.data.Store', {
 	},{ 
 		value: 'nc',
 		display: 'No Cover'
+	},
+	{
+		value: 'na',
+		display: 'Not Applicable'
 	}]
 });
 
