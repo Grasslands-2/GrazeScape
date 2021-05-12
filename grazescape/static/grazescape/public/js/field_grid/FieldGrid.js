@@ -115,11 +115,6 @@ console.log(fieldArray);
 function gatherTableData() {
 	//redeclaring fieldUrl to only show filtered fields
 	fieldUrl = 
-	/*'http://localhost:8081/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=Farms:field_1&'+*/
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -413,7 +408,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt') {
 					widget.setDisabled(true);
 				}
 				 else {
@@ -446,7 +441,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Tillage', dataIndex: 'tillageDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
 				}else {
 					widget.setDisabled(false);

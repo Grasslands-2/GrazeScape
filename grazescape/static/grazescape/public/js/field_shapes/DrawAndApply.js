@@ -69,7 +69,46 @@ function wfs_field_insert(feat,geomType) {
 	DSS.layer.fields_1.getSource().refresh();
 }
 function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
-	
+
+	cropDisp='';
+	tillageDisp='';
+	//--------------------Setting Display Values------------------
+	if(crop=='pt-cn'){
+		cropDisp ='Continuous Pasture'}
+	else if(crop=='pt-rt'){
+		cropDisp ='Rotational Pasture'}
+	else if(crop=='ps'){
+		cropDisp ='New Pasture'}
+	else if(crop=='dl'){
+		cropDisp ='Dry Lot'}
+	else if(crop=='cc'){
+		cropDisp ='Continuous Corn'}
+	else if(crop=='cg'){
+		cropDisp ='Cash Grain (cg/sb)'}
+	else if(crop=='dr'){
+		cropDisp ='Corn Silage to Corn Grain to Alfalfa(3x)'}
+	else if(crop=='cso'){
+		cropDisp ='Corn Silage to Soybeans to Oats'}
+
+	if(tillageInput=='nt'){
+		tillageDisp = 'No-Till'}
+	else if(tillageInput=='su'){
+		tillageDisp = 'Spring Cultivation'}
+	else if(tillageInput=='sc'){
+		tillageDisp = 'Spring Chisel + Disk'}
+	else if(tillageInput=='sn'){
+		tillageDisp = 'Spring Chisel No Disk'}
+	else if(tillageInput=='sv'){
+		tillageDisp = 'Spring Vertical'}
+	else if(tillageInput=='smb'){
+		tillageDisp = 'Spring Moldboard Plow'}
+	else if(tillageInput=='fch'){
+		tillageDisp = 'Fall Chisel + Disk'}
+	else if(tillageInput=='fm'){
+		tillageDisp = 'Fall Moldboard Plow'}
+
+//-------------------Now for the actual function-----------------
+
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
 		type: 'MultiPolygon',
@@ -86,13 +125,13 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			owner_id: af,
 			field_name: field_nameInput,
 			soil_p: soil_pInput,
-			om: 10,
-			rotation: 'PS',
+			rotation: crop,
+			rotation_disp: cropDisp,
 			graze_beef_cattle: beef,
 			graze_dairy_lactating: lac,
 			graze_dairy_non_lactating: non_lac,
-			cover_crop: crop,
 			tillage: tillageInput,
+			tillage_disp:tillageDisp,
 			on_contour: false
 		})
 		var geomType = 'polygon'
@@ -305,4 +344,3 @@ let getToggle = function(owner, stateRef, activatedHandler, deactivatedHandler) 
 		}					
 	}	
 }
-
