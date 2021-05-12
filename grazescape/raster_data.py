@@ -42,8 +42,12 @@ class RasterData:
         self.extents_string_x = ""
         self.extents_string_y = ""
         if extents is not None:
+            print("These are the extents")
+            print(extents)
             self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
             self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+            print(self.extents_string_x)
+            print(self.extents_string_y)
         self.crs = "epsg:3857"
 
         self.no_data = -9999
@@ -140,7 +144,7 @@ class RasterData:
                 bounds = [minx, miny, maxx, maxy]
 
                 band = ds_clip.GetRasterBand(1)
-                arr = pd.DataFrame(band.ReadAsArray())
+                arr = np.asarray(band.ReadAsArray())
                 raster_data_dic[data_name] = arr
         self.check_raster_data(raster_data_dic)
         self.create_no_data_array(raster_data_dic)
@@ -156,15 +160,10 @@ class RasterData:
         for y in range(0, self.bounds["y"]):
             for x in range(0, self.bounds["x"]):
                 for val in raster_data_dic:
-                    # if (y == 0):
-                    #     print(val, y, x)
-                    #     print(raster_data_dic[val].iloc[y][x])
-                    if raster_data_dic[val].iloc[y][x] == self.no_data:
-                        # if(y==0):
-                        #     print(val, y, x)
-                        #     print(raster_data_dic[val].iloc[y][x])
+
+                    if raster_data_dic[val][y][x] == self.no_data:
                         self.no_data_aray[y][x] = 1
-                        # break
+                        break
 
 
     def check_raster_data(self, raster_dic):
