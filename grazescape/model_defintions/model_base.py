@@ -112,9 +112,23 @@ class ModelBase:
             "rotation": request.POST.getlist("model_parameters[rotation]")[0],
             "density": request.POST.getlist("model_parameters[density]")[0],
         }
+        numeric_para = ["soil_p", "fert", "manure"]
+        # soil_p, fert, manure
+        print(parameters)
+
+
         for val in parameters:
+
+            #     convert string numeric values to float
+            # contour needs to stay a string
+            if parameters[val].isnumeric() and val != "contour":
+                parameters[val] = float(parameters[val])
             if parameters[val] == "":
-                parameters[val] = "NA"
+                if val in numeric_para:
+                    parameters[val] = 0
+                else:
+                    parameters[val] = "NA"
+
 
         nutrient_key = parameters["crop"] + parameters["crop_cover"] + \
                        parameters["rotation"] + parameters["density"]
@@ -122,7 +136,7 @@ class ModelBase:
         parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
         parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
         parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
-
+        print(parameters)
         return parameters
 
     def get_file_name(self):
@@ -256,25 +270,33 @@ class ModelBase:
         data = np.reshape(data, (bounds["y"], bounds["x"]))
         return data
 
-    def min_value(self, data, max):
-        min = max
-        for val in data:
-            if val < min and val != self.no_data:
-                min = val
-        return min
+    def min_max(self, data,no_data_array):
+        min =9000000
+        max = self.no_data
+        for y in range(0, self.bounds["y"]):
+            for x in range(0, self.bounds["x"]):
+                if no_data_array[y][x] != 1:
+                    if data[y][x]>max:
+                        max = data[y][x]
+                    if data[y][x]<min:
+                        min = data[y][x]
 
-    def get_model_png(self, data, bounds):
+
+        return min, max
+
+    def get_model_png(self, data, bounds, no_data_array):
+        print(no_data_array)
         # pickle.dump(data, open("data", "wb"))
-        max_v = max(data)
+        # max_v = max(data)
         # max_v = 100
-        min_v = self.min_value(data, max_v)
         print("min value!!!!!!!!!!!!!!!!!!")
-        print(min_v)
+        # print(min_v)
         rows = bounds["y"]
         cols = bounds["x"]
 
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
+        min_v, max_v = self.min_max(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v)
         for y in range(0, rows):
             for x in range(0, cols):
@@ -285,7 +307,8 @@ class ModelBase:
                 three_d[y][x][1] = color[1]
                 three_d[y][x][2] = color[2]
                 three_d[y][x][3] = 255
-                if self.no_data == datanm[y][x]:
+                # if no_data_array[y][x] == self.no_data:
+                if no_data_array[y][x] == 1:
                     #     three_d[y][x][0] = 131
                     #     three_d[y][x][1] = 8
                     #     three_d[y][x][2] = 149

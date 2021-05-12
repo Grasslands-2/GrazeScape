@@ -34,7 +34,7 @@ class RasterData:
         # self.data_layer = data_layer
         self.extents = extents
         self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
-                        "request=GetCoverage&CoverageId="
+                             "request=GetCoverage&CoverageId="
         self.file_name = str(uuid.uuid4())
         self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs',self.file_name)
         if not os.path.exists(self.dir_path):
@@ -42,29 +42,34 @@ class RasterData:
         self.extents_string_x = ""
         self.extents_string_y = ""
         if extents is not None:
+            print("These are the extents")
+            print(extents)
             self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
             self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+            print(self.extents_string_x)
+            print(self.extents_string_y)
         self.crs = "epsg:3857"
 
         self.no_data = -9999
         self.layer_dic = {
-          "elevation": "InputRasters:TC_DEM",
-          "slope_data": "InputRasters:TC_Slope",
-          "sand": "InputRasters:TC_sand_10m",
-          "silt": "InputRasters:TC_silt_10m",
-          "clay": "InputRasters:TC_clay_10m",
-          "k": "InputRasters:TC_k_10m",
-          "ksat": "InputRasters:TC_ksat_10m",
-          "om": "InputRasters:TC_om_10m",
-          "cec": "InputRasters:TC_cec_10m",
-          "ph": "InputRasters:TC_ph_10m",
-          "total_depth": "InputRasters:TC_totaldepth_10m",
-          "slope_length": "InputRasters:TC_slopelenusler_10m",
-          "awc": "InputRasters:TC_awc_10m",
-          "ls": "InputRasters:LS_10m"
+            "elevation": "InputRasters:TC_DEM",
+            "slope_data": "InputRasters:TC_Slope",
+            "sand": "InputRasters:TC_sand_10m",
+            "silt": "InputRasters:TC_silt_10m",
+            "clay": "InputRasters:TC_clay_10m",
+            "k": "InputRasters:TC_k_10m",
+            "ksat": "InputRasters:TC_ksat_10m",
+            "om": "InputRasters:TC_om_10m",
+            "cec": "InputRasters:TC_cec_10m",
+            "ph": "InputRasters:TC_ph_10m",
+            "total_depth": "InputRasters:TC_totaldepth_10m",
+            "slope_length": "InputRasters:TC_slopelenusler_10m",
+            "awc": "InputRasters:TC_awc_10m",
+            "ls": "InputRasters:LS_10m"
         }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
+        self.no_data_aray = []
 
     def load_layers(self):
         """
@@ -105,6 +110,7 @@ class RasterData:
         polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
         print(polygon.total_bounds)
         return polygon.total_bounds
+
     def clip_raster(self):
         """
         Clip raster and return a rectangular array
@@ -138,10 +144,27 @@ class RasterData:
                 bounds = [minx, miny, maxx, maxy]
 
                 band = ds_clip.GetRasterBand(1)
-                arr = pd.DataFrame(band.ReadAsArray())
+                arr = np.asarray(band.ReadAsArray())
                 raster_data_dic[data_name] = arr
         self.check_raster_data(raster_data_dic)
+        self.create_no_data_array(raster_data_dic)
         return raster_data_dic, bounds
+
+    def create_no_data_array(self,raster_data_dic):
+
+        first_entry = [*raster_data_dic.keys()][0]
+        size = raster_data_dic[first_entry].shape
+        print(size)
+        print(raster_data_dic[first_entry])
+        self.no_data_aray = np.zeros(size)
+        for y in range(0, self.bounds["y"]):
+            for x in range(0, self.bounds["x"]):
+                for val in raster_data_dic:
+
+                    if raster_data_dic[val][y][x] == self.no_data:
+                        self.no_data_aray[y][x] = 1
+                        break
+
 
     def check_raster_data(self, raster_dic):
         print(raster_dic.keys())
