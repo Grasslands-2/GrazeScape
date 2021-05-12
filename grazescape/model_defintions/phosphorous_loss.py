@@ -17,15 +17,15 @@ class PhosphorousLoss(ModelBase):
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
-        slope = self.raster_inputs["slope_data"]
-        slope_length = self.raster_inputs["slope_length"]
-        sand = self.raster_inputs["sand"]
-        silt = self.raster_inputs["silt"]
-        clay = self.raster_inputs["clay"]
-        k = self.raster_inputs["clay"]
-        om = self.raster_inputs["om"]
-        total_depth = self.raster_inputs["total_depth"]
-        ls = self.raster_inputs["ls"]
+        slope = self.raster_inputs["slope_data"].flatten()
+        slope_length = self.raster_inputs["slope_length"].flatten()
+        sand = self.raster_inputs["sand"].flatten()
+        silt = self.raster_inputs["silt"].flatten()
+        clay = self.raster_inputs["clay"].flatten()
+        k = self.raster_inputs["clay"].flatten()
+        om = self.raster_inputs["om"].flatten()
+        total_depth = self.raster_inputs["total_depth"].flatten()
+        ls = self.raster_inputs["ls"].flatten()
 
         # slope = pd.DataFrame([[5,10]])
         # slope_length = pd.DataFrame([5, 10])
@@ -46,19 +46,32 @@ class PhosphorousLoss(ModelBase):
         r.assign("om", om)
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
-        # test 1
-        r.assign("p_need", 50)
-        r.assign("dm", 0)
-        r.assign("p205", 0)
-        r.assign("manure", 10)
-        r.assign("fert", 5)
-        r.assign("crop", "cc")
-        r.assign("cover", "cc")
-        r.assign("contour", "1")
-        r.assign("tillage", "sc")
-        r.assign("rotational", "NA")
-        r.assign("density", "NA")
-        r.assign("initialP", 35)
+
+        # r.assign("p_need", 50)
+        # r.assign("dm", 0)
+        # r.assign("p205", 0)
+        # r.assign("manure", 10)
+        # r.assign("fert", 5)
+        # r.assign("crop", "cc")
+        # r.assign("cover", "cc")
+        # r.assign("contour", "0")
+        # r.assign("tillage", "fc")
+        # r.assign("rotational", "NA")
+        # r.assign("density", "NA")
+        # r.assign("initialP", 35)
+
+        r.assign("p_need", self.model_parameters["p_need"])
+        r.assign("dm", self.model_parameters["dm"])
+        r.assign("p205", self.model_parameters["p205"])
+        r.assign("manure", self.model_parameters["manure"])
+        r.assign("fert", self.model_parameters["fert"])
+        r.assign("crop", self.model_parameters["crop"])
+        r.assign("cover", self.model_parameters["crop_cover"])
+        r.assign("contour", self.model_parameters["contour"])
+        r.assign("tillage", self.model_parameters["tillage"])
+        r.assign("rotational", self.model_parameters["rotation"])
+        r.assign("density", self.model_parameters["density"])
+        r.assign("initialP", self.model_parameters["soil_p"])
 
         r.assign("cc_erosion_file", os.path.join(self.model_file_path,"ContCornErosion.rds"))
         r.assign("cg_erosion_file", os.path.join(self.model_file_path,"cornGrainErosion.rds"))
@@ -176,13 +189,13 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(cover, tillage, Contour)
 
           df <- full_df %>%
-              select(c(total_DM_lbs:LSsurgo)) %>% 
-              slice(rep(1:n(), each=nrow(level_df)))
+  select(c(total_DM_lbs:LSsurgo)) %>% 
+  slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(cover == levels(full_df$cover), tillage == levels(full_df$tillage), Contour == levels(full_df$Contour))
+            filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
 
           erosion <- round(predict(cg_erosion, pred_df),2)
 
@@ -204,13 +217,13 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(cover, tillage, Contour)
 
           df <- full_df %>%
-            select(c(slope:totalP2O5_lbs)) %>% 
-            slice(rep(1:n(), each=nrow(level_df)))
+  select(c(total_DM_lbs:LSsurgo)) %>% 
+  slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(cover == levels(full_df$cover), tillage == levels(full_df$tillage), Contour == levels(full_df$Contour))
+            filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
 
           erosion <- round(predict(cso_erosion, pred_df),2)
 
@@ -231,14 +244,14 @@ class PhosphorousLoss(ModelBase):
 
           level_df <- expand_grid(cover, tillage, Contour)
 
-          df <- full_df %>%
-            select(c(slope:totalP2O5_lbs)) %>% 
-            slice(rep(1:n(), each=nrow(level_df)))
+         df <- full_df %>%
+  select(c(total_DM_lbs:LSsurgo)) %>% 
+  slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(cover == levels(full_df$cover), tillage == levels(full_df$tillage), Contour == levels(full_df$Contour))
+            filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
 
           erosion <- round(predict(dr_erosion, pred_df),2)
 
@@ -259,13 +272,13 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(tillage, Contour)
 
           df <- full_df %>%
-            select(c(slope:totalP2O5_lbs)) %>% 
-            slice(rep(1:n(), each=nrow(level_df)))
+  select(c(total_DM_lbs:LSsurgo)) %>% 
+  slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(tillage == levels(full_df$tillage), Contour == levels(full_df$Contour))
+            filter(tillage == full_df$tillage, Contour == full_df$Contour)
 
           erosion <- round(predict(ps_erosion, pred_df),2)
 
@@ -286,17 +299,17 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(rotational, density)
 
           df <- full_df %>%
-            select(c(slope:totalP2O5_lbs)) %>% 
-            slice(rep(1:n(), each=length(density)))
+  select(c(total_DM_lbs:LSsurgo)) %>% 
+  slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df) 
 
           if(full_df$rotational == "rt"){{
             pred_df <- df %>%
-              filter(rotational == levels(full_df$rotational), density == "rt")
+              filter(rotational == full_df$rotational, density == "rt")
           }} else{{
             pred_df <- df %>%
-              filter(rotational == levels(full_df$rotational),  density == levels(full_df$density))
+              filter(rotational == full_df$rotational,  density ==full_df$density)
           }}
 
           erosion <- round(predict(pt_erosion, pred_df),3)
@@ -315,13 +328,13 @@ class PhosphorousLoss(ModelBase):
           density <- factor(dl_erosion$preproc$xlevels$density)
 
           df <- full_df %>%
-            select(c(slope:totalP2O5_lbs)) %>% 
-            slice(rep(1:n(), each=length(density)))
+  select(c(total_DM_lbs:LSsurgo)) %>% 
+  slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(density, df)
 
           pred_df <- df %>%
-            filter(density == levels(full_df$density))
+            filter(density == full_df$density)
 
           erosion <- round(predict(dl_erosion, pred_df),2)
 

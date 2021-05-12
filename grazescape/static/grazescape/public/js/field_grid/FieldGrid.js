@@ -175,6 +175,10 @@ Ext.create('Ext.data.Store', {
 	},{ 
 		value: 'nc',
 		display: 'No Cover'
+	},
+	{
+		value: 'na',
+		display: 'Not Applicable'
 	}]
 });
 
@@ -211,10 +215,10 @@ Ext.create('Ext.data.Store', {
 		value: 'sv',
 		display: 'Spring Vertical'
 	},{ 
-		value: 'smb',
+		value: 'sm',
 		display: 'Spring Moldboard Plow'
 	},{ 
-		value: 'fch',
+		value: 'fc',
 		display: 'Fall Chisel + Disk'
 	},{ 
 		value: 'fm',
