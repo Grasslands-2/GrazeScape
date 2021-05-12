@@ -26,19 +26,19 @@ class GrassYield(ModelBase):
 
                 for x in range(0, self.bounds["x"]):
                     # print(input_raster_dic["elevation"][y])
-                    f.write(str(input_raster_dic["slope_data"].iloc[y][x]) + "," +
+                    f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
                             # raster elevation is in feet so convert to meters
                             # str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
-                            str(input_raster_dic["elevation"].iloc[y][x]) + "," +
-                            str(input_raster_dic["sand"].iloc[y][x]) + "," +
-                            str(input_raster_dic["silt"].iloc[y][x]) + "," +
-                            str(input_raster_dic["clay"].iloc[y][x]) + "," +
-                            str(input_raster_dic["om"].iloc[y][x]) + "," +
-                            str(input_raster_dic["k"].iloc[y][x]) + "," +
-                            str(input_raster_dic["cec"].iloc[y][x]) + "," +
-                            str(input_raster_dic["ph"].iloc[y][x]) + "," +
+                                str(input_raster_dic["elevation"][y][x]) + "," +
+                            str(input_raster_dic["sand"][y][x]) + "," +
+                            str(input_raster_dic["silt"][y][x]) + "," +
+                            str(input_raster_dic["clay"][y][x]) + "," +
+                            str(input_raster_dic["om"][y][x]) + "," +
+                            str(input_raster_dic["k"][y][x]) + "," +
+                            str(input_raster_dic["cec"][y][x]) + "," +
+                            str(input_raster_dic["ph"][y][x]) + "," +
                             # str(.2) + "," +
-                            str(input_raster_dic["total_depth"].iloc[y][x]) + "\n"
+                            str(input_raster_dic["total_depth"][y][x]) + "\n"
                             # str(75) + ", " +
                             # str(.15) + "\n"
                             )
