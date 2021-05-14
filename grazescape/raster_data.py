@@ -33,7 +33,7 @@ class RasterData:
         print(extents)
         # self.data_layer = data_layer
         self.extents = extents
-        self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
+        self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080/geoserver/ows?service=WCS&version=2.0.1&" \
                         "request=GetCoverage&CoverageId="
         self.file_name = str(uuid.uuid4())
         self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs',self.file_name)
