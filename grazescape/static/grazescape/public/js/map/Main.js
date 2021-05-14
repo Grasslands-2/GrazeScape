@@ -7,32 +7,8 @@ DSS.utils.addStyle('path.boundary:hover { fill: #ff00005f; stroke: red;}');
 DSS.utils.addStyle('.layer-menu {margin: 6px;background:rgba(0,0,0,0.4);border-radius: 4px;padding: 0.23rem; color: #27c; font-size: 1.25rem; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.3), 0 0 6px rgba(0,0,0,0.4)}');
 DSS.utils.addStyle('.layer-menu:hover {background:rgba(0,0,0,0.6);color: #48f; text-shadow: 0 2px 2px rgba(0,0,0,0.8), 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.4)}');
 
-DSS['rotationStyles'] = { };
-		
-DSS.fields_1Source
-
 let canvas = document.createElement('canvas');
 let context = canvas.getContext('2d');
-
-/*var pattern;
-var img = new Image();
-img.src = '/static/grazescape/public/images/dry_lot.png'
-
-img.onload = function() {
-	pattern = context.createPattern(img, 'repeat');
-	DSS.layer.fields.push(new ol.layer.Vector({
-		visible: true,
-		//updateWhileAnimating: true,
-		//updateWhileInteracting: true,
-		source:fields_1Source,
-		style: new ol.style.Style({
-            fill: new ol.style.Fill({
-                color: pattern
-            })
-        })
-    }))
-};*/
-
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
@@ -527,9 +503,6 @@ Ext.define('DSS.map.Main', {
 				return defaultFieldStyle
 			}
 		}
-
-		
-
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
