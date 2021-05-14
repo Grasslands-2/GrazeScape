@@ -30,8 +30,8 @@ Ext.define('DSS.state.MapStateTools', {
 		// Full minimal style
 		defaultStyle: new ol.style.Style({
 			fill: new ol.style.Fill({
-//				color: 'rgba(48, 32, 0, 0.45)'
-				color: 'rgba(0, 0, 0, 0.2)'
+				color: 'rgba(48, 32, 0, 1)'
+				//color: 'rgba(0, 0, 0, 0.2)'
 			}),
 			stroke: new ol.style.Stroke({
 				color: 'rgba(255,204,32,0.9)',
@@ -41,13 +41,13 @@ Ext.define('DSS.state.MapStateTools', {
 		// just minimal fill style
 		defaultFill: new ol.style.Style({
 			fill: new ol.style.Fill({
-				color: 'rgba(0, 0, 0, 0.2)'
-//				color: 'rgba(48, 32, 0, 0.33)'
+				//color: 'rgba(0, 0, 0, 0.2)'
+				color: 'rgba(48, 32, 0, 0.33)'
 			})
 		}),
 		baseStroke: new ol.style.Style({
 			stroke: new ol.style.Stroke({
-				color: '#ffcc33',
+				color: '#8a5a20',
 				width: 2
 			})
 		}),
@@ -88,7 +88,13 @@ Ext.define('DSS.state.MapStateTools', {
 				var coordinates = feature.getGeometry().getCoordinates()[0];
 				return new ol.geom.MultiPoint(coordinates);
 			}
-		})
+		}),
+		cashGrainFill: new ol.style.Style({
+			fill: new ol.style.Fill({
+				color: 'rgba(0, 0, 0, 0.2)'
+//				color: 'rgba(48, 32, 0, 0.33)'
+			})
+		}),
 	},
 	
 	// Opacity default: 0.5
