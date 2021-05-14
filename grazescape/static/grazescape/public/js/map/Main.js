@@ -13,6 +13,7 @@ DSS.fields_1Source
 
 let canvas = document.createElement('canvas');
 let context = canvas.getContext('2d');
+
 /*var pattern;
 var img = new Image();
 img.src = '/static/grazescape/public/images/dry_lot.png'
@@ -453,7 +454,7 @@ Ext.define('DSS.map.Main', {
 		})
 
 		//---------------------------------Field layers and style work-------------------------------------
-		
+		//Field Labels layer.  Might be assumed by main field layer at some point.
 		DSS.layer.fieldsLabels = new ol.layer.Vector({
 			minZoom: 14,
 			title: 'fieldsLabels',
@@ -467,34 +468,18 @@ Ext.define('DSS.map.Main', {
 			}
 		})
 		
-		
+		//main field symbology layer. Style calls fieldStyle function
 		DSS.layer.fields_1 = new ol.layer.Vector({
 			title: 'fields_1',
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
-			/*style: function(feature, resolution) {
-				if (DSS.fieldStyleFunction) {
-					return DSS.fieldStyleFunction(feature, resolution);
-				}
-				else defaultFieldStyle.setText(feature.get('field_name'));
-				console.log(feature)
-				defaultFieldStyle.getText().setText(feature.values_.field_name)
-				return defaultFieldStyle;
-			},*/
-			style:
-			fieldStyle
-			//fieldOverlayTestStyle
-			//rotationStyles
+			style:fieldStyle
 			//defaultFieldStyle
-			//createPattern2('C:/Users/zjhas/Documents/GrazeScape/grazescape/static/grazescape/public/images/pasture2.png', 'cso', '#ffcc33')
-				//defaultFieldStyle.getText().setText('hi')
-			
-			//text: fieldLabel.getText().setText('hi there')
 		})
 
-		
+		//final function called in fieldStyle
 		function hatchAssignFieldStyle(png){
 			var hatchPattern = new Image();
 			var pattern;
@@ -511,6 +496,7 @@ Ext.define('DSS.map.Main', {
 				})
 				return fieldHatch
 		};
+		//fieldStyle assigns hatch style based on the fields rotation column value.
 		function fieldStyle(feature){
 			var fieldType = feature.get("rotation");
 			if(fieldType == 'pt-cn' || fieldType == 'pt-rt'){
