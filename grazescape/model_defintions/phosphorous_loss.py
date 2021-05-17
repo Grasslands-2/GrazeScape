@@ -22,7 +22,7 @@ class PhosphorousLoss(ModelBase):
         sand = self.raster_inputs["sand"].flatten()
         silt = self.raster_inputs["silt"].flatten()
         clay = self.raster_inputs["clay"].flatten()
-        k = self.raster_inputs["clay"].flatten()
+        k = self.raster_inputs["k"].flatten()
         om = self.raster_inputs["om"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
         ls = self.raster_inputs["ls"].flatten()
@@ -351,13 +351,11 @@ class PhosphorousLoss(ModelBase):
                 ))
 
         pred = r.get("pi")
-        print(pred)
-        print(type(pred))
+
         results = []
         pred1 = pred.to_numpy()
         for val in pred1:
-            print(val[0])
             results.append(val[0])
-        print(results)
-        return results
+        print(pred1)
+        return pred1
 

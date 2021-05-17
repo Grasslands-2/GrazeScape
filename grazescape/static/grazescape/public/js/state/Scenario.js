@@ -178,14 +178,16 @@ function runFieldUpdate(){
 					manurepercent: fieldArray[i].manuPerc,
 					grass_speciesval: fieldArray[i].grassSpeciesVal,
 					grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
-					grass_specialdisp: fieldArray[i].grassSpeciesDisp,
+//					grass_specialdisp: fieldArray[i].grassSpeciesDisp,
 					interseededclover: fieldArray[i].interseededClover,
 					grazingdensityval: fieldArray[i].grazeDensityVal,
+					grazingdensitydisp: fieldArray[i].grazeDensityDisp,
 					area: fieldArray[i].area,
 					perimeter: fieldArray[i].perimeter,
 					fence_type: fieldArray[i].fence_type,
 					fence_cost: fieldArray[i].fence_cost,
-					fence_unit_cost: fieldArray[i].fence_unit_cost
+					fence_unit_cost: fieldArray[i].fence_unit_cost,
+
 				});
 				wfs_update(feildFeature,'field_1');
 				break;
