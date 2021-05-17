@@ -11,19 +11,20 @@ Ext.define('DSS.map.RotationLayer', {
 		console.log("init rotation layer &&&&&&&&&&&&&&&&&&&777")
 		DSS['rotationStyles'] = { };
 		
-		DSS.layerSource.fields
+		fields_1Source
 		
 		let canvas = document.createElement('canvas');
 		let context = canvas.getContext('2d');
 		
 		let createPattern = function(imgSrc, cropCode, strokeColor) {
+			//console.log('inside createPattern')
 			let img = new Image();
 			img.onload = function() {
 				let pattern = context.createPattern(img, 'repeat');
 				DSS.rotationStyles[cropCode] = new ol.style.Style({
 					stroke: new ol.style.Stroke({
 						color: strokeColor,
-						width: 1
+						width: 5
 					}),
 					fill: new ol.style.Fill({
 						color: pattern
@@ -34,12 +35,16 @@ Ext.define('DSS.map.RotationLayer', {
 			img.src = imgSrc;			
 		};
 		
-		createPattern('/static/grazescape/public/images/dairy_rotation_1.png', 	'D1', '#a19');
-		createPattern('/static/grazescape/public/images/dairy_rotation_2.png', 	'D2', '#319');
-		createPattern('/static/grazescape/public/images/pasture.png', 			'PS', '#380');
-		createPattern('/static/grazescape/public/images/dry_lot.png', 			'DL', '#a11');
-		createPattern('/static/grazescape/public/images/continuous_corn.png',		'CC', '#770');
-		createPattern('/static/grazescape/public/images/cash_grain.png',			'CG', '#079');
+		createPattern('/static/grazescape/public/images/dairy_rotation_1.png', 	'dr', '#a19');
+		createPattern('/static/grazescape/public/images/dairy_rotation_2.png', 	'cso', '#319');
+		createPattern('/static/grazescape/public/images/pasture2.png', 			'ps', '#380');
+		createPattern('/static/grazescape/public/images/pasture.png', 			'pt-rt', '#380');
+		createPattern('/static/grazescape/public/images/pasture.png', 			'pt-cn', '#380');
+		createPattern('/static/grazescape/public/images/dry_lot.png', 			'dl', '#a11');
+		createPattern('/static/grazescape/public/images/continuous_corn.png',		'cc', '#770');
+		createPattern('/static/grazescape/public/images/cash_grain.png',			'cg', '#ffcc33');
+
+		console.log(DSS['rotationStyles']);
 		
 		DSS.layer.cropOverlay = new ol.layer.Vector({
 			visible: DSS.layer['crop:visible'],
