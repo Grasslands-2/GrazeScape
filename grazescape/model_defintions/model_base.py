@@ -41,6 +41,7 @@ class ModelBase:
         self.data_range = []
         self.bounds = {"x": 0, "y": 0}
         self.units = ""
+        self.display_units = ""
         self.no_data = -9999
         self.model_parameters = self.parse_model_parameters(request)
         self.raster_inputs = {}
@@ -94,8 +95,7 @@ class ModelBase:
                                       "grazed_P2O5_lbs": 30},
                          "psnanana": {"Pneeds": 15, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-
-         }
+                         }
 
         parameters = {
             "f_name": request.POST.getlist("model_parameters[f_name]")[0],
@@ -116,7 +116,6 @@ class ModelBase:
         # soil_p, fert, manure
         print(parameters)
 
-
         for val in parameters:
 
             #     convert string numeric values to float
@@ -128,7 +127,6 @@ class ModelBase:
                     parameters[val] = 0
                 else:
                     parameters[val] = "NA"
-
 
         nutrient_key = parameters["crop"] + parameters["crop_cover"] + \
                        parameters["rotation"] + parameters["density"]
@@ -270,19 +268,22 @@ class ModelBase:
         data = np.reshape(data, (bounds["y"], bounds["x"]))
         return data
 
-    def min_max(self, data,no_data_array):
-        min =9000000
+    def min_max(self, data, no_data_array):
+        min = 9000000
         max = self.no_data
+        sum = 0
+        count = 0
         for y in range(0, self.bounds["y"]):
             for x in range(0, self.bounds["x"]):
                 if no_data_array[y][x] != 1:
-                    if data[y][x]>max:
+                    if data[y][x] > max:
                         max = data[y][x]
-                    if data[y][x]<min:
+                    if data[y][x] < min:
                         min = data[y][x]
+                    sum = sum + data[y][x]
+                    count = count + 1
 
-
-        return min, max
+        return min, max, sum/count
 
     def get_model_png(self, data, bounds, no_data_array):
         print(no_data_array)
@@ -296,7 +297,7 @@ class ModelBase:
 
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
-        min_v, max_v = self.min_max(datanm, no_data_array)
+        min_v, max_v, mean = self.min_max(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v)
         for y in range(0, rows):
             for x in range(0, cols):
@@ -319,7 +320,7 @@ class ModelBase:
         print("raster image")
         print(self.raster_image_file_path)
         im.save(self.raster_image_file_path)
-        return color_ramp
+        return float(mean)
 
     def get_legend(self):
         return self.color_ramp_hex, self.data_range

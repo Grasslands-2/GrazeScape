@@ -65,7 +65,10 @@ class RasterData:
             "total_depth": "InputRasters:TC_totaldepth_10m",
             "slope_length": "InputRasters:TC_slopelenusler_10m",
             "awc": "InputRasters:TC_awc_10m",
-            "ls": "InputRasters:LS_10m"
+            "ls": "InputRasters:LS_10m",
+            "corn": "InputRasters:TC_Corn_10m",
+            "soy": "InputRasters:TC_Soy_10m",
+            "wheat": "InputRasters:TC_Wheat_10m"
         }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}

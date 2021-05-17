@@ -10,38 +10,41 @@ class GrassYield(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
         self.model_name = "Grass_pred_noAWC.rds"
-        self.model_file_path = os.path.join( self.model_file_path, self.model_name)
+        self.model_file_path = os.path.join(self.model_file_path,
+                                            self.model_name)
         self.grass_type = self.model_parameters['grass_type']
         self.units = "Dry Mass tons/ac"
+
     # overwriting abstract method
 
     def write_model_input(self, input_raster_dic):
-        print(input_raster_dic["slope_data"])
-        print(input_raster_dic["slope_data"][12])
-        with open(self.model_data_inputs_path, "w") as f:
-            # dummy references to get model to run. Are removed later
-            f.write(
-                "slope,elev,sand,silt,clay,om,ksat,cec,ph,total.depth\n")
-            for y in range(0, self.bounds["y"]):
-
-                for x in range(0, self.bounds["x"]):
-                    # print(input_raster_dic["elevation"][y])
-                    f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
-                            # raster elevation is in feet so convert to meters
-                            # str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
-                                str(input_raster_dic["elevation"][y][x]) + "," +
-                            str(input_raster_dic["sand"][y][x]) + "," +
-                            str(input_raster_dic["silt"][y][x]) + "," +
-                            str(input_raster_dic["clay"][y][x]) + "," +
-                            str(input_raster_dic["om"][y][x]) + "," +
-                            str(input_raster_dic["k"][y][x]) + "," +
-                            str(input_raster_dic["cec"][y][x]) + "," +
-                            str(input_raster_dic["ph"][y][x]) + "," +
-                            # str(.2) + "," +
-                            str(input_raster_dic["total_depth"][y][x]) + "\n"
-                            # str(75) + ", " +
-                            # str(.15) + "\n"
-                            )
+        self.raster_inputs = input_raster_dic
+        # print(input_raster_dic["slope_data"])
+        # print(input_raster_dic["slope_data"][12])
+        # with open(self.model_data_inputs_path, "w") as f:
+        #     # dummy references to get model to run. Are removed later
+        #     f.write(
+        #         "slope,elev,sand,silt,clay,om,ksat,cec,ph,total.depth\n")
+        #     for y in range(0, self.bounds["y"]):
+        #
+        #         for x in range(0, self.bounds["x"]):
+        #             # print(input_raster_dic["elevation"][y])
+        #             f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
+        #                     # raster elevation is in feet so convert to meters
+        #                     # str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
+        #                         str(input_raster_dic["elevation"][y][x]) + "," +
+        #                     str(input_raster_dic["sand"][y][x]) + "," +
+        #                     str(input_raster_dic["silt"][y][x]) + "," +
+        #                     str(input_raster_dic["clay"][y][x]) + "," +
+        #                     str(input_raster_dic["om"][y][x]) + "," +
+        #                     str(input_raster_dic["k"][y][x]) + "," +
+        #                     str(input_raster_dic["cec"][y][x]) + "," +
+        #                     str(input_raster_dic["ph"][y][x]) + "," +
+        #                     # str(.2) + "," +
+        #                     str(input_raster_dic["total_depth"][y][x]) + "\n"
+        # str(75) + ", " +
+        # str(.15) + "\n"
+        # )
 
     def run_model(self):
         # path to R instance
@@ -55,16 +58,45 @@ class GrassYield(ModelBase):
             grass = "Orchardgrass-clover"
         elif 'timothy' in self.model_parameters["grass_type"].lower():
             grass = "Timothy-clover"
-        pred = [1,2,3]
-            # "{}, ".format(grass)
+        pred = [1, 2, 3]
+        # "{}, ".format(grass)
         print("RRRR")
         print(self.model_data_inputs_path)
+
+        slope = self.raster_inputs["slope_data"].flatten()
+        elevation = self.raster_inputs["elevation"].flatten()
+        sand = self.raster_inputs["sand"].flatten()
+        silt = self.raster_inputs["silt"].flatten()
+        clay = self.raster_inputs["clay"].flatten()
+        ksat = self.raster_inputs["ksat"].flatten()
+        cec = self.raster_inputs["cec"].flatten()
+        ph = self.raster_inputs["ph"].flatten()
+        om = self.raster_inputs["om"].flatten()
+        total_depth = self.raster_inputs["total_depth"].flatten()
+
+        r.assign("slope", slope)
+        r.assign("elevation", elevation)
+        r.assign("sand", sand)
+        r.assign("silt", silt)
+        r.assign("clay", clay)
+        r.assign("om", om)
+        r.assign("ksat", ksat)
+        r.assign("cec", cec)
+        r.assign("ph", ph)
+        r.assign("total_depth", total_depth)
+
         print(r("library(randomForest)"))
         print(r("library(dplyr)"))
         print(r("savedRF <- readRDS('" + self.model_file_path + "')"))
-        print(r("new_dat <- read.csv('" + self.model_data_inputs_path + "')"))
-        print(r('cropname <- factor(c("Bluegrass-clover", "Orchardgrass-clover","Timothy-clover"))'))
-        print(r("df_repeated <- new_dat %>% slice(rep(1:n(), each=length(cropname)))"))
+        print(r(
+            "new_dat <- data.frame(slope=slope, elev=elevation, sand=sand, "
+            "silt=silt,   clay=clay,     om=om,   ksat=ksat,    cec=cec,     "
+            "ph=ph,  total.depth=total_depth )"))
+        print(r(
+            'cropname <- factor(c("Bluegrass-clover", "Orchardgrass-clover",'
+            '"Timothy-clover"))'))
+        print(r(
+            "df_repeated <- new_dat %>% slice(rep(1:n(), each=length(cropname)))"))
         print(r("new_df <- cbind(cropname, df_repeated)"))
         print(r("pred_df <- new_df %>% filter(cropname == '" + grass + "')"))
         print(r("pred <- predict(savedRF, pred_df)"))
