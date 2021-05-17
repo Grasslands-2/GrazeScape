@@ -35,6 +35,7 @@ class RasterData:
         self.extents = extents
         self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
+
         self.file_name = str(uuid.uuid4())
         self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs',self.file_name)
         if not os.path.exists(self.dir_path):
