@@ -175,6 +175,9 @@ Ext.create('Ext.data.Store', {
 	},{ 
 		value: 'nc',
 		display: 'No Cover'
+	},{
+		value: 'na',
+		display: 'Not Applicable'
 	}]
 });
 
@@ -210,11 +213,8 @@ Ext.create('Ext.data.Store', {
 	},{ 
 		value: 'sv',
 		display: 'Spring Vertical'
-	},{ 
-		value: 'smb',
-		display: 'Spring Moldboard Plow'
-	},{ 
-		value: 'fch',
+	},{
+		value: 'fc',
 		display: 'Fall Chisel + Disk'
 	},{ 
 		value: 'fm',
@@ -307,6 +307,9 @@ Ext.create('Ext.data.Store', {
 	},{ 
 		value: 'lo',
 		display: 'low'
+	},{
+		value: 'na',
+		display: 'Not Applicable'
 	}]
 });
 //-----------------------------------fieldStore!---------------------------------
