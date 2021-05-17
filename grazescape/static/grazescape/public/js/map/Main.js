@@ -7,6 +7,9 @@ DSS.utils.addStyle('path.boundary:hover { fill: #ff00005f; stroke: red;}');
 DSS.utils.addStyle('.layer-menu {margin: 6px;background:rgba(0,0,0,0.4);border-radius: 4px;padding: 0.23rem; color: #27c; font-size: 1.25rem; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.3), 0 0 6px rgba(0,0,0,0.4)}');
 DSS.utils.addStyle('.layer-menu:hover {background:rgba(0,0,0,0.6);color: #48f; text-shadow: 0 2px 2px rgba(0,0,0,0.8), 1px 0 rgba(0,0,0,0.5), -1px 0 rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.4)}');
 
+let canvas = document.createElement('canvas');
+let context = canvas.getContext('2d');
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
@@ -23,7 +26,7 @@ Ext.define('DSS.map.Main', {
 		'DSS.map.DrawAndModify',
 		'DSS.map.BoxModel',
 		'DSS.map.LayerMenu',
-		'DSS.map.RotationLayer',
+		//'DSS.map.RotationLayer',
 		'DSS.field_grid.FieldGrid',
 		'DSS.infrastructure_grid.InfrastructureGrid'
 	],
@@ -108,6 +111,7 @@ Ext.define('DSS.map.Main', {
 			}
 		});
 	},
+
 	
 	// DefaultVisibility is a boolean...(but stored as a "0" or a "1"
 	// DefaultOpacity is a decimal, e.g. 0.1 (but stored as "0.1")
@@ -281,39 +285,14 @@ Ext.define('DSS.map.Main', {
 		let defaultFieldStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
 				color: 'rgba(255,200,32,0.8)',
-				width: 2
+				width: 5
 			}),
 			fill: new ol.style.Fill({
-				color: 'rgba(0,0,0,0.1)',
+				color: 'rgba(0,0,0,0.5)',
 			}),
 			zIndex: 0
 		});
-		/*let fieldLabel = new ol.style.Style({
-			text: new ol.style.Text({
-				//text: "hi there",
-				font: '12px Calibri,sans-serif',
-				overflow: true,
-				fill: new ol.style.Fill({
-				  color: '#000',
-				}),
-				stroke: new ol.style.Stroke({
-				  color: '#fff',
-				  width: 3,
-				}),
-			  }),
-		})*/
-//		let rotationStyles = { };
-/*		DSS.fieldStyleFunction = function(feature, resolution, defaultStyle) {
-			if (feature && feature.getProperties()) {
-				let rot = feature.getProperties()['rotation']; 
-				if (rot && rotationStyles[rot]) {
-					return rotationStyles[rot];
-				}
-			}
-			return defaultStyle;
-		}
-*/		
-
+		
 		DSS['layerSource'] = {};
 		DSS.layerSource['fields'] = new ol.source.Vector({
 			format: new ol.format.GeoJSON()
@@ -322,7 +301,7 @@ Ext.define('DSS.map.Main', {
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
-			source: DSS.layerSource.fields,
+			source:fields_1Source,
 			style: function(feature, resolution) {
 				
 				if (DSS.fieldStyleFunction) {
@@ -358,19 +337,8 @@ Ext.define('DSS.map.Main', {
 				'srsname=EPSG:3857';
 			},
 		});
-
-
 		var farms_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
-			/*url: function(extent) {
-				return 'http://localhost:8081/geoserver/wfs?'+
-				'service=wfs&'+
-				'?version=2.0.0&'+
-				'request=GetFeature&'+
-				'typeName=Farms:farm_1&' +
-				'outputformat=application/json&'+
-				'srsname=EPSG:3857';
-			},*/
 			url: function(extent) {
 				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 				'service=wfs&'+
@@ -383,15 +351,6 @@ Ext.define('DSS.map.Main', {
 		});
 		var fields_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
-			/*url: function(extent) {
-				return 'http://localhost:8081/geoserver/wfs?'+
-				'service=wfs&'+
-				'?version=2.0.0&'+
-				'request=GetFeature&'+
-				'typeName=Farms:field_1&' +
-				'outputformat=application/json&'+
-				'srsname=EPSG:3857';
-			},*/
 			url: function(extent) {
 				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 				'service=wfs&'+
@@ -402,6 +361,7 @@ Ext.define('DSS.map.Main', {
 				'srsname=EPSG:3857';
 			},
 		});
+		//-------------------------------------Field layover and style------------------------
 
 		//------------------------------------infra styles and layer-----------------------
 		var fenceStyle = new ol.style.Style({
@@ -452,7 +412,7 @@ Ext.define('DSS.map.Main', {
 			source: infrastructure_Source,
 			style: infraStyle		
 		});
-		
+		//-------------------------------------------------------------------------
 		DSS.layer.farms_1 = new ol.layer.Vector({
 			title: 'farms_1',
 			visible: true,
@@ -468,6 +428,9 @@ Ext.define('DSS.map.Main', {
 				return me.DSS_zoomStyles['style' + r];
 			}
 		})
+
+		//---------------------------------Field layers and style work-------------------------------------
+		//Field Labels layer.  Might be assumed by main field layer at some point.
 		DSS.layer.fieldsLabels = new ol.layer.Vector({
 			minZoom: 14,
 			title: 'fieldsLabels',
@@ -480,28 +443,66 @@ Ext.define('DSS.map.Main', {
 				return fieldLabel;
 			}
 		})
+		
+		//main field symbology layer. Style calls fieldStyle function
 		DSS.layer.fields_1 = new ol.layer.Vector({
 			title: 'fields_1',
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
-			style: function(feature, resolution) {
-				if (DSS.fieldStyleFunction) {
-					return DSS.fieldStyleFunction(feature, resolution);
-				}
-				else //defaultFieldStyle.setText(feature.get('field_name'));
-				//console.log(feature)
-				//defaultFieldStyle.getText().setText(feature.values_.field_name)
-				return defaultFieldStyle;
-			},
-			//style: 
-				//defaultFieldStyle
-				//defaultFieldStyle.getText().setText('hi')
-			
-			//text: fieldLabel.getText().setText('hi there')
+			style:fieldStyle
+			//defaultFieldStyle
 		})
 
+		//final function called in fieldStyle
+		function hatchAssignFieldStyle(png){
+			var hatchPattern = new Image();
+			var pattern;
+			hatchPattern.src = '/static/grazescape/public/images/'+png
+			pattern = context.createPattern(hatchPattern, 'repeat');
+			//hatchPattern.onload = function() {
+				var fieldHatch = new ol.style.Style({
+					stroke: new ol.style.Stroke({
+						color: '#994f00',
+						width: 2}),
+					fill: new ol.style.Fill({
+						color: pattern
+					})
+				})
+				return fieldHatch
+		};
+		//fieldStyle assigns hatch style based on the fields rotation column value.
+		function fieldStyle(feature){
+			var fieldType = feature.get("rotation");
+			if(fieldType == 'pt-cn' || fieldType == 'pt-rt'){
+				return hatchAssignFieldStyle('pasture.png')
+			}
+			else if(fieldType == 'ps'){
+				return hatchAssignFieldStyle('pasture2.png')
+			}
+			else if(fieldType == 'ps'){
+				return hatchAssignFieldStyle('pasture2.png')
+			}
+			else if(fieldType == 'dl'){
+				return hatchAssignFieldStyle('dry_lot.png')
+			}
+			else if(fieldType == 'cc'){
+				return hatchAssignFieldStyle('continuous_corn.png')
+			}
+			else if(fieldType == 'cg'){
+				return hatchAssignFieldStyle('cash_grain.png')
+			}
+			else if(fieldType == 'dr'){
+				return hatchAssignFieldStyle('dairy_rotation_1.png')
+			}
+			else if(fieldType == 'cso'){
+				return hatchAssignFieldStyle('dairy_rotation_2.png')
+			}
+			else{
+				return defaultFieldStyle
+			}
+		}
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
