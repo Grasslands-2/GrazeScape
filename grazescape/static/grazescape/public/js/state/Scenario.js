@@ -160,6 +160,7 @@ function runFieldUpdate(){
 		console.log("from fields_1 loop through: " + feildFeature.id_);
 		for (i in fieldArray){
 			console.log("Fieldarray id: " +fieldArray[i].id);
+			console.log(fieldArray[i]);
 			if(fieldArray[i].id === feildFeature.id_){
 				console.log(fieldArray[i].name);
 				feildFeature.setProperties({
@@ -177,13 +178,16 @@ function runFieldUpdate(){
 					manurepercent: fieldArray[i].manuPerc,
 					grass_speciesval: fieldArray[i].grassSpeciesVal,
 					grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
+//					grass_specialdisp: fieldArray[i].grassSpeciesDisp,
 					interseededclover: fieldArray[i].interseededClover,
 					grazingdensityval: fieldArray[i].grazeDensityVal,
+					grazingdensitydisp: fieldArray[i].grazeDensityDisp,
 					area: fieldArray[i].area,
 					perimeter: fieldArray[i].perimeter,
 					fence_type: fieldArray[i].fence_type,
 					fence_cost: fieldArray[i].fence_cost,
-					fence_unit_cost: fieldArray[i].fence_unit_cost
+					fence_unit_cost: fieldArray[i].fence_unit_cost,
+
 				});
 				wfs_update(feildFeature,'field_1');
 				break;

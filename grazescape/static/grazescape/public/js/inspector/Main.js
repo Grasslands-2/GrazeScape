@@ -183,15 +183,15 @@ Ext.define('DSS.inspector.Main', {
         console.log(extents)
 		let me = this;
 		// TODO: busy feedback
-		if (me.DSS_isWorking) {
-			DSS_RefilterDelayed(250);
-			return;
-		}
+//		if (me.DSS_isWorking) {
+//			DSS_RefilterDelayed(250);
+//			return;
+//		}
 		
-		if (!extents) {
-			extents = me.DSS_extents;
-		}
-		
+//		if (!extents) {
+//			extents = me.DSS_extents;
+//		}
+//
 		if (!extents) {
 			console.log("Compute results called but no extent set");
 			return;

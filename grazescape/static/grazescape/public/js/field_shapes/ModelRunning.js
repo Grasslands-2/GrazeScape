@@ -80,34 +80,43 @@ function runModels(layer,modelChoice) {
         }
         extentsArray.push(model_para)
 	})
-	//function inside of callmodelrun that actually calls computeresults on each field
-	const callModelRun = (extent,runningLayer) => {
-        console.log("Runing model in model running!!!!!!!!!!!!!!!!!!!!!!!!!")
-		DSS.Inspector.computeResults(extent,runningLayer);
-		return new Promise((resolve) => {
-			setTimeout(() => {
-				resolve();
-				//find way to get this to actually wait for models to complete,
-				//not just 3 seconds
-			}, 3000);
-	  	});
-	}
-	
-	const startTime = Date.now();
-	//Sets up each callModelRun to run after each promise is resolved. IOW, makes them run one at a time.
-	const doNextPromise = (z) => {
-		runningLayers = [DSS.layer.ModelResult_field1,DSS.layer.ModelResult_field2,DSS.layer.ModelResult_field3]
-		
-		callModelRun(extentsArray[z],runningLayers[z]).then(x => {
-			console.log("just ran this extent: " + extentsArray[z]);
-			z++;
-			if(z < extentsArray.length){
-			doNextPromise(z)}
-			else 
-				console.log("DONE IN MODEL RUNNING!")	
-		})
-	}
-	doNextPromise(0);
+	extentsArray.forEach(myFunction);
+////
+	function myFunction(item,index) {
+        runningLayers = [DSS.layer.ModelResult_field1,DSS.layer.ModelResult_field2,DSS.layer.ModelResult_field3]
+
+      DSS.Inspector.computeResults(item,runningLayers[index]);
+    }
+//     DSS.Inspector.computeResults(extentsArray[1],runningLayers[1]);
+
+//	//function inside of callmodelrun that actually calls computeresults on each field
+//	const callModelRun = (extent,runningLayer) => {
+//        console.log("Runing model in model running!!!!!!!!!!!!!!!!!!!!!!!!!")
+//		DSS.Inspector.computeResults(extent,runningLayer);
+//		return new Promise((resolve) => {
+//			setTimeout(() => {
+//				resolve();
+//				//find way to get this to actually wait for models to complete,
+//				//not just 3 seconds
+//			}, 3000);
+//	  	});
+//	}
+//
+//	const startTime = Date.now();
+//	//Sets up each callModelRun to run after each promise is resolved. IOW, makes them run one at a time.
+//	const doNextPromise = (z) => {
+//		runningLayers = [DSS.layer.ModelResult_field1,DSS.layer.ModelResult_field2,DSS.layer.ModelResult_field3]
+//
+//		callModelRun(extentsArray[z],runningLayers[z]).then(x => {
+//			console.log("just ran this extent: " + extentsArray[z]);
+//			z++;
+//			if(z < extentsArray.length){
+//			doNextPromise(z)}
+//			else
+//				console.log("DONE IN MODEL RUNNING!")
+//		})
+//	}
+//	doNextPromise(0);
 }
 
 

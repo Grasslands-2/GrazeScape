@@ -110,9 +110,9 @@ def get_model_results(request):
     model.write_model_input(clipped_rasters)
     print("Running model")
     results = model.run_model()
-    avg = model.aggregate(results)
+    # avg = model.aggregate(results)
     print("Creating png")
-    color_ramp = model.get_model_png(results, geo_data.bounds)
+    avg = model.get_model_png(results, geo_data.bounds, geo_data.no_data_aray)
     # for cat in color_ramp:
     #     values.append(cat[1])
     print(model.file_name)
@@ -124,7 +124,7 @@ def get_model_results(request):
         "palette": palette,
         "url": model.file_name + ".png",
         "values": values,
-        "avg": 5,
+        "avg": avg,
         "units": model.get_units()
     }
     print(data)
