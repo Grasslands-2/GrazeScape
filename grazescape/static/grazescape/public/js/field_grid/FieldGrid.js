@@ -53,9 +53,9 @@ function getWFSfields() {
 				storeId: 'fieldStore1',
 				alternateClassName: 'DSS.FieldStore',
 				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
-					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
+					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover', 'grassRotation',
 					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp', 'area', 'perimeter','fence_type',
+					'grazeDairyNonLactating', 'grazeBeefCattle', 'area', 'perimeter','fence_type',
 					'fence_cost', 'fence_unit_cost'],
 				data: fieldArray
 			});
@@ -90,11 +90,10 @@ function popFieldsArray(obj) {
 		onContour: obj[i].properties.on_contour,
 		fertPerc:obj[i].properties.fertilizerpercent,
 		manuPerc:obj[i].properties.manurepercent,
-		//animalsVal:obj[i].properties.animalsval,
-		//animalsDisp:obj[i].properties.animalsdisp,
 		grassSpeciesVal:obj[i].properties.grass_speciesval,
 		grassSpeciesDisp:obj[i].properties.grass_speciesdisp,
-		interseededClover: obj[i].properties.interseededclover,
+		interseededClover: obj[i].properties.interseeded_clover,
+		grassRotation: obj[i].properties.grass_rotation,
 		grazeDensityVal:obj[i].properties.grazingdensityval,
 		grazeDensityDisp:obj[i].properties.grazingdensitydisp,
 		manurePastures: obj[i].properties.spread_confined_manure_on_pastures,
@@ -316,10 +315,11 @@ Ext.create('Ext.data.Store', {
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
 	alternateClassName: 'DSS.FieldStore',
-	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
-		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
-		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp','area', 'perimeter','fence_type',
+	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
+	'tillageDisp', 'coverCropDisp', 'coverCropVal',
+		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp',
+		'interseededClover','grassRotation','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
         'fence_cost','fence_unit_cost'],
 	data: fieldArray
 });
@@ -541,37 +541,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
-		let animalColumn = {
-			xtype: 'widgetcolumn',
-			editor: {}, // workaround for exception
-			text: 'Animals', dataIndex: 'animals', width: 200, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
-			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('coverCropVal') == 'cc' || rec.get('coverCropVal') == 'nc') {
-					widget.setDisabled(true);
-				}
-				 else {
-					widget.setDisabled(false);
-				}
-			},
-			widget: {
-				xtype: 'combobox',
-				queryMode: 'local',
-				store: 'coverCrop',
-				displayField: 'display',
-				valueField: 'value',
-				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
-				listeners:{
-					select: function(combo, value, eOpts){
-						var record = combo.getWidgetRecord();
-						record.set('animalVal', value.get('value'));
-						record.set('animalDisp', value.get('display'));
-						me.getView().refresh();
-					}
-				}
-			}
-		};
-		//------------------------------------------------------------------------------
 		//Turn on for pasture only
 		let grazeDairyLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, 
@@ -634,7 +603,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let grazeDensityColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			text: 'Animal Density', dataIndex: 'grazingDensity', width: 200, 
+			text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 
@@ -676,7 +645,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor: 'textfield', text: 'Fence Type', dataIndex: 'fence_type', width: 120,
 			draggable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-
 		};
         let fence_cost_Column = {
 			xtype: 'numbercolumn', format: '0.00',editor: {
@@ -704,13 +672,13 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				onContourColumn,
 				fertPerc_Column,
 				manuPerc_Column,
-				//animalColumn,
+				grassRotationColumn,
 				grazeDairyLactating,
 				grazeDairyNonLactating,
 				grazeBeefCattle,
 				grassSpeciesColumn,
 				interseededCloverColumn,
-				//canManurePastures,
+				canManurePastures,
 				grazeDensityColumn,
 				area_Column,
 				perimeter_Column,
