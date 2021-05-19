@@ -276,7 +276,7 @@ Ext.define('DSS.map.Main', {
 				}),
 				stroke: new ol.style.Stroke({
 				  color: '#fff',
-				  width: 3,
+				  width: 2,
 				}),
 			  }),
 			zIndex: 0
@@ -465,7 +465,7 @@ Ext.define('DSS.map.Main', {
 				var fieldHatch = new ol.style.Style({
 					stroke: new ol.style.Stroke({
 						color: '#994f00',
-						width: 2}),
+						width: 1}),
 					fill: new ol.style.Fill({
 						color: pattern
 					})

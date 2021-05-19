@@ -33,7 +33,7 @@ class ModelBase:
                                                    'raster_outputs',
                                                    file_name + ".png")
 
-        self.r_file_path = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+        self.r_file_path = "C://Program Files/R/R-4.0.4/bin/x64/R.exe"
         self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
                                             'data_files', 'input_models',
                                             'tidyModels')
