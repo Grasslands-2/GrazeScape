@@ -141,7 +141,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			spread_confined_manure_on_pastures: false,
 			on_contour: false,
 			interseeded_clover: false,
-			grass_rotation:false
+			pasture_grazing_rot_cont:false
 		})
 		var geomType = 'polygon'
 		

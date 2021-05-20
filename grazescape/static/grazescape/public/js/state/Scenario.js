@@ -179,7 +179,6 @@ function runFieldUpdate(){
 					grass_speciesval: fieldArray[i].grassSpeciesVal,
 					grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
 					interseeded_clover: fieldArray[i].interseededClover,
-					grass_rotation: fieldArray[i].grassRotation,
 					grazingdensityval: fieldArray[i].grazeDensityVal,
 					grazingdensitydisp: fieldArray[i].grazeDensityDisp,
 					spread_confined_manure_on_pastures: fieldArray[i].manurePastures,
