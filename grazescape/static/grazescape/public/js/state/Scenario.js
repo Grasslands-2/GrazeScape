@@ -363,21 +363,30 @@ Ext.define('DSS.state.Scenario', {
 						}
 						DSS.dialogs.AnimalDialog.show().center().setY(0);
 					}
-				},{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Fencing Calculator',
-					handler: function(self) {
-						if (!DSS.dialogs) DSS.dialogs = {};
-						if (!DSS.dialogs.PerimeterDialog) {
-							DSS.dialogs.PerimeterDialog = Ext.create('DSS.state.scenario.PerimeterDialog');
-							DSS.dialogs.PerimeterDialog.setViewModel(DSS.viewModel.scenario);
-
-						}
-						DSS.dialogs.PerimeterDialog.show().center().setY(0);
-					}
-				},{//------------------------------------------
+				},
+//				{
+//					xtype: 'button',
+//					cls: 'button-text-pad',
+//					componentCls: 'button-margin',
+//					text: 'Fencing Calculator',
+//					handler: function(self) {
+////						if (!DSS.dialogs) DSS.dialogs = {};
+////						if (!DSS.dialogs.PerimeterDialog) {
+////							DSS.dialogs.PerimeterDialog = Ext.create('DSS.state.scenario.PerimeterDialog');
+////							DSS.dialogs.PerimeterDialog.setViewModel(DSS.viewModel.scenario);
+////
+////						}
+////						DSS.dialogs.PerimeterDialog.show().center().setY(0);
+//                        if (!DSS.dialogs) DSS.dialogs = {};
+//                                if (!DSS.dialogs.PerimeterDialog) {
+//                                    DSS.dialogs.PerimeterDialog = Ext.create('DSS.results.Dashboard11');
+//                                    DSS.dialogs.PerimeterDialog.setViewModel(DSS.viewModel.scenario);
+//
+//                                }
+//                                DSS.dialogs.PerimeterDialog.show().center().setY(0);
+//					}
+//				}
+				,{//------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Assign crops and nutrients'

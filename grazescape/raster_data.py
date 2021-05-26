@@ -69,7 +69,7 @@ class RasterData:
             "ls": "InputRasters:LS_10m",
             "corn": "InputRasters:TC_Corn_10m",
             "soy": "InputRasters:TC_Soy_10m",
-            "wheat": "InputRasters:TC_Wheat_10m"
+            # "wheat": "InputRasters:TC_Wheat_10m"
         }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}

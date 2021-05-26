@@ -8,7 +8,6 @@ from django.core.files import File
 from django.conf import settings
 import os
 # Create your views here.
-import grazescape.raster_data_local as rd
 from grazescape.raster_data import RasterData
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
@@ -64,11 +63,18 @@ def chart(request):
 @ensure_csrf_cookie
 def get_model_results(request):
     global raster_data
-    print("running model")
-    extents = request.POST.getlist('extents[]')
     print(request.POST)
+    field_coors = []
+    # format field geometry
+    for input in request.POST:
+        if "field_coors" in input:
+            field_coors.append(request.POST.getlist(input))
+    geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"))
+    geo_data.load_layers()
+    geo_data.create_clip(field_coors)
+    clipped_rasters, bounds = geo_data.clip_raster()
+
     model_type = request.POST.get('model_parameters[model_type]')
-    values = []
     if model_type == 'grass':
         print("grass")
         if request.POST.getlist('model_parameters[grass_type]')[0].lower() != "":
@@ -81,57 +87,38 @@ def get_model_results(request):
         model = Erosion(request)
     elif model_type == 'crop':
         print("crop")
-        if request.POST.getlist('model_parameters[crop]')[0] == 'corn':
-            print("corn")
-            model = CropYield(request, "corn_output")
+        model = CropYield(request)
     else:
         model = GenericModel(request, model_type)
 
-    field_coors = []
-    # format field geometry
-    for input in request.POST:
-        if "field_coors" in input:
-            field_coors.append(request.POST.getlist(input))
-    geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"))
-    geo_data.load_layers()
-    geo_data.create_clip(field_coors)
-    clipped_rasters, bounds = geo_data.clip_raster()
-
     model.bounds["x"] = geo_data.bounds["x"]
     model.bounds["y"] = geo_data.bounds["y"]
-    # print("Calculating Extents")
-    # extents, rounded_extents = model.to_raster_space(extents)
-    # print("Clipping Extents")
-    # clipped_rasters, bounds = model.clip_input(extents, raster_data.get_raster_data())
-
-
 
     print("Preparing model input")
-    model.write_model_input(clipped_rasters)
+    model.raster_inputs = clipped_rasters
     print("Running model")
+    # TODO once we have more complex models with dependencies we will probably need
+    # loop here to build a response for all the model types
     results = model.run_model()
-    # avg = model.aggregate(results)
-    print("Creating png")
-    avg = model.get_model_png(results, geo_data.bounds, geo_data.no_data_aray)
-    # for cat in color_ramp:
-    #     values.append(cat[1])
-    print(model.file_name)
-    palette, values = model.get_legend()
-    data = {
-        # "extent": rounded_extents,
-        "extent": [*bounds],
-        "model-results": "None",
-        "palette": palette,
-        "url": model.file_name + ".png",
-        "values": values,
-        "avg": avg,
-        "units": model.get_units()
-    }
-    print(data)
-
-
-    print("Displaying model")
-    return JsonResponse(data)
+    # result will be a OutputDataNode
+    return_data = []
+    for result in results:
+        print("Creating png for ", result.get_model_type())
+        avg = model.get_model_png(result.get_data_display(), geo_data.bounds, geo_data.no_data_aray)
+        palette, values = model.get_legend()
+        data = {
+            "extent": [*bounds],
+            "palette": palette,
+            "url": model.file_name + ".png",
+            "values": values,
+            "avg": avg,
+            "units": model.get_units(),
+            "model_type": result.get_model_type()
+        }
+        return_data.append(data)
+    print("compiled model data")
+    print(return_data)
+    return JsonResponse(return_data, safe=False)
 
 def get_image(response):
     print(response.GET.get('file_name'))

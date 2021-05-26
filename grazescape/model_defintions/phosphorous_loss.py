@@ -1,6 +1,6 @@
 from abc import ABC
 
-from grazescape.model_defintions.model_base import ModelBase
+from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 from pyper import *
 
 
@@ -8,10 +8,6 @@ class PhosphorousLoss(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
         self.units = "PI"
-
-    def write_model_input(self, input_raster_dic):
-        self.raster_inputs = input_raster_dic
-        return
 
     def run_model(self):
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
@@ -349,13 +345,12 @@ class PhosphorousLoss(ModelBase):
 
           """
                 ))
+        erosion = OutputDataNode("Erosion", "tons of soil / acre")
+        pl = OutputDataNode("Ploss", "PI")
 
-        pred = r.get("pi")
-
+        erosion.set_display_data(r.get("erosion").to_numpy())
+        pl.set_display_data(r.get("pi").to_numpy())
         results = []
-        pred1 = pred.to_numpy()
-        for val in pred1:
-            results.append(val[0])
-        print(pred1)
-        return pred1
+        # pred1 = pred.to_numpy()
+        return [erosion, pl]
 

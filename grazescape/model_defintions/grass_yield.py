@@ -1,6 +1,6 @@
 from abc import ABC
 
-from grazescape.model_defintions.model_base import ModelBase
+from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 from pyper import R
 from django.conf import settings
 import os
@@ -13,38 +13,8 @@ class GrassYield(ModelBase):
         self.model_file_path = os.path.join(self.model_file_path,
                                             self.model_name)
         self.grass_type = self.model_parameters['grass_type']
-        self.units = "Dry Mass tons/ac"
-
-    # overwriting abstract method
-
-    def write_model_input(self, input_raster_dic):
-        self.raster_inputs = input_raster_dic
-        # print(input_raster_dic["slope_data"])
-        # print(input_raster_dic["slope_data"][12])
-        # with open(self.model_data_inputs_path, "w") as f:
-        #     # dummy references to get model to run. Are removed later
-        #     f.write(
-        #         "slope,elev,sand,silt,clay,om,ksat,cec,ph,total.depth\n")
-        #     for y in range(0, self.bounds["y"]):
-        #
-        #         for x in range(0, self.bounds["x"]):
-        #             # print(input_raster_dic["elevation"][y])
-        #             f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
-        #                     # raster elevation is in feet so convert to meters
-        #                     # str(input_raster_dic["elevation"][y][x] * 0.3048) + "," +
-        #                         str(input_raster_dic["elevation"][y][x]) + "," +
-        #                     str(input_raster_dic["sand"][y][x]) + "," +
-        #                     str(input_raster_dic["silt"][y][x]) + "," +
-        #                     str(input_raster_dic["clay"][y][x]) + "," +
-        #                     str(input_raster_dic["om"][y][x]) + "," +
-        #                     str(input_raster_dic["k"][y][x]) + "," +
-        #                     str(input_raster_dic["cec"][y][x]) + "," +
-        #                     str(input_raster_dic["ph"][y][x]) + "," +
-        #                     # str(.2) + "," +
-        #                     str(input_raster_dic["total_depth"][y][x]) + "\n"
-        # str(75) + ", " +
-        # str(.15) + "\n"
-        # )
+        # self.units = "Dry Mass tons/ac"
+        self.units = "kg-Dry Matter/ha"
 
     def run_model(self):
         # path to R instance
@@ -103,10 +73,10 @@ class GrassYield(ModelBase):
         pred = r.get("pred")
         print("Model Results")
         print(pred)
+        # convert from tons/ac to kg/he
+        pred = pred * 2000 * .453592
+        print(pred)
+        grass_yield = OutputDataNode("Grass", "kg-Dry Matter/ha")
+        grass_yield.set_display_data(pred)
         # Remove the three dummy references
-        return pred
-
-
-if __name__ == '__main__':
-    model = GrassYield()
-    print(model.get_file_name())
+        return [grass_yield]

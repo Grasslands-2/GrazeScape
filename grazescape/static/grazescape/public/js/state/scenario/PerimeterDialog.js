@@ -146,6 +146,10 @@ Ext.define('DSS.state.scenario.PerimeterDialog', {
 			me.center();
 		})
 	},
+	test_per: function(){
+	    console.log("hello")
+	}
+
 
 });
 
