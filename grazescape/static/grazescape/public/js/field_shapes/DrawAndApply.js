@@ -125,6 +125,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			owner_id: af,
 			field_name: field_nameInput,
 			soil_p: soil_pInput,
+			om: 10,
 			rotation: crop,
 			rotation_disp: cropDisp,
 			graze_beef_cattle: beef,
@@ -132,7 +133,15 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			graze_dairy_non_lactating: non_lac,
 			tillage: tillageInput,
 			tillage_disp:tillageDisp,
-			on_contour: false
+			rotational_density:0,
+			area:0,
+			perimeter:0,
+			fertilizerpercent:0,
+			manurepercent:0,
+			spread_confined_manure_on_pastures: false,
+			on_contour: false,
+			interseeded_clover: false,
+			pasture_grazing_rot_cont:false
 		})
 		var geomType = 'polygon'
 		

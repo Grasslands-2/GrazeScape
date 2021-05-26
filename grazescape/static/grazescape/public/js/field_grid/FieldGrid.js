@@ -6,14 +6,7 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 var fieldArray = [];
 var fieldObj = {};
 
-var fieldUrl = /*'http://localhost:8081/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=Farms:field_1&' +
-'outputformat=application/json&'+
-'srsname=EPSG:3857'*/
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+var fieldUrl ='http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -30,6 +23,7 @@ var fields_1Layer = new ol.layer.Vector({
 	source: fields_1Source
 })
 console.log(fields_1Layer)
+
 
 function getWFSfields() {
     console.log("getting wfs fields")
@@ -53,10 +47,9 @@ function getWFSfields() {
 				storeId: 'fieldStore1',
 				alternateClassName: 'DSS.FieldStore',
 				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
-					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
+					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover', 'pastureGrazingRotCont',
 					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-					'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp', 'area', 'perimeter','fence_type',
-					'fence_cost', 'fence_unit_cost'],
+					'grazeDairyNonLactating', 'grazeBeefCattle', 'area', 'perimeter'],
 				data: fieldArray
 			});
 			//Setting store to just declared store fieldStore1, and reloading the store to the grid
@@ -72,8 +65,16 @@ function getWFSfields() {
 
 function popFieldsArray(obj) {
 	//console.log('hi from popFieldsArray')
-
+	//var tillageStore;
 	for (i in obj)
+		/*if (obj[i].properties.rotation == 'cc' || obj[i].properties.rotation == 'cg')
+		{
+			tillageStore ='tillageList_cashCrop'
+		}
+		else
+		{
+			tillageStore ='tillageList'
+		}*/
 	//console.log(i);
 	fieldArray.push({
 		id: obj[i].id,
@@ -90,11 +91,9 @@ function popFieldsArray(obj) {
 		onContour: obj[i].properties.on_contour,
 		fertPerc:obj[i].properties.fertilizerpercent,
 		manuPerc:obj[i].properties.manurepercent,
-		//animalsVal:obj[i].properties.animalsval,
-		//animalsDisp:obj[i].properties.animalsdisp,
 		grassSpeciesVal:obj[i].properties.grass_speciesval,
 		grassSpeciesDisp:obj[i].properties.grass_speciesdisp,
-		interseededClover: obj[i].properties.interseededclover,
+		interseededClover: obj[i].properties.interseeded_clover,
 		grazeDensityVal:obj[i].properties.grazingdensityval,
 		grazeDensityDisp:obj[i].properties.grazingdensitydisp,
 		manurePastures: obj[i].properties.spread_confined_manure_on_pastures,
@@ -107,9 +106,8 @@ function popFieldsArray(obj) {
         fence_cost: obj[i].properties.fence_cost,
         fence_unit_cost:obj[i].properties.fence_unit_cost
 	});
-	//DSS.field_grid.FieldGrid.store.reload(fieldArray);
 }
-console.log(fieldArray);
+
 
 //empty array to catch feature objects 
 function gatherTableData() {
@@ -128,7 +126,6 @@ function gatherTableData() {
 	console.log("gatherTableData ran");
 	console.log(fieldArray);
 };
-//console.log(fieldArray);
 
 Ext.create('Ext.data.Store', {
 	storeId: 'rotationList',
@@ -316,10 +313,11 @@ Ext.create('Ext.data.Store', {
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
 	alternateClassName: 'DSS.FieldStore',
-	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
-		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover',
-		'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-		'grazeDairyNonLactating', 'grazeBeefCattle','grassVal', 'grassDisp','area', 'perimeter','fence_type',
+	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
+	'tillageDisp', 'coverCropDisp', 'coverCropVal',
+		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp',
+		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
         'fence_cost','fence_unit_cost'],
 	data: fieldArray
 });
@@ -444,17 +442,46 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Tillage', dataIndex: 'tillageDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
+				//console.log(rec)
+				//widget turned off
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
-				}else {
+					//widget.setStore('tillageList')
+				}
+				//tillage options for new pasture
+				else if(rec.get('rotationVal') == 'ps'){
 					widget.setDisabled(false);
+					widget.setStore('tillageList_newPasture')
+				}
+				//widget gets grazing store options
+				else if ((rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') && (rec.get('coverCropVal') == 'gcis' || rec.get('coverCropVal') == 'gcds')) {
+					widget.setDisabled(false);
+					widget.setStore('tillageList_crop_grazing')
+				}
+				//widget gets cashcrop options
+				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg') && rec.get('coverCropVal') == 'cc'){
+					widget.setDisabled(false);
+					widget.setStore('tillageList_cashCrop')
+				}
+				//widget gets grazing options for cash crop rotations
+				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') && (rec.get('coverCropVal') == 'nc' || rec.get('coverCropVal') == 'na' || rec.get('coverCropVal') == null)){
+					widget.setDisabled(false);
+					widget.setStore('tillageList_crop_grazing')
+				}
+				//cash grain tillage options
+				else if((rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') && rec.get('coverCropVal') == 'cc'){
+					widget.setDisabled(false);
+					widget.setStore('tillageList_cashCrop')
+				}
+				else {
+					widget.setDisabled(false);
+					widget.setStore('tillageList')
 				}
 			},
-			//working on making this having different tillage options available from the launch of the grid.  currently user has to click on and off to show new options.
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
-				store: 'tillageList',
+				//store: getTillageListStore('ps'),
 				displayField: 'display',
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
@@ -463,137 +490,99 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('tillageVal', value.get('value'));
 						record.set('tillageDisp', value.get('display'));
-						//console.log(record.get('rotationVal'));
-//**If crop rotation is cont corn, or cash grains
-//**and coverage is small grain, tillage can only be spring cult, spring chisel no disk or no till.
-
-//**If no any of the pastures or dry lot and cover crop is one of graze options.
-//**then tillage can be no till, spring cult, or spring chisel + disk
-
-//**for any crop rotations besides pasture, new pasturem or dry lot. and no cover crop
-//**tillage options include: fall chisel disk, fall moldboard plow, no till, spring chisel no disk, spring vertical, spring cult.
-
-//**if crop rotation corn silage to alfalfa, or corn silage to sb to oats. and cover crop is small grain,
-//**tillage optoins: no till, spring chisel plus disk, spring cult
-
-//**if crop rotation new pasture, tillage options: fall chisel disk, fall moldboard plow, no till, spring chisel disk, spring chisel no disk, spring cult.
-//come back too.  none critical at this point. VALUE IS THE CURRENT TABLE VALUE. RECORD IS WHAT IS COMING FROM FIELD ARRAY
-//Think I just figured it out. had to move the record.set blocks up above the ifs...check in the morning.
-						/*
-						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg') && record.get('coverCropVal') == 'cc');
-						{
-							combo.setStore('tillageList_cashCrop');
-						}
-						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && record.get('coverCropVal') == 'nc' );
-						{
-							combo.setStore('tillageList_noCoverCrop');
-						}
-						if ((record.get('rotationVal') == 'cc' || record.get('rotationVal') == 'cg' || record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso') && (record.get('coverCropVal') == 'gcis' || record.get('coverCropVal') == 'gcds'));
-						{
-							combo.setStore('tillageList_crop_grazing');
-						}
-						if ((record.get('rotationVal') == 'dr' || record.get('rotationVal') == 'cso' ) && record.get('coverCropVal') == 'cc');
-						{
-							combo.setStore('tillageList_crop_grazing');
-						}
-						if (record.get('rotationVal') == 'ps');
-						{
-							combo.setStore('tillageList_newPasture');
-						}*/
-					}
-				}
-			}
-		};
-		//------------------------------------------------------------------------------
-		//still need to find a way to turn off on contour for dry lot and pasture crop rotations
-		let onContourColumn = {
-			xtype: 'checkcolumn', text: 'On<br>Contour', dataIndex: 'onContour', width: 80, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-			/*renderer: function (value, meta,rec) {
-
-				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
-					meta['tdCls'] = 'x-item-disabled';
-				} else {
-					meta['tdCls'] = '';
-				}
-				//return new Ext.ux.CheckColumn().renderer(value);
-			},
-			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt' || rec.get('rotationVal') == 'dl') {
-					widget.setDisabled(true);
-				} else {
-					widget.setDisabled(false);
-				}
-			},*/
-		};
-		//------------------------------------------------------------------------------
-		let fertPerc_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Percent<br>Fertilizer', dataIndex: 'fertPerc', width: 80, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-		};
-		//------------------------------------------------------------------------------
-		let manuPerc_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-		};
-		//------------------------------------------------------------------------------
-		let animalColumn = {
-			xtype: 'widgetcolumn',
-			editor: {}, // workaround for exception
-			text: 'Animals', dataIndex: 'animals', width: 200, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
-			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('coverCropVal') == 'cc' || rec.get('coverCropVal') == 'nc') {
-					widget.setDisabled(true);
-				}
-				 else {
-					widget.setDisabled(false);
-				}
-			},
-			widget: {
-				xtype: 'combobox',
-				queryMode: 'local',
-				store: 'coverCrop',
-				displayField: 'display',
-				valueField: 'value',
-				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
-				listeners:{
-					select: function(combo, value, eOpts){
-						var record = combo.getWidgetRecord();
-						record.set('animalVal', value.get('value'));
-						record.set('animalDisp', value.get('display'));
 						me.getView().refresh();
 					}
 				}
 			}
 		};
 		//------------------------------------------------------------------------------
+
+		let onContourColumn = {
+			xtype: 'widgetcolumn', text: 'On<br>Contour', dataIndex: 'onContour', width: 80,
+			editor:{}, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			onWidgetAttach: function(col, widget, rec) {
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
+					widget.setDisabled(true);
+				}
+				else if(rec.get('onContour') == true){
+					widget.setValue(true)
+					widget.setDisabled(false);
+				}
+				else if(rec.get('onContour') == false){
+					widget.setValue(false)
+					widget.setDisabled(false);
+				}
+				else{
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'checkbox',
+				defaultBindProperty: 'onContour',
+				queryMode: 'local',
+				listeners: {
+					change: function(widget,value){
+					console.log("you've changed man")
+					var record = widget.getWidgetRecord();
+					
+					if (value == true){
+						record.set('onContour',true)
+					}
+					else if(value == false){
+						record.set('onContour',false)
+					}
+					console.log(record.get('onContour'))
+					me.getView().refresh();
+				}
+			}
+			}
+		};
+		//still need to find a way to turn off on contour for dry lot and pasture crop rotations
+		//
+		//***Figured this out,  Needed to change the check column into a widget column, and then 
+		//use a checkbox widget to get this done properly.  Very frustrating task, eventually
+		//figured out how to decouple the local value setting from the onContour array value
+		//will test more when i get back from vaca. 05202021
+		//------------------------------------------------------------------------------
+		let fertPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Percent<br>Fertilizer', dataIndex: 'fertPerc', width: 80, 
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		let manuPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
 		//Turn on for pasture only
 		let grazeDairyLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			
 		};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
 		let grazeDairyNonLactating = {
 			xtype: 'checkcolumn', text: 'Graze Dairy<br>Non-Lactating', dataIndex: 'grazeDairyNonLactating', width: 120, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
 		let grazeBeefCattle = {
 			xtype: 'checkcolumn', text: 'Graze<br>Beef Cattle', dataIndex: 'grazeBeefCattle', width: 100, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let canManurePastures = {
 			xtype: 'checkcolumn', text: 'Confined Manure<br>to Pastures', dataIndex: 'manurePastures', width: 125, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
+		//------------------------------------------------------------------------------
 		//------------------------------------------------------------------------------
 
 		let grassSpeciesColumn = {
@@ -634,7 +623,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let grazeDensityColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			text: 'Animal Density', dataIndex: 'grazingDensity', width: 200, 
+			text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 
@@ -672,24 +661,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}, text: 'Perimeter', dataIndex: 'perimeter', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-        let fence_type_Column = {
-			editor: 'textfield', text: 'Fence Type', dataIndex: 'fence_type', width: 120,
-			draggable: false,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-
-		};
-        let fence_cost_Column = {
-			xtype: 'numbercolumn', format: '0.00',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 100000000, step: 5
-			}, text: 'Fence Cost', dataIndex: 'fence_cost', width: 160,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-		};
-		let fence_unit_cost_Column = {
-			xtype: 'numbercolumn', format: '0.00',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 100000000, step: 5
-			}, text: 'Fence Cost Per Ft', dataIndex: 'fence_unit_cost', width: 160,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-		};
 		
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
@@ -704,19 +675,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				onContourColumn,
 				fertPerc_Column,
 				manuPerc_Column,
-				//animalColumn,
 				grazeDairyLactating,
 				grazeDairyNonLactating,
 				grazeBeefCattle,
 				grassSpeciesColumn,
 				interseededCloverColumn,
-				//canManurePastures,
+				canManurePastures,
 				grazeDensityColumn,
 				area_Column,
-				perimeter_Column,
-				fence_type_Column,
-				fence_cost_Column,
-				fence_unit_cost_Column
+				perimeter_Column
 
 			],
 			
