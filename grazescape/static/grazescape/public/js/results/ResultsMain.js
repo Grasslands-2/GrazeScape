@@ -320,5 +320,9 @@ Ext.define('DSS.results.ResultsMain', {
 		*/
 		me.callParent(arguments);
 	},
+
+	test123: function(){
+	    console.log("hi")
+	}
 	
 });

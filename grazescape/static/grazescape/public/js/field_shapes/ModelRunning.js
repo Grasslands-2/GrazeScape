@@ -3,53 +3,8 @@ var chartPopup
 var barChartData
 var barChart;
 function runModels(layer,modelChoice) {
+    console.log("running model")
 
-    barChartData = {
-        labels: ["Fields"],
-        datasets: []
-    };
-//if (chartPopup != undefined){
-//    chartPopup.hide()
-//}
-    chartPopup = new Ext.form.Panel({
-    autoDestroy: true,
-    width: 500,
-    height: 400,
-    title: 'Model Results',
-    floating: true,
-    closable: true,
-    draggable:true,
-    resizable:true,
-    html: '<div id="container"><canvas id="canvas"></canvas></div>'
-});
-    chartPopup.hide()
-    chartPopup.show()
-    var ctx = document.getElementById('canvas').getContext('2d');
-    barChart = new Chart(ctx, {
-        type: 'bar',
-        data: barChartData,
-        options: {
-            responsive: true,
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Model Output'
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    scaleLabel: {
-                    display: true,
-                    labelString:" response.units"
-                  }
-                }]
-            }
-        }
-    });
 	 extentsArray = []; //empty array for extents list
 	 layer.getSource().forEachFeature(function(f) { //iterates through fields to build extents array
 	    console.log(f)

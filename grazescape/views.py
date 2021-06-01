@@ -8,7 +8,6 @@ from django.core.files import File
 from django.conf import settings
 import os
 # Create your views here.
-import grazescape.raster_data_local as rd
 from grazescape.raster_data import RasterData
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
@@ -64,29 +63,7 @@ def chart(request):
 @ensure_csrf_cookie
 def get_model_results(request):
     global raster_data
-    print("running model")
-    extents = request.POST.getlist('extents[]')
     print(request.POST)
-    model_type = request.POST.get('model_parameters[model_type]')
-    values = []
-    if model_type == 'grass':
-        print("grass")
-        if request.POST.getlist('model_parameters[grass_type]')[0].lower() != "":
-            model = GrassYield(request)
-        else:
-            return JsonResponse({"error": "No valid model selected"})
-    elif model_type == 'pl':
-        model = PhosphorousLoss(request)
-    elif model_type == 'ero':
-        model = Erosion(request)
-    elif model_type == 'crop':
-        print("crop")
-        if request.POST.getlist('model_parameters[crop]')[0] == 'corn':
-            print("corn")
-            model = CropYield(request, "corn_output")
-    else:
-        model = GenericModel(request, model_type)
-
     field_coors = []
     # format field geometry
     for input in request.POST:
@@ -97,41 +74,52 @@ def get_model_results(request):
     geo_data.create_clip(field_coors)
     clipped_rasters, bounds = geo_data.clip_raster()
 
+    model_type = request.POST.get('model_parameters[model_type]')
+    f_name = request.POST.get('model_parameters[f_name]')
+    if model_type == 'yield':
+        print("grass")
+        if request.POST.getlist('model_parameters[grass_type]')[0].lower() != "":
+            model = GrassYield(request)
+        else:
+            print("crop")
+            model = CropYield(request)
+    elif model_type == 'pl':
+        model = PhosphorousLoss(request)
+    elif model_type == 'ero':
+        model = Erosion(request)
+    else:
+        model = GenericModel(request, model_type)
+
     model.bounds["x"] = geo_data.bounds["x"]
     model.bounds["y"] = geo_data.bounds["y"]
-    # print("Calculating Extents")
-    # extents, rounded_extents = model.to_raster_space(extents)
-    # print("Clipping Extents")
-    # clipped_rasters, bounds = model.clip_input(extents, raster_data.get_raster_data())
-
-
 
     print("Preparing model input")
-    model.write_model_input(clipped_rasters)
+    model.raster_inputs = clipped_rasters
     print("Running model")
+    # TODO once we have more complex models with dependencies we will probably need
+    # loop here to build a response for all the model types
     results = model.run_model()
-    # avg = model.aggregate(results)
-    print("Creating png")
-    avg = model.get_model_png(results, geo_data.bounds, geo_data.no_data_aray)
-    # for cat in color_ramp:
-    #     values.append(cat[1])
-    print(model.file_name)
-    palette, values = model.get_legend()
-    data = {
-        # "extent": rounded_extents,
-        "extent": [*bounds],
-        "model-results": "None",
-        "palette": palette,
-        "url": model.file_name + ".png",
-        "values": values,
-        "avg": avg,
-        "units": model.get_units()
-    }
-    print(data)
-
-
-    print("Displaying model")
-    return JsonResponse(data)
+    # result will be a OutputDataNode
+    return_data = []
+    for result in results:
+        print("Creating png for ", result.get_model_type())
+        avg = model.get_model_png(result.get_data_display(), geo_data.bounds, geo_data.no_data_aray)
+        palette, values = model.get_legend()
+        data = {
+            "extent": [*bounds],
+            "palette": palette,
+            "url": model.file_name + ".png",
+            "values": values,
+            "avg": avg,
+            "units": model.get_units(),
+            "model_type": model_type,
+            "crop_type":result.get_model_type(),
+            "f_name":f_name
+        }
+        return_data.append(data)
+    print("compiled model data")
+    print(return_data)
+    return JsonResponse(return_data, safe=False)
 
 def get_image(response):
     print(response.GET.get('file_name'))

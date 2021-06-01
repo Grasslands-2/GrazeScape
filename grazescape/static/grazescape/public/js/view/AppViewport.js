@@ -22,15 +22,17 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.field_shapes.Join',
 		'DSS.field_shapes.Delete',
 		'DSS.field_shapes.ModelRunning',
+		'DSS.results.Dashboard',
 
 		'DSS.infra_shapes.DrawLine',
 		'DSS.infra_shapes.SplitLine',
 		'DSS.infra_shapes.JoinLine',
 		'DSS.infra_shapes.DeleteLine',
+//		'DSS.state.scenario.PerimeterDialog',
 		//'DSS.field_shapes.ModelRunning',
 
-		'DSS.results.ResultsMain',
-		'DSS.results.test_window'
+//		'DSS.results.ResultsMain',
+//		'DSS.results.test_window'
 	],
 
 	minWidth: 900,
@@ -48,6 +50,8 @@ Ext.define('DSS.view.AppViewport', {
 		//	Ext.mixin.Responsive.notify();
 			
 			DSS.mainViewport = self;
+
+
 		},
 		resize: function(self, newWidth, newHeight, oldWidth, oldHeight) {
 			AppEvents.triggerEvent('viewport_resize', {w: newWidth, h: newHeight})
@@ -57,23 +61,7 @@ Ext.define('DSS.view.AppViewport', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		console.log("loading data")
-        console.log(DSS_chart_data)
-//        DSS.BarGraph1.show();
-//      data will now be read in for each model run
-//		DSS_dataLoadAjax = $.ajax({
-//            'url' : '/grazescape/load_data',
-//            'type' : 'GET',
-//			success: function(response, opts) {
-//			console.log("Done")
-//			DSS_isDataLoaded = true;
-//			},
-//
-//			failure: function(response, opts) {
-////				me.stopWorkerAnimation();
-//                console.log("fail")
-//			}
-//        })
+
 
 		Ext.applyIf(me, {
 			items: [{
