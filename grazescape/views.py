@@ -75,19 +75,18 @@ def get_model_results(request):
     clipped_rasters, bounds = geo_data.clip_raster()
 
     model_type = request.POST.get('model_parameters[model_type]')
-    if model_type == 'grass':
+    f_name = request.POST.get('model_parameters[f_name]')
+    if model_type == 'yield':
         print("grass")
         if request.POST.getlist('model_parameters[grass_type]')[0].lower() != "":
             model = GrassYield(request)
         else:
-            return JsonResponse({"error": "No valid model selected"})
+            print("crop")
+            model = CropYield(request)
     elif model_type == 'pl':
         model = PhosphorousLoss(request)
     elif model_type == 'ero':
         model = Erosion(request)
-    elif model_type == 'crop':
-        print("crop")
-        model = CropYield(request)
     else:
         model = GenericModel(request, model_type)
 
@@ -113,7 +112,9 @@ def get_model_results(request):
             "values": values,
             "avg": avg,
             "units": model.get_units(),
-            "model_type": result.get_model_type()
+            "model_type": model_type,
+            "crop_type":result.get_model_type(),
+            "f_name":f_name
         }
         return_data.append(data)
     print("compiled model data")

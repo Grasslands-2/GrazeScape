@@ -60,37 +60,11 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					componentCls: 'button-margin',
 					text: 'test dashboard',
 					handler: function() {
-					    var test_data = {"scenario 1":
-                            {
-                            "fields":[{
-                                "field 1": {
-                                    "erosion":{"units":"tons / acre","mean":1},
-                                    "PL": {"units":"tons","mean":1},
-                                    "yield":{"units":"tons","mean":1, "type":"grass"}
 
-                                },
-                                "field 5": {
-                                    "erosion":{"units":"tons / acre","mean":1},
-                                    "PL": {"units":"tons","mean":1},
-                                    "yield":{"units":"tons","mean":1, "type":"grass"}
-                                }
-
-                                }],
-
-                                "Farm": {
-                                    "erosion":{"units":"tons / acre","mean":1},
-                                    "PL": {"units":"tons","mean":1},
-                                    "yield":{"units":"tons","mean":1, "type":"grass"}
-
-                                }
-                            },
-
-                        }
                         if (!DSS.dialogs) DSS.dialogs = {};
                         if (!DSS.dialogs.PerimeterDialog) {
                             DSS.dialogs.PerimeterDialog = Ext.create('DSS.results.Dashboard', {
                                 numberOfLines: 20,
-                                inputData:test_data,
                                 runModel:true,
                                 // any other option you like...
                             });

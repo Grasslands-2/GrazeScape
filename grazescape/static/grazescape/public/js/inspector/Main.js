@@ -235,11 +235,7 @@ Ext.define('DSS.inspector.Main', {
                 }
 				console.log("response(obj): " + obj);
 				let e = obj.extent;
-				//console.log("this is e: " + e)
-//				let pt1 = ol.proj.transform([e[0],e[3]], 'EPSG:3071', 'EPSG:3857'),
-//				pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3071', 'EPSG:3857');
-//				pt3 = ol.proj.transform([e[2],e[1]], 'EPSG:3071', 'EPSG:3857');
-//				pt4 = ol.proj.transform([e[0],e[1]], 'EPSG:3071', 'EPSG:3857');
+
                 pt1 = [e[0],e[3]]
                 pt2 = [e[2],e[3]]
                 pt3 = [e[2],e[1]]
