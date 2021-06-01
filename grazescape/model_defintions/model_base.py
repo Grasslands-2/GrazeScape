@@ -144,58 +144,7 @@ class ModelBase:
     def run_model(self):
         pass
 
-    @abstractmethod
-    def write_model_input(self):
-        pass
 
-    def to_raster_space(self, extents):
-        # actual values of extents bounding box
-        area_extents = [440000, 314000, 455000, 340000]
-        m_extent = extents
-
-        m_x1 = int(round(float(m_extent[0]) / 10.0) * 10)
-        m_y1 = int(round(float(m_extent[1]) / 10.0) * 10)
-        m_x2 = int(round(float(m_extent[2]) / 10.0) * 10)
-        m_y2 = int(round(float(m_extent[3]) / 10.0) * 10)
-        # Checking if bounding box is outside area extents
-        if m_x1 < area_extents[0]:
-            m_x1 = area_extents[0]
-        elif m_x1 > area_extents[2]:
-            m_x1 = area_extents[2]
-
-        if m_x2 < area_extents[0]:
-            m_x2 = area_extents[0]
-        elif m_x2 > area_extents[2]:
-            m_x2 = area_extents[2]
-
-        if m_y1 < area_extents[1]:
-            m_y1 = area_extents[1]
-        elif m_y1 > area_extents[3]:
-            m_y1 = area_extents[3]
-
-        if m_y2 < area_extents[1]:
-            m_y2 = area_extents[1]
-        elif m_y2 > area_extents[3]:
-            m_y2 = area_extents[3]
-
-        m_extent[0] = m_x1
-        m_extent[1] = m_y1
-        m_extent[2] = m_x2
-        m_extent[3] = m_y2
-
-        # // re-index
-        m_x1 = int((m_x1 - area_extents[0]) / 10)
-        m_y1 = int(-(m_y1 - area_extents[3]) / 10)
-
-        m_x2 = int((m_x2 - area_extents[0]) / 10)
-        m_y2 = int(-(m_y2 - area_extents[3]) / 10)
-
-        m_extent[0] = (round(m_extent[0] / 10.0) * 10)
-        m_extent[1] = (round(m_extent[1] / 10.0) * 10)
-        m_extent[2] = (round(m_extent[2] / 10.0) * 10)
-        m_extent[3] = (round(m_extent[3] / 10.0) * 10)
-
-        return [m_x1, m_y1, m_x2, m_y2], m_extent
 
     def clip_input(self, extents, input_raster_dic):
         """
@@ -268,36 +217,32 @@ class ModelBase:
         data = np.reshape(data, (bounds["y"], bounds["x"]))
         return data
 
-    def min_max(self, data, no_data_array):
-        min = 9000000
-        max = self.no_data
-        sum = 0
+    def min_max_avg(self, data, no_data_array):
+        # todo update this
+        min_val = float('inf')
+        max_val = self.no_data
+        sum_val = 0
         count = 0
         for y in range(0, self.bounds["y"]):
             for x in range(0, self.bounds["x"]):
+                # skip if array value is no data
                 if no_data_array[y][x] != 1:
-                    if data[y][x] > max:
-                        max = data[y][x]
-                    if data[y][x] < min:
-                        min = data[y][x]
-                    sum = sum + data[y][x]
+                    if data[y][x] > max_val:
+                        max_val = data[y][x]
+                    if data[y][x] < min_val:
+                        min_val = data[y][x]
+                    sum_val = sum_val + data[y][x]
                     count = count + 1
 
-        return min, max, sum/count
+        return min_val, max_val, sum_val/count
 
     def get_model_png(self, data, bounds, no_data_array):
-        print(no_data_array)
-        # pickle.dump(data, open("data", "wb"))
-        # max_v = max(data)
-        # max_v = 100
-        print("min value!!!!!!!!!!!!!!!!!!")
-        # print(min_v)
         rows = bounds["y"]
         cols = bounds["x"]
 
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
-        min_v, max_v, mean = self.min_max(datanm, no_data_array)
+        min_v, max_v, mean = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v)
         for y in range(0, rows):
             for x in range(0, cols):
@@ -338,3 +283,48 @@ class ModelBase:
 
     def get_units(self):
         return self.units
+
+
+class OutputDataNode:
+    """
+    This class stores the output yield values of our various models
+
+    For crop data we want to maintain two different datasets. One with the
+    familiar units such as bushels / acre and one with standardized units of
+    kg of dry matter / hec
+    """
+    def __init__(self, model_type, display_units, internal_units=None):
+        self.model_type = model_type
+        self.internal_units = internal_units
+        if internal_units is None:
+            self.internal_units = display_units
+        self.display_units = display_units
+        self.crop_data = []
+        self.crop_data_dis = []
+
+    def get_internal_units(self):
+        return self.internal_units
+
+    def get_display_units(self):
+        return self.display_units
+
+    def get_model_type(self):
+        return self.model_type
+
+    def get_data(self):
+        return self.crop_data
+
+    def get_data_display(self):
+        return self.crop_data_dis
+
+    def add_data(self, data):
+        self.crop_data.append(data)
+
+    def add_display_data(self, data):
+        self.crop_data_dis.append(data)
+
+    def set_data(self, data):
+        self.crop_data = data
+
+    def set_display_data(self, data):
+        self.crop_data_dis = data

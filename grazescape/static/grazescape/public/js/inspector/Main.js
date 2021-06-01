@@ -94,7 +94,7 @@ Ext.define('DSS.inspector.Main', {
 			items: [{
 				cls: 'section-title light-text text-drp-20',
 				html: 'Inspector <i class="fas fa-search font-10 accent-text text-drp-50"></i>',
-				height: 35				
+				height: 35
 			},{
 				xtype: 'inspector_data_source',
 				itemId: 'dss-data-source',
@@ -187,7 +187,7 @@ Ext.define('DSS.inspector.Main', {
 //			DSS_RefilterDelayed(250);
 //			return;
 //		}
-		
+
 //		if (!extents) {
 //			extents = me.DSS_extents;
 //		}
@@ -208,15 +208,6 @@ Ext.define('DSS.inspector.Main', {
 		let options = me.down('#dss-data-source').getOptions();
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
 //		external js library is used to simply getting the token
-//		if(extents[3] === true){
-//			extents[3] = "1"
-//		}else{extents[3]="0"}
-//
-//
-//        grass_type = extents[1]
-//        model_type = extents[6]
-
-
 
 		let data = {
 			"farm_id": DSS.activeFarm,
@@ -224,8 +215,6 @@ Ext.define('DSS.inspector.Main', {
 			"model_parameters":extents
 
 		};
-		console.log("RUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUING")
-		console.log(data);
 
 		var csrftoken = Cookies.get('csrftoken');
             $.ajaxSetup({
@@ -246,11 +235,7 @@ Ext.define('DSS.inspector.Main', {
                 }
 				console.log("response(obj): " + obj);
 				let e = obj.extent;
-				//console.log("this is e: " + e)
-//				let pt1 = ol.proj.transform([e[0],e[3]], 'EPSG:3071', 'EPSG:3857'),
-//				pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3071', 'EPSG:3857');
-//				pt3 = ol.proj.transform([e[2],e[1]], 'EPSG:3071', 'EPSG:3857');
-//				pt4 = ol.proj.transform([e[0],e[1]], 'EPSG:3071', 'EPSG:3857');
+
                 pt1 = [e[0],e[3]]
                 pt2 = [e[2],e[3]]
                 pt3 = [e[2],e[1]]

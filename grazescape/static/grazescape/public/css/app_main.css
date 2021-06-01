@@ -376,3 +376,24 @@
   background-color: black;
   color: white;
 }
+
+.x-panel-body-default {
+    background: #fff;
+    border-color: #cfcfcf;
+    color: #000;
+    font-size: 13px;
+    font-weight: 300;
+    font-family: helvetica, arial, verdana, sans-serif;
+    border-width: 0px;
+
+}
+
+.myBar {
+  width: 1%;
+  height: 30px;
+  background-color: grey;
+}
+
+.progres_bar {
+    width:7vw;
+}

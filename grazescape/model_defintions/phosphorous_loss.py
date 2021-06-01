@@ -1,6 +1,6 @@
 from abc import ABC
 
-from grazescape.model_defintions.model_base import ModelBase
+from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 from pyper import *
 
 
@@ -8,10 +8,6 @@ class PhosphorousLoss(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
         self.units = "PI"
-
-    def write_model_input(self, input_raster_dic):
-        self.raster_inputs = input_raster_dic
-        return
 
     def run_model(self):
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
@@ -69,6 +65,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("cover", self.model_parameters["crop_cover"])
         r.assign("contour", self.model_parameters["contour"])
         r.assign("tillage", self.model_parameters["tillage"])
+        # r.assign("tillage", "NA")
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
@@ -174,7 +171,7 @@ class PhosphorousLoss(ModelBase):
             mutate(Erosion = .pred)
 
           #make P Loss prediction
-          pi <- round(predict(cc_pi, pi_pred_df),2)
+         final_pi <- round(predict(cc_pi, pi_pred_df),2)
           # P loss prediction bounds
           pi_CI <- predict(cc_pi, pi_pred_df, type = "pred_int")
 
@@ -203,7 +200,7 @@ class PhosphorousLoss(ModelBase):
             bind_cols(erosion) %>% 
             mutate(Erosion = .pred)
 
-          pi <- round(predict(cg_pi, pi_pred_df),2)
+         final_pi <- round(predict(cg_pi, pi_pred_df),2)
           pi_CI <- predict(cg_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "cso") {{
@@ -231,7 +228,7 @@ class PhosphorousLoss(ModelBase):
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
 
-          pi <- round(predict(cso_pi, pi_pred_df),2)
+         final_pi <- round(predict(cso_pi, pi_pred_df),2)
           pi_CI <- predict(cso_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "dr") {{
@@ -259,7 +256,7 @@ class PhosphorousLoss(ModelBase):
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
 
-          pi <- round(predict(dr_pi, pi_pred_df),2)
+         final_pi <- round(predict(dr_pi, pi_pred_df),2)
           pi_CI <- predict(dr_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "ps") {{
@@ -272,7 +269,7 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(tillage, Contour)
 
           df <- full_df %>%
-  select(c(total_DM_lbs:LSsurgo)) %>% 
+  select(c(initialP:LSsurgo)) %>% 
   slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df)
@@ -286,7 +283,7 @@ class PhosphorousLoss(ModelBase):
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
 
-          pi <- round(predict(ps_pi, pi_pred_df),2)
+         final_pi <- round(predict(ps_pi, pi_pred_df),2)
           pi_CI <- predict(ps_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "pt") {{
@@ -299,8 +296,8 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(rotational, density)
 
           df <- full_df %>%
-  select(c(total_DM_lbs:LSsurgo)) %>% 
-  slice(rep(1:n(), each=nrow(level_df)))
+          select(c(initialP:LSsurgo)) %>% 
+          slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df) 
 
@@ -318,7 +315,7 @@ class PhosphorousLoss(ModelBase):
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
 
-          pi <- round(predict(pt_pi, pi_pred_df),3)
+         final_pi <- round(predict(pt_pi, pi_pred_df),3)
           pi_CI <- predict(pt_pi, pi_pred_df, type = "pred_int")
 
         }} else if (full_df$crop == "dl") {{
@@ -328,8 +325,8 @@ class PhosphorousLoss(ModelBase):
           density <- factor(dl_erosion$preproc$xlevels$density)
 
           df <- full_df %>%
-  select(c(total_DM_lbs:LSsurgo)) %>% 
-  slice(rep(1:n(), each=nrow(level_df)))
+              select(c(total_DM_lbs:LSsurgo)) %>% 
+              slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(density, df)
 
@@ -342,20 +339,22 @@ class PhosphorousLoss(ModelBase):
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
 
-          pi <- round(predict(dl_pi, pi_pred_df),2)
+         final_pi <- round(predict(dl_pi, pi_pred_df),2)
           pi_CI <- predict(dl_pi, pi_pred_df, type = "pred_int")
 
         }}
 
           """
                 ))
-
-        pred = r.get("pi")
-
+        erosion = OutputDataNode("Erosion", "tons of soil / acre")
+        pl = OutputDataNode("Ploss", "PI")
+        print("erosion!!!!!!!!!!!!!!!")
+        print(r.get("erosion"))
+        print("plllllllll!!!!!!!!!!!!!!!")
+        print(r.get("final_pi"))
+        erosion.set_display_data(r.get("erosion").to_numpy())
+        pl.set_display_data(r.get("final_pi").to_numpy())
         results = []
-        pred1 = pred.to_numpy()
-        for val in pred1:
-            results.append(val[0])
-        print(pred1)
-        return pred1
+        # pred1 = pred.to_numpy()
+        return [erosion, pl]
 
