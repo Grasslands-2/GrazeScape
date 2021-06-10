@@ -3,7 +3,7 @@ var InfrastructureSource_loc = new ol.source.Vector({
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:Infrastructure&' +
+	'typeName=GrazeScape_Vector:infrastructure_2&' +
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
@@ -15,7 +15,7 @@ function wfs_infra_insert(feat,geomType) {
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
 		/*'http://geoserver.org/Farms'*/,
 		Geometry: 'geom',
-        featureType: 'Infrastructure',
+        featureType: 'infrastructure_2',
         srsName: 'EPSG:3857'
     });
     console.log(feat)
@@ -126,11 +126,13 @@ lane_materialInput){
 	console.log("draw is on");
 	//console.log(DSS.activeFarm);
 	var af = parseInt(DSS.activeFarm,10)
+	var as = DSS.activeScenario;
 
 	DSS.draw.on('drawend', function (e,) {
 		e.feature.setProperties({
 			id: af,
-			owner_id: af,
+			farm_id: af,
+			scenario_id: as,
 			infra_name: infra_nameInput,
 			infra_type: infra_typeInput,
 			infra_type_disp: infra_typeDisp,

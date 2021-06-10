@@ -3,57 +3,52 @@ var farmObj = {};
 var scenarioArray = [];
 var scenarioObj = {};
 
-scenarioUrl = 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+farmUrl = 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
-'typeName=GrazeScape_Vector:scenarios_2&' +
-'CQL_filter=farm_id='+DSS.activeFarm+'&&'+'scenario_id='+DSS.activeScenario+'&'+
+'typeName=GrazeScape_Vector:farm_2&' +
 'outputformat=application/json&'+
 'srsname=EPSG:3857';
 
-var scenario_1Source = new ol.source.Vector({
+var farms_1Source = new ol.source.Vector({
 	format: new ol.format.GeoJSON(),
-	url: scenarioUrl
+	url: farmUrl
 });
-var scenario_1Layer = new ol.layer.Vector({
-	title: 'Scenarios',
-	source: scenario_1Source
+var farms_1Layer = new ol.layer.Vector({
+	title: 'farm_1',
+	source: farms_1Source
 });
 
-function getWFSScenario() {
+function getWFSfarm() {
     console.log("getting wfs farms")
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: scenarioUrl,
+		url: farmUrl,
 		async: false,
 		dataType: 'json',
 		success:function(response)
 		{
 			responseObj = response
-			scenarioObj = response.features
+			farmObj = response.features
 			console.log(responseObj);
-			scenarioArray = [];
-			console.log(scenarioObj[0]);
-			popScenarioArray(scenarioObj);
+			farmArray = [];
+			console.log(farmObj[0]);
+			popfarmArray(farmObj);
 			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			console.log(response);
 		}
 	})
 }
 
-function popScenarioArray(obj) {
+function popfarmArray(obj) {
 
 	for (i in obj)
 	//console.log(i);
-	scenarioArray.push({
-		id: obj[i].properties.gid,
-		geom: obj[i].geometry,
-		farmName: obj[i].properties.farm_name,
-		farmId: obj[i].properties.farm_id,
-		scenarioName: obj[i].properties.scenario_name,
-		scenarioDesp: obj[i].properties.scenario_desp,
+	farmArray.push({
+		id: obj[i].id,
+		name: obj[i].properties.farm_name,
 		lacCows: obj[i].properties.lac_cows,
 		dryCows: obj[i].properties.dry_cows,
 		heifers: obj[i].properties.heifers,
@@ -73,23 +68,24 @@ function popScenarioArray(obj) {
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
 	});
+	//DSS.farmstructure_grid.farmstructureGrid.store.reload(farmArray);
 }
 
-function gatherScenarioTableData() {
-	//redeclaring scenarioUrl to only show filtered fields
-	scenarioUrl = 
+function gatherfarmTableData() {
+	//redeclaring farmUrl to only show filtered fields
+	farmUrl = 
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+	'typeName=GrazeScape_Vector:farm_2&' +
+	'CQL_filter=gid='+DSS.activeFarm+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
 	//--------------------------------------------
-	getWFSScenario();
-	console.log("gatherTableData for scenarios ran");
-	console.log(scenarioArray);
+	getWFSfarm();
+	console.log("gatherTableData for farms ran");
+	console.log(farmArray);
 };
 
 var infrastructure_Source = new ol.source.Vector({
@@ -98,7 +94,6 @@ var infrastructure_Source = new ol.source.Vector({
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:infrastructure_2&' +
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
@@ -110,7 +105,6 @@ var fields_1Source = new ol.source.Vector({
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=GrazeScape_Vector:field_2&' +
-		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
@@ -186,17 +180,16 @@ function runFieldUpdate(){
 		}				
 	})
 };
-function runScenarioUpdate(){
+function runFarmUpdate(){
 	console.log(DSS['viewModel'].scenario.data.dairy.dry);
-	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
-		var scenarioFeature = f;
-		console.log(f);
-		console.log("from scenario loop through: " + scenarioFeature.values_.scenario_id);
-		for (i in scenarioArray){
-			console.log("scenarioArray id: " +scenarioArray[i].id);
-			if(scenarioArray[i].id === scenarioFeature.values_.scenario_id){
-				console.log(scenarioArray[i].scenarioName);
-				scenarioFeature.setProperties({
+	DSS.layer.farms_1.getSource().forEachFeature(function(f) {
+		var farmFeature = f;
+		console.log("from farm loop through: " + farmFeature.id_);
+		for (i in farmArray){
+			console.log("farmArray id: " +farmArray[i].id);
+			if(farmArray[i].id === farmFeature.id_){
+				console.log(farmArray[i].name);
+				farmFeature.setProperties({
 					lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
 					dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
 					heifers: DSS['viewModel'].scenario.data.dairy.heifers,
@@ -215,7 +208,7 @@ function runScenarioUpdate(){
 					dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
 					beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
 				});
-				wfs_update(scenarioFeature,'scenarios_2');
+				wfs_update(farmFeature,'farm_2');
 				break;
 			}				
 		}				
@@ -320,7 +313,7 @@ Ext.define('DSS.state.Scenario', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: function(self) {
-									runScenarioUpdate();
+									runFarmUpdate();
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 								}
 							});
@@ -443,7 +436,7 @@ Ext.define('DSS.state.Scenario', {
 					handler: function() {
 						runFieldUpdate();
 						runInfraUpdate();
-						runScenarioUpdate();
+						runFarmUpdate();
 					},
 				},
 						
@@ -464,7 +457,7 @@ Ext.define('DSS.state.Scenario', {
 						//DSS.DrawFieldShapes.addModeControl()
 						DSS.ModelRunTools.addModeControl()
 						console.log()
-						runScenarioUpdate();
+						runFarmUpdate();
 					}
 				}]
 			}]
@@ -483,17 +476,17 @@ Ext.define('DSS.state.Scenario', {
 	
 	//-----------------------------------------------------------------------------
 	initViewModel: function() {
-		//gatherScenarioTableData()
+		//gatherfarmTableData()
 		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
 		return;
 		
 		if (!DSS['viewModel'])*/ 
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
-		gatherScenarioTableData()
+		gatherfarmTableData()
 		console.log('in animal view model')
 		console.log('this is the farms beef cows: ')
-		console.log(scenarioArray[0].beefCows)
+		console.log(farmArray[0].beefCows)
 		DSS.viewModel.scenario = new Ext.app.ViewModel({
 			formulas: {
 				tillageValue: { 
@@ -505,31 +498,31 @@ Ext.define('DSS.state.Scenario', {
 			data: {
 				dairy: {
 					// counts
-					lactating: scenarioArray[0].lacCows,
-					dry: scenarioArray[0].dryCows,
-					heifers: scenarioArray[0].heifers,
-					youngstock: scenarioArray[0].youngStock,
+					lactating: farmArray[0].lacCows,
+					dry: farmArray[0].dryCows,
+					heifers: farmArray[0].heifers,
+					youngstock: farmArray[0].youngStock,
 					// milk yield
-					dailyYield: scenarioArray[0].aveMilkYield,
+					dailyYield: farmArray[0].aveMilkYield,
 					// lactating cows / confinement in months / grazing
-					lactatingConfined: scenarioArray[0].lacMonthsConfined,
-					lactatingGrazeTime: scenarioArray[0].lacGrazeTime,
-					lactatingRotationFreq: scenarioArray[0].lacRotateFreq,
+					lactatingConfined: farmArray[0].lacMonthsConfined,
+					lactatingGrazeTime: farmArray[0].lacGrazeTime,
+					lactatingRotationFreq: farmArray[0].lacRotateFreq,
 					// non-lactating cows / confinement / grazing
-					nonLactatingConfined: scenarioArray[0].dryMonthsConfined,
-					nonLactatingGrazeTime: scenarioArray[0].dryGrazeTime,
-					nonLactatingRotationFreq: scenarioArray[0].dryRotateFreq,
+					nonLactatingConfined: farmArray[0].dryMonthsConfined,
+					nonLactatingGrazeTime: farmArray[0].dryGrazeTime,
+					nonLactatingRotationFreq: farmArray[0].dryRotateFreq,
 				},
 				beef: {
-					cows: scenarioArray[0].beefCows,
-					stockers: scenarioArray[0].stockers,
-					finishers: scenarioArray[0].finishers,
+					cows: farmArray[0].beefCows,
+					stockers: farmArray[0].stockers,
+					finishers: farmArray[0].finishers,
 					// average weight gain
-					dailyGain: scenarioArray[0].aveDailyGain,
+					dailyGain: farmArray[0].aveDailyGain,
 					// confinement in months / grazing
-					confined: scenarioArray[0].beefMonthsConfined,
-					grazeTime: scenarioArray[0].beefGrazeTime,
-					rotationFreq: scenarioArray[0].beefRotateFreq,
+					confined: farmArray[0].beefMonthsConfined,
+					grazeTime: farmArray[0].beefGrazeTime,
+					rotationFreq: farmArray[0].beefRotateFreq,
 				}
 			}
 		})

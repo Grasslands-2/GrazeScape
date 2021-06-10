@@ -3,16 +3,9 @@ var fields_1Source_loc = new ol.source.Vector({
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_1&' +
+	'typeName=GrazeScape_Vector:field_2&' +
 	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-	/*'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'*/,
+	'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
 });
 
@@ -22,7 +15,7 @@ function wfs_field_insert(feat,geomType) {
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
 		/*'http://geoserver.org/Farms'*/,
 		Geometry: 'geom',
-        featureType: 'field_1',
+        featureType: 'field_2',
         srsName: 'EPSG:3857'
     });
     console.log(feat)
@@ -117,12 +110,16 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 	DSS.map.addInteraction(DSS.draw);
 	console.log("draw is on");
 	//console.log(DSS.activeFarm);
-	var af = parseInt(DSS.activeFarm,10)
+	var af = parseInt(DSS.activeFarm,10);
+	var as = DSS.activeScenario;
+	console.log('This is the active scenario#: ');
+	console.log(as)
 
 	DSS.draw.on('drawend', function (e,) {
 		e.feature.setProperties({
 			id: af,
-			owner_id: af,
+			farm_id: af,
+			scenario_id: as,
 			field_name: field_nameInput,
 			soil_p: soil_pInput,
 			om: 10,
