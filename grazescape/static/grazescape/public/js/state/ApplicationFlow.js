@@ -46,6 +46,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 	alias: 'widget.application_flow',
 
 	requires: [
+		'DSS.state.ScenarioPicker',
 		'DSS.state.MapStateTools',
 		'DSS.state.BrowseOrCreate',
 		'DSS.state.CreateNew_wfs',

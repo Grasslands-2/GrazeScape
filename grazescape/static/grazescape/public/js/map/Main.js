@@ -24,6 +24,7 @@ Ext.define('DSS.map.Main', {
 	
 	requires: [
 		'DSS.map.DrawAndModify',
+		'DSS.state.ScenarioPicker',
 		'DSS.map.BoxModel',
 		'DSS.map.LayerMenu',
 		//'DSS.map.RotationLayer',
@@ -325,6 +326,18 @@ Ext.define('DSS.map.Main', {
 				}
 			})
 		})
+		var scenario_1Source = new ol.source.Vector({
+			url: function(extent){
+				return'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=GrazeScape_Vector:scenarios_2&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857'
+			},
+			format: new ol.format.GeoJSON()
+		});
 		var infrastructure_Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent) {
@@ -332,7 +345,7 @@ Ext.define('DSS.map.Main', {
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:Infrastructure&' +
+				'typeName=GrazeScape_Vector:infrastructure_2&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},
@@ -344,7 +357,7 @@ Ext.define('DSS.map.Main', {
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:farm_1&' +
+				'typeName=GrazeScape_Vector:farm_2&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},
@@ -356,7 +369,7 @@ Ext.define('DSS.map.Main', {
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:field_1&' +
+				'typeName=GrazeScape_Vector:field_2&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},
@@ -419,6 +432,21 @@ Ext.define('DSS.map.Main', {
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: farms_1Source,
+			style: function(feature, resolution) {
+				let r = 1.0 - resolution / 94.0;
+				if (r < 0) r = 0
+				else if (r > 1) r = 1
+				// value from 3 to 16
+				r = Math.round(Math.pow(r, 3) * 13 + 3)
+				return me.DSS_zoomStyles['style' + r];
+			}
+		})
+		DSS.layer.scenarios = new ol.layer.Vector({
+			title: 'scenarios_2',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: scenario_1Source,
 			style: function(feature, resolution) {
 				let r = 1.0 - resolution / 94.0;
 				if (r < 0) r = 0
@@ -516,7 +544,7 @@ Ext.define('DSS.map.Main', {
 				//DSS.layer.DEM_image,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1,
-
+				DSS.layer.scenarios,
 				DSS.layer.fieldsLabels,
 				DSS.layer.infrastructure
 				 ],
@@ -556,6 +584,7 @@ Ext.define('DSS.map.Main', {
 		me.overlay = DSS.popupOverlay = new ol.Overlay({
 			element: me.popup.getEl().dom,
 			autoPan: true,
+			offset:[-10,-10],
 			autoPanAnimation: {
 				duration: 500,
 				easing: ol.easing.easeOut

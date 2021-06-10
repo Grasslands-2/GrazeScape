@@ -9,6 +9,7 @@ Ext.define('DSS.state.MapStateTools', {
 
 	requires: [
 		'DSS.map.Legend',
+		'DSS.state.ScenarioPicker'
 		//'DSS.field_grid.FieldGrid',
 		//'DSS.infra_grid.InfraGrid'
 	],
@@ -136,18 +137,11 @@ Ext.define('DSS.state.MapStateTools', {
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:field_1&'+
+		'typeName=GrazeScape_Vector:field_2&'+
 		'CQL_filter=id='+farmId+'&'+
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857'
-		/*'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&'+
-		'CQL_filter=id='+farmId+'&'+
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'*/);
+		);
 		console.log(DSS.layer.fields_1.getStyle())
 		DSS.layer.fields_1.getSource().refresh();
 		console.log("showfieldsforfarm ran");
@@ -161,7 +155,7 @@ Ext.define('DSS.state.MapStateTools', {
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:Infrastructure&'+
+		'typeName=GrazeScape_Vector:infrastructure_2&'+
 		'CQL_filter=id='+farmId+'&'+
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
@@ -174,18 +168,11 @@ Ext.define('DSS.state.MapStateTools', {
 	showAllFields: function(opacity) {
 			
 		DSS.layer.fields_1.getSource().setUrl(
-		/*'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'*/
 		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:field_1&' +
+		'typeName=GrazeScape_Vector:field_2&' +
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		DSS.layer.fields_1.getSource().refresh();
@@ -266,18 +253,10 @@ Ext.define('DSS.state.MapStateTools', {
 					if (f.get('farm_name') != undefined) {
 						cursor = 'pointer';
 						hitAny = true;
-						/*if (lastFp !== f) {
-							DSS.popupOverlay.setPosition(g.getCoordinates());
-							DSS.popupContainer.update('Farm: ' + f.get('name') + '<br>' +
-									'Owner: ' + f.get('owner') + '<br>' +
-									'Address: ' + f.get('address') + '<br>');
-							lastFp = f;
-						}*/
 						if (lastFp !== f) {
 							DSS.popupOverlay.setPosition(g.getCoordinates());
 							DSS.popupContainer.update('Farm: ' + f.get('farm_name') + '<br>' +
-									'Owner: ' + f.get('farm_owner') + '<br>' +
-									'Address: ' + f.get('farm_addre') + '<br>');
+									'Owner: ' + f.get('farm_owner'));
 							lastFp = f;
 						}
 						/*if (lastF !== f) {
@@ -326,6 +305,11 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
     clickActivateFarmHandler: function(evt) {
 		console.log("in active farm handler")
+		DSS['viewModel'] = {}
+		DSS.dialogs = {}
+		//gatherfarmTableData()
+		console.log('in scenario picker model')
+		DSS.viewModel.scenario = new Ext.app.ViewModel({})
     	
     	let me = this;
     	
@@ -343,7 +327,7 @@ Ext.define('DSS.state.MapStateTools', {
 					let pos = g.getFirstCoordinate()
 					me.setPinMarker(pos);
 					console.log("pin set in activatefarmhandler")
-					//console.log(DSS.activeFarm)
+					console.log(DSS.activeFarm)
 					let ex = ol.extent;
 					let extent = [pos[0], pos[1], pos[0], pos[1]];
 					//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
@@ -362,6 +346,12 @@ Ext.define('DSS.state.MapStateTools', {
 					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
 					DSS.MapState.removeMapInteractions()
 					//DSS.layer.farms_1.getSource().refresh();
+					
+					//----------launching scenario picker---------------
+					DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
+					DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+			
+					DSS.dialogs.ScenarioPicker.show().center().setY(0);
 					
 					break;
 				}
@@ -438,5 +428,21 @@ Ext.define('DSS.state.MapStateTools', {
     	
     	var me = this;
 		if (me.DSS_legend) me.DSS_legend.destroy();
-    }
+    },
+	//------------------------------------------------------------
+	initViewModel: function() {
+		//gatherfarmTableData()
+		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
+		return;
+		
+		if (!DSS['viewModel'])*/ 
+		DSS['viewModel'] = {}
+		DSS.dialogs = {}
+		//gatherfarmTableData()
+		console.log('in scenario picker model')
+		DSS.viewModel.scenario = new Ext.app.ViewModel({
+			
+		})
+		//console.log(DSS['viewModel'].scenario.data.dairy.dry);
+	}
 });

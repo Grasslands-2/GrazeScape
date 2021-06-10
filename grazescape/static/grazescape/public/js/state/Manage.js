@@ -1,5 +1,3 @@
-
-
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Manage', {
 //------------------------------------------------------------------------------
@@ -8,6 +6,9 @@ Ext.define('DSS.state.Manage', {
 	alias: 'widget.operation_manage',
 
 	requires: [
+		'DSS.state.ScenarioPicker',
+		'DSS.state.DeleteScenario',
+		'DSS.state.NewScenario',
 		'DSS.state.operation.InfraShapeMode',
 		'DSS.state.operation.FieldShapeMode',
 		'DSS.state.Scenario',
@@ -51,6 +52,9 @@ Ext.define('DSS.state.Manage', {
 									//DSS.layer.fields_1.getSource().refresh();
 									DSS.MapState.showAllFields();
 									DSS.viewModel.scenario = !DSS['viewModel']
+									DSS['viewModel'] = {}
+									DSS.viewModel.scenario = {}
+									DSS.dialogs = {}
 									console.log("back to square 1")
 								}
 							});
@@ -108,19 +112,57 @@ Ext.define('DSS.state.Manage', {
 						}
 					}
 				},
-				{//------------------------------------------
-					xtype: 'component',
-					cls: 'information med-text',
-					html: 'Design a scenario'
-				},{
+				//--------------------Manage current scenario--------------
+				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Scenarios',
+					text: 'Manage Loaded Scenario',
 					handler: function(self) {
-						gatherfarmTableData()
+						gatherScenarioTableData()
 						AppEvents.triggerEvent('hide_field_shape_mode')
 						DSS.ApplicationFlow.instance.showScenarioPage();
+						console.log(DSS.activeScenario);
+					}
+				},
+				//------------------------Load Scenario Button-------------
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Load Different Scenario',
+					handler: function(self) {
+						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
+						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+						DSS.dialogs.ScenarioPicker.show().center().setY(0);
+					}
+				},
+				//---------------------Create New Scenario Button-----------
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Create New Scenario',
+					handler: function(self) {
+						gatherScenarioTableData()
+						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
+						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+						DSS.dialogs.ScenarioPicker.show().center().setY(0);
+						console.log(scenarioArray[0])
+					}
+				},
+				//---------------------Delete Scenarios Button-------------
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Delete New Scenario',
+					handler: function(self) {
+						gatherScenarioTableData()
+						getWFSScenario()
+						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
+						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+						DSS.dialogs.ScenarioPicker.show().center().setY(0);
 					}
 				}]
 			}]

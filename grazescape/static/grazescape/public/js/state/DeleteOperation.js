@@ -38,7 +38,7 @@ function deleteOperation(feat){
 			featureNS: 'http://geoserver.org/GrazeScape_Vector'
 			/*'http://geoserver.org/Farms'*/,
 			Geometry: 'geom',
-			featureType: 'farm_1',
+			featureType: 'farm_2',
 			srsName: 'EPSG:3857'
 		});
 		console.log(feat)
