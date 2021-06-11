@@ -14,7 +14,7 @@ var farmUrl =
 'typeName=GrazeScape_Vector:farm_2&' +
 'outputformat=application/json&'+
 'srsname=EPSG:3857'
-var scenarioUrl = 
+var scenarioUrlCN = 
 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
@@ -27,8 +27,8 @@ var farms_1Source = new ol.source.Vector({
     url: farmUrl,
     format: new ol.format.GeoJSON()
 });
-var scenario_1Source = new ol.source.Vector({
-    url: scenarioUrl,
+var scenario_1SourceCN = new ol.source.Vector({
+    url: scenarioUrlCN,
     format: new ol.format.GeoJSON()
 });
 //bring in farm layer table as object for iteration
@@ -51,7 +51,7 @@ function getWFSScenario() {
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: scenarioUrl,
+		url: scenarioUrlCN,
 		async: false,
 		dataType: 'json',
 		success:function(response)

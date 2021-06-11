@@ -3,7 +3,7 @@
 //--------------Geoserver WFS source connection-------------------
 //wfs farm layer url for general use
 var scenarioObj = {};
-var scenarioUrl = 
+var scenarioUrlNS = 
 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
@@ -16,8 +16,8 @@ var farms_1Source = new ol.source.Vector({
     url: farmUrl,
     format: new ol.format.GeoJSON()
 });
-var scenario_1Source = new ol.source.Vector({
-    url: scenarioUrl,
+var scenario_1SourceNS = new ol.source.Vector({
+    url: scenarioUrlNS,
     format: new ol.format.GeoJSON()
 });
 //bring in farm layer table as object for iteration
@@ -36,7 +36,7 @@ function getWFSFarm() {
 	})
 }
 //bring in farm layer table as object for iteration
-function getWFSScenario() {
+function getWFSScenarioNS() {
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
@@ -64,7 +64,7 @@ function popFarmArray(obj) {
 		name: obj[i].properties.farm_name
 	});
 }
-function popScenarioArray(obj) {
+function popScenarioArrayNS(obj) {
 	for (i in obj) 
 	scenarioArray.push({
 		id: obj[i].id,
@@ -90,8 +90,8 @@ function getHighestFarmId(){
 	};
 }
 function getHighestScenarioId(){
-	getWFSScenario()
-	popScenarioArray(scenarioObj);
+	getWFSScenarioNS()
+	popScenarioArrayNS(scenarioObj);
 	for (i in scenarioArray){
 		//console.log(farmArray[i].gid)
 		if (scenarioArray[i].gid > highestScenarioId){
@@ -130,7 +130,7 @@ function wfs_scenario_insert(feat,geomType,fType) {
         contentType: 'text/xml',
         data: str,
 		success: function (response) {
-			console.log("uploaded data successfully!: "+ response[0]);
+			console.log("uploaded data successfully!: "+ response);
 			DSS.layer.farms_1.getSource().refresh();
 			DSS.layer.scenarios.getSource().refresh();
 			DSS.MapState.removeMapInteractions()
@@ -162,13 +162,14 @@ function wfs_scenario_insert(feat,geomType,fType) {
     }).done();
 }
 function createNewScenario(sname,sdescript,snewhighID){
+	console.log('in createnewscenario')
 	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
-		console.log(f);
-		console.log("from scenario loop through: " + newScenarioFeature.values_.scenario_id);
+		console.log(newScenarioFeature);
+		console.log("from scenario features loop through: " + newScenarioFeature.values_.gid);
 		for (i in scenarioArray){
 			console.log("scenarioArray id: " + scenarioArray[i].gid);
-			if(scenarioArray[i].gid === newScenarioFeature.values_.scenario_id){
+			if(scenarioArray[i].gid === newScenarioFeature.values_.gid){
 				console.log(scenarioArray[i].scenarioName);
 				newScenarioFeature.setProperties({
 					scenario_name:sname,
@@ -274,7 +275,7 @@ Ext.define('DSS.state.NewScenario', {
 									form.findField('scenario_description').getSubmitValue(),
 									newHighestScenarioId
 									);
-								gatherScenarioTableData()
+								//gatherScenarioTableData()
 								this.up('window').destroy(); 
 							}
 						}

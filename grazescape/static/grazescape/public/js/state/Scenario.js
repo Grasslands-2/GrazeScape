@@ -8,7 +8,7 @@ scenarioUrl = 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
 'typeName=GrazeScape_Vector:scenarios_2&' +
-'CQL_filter=farm_id='+DSS.activeFarm+'&&'+'scenario_id='+DSS.activeScenario+'&'+
+//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 'outputformat=application/json&'+
 'srsname=EPSG:3857';
 
@@ -21,38 +21,17 @@ var scenario_1Layer = new ol.layer.Vector({
 	source: scenario_1Source
 });
 
-function getWFSScenario() {
-    console.log("getting wfs farms")
-	return $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: scenarioUrl,
-		async: false,
-		dataType: 'json',
-		success:function(response)
-		{
-			responseObj = response
-			scenarioObj = response.features
-			console.log(responseObj);
-			scenarioArray = [];
-			console.log(scenarioObj[0]);
-			popScenarioArray(scenarioObj);
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			console.log(response);
-		}
-	})
-}
-
 function popScenarioArray(obj) {
-
 	for (i in obj)
 	//console.log(i);
 	scenarioArray.push({
+		gid: obj[i].properties.gid,
 		id: obj[i].properties.gid,
 		geom: obj[i].geometry,
 		farmName: obj[i].properties.farm_name,
 		farmId: obj[i].properties.farm_id,
 		scenarioName: obj[i].properties.scenario_name,
+		scenarioId: obj[i].properties.scenario_id,
 		scenarioDesp: obj[i].properties.scenario_desp,
 		lacCows: obj[i].properties.lac_cows,
 		dryCows: obj[i].properties.dry_cows,
@@ -73,6 +52,31 @@ function popScenarioArray(obj) {
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
 	});
+	console.log("gatherTableData for scenarios ran");
+	console.log(scenarioArray);
+}
+
+function getWFSScenario(scenarioUrl) {
+    console.log("getting wfs farms")
+	return $.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: scenarioUrl,
+		async: false,
+		dataType: 'json',
+		success:function(response)
+		{
+			responseObj = response
+			scenarioObj = response.features
+			//console.log(responseObj);
+			scenarioArray = [];
+			console.log("I am geoscenarioarray response object")
+			console.log(scenarioObj);
+			popScenarioArray(scenarioObj);
+			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			//console.log(response);
+		}
+	})
 }
 
 function gatherScenarioTableData() {
@@ -83,13 +87,11 @@ function gatherScenarioTableData() {
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
 	//--------------------------------------------
-	getWFSScenario();
-	console.log("gatherTableData for scenarios ran");
-	console.log(scenarioArray);
+	getWFSScenario(scenarioUrl);
 };
 
 var infrastructure_Source = new ol.source.Vector({
@@ -483,7 +485,6 @@ Ext.define('DSS.state.Scenario', {
 	
 	//-----------------------------------------------------------------------------
 	initViewModel: function() {
-		//gatherScenarioTableData()
 		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
 		return;
 		

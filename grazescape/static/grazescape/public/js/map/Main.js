@@ -326,7 +326,7 @@ Ext.define('DSS.map.Main', {
 				}
 			})
 		})
-		var scenario_1Source = new ol.source.Vector({
+		var scenario_1SourceMain = new ol.source.Vector({
 			url: function(extent){
 				return'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 				'service=wfs&'+
@@ -446,7 +446,7 @@ Ext.define('DSS.map.Main', {
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
-			source: scenario_1Source,
+			source: scenario_1SourceMain,
 			style: function(feature, resolution) {
 				let r = 1.0 - resolution / 94.0;
 				if (r < 0) r = 0
