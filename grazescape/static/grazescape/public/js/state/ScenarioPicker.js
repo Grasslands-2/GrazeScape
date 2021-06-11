@@ -15,7 +15,7 @@ var scenario_1Source = new ol.source.Vector({
     url: scenarioUrl,
     format: new ol.format.GeoJSON()
 });
-function getWFSScenario() {
+function getWFSScenarioSP() {
     console.log("getting wfs scenarios")
 	return $.ajax({
 		jsonp: false,
@@ -29,8 +29,9 @@ function getWFSScenario() {
 			farmObj = response.features
 			console.log(responseObj);
 			farmArray = [];
+			itemsArray = [];
 			console.log(farmObj[0]);
-			popScenarioArray(farmObj);
+			//popScenarioArray(farmObj);
 			popItemsArray(farmObj);
 			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			console.log(response);
@@ -78,7 +79,7 @@ function popItemsArray(obj){
 		inputValue:obj[i].properties.gid,
 	})
 }
-getWFSScenario()
+getWFSScenarioSP()
 
 console.log(scenarioPickerArray);
 console.log(itemsArray);
@@ -105,6 +106,7 @@ Ext.define('DSS.state.ScenarioPicker', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
+		getWFSScenarioSP()
 
 		Ext.applyIf(me, {
 			items: [{
@@ -153,8 +155,14 @@ Ext.define('DSS.state.ScenarioPicker', {
 						change: {
 							 fn: function(){
 								 var checked = this.getChecked()
-								 DSS.activeScenario = checked[0].config.inputValue
-								 console.log(DSS.activeScenario);
+								 console.log(checked);
+								 if (checked.length == 2) {
+									DSS.activeScenario = checked[1].inputValue
+									console.log(DSS.activeScenario);
+								 }else{
+									 DSS.activeScenario = checked[0].inputValue
+									console.log(DSS.activeScenario);
+								}
 							 }
 						}
 				   }
@@ -167,6 +175,7 @@ Ext.define('DSS.state.ScenarioPicker', {
 					formBind: true,
 					handler: function() {
 						gatherScenarioTableData()
+						getWFSScenarioSP()
 						//console.log('this is the scenario picked by the user')
 						//console.log(scenarioArray)
 						this.up('window').destroy(); 

@@ -132,6 +132,8 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Load Different Scenario',
 					handler: function(self) {
+						//itemsArray = [];
+						getWFSScenarioSP()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
@@ -144,11 +146,11 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Create New Scenario',
 					handler: function(self) {
-						gatherScenarioTableData()
+						//gatherScenarioTableData()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						console.log(scenarioArray[0])
+						console.log(scenarioArray)
 					}
 				},
 				//---------------------Delete Scenarios Button-------------
@@ -158,8 +160,8 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Delete New Scenario',
 					handler: function(self) {
-						gatherScenarioTableData()
-						getWFSScenario()
+						//gatherScenarioTableData()
+						//getWFSScenario()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);

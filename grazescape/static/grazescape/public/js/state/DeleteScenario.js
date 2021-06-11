@@ -1,84 +1,70 @@
+DSS.utils.addStyle('.underlined-input { border: none; border-bottom: 1px solid #ddd; display:table; width: 100%; height:100%; padding: 0 0 2px}')   
+DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
+DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
 
-//DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
-/*scenarioPickerArray = [];
-var scenarioUrl = 
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=GrazeScape_Vector:scenarios_2&' +
-'outputformat=application/json&'+
-'srsname=EPSG:3857'
-var scenario_1Source = new ol.source.Vector({
-    url: scenarioUrl,
-    format: new ol.format.GeoJSON()
-});
-function getWFSScenario() {
-    console.log("getting wfs scenarios")
-	return $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: scenarioUrl,
-		async: false,
-		dataType: 'json',
-		success:function(response)
-		{
-			responseObj = response
-			farmObj = response.features
-			console.log(responseObj);
-			farmArray = [];
-			console.log(farmObj[0]);
-			popScenarioArray(farmObj);
-			popItemsArray(farmObj);
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			console.log(response);
-		}
-	})
+function wfsDeleteScenario(feat){
+	{
+		var formatWFS = new ol.format.WFS();
+		var formatGML = new ol.format.GML({
+			featureNS: 'http://geoserver.org/GrazeScape_Vector'
+			/*'http://geoserver.org/Farms'*/,
+			//Geometry: 'geom',
+			featureType: 'scenario_2',
+			srsName: 'EPSG:3857'
+		});
+		console.log(feat)
+		node = formatWFS.writeTransaction(null, null, [feat], formatGML);
+		console.log(node);
+		s = new XMLSerializer();
+		str = s.serializeToString(node);
+		console.log(str);
+		$.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+	/*'http://localhost:8081/geoserver/wfs?'*/,{
+			type: 'POST',
+			dataType: 'xml',
+			processData: false,
+			contentType: 'text/xml',
+			data: str,
+			success: function (data) {
+				console.log("data deleted successfully!: "+ data);
+				DSS.layer.farms_1.getSource().refresh();
+			},
+			error: function (xhr, exception) {
+				var msg = "";
+				if (xhr.status === 0) {
+					msg = "Not connect.\n Verify Network." + xhr.responseText;
+				} else if (xhr.status == 404) {
+					msg = "Requested page not found. [404]" + xhr.responseText;
+				} else if (xhr.status == 500) {
+					msg = "Internal Server Error [500]." +  xhr.responseText;
+				} else if (exception === "parsererror") {
+					msg = "Requested JSON parse failed.";
+				} else if (exception === "timeout") {
+					msg = "Time out error." + xhr.responseText;
+				} else if (exception === "abort") {
+					msg = "Ajax request aborted.";
+				} else {
+					msg = "Error:" + xhr.status + " " + xhr.responseText;
+				}
+				console.log(msg);
+			}
+		}).done();
+	}
 }
-
-function popScenarioArray(obj) {
-
-	for (i in obj)
-	scenarioPickerArray.push({
-		gid: obj[i].gid,
-		scenarioId:obj[i].properties.scenario_id,
-		scenarioName:obj[i].properties.scenario_name,
-		scenarioDesp:obj[i].properties.scenario_desp,
-		farmId: obj[i].properties.farm_id,
-		farmName: obj[i].properties.farm_name,
-		lacCows: obj[i].properties.lac_cows,
-		dryCows: obj[i].properties.dry_cows,
-		heifers: obj[i].properties.heifers,
-		youngStock: obj[i].properties.youngstock,
-		beefCows: obj[i].properties.beef_cows,
-		stockers: obj[i].properties.stockers,
-		finishers: obj[i].properties.finishers,
-		aveMilkYield: obj[i].properties.ave_milk_yield,
-		aveDailyGain: obj[i].properties.ave_daily_gain,
-		lacMonthsConfined: obj[i].properties.lac_confined_mos,
-		dryMonthsConfined: obj[i].properties.dry_confined_mos,
-		beefMonthsConfined: obj[i].properties.beef_confined_mos,
-		lacGrazeTime: obj[i].properties.lac_graze_time,
-		dryGrazeTime: obj[i].properties.dry_graze_time,
-		beefGrazeTime: obj[i].properties.beef_graze_time,
-		lacRotateFreq: obj[i].properties.lac_rotate_freq,
-		dryRotateFreq: obj[i].properties.dry_rotate_freq,
-		beefRotateFreq: obj[i].properties.beef_rotate_freq,
+function selectDeleteScenario(fgid){
+	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
+		console.log(f);
+		var delScenarioFeature = f;
+		console.log(delScenarioFeature.values_.gid);
+		console.log("from scenario features loop through: " + delScenarioFeature.values_.gid);
+		if (delScenarioFeature.values_.gid == fgid){
+			wfsDeleteScenario(delScenarioFeature);
+		}else{
+			console.log("delete scenario failed")
+			//pass
+		};
 	});
-	//DSS.farmstructure_grid.farmstructureGrid.store.reload(farmArray);
 }
-itemsArray = []
-function popItemsArray(obj){
-	for (i in obj)
-	itemsArray.push({
-		boxLabel:obj[i].properties.scenario_name,
-		inputValue:obj[i].properties.scenario_id,
-	})
-}
-getWFSScenario()
-
-console.log(scenarioPickerArray);
-console.log(itemsArray);*/
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.DeleteScenario', {
@@ -150,8 +136,14 @@ Ext.define('DSS.state.DeleteScenario', {
 						change: {
 							 fn: function(){
 								 var checked = this.getChecked()
-								 DSS.activeScenario = checked[0].config.inputValue
-								 console.log(DSS.activeScenario);
+								 //console.log(checked);
+								 if (checked.length == 2) {
+									scenarioToDelete = checked[1].inputValue
+									console.log(scenarioToDelete);
+								 }else{
+									scenarioToDelete = checked[0].inputValue
+									console.log(scenarioToDelete);
+								}
 							 }
 						}
 				   }
@@ -160,11 +152,11 @@ Ext.define('DSS.state.DeleteScenario', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Select Scenario',
+					text: 'Delete Scenario',
 					formBind: true,
 					handler: function() {
+						selectDeleteScenario(scenarioToDelete)
 						this.up('window').destroy(); 
-						
 					}
 			    }],
 			}]
