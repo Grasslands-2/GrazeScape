@@ -106,7 +106,7 @@ function gatherTableData() {
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+'&&'+'scenario_id='+DSS.activeScenario+'&'+
+	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
 	//--------------------------------------------

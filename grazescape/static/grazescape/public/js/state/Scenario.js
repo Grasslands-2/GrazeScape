@@ -286,7 +286,9 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.state.ScenarioPicker',
 		'DSS.state.scenario.CropNutrientMode',
 		'DSS.state.scenario.AnimalDialog',
-		'DSS.state.scenario.PerimeterDialog'
+		'DSS.state.scenario.PerimeterDialog',
+		'DSS.state.operation.InfraShapeMode',
+		'DSS.state.operation.FieldShapeMode'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -333,7 +335,7 @@ Ext.define('DSS.state.Scenario', {
 					flex: 1,
 					cls: 'section-title accent-text right-pad',
 					// TODO: Dynamic name...
-					html: '"Baseline"'
+					html: 'Scenario Management'
 				}]
 			},{ 
 				xtype: 'container',
@@ -341,22 +343,44 @@ Ext.define('DSS.state.Scenario', {
 				items: [{//------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',
-					html: 'Configure animals and grazing'
-				},{
+					html: 'Edit Fields and Infrastructure'
+				},
+				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Animals',
-					handler: function(self) {
-						
-						//if (!DSS.dialogs) DSS.dialogs = {};
-						//if (!DSS.dialogs.AnimalDialog) 
-						{
-							DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
-							DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
-
+					text: 'Field Shapes',
+//					allowDepress:
+					toggleGroup: 'manage-operation',
+					toggleHandler: function(self, pressed) {
+						if (pressed) {
+							AppEvents.triggerEvent('show_field_shape_mode')
+							DSS.MapState.removeMapInteractions()
 						}
-						DSS.dialogs.AnimalDialog.show().center().setY(0);
+						else {
+							AppEvents.triggerEvent('hide_field_shape_mode');
+							DSS.MapState.removeMapInteractions()
+						}
+					//	DSS.ApplicationFlow.instance.showNewOperationPage();
+					}
+				},
+				//-----------------------------------------------------
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Infrastructure Lines',
+//					allowDepress:
+					toggleGroup: 'manage-operation',
+					toggleHandler: function(self, pressed) {
+						if (pressed) {
+							AppEvents.triggerEvent('show_infra_line_mode')
+							DSS.MapState.removeMapInteractions()
+						}
+						else {
+							AppEvents.triggerEvent('hide_infra_line_mode');
+							DSS.MapState.removeMapInteractions()
+						}
 					}
 				},
 //				{
@@ -384,7 +408,23 @@ Ext.define('DSS.state.Scenario', {
 				,{//------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',
-					html: 'Assign crops and nutrients'
+					html: 'Edit Scenario Attributes'
+				},{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Animals',
+					handler: function(self) {
+						
+						//if (!DSS.dialogs) DSS.dialogs = {};
+						//if (!DSS.dialogs.AnimalDialog) 
+						{
+							DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
+							DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
+
+						}
+						DSS.dialogs.AnimalDialog.show().center().setY(0);
+					}
 				},{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -431,17 +471,13 @@ Ext.define('DSS.state.Scenario', {
 					}
 				},
 				//------------------------------------------
-				{
-					xtype: 'component',
-					cls: 'information med-text',
-					html: 'Update Field Data'
-				},{
+				,{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
 					allowDepress: false,
-					text: 'Update Attributes',
+					text: 'Save All Attribute Edits',
 					handler: function() {
 						runFieldUpdate();
 						runInfraUpdate();

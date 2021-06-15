@@ -25,7 +25,7 @@ function deleteInfra(feat){
 			featureNS: 'http://geoserver.org/GrazeScape_Vector'
 			/*'http://geoserver.org/Farms'*/,
 			Geometry: 'geom',
-			featureType: 'Infrastructure',
+			featureType: 'infrastructure_2',
 			srsName: 'EPSG:3857'
 		});
 		console.log(feat)

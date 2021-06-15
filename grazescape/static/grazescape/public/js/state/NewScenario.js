@@ -256,7 +256,7 @@ Ext.define('DSS.state.NewScenario', {
 						xtype: 'button',
 						cls: 'button-text-pad',
 						componentCls: 'button-margin',
-						text: 'Place Farm',
+						text: 'Create New Scenario',
 						formBind: true,
 						handler: function() { 
 							console.log('new scenario button pushed')

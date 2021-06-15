@@ -56,6 +56,9 @@ Ext.define('DSS.state.Manage', {
 									DSS.viewModel.scenario = {}
 									DSS.dialogs = {}
 									console.log("back to square 1")
+									DSS.map.removeLayer(DSS.layer.scenarios);
+									DSS.activeScenario = null;
+									DSS.activeFarm = null;
 								}
 							});
 						}
@@ -74,43 +77,6 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Define or edit field boundaries'
-				},{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Field Shapes',
-//					allowDepress:
-					toggleGroup: 'manage-operation',
-					toggleHandler: function(self, pressed) {
-						if (pressed) {
-							AppEvents.triggerEvent('show_field_shape_mode')
-							DSS.MapState.removeMapInteractions()
-						}
-						else {
-							AppEvents.triggerEvent('hide_field_shape_mode');
-							DSS.MapState.removeMapInteractions()
-						}
-					//	DSS.ApplicationFlow.instance.showNewOperationPage();
-					}
-				},
-				//-----------------------------------------------------
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Infrastructure Lines',
-//					allowDepress:
-					toggleGroup: 'manage-operation',
-					toggleHandler: function(self, pressed) {
-						if (pressed) {
-							AppEvents.triggerEvent('show_infra_line_mode')
-							DSS.MapState.removeMapInteractions()
-						}
-						else {
-							AppEvents.triggerEvent('hide_infra_line_mode');
-							DSS.MapState.removeMapInteractions()
-						}
-					}
 				},
 				//--------------------Manage current scenario--------------
 				{
