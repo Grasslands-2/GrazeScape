@@ -544,7 +544,7 @@ Ext.define('DSS.map.Main', {
 				//DSS.layer.DEM_image,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1,
-				DSS.layer.scenarios,
+				//DSS.layer.scenarios,
 				DSS.layer.fieldsLabels,
 				DSS.layer.infrastructure
 				 ],

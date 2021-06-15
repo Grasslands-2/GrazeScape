@@ -138,7 +138,7 @@ Ext.define('DSS.state.MapStateTools', {
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=GrazeScape_Vector:field_2&'+
-		'CQL_filter=id='+farmId+'&'+
+		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857'
 		);
@@ -156,7 +156,7 @@ Ext.define('DSS.state.MapStateTools', {
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
 		'typeName=GrazeScape_Vector:infrastructure_2&'+
-		'CQL_filter=id='+farmId+'&'+
+		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		console.log(DSS.layer.infrastructure.getStyle())
@@ -319,39 +319,48 @@ Ext.define('DSS.state.MapStateTools', {
 			for (let idx = 0; idx < fs.length; idx++) {
 				let f = fs[idx];
 				let g = f.getGeometry();
-				if (g && g.getType() === "Point") {
 
-					DSS.activeFarm = f.get("gid");
-					//DSS.activeScenario = f.get("scenario");
+				if (g && g.getType() === "Point") {
+					if (DSS.activeFarm == null){
+						DSS.activeFarm = f.get("gid");
+						//DSS.activeScenario = f.get("scenario");
+						
+						let pos = g.getFirstCoordinate()
+						me.setPinMarker(pos);
+						console.log("pin set in activatefarmhandler")
+						console.log(DSS.activeFarm)
+						console.log(DSS.activeScenario)
+						let ex = ol.extent;
+						let extent = [pos[0], pos[1], pos[0], pos[1]];
+						//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+						//	extent = ex.extend(extent, f.getGeometry().getExtent());
+						//});
+						ex.buffer(extent, 250, extent);
+						me.zoomToRealExtent(extent);
+						
+						// if results were already being computed (extents chosen and model), then trigger a recompute
+					//	DSS.StatsPanel.computeResults(undefined, DSS.layer.ModelResult);
+	//					AppEvents.triggerEvent('set_inspector_bounds', extent);
+						
+						DSS.map.getViewport().style.cursor = '';
+						AppEvents.triggerEvent('activate_operation')
+	//					console.log(DSS.layer.fields_1.getSource());
+						DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
+						DSS.MapState.removeMapInteractions()
+						//DSS.layer.farms_1.getSource().refresh();
+						
+						//----------launching scenario picker---------------
+						if (DSS.activeScenario == null){
+							getWFSScenarioSP()
+							DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
+							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
+							DSS.dialogs.ScenarioPicker.show().center().setY(0);
+							console.log(DSS.dialogs.ScenarioPicker);
+							DSS.map.addLayer(DSS.layer.scenarios);
+							break;
+						}
+					}
 					
-					let pos = g.getFirstCoordinate()
-					me.setPinMarker(pos);
-					console.log("pin set in activatefarmhandler")
-					console.log(DSS.activeFarm)
-					let ex = ol.extent;
-					let extent = [pos[0], pos[1], pos[0], pos[1]];
-					//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-					//	extent = ex.extend(extent, f.getGeometry().getExtent());
-					//});
-					ex.buffer(extent, 250, extent);
-					me.zoomToRealExtent(extent);
-					
-					// if results were already being computed (extents chosen and model), then trigger a recompute
-				//	DSS.StatsPanel.computeResults(undefined, DSS.layer.ModelResult);
-//					AppEvents.triggerEvent('set_inspector_bounds', extent);
-					
-					DSS.map.getViewport().style.cursor = '';
-					AppEvents.triggerEvent('activate_operation')
-//					console.log(DSS.layer.fields_1.getSource());
-					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
-					DSS.MapState.removeMapInteractions()
-					//DSS.layer.farms_1.getSource().refresh();
-					
-					//----------launching scenario picker---------------
-					DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
-					DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-			
-					DSS.dialogs.ScenarioPicker.show().center().setY(0);
 					
 					break;
 				}

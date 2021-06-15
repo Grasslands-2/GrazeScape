@@ -151,7 +151,9 @@ function wfs_farm_insert(feat,geomType,fType) {
 			getHighestScenarioId();
 			console.log(highestFarmId);
 			DSS.activeFarm = highestFarmId;
-			console.log(DSS.activeFarm);
+			DSS.activeScenario = highestScenarioId;
+			console.log("Current active farm!: " + DSS.activeFarm);
+			console.log("Current active Scenario!: " + DSS.activeScenario);
 		},
         error: function (xhr, exception) {
             var msg = "";
