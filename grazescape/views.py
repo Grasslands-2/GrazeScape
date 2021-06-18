@@ -13,8 +13,8 @@ import json
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
-from grazescape.model_defintions.erosion import Erosion
 from grazescape.model_defintions.crop_yield import CropYield
+from grazescape.model_defintions.runoff import Runoff
 
 raster_data = None
 
@@ -76,17 +76,23 @@ def get_model_results(request):
 
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
+    scen = request.POST.get('model_parameters[scen]')
     if model_type == 'yield':
         print("grass")
-        if request.POST.getlist('model_parameters[grass_type]')[0].lower() != "":
+        crop_ro = request.POST.getlist("model_parameters[crop]")[0]
+        if crop_ro == 'pt' or crop_ro == 'ps':
             model = GrassYield(request)
+        elif crop_ro == 'dl':
+            pass
         else:
             print("crop")
             model = CropYield(request)
-    elif model_type == 'pl':
+    elif model_type == 'ploss':
         model = PhosphorousLoss(request)
-    elif model_type == 'ero':
-        model = Erosion(request)
+    # elif model_type == 'ero':
+    #     model = Erosion(request)
+    elif model_type == 'runoff':
+        model = Runoff(request)
     else:
         model = GenericModel(request, model_type)
 
@@ -101,20 +107,30 @@ def get_model_results(request):
     results = model.run_model()
     # result will be a OutputDataNode
     return_data = []
+    area = float(
+        request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
+
     for result in results:
         print("Creating png for ", result.get_model_type())
-        avg = model.get_model_png(result.get_data_display(), geo_data.bounds, geo_data.no_data_aray)
+        print(result.data)
+        avg, sum, count = model.get_model_png(result.data, geo_data.bounds, geo_data.no_data_aray)
         palette, values = model.get_legend()
         data = {
             "extent": [*bounds],
             "palette": palette,
             "url": model.file_name + ".png",
             "values": values,
-            "avg": avg,
-            "units": model.get_units(),
+
+            "units": result.default_units,
+            "units_alternate": result.alternate_units,
             "model_type": model_type,
-            "crop_type":result.get_model_type(),
-            "f_name":f_name
+            "value_type": result.get_model_type(),
+            "f_name": f_name,
+            "scen": scen,
+            "avg": round(avg, 2),
+            "area": round(area,2),
+            "counted_cells": count,
+            "sum_cells": round(sum,2),
         }
         return_data.append(data)
     print("compiled model data")
