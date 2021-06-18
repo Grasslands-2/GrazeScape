@@ -33,7 +33,9 @@ class RasterData:
         print(extents)
         # self.data_layer = data_layer
         self.extents = extents
-        self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
+        # self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
+        #                      "request=GetCoverage&CoverageId="
+        self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
 
         self.file_name = str(uuid.uuid4())
@@ -69,6 +71,7 @@ class RasterData:
             "ls": "InputRasters:LS_10m",
             "corn": "InputRasters:TC_Corn_10m",
             "soy": "InputRasters:TC_Soy_10m",
+            "hydgrp":"TC_hydgrp_10m"
             # "wheat": "InputRasters:TC_Wheat_10m"
         }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
@@ -127,19 +130,17 @@ class RasterData:
         bounds = 0
         for file in os.listdir(self.dir_path):
             print("Loading file: " + file)
-            print("no data value")
             if '.tif' in file:
                 data_name = file.split(".")[0]
                 image = gdal.Open(os.path.join(self.dir_path, file))
                 band = image.GetRasterBand(1)
                 # arr1 = np.asarray(band.ReadAsArray())
-                print(band.GetNoDataValue())
 
                 # set all output rasters to have float 32 data type
                 # this allows for the use of -9999 as no data value
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, file + "_clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
-                                    cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32 )
+                                    cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
                 geoTransform = ds_clip.GetGeoTransform()
                 minx = geoTransform[0]
                 maxy = geoTransform[3]
@@ -159,19 +160,24 @@ class RasterData:
         first_entry = [*raster_data_dic.keys()][0]
         size = raster_data_dic[first_entry].shape
         print(size)
-        print(raster_data_dic[first_entry])
         self.no_data_aray = np.zeros(size)
+        print(self.bounds["y"], self.bounds["x"])
+        print(raster_data_dic['hydgrp'])
         for y in range(0, self.bounds["y"]):
+            print("#############")
+            print(y)
             for x in range(0, self.bounds["x"]):
                 for val in raster_data_dic:
-
+                    # the hydgrp has a no data value and a NA value mapped to 6
+                    if val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
+                        self.no_data_aray[y][x] = 1
+                        break
                     if raster_data_dic[val][y][x] == self.no_data:
                         self.no_data_aray[y][x] = 1
                         break
 
 
     def check_raster_data(self, raster_dic):
-        print(raster_dic.keys())
         # raster_shape = raster_dic[next(raster_dic_it)].shape
 
         # print(next(raster_shape))
@@ -179,8 +185,6 @@ class RasterData:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         print(raster_shape)
         for raster in raster_dic_key_list:
-            print(raster)
-            print(raster_dic[raster].shape)
             if raster_shape != raster_dic[raster].shape:
                 raise Exception("Raster dimensions do not match")
         self.bounds["y"], self.bounds["x"] = raster_shape
