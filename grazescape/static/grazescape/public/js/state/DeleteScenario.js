@@ -1,17 +1,17 @@
 DSS.utils.addStyle('.underlined-input { border: none; border-bottom: 1px solid #ddd; display:table; width: 100%; height:100%; padding: 0 0 2px}')   
 DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
-DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
+DSS.utils.addStyle('.right-pad { padding-right: 32px }')
 
 //var for holding onto item to be deleted object
 var itemToBeDeleted = {}
 
-function wfsDeleteScenario(feat){
+function wfsDeleteItem(feat,layerString){
 	var formatWFS = new ol.format.WFS();
 	var formatGML = new ol.format.GML({
 		featureNS: 'http://geoserver.org/GrazeScape_Vector'
 		/*'http://geoserver.org/Farms'*/,
 		//Geometry: 'geom',
-		featureType: 'scenarios_2',
+		featureType: layerString,
 		srsName: 'EPSG:3857'
 	});
 	console.log(feat)
@@ -28,8 +28,10 @@ function wfsDeleteScenario(feat){
 		contentType: 'text/xml',
 		data: str,
 		success: function (data) {
-			console.log("data deleted successfully!: "+ data);
-			DSS.layer.farms_1.getSource().refresh();
+			console.log("data deleted successfully!: ");
+			console.log(data)
+			//DSS.layer.farms_1.getSource().refresh();
+			//getWFSScenarioSP(DSS.activeFarm)
 		},
 		error: function (xhr, exception) {
 			var msg = "";
@@ -59,7 +61,7 @@ function selectDeleteScenario(fgid){
 		console.log(delScenarioFeature.values_.gid);
 		console.log("from scenario features loop through: " + delScenarioFeature.values_.gid);
 		if (delScenarioFeature.values_.gid == fgid){
-			//wfsDeleteScenario(delScenarioFeature);
+			//wfsDeleteItem(delScenarioFeature);
 			itemToBeDeleted = delScenarioFeature;
 			console.log("scenario selected for termination:")
 			console.log(itemToBeDeleted);
@@ -68,8 +70,42 @@ function selectDeleteScenario(fgid){
 		//}else{
 			//console.log("delete scenario failed")
 			////pass
+			wfsDeleteItem(itemToBeDeleted,'scenarios_2');
+			if(DSS.activeScenario == itemToBeDeleted.values_.gid){
+				getWFSScenarioSP()
+				DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
+				DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
+				DSS.dialogs.ScenarioPicker.show().center().setY(0);
+			}
 		};
 	});
+	selectDeleteFieldInfra(fgid,fieldArrayDS,DSS.layer.fields_1,'field_2')
+	selectDeleteFieldInfra(fgid,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
+}
+fieldArrayDS = []
+infraArrayDS = []
+async function selectDeleteFieldInfra(fgid,featArray,layerName,layerString){
+	//reSourceFeatures(layerName,layerString,fgid)
+	layerName.getSource().getFeatures().forEach(function(f) {
+		var delFieldInfraFeature = f;
+		console.log('this is fgid')
+		console.log(fgid)
+		console.log(delFieldInfraFeature);
+		console.log("from " + layerName + " loop through: " + delFieldInfraFeature.values_.scenario_id);
+		if (delFieldInfraFeature.values_.scenario_id == fgid){
+			//itemToBeDeleted = delFieldInfraFeature;
+			//console.log("feature selected for termination: ")
+			console.log(delFieldInfraFeature);
+			featArray.push(delFieldInfraFeature);
+			
+		};
+	});
+	console.log('Features to be deleted in '+layerString + ': ')
+	console.log(featArray)
+	for(i in featArray){
+		await wfsDeleteItem(featArray[i],layerString,fgid);
+		//featArray.remove(featArray[i]);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -124,54 +160,29 @@ Ext.define('DSS.state.DeleteScenario', {
 						triggerWrapCls: 'underlined-input',
 					},
 					items:[
-					{
-						xtype: 'radiogroup',
-						itemId: 'contents',
-						style: 'padding: 0px; margin: 0px',
-						//hideEmptyLabel: true,
-						columns: 1, 
-						vertical: true,
-						allowBlank: false,
-						//bind: { value: '{modelSelected}' },
-						defaults: {
-							name: 'scenarioSelection'
-						},
-						items: itemsArray,
-						listeners: {
-							change: {
-								 fn: function(){
-									 var checked = this.getChecked()
-									 //console.log(checked);
-									 if (checked.length == 2) {
-										scenarioToDelete = checked[1].inputValue
-										console.log(scenarioToDelete);
-										selectDeleteScenario(scenarioToDelete)
-									 }else{
-										scenarioToDelete = checked[0].inputValue
-										console.log(scenarioToDelete);
-										selectDeleteScenario(scenarioToDelete)
-									}
-								 }
+						Ext.create('Ext.menu.Menu', {
+							width: 100,
+							margin: '0 0 10 0',
+							floating: false,  // usually you want this set to True (default)
+							renderTo: Ext.getBody(),  // usually rendered by it's containing component
+							items: itemsArray,
+							listeners:{
+								click: function( menu, item, e, eOpts ) {
+									fieldArrayDS = []
+									infraArrayDS = []
+									console.log(item.text);
+									console.log(item.inputValue);
+			 						scenarioToDelete = item.inputValue
+									console.log(scenarioToDelete);
+									selectDeleteScenario(scenarioToDelete)
+									//selectDeleteFieldInfra(item.inputValue,fieldArrayDS,DSS.layer.fields_1,'field_2')
+									//selectDeleteFieldInfra(item.inputValue,infrastructureSourceDS,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
+									alert('Scenario: ' + item.text + ' Deleted')
+									this.up('window').destroy();
+								}
 							}
-					   }
-				},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Delete Scenario',
-					formBind: true,
-					handler: function() {
-						wfsDeleteScenario(itemToBeDeleted);
-						this.up('window').destroy();
-						if(DSS.activeScenario == itemToBeDeleted.values_.gid){
-							getWFSScenarioSP()
-							DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
-							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
-							DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						} 
-					}
-			    }],
+						}),
+					],
 			}]
 		});
 		me.callParent(arguments);
