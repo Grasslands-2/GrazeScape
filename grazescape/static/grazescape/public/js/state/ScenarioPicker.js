@@ -1,6 +1,6 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
-
+//DSS.scenarioName = ''
 //local functions to make sure selected scenario infra and fields only draw
 function showFieldsForScenario() {
     	
@@ -72,8 +72,8 @@ function getWFSScenarioSP(farm) {
 }
 
 function popScenarioArraySP(obj) {
-
 	for (i in obj)
+	DSS.scenarioName = obj[i].properties.scenario_name;
 	scenarioPickerArray.push({
 		fid: obj[i].id,
 		gid: obj[i].properties.gid,
@@ -102,21 +102,25 @@ function popScenarioArraySP(obj) {
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
 	});
+	console.log(scenarioPickerArray);
+	//DSS.scenarioName = scenarioPickerArray[0].scenarioName
 	//DSS.farmstructure_grid.farmstructureGrid.store.reload(farmArray);
 }
 itemsArray = []
+
 function popItemsArray(obj){
 	for (i in obj)
 	itemsArray.push({
-		boxLabel:obj[i].properties.scenario_name,
+		text:obj[i].properties.scenario_name,
 		inputValue:obj[i].properties.gid,
 		itemFid: obj[i].id
 	})
+	console.log(itemsArray);
 }
 getWFSScenarioSP(DSS.activeFarm)
-console.log("Picker array and items array!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-console.log(scenarioPickerArray);
-console.log(itemsArray);
+//console.log("Picker array and items array!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+//console.log(scenarioPickerArray);
+
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.ScenarioPicker', {
@@ -153,72 +157,33 @@ Ext.define('DSS.state.ScenarioPicker', {
 						width: '100%',
 						height: 28,
 						cls: 'information accent-text bold',
-						//html: "Choose From the Scenarios Below",
+						html: "Choose From the Scenarios Below",
 					}],
 					
-				},{
-					xtype: 'form',
-					url: 'create_operation',
-					jsonSubmit: true,
-					header: false,
-					border: false,
-					layout: DSS.utils.layout('vbox', 'center', 'stretch'),
-					margin: '8 0',
-					defaults: {
-						xtype: 'textfield',
-						labelAlign: 'right',
-						labelWidth: 70,
-						triggerWrapCls: 'underlined-input',
-					},
-					items:[
-
-				{
-					xtype: 'radiogroup',
-					itemId: 'contents',
-					style: 'padding: 0px; margin: 0px',
-					//hideEmptyLabel: true,
-					columns: 1, 
-					vertical: true,
-					allowBlank: false,
-					//bind: { value: '{modelSelected}' },
-					defaults: {
-						name: 'scenarioSelection'
-					},
-					items: itemsArray,
-					listeners: {
-						change: {
-							 fn: function(){
-								 var checked = this.getChecked()
-								 console.log(checked);
-								 if (checked.length == 2) {
-									DSS.activeScenario = checked[1].inputValue
-									console.log(DSS.activeScenario);
-								 }else{
-									 DSS.activeScenario = checked[0].inputValue
-									console.log(DSS.activeScenario);
-								}
-							 }
-						}
-				   }
 				},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Select Scenario',
-					formBind: true,
-					handler: function() {
-						gatherScenarioTableData()
-						getWFSScenarioSP()
-						//console.log('this is the scenario picked by the user')
-						//console.log(scenarioArray)
-						this.up('window').destroy();
-						showFieldsForScenario()
-						showInfraForScenario()
+				Ext.create('Ext.menu.Menu', {
+					width: 100,
+					margin: '0 0 10 0',
+					floating: false,  // usually you want this set to True (default)
+					renderTo: Ext.getBody(),  // usually rendered by it's containing component
+					items: itemsArray,
+					listeners:{
+						click: function( menu, item, e, eOpts ) {
+							console.log(item.text);
+							console.log(item.inputValue);
+							DSS.activeScenario = item.inputValue;
+							DSS.scenarioName = item.text;
+							showFieldsForScenario()
+				 			showInfraForScenario()
+							DSS.ApplicationFlow.instance.showManageOperationPage();
+							scenarioPickerArray = []
+							this.up('window').destroy();
+						}
 					}
-			    }],
-			}]
+				})
+			]
 		});
+		
 		me.callParent(arguments);
 		AppEvents.registerListener("viewport_resize", function(opts) {
 			me.center();

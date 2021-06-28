@@ -114,6 +114,8 @@ function getHighestScenarioId(){
 }
 getHighestFarmId()
 getHighestScenarioId()
+DSS.activeFarm = highestFarmId;
+DSS.activeScenario = highestScenarioId;
 //highestFarmId = 0
 console.log(highestFarmId);
 //console.log(highestScenarioId);
@@ -125,7 +127,7 @@ function wfs_farm_insert(feat,geomType,fType) {
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
 		/*'http://geoserver.org/Farms'*/,
-		Geometry: 'geom',
+		//Geometry: 'geom',
         featureType: fType,
         srsName: 'EPSG:3857'
     });
@@ -154,6 +156,8 @@ function wfs_farm_insert(feat,geomType,fType) {
 			DSS.activeScenario = highestScenarioId;
 			console.log("Current active farm!: " + DSS.activeFarm);
 			console.log("Current active Scenario!: " + DSS.activeScenario);
+			
+
 		},
         error: function (xhr, exception) {
             var msg = "";
@@ -314,7 +318,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Place Farm',
+					text: 'Place Operation',
 					formBind: true,
 					handler: function() { 
 						var form = this.up('form').getForm();

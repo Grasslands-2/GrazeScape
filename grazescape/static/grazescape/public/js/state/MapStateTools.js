@@ -321,8 +321,9 @@ Ext.define('DSS.state.MapStateTools', {
 				let g = f.getGeometry();
 
 				if (g && g.getType() === "Point") {
-					if (DSS.activeFarm == null){
+					//if (DSS.activeFarm == null){
 						DSS.activeFarm = f.get("gid");
+						DSS.farmName = f.get("farm_name")
 						//DSS.activeScenario = f.get("scenario");
 						
 						let pos = g.getFirstCoordinate()
@@ -345,21 +346,21 @@ Ext.define('DSS.state.MapStateTools', {
 						DSS.map.getViewport().style.cursor = '';
 						AppEvents.triggerEvent('activate_operation')
 	//					console.log(DSS.layer.fields_1.getSource());
-						DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
+						//DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
 						DSS.MapState.removeMapInteractions()
 						//DSS.layer.farms_1.getSource().refresh();
 						
 						//----------launching scenario picker---------------
-						if (DSS.activeScenario == null){
-							getWFSScenarioSP()
+						//if (DSS.activeScenario == null){
+							//getWFSScenarioSP(DSS.activeFarm)
 							DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
 							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
 							DSS.dialogs.ScenarioPicker.show().center().setY(0);
 							console.log(DSS.dialogs.ScenarioPicker);
 							DSS.map.addLayer(DSS.layer.scenarios);
 							break;
-						}
-					}
+						//}
+					//}
 					
 					
 					break;

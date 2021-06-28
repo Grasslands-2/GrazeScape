@@ -1,3 +1,31 @@
+function reSourceFields() {
+	DSS.layer.fields_1.getSource().setUrl(
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_2&'+
+	//'CQL_filter=scenario_id='+fgid+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857'
+	);
+	DSS.layer.fields_1.getSource().refresh();
+	console.log("reSource Fields ran");
+}
+function reSourceinfra() {
+	DSS.layer.infrastructure.getSource().setUrl(
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:infrastructure_2&'+
+	//'CQL_filter=scenario_id='+fgid+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857'
+	);
+	DSS.layer.infrastructure.getSource().refresh();
+	console.log("reSource Infra ran");
+}
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Manage', {
 //------------------------------------------------------------------------------
@@ -59,6 +87,8 @@ Ext.define('DSS.state.Manage', {
 									DSS.map.removeLayer(DSS.layer.scenarios);
 									DSS.activeScenario = null;
 									DSS.activeFarm = null;
+									console.log(DSS.activeFarm)
+									console.log(DSS.activeScenario)
 								}
 							});
 						}
@@ -77,6 +107,16 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Define or edit field boundaries'
+				},
+				{ //------------------------------------------
+					xtype: 'component',
+					cls: 'information med-text',
+					html: 'Farm: ' + DSS.farmName,
+				},
+				{ //------------------------------------------
+					xtype: 'component',
+					cls: 'information med-text',
+					html: 'Scenario: ' + DSS.scenarioName,
 				},
 				//--------------------Manage current scenario--------------
 				{
@@ -116,7 +156,7 @@ Ext.define('DSS.state.Manage', {
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						console.log(scenarioArray)
+						console.log('This is the scenarioArray: '+scenarioArray)
 					}
 				},
 				//---------------------Delete Scenarios Button-------------
@@ -124,13 +164,16 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Delete New Scenario',
+					text: 'Delete Scenario',
 					handler: function(self) {
 						//gatherScenarioTableData()
 						//getWFSScenario()
+						reSourceFields()
+						reSourceinfra()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
+						
 					}
 				}]
 			}]
