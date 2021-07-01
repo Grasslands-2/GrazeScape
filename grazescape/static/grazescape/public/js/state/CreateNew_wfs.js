@@ -31,6 +31,24 @@ var scenario_1SourceCN = new ol.source.Vector({
     url: scenarioUrlCN,
     format: new ol.format.GeoJSON()
 });
+function showNewFarm() {
+	DSS.layer.farms_1.getSource().setUrl(
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:farm_2&'+
+	//'CQL_filter=id='+DSS.activeFarm+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857'
+	);
+	DSS.layer.farms_1.setOpacity(1);
+	console.log(DSS.layer.farms_1.getStyle())
+	console.log(DSS.layer.farms_1.getSource())
+	DSS.layer.farms_1.getSource().refresh();
+	console.log(DSS.activeFarm)
+	console.log("show new farm ran");
+}
 //bring in farm layer table as object for iteration
 function getWFSFarm() {
 	return $.ajax({
@@ -86,39 +104,39 @@ function popScenarioArray(obj) {
 //populate data array with farm object data from each farm
 //popArray(farmObj);
 //var to hold onto largest gid value of current farms before another is added
-highestFarmId = 0;
-highestScenarioId = 0;
-//loops through data array gids to find largest value and hold on to it with highestfarmid
+highestFarmIdCNO = 0;
+highestScenarioIdCNO = 0;
+//loops through data array gids to find largest value and hold on to it with highestFarmIdCNO
 
-function getHighestFarmId(){
+function gethighestFarmIdCNO(){
 	getWFSFarm()
 	popFarmArray(farmObj);
 	for (i in farmArray){
 		//console.log(farmArray[i].gid)
-		if (farmArray[i].gid > highestFarmId){
-			highestFarmId = farmArray[i].gid
-			console.log(highestFarmId);
+		if (farmArray[i].gid > highestFarmIdCNO){
+			highestFarmIdCNO = farmArray[i].gid
+			console.log(highestFarmIdCNO);
 		};
 	};
 }
-function getHighestScenarioId(){
+function gethighestScenarioIdCNO(){
 	getWFSScenario()
 	popScenarioArray(scenarioObj);
 	for (i in scenarioArray){
 		//console.log(farmArray[i].gid)
-		if (scenarioArray[i].gid > highestScenarioId){
-			highestScenarioId = scenarioArray[i].gid
-			console.log(highestScenarioId);
+		if (scenarioArray[i].gid > highestScenarioIdCNO){
+			highestScenarioIdCNO = scenarioArray[i].gid
+			console.log(highestScenarioIdCNO);
 		};
 	};
 }
-getHighestFarmId()
-getHighestScenarioId()
-DSS.activeFarm = highestFarmId;
-DSS.activeScenario = highestScenarioId;
-//highestFarmId = 0
-console.log(highestFarmId);
-//console.log(highestScenarioId);
+gethighestFarmIdCNO()
+gethighestScenarioIdCNO()
+DSS.activeFarm = highestFarmIdCNO;
+DSS.activeScenario = highestScenarioIdCNO;
+//highestFarmIdCNO = 0
+console.log(highestFarmIdCNO);
+//console.log(highestScenarioIdCNO);
 
 
 //---------------------------------Working Functions-------------------------------
@@ -132,7 +150,7 @@ function wfs_farm_insert(feat,geomType,fType) {
         srsName: 'EPSG:3857'
     });
     console.log(feat)
-	console.log(feat.values_.id)
+	//console.log(feat.values_.id)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log(node);
     s = new XMLSerializer();
@@ -147,17 +165,20 @@ function wfs_farm_insert(feat,geomType,fType) {
         data: str,
 		success: function (response) {
 			console.log("uploaded data successfully!: "+ response[0]);
-			DSS.layer.farms_1.getSource().refresh();
+			// DSS.layer.farms_1.getSource().refresh();
+			// DSS.layer.scenarios.getSource().refresh();
 			DSS.MapState.removeMapInteractions()
-			getHighestFarmId();
-			getHighestScenarioId();
-			console.log(highestFarmId);
-			DSS.activeFarm = highestFarmId;
-			DSS.activeScenario = highestScenarioId;
+			console.log(highestFarmIdCNO);
+			DSS.activeFarm = highestFarmIdCNO + 1;
+			DSS.activeScenario = highestScenarioIdCNO + 1;
+			DSS.scenarioName = feat.values_.scenario_name;
+			DSS.farmName = feat.values_.farm_name;
 			console.log("Current active farm!: " + DSS.activeFarm);
 			console.log("Current active Scenario!: " + DSS.activeScenario);
+			//DSS.layer.farms_1.getSource().refresh();
+			//DSS.layer.scenarios.getSource().refresh();
+			DSS.ApplicationFlow.instance.showManageOperationPage();
 			
-
 		},
         error: function (xhr, exception) {
             var msg = "";
@@ -181,6 +202,10 @@ function wfs_farm_insert(feat,geomType,fType) {
     }).done();
 }
 function createFarm(fname,fowner,faddress,sname,sdescript){
+	let me = this;
+	DSS.MapState.removeMapInteractions()
+	DSS.mapClickFunction = undefined;
+	DSS.mouseMoveFunction = undefined;
 	DSS.draw = new ol.interaction.Draw({
 		//source: source,
 		type: 'Point',
@@ -190,29 +215,28 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 	console.log("draw is on");
 	console.log(DSS.draw);
 	DSS.draw.on('drawend', function (e) {
+		console.log(e)
+		//DSS.map.getView().fit(e);
 		e.feature.setProperties({
-			//plugs in highestFarmId and gives it an id +1 to make sure its unique
-			id: highestFarmId + 1,
+			//plugs in highestFarmIdCNO and gives it an id +1 to make sure its unique
+			id: highestFarmIdCNO + 1,
 			farm_name: fname,
 			farm_owner: fowner,
-			farm_addre: faddress
-		})
-		var geomType = 'point'
-		wfs_farm_insert(e.feature, geomType,'farm_2')
-
-		e.feature.setProperties({
-			//plugs in highestScenarioId and gives it an id +1 to make sure its unique
-			scenario_id: highestScenarioId + 1,
+			farm_addre: faddress,
+			scenario_id: highestScenarioIdCNO + 1,
 			farm_name: fname,
 			farm_owner: fowner,
-			farm_id: highestFarmId + 1,
+			farm_id: highestFarmIdCNO + 1,
 			farm_addre: faddress,
 			scenario_name: sname,
 			scenario_desp: sdescript
 		})
 		var geomType = 'point'
+		wfs_farm_insert(e.feature, geomType,'farm_2')
 		wfs_farm_insert(e.feature, geomType,'scenarios_2')
 		console.log("HI! WFS farm Insert ran!")
+		DSS.layer.farms_1.getSource().refresh();
+		//showNewFarm()
 	})     
 }
 
@@ -323,11 +347,17 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					handler: function() { 
 						var form = this.up('form').getForm();
 						if (form.isValid()) {
+							// DSS.MapState.removeMapInteractions()
+							// DSS.mapClickFunction = undefined;
+							// DSS.mouseMoveFunction = undefined;
+							gethighestFarmIdCNO();
+							gethighestScenarioIdCNO();
 							createFarm(form.findField('operation').getSubmitValue(),
 							form.findField('owner').getSubmitValue(),
 							form.findField('address').getSubmitValue(),
 							form.findField('scenario_name').getSubmitValue(),
 							form.findField('scenario_description').getSubmitValue());
+							//showNewFarm()
 						}
 			        }
 				}],

@@ -38,6 +38,7 @@ function showInfraForScenario() {
 //-------------------------------------------------------
 scenarioPickerArray = [];
 function getWFSScenarioSP(farm) {
+	scenarioPickerArray = [];
 	console.log(DSS.activeFarm);
 	var scenarioUrlSP = 
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
@@ -58,13 +59,13 @@ function getWFSScenarioSP(farm) {
 		success:function(response)
 		{
 			responseObj = response
-			farmObj = response.features
+			scenObj = response.features
 			console.log(responseObj);
 			farmArray = [];
 			itemsArray = [];
-			console.log(farmObj[0]);
-			popScenarioArraySP(farmObj);
-			popItemsArray(farmObj);
+			console.log(scenObj[0]);
+			popScenarioArraySP(scenObj);
+			popItemsArray(scenObj);
 			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			console.log(response);
 		}

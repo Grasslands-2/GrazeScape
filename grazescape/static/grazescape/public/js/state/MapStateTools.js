@@ -129,6 +129,25 @@ Ext.define('DSS.state.MapStateTools', {
     
     // Opacity defaults to opacity for showFields()
     //-------------------------------------------------------------
+	showNewFarm: function() {
+		DSS.layer.farms_1.getSource().setUrl(
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:farm_2&'+
+		'CQL_filter=id='+DSS.activeFarm+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857'
+		);
+		DSS.layer.farms_1.setOpacity(1);
+		console.log(DSS.layer.farms_1.getStyle())
+		console.log(DSS.layer.farms_1.getSource())
+		DSS.layer.farms_1.getSource().refresh();
+		console.log(DSS.activeFarm)
+		console.log("show new farm ran");
+	},
+
 	//used to limit return of fields to just active farm
     showFieldsForFarm: function(farmId, opacity) {
     	

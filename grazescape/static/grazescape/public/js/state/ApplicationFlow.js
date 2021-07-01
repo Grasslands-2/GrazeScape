@@ -213,11 +213,17 @@ Ext.define('DSS.state.ApplicationFlow', {
 		Ext.resumeLayouts(true);
 		
 		DSS.mouseMoveFunction = undefined;
-		DSS.layer.farms_1.setVisible(false);
+		//DSS.layer.farms_1.setVisible(true);
+		DSS.layer.scenarios.setVisible(false);
 		
+		DSS.MapState.showNewFarm(DSS.activeFarm);
 		DSS.MapState.showFieldsForFarm(DSS.activeFarm);
 		DSS.MapState.showInfrasForFarm(DSS.activeFarm);
-		
+
+		//var ext = DSS.layer.farms_1.getSource().getFeatures().forEach().getExtent();
+		//console.log(ext)
+		//DSS.map.getView().fit(ext);
+		//DSS.MapState.zoomToRealExtent(ext);
 		DSS.popupOverlay.setPosition(false);
 	},
 

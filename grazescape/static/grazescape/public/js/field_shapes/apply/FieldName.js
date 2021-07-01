@@ -20,20 +20,6 @@ Ext.define('DSS.field_shapes.apply.FieldName', {
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'container',
-				width: '100%',
-				layout: 'absolute',
-				items: [{
-					xtype: 'component',
-					x: 0, y: -6,
-					width: '100%',
-					height: 28,
-					cls: 'information accent-text bold',
-					html: "Field Name",
-				},
-					getToggle(me, 'field_name.is_active') // Helper defined in DrawAndApply.js
-				]
-			},{
-				xtype: 'container',
 				itemId: 'contents',
 				layout: 'center',
 				padding: '0 0 6 0',

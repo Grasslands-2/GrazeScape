@@ -106,9 +106,10 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
 		})
 		console.log('featArrayNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 		console.log(featArray);
-		for(i in featArray){
-			await wfs_new_scenario_features_copy(featArray[i],layerTitle)
-		}
+		await wfs_new_scenario_features_copy(featArray,layerTitle)
+		// for(i in featArray){
+		// 	await wfs_new_scenario_features_copy(featArray[i],layerTitle)
+		// }
 }
 
 //empty array to catch feature objects 
@@ -196,7 +197,7 @@ console.log(highestScenarioId);
 
 
 //---------------------------------Working Functions-------------------------------
-function wfs_new_scenario_features_copy(feat,fType) {
+function wfs_new_scenario_features_copy(featsArray,fType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector',
@@ -204,9 +205,11 @@ function wfs_new_scenario_features_copy(feat,fType) {
         featureType: fType,
         srsName: 'EPSG:3857'
     });
-    console.log(feat)
+    console.log(featsArray)
 	//console.log(feat.values_.id)
-    node = formatWFS.writeTransaction([feat], null, null, formatGML);
+	//keep in mind formatWFS.writeTransaction needs feat in an [].  
+	//feat in this case is actually an array so it works out.
+    node = formatWFS.writeTransaction(featsArray, null, null, formatGML);
 	node.geom = node.geometry
 	console.log(node);
     s = new XMLSerializer();
@@ -323,7 +326,7 @@ function createNewScenario(sname,sdescript,snewhighID){
 	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
-		//console.log(newScenarioFeature)
+		console.log(newScenarioFeature)
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later

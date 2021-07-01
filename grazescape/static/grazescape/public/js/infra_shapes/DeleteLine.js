@@ -104,11 +104,11 @@ Ext.define('DSS.infra_shapes.DeleteLine', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Delete Field',
+					html: 'Delete Infrastructure',
 				},{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Click a field to delete it',
+					html: 'Click a infrastructure line to delete it',
 				},
 				{
 					xtype: 'button',

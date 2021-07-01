@@ -103,11 +103,7 @@ Ext.define('DSS.state.Manage', {
 			},{ 
 				xtype: 'container',
 				layout: DSS.utils.layout('vbox', 'center', 'stretch'),
-				items: [{ //------------------------------------------
-					xtype: 'component',
-					cls: 'information med-text',
-					html: 'Define or edit field boundaries'
-				},
+				items: [
 				{ //------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',

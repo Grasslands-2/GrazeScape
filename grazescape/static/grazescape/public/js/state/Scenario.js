@@ -127,7 +127,7 @@ function runInfraUpdate(){
 				console.log(infraArray[i].name);
 				infraFeature.setProperties({
 					infra_name: infraArray[i].name,
-					owner_id: infraArray[i].owningFarmid,
+					//farm_id: infraArray[i].owningFarmid,
 					infra_type: infraArray[i].infraType,
 					infra_type_disp: infraArray[i].infraTypeDisp,
 					fence_material: infraArray[i].fenceMaterial,
@@ -138,7 +138,7 @@ function runInfraUpdate(){
 					lane_material_disp: infraArray[i].laneMaterialDisp,
 					cost_per_foot: infraArray[i].costPerFoot,
 				});
-				wfs_update(infraFeature,'Infrastructure');
+				wfs_update(infraFeature,'infrastructure_2');
 				break;
 			}				
 		}				
@@ -368,6 +368,10 @@ Ext.define('DSS.state.Scenario', {
 						}
 						else {
 							AppEvents.triggerEvent('hide_field_shape_mode');
+							// use DSS.Inspector.addModeControl() to turn the mode
+							// back to inspector
+							DSS.Inspector.addModeControl()
+							//----------------------------------
 							DSS.MapState.removeMapInteractions()
 						}
 					//	DSS.ApplicationFlow.instance.showNewOperationPage();
@@ -388,6 +392,10 @@ Ext.define('DSS.state.Scenario', {
 						}
 						else {
 							AppEvents.triggerEvent('hide_infra_line_mode');
+							// use DSS.Inspector.addModeControl() to turn the mode
+							// back to inspector
+							DSS.Inspector.addModeControl()
+							//----------------------------------
 							DSS.MapState.removeMapInteractions()
 						}
 					}
@@ -453,7 +461,7 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 							runInfraUpdate()
-							console.log(fieldArray);
+							console.log(infraArray);
 						}
 					}
 				},
