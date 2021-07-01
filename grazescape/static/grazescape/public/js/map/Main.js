@@ -24,6 +24,7 @@ Ext.define('DSS.map.Main', {
 	
 	requires: [
 		'DSS.map.DrawAndModify',
+		'DSS.state.DeleteOperation',
 		'DSS.state.ScenarioPicker',
 		'DSS.map.BoxModel',
 		'DSS.map.LayerMenu',
@@ -376,8 +377,13 @@ Ext.define('DSS.map.Main', {
 				'srsname=EPSG:3857';
 			},
 		});
-		//-------------------------------------Field layover and style------------------------
-
+		//-------------------------------------Scenario Style------------------------
+		var scenStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: 'rgba(255, 255, 255, 0)',
+				width: 1,
+			})
+		})
 		//------------------------------------infra styles and layer-----------------------
 		var fenceStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
@@ -449,14 +455,12 @@ Ext.define('DSS.map.Main', {
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: scenario_1SourceMain,
-			style: function(feature, resolution) {
-				let r = 1.0 - resolution / 94.0;
-				if (r < 0) r = 0
-				else if (r > 1) r = 1
-				// value from 3 to 16
-				r = Math.round(Math.pow(r, 3) * 13 + 3)
-				return me.DSS_zoomStyles['style' + r];
-			}
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: 'rgba(255, 255, 255, 0)',
+					width: 1,
+				})
+			})
 		})
 
 		//---------------------------------Field layers and style work-------------------------------------
@@ -544,9 +548,10 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
 				//DSS.layer.DEM_image,
+				DSS.layer.scenarios,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1,
-				//DSS.layer.scenarios,
+				
 				DSS.layer.fieldsLabels,
 				DSS.layer.infrastructure
 				 ],

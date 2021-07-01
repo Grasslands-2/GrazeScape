@@ -5,7 +5,7 @@ DSS.utils.addStyle('.right-pad { padding-right: 32px }')
 //var for holding onto item to be deleted object
 var itemToBeDeleted = {}
 
-function wfsDeleteItem(feat,layerString){
+function wfsDeleteItem(featsArray,layerString){
 	var formatWFS = new ol.format.WFS();
 	var formatGML = new ol.format.GML({
 		featureNS: 'http://geoserver.org/GrazeScape_Vector'
@@ -14,8 +14,8 @@ function wfsDeleteItem(feat,layerString){
 		featureType: layerString,
 		srsName: 'EPSG:3857'
 	});
-	console.log(feat)
-	node = formatWFS.writeTransaction(null, null, [feat], formatGML);
+	console.log(featsArray)
+	node = formatWFS.writeTransaction(null, null, featsArray, formatGML);
 	console.log(node);
 	s = new XMLSerializer();
 	str = s.serializeToString(node);
@@ -31,7 +31,7 @@ function wfsDeleteItem(feat,layerString){
 			console.log("data deleted successfully!: ");
 			console.log(data)
 			//DSS.layer.farms_1.getSource().refresh();
-			//getWFSScenarioSP(DSS.activeFarm)
+			getWFSScenarioSP(DSS.activeFarm)
 		},
 		error: function (xhr, exception) {
 			var msg = "";
@@ -61,16 +61,17 @@ function selectDeleteScenario(fgid){
 		console.log(delScenarioFeature.values_.gid);
 		console.log("from scenario features loop through: " + delScenarioFeature.values_.gid);
 		if (delScenarioFeature.values_.gid == fgid){
-			//wfsDeleteItem(delScenarioFeature);
 			itemToBeDeleted = delScenarioFeature;
 			console.log("scenario selected for termination:")
 			console.log(itemToBeDeleted);
 			console.log("current active scenario: " + DSS.activeScenario)
+			delArray = [];
+			delArray.push(itemToBeDeleted)
 			//break;
 		//}else{
 			//console.log("delete scenario failed")
 			////pass
-			wfsDeleteItem(itemToBeDeleted,'scenarios_2');
+			wfsDeleteItem(delArray,'scenarios_2');
 			if(DSS.activeScenario == itemToBeDeleted.values_.gid){
 				getWFSScenarioSP()
 				DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
@@ -102,10 +103,11 @@ async function selectDeleteFieldInfra(fgid,featArray,layerName,layerString){
 	});
 	console.log('Features to be deleted in '+layerString + ': ')
 	console.log(featArray)
-	for(i in featArray){
-		await wfsDeleteItem(featArray[i],layerString,fgid);
-		//featArray.remove(featArray[i]);
-	}
+	// for(i in featArray){
+	// 	await wfsDeleteItem(featArray[i],layerString,fgid);
+	// 	//featArray.remove(featArray[i]);
+	// }
+	await wfsDeleteItem(featArray,layerString,fgid);
 }
 
 //------------------------------------------------------------------------------

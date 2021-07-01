@@ -32,6 +32,7 @@ function wfs_field_insert(feat,geomType) {
         contentType: 'text/xml',
         data: str,
 		success: function (data) {
+			DSS.MapState.removeMapInteractions()
 			console.log("uploaded data successfully!: "+ data);
 			DSS.layer.fields_1.getSource().refresh();
 			DSS.layer.farms_1.getSource().refresh();
