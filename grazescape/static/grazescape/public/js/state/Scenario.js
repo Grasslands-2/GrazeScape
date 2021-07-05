@@ -365,9 +365,12 @@ Ext.define('DSS.state.Scenario', {
 						if (pressed) {
 							AppEvents.triggerEvent('show_field_shape_mode')
 							DSS.MapState.removeMapInteractions()
+							AppEvents.triggerEvent('hide_field_grid')
+							AppEvents.triggerEvent('hide_infra_grid')
 						}
 						else {
 							AppEvents.triggerEvent('hide_field_shape_mode');
+							AppEvents.triggerEvent('hide_infra_line_mode');
 							// use DSS.Inspector.addModeControl() to turn the mode
 							// back to inspector
 							DSS.Inspector.addModeControl()
@@ -389,8 +392,11 @@ Ext.define('DSS.state.Scenario', {
 						if (pressed) {
 							AppEvents.triggerEvent('show_infra_line_mode')
 							DSS.MapState.removeMapInteractions()
+							AppEvents.triggerEvent('hide_field_grid')
+							AppEvents.triggerEvent('hide_infra_grid')
 						}
 						else {
+							AppEvents.triggerEvent('hide_field_shape_mode');
 							AppEvents.triggerEvent('hide_infra_line_mode');
 							// use DSS.Inspector.addModeControl() to turn the mode
 							// back to inspector
@@ -416,8 +422,11 @@ Ext.define('DSS.state.Scenario', {
 						{
 							DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
 							DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
-
 						}
+						AppEvents.triggerEvent('hide_field_grid')
+						AppEvents.triggerEvent('hide_infra_grid')
+						AppEvents.triggerEvent('hide_field_shape_mode');
+						AppEvents.triggerEvent('hide_infra_line_mode');
 						DSS.dialogs.AnimalDialog.show().center().setY(0);
 					}
 				},{
@@ -434,9 +443,12 @@ Ext.define('DSS.state.Scenario', {
 							//Running gatherTableData before showing grid to get latest
 							gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
+							AppEvents.triggerEvent('hide_field_shape_mode');
+							AppEvents.triggerEvent('hide_infra_line_mode');
 						}
 						else {
 							AppEvents.triggerEvent('hide_field_grid')
+							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
 							runFieldUpdate()
 							console.log(fieldArray);
@@ -456,8 +468,11 @@ Ext.define('DSS.state.Scenario', {
 							DSS.MapState.removeMapInteractions();
 							gatherInfraTableData();
 							AppEvents.triggerEvent('show_infra_grid');
+							AppEvents.triggerEvent('hide_field_shape_mode');
+							AppEvents.triggerEvent('hide_infra_line_mode');
 						}
 						else {
+							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 							runInfraUpdate()
