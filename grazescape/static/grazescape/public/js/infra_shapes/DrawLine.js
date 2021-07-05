@@ -12,12 +12,12 @@ var InfrastructureSource_loc = new ol.source.Vector({
 function wfs_infra_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/GrazeScape_Vector'
-		/*'http://geoserver.org/Farms'*/,
-		Geometry: 'geom',
-        featureType: 'infrastructure_2',
-        srsName: 'EPSG:3857'
-    });
+			featureNS: 'http://geoserver.org/GrazeScape_Vector'
+			/*'http://geoserver.org/Farms'*/,
+			Geometry: 'geom',
+			featureType: 'infrastructure_2',
+			srsName: 'EPSG:3857'
+		});
     console.log(feat)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log(node);
@@ -129,7 +129,14 @@ lane_materialInput){
 	var af = parseInt(DSS.activeFarm,10)
 	var as = DSS.activeScenario;
 
-	DSS.draw.on('drawend', function (e,) {
+	DSS.draw.on('drawend', function (e) {
+		//var geom = e.target;
+		
+		console.log(e);
+		infraLength = e.feature.values_.geom.getLength();
+		console.log(infraLength);
+		totalCost = (infraLength * costPerFoot).toFixed(2)
+		console.log(totalCost);
 		e.feature.setProperties({
 			id: af,
 			farm_id: af,
@@ -143,8 +150,9 @@ lane_materialInput){
 			water_pipe_disp: water_pipeDisp,
 			lane_material: lane_materialInput,
 			lane_material_disp:lane_materialDisp,
-			cost_per_foot: costPerFoot
-
+			cost_per_foot: costPerFoot,
+			infra_length: infraLength,
+			total_cost: totalCost
 		})
 		var geomType = 'Line'
 		
