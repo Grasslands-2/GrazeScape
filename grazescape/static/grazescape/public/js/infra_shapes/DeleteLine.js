@@ -25,7 +25,7 @@ function deleteInfra(feat){
 			featureNS: 'http://geoserver.org/GrazeScape_Vector'
 			/*'http://geoserver.org/Farms'*/,
 			Geometry: 'geom',
-			featureType: 'Infrastructure',
+			featureType: 'infrastructure_2',
 			srsName: 'EPSG:3857'
 		});
 		console.log(feat)
@@ -104,11 +104,11 @@ Ext.define('DSS.infra_shapes.DeleteLine', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Delete Field',
+					html: 'Delete Infrastructure',
 				},{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Click a field to delete it',
+					html: 'Click a infrastructure line to delete it',
 				},
 				{
 					xtype: 'button',

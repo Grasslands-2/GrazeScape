@@ -29,7 +29,7 @@ function deleteField(feat){
 			featureNS: 'http://geoserver.org/GrazeScape_Vector'
 			/*'http://geoserver.org/Farms'*/,
 			Geometry: 'geom',
-			featureType: 'field_1',
+			featureType: 'field_2',
 			srsName: 'EPSG:3857'
 		});
 		console.log(feat)

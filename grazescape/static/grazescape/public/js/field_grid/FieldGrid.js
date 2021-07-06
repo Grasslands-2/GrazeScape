@@ -10,7 +10,7 @@ var fieldUrl ='http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
-'typeName=GrazeScape_Vector:field_1&' +
+'typeName=GrazeScape_Vector:field_2&' +
 'outputformat=application/json&'+
 'srsname=EPSG:3857';
 
@@ -64,18 +64,7 @@ function getWFSfields() {
 }
 
 function popFieldsArray(obj) {
-	//console.log('hi from popFieldsArray')
-	//var tillageStore;
 	for (i in obj)
-		/*if (obj[i].properties.rotation == 'cc' || obj[i].properties.rotation == 'cg')
-		{
-			tillageStore ='tillageList_cashCrop'
-		}
-		else
-		{
-			tillageStore ='tillageList'
-		}*/
-	//console.log(i);
 	fieldArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.field_name,
@@ -108,7 +97,6 @@ function popFieldsArray(obj) {
 	});
 }
 
-
 //empty array to catch feature objects 
 function gatherTableData() {
 	//redeclaring fieldUrl to only show filtered fields
@@ -117,8 +105,8 @@ function gatherTableData() {
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_1&' +
-	'CQL_filter=id='+DSS.activeFarm+'&'+
+	'typeName=GrazeScape_Vector:field_2&' +
+	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
 	//--------------------------------------------

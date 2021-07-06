@@ -2,6 +2,12 @@ DSS.utils.addStyle('.underlined-input { border: none; border-bottom: 1px solid #
 DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
 DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
 
+farmArrayDO=[];
+scenArrayDO = [];
+fieldArrayDO = [];
+infraArrayDO = [];
+farmIDToDelete = 0;
+
 var selectedOperation = {}
 function selectOperation(){
 	DSS.select = new ol.interaction.Select({
@@ -28,21 +34,27 @@ function selectOperation(){
 	DSS.select.on('select', function(f) {
 		console.log('select on happened');
 		selectedOperation = f.selected[0];
-		console.log(selectedOperation);
+		farmArrayDO.push(selectedOperation)
+		console.log(farmArrayDO);
+		farmIDToDelete = selectedOperation.values_.id
+		console.log(farmIDToDelete)
+		//The idea is to capture the farm's id, then select all scenarios,
+		//fields and infrastructure with that farm id and delete them.
 	});
 }
-function deleteOperation(feat){
+
+function deleteOperation(feat,featLayer){
 	{
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
 			featureNS: 'http://geoserver.org/GrazeScape_Vector'
 			/*'http://geoserver.org/Farms'*/,
 			Geometry: 'geom',
-			featureType: 'farm_1',
+			featureType: featLayer,
 			srsName: 'EPSG:3857'
 		});
 		console.log(feat)
-		node = formatWFS.writeTransaction(null, null, [feat], formatGML);
+		node = formatWFS.writeTransaction(null, null, feat, formatGML);
 		console.log(node);
 		s = new XMLSerializer();
 		str = s.serializeToString(node);
@@ -57,6 +69,10 @@ function deleteOperation(feat){
 			success: function (data) {
 				console.log("data deleted successfully!: "+ data);
 				DSS.layer.farms_1.getSource().refresh();
+				DSS.layer.fields_1.getSource().refresh();
+				DSS.layer.infrastructure.getSource().refresh();
+				DSS.layer.scenarios.getSource().refresh();
+
 			},
 			error: function (xhr, exception) {
 				var msg = "";
@@ -80,6 +96,32 @@ function deleteOperation(feat){
 		}).done();
 	}
 }
+
+async function deleteOpFeatures(){
+	DSS.layer.scenarios.getSource().forEachFeature(function(s) {
+		console.log(s)
+		if(s.values_.farm_id == farmIDToDelete){
+			scenArrayDO.push(s)
+		}
+	})
+	DSS.layer.fields_1.getSource().getFeatures().forEach(function(f) {
+		if(f.values_.farm_id == farmIDToDelete){
+			fieldArrayDO.push(f)
+		}
+	})
+	DSS.layer.infrastructure.getSource().getFeatures().forEach(function(i) {
+		if(i.values_.farm_id == farmIDToDelete){
+			infraArrayDO.push(i)
+		}
+	})
+	console.log(scenArrayDO)
+	console.log(infraArrayDO)
+	//delArrays = [infraArrayDO,fieldArrayDO,scenArrrayDO]
+	await deleteOperation(farmArrayDO,'farm_2');
+	await deleteOperation(scenArrayDO,'scenarios_2');
+	await deleteOperation(infraArrayDO,'infrastructure_2');
+	await deleteOperation(fieldArrayDO,'field_2');
+};
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.DeleteOperation', {
@@ -118,11 +160,6 @@ Ext.define('DSS.state.DeleteOperation', {
 					}
 				}					
 			},{
-				xtype: 'component',
-				cls: 'section-title accent-text right-pad',
-				html: 'Field Shapes',
-				height: 35
-			},{
 				xtype: 'container',
 				style: 'background-color: #666; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
@@ -148,13 +185,14 @@ Ext.define('DSS.state.DeleteOperation', {
 					formBind: true,
 					handler: function() {
 						//var data = me.viewModel.data;
-						console.log("delete Button");
+						console.log("Delete Button");
 						if (selectedOperation != {}) {
-							deleteOperation(selectedOperation);
+							//deleteOperation(selectedOperation,'farm_2');
+							deleteOpFeatures()
 							DSS.map.render;
 						}
 						else {
-							console.log("no field selected")
+							console.log("no farm selected")
 						}
 					}
 			    }]
