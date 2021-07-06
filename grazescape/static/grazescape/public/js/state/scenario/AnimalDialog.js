@@ -2,16 +2,24 @@
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
 let rotationFreq = Ext.create('Ext.data.Store', {
-	fields: ['label', 'enum'],
-	autoLoad: true,
-	proxy: {
-		type: 'ajax',
-		url: '/get_options',
-		reader: 'json',
-		extraParams: {
-			type: 'rotationalFrequency'
-		}
-	}
+	storeId: 'rotationFreqStore',
+	fields:[ 'label', 'enum'],
+	data: [{
+		enum: 1.2,
+		label: 'More then once a day'
+	},{ 
+		enum: 1,
+		label: 'Once a day'
+	},{ 
+		enum: 0.95,
+		label: 'Every 3 days'
+	},{ 
+		enum: 0.75,
+		label: 'Every 7 days'
+	},{ 
+		enum: 0.65,
+		label: 'Continuous'
+	}]
 });
 
 //------------------------------------------------------------------------------
@@ -184,11 +192,11 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						dssID: 'if-grazed',
 						fieldLabel: 'Rotational Frequency',
 						labelWidth: 140,
-						width: 240,
+						width: 360,
 						labelAlign: 'right',
 						mode: 'remote',
 						triggerAction: 'all',
-						store: rotationFreq,
+						store: 'rotationFreqStore',
 						displayField: 'label',
 						valueField: 'enum',
 						bind: '{dairy.lactatingRotationFreq}',
@@ -282,14 +290,14 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						dssID: 'if-grazed',
 						fieldLabel: 'Rotational Frequency',
 						labelWidth: 140,
-						width: 240,
+						width: 360,
 						labelAlign: 'right',
 						mode: 'remote',
 						triggerAction: 'all',
-						store: rotationFreq,
+						store: 'rotationFreqStore',
 						displayField: 'label',
 						valueField: 'enum',
-						bind: '{dairy.non-lactatingRotationFreq}',
+						bind: '{dairy.nonLactatingRotationFreq}',
 					}]
 				}]
 			}]
@@ -439,11 +447,11 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						dssID: 'if-grazed',
 						fieldLabel: 'Rotational Frequency',
 						labelWidth: 140,
-						width: 240,
+						width: 360,
 						labelAlign: 'right',
 						mode: 'remote',
 						triggerAction: 'all',
-						store: rotationFreq,
+						store: 'rotationFreqStore',
 						displayField: 'label',
 						valueField: 'enum',
 						bind: '{beef.rotationFreq}',

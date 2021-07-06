@@ -193,34 +193,31 @@ function runScenarioUpdate(){
 	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var scenarioFeature = f;
 		console.log(f);
+		console.log(DSS.activeScenario)
 		console.log("from scenario loop through: " + scenarioFeature.values_.scenario_id);
-		for (i in scenarioArray){
-			console.log("scenarioArray id: " +scenarioArray[i].id);
-			if(scenarioArray[i].id === scenarioFeature.values_.scenario_id){
-				console.log(scenarioArray[i].scenarioName);
-				scenarioFeature.setProperties({
-					lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
-					dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
-					heifers: DSS['viewModel'].scenario.data.dairy.heifers,
-					youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
-					beef_cows: DSS['viewModel'].scenario.data.beef.cows,
-					stockers: DSS['viewModel'].scenario.data.beef.stockers,
-					finishers: DSS['viewModel'].scenario.data.beef.finishers,
-					ave_milk_yield: DSS['viewModel'].scenario.data.dairy.dailyYield,
-					lac_confined_mos: DSS['viewModel'].scenario.data.dairy.lactatingConfined,
-					dry_confined_mos: DSS['viewModel'].scenario.data.dairy.nonLactatingConfined,
-					beef_confined_mos: DSS['viewModel'].scenario.data.beef.confined,
-					lac_graze_time: DSS['viewModel'].scenario.data.dairy.lactatingGrazeTime,
-					dry_graze_time: DSS['viewModel'].scenario.data.dairy.nonLactatingGrazeTime,
-					beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
-					lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
-					dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
-					beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
-				});
-				wfs_update(scenarioFeature,'scenarios_2');
-				break;
-			}				
-		}				
+		if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
+			console.log(scenarioArray[i].scenarioName);
+			scenarioFeature.setProperties({
+				lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
+				dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
+				heifers: DSS['viewModel'].scenario.data.dairy.heifers,
+				youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
+				beef_cows: DSS['viewModel'].scenario.data.beef.cows,
+				stockers: DSS['viewModel'].scenario.data.beef.stockers,
+				finishers: DSS['viewModel'].scenario.data.beef.finishers,
+				ave_milk_yield: DSS['viewModel'].scenario.data.dairy.dailyYield,
+				lac_confined_mos: DSS['viewModel'].scenario.data.dairy.lactatingConfined,
+				dry_confined_mos: DSS['viewModel'].scenario.data.dairy.nonLactatingConfined,
+				beef_confined_mos: DSS['viewModel'].scenario.data.beef.confined,
+				lac_graze_time: DSS['viewModel'].scenario.data.dairy.lactatingGrazeTime,
+				dry_graze_time: DSS['viewModel'].scenario.data.dairy.nonLactatingGrazeTime,
+				beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
+				lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
+				dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
+				beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
+			});
+			wfs_update(scenarioFeature,'scenarios_2');
+		}						
 	})
 };
 function wfs_update(feat,layer) {
