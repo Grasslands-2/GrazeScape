@@ -3,7 +3,7 @@ var InfrastructureSource_loc = new ol.source.Vector({
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:Infrastructure&' +
+	'typeName=GrazeScape_Vector:infrastructure_2&' +
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
@@ -12,12 +12,12 @@ var InfrastructureSource_loc = new ol.source.Vector({
 function wfs_infra_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/GrazeScape_Vector'
-		/*'http://geoserver.org/Farms'*/,
-		Geometry: 'geom',
-        featureType: 'Infrastructure',
-        srsName: 'EPSG:3857'
-    });
+			featureNS: 'http://geoserver.org/GrazeScape_Vector'
+			/*'http://geoserver.org/Farms'*/,
+			Geometry: 'geom',
+			featureType: 'infrastructure_2',
+			srsName: 'EPSG:3857'
+		});
     console.log(feat)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log(node);
@@ -32,6 +32,7 @@ function wfs_infra_insert(feat,geomType) {
         contentType: 'text/xml',
         data: str,
 		success: function (data) {
+			DSS.MapState.removeMapInteractions()
 			console.log("uploaded data successfully!: "+ data);
 			DSS.layer.infrastructure.getSource().refresh();
 			DSS.layer.farms_1.getSource().refresh();
@@ -126,11 +127,20 @@ lane_materialInput){
 	console.log("draw is on");
 	//console.log(DSS.activeFarm);
 	var af = parseInt(DSS.activeFarm,10)
+	var as = DSS.activeScenario;
 
-	DSS.draw.on('drawend', function (e,) {
+	DSS.draw.on('drawend', function (e) {
+		//var geom = e.target;
+		
+		console.log(e);
+		infraLength = e.feature.values_.geom.getLength();
+		console.log(infraLength);
+		totalCost = (infraLength * costPerFoot).toFixed(2)
+		console.log(totalCost);
 		e.feature.setProperties({
 			id: af,
-			owner_id: af,
+			farm_id: af,
+			scenario_id: as,
 			infra_name: infra_nameInput,
 			infra_type: infra_typeInput,
 			infra_type_disp: infra_typeDisp,
@@ -140,8 +150,9 @@ lane_materialInput){
 			water_pipe_disp: water_pipeDisp,
 			lane_material: lane_materialInput,
 			lane_material_disp:lane_materialDisp,
-			cost_per_foot: costPerFoot
-
+			cost_per_foot: costPerFoot,
+			infra_length: infraLength,
+			total_cost: totalCost
 		})
 		var geomType = 'Line'
 		

@@ -145,27 +145,6 @@ Ext.define('DSS.field_shapes.ModelRunning', {
 				},{
 					xtype: 'modelSelection'
 				},
-				/*{
-					xtype: 'widget',
-					editor: {}, // workaround for exception
-					text: 'Model List', dataIndex: 'modelList', width: 200, 
-					hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
-					widget: {
-						xtype: 'combobox',
-						queryMode: 'local',
-						store: 'modelList',
-						displayField: 'display',
-						valueField: 'value',
-						triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
-						listeners:{
-							select: function(combo, value, eOpts){
-								var record = combo.getWidgetRecord();
-								record.set('modelList', value.get('value'));
-								me.getView().refresh();
-							}
-						}
-					}
-				},*/
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',

@@ -24,6 +24,8 @@ Ext.define('DSS.map.Main', {
 	
 	requires: [
 		'DSS.map.DrawAndModify',
+		'DSS.state.DeleteOperation',
+		'DSS.state.ScenarioPicker',
 		'DSS.map.BoxModel',
 		'DSS.map.LayerMenu',
 		//'DSS.map.RotationLayer',
@@ -325,6 +327,18 @@ Ext.define('DSS.map.Main', {
 				}
 			})
 		})
+		var scenario_1SourceMain = new ol.source.Vector({
+			url: function(extent){
+				return'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				'service=wfs&'+
+				'?version=2.0.0&'+
+				'request=GetFeature&'+
+				'typeName=GrazeScape_Vector:scenarios_2&' +
+				'outputformat=application/json&'+
+				'srsname=EPSG:3857'
+			},
+			format: new ol.format.GeoJSON()
+		});
 		var infrastructure_Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent) {
@@ -332,7 +346,8 @@ Ext.define('DSS.map.Main', {
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:Infrastructure&' +
+				'typeName=GrazeScape_Vector:infrastructure_2&' +
+				//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},
@@ -344,7 +359,7 @@ Ext.define('DSS.map.Main', {
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:farm_1&' +
+				'typeName=GrazeScape_Vector:farm_2&' +
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},
@@ -356,13 +371,19 @@ Ext.define('DSS.map.Main', {
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:field_1&' +
+				'typeName=GrazeScape_Vector:field_2&' +
+				//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857';
 			},
 		});
-		//-------------------------------------Field layover and style------------------------
-
+		//-------------------------------------Scenario Style------------------------
+		var scenStyle = new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: 'rgba(255, 255, 255, 0)',
+				width: 1,
+			})
+		})
 		//------------------------------------infra styles and layer-----------------------
 		var fenceStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
@@ -427,6 +448,19 @@ Ext.define('DSS.map.Main', {
 				r = Math.round(Math.pow(r, 3) * 13 + 3)
 				return me.DSS_zoomStyles['style' + r];
 			}
+		})
+		DSS.layer.scenarios = new ol.layer.Vector({
+			title: 'scenarios_2',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: scenario_1SourceMain,
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: 'rgba(255, 255, 255, 0)',
+					width: 1,
+				})
+			})
 		})
 
 		//---------------------------------Field layers and style work-------------------------------------
@@ -514,9 +548,10 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
 				//DSS.layer.DEM_image,
+				DSS.layer.scenarios,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1,
-
+				
 				DSS.layer.fieldsLabels,
 				DSS.layer.infrastructure
 				 ],
@@ -556,6 +591,7 @@ Ext.define('DSS.map.Main', {
 		me.overlay = DSS.popupOverlay = new ol.Overlay({
 			element: me.popup.getEl().dom,
 			autoPan: true,
+			offset:[-10,-10],
 			autoPanAnimation: {
 				duration: 500,
 				easing: ol.easing.easeOut

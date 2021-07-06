@@ -46,6 +46,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 	alias: 'widget.application_flow',
 
 	requires: [
+		'DSS.state.ScenarioPicker',
 		'DSS.state.MapStateTools',
 		'DSS.state.BrowseOrCreate',
 		'DSS.state.CreateNew_wfs',
@@ -212,10 +213,17 @@ Ext.define('DSS.state.ApplicationFlow', {
 		Ext.resumeLayouts(true);
 		
 		DSS.mouseMoveFunction = undefined;
-		DSS.layer.farms_1.setVisible(false);
+		//DSS.layer.farms_1.setVisible(true);
+		DSS.layer.scenarios.setVisible(false);
 		
+		DSS.MapState.showNewFarm(DSS.activeFarm);
 		DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-		
+		DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+
+		//var ext = DSS.layer.farms_1.getSource().getFeatures().forEach().getExtent();
+		//console.log(ext)
+		//DSS.map.getView().fit(ext);
+		//DSS.MapState.zoomToRealExtent(ext);
 		DSS.popupOverlay.setPosition(false);
 	},
 

@@ -9,6 +9,7 @@ Ext.define('DSS.state.MapStateTools', {
 
 	requires: [
 		'DSS.map.Legend',
+		'DSS.state.ScenarioPicker'
 		//'DSS.field_grid.FieldGrid',
 		//'DSS.infra_grid.InfraGrid'
 	],
@@ -128,6 +129,25 @@ Ext.define('DSS.state.MapStateTools', {
     
     // Opacity defaults to opacity for showFields()
     //-------------------------------------------------------------
+	showNewFarm: function() {
+		DSS.layer.farms_1.getSource().setUrl(
+		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		'service=wfs&'+
+		'?version=2.0.0&'+
+		'request=GetFeature&'+
+		'typeName=GrazeScape_Vector:farm_2&'+
+		'CQL_filter=id='+DSS.activeFarm+'&'+
+		'outputformat=application/json&'+
+		'srsname=EPSG:3857'
+		);
+		DSS.layer.farms_1.setOpacity(1);
+		console.log(DSS.layer.farms_1.getStyle())
+		console.log(DSS.layer.farms_1.getSource())
+		DSS.layer.farms_1.getSource().refresh();
+		console.log(DSS.activeFarm)
+		console.log("show new farm ran");
+	},
+
 	//used to limit return of fields to just active farm
     showFieldsForFarm: function(farmId, opacity) {
     	
@@ -136,18 +156,11 @@ Ext.define('DSS.state.MapStateTools', {
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:field_1&'+
-		'CQL_filter=id='+farmId+'&'+
+		'typeName=GrazeScape_Vector:field_2&'+
+		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857'
-		/*'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&'+
-		'CQL_filter=id='+farmId+'&'+
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'*/);
+		);
 		console.log(DSS.layer.fields_1.getStyle())
 		DSS.layer.fields_1.getSource().refresh();
 		console.log("showfieldsforfarm ran");
@@ -161,8 +174,8 @@ Ext.define('DSS.state.MapStateTools', {
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:Infrastructure&'+
-		'CQL_filter=id='+farmId+'&'+
+		'typeName=GrazeScape_Vector:infrastructure_2&'+
+		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		console.log(DSS.layer.infrastructure.getStyle())
@@ -174,18 +187,11 @@ Ext.define('DSS.state.MapStateTools', {
 	showAllFields: function(opacity) {
 			
 		DSS.layer.fields_1.getSource().setUrl(
-		/*'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'*/
 		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:field_1&' +
+		'typeName=GrazeScape_Vector:field_2&' +
 		'outputformat=application/json&'+
 		'srsname=EPSG:3857');
 		DSS.layer.fields_1.getSource().refresh();
@@ -266,18 +272,10 @@ Ext.define('DSS.state.MapStateTools', {
 					if (f.get('farm_name') != undefined) {
 						cursor = 'pointer';
 						hitAny = true;
-						/*if (lastFp !== f) {
-							DSS.popupOverlay.setPosition(g.getCoordinates());
-							DSS.popupContainer.update('Farm: ' + f.get('name') + '<br>' +
-									'Owner: ' + f.get('owner') + '<br>' +
-									'Address: ' + f.get('address') + '<br>');
-							lastFp = f;
-						}*/
 						if (lastFp !== f) {
 							DSS.popupOverlay.setPosition(g.getCoordinates());
 							DSS.popupContainer.update('Farm: ' + f.get('farm_name') + '<br>' +
-									'Owner: ' + f.get('farm_owner') + '<br>' +
-									'Address: ' + f.get('farm_addre') + '<br>');
+									'Owner: ' + f.get('farm_owner'));
 							lastFp = f;
 						}
 						/*if (lastF !== f) {
@@ -326,6 +324,11 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
     clickActivateFarmHandler: function(evt) {
 		console.log("in active farm handler")
+		DSS['viewModel'] = {}
+		DSS.dialogs = {}
+		//gatherfarmTableData()
+		console.log('in scenario picker model')
+		DSS.viewModel.scenario = new Ext.app.ViewModel({})
     	
     	let me = this;
     	
@@ -335,33 +338,49 @@ Ext.define('DSS.state.MapStateTools', {
 			for (let idx = 0; idx < fs.length; idx++) {
 				let f = fs[idx];
 				let g = f.getGeometry();
-				if (g && g.getType() === "Point") {
 
-					DSS.activeFarm = f.get("gid");
-					//DSS.activeScenario = f.get("scenario");
+				if (g && g.getType() === "Point") {
+					//if (DSS.activeFarm == null){
+						DSS.activeFarm = f.get("gid");
+						DSS.farmName = f.get("farm_name")
+						//DSS.activeScenario = f.get("scenario");
+						
+						let pos = g.getFirstCoordinate()
+						me.setPinMarker(pos);
+						console.log("pin set in activatefarmhandler")
+						console.log(DSS.activeFarm)
+						console.log(DSS.activeScenario)
+						let ex = ol.extent;
+						let extent = [pos[0], pos[1], pos[0], pos[1]];
+						//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+						//	extent = ex.extend(extent, f.getGeometry().getExtent());
+						//});
+						ex.buffer(extent, 250, extent);
+						me.zoomToRealExtent(extent);
+						
+						// if results were already being computed (extents chosen and model), then trigger a recompute
+					//	DSS.StatsPanel.computeResults(undefined, DSS.layer.ModelResult);
+	//					AppEvents.triggerEvent('set_inspector_bounds', extent);
+						
+						DSS.map.getViewport().style.cursor = '';
+						AppEvents.triggerEvent('activate_operation')
+	//					console.log(DSS.layer.fields_1.getSource());
+						//DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
+						DSS.MapState.removeMapInteractions()
+						//DSS.layer.farms_1.getSource().refresh();
+						
+						//----------launching scenario picker---------------
+						//if (DSS.activeScenario == null){
+							//getWFSScenarioSP(DSS.activeFarm)
+							DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
+							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
+							DSS.dialogs.ScenarioPicker.show().center().setY(0);
+							console.log(DSS.dialogs.ScenarioPicker);
+							DSS.map.addLayer(DSS.layer.scenarios);
+							break;
+						//}
+					//}
 					
-					let pos = g.getFirstCoordinate()
-					me.setPinMarker(pos);
-					console.log("pin set in activatefarmhandler")
-					//console.log(DSS.activeFarm)
-					let ex = ol.extent;
-					let extent = [pos[0], pos[1], pos[0], pos[1]];
-					//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-					//	extent = ex.extend(extent, f.getGeometry().getExtent());
-					//});
-					ex.buffer(extent, 250, extent);
-					me.zoomToRealExtent(extent);
-					
-					// if results were already being computed (extents chosen and model), then trigger a recompute
-				//	DSS.StatsPanel.computeResults(undefined, DSS.layer.ModelResult);
-//					AppEvents.triggerEvent('set_inspector_bounds', extent);
-					
-					DSS.map.getViewport().style.cursor = '';
-					AppEvents.triggerEvent('activate_operation')
-//					console.log(DSS.layer.fields_1.getSource());
-					DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
-					DSS.MapState.removeMapInteractions()
-					//DSS.layer.farms_1.getSource().refresh();
 					
 					break;
 				}
@@ -438,5 +457,21 @@ Ext.define('DSS.state.MapStateTools', {
     	
     	var me = this;
 		if (me.DSS_legend) me.DSS_legend.destroy();
-    }
+    },
+	//------------------------------------------------------------
+	initViewModel: function() {
+		//gatherfarmTableData()
+		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
+		return;
+		
+		if (!DSS['viewModel'])*/ 
+		DSS['viewModel'] = {}
+		DSS.dialogs = {}
+		//gatherfarmTableData()
+		console.log('in scenario picker model')
+		DSS.viewModel.scenario = new Ext.app.ViewModel({
+			
+		})
+		//console.log(DSS['viewModel'].scenario.data.dairy.dry);
+	}
 });
