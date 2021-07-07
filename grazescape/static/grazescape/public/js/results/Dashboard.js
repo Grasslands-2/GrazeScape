@@ -1,6 +1,6 @@
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
+//var modelTypes = ['yield', 'ploss','runoff', 'bio']
 //var modelTypes = ['yield']
-//var modelTypes = ['ploss']
+var modelTypes = ['ploss']
 //list of all the current and future charts
 var chartList = ["cost_farm", "cost_field",
     "net_return_farm", "net_return_field",
@@ -1149,7 +1149,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         var compare =  {
                 title: '<i class="fa fa-balance-scale  fa-lg"></i>  Compare Scenarios',
                 plain: true,
+                id: "compareTab",
                 disabled:false,
+
                 tabBar : {
                     layout: {
                         pack: 'center',

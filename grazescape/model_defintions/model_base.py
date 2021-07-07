@@ -180,6 +180,8 @@ class ModelBase:
             cate_value = cate_value + interval_step
             self.data_range.append(float(cate_value))
             counter = counter + 1
+        # TODO hardcoding this for the beta specifically to erosion!
+        self.data_range = []
         return cat_list
 
     def calculate_color(self, color_ramp, value):
