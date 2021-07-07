@@ -189,7 +189,7 @@ function runFieldUpdate(){
 	})
 };
 function runScenarioUpdate(){
-	console.log(DSS['viewModel'].scenario.data.dairy.dry);
+//	console.log(DSS['viewModel'].scenario.data.dairy.dry);
 	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var scenarioFeature = f;
 		console.log(f);
@@ -507,11 +507,48 @@ Ext.define('DSS.state.Scenario', {
 					handler: function(self) {
 						console.log("compute hi")
 						//DSS.DrawFieldShapes.addModeControl()
-						DSS.ModelRunTools.addModeControl()
 						console.log()
-						runScenarioUpdate();
+						if (DSS['viewModel'].scenario.data != null){
+
+						    runScenarioUpdate();
+						}
+						if (!DSS.dialogs) DSS.dialogs = {};
+//                        if (!DSS.dialogs.Dashboard) {
+                            DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
+//                                numberOfLines: 20,
+                                runModel:true,
+                                // any other option you like...
+                            });
+                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
+
+//                        }
+                        DSS.dialogs.Dashboard.show().center();
 					}
-				}]
+				},
+//				{
+//					xtype: 'button',
+//					cls: 'button-text-pad',
+//					componentCls: 'button-margin',
+//					text: 'Open Dashboard',
+//					handler: function(self) {
+//						console.log("compute hi")
+//						//DSS.DrawFieldShapes.addModeControl()
+//						console.log()
+//
+//						if (!DSS.dialogs) DSS.dialogs = {};
+//                        if (!DSS.dialogs.Dashboard) {
+//                            DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
+////                                numberOfLines: 20,
+//                                runModel:false,
+//                                // any other option you like...
+//                            });
+//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
+//
+//                        }
+//                        DSS.dialogs.Dashboard.show().center();
+//					}
+//				}
+				]
 			}]
 		});
 		

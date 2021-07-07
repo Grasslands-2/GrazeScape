@@ -218,6 +218,8 @@ def get_values_db(field_id, scenario_id, farm_id, request):
     column_names = [desc[0] for desc in cur.description]
     print(column_names)
     print(result)
+    if result is None:
+        return
     for model in model_types:
         if model == request.POST.get('model_parameters[model_type]'):
             for col in model_types[model]:

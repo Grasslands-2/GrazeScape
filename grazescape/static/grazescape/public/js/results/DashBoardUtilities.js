@@ -271,9 +271,12 @@ function get_model_data(data){
     'data' : data,
         success: function(responses, opts) {
             console.log(responses)
+            if(responses == null){
+                resolve([]);
+            }
             for (response in responses){
                 obj = responses[response];
-                if(obj.error){
+                if(obj.error || response == null){
                     console.log("model did not run")
                     me.stopWorkerAnimation();
                     continue
@@ -839,7 +842,7 @@ function populateRadarChart(){
 // Retrieves all scenarios associated with active farm
 function retrieveScenariosGeoserver(){
 
-    DSS.activeFarm = 1
+//    DSS.activeFarm = 1
 	fieldUrl =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
@@ -873,24 +876,27 @@ function retrieveScenariosGeoserver(){
 	console.log(scenList)
 	console.log(scenIdList)
 //	only for testing before merging
-	scenIdList = [40, 35]
-	scenList = ["Base", "Other"]
+//	scenIdList = [40, 35]
+//	scenList = ["Base", "Other"]
+    console.log(scenList)
 	return {scenList, scenIdList}
 }
 function retrieveFieldsGeoserver(){
-    DSS.activeScenario = 40
-    DSS.activeFarm = 1
+//    DSS.activeScenario = 40
+//    DSS.activeFarm = 1
 
     fieldUrl =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_1&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	'typeName=GrazeScape_Vector:field_2&' +
+	'CQL_filter=farm_id='+DSS.activeFarm+' AND scenario_id='+DSS.activeScenario +
+	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs fields")
+    console.log(fieldUrl)
     let fieldList = []
     let fieldIdList = []
 	$.ajax({
@@ -915,7 +921,7 @@ function retrieveFieldsGeoserver(){
 	})
     console.log(fieldList)
     console.log(fieldIdList)
-
+    console.log(fieldList)
     return {fieldList, fieldIdList}
 }
 class ChartDatasetContainer{

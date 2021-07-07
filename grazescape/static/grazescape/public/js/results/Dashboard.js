@@ -1,6 +1,6 @@
 //var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['yield']
-var modelTypes = ['ploss']
+var modelTypes = ['bio']
+//var modelTypes = ['ploss']
 //list of all the current and future charts
 var chartList = ["cost_farm", "cost_field",
     "net_return_farm", "net_return_field",
