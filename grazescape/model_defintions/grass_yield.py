@@ -14,7 +14,6 @@ class GrassYield(ModelBase):
                                             self.model_name)
         self.grass_type = self.model_parameters['grass_type']
         # self.units = "Dry Mass tons/ac"
-        self.units = "kg-Dry Matter/ha"
 
     def run_model(self):
         # path to R instance
@@ -73,10 +72,11 @@ class GrassYield(ModelBase):
         pred = r.get("pred")
         print("Model Results")
         print(pred)
-        # convert from tons/ac to kg/he
-        pred = pred * 2000 * .453592
-        print(pred)
-        grass_yield = OutputDataNode("Grass", "kg-Dry Matter/ha")
-        grass_yield.set_display_data(pred)
-        # Remove the three dummy references
-        return [grass_yield]
+        print("$$$$$$$$$$$$$$$")
+        print(pred * 2000)
+        grass_yield = OutputDataNode("Grass", "Yield (tons/acre/year)", 'Yield (tons/year')
+        rotation_avg = OutputDataNode("Rotational Average", "Yield (lb-Dry Matter/ac/year)", "Yield (lb-Dry Matter/year)")
+        grass_yield.set_data(pred)
+        rotation_avg.set_data(pred * 2000)
+        # Remove the three dummy references9
+        return [grass_yield,rotation_avg]

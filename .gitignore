@@ -34,5 +34,6 @@ data_files/
 
 # startup helper
 graze
-
+# database info
+*.ini
 

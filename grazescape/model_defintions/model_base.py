@@ -33,15 +33,13 @@ class ModelBase:
                                                    'raster_outputs',
                                                    file_name + ".png")
 
-        self.r_file_path = "C://Program Files/R/R-4.0.4/bin/x64/R.exe"
+        self.r_file_path = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
         self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
                                             'data_files', 'input_models',
                                             'tidyModels')
         self.color_ramp_hex = []
         self.data_range = []
         self.bounds = {"x": 0, "y": 0}
-        self.units = ""
-        self.display_units = ""
         self.no_data = -9999
         self.model_parameters = self.parse_model_parameters(request)
         self.raster_inputs = {}
@@ -96,7 +94,7 @@ class ModelBase:
                          "psnanana": {"Pneeds": 15, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
                          }
-
+        # convert area from sq m to acres
         parameters = {
             "f_name": request.POST.getlist("model_parameters[f_name]")[0],
             "grass_type": request.POST.getlist("model_parameters[grass_type]")[
@@ -111,10 +109,10 @@ class ModelBase:
                 0],
             "rotation": request.POST.getlist("model_parameters[rotation]")[0],
             "density": request.POST.getlist("model_parameters[density]")[0],
+            "area": "",
         }
         numeric_para = ["soil_p", "fert", "manure"]
         # soil_p, fert, manure
-        print(parameters)
 
         for val in parameters:
 
@@ -127,14 +125,14 @@ class ModelBase:
                     parameters[val] = 0
                 else:
                     parameters[val] = "NA"
-
+        area = float(request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
+        parameters['area'] = area
         nutrient_key = parameters["crop"] + parameters["crop_cover"] + \
                        parameters["rotation"] + parameters["density"]
         nutrient_key = nutrient_key.lower()
         parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
         parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
         parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
-        print(parameters)
         return parameters
 
     def get_file_name(self):
@@ -146,27 +144,6 @@ class ModelBase:
 
 
 
-    def clip_input(self, extents, input_raster_dic):
-        """
-        Parameters
-        ----------
-        extents
-        input_raster_dic
-
-        Returns
-        -------
-        """
-        clipped_raster_dic = {}
-        y1 = extents[3]
-        x1 = extents[0]
-        y2 = extents[1]
-        x2 = extents[2]
-        print(y1, x1, x2, y2)
-        for key in input_raster_dic:
-            clipped_raster_dic[key] = input_raster_dic[key][y1:y2, x1:x2]
-        self.bounds["x"] = x2 - x1
-        self.bounds["y"] = y2 - y1
-        return clipped_raster_dic, self.bounds
 
     def create_color_ramp(self, min_value, max_value, num_cat=9):
         interval_step = (max_value - min_value) / num_cat
@@ -203,6 +180,8 @@ class ModelBase:
             cate_value = cate_value + interval_step
             self.data_range.append(float(cate_value))
             counter = counter + 1
+        # TODO hardcoding this for the beta specifically to erosion!
+        self.data_range = []
         return cat_list
 
     def calculate_color(self, color_ramp, value):
@@ -234,15 +213,36 @@ class ModelBase:
                     sum_val = sum_val + data[y][x]
                     count = count + 1
 
-        return min_val, max_val, sum_val/count
+        return min_val, max_val, sum_val/count, sum_val, count
+    def sum_count(self, data, no_data_array):
+        # todo update this
+        print("length of data", len(data))
+        sum_val = [0] * 12
+        count = 0
+        valid_count = 0
+        for y in range(0, self.bounds["y"]):
+            for x in range(0, self.bounds["x"]):
+                # skip if array value is no data
+                if no_data_array[y][x] != 1:
+                    for i in range(0, len(sum_val)):
+                        sum_val[i] = sum_val[i] + data[count][i]
+                valid_count = valid_count + 1
+                count = count + 1
+        sum_val = [float(round(elem, 2)) for elem in sum_val]
+        return sum_val, valid_count
 
-    def get_model_png(self, data, bounds, no_data_array):
+    def get_model_png(self, model, bounds, no_data_array):
+        data = model.data
         rows = bounds["y"]
         cols = bounds["x"]
+        if model.model_type == 'Runoff':
+            sum, count = self.sum_count(data, no_data_array)
+            return 0, sum, float(count)
+
 
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
-        min_v, max_v, mean = self.min_max_avg(datanm, no_data_array)
+        min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v)
         for y in range(0, rows):
             for x in range(0, cols):
@@ -263,26 +263,11 @@ class ModelBase:
         im = Image.fromarray(three_d)
         im.convert('RGBA')
         print("raster image")
-        print(self.raster_image_file_path)
         im.save(self.raster_image_file_path)
-        return float(mean)
+        return float(mean), float(sum), float(count)
 
     def get_legend(self):
         return self.color_ramp_hex, self.data_range
-
-    def aggregate(self, data):
-        data_size = 0
-        sum_data = 0
-        for val in data:
-            # print("agg value")
-            # print(val)
-            if val != self.no_data:
-                sum_data = sum_data + val
-                data_size = data_size + 1
-        return sum_data / data_size
-
-    def get_units(self):
-        return self.units
 
 
 class OutputDataNode:
@@ -293,38 +278,14 @@ class OutputDataNode:
     familiar units such as bushels / acre and one with standardized units of
     kg of dry matter / hec
     """
-    def __init__(self, model_type, display_units, internal_units=None):
+    def __init__(self, model_type, default_units, alternate_units):
         self.model_type = model_type
-        self.internal_units = internal_units
-        if internal_units is None:
-            self.internal_units = display_units
-        self.display_units = display_units
-        self.crop_data = []
-        self.crop_data_dis = []
+        self.alternate_units = alternate_units
+        self.default_units = default_units
+        self.data = []
 
-    def get_internal_units(self):
-        return self.internal_units
-
-    def get_display_units(self):
-        return self.display_units
-
+    def set_data(self, data):
+        self.data.append(data)
     def get_model_type(self):
         return self.model_type
 
-    def get_data(self):
-        return self.crop_data
-
-    def get_data_display(self):
-        return self.crop_data_dis
-
-    def add_data(self, data):
-        self.crop_data.append(data)
-
-    def add_display_data(self, data):
-        self.crop_data_dis.append(data)
-
-    def set_data(self, data):
-        self.crop_data = data
-
-    def set_display_data(self, data):
-        self.crop_data_dis = data

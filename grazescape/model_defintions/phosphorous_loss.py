@@ -7,7 +7,6 @@ from pyper import *
 class PhosphorousLoss(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
-        self.units = "PI"
 
     def run_model(self):
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
@@ -65,7 +64,6 @@ class PhosphorousLoss(ModelBase):
         r.assign("cover", self.model_parameters["crop_cover"])
         r.assign("contour", self.model_parameters["contour"])
         r.assign("tillage", self.model_parameters["tillage"])
-        # r.assign("tillage", "NA")
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
@@ -85,10 +83,6 @@ class PhosphorousLoss(ModelBase):
         r.assign("ps_pi_file", os.path.join(self.model_file_path,"pastureSeedingTidyPI.rds"))
         r.assign("pt_pi_file", os.path.join(self.model_file_path,"PasturePI.rds"))
         r.assign("dl_pi_file", os.path.join(self.model_file_path,"DryLot_tidyPI.rds"))
-
-
-
-
 
         print(r(f"""
         #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
@@ -269,8 +263,8 @@ class PhosphorousLoss(ModelBase):
           level_df <- expand_grid(tillage, Contour)
 
           df <- full_df %>%
-  select(c(initialP:LSsurgo)) %>% 
-  slice(rep(1:n(), each=nrow(level_df)))
+          select(c(initialP:LSsurgo)) %>% 
+          slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(level_df, df)
 
@@ -346,15 +340,10 @@ class PhosphorousLoss(ModelBase):
 
           """
                 ))
-        erosion = OutputDataNode("Erosion", "tons of soil / acre")
-        pl = OutputDataNode("Ploss", "PI")
-        print("erosion!!!!!!!!!!!!!!!")
-        print(r.get("erosion"))
-        print("plllllllll!!!!!!!!!!!!!!!")
-        print(r.get("final_pi"))
-        erosion.set_display_data(r.get("erosion").to_numpy())
-        pl.set_display_data(r.get("final_pi").to_numpy())
-        results = []
-        # pred1 = pred.to_numpy()
+        erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
+        pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
+
+        erosion.set_data(r.get("erosion").to_numpy())
+        pl.set_data(r.get("final_pi").to_numpy())
         return [erosion, pl]
 
