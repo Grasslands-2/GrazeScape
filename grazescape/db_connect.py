@@ -238,6 +238,8 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                 area = result[col_index]
                 col_index = column_names.index("cell_count")
                 count = result[col_index]
+                if model == "bio":
+                    count = 1
                 f_name = request.POST.get('model_parameters[f_name]')
                 # f_name = "test"
                 scen = request.POST.get('model_parameters[scen]')

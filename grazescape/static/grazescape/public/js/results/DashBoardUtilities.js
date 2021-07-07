@@ -280,22 +280,29 @@ function get_model_data(data){
                 }
                 let e = obj.extent;
 //              not doing the dem for beta launch
-//                pt1 = [e[0],e[3]]
-//                pt2 = [e[2],e[3]]
-//                pt3 = [e[2],e[1]]
-//                pt4 = [e[0],e[1]]
-//
-//                let p = new ol.geom.Polygon([
-//                    [pt1, pt2, pt3, pt4, pt1]
-//                ]);
-//                validateImageOL(obj, DSS.layer.ModelResult);
-//                let s = DSS.layer.ModelBox.getSource();
-//                s.clear();
-//                s.addFeature(new ol.Feature({
-//                    geometry: p
-//                }));
-//
-//                DSS.MapState.showContinuousLegend(obj.palette, obj.values);
+                console.log("@@@@@@@@@@@@@@@@")
+                console.log(responses[response].value_type)
+                if (responses[response].value_type == 'ero'&&responses[response].scen_id==DSS.activeScenario){
+                    console.log("There is erosion")
+                    pt1 = [e[0],e[3]]
+                    pt2 = [e[2],e[3]]
+                    pt3 = [e[2],e[1]]
+                    pt4 = [e[0],e[1]]
+
+                    let p = new ol.geom.Polygon([
+                        [pt1, pt2, pt3, pt4, pt1]
+                    ]);
+                    validateImageOL(obj, DSS.layer.ModelResult);
+                    let s = DSS.layer.ModelBox.getSource();
+                    s.clear();
+                    s.addFeature(new ol.Feature({
+                        geometry: p
+                    }));
+
+                    DSS.MapState.showContinuousLegend(obj.palette, obj.values);
+
+                }
+
 
                 format_chart_data(obj)
 
@@ -318,7 +325,7 @@ function validateImageOL(json, layer, tryCount) {
     tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
     Ext.defer(function() {
         var src = new ol.source.ImageStatic({
-            url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
+            url: location.origin + "/grazescape/get_image?file_name=" + json.url,
             crossOrigin: '',
             imageExtent: json.extent,
             projection: 'EPSG:3857',
@@ -871,8 +878,8 @@ function retrieveScenariosGeoserver(){
 	return {scenList, scenIdList}
 }
 function retrieveFieldsGeoserver(){
-    DSS.activeScenario = 50
-        DSS.activeFarm = 1
+    DSS.activeScenario = 40
+    DSS.activeFarm = 1
 
     fieldUrl =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+

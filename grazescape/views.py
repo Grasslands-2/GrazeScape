@@ -124,7 +124,7 @@ def get_model_results(request):
     # convert area from sq meters to acres
     area = float(
         request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
-
+    counter = 0
     for result in results:
         # print("Creating png for ", result.get_model_type())
         if result.model_type == "insect":
@@ -135,17 +135,19 @@ def get_model_results(request):
             palette = []
             values_legend = []
         else:
-            avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
-            # palette, values_legend = model.get_legend()
+            if model_type == 'ploss' and counter == 0:
+                avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
+                palette, values_legend = model.get_legend()
+        counter = counter + 1
         # dealing with rain fall data
         if type(sum) is not list:
             sum = round(sum, 2)
 
         data = {
-            # "extent": [*bounds],
-            # "palette": palette,
-            # "url": model.file_name + ".png",
-            # "values": values_legend,
+            "extent": [*bounds],
+            "palette": palette,
+            "url": model.file_name + ".png",
+            "values": values_legend,
             "units": result.default_units,
             "units_alternate": result.alternate_units,
             # overall model type crop, ploss, bio, runoff
