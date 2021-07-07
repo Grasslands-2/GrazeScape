@@ -1,4 +1,3 @@
-var grazeUrl = "http://localhost:9000"
 
 //Ext.tip.QuickTipManager.init(true, {shadow: false}); // Instantiate the QuickTipManager
 Ext.Loader.setConfig({

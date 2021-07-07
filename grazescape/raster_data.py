@@ -11,7 +11,9 @@ import os
 import uuid
 from django.conf import settings
 import math
-
+import time
+import sys
+import shutil
 
 """
 This class will manage retrieving data from geoserver and manage the clipping of extents to fields
@@ -29,8 +31,6 @@ class RasterData:
         data_layer String name of the layer to retrieve from geoserver
         extents array x and y coordinates of the extents of the field in a 1d array
         """
-        print("creating")
-        print(extents)
         # self.data_layer = data_layer
         self.extents = extents
         # self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
@@ -45,12 +45,8 @@ class RasterData:
         self.extents_string_x = ""
         self.extents_string_y = ""
         if extents is not None:
-            print("These are the extents")
-            print(extents)
             self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
             self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
-            print(self.extents_string_x)
-            print(self.extents_string_y)
         self.crs = "epsg:3857"
 
         self.no_data = -9999
@@ -77,6 +73,7 @@ class RasterData:
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []
+        self.remove_old_files()
 
     def load_layers(self):
         """
@@ -85,16 +82,40 @@ class RasterData:
         -------
 
         """
-        # layer_list = requests.get("http://localhost:8081/geoserver/rest/layers.json")
+        # layer_list = requests.get("http://localhost:8081/geoserver/rest/
+        # layers.json")
         for layer in self.layer_dic:
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
-            print(url)
             r = requests.get(url)
 
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
             with open(raster_file_path, "wb") as f:
                 f.write(r.content)
 
+    def remove_old_files(self):
+        """
+        delet anything older than a day
+        """
+        input_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
+                     'raster_inputs')
+        output_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
+                     'raster_outputs')
+        now = time.time()
+        #
+        for f in os.listdir(input_path):
+            try:
+                f = os.path.join(input_path, f)
+                if os.stat(f).st_mtime < now - 86400:
+                    shutil.rmtree(f)
+            except OSError as e:
+                print("Error: %s : %s" % (f, e.strerror))
+        for f in os.listdir(output_path):
+            try:
+                f = os.path.join(output_path, f)
+                if os.stat(f).st_mtime < now - 86400:
+                    os.remove(os.path.join(output_path, f))
+            except OSError as e:
+                print("Error: %s : %s" % (f, e.strerror))
     def create_clip(self, field_geom_array):
         """
         Create a shapefile to clip the raster with
@@ -108,14 +129,12 @@ class RasterData:
         """
         geom_array_float = []
         for coor in field_geom_array:
-            print(coor)
             geom_array_float.append([float(coor[0]), float(coor[1])])
         polygon_geom = Polygon(geom_array_float)
 
         crs = {'init': self.crs}
         polygon = gpd.GeoDataFrame(index=[0], crs=crs, geometry=[polygon_geom])
         polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
-        print(polygon.total_bounds)
         return polygon.total_bounds
 
     def clip_raster(self):
@@ -129,7 +148,6 @@ class RasterData:
         raster_data_dic = {}
         bounds = 0
         for file in os.listdir(self.dir_path):
-            print("Loading file: " + file)
             if '.tif' in file:
                 data_name = file.split(".")[0]
                 image = gdal.Open(os.path.join(self.dir_path, file))
@@ -159,13 +177,8 @@ class RasterData:
 
         first_entry = [*raster_data_dic.keys()][0]
         size = raster_data_dic[first_entry].shape
-        print(size)
         self.no_data_aray = np.zeros(size)
-        print(self.bounds["y"], self.bounds["x"])
-        print(raster_data_dic['hydgrp'])
         for y in range(0, self.bounds["y"]):
-            print("#############")
-            print(y)
             for x in range(0, self.bounds["x"]):
                 for val in raster_data_dic:
                     # the hydgrp has a no data value and a NA value mapped to 6
@@ -180,10 +193,8 @@ class RasterData:
     def check_raster_data(self, raster_dic):
         # raster_shape = raster_dic[next(raster_dic_it)].shape
 
-        # print(next(raster_shape))
         raster_dic_key_list = [*raster_dic.keys()]
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
-        print(raster_shape)
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
                 raise Exception("Raster dimensions do not match")

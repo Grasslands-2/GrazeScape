@@ -340,15 +340,10 @@ class PhosphorousLoss(ModelBase):
 
           """
                 ))
-        erosion = OutputDataNode("ero", "tons of soil/acre/year", "tons of soil/year")
-        pl = OutputDataNode("ploss", "lb/acre/year", "lb/year")
-        print("erosion!!!!!!!!!!!!!!!")
-        print(r.get("erosion"))
-        print("plllllllll!!!!!!!!!!!!!!!")
-        print(r.get("final_pi"))
+        erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
+        pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
+
         erosion.set_data(r.get("erosion").to_numpy())
         pl.set_data(r.get("final_pi").to_numpy())
-        results = []
-        # pred1 = pred.to_numpy()
         return [erosion, pl]
 

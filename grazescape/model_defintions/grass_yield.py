@@ -72,8 +72,11 @@ class GrassYield(ModelBase):
         pred = r.get("pred")
         print("Model Results")
         print(pred)
-        print(pred)
-        grass_yield = OutputDataNode("Grass", "tons/acre/year", 'tons/year')
+        print("$$$$$$$$$$$$$$$")
+        print(pred * 2000)
+        grass_yield = OutputDataNode("Grass", "Yield (tons/acre/year)", 'Yield (tons/year')
+        rotation_avg = OutputDataNode("Rotational Average", "Yield (lb-Dry Matter/ac/year)", "Yield (lb-Dry Matter/year)")
         grass_yield.set_data(pred)
-        # Remove the three dummy references
-        return [grass_yield]
+        rotation_avg.set_data(pred * 2000)
+        # Remove the three dummy references9
+        return [grass_yield,rotation_avg]

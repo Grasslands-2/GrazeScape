@@ -21,7 +21,8 @@ function populateChartObj(chartObj, scenList, fieldList){
                     // each data entry represents a scenario
                     data: [],
                     hidden:false,
-                    backgroundColor:  chartColors[field % chartDatasetContainer.colorLength]
+                    backgroundColor:  chartColors[field % chartDatasetContainer.colorLength],
+                    minBarLength: 7
                 }
                 node.chartData.datasets[field] = data1
                 node.chartData.chartDataLabelsOri = scenList
@@ -29,26 +30,53 @@ function populateChartObj(chartObj, scenList, fieldList){
                 node.chartData.chartDataOri.push([])
             }
         }
-        else{
+        else {
             node = new ChartData()
+            if(chartName.includes('runoff_farm')){
+//            hard coding the runoff values for now
+                node.chartData =  {
+                    labels : [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6],
+                    datasets: []
+                }
+                 for (let scen in scenList){
+                    node.sum[scen] = [0];
+                }
 
-            node.chartData =  {
-                labels : ['Scenarios'],
-                datasets: []
             }
+            else{
+                node.chartData =  {
+                    labels : ['Scenarios'],
+                    datasets: []
+                }
+            }
+
             for (let scen in scenList){
                 data1 = {
                     label: scenList[scen],
                     // each data entry represents a scenario
                     data: [],
-                    backgroundColor:  chartColors[scen % chartDatasetContainer.colorLength]
+                    backgroundColor:  chartColors[scen % chartDatasetContainer.colorLength],
+                    borderColor: chartColors[scen % chartDatasetContainer.colorLength],
+                    minBarLength: 7
                 }
                 node.chartData.datasets[scen] = data1
                 node.chartData.chartDataLabelsOri = ['Scenarios']
+                node.fieldSum[scen] = []
+                node.areaSum[scen] = []
             }
             node.chartData.chartDataOri = new Array(scenList.length).fill(0)
 
         }
+//        else{
+//             node = new ChartData()
+//            node.chartData =  {
+//                labels : scenList,
+//                datasets: [],
+//                chartDataOri:[],
+//                chartDataLabelsOri:[]
+//            }
+//
+//        }
 //        console.log(chartName)
         chartObj[chartName] = node
         chartObj[chartName].chart = null
@@ -57,6 +85,7 @@ function populateChartObj(chartObj, scenList, fieldList){
 }
 
 function build_model_request(f, modelChoice){
+
     let rotation_split = f.get("rotation").split("-")
     crop = rotation_split[0]
     rotation = rotation_split.length > 1 ?rotation_split[1]:null
@@ -74,25 +103,27 @@ function build_model_request(f, modelChoice){
         manure: f.get("manurepercent"),
         crop:crop,
         area:f.getGeometry().getArea(),
-
         crop_cover: f.get("cover_crop"),
 //			doesn't appear to be in the table at this time
         rotation: rotation,
         density: f.get("grazingdensityval"),
 //      comes from the the looping var in Dashboard.js
         model_type: modelChoice,
-        scen: "Scenario 3"
-
+        scen: chartDatasetContainer.getScenName(f.get("scenario_id")),
     }
     model_pack = {
         "farm_id": DSS.activeFarm,
-//        "scenario_id": DSS.activeScenario,
+        field_id: f.get("gid"),
+
+        "scenario_id": f.get("scenario_id"),
+        "isActiveScen": f.get("scenario_id") == DSS.activeScenario,
         "model_parameters":model_para
     }
     return model_pack
 }
 function format_chart_data(model_data){
-
+    console.log("Model data")
+    console.log(model_data)
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
         return
     }
@@ -100,7 +131,10 @@ function format_chart_data(model_data){
     let scenIndex = chartDatasetContainer.indexScenario(model_data.scen)
     chartTypeField = null
     chartTypeFarm = null
-
+    if (fieldIndex == undefined || scenIndex == undefined){
+        console.log("data is not part of a valid field or scenario")
+        return
+    }
     switch (model_data.model_type) {
         case 'yield':
             switch (model_data.value_type){
@@ -148,27 +182,68 @@ function format_chart_data(model_data){
             }
             break;
         case 'runoff':
+            console.log("runoff")
+            if (model_data.value_type == 'Curve Number'){
+                chartTypeFarm = chartObj.cn_num_farm
+            }
+//            have to handle runoff differently because it deals with an array not a single value
+            else if (model_data.value_type == 'Runoff'){
+
+                chartTypeFarm = chartObj.runoff_farm
+                chartTypeFarm.units = model_data.units
+//              loop through each storm event
+                for (let i in model_data.sum_cells){
+                    chartTypeFarm.sum[scenIndex][i] = typeof chartTypeFarm.sum[scenIndex][i] === 'undefined' ? model_data.sum_cells[i]:chartTypeFarm.sum[scenIndex][i] + model_data.sum_cells[i]
+                }
+                chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + model_data.counted_cells
+                chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + model_data.area
+
+                for (let i in model_data.sum_cells){
+                    chartTypeFarm.chartData.datasets[scenIndex].data[i] =  +((chartTypeFarm.sum[scenIndex][i] / chartTypeFarm.count[scenIndex]).toFixed(2))
+                }
+                chartTypeFarm.chartData.datasets[scenIndex].fill = false
+                if(chartTypeFarm.chart !== null){
+                    chartTypeFarm.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartTypeFarm.units;
+                    chartTypeFarm.chart.update()
+                }
+            return
+            }
+
             break
         case 'bio':
+            chartTypeField = chartObj.insecticide_field
+            chartTypeFarm = chartObj.insecticide_farm
             break
         case 'econ':
             break
     }
 //      field level
-    chartTypeField.chartData.datasets[fieldIndex].data[scenIndex] =  model_data.avg
-    console.log(chartTypeField.chartData)
-    chartTypeField.area[fieldIndex] =  model_data.area
-    // creating a backup to pull data from
-    chartTypeField.chartData.chartDataOri[fieldIndex][scenIndex] =  model_data.avg
+// some charts don't have a field level
+    if(chartTypeField !== null){
+        chartTypeField.units = model_data.units
+        chartTypeField.units_alternate = model_data.units_alternate
 
-    if(chartTypeField.chart !== null){
-        chartTypeField.chart.update()
+        chartTypeField.chartData.datasets[fieldIndex].data[scenIndex] =  +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
+        chartTypeField.area[fieldIndex] =  model_data.area
+        // creating a backup to pull data from
+        chartTypeField.chartData.chartDataOri[fieldIndex][scenIndex] =  +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
+         if(chartTypeField.chart !== null){
+            chartTypeField.chart.update()
+            chartTypeField.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartTypeField.units;
+        }
     }
 //      farm level
     //initialize sum and count if they havent been already
     chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + model_data.counted_cells
     chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + model_data.sum_cells
     chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + model_data.area
+    chartTypeFarm.units = model_data.units
+    chartTypeFarm.units_alternate = model_data.units_alternate
+
+    chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
+    chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
+
+
 
     chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex)]
     // creating a backup to pull data from
@@ -176,12 +251,16 @@ function format_chart_data(model_data){
 
     if(chartTypeFarm.chart !== null){
         chartTypeFarm.chart.update()
+        //    set units on graph directly so it displays
+        chartTypeFarm.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartTypeFarm.units;
+
     }
 
 
 
 }
 function get_model_data(data){
+    return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
     $.ajaxSetup({
             headers: { "X-CSRFToken": csrftoken }
@@ -199,7 +278,6 @@ function get_model_data(data){
                     me.stopWorkerAnimation();
                     continue
                 }
-                console.log("response(obj): " + obj);
                 let e = obj.extent;
 //              not doing the dem for beta launch
 //                pt1 = [e[0],e[3]]
@@ -218,18 +296,19 @@ function get_model_data(data){
 //                }));
 //
 //                DSS.MapState.showContinuousLegend(obj.palette, obj.values);
+
                 format_chart_data(obj)
 
             }
 
-            return responses
-
+            resolve(responses);
         },
 
         failure: function(response, opts) {
             me.stopWorkerAnimation();
         }
     });
+    })
 
 	}
 
@@ -263,8 +342,9 @@ function validateImageOL(json, layer, tryCount) {
     }, 50 + tryCount * 50, me);
 }
 
-function create_graph(data,title,element){
-    units = data.units
+function create_graph(chart,title,element){
+    units = chart.units
+    data = chart.chartData
     let barchart = new Chart(element, {
         type: 'bar',
         data: data,
@@ -326,7 +406,105 @@ function create_graph(data,title,element){
                     labelString: units
                   }
                 }]
+            },
+
+        }
+    });
+    return barchart
+}
+function create_graph_line(chart,title,element){
+    units = chart.units
+    data = chart.chartData
+    let barchart = new Chart(element, {
+        type: 'line',
+        data: data,
+        options: {
+            responsive: true,
+//            maintainAspectRatio: false,
+            legend: {
+                position: 'top',
+                onClick: function (event, legendItem, legend){
+                    console.log(event, legendItem, legend)
+                    name = legendItem.text
+                    console.log(event.path[0].id)
+
+                    hideData(event.path[0].id, name)
+
+                },
+            },
+            title: {
+                display: true,
+                text: title
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        maxTicksLimit:5,
+                    },
+                    scaleLabel: {
+                    display: true,
+                    labelString: units
+                  }
+                }],
+                xAxes:[{
+                    scaleLabel:{
+                        display:true,
+                        labelString: "Rain Event [in]"
+                    }
+
+                }]
             }
+        }
+    });
+    return barchart
+}
+function create_graph_radar(chart,title,element){
+    data = chart.chartData
+    let barchart = new Chart(element, {
+        type: 'radar',
+        data: data,
+        options: {
+            responsive: true,
+//            maintainAspectRatio: false,
+
+            title: {
+                display: true,
+                text: title
+            },
+            legend: {
+                position: 'top',
+                onClick: function (event, legendItem, legend){
+                    console.log(event, legendItem, legend)
+                    name = legendItem.text
+                    console.log(event.path[0].id)
+
+                    hideData(event.path[0].id, name)
+
+                },
+            },
+            tooltips: {
+                callbacks: {
+                  label: function(tooltipItem, data) {
+                    console.log(tooltipItem, data)
+    //                var dataset = data.datasets[tooltipItem.datasetIndex];
+    //                var index = tooltipItem.index;
+    //                return dataset.labels[index] + ": " + dataset.data[index];
+                        return "I'm happy"
+              }
+            }
+          },
+          plugins: {
+              datalabels: {
+                formatter: function(value, context) {
+                    console.log("************************************************")
+                  return 'line1\nline2\n' + value;
+    //              return context.chart.data.labels[context.dataIndex];
+                }
+              }
+          }
+
+
         }
     });
     return barchart
@@ -357,7 +535,6 @@ function hideData(chartName, datasetName){
             hiddenData.fields.push(datasetName)
 
             let fieldIndex = chartDatasetContainer.indexField(datasetName)
-
             chkBox = Ext.getCmp("checkBox_field_"+fieldIndex)
             chkBox.suspendEvents(false)
             chkBox.setValue(false);
@@ -412,13 +589,11 @@ function hideData(chartName, datasetName){
         }
         scenVis = []
         if(chartType === 'farm' && chartLoop.includes('field')){
-            console.log("turn off scenario",chartLoop)
             chartObj[chartLoop].chartData.labels = []
              for(let scen in chartDatasetContainer.scenarios){
 //                set labels
                 scenVis[scen] = false
                 if(!hiddenData.scens.includes(chartDatasetContainer.scenarios[scen].name )){
-                    console.log('pushing',chartDatasetContainer.scenarios[scen].name )
                     chartObj[chartLoop].chartData.labels.push(chartDatasetContainer.scenarios[scen].name)
                     scenVis[scen] = true
                 }
@@ -451,17 +626,23 @@ function displayAlternate(chartName, btnId){
 
 //    switch back to yield by area
     if(chartData.useAlternate){
-        btnObject.setText('Average Yield / Area')
+        btnObject.setText('Average Yield')
+        console.log("Switching to Yield per area@@@@@@@@@@@@@@@@@@@@@2")
+        chartData.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartData.units;
+
         chartData.useAlternate = false
-        divideArea = false
+        divideArea = true
 //        conv = 1/area
 
     }
     else{
-        btnObject.setText('Average Yield')
+        btnObject.setText('Average Yield / Area')
+        chartData.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartData.units_alternate;
+        console.log("Switching to Yield  Total &&&&&&&&&&&&&&&&&&&&")
+
         chartData.useAlternate = true
 //        conv = area
-        divideArea = true
+        divideArea = false
     }
     for (data in chartDatasets){
         console.log(chartData)
@@ -469,10 +650,10 @@ function displayAlternate(chartName, btnId){
         console.log(chartData.area[data])
             for(set in chartDatasets[data].data){
                 if(divideArea){
-                    chartDatasets[data].data[set] = chartDatasets[data].data[set]/chartData.area[data]
+                    chartDatasets[data].data[set] = +((chartDatasets[data].data[set]/chartData.area[data]).toFixed(2))
                 }
                 else{
-                    chartDatasets[data].data[set] = chartDatasets[data].data[set] * chartData.area[data]
+                    chartDatasets[data].data[set] = +((chartDatasets[data].data[set] * chartData.area[data]).toFixed(2))
                 }
             }
         }
@@ -481,10 +662,262 @@ function displayAlternate(chartName, btnId){
 }
 // organzies all fields and scenarios so that they show in order and with the same colors
 //across charts
+function compareChartCheckBox(){
+    // display values for the compare tab and the corresponding charts
+//    chart variable type, chart name, if the value is by area, checked
+    boxes = {yieldVar :[
+        ["Grass Yield / Area",'grass_yield_farm', false, true ] ,
+        ["Grass Yield Total",'grass_yield_farm', true, false ] ,
+        ["Corn Yield / Area",'corn_yield_farm', false, true ],
+        ["Corn Yield Total",'corn_yield_farm', true, false],
+        ["Corn Silage Yield / Area  ",'corn_silage_yield_farm', false, true ],
+        ["Corn Silage Yield Total",'corn_silage_yield_farm', true, false],
+        ["Soy Yield / Area",'soy_yield_farm', false, false ],
+        ["Soy Yield Total",'soy_yield_farm', true, false],
+        ["Oat Yield / Area",'oat_yield_farm', false, false ],
+        ["Oat Yield Total",'oat_yield_farm', true, false],
+        ["Alfalfa Yield / Area",'alfalfa_yield_farm', false, false ],
+        ["Alfalfa Yield Total",'alfalfa_yield_farm', true, false],
+        ["Rotation Yield / Area",'rotation_yield_farm', false, false ],
+        ["Rotation Yield Total",'rotation_yield_farm', true, false],
+        ],
+    erosionVar : [
+        ["Soil Erosion / Area  ",'soil_loss_farm', false, false],
+        ["Soil Erosion Total",'soil_loss_farm', true, false]
+    ],
+    nutrientsVar : [
+        ["Phosphorus Runoff / Area  " , 'ploss_farm', false, false],
+        ["Phosphorus Runoff Total" , 'ploss_farm', true, false],
+//        ["Nitrogen Leaching",'nitrogen_farm']
+
+    ],
+    runoffVar : [["Curve Number",'cn_num_farm', false, false] ,
+        ["Runoff from 1 in storm","runoff_farm", false, false],
+        ["Runoff from 3 in storm","runoff_farm", false, false],
+        ["Runoff from 5 in storm","runoff_farm", false, false]
+     ],
+     insectVar: [["Honey Bee Toxicity", 'insecticide_farm', false, false]],
+     infraVar : [
+//     "Total Fence Length", "Total Fence Cost",
+//     "Total Water Line Distance", "Total Water Line Cost", "Total Lane Distance",
+//     "Total Lane Cost", "Total Water Tanks Cost"
+     ]
+    }
+    checkBoxReturn = {}
+    for (group in boxes){
+        console.log(group)
+        for(box in boxes[group]){
+            checkBox = {
+                boxLabel: boxes[group][box][0],
+//                id: "checkBox_field_"+100,
+                checked: boxes[group][box][3],
+//                store chart name for later lookup when populating the radar chart
+                name: boxes[group][box][0],
+                chartType: boxes[group][box][1],
+                total:boxes[group][box][2]
+            }
+            if( checkBoxReturn[group] === undefined){
+                checkBoxReturn[group] = [checkBox]
+                continue
+            }
+            checkBoxReturn[group].push(checkBox)
+        }
+    }
+    console.log(checkBoxReturn)
+    return checkBoxReturn
+}
+function populateRadarChart(){
+    console.log("Populate radar chart")
+    let baseScen = Ext.getCmp('scenCombobox').getValue()
+//    console.log(baseScen)
+    if(baseScen == null || baseScen == undefined){
+        return
+    }
+    chartObj.compare_farm.title = "Base Scenario - " + baseScen
+
+    let baseIndex = chartDatasetContainer.indexScenario(baseScen)
+    chartObj.compare_farm.chartData.labels = []
+    let checkBoxCounter = 0
+    let checkYield = Ext.getCmp('checkYield').getChecked()
+    let checkErosion = Ext.getCmp('checkErosion').getChecked()
+    let checkNutrients = Ext.getCmp('checkNutrients').getChecked()
+    let checkRunoff = Ext.getCmp('checkRunoff').getChecked()
+    let checkInsecticide = Ext.getCmp('checkInsecticide').getChecked()
+    checkBoxArr = []
+
+//    console.log(checkYield)
+//  combine all the checkbox section into one array
+    checkBoxArr = checkYield.concat(checkErosion,checkNutrients,checkRunoff,checkInsecticide)
+    checkBoxArr.concat(checkYield)
+//    console.log(checkBoxArr)
+//    console.log(checkBoxArr.length)
+//    set base scenario to have value of 1
+
+    if(checkBoxArr.length > 8){
+        console.log("too many boxes")
+        return
+    }
+//    for (let i = 0; i < checkBoxArr.length; i++ ){
+//        chartObj.compare_farm.chartData.datasets[0].data[i] = 1
+//
+//    }
+    let i = 0
+    for (let check in checkBoxArr){
+        // each checkbox is an entry in the array
+        let name = checkBoxArr[check].getName()
+        let type = checkBoxArr[check].chartType
+        let isTotal = checkBoxArr[check].total
+
+//        console.log(name, type, isTotal)
+        console.log(type)
+//      hard code base value to first entry
+
+        let scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[0]
+        if(isTotal&& chartObj[type].useAlternate != true){
+            scenBaseVal = scenBaseVal * chartObj[type].area[baseIndex]
+        }
+
+        console.log("scenario base value is ", scenBaseVal)
+        if(scenBaseVal == undefined){
+            continue
+        }
+        chartObj.compare_farm.chartData.labels.push(checkBoxArr[check].getName())
+        scen_data = chartObj[type].chartData.datasets
+        let j = 0
+//      loop through each scenario
+        for (let data in scen_data){
+
+            console.log("$$$$$$$$$$$")
+//            console.log(data)
+//            console.log(scen_data[data])
+//            console.log(scen_data[data].data[0])
+//            console.log(scen_data[0].data[data])
+//            each data series on a scenario chart only has one entry
+            let currentData = scen_data[data].data[0]
+            console.log(scenBaseVal)
+            console.log(currentData)
+            if (isTotal && chartObj[type].useAlternate != true){
+                currentData = currentData * chartObj[type].area[data]
+            }
+//            if (currentData == undefined){
+//                currentData = scenBaseVal
+//            }
+//            if (scenBaseVal == undefined){
+//                scenBaseVal = currentData
+//            }
+//            if(scenBaseVal == 0){
+//                scenBaseVal = 1
+//            }
+            console.log(scenBaseVal)
+            console.log(currentData)
+//            if (data != scenIndex){
+            chartObj.compare_farm.chartData.datasets[data].data[i] = +((currentData / scenBaseVal).toFixed(2))
+//                chartObj.compare_farm.chartData.datasets[j].data[i] = 2
+            j++
+//            }
+        }
+        i++
+    }
+
+//    let checkInfrastructur = Ext.getCmp('checkInfrastructur').getChecked()
+//    console.log(baseScen, scenIndex,checkBoxCounter )
+    //    check each checkbox group for checked boxes (max 8)
+     if(chartObj.compare_farm.chart !== null){
+        chartObj.compare_farm.chart.options.title.text = chartObj.compare_farm.title
+        chartObj.compare_farm.chart.update()
+
+     }
+
+}
+// Retrieves all scenarios associated with active farm
+function retrieveScenariosGeoserver(){
+
+    DSS.activeFarm = 1
+	fieldUrl =
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:scenarios_2&' +
+	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+    console.log("getting wfs scenarios")
+    let scenList = []
+    let scenIdList = []
+
+	$.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: fieldUrl,
+		async: false,
+		dataType: 'json',
+		success:function(responses)
+		{
+            for(response in responses.features){
+                let scen = responses.features[response].properties.scenario_name
+                let scenID = responses.features[response].properties.gid
+                scenList.push(scen)
+                scenIdList.push(scenID)
+            }
+
+		}
+	})
+	console.log(scenList)
+	console.log(scenIdList)
+//	only for testing before merging
+	scenIdList = [40, 35]
+	scenList = ["Base", "Other"]
+	return {scenList, scenIdList}
+}
+function retrieveFieldsGeoserver(){
+    DSS.activeScenario = 50
+        DSS.activeFarm = 1
+
+    fieldUrl =
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_1&' +
+	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+    console.log("getting wfs fields")
+    let fieldList = []
+    let fieldIdList = []
+	$.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: fieldUrl,
+		async: false,
+		dataType: 'json',
+		success:function(responses)
+		{
+			console.log(responses)
+            for(response in responses.features){
+                let field = responses.features[response].properties.field_name
+                console.log(field)
+                let fieldID = responses.features[response].properties.gid
+                fieldList.push(field)
+                fieldIdList.push(fieldID)
+                console.log(fieldList)
+            }
+
+		}
+	})
+    console.log(fieldList)
+    console.log(fieldIdList)
+
+    return {fieldList, fieldIdList}
+}
 class ChartDatasetContainer{
     constructor() {
         this.fields = []
         this.scenarios = []
+
+//        this.fieldsDBID = []
+//        this.scenDBID = []
         this.colorIndex = 0
         this.chartColors = [
                 '#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311',
@@ -493,35 +926,71 @@ class ChartDatasetContainer{
         this.colorLength = chartColors.length
         this.getFields()
         this.getScenarios()
+
     }
     getFields(){
+        let counter = 0
+        let {fieldList, fieldIdList} = retrieveFieldsGeoserver()
+        console.log(fieldList)
         // get every field associated with active scenario
 //        probably replace this with sql query
-        layer.getSource().forEachFeature(function(f) {
-            console.log(f.get("field_name"))
-        })
+//        layer.getSource().forEachFeature(function(f) {
+//            console.log(f.get("field_name"))
+//        })
 
-        let fieldList = ['field 3', 'field2', 'field 1', '1', '2']
+//        let fieldList = ['field 3', 'field2', 'field 1', '1', '2']
+//        fieldList.sort()
+//        let fieldList = ['1', '2']
         for (let scen in fieldList){
-            this.addSet(fieldList[scen],'field')
+            this.addSet(fieldList[scen],'field',fieldIdList[scen])
+            let checkBox = {
+                    boxLabel  : fieldList[scen],
+                    id: "checkBox_field_"+counter,
+                    checked: true,
+                    name: 'field',
+                     listeners:{change: function(box, newVal, oldVal, e) {
+                        hideData(box.name, box.boxLabel)
+                    }}
+            }
+            counter = counter + 1
+            checkBoxField.push(checkBox)
         }
         return fieldList
     }
     getScenarios(){
         // get every scenario from active user
-        //        probably replace this with sql query
-
-        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
+        //         replace this with sql query
+        let counter = 0
+        let {scenList, scenIdList} = retrieveScenariosGeoserver()
+        console.log(scenList)
+        console.log(scenIdList)
+//        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
+        scenList.sort()
         for (let scen in scenList){
-            this.addSet(scenList[scen], 'scen')
+            this.addSet(scenList[scen], 'scen',scenIdList[scen])
+            // populating scenario picker combobox for the compare chart
+            scenariosStore.loadData([[scenList[scen]]],true)
+            scenariosStore.sort('name', 'ASC');
+            let checkBox = {
+                boxLabel  : scenList[scen],
+                    id: "checkBox_scen_"+counter,
+                    checked: true,
+                    name: 'farm',
+                    listeners:{change: function(box, newVal, oldVal, e) {
+                        hideData(box.name, box.boxLabel)
+                    }}
+            }
+            counter = counter + 1
+            checkBoxScen.push(checkBox)
         }
         return scenList
     }
 //    sort fields alphabetically(so they show in same order on each graph) and choose color.
-// Also retrieves scenario and field list from db and creates checkboxes for the options page
-//@ param FieldNode
+//@ param setName Name of scenario
+//@ type field or scen
+//@ id primary key of the scenario or field
 // return index of field
-    addSet(setName, type){
+    addSet(setName, type, id){
         let sets = null
         if (type == "field"){
             sets  = this.fields
@@ -530,11 +999,11 @@ class ChartDatasetContainer{
             sets  = this.scenarios
         }
         if (sets.length < 1){
-            let currField = new DatasetNode(setName, this.getColor())
+            let currField = new DatasetNode(setName, this.getColor(), id)
             sets.push(currField)
             return
         }
-        let currField = new DatasetNode(setName, this.getColor())
+        let currField = new DatasetNode(setName, this.getColor(), id)
         var found = false
 //        sort alphabetically
         for (let set in sets){
@@ -549,24 +1018,45 @@ class ChartDatasetContainer{
         return sets.length
 
     }
-//    get index of field
+//    get index of field by name
     indexField(myField){
-//        find field if it exists otherwise create a new entry
         for (let field in this.fields){
             if (this.fields[field].name == myField){
                 return field
             }
         }
-//        return this.addSet(myField, "field")
     }
+//    get index of scenario by name
     indexScenario(myScenario){
         for (let scen in this.scenarios){
             if (this.scenarios[scen].name== myScenario){
                 return scen
             }
         }
-//        return this.addSet(myScenario, "scen")
     }
+    getDBIdScen(myScenario){
+        for (let scen in this.scenarios){
+            if (this.scenarios[scen].name== myScenario){
+                return this.scenarios[scen].dbID
+            }
+        }
+    }
+    getDBIdfield(myField){
+        for (let field in this.fields){
+            if (this.fields[field].name == myField){
+                return this.fields[field].dbID
+            }
+        }
+    }
+//    get scenario name from id
+    getScenName(scenId){
+        for (let scen in this.scenarios){
+            if (this.scenarios[scen].dbID== scenId){
+                return this.scenarios[scen].name
+            }
+        }
+    }
+
     getColor(index){
         this.chartColors[index%this.colorLength]
     }
@@ -576,17 +1066,7 @@ class ChartDatasetContainer{
         let counter = 0
         for (let field in this.fields){
             field_list.push(this.fields[field].name)
-            let checkBox = {
-                boxLabel  : this.fields[field].name,
-                    id: "checkBox_field_"+counter,
-                    checked: true,
-                    name: 'field',
-                     listeners:{change: function(box, newVal, oldVal, e) {
-                        hideData(box.name, box.boxLabel)
-                    }}
-            }
-            counter = counter + 1
-            checkBoxField.push(checkBox)
+
 
         }
         return field_list
@@ -594,22 +1074,10 @@ class ChartDatasetContainer{
     }
     getScenarioList(){
         let scen_list = []
-        let counter = 0
 
         for (let scen in this.scenarios){
             scen_list.push(this.scenarios[scen].name)
-            let checkBox = {
-                boxLabel  : this.scenarios[scen].name,
-                    id: "checkBox_scen_"+counter,
-                    checked: true,
-                    name: 'farm',
-                    listeners:{change: function(box, newVal, oldVal, e) {
-                        hideData(box.name, box.boxLabel)
-                    }}
 
-            }
-            counter = counter + 1
-            checkBoxScen.push(checkBox)
         }
         return scen_list
     }
@@ -617,9 +1085,10 @@ class ChartDatasetContainer{
 }
 // node for field and scenario attributes
 class DatasetNode{
-    constructor(name, color) {
+    constructor(name, color, dbID) {
         this.name = name
         this.color = color
+        this.dbID = dbID
     }
 }
 
@@ -628,6 +1097,7 @@ class DatasetNode{
 class ChartData{
     constructor() {
         this.units = ''
+        this.units_alternate = ''
         this.title = ''
         this.model_type = ''
         this.sum = []
@@ -636,9 +1106,12 @@ class ChartData{
         this.chartData = null
         this.chart = null
         this.useAlternate = false
+
+        this.fieldSum = []
+        this.areaSum = []
     }
     get_avg(scenIndex){
-        return this.sum[scenIndex] / this.count[scenIndex]
+        return +((this.sum[scenIndex] / this.count[scenIndex]).toFixed(2))
     }
 
     hideField(fieldName){

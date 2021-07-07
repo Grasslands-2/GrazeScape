@@ -19,31 +19,31 @@ class CropYield(ModelBase):
         print(crop_ro)
         # initial storage for crop data
         if crop_ro == "cc":
-            corn = OutputDataNode("Corn Grain", "bushels/ac/year",
-                                  "bushels/year")
+            corn = OutputDataNode("Corn Grain", "Yield (bushels/ac/year)",
+                                  "Yield (bushels/year)")
             return_data.append(corn)
         elif crop_ro == "cg":
-            corn = OutputDataNode("Corn Grain", "bushels/ac/year",
-                                  "bushels/year")
-            soy = OutputDataNode("Soy", "bushels/ac/year", "bushels/year")
+            corn = OutputDataNode("Corn Grain", "Yield (bushels/ac/year)",
+                                  "Yield (bushels/year)")
+            soy = OutputDataNode("Soy", "Yield (bushels/ac/year)", "Yield (bushels/year)")
             return_data.append(corn)
             return_data.append(soy)
         elif crop_ro == "dr":
             silage = OutputDataNode("Corn Silage",
-                                    "tons/ac/year", "tons/year")
-            corn = OutputDataNode("Corn Grain", "bushels/ac/year",
-                                  "bushels/year")
+                                    "Yield (tons/ac/year)", "Yield (tons/year)")
+            corn = OutputDataNode("Corn Grain", "Yield (bushels/ac/year)",
+                                  "Yield (bushels/year)")
             alfalfa = OutputDataNode("Alfalfa",
-                                     "tons/ac/year", "tons/year")
+                                     "Yield (tons/ac/year)", "Yield (tons/year)")
             return_data.append(silage)
             return_data.append(corn)
             return_data.append(alfalfa)
 
         elif crop_ro == "cso":
             silage = OutputDataNode("Corn Silage",
-                                    "tons/ac/year", "tons/year")
-            soy = OutputDataNode("Soy", "bushels/ac/year", "bushels/year")
-            oats = OutputDataNode("Oats", "bushels/ac/year", "bushels/year")
+                                    "Yield (tons/ac/year)", "Yield (tons/year)")
+            soy = OutputDataNode("Soy", "Yield (bushels/ac/year)", "Yield (bushels/year)")
+            oats = OutputDataNode("Oats", "Yield (bushels/ac/year)", "Yield (bushels/year)")
             return_data.append(silage)
             return_data.append(soy)
             return_data.append(oats)
@@ -51,9 +51,9 @@ class CropYield(ModelBase):
             raise Exception("Invalid crop rotation selected")
 
         rotation_avg = OutputDataNode("Rotational Average",
-                                      "lb-Dry Matter/ac/year",
-                                      "lb-Dry Matter/year")
-
+                                      "Yield (lb-Dry Matter/ac/year)",
+                                      "Yield (lb-Dry Matter/year)")
+        return_data.append(rotation_avg)
         for y in range(0, self.bounds["y"]):
             for x in range(0, self.bounds["x"]):
                 # [bushels/acre x 10] original units
