@@ -15,6 +15,8 @@ from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.crop_yield import CropYield
 from grazescape.model_defintions.runoff import Runoff
+from grazescape.model_defintions.insecticide import Insecticide
+from grazescape.db_connect import *
 
 raster_data = None
 
@@ -62,8 +64,19 @@ def chart(request):
 
 @ensure_csrf_cookie
 def get_model_results(request):
-    global raster_data
     print(request.POST)
+
+    print(request.POST.getlist("isActiveScen")[0])
+    # print(request.POST.getlist("isActiveScen[]"))
+    field_id = request.POST.getlist("field_id")[0]
+    scenario_id = request.POST.getlist("scenario_id")[0]
+    farm_id = request.POST.getlist("farm_id")[0]
+
+    if request.POST.getlist("isActiveScen")[0] == 'false':
+        print("not active scenario")
+        return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request), safe=False)
+
+    global raster_data
     field_coors = []
     # format field geometry
     for input in request.POST:
@@ -93,6 +106,8 @@ def get_model_results(request):
     #     model = Erosion(request)
     elif model_type == 'runoff':
         model = Runoff(request)
+    elif model_type == 'bio':
+        model = Insecticide(request)
     else:
         model = GenericModel(request, model_type)
 
@@ -102,39 +117,58 @@ def get_model_results(request):
     print("Preparing model input")
     model.raster_inputs = clipped_rasters
     print("Running model")
-    # TODO once we have more complex models with dependencies we will probably need
     # loop here to build a response for all the model types
     results = model.run_model()
     # result will be a OutputDataNode
     return_data = []
+    # convert area from sq meters to acres
     area = float(
         request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
 
     for result in results:
-        print("Creating png for ", result.get_model_type())
-        print(result.data)
-        avg, sum, count = model.get_model_png(result.data, geo_data.bounds, geo_data.no_data_aray)
-        palette, values = model.get_legend()
-        data = {
-            "extent": [*bounds],
-            "palette": palette,
-            "url": model.file_name + ".png",
-            "values": values,
+        # print("Creating png for ", result.get_model_type())
+        if result.model_type == "insect":
+            print("data")
+            sum = result.data[0]
+            avg = sum
+            count = 1
+            palette = []
+            values_legend = []
+        else:
+            avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
+            # palette, values_legend = model.get_legend()
+        # dealing with rain fall data
+        if type(sum) is not list:
+            sum = round(sum, 2)
 
+        data = {
+            # "extent": [*bounds],
+            # "palette": palette,
+            # "url": model.file_name + ".png",
+            # "values": values_legend,
             "units": result.default_units,
             "units_alternate": result.alternate_units,
+            # overall model type crop, ploss, bio, runoff
             "model_type": model_type,
+            # specific model for runs with multiple models like corn silage
             "value_type": result.get_model_type(),
             "f_name": f_name,
             "scen": scen,
             "avg": round(avg, 2),
-            "area": round(area,2),
+            "area": round(area, 2),
             "counted_cells": count,
-            "sum_cells": round(sum,2),
+            "sum_cells": sum,
+            "scen_id": scenario_id,
+            "field_id": field_id
         }
+        print(db_has_field(field_id, scenario_id, farm_id))
+        if db_has_field(field_id, scenario_id, farm_id):
+            print("already in results")
+            update_field(field_id, scenario_id, farm_id, data, False)
+        else:
+            print("not already in results")
+            update_field(field_id, scenario_id, farm_id, data, True)
         return_data.append(data)
-    print("compiled model data")
-    print(return_data)
     return JsonResponse(return_data, safe=False)
 
 def get_image(response):
@@ -195,3 +229,4 @@ def to_local_space(m_extent):
     m_y1 = int(-(m_y1 - area_extents[3]) / 10)
 
     return [m_x1, m_y1]
+

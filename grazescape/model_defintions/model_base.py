@@ -212,10 +212,31 @@ class ModelBase:
                     count = count + 1
 
         return min_val, max_val, sum_val/count, sum_val, count
+    def sum_count(self, data, no_data_array):
+        # todo update this
+        print("length of data", len(data))
+        sum_val = [0] * 12
+        count = 0
+        valid_count = 0
+        for y in range(0, self.bounds["y"]):
+            for x in range(0, self.bounds["x"]):
+                # skip if array value is no data
+                if no_data_array[y][x] != 1:
+                    for i in range(0, len(sum_val)):
+                        sum_val[i] = sum_val[i] + data[count][i]
+                valid_count = valid_count + 1
+                count = count + 1
+        sum_val = [float(round(elem, 2)) for elem in sum_val]
+        return sum_val, valid_count
 
-    def get_model_png(self, data, bounds, no_data_array):
+    def get_model_png(self, model, bounds, no_data_array):
+        data = model.data
         rows = bounds["y"]
         cols = bounds["x"]
+        if model.model_type == 'Runoff':
+            sum, count = self.sum_count(data, no_data_array)
+            return 0, sum, float(count)
+
 
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
@@ -240,7 +261,6 @@ class ModelBase:
         im = Image.fromarray(three_d)
         im.convert('RGBA')
         print("raster image")
-        print(self.raster_image_file_path)
         im.save(self.raster_image_file_path)
         return float(mean), float(sum), float(count)
 
@@ -261,7 +281,6 @@ class OutputDataNode:
         self.alternate_units = alternate_units
         self.default_units = default_units
         self.data = []
-        self.alternate_data = []
 
     def set_data(self, data):
         self.data.append(data)
