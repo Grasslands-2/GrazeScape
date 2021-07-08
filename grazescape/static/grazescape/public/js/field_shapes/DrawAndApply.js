@@ -9,7 +9,7 @@ var fields_1Source_loc = new ol.source.Vector({
 	format: new ol.format.GeoJSON()
 });
 
-function wfs_field_insert(feat,geomType) {  
+function wfs_field_insert(feat,geomType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
