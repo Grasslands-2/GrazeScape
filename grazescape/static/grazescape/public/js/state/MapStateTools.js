@@ -337,11 +337,12 @@ Ext.define('DSS.state.MapStateTools', {
 			let fs = DSS.map.getFeaturesAtPixel(pixel);
 			for (let idx = 0; idx < fs.length; idx++) {
 				let f = fs[idx];
+				//console.log(fs)
 				let g = f.getGeometry();
 
 				if (g && g.getType() === "Point") {
 					//if (DSS.activeFarm == null){
-						DSS.activeFarm = f.get("gid");
+						DSS.activeFarm = f.get("id");
 						DSS.farmName = f.get("farm_name")
 						//DSS.activeScenario = f.get("scenario");
 						

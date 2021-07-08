@@ -75,7 +75,8 @@ function getWFSScenario() {
 		success:function(response)
 		{
 			scenarioObj = response.features
-			console.log(scenarioObj[0])
+			console.log(scenarioObj)
+			popScenarioArray(scenarioObj);
 		}
 	})
 }
@@ -88,7 +89,7 @@ scenarioArray = [];
 function popFarmArray(obj) {
 	for (i in obj) 
 	farmArray.push({
-		id: obj[i].id,
+		id: obj[i].properties.id,
 		gid: obj[i].properties.gid,
 		name: obj[i].properties.farm_name
 	});
@@ -98,7 +99,9 @@ function popScenarioArray(obj) {
 	scenarioArray.push({
 		id: obj[i].id,
 		gid: obj[i].properties.gid,
-		name: obj[i].properties.farm_name
+		name: obj[i].properties.farm_name,
+		scenarioId:obj[i].properties.scenario_id
+
 	});
 }
 //populate data array with farm object data from each farm
@@ -112,20 +115,18 @@ function gethighestFarmIdCNO(){
 	getWFSFarm()
 	popFarmArray(farmObj);
 	for (i in farmArray){
-		//console.log(farmArray[i].gid)
-		if (farmArray[i].gid > highestFarmIdCNO){
-			highestFarmIdCNO = farmArray[i].gid
+		if (farmArray[i].id > highestFarmIdCNO){
+			highestFarmIdCNO = farmArray[i].id
 			console.log(highestFarmIdCNO);
 		};
 	};
 }
 function gethighestScenarioIdCNO(){
 	getWFSScenario()
-	popScenarioArray(scenarioObj);
+	//popScenarioArray(scenarioObj);
 	for (i in scenarioArray){
-		//console.log(farmArray[i].gid)
-		if (scenarioArray[i].gid > highestScenarioIdCNO){
-			highestScenarioIdCNO = scenarioArray[i].gid
+		if (scenarioArray[i].scenarioId > highestScenarioIdCNO){
+			highestScenarioIdCNO = scenarioArray[i].scenarioId
 			console.log(highestScenarioIdCNO);
 		};
 	};
@@ -175,9 +176,10 @@ function wfs_farm_insert(feat,geomType,fType) {
 			DSS.farmName = feat.values_.farm_name;
 			console.log("Current active farm!: " + DSS.activeFarm);
 			console.log("Current active Scenario!: " + DSS.activeScenario);
-			//DSS.layer.farms_1.getSource().refresh();
-			//DSS.layer.scenarios.getSource().refresh();
 			DSS.ApplicationFlow.instance.showManageOperationPage();
+			DSS.layer.farms_1.getSource().refresh();
+			DSS.layer.scenarios.getSource().refresh();
+			//reSourcescenarios()
 			
 		},
         error: function (xhr, exception) {
@@ -235,7 +237,9 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 		wfs_farm_insert(e.feature, geomType,'farm_2')
 		wfs_farm_insert(e.feature, geomType,'scenarios_2')
 		console.log("HI! WFS farm Insert ran!")
-		DSS.layer.farms_1.getSource().refresh();
+		//DSS.layer.farms_1.getSource().refresh();
+		//DSS.layer.scenarios.getSource().refresh();
+		//reSourcescenarios()
 		//showNewFarm()
 	})     
 }

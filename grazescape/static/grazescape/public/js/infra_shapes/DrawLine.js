@@ -135,7 +135,7 @@ lane_materialInput){
 		console.log(e);
 		infraLength = e.feature.values_.geom.getLength();
 		console.log(infraLength);
-		totalCost = (infraLength * costPerFoot).toFixed(2)
+		totalCost = ((infraLength * 3.28084) * costPerFoot).toFixed(2)
 		console.log(totalCost);
 		e.feature.setProperties({
 			id: af,
