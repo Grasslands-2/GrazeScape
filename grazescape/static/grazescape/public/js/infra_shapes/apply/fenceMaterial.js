@@ -63,8 +63,14 @@ Ext.define('DSS.infra_shapes.apply.fenceMaterial', {
 					name: rbName,
 					listeners: {
 						afterrender: function(self) {
-							if ( self.boxLabelEl) {
-								self.boxLabelEl.setStyle('cursor', 'pointer')
+							if(DSS.infra_shapes.apply.infraType.inputValue != 'fl'){
+								//this.hide();
+								console.log('hi')
+							}
+							else{
+								if ( self.boxLabelEl) {
+									self.boxLabelEl.setStyle('cursor', 'pointer')
+								}
 							}
 						}
 					}

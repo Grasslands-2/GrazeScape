@@ -3,7 +3,6 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 //DSS.scenarioName = ''
 //local functions to make sure selected scenario infra and fields only draw
 function showFieldsForScenario() {
-    	
 	DSS.layer.fields_1.getSource().setUrl(
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
@@ -113,12 +112,12 @@ function popItemsArray(obj){
 	for (i in obj)
 	itemsArray.push({
 		text:obj[i].properties.scenario_name,
-		inputValue:obj[i].properties.gid,
+		inputValue:obj[i].properties.scenario_id,
 		itemFid: obj[i].id
 	})
 	console.log(itemsArray);
 }
-getWFSScenarioSP(DSS.activeFarm)
+//getWFSScenarioSP(DSS.activeFarm)
 //console.log("Picker array and items array!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 //console.log(scenarioPickerArray);
 

@@ -58,9 +58,9 @@ function selectDeleteScenario(fgid){
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		console.log(f);
 		var delScenarioFeature = f;
-		console.log(delScenarioFeature.values_.gid);
-		console.log("from scenario features loop through: " + delScenarioFeature.values_.gid);
-		if (delScenarioFeature.values_.gid == fgid){
+		console.log(delScenarioFeature.values_.scenario_id);
+		console.log("from scenario features loop through: " + delScenarioFeature.values_.scenario_id);
+		if (delScenarioFeature.values_.scenario_id == fgid){
 			itemToBeDeleted = delScenarioFeature;
 			console.log("scenario selected for termination:")
 			console.log(itemToBeDeleted);
@@ -72,7 +72,7 @@ function selectDeleteScenario(fgid){
 			//console.log("delete scenario failed")
 			////pass
 			wfsDeleteItem(delArray,'scenarios_2');
-			if(DSS.activeScenario == itemToBeDeleted.values_.gid){
+			if(DSS.activeScenario == itemToBeDeleted.values_.scenario_id){
 				getWFSScenarioSP()
 				DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
 				DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
