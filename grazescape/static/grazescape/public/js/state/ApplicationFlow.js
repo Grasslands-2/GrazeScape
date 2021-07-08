@@ -214,7 +214,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		
 		DSS.mouseMoveFunction = undefined;
 		//DSS.layer.farms_1.setVisible(true);
-		DSS.layer.scenarios.setVisible(false);
+		//DSS.layer.scenarios.setVisible(false);
 		
 		DSS.MapState.showNewFarm(DSS.activeFarm);
 		DSS.MapState.showFieldsForFarm(DSS.activeFarm);

@@ -26,6 +26,35 @@ function reSourceinfra() {
 	DSS.layer.infrastructure.getSource().refresh();
 	console.log("reSource Infra ran");
 }
+function reSourcefarms() {
+	DSS.layer.farms_1.getSource().setUrl(
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:farm_2&'+
+	//'CQL_filter=scenario_id='+fgid+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857'
+	);
+	DSS.layer.farms_1.getSource().refresh();
+	console.log("reSource Infra ran");
+}
+function reSourcescenarios() {
+	DSS.layer.scenarios.getSource().refresh();
+	DSS.layer.scenarios.getSource().setUrl(
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:scenarios_2&' +
+	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857'
+	);
+	//DSS.layer.scenarios.getSource().refresh();
+	console.log("reSource scenarios ran");
+}
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Manage', {
 //------------------------------------------------------------------------------
@@ -76,6 +105,9 @@ Ext.define('DSS.state.Manage', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: function(self) {
+									reSourceFields()
+									reSourceinfra()
+									reSourcefarms()
 									DSS.ApplicationFlow.instance.showLandingPage();
 									//DSS.layer.fields_1.getSource().refresh();
 									DSS.MapState.showAllFields();
@@ -121,7 +153,9 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Manage Loaded Scenario',
 					handler: function(self) {
+						//reSourcescenarios()
 						gatherScenarioTableData()
+						//DSS.layer.scenarios.getSource().refresh();
 						AppEvents.triggerEvent('hide_field_shape_mode')
 						DSS.ApplicationFlow.instance.showScenarioPage();
 						console.log(DSS.activeScenario);
