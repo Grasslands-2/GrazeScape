@@ -509,29 +509,43 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
+					id: "btnRunModels",
 					text: 'Run Models',
 					handler: function(self) {
 						console.log("compute hi")
 						//DSS.DrawFieldShapes.addModeControl()
 						console.log()
 						if (DSS['viewModel'].scenario.data != null){
-
+                            console.log("updating scenario data")
 						    runScenarioUpdate();
+                            console.log("done updating scenario data")
 						}
-						if (!DSS.dialogs) DSS.dialogs = {};
-//                        if (!DSS.dialogs.Dashboard) {
-                                Ext.getCmp("btnOpenDashboard").setDisabled(false)
-
-                            DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
+                        if (!Ext.getCmp("dashboardWindow")) {
+                            Ext.getCmp("btnOpenDashboard").setDisabled(false)
+//                            Ext.getCmp("btnRunModels").setDisabled(true)
+                            let dash = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,
 
                                 runModel:true,
                                 // any other option you like...
                             });
-                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
+//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
+                            Ext.getCmp("btnRunModels").setText("ReRun Models")
+                            Ext.getCmp("dashboardWindow").show().center();
+                        }
+                        else{
+//                            close model to destroy it to rerun models
+                            Ext.getCmp("dashboardWindow").close()
+                            let dash = Ext.create('DSS.results.Dashboard', {
+//                                numberOfLines: 20,
 
-//                        }
-                        DSS.dialogs.Dashboard.show().center();
+                                runModel:true,
+                                // any other option you like...
+                            });
+//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
+                            Ext.getCmp("btnRunModels").setText("ReRun Models")
+                            Ext.getCmp("dashboardWindow").show().center();
+                        }
 					}
 				},
 				{
@@ -542,21 +556,8 @@ Ext.define('DSS.state.Scenario', {
 					id: "btnOpenDashboard",
 					disabled:true,
 					handler: function(self) {
-						console.log("compute hi")
-						//DSS.DrawFieldShapes.addModeControl()
-						console.log()
+		                Ext.getCmp("dashboardWindow").show()
 
-						if (!DSS.dialogs) DSS.dialogs = {};
-//                        if (!DSS.dialogs.Dashboard) {
-//                            DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
-////                                numberOfLines: 20,
-//                                runModel:false,
-//                                // any other option you like...
-//                            });
-//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
-//
-//                        }
-                        DSS.dialogs.Dashboard.show().center();
 					}
 				}
 				]
