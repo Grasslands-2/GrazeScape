@@ -912,7 +912,7 @@ function retrieveScenariosGeoserver(){
 		{
             for(response in responses.features){
                 let scen = responses.features[response].properties.scenario_name
-                let scenID = responses.features[response].properties.gid
+                let scenID = responses.features[response].properties.scenario_id
                 scenList.push(scen)
                 scenIdList.push(scenID)
             }
