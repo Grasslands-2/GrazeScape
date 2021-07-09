@@ -315,26 +315,26 @@ class PhosphorousLoss(ModelBase):
         }} else if (full_df$crop == "dl") {{
         dl_erosion <- readRDS(dl_erosion_file)
         dl_pi <- readRDS(dl_pi_file)
+ density <- factor(dl_erosion$preproc$xlevels$density)
+    level_df <- expand_grid(density)
 
-          density <- factor(dl_erosion$preproc$xlevels$density)
-
-          df <- full_df %>%
-              select(c(total_DM_lbs:LSsurgo)) %>% 
-              slice(rep(1:n(), each=nrow(level_df)))
-
-          df <- cbind(density, df)
-
-          pred_df <- df %>%
-            filter(density == full_df$density)
-
-          erosion <- round(predict(dl_erosion, pred_df),2)
-
-          pi_pred_df <- pred_df %>%
-            bind_cols(erosion) %>%
-            mutate(Erosion = .pred)
-
-         final_pi <- round(predict(dl_pi, pi_pred_df),2)
-          pi_CI <- predict(dl_pi, pi_pred_df, type = "pred_int")
+        df <- full_df %>%
+          select(c(initialP:LSsurgo)) %>% 
+          slice(rep(1:n(), each=nrow(level_df)))
+        
+        df <- cbind(density, df)
+        
+        pred_df <- df %>%
+          filter(density == full_df$density)
+        print(pred_df)
+        erosion <- round(predict(dl_erosion, pred_df),2)
+        
+        pi_pred_df <- pred_df %>%
+          bind_cols(erosion) %>%
+          mutate(Erosion = .pred)
+        
+        final_pi <- round(predict(dl_pi, pi_pred_df),2)
+        pi_CI <- predict(dl_pi, pi_pred_df, type = "pred_int")
 
         }}
 
