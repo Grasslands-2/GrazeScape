@@ -189,6 +189,7 @@ function runFieldUpdate(){
 	})
 };
 function runScenarioUpdate(){
+
 	//reSourcescenarios()
 	console.log(DSS['viewModel'].scenario.data.dairy.dry);
 	console.log(DSS.layer.scenarios.getSource().getUrl())
@@ -307,7 +308,7 @@ Ext.define('DSS.state.Scenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		
+
 		Ext.applyIf(me, {
 			defaults: {
 				margin: '1rem',
@@ -512,11 +513,53 @@ Ext.define('DSS.state.Scenario', {
 					handler: function(self) {
 						console.log("compute hi")
 						//DSS.DrawFieldShapes.addModeControl()
-						DSS.ModelRunTools.addModeControl()
 						console.log()
-						runScenarioUpdate();
+						if (DSS['viewModel'].scenario.data != null){
+
+						    runScenarioUpdate();
+						}
+						if (!DSS.dialogs) DSS.dialogs = {};
+//                        if (!DSS.dialogs.Dashboard) {
+                                Ext.getCmp("btnOpenDashboard").setDisabled(false)
+
+                            DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
+//                                numberOfLines: 20,
+
+                                runModel:true,
+                                // any other option you like...
+                            });
+                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
+
+//                        }
+                        DSS.dialogs.Dashboard.show().center();
 					}
-				}]
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Open Dashboard',
+					id: "btnOpenDashboard",
+					disabled:true,
+					handler: function(self) {
+						console.log("compute hi")
+						//DSS.DrawFieldShapes.addModeControl()
+						console.log()
+
+						if (!DSS.dialogs) DSS.dialogs = {};
+//                        if (!DSS.dialogs.Dashboard) {
+//                            DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
+////                                numberOfLines: 20,
+//                                runModel:false,
+//                                // any other option you like...
+//                            });
+//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
+//
+//                        }
+                        DSS.dialogs.Dashboard.show().center();
+					}
+				}
+				]
 			}]
 		});
 		
