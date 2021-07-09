@@ -85,7 +85,33 @@ function populateChartObj(chartObj, scenList, fieldList){
 }
 
 function build_model_request(f, modelChoice){
-
+    let lac_grass_multi = null
+    let hei_grass_multi = null
+    let dry_grass_multi = null
+    let graze_factor = 1
+    console.log(f)
+    DSS.layer.scenarios.getSource().forEachFeature(function(g) {
+		var scenarioFeature = g;
+		if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
+			console.log(scenarioFeature);
+            lac_grass_multi = scenarioFeature.get("lac_rotate_freq")
+            hei_grass_multi = scenarioFeature.get("beef_rotate_freq")
+            dry_grass_multi = scenarioFeature.get("dry_rotate_freq")
+		}
+	})
+//	TODO this needs to be redone once the rotation checkboxes are fixed
+	if(f.get("graze_beef_cattle")){
+	    graze_factor = hei_grass_multi
+	}
+	if(f.get("graze_dairy_cattle")){
+	    graze_factor = lac_grass_multi
+	}
+	if(f.get("graze_dairy_non_lactating")){
+	    graze_factor = dry_grass_multi
+	}
+	if(graze_factor == null || graze_factor == undefined){
+	    graze_factor = 1
+	}
     let rotation_split = f.get("rotation").split("-")
     crop = rotation_split[0]
     rotation = rotation_split.length > 1 ?rotation_split[1]:null
@@ -106,9 +132,11 @@ function build_model_request(f, modelChoice){
         crop_cover: f.get("cover_crop"),
 //			doesn't appear to be in the table at this time
         rotation: rotation,
+        rotationFreq:"",
         density: f.get("grazingdensityval"),
 //      comes from the the looping var in Dashboard.js
         model_type: modelChoice,
+        graze_factor:graze_factor,
         scen: chartDatasetContainer.getScenName(f.get("scenario_id")),
     }
     model_pack = {
@@ -271,9 +299,12 @@ function get_model_data(data){
     'data' : data,
         success: function(responses, opts) {
             console.log(responses)
+            if(responses == null){
+                resolve([]);
+            }
             for (response in responses){
                 obj = responses[response];
-                if(obj.error){
+                if(obj.error || response == null){
                     console.log("model did not run")
                     me.stopWorkerAnimation();
                     continue
@@ -282,6 +313,7 @@ function get_model_data(data){
 //              not doing the dem for beta launch
                 console.log("@@@@@@@@@@@@@@@@")
                 console.log(responses[response].value_type)
+//                only display erosion on the map
                 if (responses[response].value_type == 'ero'&&responses[response].scen_id==DSS.activeScenario){
                     console.log("There is erosion")
                     pt1 = [e[0],e[3]]
@@ -292,20 +324,36 @@ function get_model_data(data){
                     let p = new ol.geom.Polygon([
                         [pt1, pt2, pt3, pt4, pt1]
                     ]);
-                    validateImageOL(obj, DSS.layer.ModelResult);
+                    let modelResult = new ol.layer.Image({
+                        updateWhileAnimating: true,
+                        updateWhileInteracting: true,
+                        source: new ol.source.ImageStatic({
+                            imageSmoothing: false,
+                            projection: 'EPSG:3857',
+                            // Something is required here or there will be an exception whilst trying to draw this layer
+                            imageExtent: [
+                                44240,328120,
+                                448350,335420
+                            ],
+                        })
+                    });
+                    DSS.map.addLayer(modelResult)
+
+
+
+//                    validateImageOL(obj, DSS.layer.ModelResult);
+                    validateImageOL(obj, modelResult);
                     let s = DSS.layer.ModelBox.getSource();
                     s.clear();
                     s.addFeature(new ol.Feature({
                         geometry: p
                     }));
-
                     DSS.MapState.showContinuousLegend(obj.palette, obj.values);
-
                 }
+                if(responses[response].value_type != "dry lot"){
 
-
-                format_chart_data(obj)
-
+                    format_chart_data(obj)
+                }
             }
 
             resolve(responses);
@@ -839,7 +887,7 @@ function populateRadarChart(){
 // Retrieves all scenarios associated with active farm
 function retrieveScenariosGeoserver(){
 
-    DSS.activeFarm = 1
+//    DSS.activeFarm = 1
 	fieldUrl =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
@@ -873,24 +921,27 @@ function retrieveScenariosGeoserver(){
 	console.log(scenList)
 	console.log(scenIdList)
 //	only for testing before merging
-	scenIdList = [40, 35]
-	scenList = ["Base", "Other"]
+//	scenIdList = [40, 35]
+//	scenList = ["Base", "Other"]
+    console.log(scenList)
 	return {scenList, scenIdList}
 }
 function retrieveFieldsGeoserver(){
-    DSS.activeScenario = 40
-    DSS.activeFarm = 1
+//    DSS.activeScenario = 40
+//    DSS.activeFarm = 1
 
     fieldUrl =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_1&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	'typeName=GrazeScape_Vector:field_2&' +
+	'CQL_filter=farm_id='+DSS.activeFarm+' AND scenario_id='+DSS.activeScenario +
+	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs fields")
+    console.log(fieldUrl)
     let fieldList = []
     let fieldIdList = []
 	$.ajax({
@@ -915,7 +966,7 @@ function retrieveFieldsGeoserver(){
 	})
     console.log(fieldList)
     console.log(fieldIdList)
-
+    console.log(fieldList)
     return {fieldList, fieldIdList}
 }
 class ChartDatasetContainer{

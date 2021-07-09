@@ -294,9 +294,9 @@ class Runoff(ModelBase):
         dl_erosion <- readRDS(dl_erosion_file)
 
           density <- factor(dl_erosion$preproc$xlevels$density)
-
+            level_df <- expand_grid(density)
           df <- full_df %>%
-              select(c(total_DM_lbs:LSsurgo)) %>% 
+              select(c(initialP:LSsurgo)) %>% 
               slice(rep(1:n(), each=nrow(level_df)))
 
           df <- cbind(density, df)
