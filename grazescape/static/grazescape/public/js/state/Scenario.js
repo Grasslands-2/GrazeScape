@@ -505,7 +505,8 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Run simulations'
-				},{
+				},
+				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
