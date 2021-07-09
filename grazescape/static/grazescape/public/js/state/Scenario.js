@@ -26,7 +26,7 @@ function popScenarioArray(obj) {
 	//console.log(i);
 	scenarioArray.push({
 		gid: obj[i].properties.gid,
-		id: obj[i].properties.gid,
+		id: obj[i].properties.scenario_id,
 		geom: obj[i].geometry,
 		farmName: obj[i].properties.farm_name,
 		farmId: obj[i].properties.farm_id,
@@ -57,7 +57,7 @@ function popScenarioArray(obj) {
 }
 
 function getWFSScenario(scenarioUrl) {
-    console.log("getting wfs farms")
+    console.log("getting wfs scenarios")
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
@@ -68,7 +68,7 @@ function getWFSScenario(scenarioUrl) {
 		{
 			responseObj = response
 			scenarioObj = response.features
-			//console.log(responseObj);
+			console.log(responseObj);
 			scenarioArray = [];
 			console.log("I am geoscenarioarray response object")
 			console.log(scenarioObj);
@@ -87,7 +87,7 @@ function gatherScenarioTableData() {
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
 	//--------------------------------------------
@@ -189,14 +189,18 @@ function runFieldUpdate(){
 	})
 };
 function runScenarioUpdate(){
-//	console.log(DSS['viewModel'].scenario.data.dairy.dry);
-	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
+
+	//reSourcescenarios()
+	console.log(DSS['viewModel'].scenario.data.dairy.dry);
+	console.log(DSS.layer.scenarios.getSource().getUrl())
+	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeature = f;
 		console.log(f);
 		console.log(DSS.activeScenario)
 		console.log("from scenario loop through: " + scenarioFeature.values_.scenario_id);
 		if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
-			console.log(scenarioArray[i].scenarioName);
+			//console.log(scenarioArray[i].scenarioName);
+			console.log(scenarioArray[i]);
 			scenarioFeature.setProperties({
 				lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
 				dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
@@ -486,9 +490,11 @@ Ext.define('DSS.state.Scenario', {
 					allowDepress: false,
 					text: 'Save All Attribute Edits',
 					handler: function() {
+						//DSS.layer.scenarios.getSource().refresh();
+						runScenarioUpdate();
 						runFieldUpdate();
 						runInfraUpdate();
-						runScenarioUpdate();
+						
 					},
 				},
 						
@@ -579,7 +585,7 @@ Ext.define('DSS.state.Scenario', {
 		gatherScenarioTableData()
 		console.log('in animal view model')
 		console.log('this is the farms beef cows: ')
-		console.log(scenarioArray[0].beefCows)
+		//console.log(scenarioArray[0].beefCows)
 		DSS.viewModel.scenario = new Ext.app.ViewModel({
 			formulas: {
 				tillageValue: { 
