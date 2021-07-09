@@ -77,7 +77,8 @@ function getWFSScenarioNS() {
 		success:function(response)
 		{
 			scenarioObj = response.features
-			console.log(scenarioObj[0])
+			console.log(scenarioObj)
+			popscenarioArrayNS(scenarioObj);
 		}
 	})
 }
@@ -119,7 +120,7 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
 function popFarmArray(obj) {
 	for (i in obj) 
 	farmArray.push({
-		id: obj[i].id,
+		id: obj[i].properties.id,
 		gid: obj[i].properties.gid,
 		name: obj[i].properties.farm_name
 	});
@@ -154,37 +155,39 @@ function popscenarioArrayNS(obj) {
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
 	});
+	console.log(scenarioArrayNS)
 }
 //populate data array with farm object data from each farm
 //popArray(farmObj);
-//var to hold onto largest gid value of current farms before another is added
+//var to hold onto largest id value of current farms before another is added
 highestFarmId = 0;
 highestScenarioId = 0;
-//loops through data array gids to find largest value and hold on to it with highestfarmid
+//loops through data array ids to find largest value and hold on to it with highestfarmid
 
 function getHighestFarmId(){
 	getWFSFarm()
 	popFarmArray(farmObj);
 	for (i in farmArray){
-		//console.log(farmArray[i].gid)
-		if (farmArray[i].gid > highestFarmId){
-			highestFarmId = farmArray[i].gid
+		console.log(farmArray[i].id)
+		if (farmArray[i].id > highestFarmId){
+			highestFarmId = farmArray[i].id
 			console.log('hightestFarmId after getHighestFarmId run: ' + highestFarmId)
 		};
 	};
 }
 function rerunPopScenarioArrayNS(){
 	getWFSScenarioNS();
-	popscenarioArrayNS(scenarioObj);
+	//popscenarioArrayNS(scenarioObj);
 }
 function getHighestScenarioId(){
 	getWFSScenarioNS();
-	popscenarioArrayNS(scenarioObj);
+	//popscenarioArrayNS(scenarioObj);
 	for (i in scenarioArrayNS){
-		//console.log(farmArray[i].gid)
-		if (scenarioArrayNS[i].gid > highestScenarioId){
-			highestScenarioId = scenarioArrayNS[i].gid
-			console.log('hightestScenarioId after getHighestScenarioId run: ' + highestFarmId)
+		console.log(scenarioArrayNS[i].scenarioId)
+		console.log(highestScenarioId)
+		if (scenarioArrayNS[i].scenarioId > highestScenarioId){
+			highestScenarioId = scenarioArrayNS[i].scenarioId
+			console.log('hightestScenarioId after getHighestScenarioId run: ' + highestScenarioId)
 		};
 	};
 }
@@ -326,16 +329,16 @@ function createNewScenario(sname,sdescript,snewhighID){
 	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
-		console.log(newScenarioFeature)
+		console.log(newScenarioFeature.values_.scenario_id)
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
 		console.log("from scenario features loop through: " + newScenarioFeature);
-		if(newScenarioFeature.values_.gid == DSS.activeScenario){
+		if(newScenarioFeature.values_.scenario_id == DSS.activeScenario){
 			for (i in scenarioArrayNS){
-				console.log("scenarioArrayNS id: " + scenarioArrayNS[i].gid);
-				if(scenarioArrayNS[i].gid == DSS.activeScenario){
-					console.log('ActiveScenario, scenarios feature gid, and scenarioarray gid line up!!!!!!!!!!!!!!!');
+				console.log("scenarioArrayNS scenario_id: " + scenarioArrayNS[i].scenarioId);
+				if(scenarioArrayNS[i].scenarioId == DSS.activeScenario){
+					console.log('ActiveScenario, scenarios feature scenario_id, and scenarioarray scenarioId line up!!!!!!!!!!!!!!!');
 					console.log('Base object for new scenario:')
 					console.log(newScenarioFeature)
 					newScenarioFeature.setProperties({

@@ -328,6 +328,7 @@ Ext.define('DSS.map.Main', {
 			})
 		})
 		var scenario_1SourceMain = new ol.source.Vector({
+			format: new ol.format.GeoJSON(),
 			url: function(extent){
 				return'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 				'service=wfs&'+
@@ -337,7 +338,7 @@ Ext.define('DSS.map.Main', {
 				'outputformat=application/json&'+
 				'srsname=EPSG:3857'
 			},
-			format: new ol.format.GeoJSON()
+			
 		});
 		var infrastructure_Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
@@ -378,10 +379,13 @@ Ext.define('DSS.map.Main', {
 			},
 		});
 		//-------------------------------------Scenario Style------------------------
-		var scenStyle = new ol.style.Style({
+		function scenStyle() {
+			if( 1 ==1 ){return scenStyle1}
+		}
+		var scenStyle1 = new ol.style.Style({
 			stroke: new ol.style.Stroke({
-				color: 'rgba(255, 255, 255, 0)',
-				width: 1,
+				color: 'rgba(255, 255, 255, 1)',
+				width: 10,
 			})
 		})
 		//------------------------------------infra styles and layer-----------------------
@@ -455,12 +459,7 @@ Ext.define('DSS.map.Main', {
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: scenario_1SourceMain,
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: 'rgba(255, 255, 255, 0)',
-					width: 1,
-				})
-			})
+			style:scenStyle
 		})
 
 		//---------------------------------Field layers and style work-------------------------------------
@@ -551,7 +550,6 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1,
-				
 				DSS.layer.fieldsLabels,
 				DSS.layer.infrastructure
 				 ],
