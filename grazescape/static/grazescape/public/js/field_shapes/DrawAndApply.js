@@ -117,6 +117,9 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 	console.log(as)
 
 	DSS.draw.on('drawend', function (e,) {
+		fieldArea = e.feature.values_.geom.getArea();
+		console.log(fieldArea);
+
 		e.feature.setProperties({
 			id: af,
 			farm_id: af,
@@ -132,8 +135,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			tillage: tillageInput,
 			tillage_disp:tillageDisp,
 			rotational_density:0,
-			area:0,
-			perimeter:0,
+			area:fieldArea,
 			fertilizerpercent:0,
 			manurepercent:0,
 			spread_confined_manure_on_pastures: false,
