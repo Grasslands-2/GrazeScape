@@ -1,5 +1,5 @@
-//var modelTypes = ['yield', 'ploss','runoff', 'bio']
-var modelTypes = ['bio']
+var modelTypes = ['yield', 'ploss','runoff', 'bio']
+//var modelTypes = ['yield']
 //var modelTypes = ['ploss']
 //list of all the current and future charts
 var chartList = ["cost_farm", "cost_field",
@@ -39,6 +39,7 @@ var scenariosStore = Ext.create('Ext.data.Store', {
     fields: ['name'],
     data : []
 });
+var demResultsLayers =[]
 
 //var testChartData = {
 //    cost_farm_data:{
@@ -178,7 +179,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                    if (f.get("field_name") == "40 ac"){
                         model_request = build_model_request(f, modelTypes[model])
 //                        model_data = get_model_data(model_request)
-//                            if(f.get("field_name") != "This is field 1111"){
+//                            if(f.get("field_name") != "field 2 Drylot"){
 //                                continue;
 //                            }
                         console.log(model_request)
@@ -654,8 +655,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             return
                         }
                         chartObj.grass_yield_farm.chart = create_graph(chartObj.grass_yield_farm, 'Grass Yield', document.getElementById('grass_yield_farm').getContext('2d'));
-                        chartObj.corn_yield_farm.chart = create_graph(chartObj.corn_yield_farm, 'Corn Yield', document.getElementById('corn_yield_farm').getContext('2d'));
-                        chartObj.corn_silage_yield_farm.chart = create_graph(chartObj.corn_silage_yield_farm, 'Corn Silage', document.getElementById('corn_silage_yield_farm').getContext('2d'));
+                        chartObj.corn_yield_farm.chart = create_graph(chartObj.corn_yield_farm, 'Corn Grain Yield', document.getElementById('corn_yield_farm').getContext('2d'));
+                        chartObj.corn_silage_yield_farm.chart = create_graph(chartObj.corn_silage_yield_farm, 'Corn Silage Yield', document.getElementById('corn_silage_yield_farm').getContext('2d'));
                         chartObj.soy_yield_farm.chart = create_graph(chartObj.soy_yield_farm, 'Soy Yield', document.getElementById('soy_yield_farm').getContext('2d'));
                         chartObj.oat_yield_farm.chart = create_graph(chartObj.oat_yield_farm, 'Oat Yield', document.getElementById('oat_yield_farm').getContext('2d'));
                         chartObj.alfalfa_yield_farm.chart = create_graph(chartObj.alfalfa_yield_farm, 'Alfalfa Yield', document.getElementById('alfalfa_yield_farm').getContext('2d'));

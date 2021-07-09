@@ -96,7 +96,20 @@ def get_model_results(request):
         if crop_ro == 'pt' or crop_ro == 'ps':
             model = GrassYield(request)
         elif crop_ro == 'dl':
-            pass
+            data = {
+
+                # overall model type crop, ploss, bio, runoff
+                "model_type": model_type,
+                # specific model for runs with multiple models like corn silage
+                "value_type": "dry lot",
+                "f_name": f_name,
+                "scen": scen,
+
+                "scen_id": scenario_id,
+                "field_id": field_id
+            }
+            return JsonResponse([data], safe=False)
+            # pass
         else:
             print("crop")
             model = CropYield(request)
@@ -135,9 +148,10 @@ def get_model_results(request):
             palette = []
             values_legend = []
         else:
-            if model_type == 'ploss' and counter == 0:
-                avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
-                palette, values_legend = model.get_legend()
+            avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
+            palette, values_legend = model.get_legend()
+            # if model_type == 'ploss' and counter == 0:
+            #     pass
         counter = counter + 1
         # dealing with rain fall data
         if type(sum) is not list:

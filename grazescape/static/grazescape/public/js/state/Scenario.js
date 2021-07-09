@@ -304,7 +304,7 @@ Ext.define('DSS.state.Scenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		
+
 		Ext.applyIf(me, {
 			defaults: {
 				margin: '1rem',
@@ -514,8 +514,11 @@ Ext.define('DSS.state.Scenario', {
 						}
 						if (!DSS.dialogs) DSS.dialogs = {};
 //                        if (!DSS.dialogs.Dashboard) {
+                                Ext.getCmp("btnOpenDashboard").setDisabled(false)
+
                             DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,
+
                                 runModel:true,
                                 // any other option you like...
                             });
@@ -525,17 +528,19 @@ Ext.define('DSS.state.Scenario', {
                         DSS.dialogs.Dashboard.show().center();
 					}
 				},
-//				{
-//					xtype: 'button',
-//					cls: 'button-text-pad',
-//					componentCls: 'button-margin',
-//					text: 'Open Dashboard',
-//					handler: function(self) {
-//						console.log("compute hi")
-//						//DSS.DrawFieldShapes.addModeControl()
-//						console.log()
-//
-//						if (!DSS.dialogs) DSS.dialogs = {};
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Open Dashboard',
+					id: "btnOpenDashboard",
+					disabled:true,
+					handler: function(self) {
+						console.log("compute hi")
+						//DSS.DrawFieldShapes.addModeControl()
+						console.log()
+
+						if (!DSS.dialogs) DSS.dialogs = {};
 //                        if (!DSS.dialogs.Dashboard) {
 //                            DSS.dialogs.Dashboard = Ext.create('DSS.results.Dashboard', {
 ////                                numberOfLines: 20,
@@ -545,9 +550,9 @@ Ext.define('DSS.state.Scenario', {
 //                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
 //
 //                        }
-//                        DSS.dialogs.Dashboard.show().center();
-//					}
-//				}
+                        DSS.dialogs.Dashboard.show().center();
+					}
+				}
 				]
 			}]
 		});
