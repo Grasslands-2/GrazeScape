@@ -90,7 +90,6 @@ function popFieldsArray(obj) {
 		grazeDairyNonLactating: obj[i].properties.graze_dairy_non_lactating,
 		grazeBeefCattle: obj[i].properties.graze_beef_cattle,
         area: obj[i].properties.area,
-        perimeter: obj[i].properties.perimeter,
         fence_type: obj[i].properties.fence_type,
         fence_cost: obj[i].properties.fence_cost,
         fence_unit_cost:obj[i].properties.fence_unit_cost
@@ -643,12 +642,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}, text: 'Area', dataIndex: 'area', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-        let perimeter_Column = {
-			xtype: 'numbercolumn', format: '0.00',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Perimeter', dataIndex: 'perimeter', width: 80,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-		};
+        // let perimeter_Column = {
+		// 	xtype: 'numbercolumn', format: '0.00',editor: {
+		// 		xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+		// 	}, text: 'Perimeter', dataIndex: 'perimeter', width: 80,
+		// 	hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		// };
 		
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
@@ -671,7 +670,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				canManurePastures,
 				grazeDensityColumn,
 				area_Column,
-				perimeter_Column
+				//perimeter_Column
 
 			],
 			
