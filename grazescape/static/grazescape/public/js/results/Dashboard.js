@@ -1,6 +1,6 @@
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['yield']
-//var modelTypes = ['ploss']
+//var modelTypes = ['yield', 'ploss','runoff', 'bio']
+var modelTypes = ['yield']
+//var modelTypes = ['bio']
 //list of all the current and future charts
 var chartList = ["cost_farm", "cost_field",
     "net_return_farm", "net_return_field",
@@ -55,11 +55,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //------------------------------------------------------------------------------
 
 	extend: 'Ext.window.Window',
+
 	alias: 'widget.state_perimeter_dialog',
 	alternateClassName: 'DSS.Dashboard',
-
+    id: "dashboardWindow",
 //	autoDestroy: true,
 //	closeAction: 'destroy',
+//    closable: false,
+    closeAction: 'method-hide',
 	constrain: true,
 	modal: false,
 	width: '80%',
@@ -92,6 +95,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 	//--------------------------------------------------------------------------
 	initComponent: function() {
+	    console.log("Opening dialog")
         let chart_height = '25vh'
         let chart_width = '32vw'
 
@@ -1050,7 +1054,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         if (chartObj["insecticide_field"].chart !== null){
                             return
                         }
-                        chartObj.insecticide_field.chart = create_graph(chartObj.insecticide_field, 'Insecticide Use', document.getElementById('insecticide_field').getContext('2d'));
+                        chartObj.insecticide_field.chart = create_graph(chartObj.insecticide_field, 'Honey Bee Toxicity', document.getElementById('insecticide_field').getContext('2d'));
 
                     }}
                 }
