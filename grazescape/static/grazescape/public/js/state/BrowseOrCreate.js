@@ -60,7 +60,6 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					componentCls: 'button-margin',
 					text: 'test dashboard',
 					handler: function() {
-
                         if (!DSS.dialogs) DSS.dialogs = {};
                         if (!DSS.dialogs.PerimeterDialog) {
                             DSS.dialogs.PerimeterDialog = Ext.create('DSS.results.Dashboard', {
@@ -69,11 +68,8 @@ Ext.define('DSS.state.BrowseOrCreate', {
                                 // any other option you like...
                             });
                             DSS.dialogs.PerimeterDialog.setViewModel(DSS.viewModel.scenario);
-
                         }
                         DSS.dialogs.PerimeterDialog.show().center();
-
-
 					}
 				}]
 			}]
