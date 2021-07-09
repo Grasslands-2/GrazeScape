@@ -299,6 +299,7 @@ function get_model_data(data){
     'data' : data,
         success: function(responses, opts) {
             console.log(responses)
+            delete $.ajaxSetup().headers
             if(responses == null){
                 resolve([]);
             }
@@ -1023,7 +1024,7 @@ class ChartDatasetContainer{
         console.log(scenList)
         console.log(scenIdList)
 //        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
-        scenList.sort()
+//        scenList.sort()
         for (let scen in scenList){
             this.addSet(scenList[scen], 'scen',scenIdList[scen])
             // populating scenario picker combobox for the compare chart
