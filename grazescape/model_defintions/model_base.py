@@ -131,9 +131,14 @@ class ModelBase:
         nutrient_key = parameters["crop"] + parameters["crop_cover"] + \
                        parameters["rotation"] + parameters["density"]
         nutrient_key = nutrient_key.lower()
-        parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
-        parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
-        parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
+        try:
+            parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
+            parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
+            parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
+        except KeyError:
+            print("Invalid key: ", nutrient_key)
+            raise
+
         return parameters
 
     def get_file_name(self):

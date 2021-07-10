@@ -1,6 +1,6 @@
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
+//var modelTypes = ['yield', 'ploss','runoff', 'bio']
 //var modelTypes = ['yield']
-//var modelTypes = ['bio']
+var modelTypes = ['bio']
 //list of all the current and future charts
 var chartList = ["cost_farm", "cost_field",
     "net_return_farm", "net_return_field",
@@ -20,15 +20,16 @@ var chartList = ["cost_farm", "cost_field",
     'alfalfa_yield_farm','alfalfa_yield_field',
     'rotation_yield_farm' , 'rotation_yield_field',
     'insecticide_farm', 'insecticide_field']
+var chartColors = [
+            '#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311',
+                '#009988', '#BBBBBB'
+        ]
 // stores references to each chart object. Stores ChartNodes which store the actual chart object and stores the data for each chart
 var chartObj = {}
 //controls order of how datasets are displayed and with what colors
 var chartDatasetContainer = {}
 //https://personal.sron.nl/~pault/
-var chartColors = [
-                '#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311',
-                    '#009988', '#BBBBBB'
-            ]
+
 var checkBoxScen = []
 var checkBoxField = []
 var hiddenData = {
@@ -133,6 +134,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                 eco_pb = document.getElementById("eco_pb");
                 numbFields = fieldList.length
+                totalFields = numbFields * modelTypes.length
                 for (model in modelTypes){
                      switch (modelTypes[model]){
                         case 'yield':
@@ -165,6 +167,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
+                Ext.getCmp("compareTab").setDisabled(true)
                 Ext.getCmp('mainTab').update()
             }, 10);
 
@@ -233,6 +236,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     bio_pb.value = bio_pb.value + 1
                                     bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
                                     break
+                            }
+                            totalFields = totalFields - 1
+                            if(totalFields == 0){
+                                Ext.getCmp("btnRunModels").setDisabled(false)
+                                Ext.getCmp("compareTab").setDisabled(false)
+
                             }
                             Ext.getCmp('mainTab').update()
 
@@ -1317,7 +1326,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     scope: this,
                     listeners:{activate: function() {
                         console.log("activated data select")
-                        Ext.getCmp("scenCombobox").setValue(scenariosStore.getAt('0').get('name'))
+//                        Ext.getCmp("scenCombobox").setValue(scenariosStore.getAt('0').get('name'))
 //                        Ext.getCmp('scenCombobox').setValue(scenariosStore.getAt('0').get('name'));
 
                     }}
@@ -1366,7 +1375,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
             }
         var summary =  { title: '<i class="fas fa-book-open  fa-lg"></i>  Summary',
-            disabled:true,
+            disabled:false,
             plain: true,
                 tabBar : {
                     layout: {
@@ -1394,57 +1403,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     defaults: {
 
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="sum_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        style: 'padding:10px; ',
+                        border:0,
                     },
-//                    {
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="canvas1" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="canvas2" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="canvas3" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    }
+                    items:[{
+                        xtype: 'button',
+                        text: 'Downlaod Summary',
+                        id: 'downloadSummaryBtn',
+                        tooltip: 'Download charts and csv',
+                          handler: function(e) {
+                            console.log(e)
+                            printSummary()
+                          }
+//                        text: 'Yearly Yield'
+                    }
                     ],
 
-                },{ xtype: 'panel',
-                    title: '<i class="fas fa-seedling"></i></i>  Field',
-                     border: false,
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 2
-                    },
-                    defaults: {
-
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="sum_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                    },
-//                    {
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    },{
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    }
-                    ],
-                }],
-
-
-
-
+                }]
             }
         var options = {
 
@@ -1622,6 +1597,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 		    items: [{
 				xtype: 'container',
+				id: 'dashboardContainer',
+				alwaysOnTop: true,
 				style: 'background-color: #E2EAAC; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0)',
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 				margin: '2 2',

@@ -307,7 +307,8 @@ function get_model_data(data){
                 obj = responses[response];
                 if(obj.error || response == null){
                     console.log("model did not run")
-                    me.stopWorkerAnimation();
+                    console.log(obj.error)
+                    alert(obj.error);
                     continue
                 }
                 let e = obj.extent;
@@ -351,8 +352,8 @@ function get_model_data(data){
                     }));
                     DSS.MapState.showContinuousLegend(obj.palette, obj.values);
                 }
-                if(responses[response].value_type != "dry lot"){
 
+                if(responses[response].value_type != "dry lot"){
                     format_chart_data(obj)
                 }
             }
@@ -543,10 +544,10 @@ function create_graph_radar(chart,title,element){
                 callbacks: {
                   label: function(tooltipItem, data) {
                     console.log(tooltipItem, data)
-    //                var dataset = data.datasets[tooltipItem.datasetIndex];
-    //                var index = tooltipItem.index;
-    //                return dataset.labels[index] + ": " + dataset.data[index];
-                        return "I'm happy"
+                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                    var index = tooltipItem.index;
+                    return dataset.labels[index] + ": " + dataset.data[index];
+
               }
             }
           },
@@ -790,8 +791,8 @@ function populateRadarChart(){
         return
     }
     chartObj.compare_farm.title = "Base Scenario - " + baseScen
-
     let baseIndex = chartDatasetContainer.indexScenario(baseScen)
+    console.log("scen index is ", baseIndex, baseScen)
     chartObj.compare_farm.chartData.labels = []
     let checkBoxCounter = 0
     let checkYield = Ext.getCmp('checkYield').getChecked()
@@ -824,11 +825,24 @@ function populateRadarChart(){
         let type = checkBoxArr[check].chartType
         let isTotal = checkBoxArr[check].total
 
-//        console.log(name, type, isTotal)
+        console.log(name, type, isTotal)
         console.log(type)
-//      hard code base value to first entry
 
         let scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[0]
+        if(name.indexOf("1 in storm")>0){
+
+            scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[1]
+        }
+        else if(name.indexOf("3 in storm")>0){
+            scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[5]
+
+        }
+        else if(name.indexOf("5 in storm")>0){
+            console.log("5 in storm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[9]
+
+        }
+
         if(isTotal&& chartObj[type].useAlternate != true){
             scenBaseVal = scenBaseVal * chartObj[type].area[baseIndex]
         }
@@ -850,6 +864,17 @@ function populateRadarChart(){
 //            console.log(scen_data[0].data[data])
 //            each data series on a scenario chart only has one entry
             let currentData = scen_data[data].data[0]
+            if(name.indexOf("1 in storm")>0){
+                currentData = scen_data[data].data[1]
+            }
+            else if(name.indexOf("3 in storm")>0){
+                currentData = scen_data[data].data[5]
+
+            }
+            else if(name.indexOf("5 in storm")>0){
+                currentData = scen_data[data].data[9]
+
+            }
             console.log(scenBaseVal)
             console.log(currentData)
             if (isTotal && chartObj[type].useAlternate != true){
@@ -969,6 +994,42 @@ function retrieveFieldsGeoserver(){
     console.log(fieldIdList)
     console.log(fieldList)
     return {fieldList, fieldIdList}
+}
+function printSummary(){
+    var pdf = new jsPDF();
+//    let mainTabLength = Ext.getCmp("mainTab").items.length
+    let mainTabs = Ext.getCmp("mainTab").items.items
+    for (let mainTab in mainTabs ){
+        Ext.getCmp("mainTab").setActiveTab(parseFloat(mainTab))
+        subTabs = mainTabs[parseFloat(mainTab)].items.items
+        for(let subTab in subTabs){
+            console.log(subTab)
+            Ext.getCmp("mainTab").items.items[parseFloat(mainTab)].setActiveTab(parseFloat(subTab))
+        }
+    }
+//    make the summary tab the active tab when done.
+// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
+    Ext.getCmp("mainTab").setActiveTab(8)
+//    Ext.getCmp("mainTab").items.items[1].setActiveTab(1)
+//
+//    Ext.getCmp("mainTab").items.items[7].items.length
+//    Ext.getCmp("mainTab").setActiveTab(1)
+
+    var pdf = new jsPDF();
+    setTimeout(() => {
+        canvas = document.getElementById('insecticide_field')
+        var newCanvas = canvas.cloneNode(true);
+        var ctx = newCanvas.getContext('2d');
+        ctx.fillStyle = "#FFF";
+        ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+        ctx.drawImage(canvas, 0, 0);
+        var imgData = newCanvas.toDataURL("image/jpeg");
+        pdf.addImage(imgData, 'JPEG', 0, 0);
+        pdf.addPage(imgData)
+        pdf.addImage(imgData, 'JPEG', 0, 0);
+        pdf.save("GrazeScape_Summary.pdf");
+    }, 100);
+
 }
 class ChartDatasetContainer{
     constructor() {
