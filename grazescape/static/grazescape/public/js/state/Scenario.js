@@ -521,6 +521,8 @@ Ext.define('DSS.state.Scenario', {
 						    runScenarioUpdate();
                             console.log("done updating scenario data")
 						}
+                        Ext.getCmp("btnRunModels").setDisabled(true)
+//                        if dashboard hasnt been opened before
                         if (!Ext.getCmp("dashboardWindow")) {
                             Ext.getCmp("btnOpenDashboard").setDisabled(false)
 //                            Ext.getCmp("btnRunModels").setDisabled(true)
@@ -531,12 +533,30 @@ Ext.define('DSS.state.Scenario', {
                                 // any other option you like...
                             });
 //                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
-                            Ext.getCmp("btnRunModels").setText("ReRun Models")
+                            Ext.getCmp("btnRunModels").setText("Rerun Models")
                             Ext.getCmp("dashboardWindow").show().center();
                         }
                         else{
 //                            close model to destroy it to rerun models
-                            Ext.getCmp("dashboardWindow").close()
+                            console.log("destroy dashboard")
+                            chartObj = {}
+                            //controls order of how datasets are displayed and with what colors
+                            chartDatasetContainer = {}
+                            //https://personal.sron.nl/~pault/
+
+                            checkBoxScen = []
+                            checkBoxField = []
+                            hiddenData = {
+                                fields:[],
+                                scens:[],
+                            }
+                            scenariosStore = Ext.create('Ext.data.Store', {
+                                fields: ['name'],
+                                data : []
+                            });
+                            demResultsLayers =[]
+                            Ext.getCmp("dashboardContainer").destroy()
+                            Ext.getCmp("dashboardWindow").destroy()
                             let dash = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,
 
@@ -544,7 +564,6 @@ Ext.define('DSS.state.Scenario', {
                                 // any other option you like...
                             });
 //                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
-                            Ext.getCmp("btnRunModels").setText("ReRun Models")
                             Ext.getCmp("dashboardWindow").show().center();
                         }
 					}

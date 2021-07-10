@@ -17,7 +17,7 @@ from grazescape.model_defintions.crop_yield import CropYield
 from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.db_connect import *
-
+import sys
 raster_data = None
 
 
@@ -90,102 +90,124 @@ def get_model_results(request):
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
     scen = request.POST.get('model_parameters[scen]')
-    if model_type == 'yield':
-        print("grass")
-        crop_ro = request.POST.getlist("model_parameters[crop]")[0]
-        if crop_ro == 'pt' or crop_ro == 'ps':
-            model = GrassYield(request)
-        elif crop_ro == 'dl':
-            data = {
+    try:
+        print("testing error")
+        if model_type == 'yield':
+            print("grass")
+            crop_ro = request.POST.getlist("model_parameters[crop]")[0]
+            if crop_ro == 'pt' or crop_ro == 'ps':
+                model = GrassYield(request)
+            elif crop_ro == 'dl':
+                data = {
 
+                    # overall model type crop, ploss, bio, runoff
+                    "model_type": model_type,
+                    # specific model for runs with multiple models like corn silage
+                    "value_type": "dry lot",
+                    "f_name": f_name,
+                    "scen": scen,
+
+                    "scen_id": scenario_id,
+                    "field_id": field_id
+                }
+                return JsonResponse([data], safe=False)
+                # pass
+            else:
+                print("crop")
+                model = CropYield(request)
+        elif model_type == 'ploss':
+            model = PhosphorousLoss(request)
+        # elif model_type == 'ero':
+        #     model = Erosion(request)
+        elif model_type == 'runoff':
+            model = Runoff(request)
+        elif model_type == 'bio':
+            model = Insecticide(request)
+        else:
+            model = GenericModel(request, model_type)
+
+        model.bounds["x"] = geo_data.bounds["x"]
+        model.bounds["y"] = geo_data.bounds["y"]
+
+        print("Preparing model input")
+        model.raster_inputs = clipped_rasters
+        print("Running model")
+        # loop here to build a response for all the model types
+        results = model.run_model()
+        # result will be a OutputDataNode
+        return_data = []
+        # convert area from sq meters to acres
+        area = float(
+            request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
+        counter = 0
+        for result in results:
+            # print("Creating png for ", result.get_model_type())
+            if result.model_type == "insect":
+                print("data")
+                sum = result.data[0]
+                avg = sum
+                count = 1
+                palette = []
+                values_legend = []
+            else:
+                avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
+                palette, values_legend = model.get_legend()
+                # if model_type == 'ploss' and counter == 0:
+                #     pass
+            counter = counter + 1
+            # dealing with rain fall data
+            if type(sum) is not list:
+                sum = round(sum, 2)
+
+            data = {
+                "extent": [*bounds],
+                "palette": palette,
+                "url": model.file_name + ".png",
+                "values": values_legend,
+                "units": result.default_units,
+                "units_alternate": result.alternate_units,
                 # overall model type crop, ploss, bio, runoff
                 "model_type": model_type,
                 # specific model for runs with multiple models like corn silage
-                "value_type": "dry lot",
+                "value_type": result.get_model_type(),
                 "f_name": f_name,
                 "scen": scen,
-
+                "avg": round(avg, 2),
+                "area": round(area, 2),
+                "counted_cells": count,
+                "sum_cells": sum,
                 "scen_id": scenario_id,
                 "field_id": field_id
             }
-            return JsonResponse([data], safe=False)
-            # pass
-        else:
-            print("crop")
-            model = CropYield(request)
-    elif model_type == 'ploss':
-        model = PhosphorousLoss(request)
-    # elif model_type == 'ero':
-    #     model = Erosion(request)
-    elif model_type == 'runoff':
-        model = Runoff(request)
-    elif model_type == 'bio':
-        model = Insecticide(request)
-    else:
-        model = GenericModel(request, model_type)
+            print(db_has_field(field_id, scenario_id, farm_id))
+            if db_has_field(field_id, scenario_id, farm_id):
+                print("already in results")
+                update_field(field_id, scenario_id, farm_id, data, False)
+            else:
+                print("not already in results")
+                update_field(field_id, scenario_id, farm_id, data, True)
+            return_data.append(data)
+        return JsonResponse(return_data, safe=False)
+    except KeyError:
+        error = "Invalid parameters for field " + f_name
 
-    model.bounds["x"] = geo_data.bounds["x"]
-    model.bounds["y"] = geo_data.bounds["y"]
-
-    print("Preparing model input")
-    model.raster_inputs = clipped_rasters
-    print("Running model")
-    # loop here to build a response for all the model types
-    results = model.run_model()
-    # result will be a OutputDataNode
-    return_data = []
-    # convert area from sq meters to acres
-    area = float(
-        request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
-    counter = 0
-    for result in results:
-        # print("Creating png for ", result.get_model_type())
-        if result.model_type == "insect":
-            print("data")
-            sum = result.data[0]
-            avg = sum
-            count = 1
-            palette = []
-            values_legend = []
-        else:
-            avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
-            palette, values_legend = model.get_legend()
-            # if model_type == 'ploss' and counter == 0:
-            #     pass
-        counter = counter + 1
-        # dealing with rain fall data
-        if type(sum) is not list:
-            sum = round(sum, 2)
-
-        data = {
-            "extent": [*bounds],
-            "palette": palette,
-            "url": model.file_name + ".png",
-            "values": values_legend,
-            "units": result.default_units,
-            "units_alternate": result.alternate_units,
-            # overall model type crop, ploss, bio, runoff
-            "model_type": model_type,
-            # specific model for runs with multiple models like corn silage
-            "value_type": result.get_model_type(),
-            "f_name": f_name,
-            "scen": scen,
-            "avg": round(avg, 2),
-            "area": round(area, 2),
-            "counted_cells": count,
-            "sum_cells": sum,
-            "scen_id": scenario_id,
-            "field_id": field_id
-        }
-        print(db_has_field(field_id, scenario_id, farm_id))
-        if db_has_field(field_id, scenario_id, farm_id):
-            print("already in results")
-            update_field(field_id, scenario_id, farm_id, data, False)
-        else:
-            print("not already in results")
-            update_field(field_id, scenario_id, farm_id, data, True)
-        return_data.append(data)
-    return JsonResponse(return_data, safe=False)
+    except Exception as e:
+        error = str(e) + " while running models for field " + f_name
+        # error = "Unexpected error:", sys.exc_info()[0]
+        # error = "Unexpected error"
+    print(error)
+    data = {
+        # overall model type crop, ploss, bio, runoff
+        "model_type": model_type,
+        # specific model for runs with multiple models like corn silage
+        "value_type": "dry lot",
+        "f_name": f_name,
+        "scen": scen,
+        "scen_id": scenario_id,
+        "field_id": field_id,
+        "error": error
+    }
+    return JsonResponse([data], safe=False)
 
 def get_image(response):
     print(response.GET.get('file_name'))
