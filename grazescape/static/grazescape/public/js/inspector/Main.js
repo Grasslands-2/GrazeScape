@@ -111,6 +111,8 @@ Ext.define('DSS.inspector.Main', {
 		AppEvents.registerListener('set_inspector_bounds', function(extents, silent) {
 			if (!silent) {
 			    console.log("Drawing bounding box")
+				//me.computeResults(extents,DSS.layer.ModelResult);
+				//DISABLE ME TO TEST INSPECTOR MODE!!!!!
 			     if(DSS_isDataLoaded == false){
 				    alert("data not loaded!")
                 }
@@ -296,12 +298,15 @@ Ext.define('DSS.inspector.Main', {
 	//---------------------------------------------------------------------------------
 	validateImageOL: function(json, layer, tryCount) {
 		var me = this;
+		console.log(json.url)
 		console.log("validateImageOL run");
 		console.log(layer)
 		tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
 		Ext.defer(function() {
 			var src = new ol.source.ImageStatic({
-				url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
+				//url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
+				url: "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" +
+				"request=GetCoverage&CoverageId=" + json.url,
 				crossOrigin: '',
 				imageExtent: json.extent,
 				projection: 'EPSG:3857',
