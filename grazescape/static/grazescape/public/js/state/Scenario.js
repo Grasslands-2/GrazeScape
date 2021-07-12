@@ -504,7 +504,7 @@ Ext.define('DSS.state.Scenario', {
 				},{//------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',
-					html: 'Run simulations'
+					html: 'Run Simulations'
 				},
 				{
 					xtype: 'button',
@@ -522,7 +522,7 @@ Ext.define('DSS.state.Scenario', {
                             console.log("done updating scenario data")
 						}
                         if (!Ext.getCmp("dashboardWindow")) {
-                            Ext.getCmp("btnOpenDashboard").setDisabled(false)
+                            //Ext.getCmp("btnOpenDashboard").setDisabled(false)
 //                            Ext.getCmp("btnRunModels").setDisabled(true)
                             let dash = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,
@@ -549,18 +549,19 @@ Ext.define('DSS.state.Scenario', {
                         }
 					}
 				},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Open Dashboard',
-					id: "btnOpenDashboard",
-					disabled:true,
-					handler: function(self) {
-		                Ext.getCmp("dashboardWindow").show()
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'Open Dashboard',
+				// 	id: "btnOpenDashboard",
+				// 	disabled:true,
+				// 	//disabled: false,
+				// 	handler: function(self) {
+		        //         Ext.getCmp("dashboardWindow").show()
 
-					}
-				}
+				// 	}
+				// }
 				]
 			}]
 		});
