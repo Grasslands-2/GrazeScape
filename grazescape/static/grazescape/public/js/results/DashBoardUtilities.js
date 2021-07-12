@@ -338,7 +338,7 @@ function get_model_data(data){
                             ],
                         })
                     });
-                    DSS.map.addLayer(modelResult)
+                    //DSS.map.addLayer(modelResult)
 
 
 

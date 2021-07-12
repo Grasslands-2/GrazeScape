@@ -71,7 +71,9 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 				//	boxLabelCls: 'hover'
 				},
 				items: [{
-					boxLabel: 'Pasture', 			inputValue: 'pt',
+					boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
+				},{
+					boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
 				},{ 
 					boxLabel: 'New Pasture', 			inputValue: 'ps',
 				},{ 
