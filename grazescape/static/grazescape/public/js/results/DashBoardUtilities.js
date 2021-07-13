@@ -307,7 +307,8 @@ function get_model_data(data){
                 obj = responses[response];
                 if(obj.error || response == null){
                     console.log("model did not run")
-                    me.stopWorkerAnimation();
+                    console.log(obj.error)
+                    alert(obj.error);
                     continue
                 }
                 let e = obj.extent;
@@ -351,8 +352,8 @@ function get_model_data(data){
                     }));
                     DSS.MapState.showContinuousLegend(obj.palette, obj.values);
                 }
-                if(responses[response].value_type != "dry lot"){
 
+                if(responses[response].value_type != "dry lot"){
                     format_chart_data(obj)
                 }
             }
@@ -543,10 +544,10 @@ function create_graph_radar(chart,title,element){
                 callbacks: {
                   label: function(tooltipItem, data) {
                     console.log(tooltipItem, data)
-    //                var dataset = data.datasets[tooltipItem.datasetIndex];
-    //                var index = tooltipItem.index;
-    //                return dataset.labels[index] + ": " + dataset.data[index];
-                        return "I'm happy"
+                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                    var index = tooltipItem.index;
+                    return dataset.labels[index] + ": " + dataset.data[index];
+
               }
             }
           },
@@ -790,8 +791,8 @@ function populateRadarChart(){
         return
     }
     chartObj.compare_farm.title = "Base Scenario - " + baseScen
-
     let baseIndex = chartDatasetContainer.indexScenario(baseScen)
+    console.log("scen index is ", baseIndex, baseScen)
     chartObj.compare_farm.chartData.labels = []
     let checkBoxCounter = 0
     let checkYield = Ext.getCmp('checkYield').getChecked()
@@ -824,11 +825,24 @@ function populateRadarChart(){
         let type = checkBoxArr[check].chartType
         let isTotal = checkBoxArr[check].total
 
-//        console.log(name, type, isTotal)
+        console.log(name, type, isTotal)
         console.log(type)
-//      hard code base value to first entry
 
         let scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[0]
+        if(name.indexOf("1 in storm")>0){
+
+            scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[1]
+        }
+        else if(name.indexOf("3 in storm")>0){
+            scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[5]
+
+        }
+        else if(name.indexOf("5 in storm")>0){
+            console.log("5 in storm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[9]
+
+        }
+
         if(isTotal&& chartObj[type].useAlternate != true){
             scenBaseVal = scenBaseVal * chartObj[type].area[baseIndex]
         }
@@ -850,6 +864,17 @@ function populateRadarChart(){
 //            console.log(scen_data[0].data[data])
 //            each data series on a scenario chart only has one entry
             let currentData = scen_data[data].data[0]
+            if(name.indexOf("1 in storm")>0){
+                currentData = scen_data[data].data[1]
+            }
+            else if(name.indexOf("3 in storm")>0){
+                currentData = scen_data[data].data[5]
+
+            }
+            else if(name.indexOf("5 in storm")>0){
+                currentData = scen_data[data].data[9]
+
+            }
             console.log(scenBaseVal)
             console.log(currentData)
             if (isTotal && chartObj[type].useAlternate != true){
@@ -970,10 +995,198 @@ function retrieveFieldsGeoserver(){
     console.log(fieldList)
     return {fieldList, fieldIdList}
 }
+function retrieveFarmGeoserver(){
+// DSS.activeScenario = 40
+//    DSS.activeFarm = 1
+
+    fieldUrl =
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:farm_2&' +
+	'CQL_filter=id='+DSS.activeFarm+
+	'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+    console.log("getting wfs farm")
+    console.log(fieldUrl)
+    let farmName = ''
+
+	$.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: fieldUrl,
+		async: false,
+		dataType: 'json',
+		success:function(responses)
+		{
+			console.log(responses)
+            for(response in responses.features){
+                farmName = responses.features[response].properties.farm_name
+
+            }
+
+		}
+	})
+    return farmName
+}
+function printSummary(){
+    var pdf = new jsPDF();
+//    scenName = chartDatasetContainer.getScenName(DSS.activeScenario)
+//    let mainTabLength = Ext.getCmp("mainTab").items.length
+//    let mainTabs = Ext.getCmp("mainTab").items.items
+//    for (let mainTab in mainTabs ){
+//        Ext.getCmp("mainTab").setActiveTab(parseFloat(mainTab))
+//        subTabs = mainTabs[parseFloat(mainTab)].items.items
+//        for(let subTab in subTabs){
+//            console.log(subTab)
+//            Ext.getCmp("mainTab").items.items[parseFloat(mainTab)].setActiveTab(parseFloat(subTab))
+//        }
+//    }
+////    make the summary tab the active tab when done.
+//// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
+//    Ext.getCmp("mainTab").setActiveTab(8)
+
+
+//    var pdf = new jsPDF();
+//    setTimeout(() => {
+//        for (chart in chartList){
+//            canvas = document.getElementById(chartList[chart])
+//            console.log(canvas)
+//            if(canvas == null){
+//                continue
+//            }
+//            var newCanvas = canvas.cloneNode(true);
+//            var ctx = newCanvas.getContext('2d');
+//            ctx.fillStyle = "#FFF";
+//            ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+//            ctx.drawImage(canvas, 0, 0);
+//            var imgData = newCanvas.toDataURL("image/jpeg");
+////            pdf.addImage(imgData, 'JPEG', 0, 0);
+//            pdf.addPage(imgData)
+//            pdf.addImage(imgData, 'JPEG', 0, 0);
+//        }
+//        pdf.save("GrazeScape_Summary.pdf");
+//    }, 1000);
+//    let type = "csv"
+//    let file_name = "GrazeScape_Summary.csv"
+
+    fieldUrl =
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_model_results&' +
+	'CQL_filter=farm_id='+DSS.activeFarm+
+	'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+    console.log("getting wfs fields")
+    console.log(fieldUrl)
+    let fieldList = []
+    let fieldIdList = []
+	$.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: fieldUrl,
+		async: false,
+		dataType: 'json',
+		success:function(responses){
+            let csvMain = []
+
+		    let csvHeader = Object.keys(responses.features[0].properties)
+		    let csvText = ""
+
+//		    csvMain.push(csvHeader)
+		    let index = csvHeader.indexOf("cell_count");
+            if (index > -1) csvHeader.splice(index, 1);
+            index = csvHeader.indexOf("farm_id");
+            if (index > -1) csvHeader.splice(index, 1);
+//            index = csvHeader.indexOf("scenario_id");
+//            if (index > -1) csvHeader.splice(index, 1);
+            for (head in csvHeader){
+		        csvText = csvText + csvHeader[head] + ","
+		    }
+            csvText = csvText + "\n"
+
+            for(response of Object.keys(responses.features)){
+//                console.log(response)
+                let field_att_list = []
+                console.log("################################")
+                for(col of Object.keys(responses.features[response].properties)){
+                    let cell_count = responses.features[response].properties["cell_count"]
+                    if(col == "cell_count" || col == "farm_id"){
+//                            field_att_list.push("place holder")
+//                            csvText = csvText + responses.features[response].properties[col] + ","
+//                            csvText = csvText + responses.features[response].properties[col] + ","
+
+                            continue
+                        }
+                    else if(col== "field_id" ){
+                        field_att_list.push(chartDatasetContainer.getFieldName(responses.features[response].properties[col]))
+//                        field_att_list.push("Test field 1")
+                        csvText = csvText + chartDatasetContainer.getFieldName(responses.features[response].properties[col]) + ","
+
+                    }
+                    else if(col== "scenario_id" ){
+                        field_att_list.push(chartDatasetContainer.getScenName(responses.features[response].properties[col]))
+//                        field_att_list.push("Test field 1")
+                        csvText = csvText + chartDatasetContainer.getScenName(responses.features[response].properties[col]) + ","
+
+                    }
+                    else if(col == "area"){
+                        field_att_list.push(responses.features[response].properties[col])
+                        csvText = csvText + responses.features[response].properties[col] + ","
+
+                    }
+                    else{
+                        field_att_list.push(responses.features[response].properties[col]/ cell_count)
+                        csvText = csvText + (responses.features[response].properties[col] / cell_count) + ","
+
+                    }
+                }
+                field_att_list.push("\n")
+                csvText = csvText + "\n"
+
+                csvMain.push(field_att_list)
+            }
+            console.log(csvHeader)
+            console.log(csvMain)
+            csvReturn = []
+            csvHeader.push("\n")
+            csvReturn.push(csvHeader)
+            csvReturn.push(csvMain)
+            data = csvText
+            filename = chartDatasetContainer.farmName + "_model_data.csv"
+            type = "csv"
+            var file = new Blob([data], {type: type});
+            if (window.navigator.msSaveOrOpenBlob) // IE10+
+                window.navigator.msSaveOrOpenBlob(file, filename);
+            else { // Others
+                var a = document.createElement("a"),
+                        url = URL.createObjectURL(file);
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+            }
+
+		}
+	})
+
+
+}
 class ChartDatasetContainer{
     constructor() {
         this.fields = []
         this.scenarios = []
+        this.farmName = retrieveFarmGeoserver()
+        this.farmID = DSS.activeFarm
 
 //        this.fieldsDBID = []
 //        this.scenDBID = []
@@ -1104,6 +1317,14 @@ class ChartDatasetContainer{
         for (let field in this.fields){
             if (this.fields[field].name == myField){
                 return this.fields[field].dbID
+            }
+        }
+    }
+
+    getFieldName(fieldID){
+        for (let field in this.fields){
+            if (this.fields[field].dbID == fieldID){
+                return this.fields[field].name
             }
         }
     }
