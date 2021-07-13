@@ -1,6 +1,6 @@
-//var modelTypes = ['yield', 'ploss','runoff', 'bio']
+var modelTypes = ['yield', 'ploss','runoff', 'bio']
 //var modelTypes = ['yield']
-var modelTypes = ['bio']
+//var modelTypes = ['bio']
 //list of all the current and future charts
 var chartList = ["cost_farm", "cost_field",
     "net_return_farm", "net_return_field",
@@ -183,10 +183,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 for (model in modelTypes){
 
 //                only running on one field right now for testing
-//                    if (f.get("field_name") == "40 ac"){
+//                    if (f.get("field_name") == "corn for 4"){
                         model_request = build_model_request(f, modelTypes[model])
 //                        model_data = get_model_data(model_request)
-//                            if(f.get("field_name") != "field 2 Drylot"){
+//                            if(f.get("field_name") != "corn for 4"){
 //                                continue;
 //                            }
                         console.log(model_request)
@@ -241,6 +241,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             if(totalFields == 0){
                                 Ext.getCmp("btnRunModels").setDisabled(false)
                                 Ext.getCmp("compareTab").setDisabled(false)
+                                Ext.getCmp("compareTabBtn").setDisabled(false)
 
                             }
                             Ext.getCmp('mainTab').update()
@@ -1374,9 +1375,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 ],
 
             }
-        var summary =  { title: '<i class="fas fa-book-open  fa-lg"></i>  Summary',
+        var summary =  { title: '<i class="fas fa-book-open  fa-lg"></i>  Summary Report',
             disabled:false,
             plain: true,
+            id: "compareTabBtn",
                 tabBar : {
                     layout: {
                         pack: 'center',
@@ -1408,7 +1410,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     items:[{
                         xtype: 'button',
-                        text: 'Downlaod Summary',
+                        text: 'Download Summary Report',
                         id: 'downloadSummaryBtn',
                         tooltip: 'Download charts and csv',
                           handler: function(e) {
