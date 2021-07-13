@@ -12,11 +12,13 @@ class GenericModel(ModelBase):
         self.model_type = model_type
 
     # overwriting abstract method
-    def write_model_input(self, input_raster_dic, model_layer):
+    # TODO should include data type so we all get one raster
+    def write_model_input(self, input_raster_dic):
         with open(self.model_data_inputs_path, "w") as f:
-            for y in range(0, len(input_raster_dic[self.model_type])):
-                for x in range(0, len(input_raster_dic[self.model_type][0])):
-                    f.write(str(input_raster_dic[self.model_type][y][x]) + "\n")
+            # for raster in input_raster_dic:
+            for y in input_raster_dic["ls"]:
+                for x in y:
+                    f.write(str(x) + "\n")
 
     def run_model(self):
 

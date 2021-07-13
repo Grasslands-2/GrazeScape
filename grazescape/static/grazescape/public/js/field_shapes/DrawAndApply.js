@@ -1,20 +1,21 @@
 var fields_1Source_loc = new ol.source.Vector({
-	url:'http://localhost:8081/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=Farms:field_1&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857',
+	url:'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_2&' +
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857',
 	format: new ol.format.GeoJSON()
 });
 
-function wfs_field_insert(feat,geomType) {  
+function wfs_field_insert(feat,geomType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/Farms',
+        featureNS: 'http://geoserver.org/GrazeScape_Vector'
+		/*'http://geoserver.org/Farms'*/,
 		Geometry: 'geom',
-        featureType: 'field_1',
+        featureType: 'field_2',
         srsName: 'EPSG:3857'
     });
     console.log(feat)
@@ -23,13 +24,15 @@ function wfs_field_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://localhost:8081/geoserver/wfs?',{
+    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
         processData: false,
         contentType: 'text/xml',
         data: str,
 		success: function (data) {
+			DSS.MapState.removeMapInteractions()
 			console.log("uploaded data successfully!: "+ data);
 			DSS.layer.fields_1.getSource().refresh();
 			DSS.layer.farms_1.getSource().refresh();
@@ -59,8 +62,47 @@ function wfs_field_insert(feat,geomType) {
 	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
 	DSS.layer.fields_1.getSource().refresh();
 }
-function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
-	
+function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
+
+	cropDisp='';
+	tillageDisp='';
+	//--------------------Setting Display Values------------------
+	if(crop=='pt-cn'){
+		cropDisp ='Continuous Pasture'}
+	else if(crop=='pt-rt'){
+		cropDisp ='Rotational Pasture'}
+	else if(crop=='ps'){
+		cropDisp ='New Pasture'}
+	else if(crop=='dl'){
+		cropDisp ='Dry Lot'}
+	else if(crop=='cc'){
+		cropDisp ='Continuous Corn'}
+	else if(crop=='cg'){
+		cropDisp ='Cash Grain (cg/sb)'}
+	else if(crop=='dr'){
+		cropDisp ='Corn Silage to Corn Grain to Alfalfa(3x)'}
+	else if(crop=='cso'){
+		cropDisp ='Corn Silage to Soybeans to Oats'}
+
+	if(tillageInput=='nt'){
+		tillageDisp = 'No-Till'}
+	else if(tillageInput=='su'){
+		tillageDisp = 'Spring Cultivation'}
+	else if(tillageInput=='sc'){
+		tillageDisp = 'Spring Chisel + Disk'}
+	else if(tillageInput=='sn'){
+		tillageDisp = 'Spring Chisel No Disk'}
+	else if(tillageInput=='sv'){
+		tillageDisp = 'Spring Vertical'}
+	else if(tillageInput=='smb'){
+		tillageDisp = 'Spring Moldboard Plow'}
+	else if(tillageInput=='fch'){
+		tillageDisp = 'Fall Chisel + Disk'}
+	else if(tillageInput=='fm'){
+		tillageDisp = 'Fall Moldboard Plow'}
+
+//-------------------Now for the actual function-----------------
+
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
 		type: 'MultiPolygon',
@@ -69,21 +111,37 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput){
 	DSS.map.addInteraction(DSS.draw);
 	console.log("draw is on");
 	//console.log(DSS.activeFarm);
-	var af = parseInt(DSS.activeFarm,10)
+	var af = parseInt(DSS.activeFarm,10);
+	var as = DSS.activeScenario;
+	console.log('This is the active scenario#: ');
+	console.log(as)
 
 	DSS.draw.on('drawend', function (e,) {
+		fieldArea = e.feature.values_.geom.getArea();
+		console.log(fieldArea);
+
 		e.feature.setProperties({
 			id: af,
-			scenario_i: af,
+			farm_id: af,
+			scenario_id: as,
+			field_name: field_nameInput,
 			soil_p: soil_pInput,
 			om: 10,
-			rotation: 'PS',
+			rotation: crop,
+			rotation_disp: cropDisp,
 			graze_beef_cattle: beef,
 			graze_dairy_lactating: lac,
 			graze_dairy_non_lactating: non_lac,
-			cover_crop: crop,
 			tillage: tillageInput,
-			on_contour: false
+			tillage_disp:tillageDisp,
+			rotational_density:0,
+			area:fieldArea,
+			fertilizerpercent:0,
+			manurepercent:0,
+			spread_confined_manure_on_pastures: false,
+			on_contour: false,
+			interseeded_clover: false,
+			pasture_grazing_rot_cont:false
 		})
 		var geomType = 'polygon'
 		
@@ -110,6 +168,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 
 	requires: [
 		//'DSS.ApplicationFlow.activeFarm',
+		'DSS.field_shapes.apply.FieldName',
 		'DSS.field_shapes.apply.SoilP',
 		'DSS.field_shapes.apply.Landcover',
 		'DSS.field_shapes.apply.Tillage',
@@ -132,6 +191,10 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				}
 			},
 			data: {
+				field_name: {
+					is_active: true,
+					value: '',
+				},
 				soil_p: {
 					is_active: true,
 					value: 35,
@@ -178,7 +241,9 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Draw and Apply',
+					html: 'Add Field Options',
+				},{
+					xtype: 'field_shapes_apply_field_name'
 				},{
 					xtype: 'field_shapes_apply_graze_animals'
 				},{
@@ -207,6 +272,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 							data.crop.value,
 							data.tillage.value.tillage,
 							data.soil_p.value,
+							data.field_name.value,
 							//probably wrong, look up data schema
 							data.on_contour);
 					}
@@ -287,4 +353,3 @@ let getToggle = function(owner, stateRef, activatedHandler, deactivatedHandler) 
 		}					
 	}	
 }
-
