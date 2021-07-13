@@ -46,7 +46,7 @@ class ModelBase:
         print(self.model_parameters)
 
     def parse_model_parameters(self, request):
-
+        # crop, crop cover rotation, densit
         nutrient_dict = {"ccgcdsnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
                                         "grazed_P2O5_lbs": 2.46},
                          "ccgcisnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
@@ -81,17 +81,17 @@ class ModelBase:
                                        "grazed_P2O5_lbs": 0},
                          "csoccnana": {"Pneeds": 46.67, "grazed_DM_lbs": 0,
                                        "grazed_P2O5_lbs": 0},
-                         "dlnanalo": {"Pneeds": 0, "grazed_DM_lbs": 4802.4,
+                         "dlntnalo": {"Pneeds": 0, "grazed_DM_lbs": 4802.4,
                                       "grazed_P2O5_lbs": 60.03},
-                         "dlnanahi": {"Pneeds": 0, "grazed_DM_lbs": 24009.6,
+                         "dlntnahi": {"Pneeds": 0, "grazed_DM_lbs": 24009.6,
                                       "grazed_P2O5_lbs": 300.12},
-                         "ptnacnhi": {"Pneeds": 40, "grazed_DM_lbs": 3602.4,
+                         "ptntcnhi": {"Pneeds": 40, "grazed_DM_lbs": 3602.4,
                                       "grazed_P2O5_lbs": 45.03},
-                         "ptnacnlo": {"Pneeds": 40, "grazed_DM_lbs": 1200,
+                         "ptntcnlo": {"Pneeds": 40, "grazed_DM_lbs": 1200,
                                       "grazed_P2O5_lbs": 15},
-                         "ptnartna": {"Pneeds": 40, "grazed_DM_lbs": 2400,
+                         "ptntrtna": {"Pneeds": 40, "grazed_DM_lbs": 2400,
                                       "grazed_P2O5_lbs": 30},
-                         "psnanana": {"Pneeds": 15, "grazed_DM_lbs": 0,
+                         "psntnana": {"Pneeds": 15, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
                          }
         # convert area from sq m to acres
@@ -128,12 +128,22 @@ class ModelBase:
                     parameters[val] = "NA"
         area = float(request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
         parameters['area'] = area
-        nutrient_key = parameters["crop"] + parameters["crop_cover"] + \
+        crop_cover = parameters["crop_cover"]
+        print("Crop cover !!!!!!!!!!!!!!!!!!!!")
+        print(crop_cover)
+        if crop_cover.lower() == 'na':
+            crop_cover = 'nt'
+        nutrient_key = parameters["crop"] + crop_cover + \
                        parameters["rotation"] + parameters["density"]
         nutrient_key = nutrient_key.lower()
-        parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
-        parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
-        parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
+        try:
+            parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
+            parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
+            parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
+        except KeyError:
+            print("Invalid key: ", nutrient_key)
+            raise
+
         return parameters
 
     def get_file_name(self):

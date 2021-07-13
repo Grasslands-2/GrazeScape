@@ -127,12 +127,11 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
 
     if data["value_type"] == 'insect':
         col_name.append("honey_bee_toxicity")
-
-    col_name.append("area")
-    col_name.append("cell_count")
-
-    values.append(data['area'])
-    values.append(data['counted_cells'])
+    else:
+        col_name.append("cell_count")
+        values.append(data['counted_cells'])
+        col_name.append("area")
+        values.append(data['area'])
 
     col_name.append("field_id")
     col_name.append("scenario_id")
@@ -157,6 +156,7 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
             pass
 
     if insert_field:
+        # replace last comma in list with a )
         sql_request = sql_request[:-1]
         sql_request = sql_request + ")"
         sql_values = sql_values[:-1]
@@ -271,4 +271,43 @@ def get_values_db(field_id, scenario_id, farm_id, request):
         cur.close()
         conn.close()
     return return_data
+def get_summary(farm_id):
+    cur, conn = get_db_conn()
+    cur.execute('SELECT * '
+                'from field_model_results, field_2 '
+                'where field_model_results.farm_id = %s and '
+                'field_model_results.farm_id = field_2.farm_id and field_2.gid = field_model_results.field_id',
+                [farm_id,])
+    results = cur.fetchall()
+    column_names = [desc[0] for desc in cur.description]
+    print(column_names)
+
+    # print(results)
+    results_dic = {}
+    for col in column_names:
+        results_dic[col] = []
+    for result in results:
+        print(result)
+    for result in results:
+        print("print result")
+        for index, col in enumerate(result):
+            if index == 69:
+                print(index)
+                print(col)
+            results_dic[column_names[index]].append(col)
+            # print (result)
 # get_values_db(1, 40, 1, "request")
+    del results_dic['farm_id']
+    del results_dic['scenario_id']
+    del results_dic['gid']
+    del results_dic['id']
+    del results_dic['field_id']
+    # print(results_dic)
+    for r in results_dic:
+        print(r, results_dic[r])
+        if r == "om":
+            print(results_dic[r][0])
+            print (float(results_dic[r][0]))
+
+# farm_id = 3
+# get_summary(farm_id)
