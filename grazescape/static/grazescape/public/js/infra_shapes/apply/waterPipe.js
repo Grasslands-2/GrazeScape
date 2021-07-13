@@ -2,10 +2,10 @@
 DSS.utils.addStyle('.hover {cursor: pointer}');
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.field_shapes.apply.Landcover', {
+Ext.define('DSS.infra_shapes.apply.waterPipe', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.Container',
-	alias: 'widget.field_shapes_apply_landcover',
+	alias: 'widget.infra_shapes_apply_water_pipe',
 	
 	cls: 'restriction-widget',
 	margin: '2 0 4 0',
@@ -19,7 +19,7 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 	initComponent: function() {
 		let me = this;
 		
-		let rbName = "crop";
+		let rbName = "waterPipe";
 		
 		Ext.applyIf(me, {
 			items: [{
@@ -32,9 +32,9 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 					width: '100%',
 					height: 28,
 					cls: 'information accent-text bold',
-					html: "Set Crop / Landcover",
+					html: "Set Water Infrastructure",
 				},
-					getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
+					getToggle(me, 'waterPipe.is_active') // Helper defined in DrawAndApply.js
 				]
 			},{
 				xtype: 'radiogroup',
@@ -45,20 +45,20 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 				vertical: true,
 				viewModel: {
 					formulas: {
-						cropValue: {
-							bind: '{crop.value}', // inherited from parent
+						waterPipeValue: {
+							bind: '{waterPipe.value}', // inherited from parent
 							get: function(val) {
 								let obj = {};
 								obj[rbName] = val;
 								return obj;
 							},
 							set: function(val) {
-								this.set('crop.value', val[rbName]);
+								this.set('waterPipe.value', val[rbName]);
 							}
 						}
 					}
 				},
-				bind: '{cropValue}', // formula from viewModel above
+				bind: '{waterPipeValue}', // formula from viewModel above
 				defaults: {
 					name: rbName,
 					listeners: {
@@ -71,24 +71,9 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 				//	boxLabelCls: 'hover'
 				},
 				items: [{
-					boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
-				},{
-					boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
+					boxLabel: 'Surface HDPE or PVC Pipe', inputValue: 'sup',
 				},{ 
-					boxLabel: 'New Pasture', 			inputValue: 'ps',
-				},{ 
-					boxLabel: 'Dry Lot', 			inputValue: 'dl',
-				},{
-					boxLabel: 'Continuous Corn',	inputValue: 'cc',
-				},{
-					boxLabel: 'Cash Grain',			inputValue: 'cg',
-					boxLabelAttrTpl: 'data-qtip="Two-year rotation: Corn Grain & Soybeans"',
-				},{
-					boxLabel: 'Dairy Rotation 1',	inputValue: 'dr',
-					boxLabelAttrTpl: 'data-qtip="Five-year rotation: Corn Grain, Corn Silage, Three years of Alfalfa"',
-				},{
-					boxLabel: 'Dairy Rotation 2', 	inputValue: 'cso',
-					boxLabelAttrTpl: 'data-qtip="Three-year rotation: Corn Silage, Soybeans, Oats"',
+					boxLabel: 'Shallow Buried HDPE or PVC Pipe', inputValue: 'sbp',
 				}]
 			}]
 		});

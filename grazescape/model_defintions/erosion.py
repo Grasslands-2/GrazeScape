@@ -13,7 +13,7 @@ class Erosion(ModelBase):
         self.model_file_path = os.path.join( self.model_file_path, self.model_name)
         self.units = "tons of soil / acre"
     # overwriting abstract method
-    def write_model_input(self, input_raster_dic,bounds):
+    def write_model_input(self, input_raster_dic):
         with open(self.model_data_inputs_path, "w") as f:
             # dummy references to get model to run. Are removed later
             # TODO ask Elissa about ways to remove these
@@ -21,8 +21,8 @@ class Erosion(ModelBase):
             print(self.model_parameters.POST.getlist("model_parameters[contour]"))
             f.write(
                 "slope,total_DM_lbs,slopelenusle.r,sand,silt,clay,k\n")
-            for y in range(0, bounds["y"]):
-                for x in range(0, bounds["x"]):
+            for y in range(0, self.bounds["y"]):
+                for x in range(0, self.bounds["x"]):
                     f.write(str(input_raster_dic["slope_data"][y][x]) + "," +
                             # constant will be provided value later
                             "0" + "," +

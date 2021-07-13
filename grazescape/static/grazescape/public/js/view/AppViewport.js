@@ -2,7 +2,6 @@ var DSS_viewport = false;
 var DSS_isDataLoaded = false;
 var DSS_chart_data = 1;
 var DSS_dataLoadAjax;
-var chartPopup;
 DSS.utils.addStyle('.x-btn-focus.x-btn-over.x-btn-default-toolbar-small {z-index:2000;overflow: visible;box-shadow: #4297d4 0 1px 0px 0 inset, #4297d4 0 -1px 0px 0 inset, #4297d4 -1px 0 0px 0 inset, #4297d4 1px 0 0px 0 inset, -2px 4px 4px rgba(0,0,0,0.5);}')
 DSS.utils.addStyle('.x-btn-default-toolbar-small {box-shadow: -1px 2px 2px rgba(0,0,0,0.25);}')
 DSS.utils.addStyle('.x-btn-pressed {z-index:2000; box-shadow: 0 4px 6px rgba(0,0,0,0.4)!important;}')
@@ -23,9 +22,17 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.field_shapes.Join',
 		'DSS.field_shapes.Delete',
 		'DSS.field_shapes.ModelRunning',
+		'DSS.results.Dashboard',
 
-		'DSS.results.ResultsMain',
-		'DSS.results.test_window'
+		'DSS.infra_shapes.DrawLine',
+		'DSS.infra_shapes.SplitLine',
+		'DSS.infra_shapes.JoinLine',
+		'DSS.infra_shapes.DeleteLine',
+//		'DSS.state.scenario.PerimeterDialog',
+		//'DSS.field_shapes.ModelRunning',
+
+//		'DSS.results.ResultsMain',
+//		'DSS.results.test_window'
 	],
 
 	minWidth: 900,
@@ -43,6 +50,8 @@ Ext.define('DSS.view.AppViewport', {
 		//	Ext.mixin.Responsive.notify();
 			
 			DSS.mainViewport = self;
+
+
 		},
 		resize: function(self, newWidth, newHeight, oldWidth, oldHeight) {
 			AppEvents.triggerEvent('viewport_resize', {w: newWidth, h: newHeight})
@@ -52,22 +61,7 @@ Ext.define('DSS.view.AppViewport', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		console.log("loading data")
-        console.log(DSS_chart_data)
-//        DSS.BarGraph1.show();
-		DSS_dataLoadAjax = $.ajax({
-            'url' : '/grazescape/load_data',
-            'type' : 'GET',
-			success: function(response, opts) {
-			console.log("Done")
-			DSS_isDataLoaded = true;
-			},
 
-			failure: function(response, opts) {
-//				me.stopWorkerAnimation();
-                console.log("fail")
-			}
-        })
 
 		Ext.applyIf(me, {
 			items: [{

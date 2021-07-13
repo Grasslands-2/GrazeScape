@@ -12,21 +12,8 @@ var DSS_RefilterDelayed = function(msDelay) {
 	filter_task.delay(msDelay);
 }
 
-var chartPopup = new Ext.form.Panel({
-    width: 500,
-    height: 400,
-    title: 'Model Results',
-    floating: true,
-    closable: true,
-    draggable:true,
-    resizable:true,
-    html: '<div id="container"><canvas id="canvas"></canvas></div>'
-});
-var barChartData = {
-    labels: ["Fields"],
-    datasets: []
-};
-var barChart;
+
+
 //var
 
 DSS.utils.addStyle('.fa-spin-fast {-webkit-animation: fa-spin 1s linear infinite;animation:fa-spin 1s linear infinite}')
@@ -107,7 +94,7 @@ Ext.define('DSS.inspector.Main', {
 			items: [{
 				cls: 'section-title light-text text-drp-20',
 				html: 'Inspector <i class="fas fa-search font-10 accent-text text-drp-50"></i>',
-				height: 35				
+				height: 35
 			},{
 				xtype: 'inspector_data_source',
 				itemId: 'dss-data-source',
@@ -124,6 +111,8 @@ Ext.define('DSS.inspector.Main', {
 		AppEvents.registerListener('set_inspector_bounds', function(extents, silent) {
 			if (!silent) {
 			    console.log("Drawing bounding box")
+				//me.computeResults(extents,DSS.layer.ModelResult);
+				//DISABLE ME TO TEST INSPECTOR MODE!!!!!
 			     if(DSS_isDataLoaded == false){
 				    alert("data not loaded!")
                 }
@@ -196,15 +185,15 @@ Ext.define('DSS.inspector.Main', {
         console.log(extents)
 		let me = this;
 		// TODO: busy feedback
-		if (me.DSS_isWorking) {
-			DSS_RefilterDelayed(250);
-			return;
-		}
-		
-		if (!extents) {
-			extents = me.DSS_extents;
-		}
-		
+//		if (me.DSS_isWorking) {
+//			DSS_RefilterDelayed(250);
+//			return;
+//		}
+
+//		if (!extents) {
+//			extents = me.DSS_extents;
+//		}
+//
 		if (!extents) {
 			console.log("Compute results called but no extent set");
 			return;
@@ -221,48 +210,15 @@ Ext.define('DSS.inspector.Main', {
 		let options = me.down('#dss-data-source').getOptions();
 		let restrictions = me.down('#dss-resrictor').getRestrictions();
 //		external js library is used to simply getting the token
-		var csrftoken = Cookies.get('csrftoken');
-		if(extents[3] === true){
-			extents[3] = "1"
-		}else{extents[3]="0"}
 
-
-        grass_type = extents[1]
-        model_type = extents[6]
-
-        model_parameters = {
-			"grass_type": grass_type,
-            "tillage":extents[2],
-            "contour": extents[3],
-            "initial_p": extents[4],
-            "total_DM_lbs": "5000",
-            "crop":"corn"
-        }
-
-// 		let data = {
-// 			"farm_id": DSS.activeFarm,
-// 			"scenario_id": DSS.activeScenario,
-// 			"options": options,
-// 			"restrictions": restrictions,
-// 			"model": model_type,
-// 			"extents": extents,
-// 			"model_parameters": model_parameters
 		let data = {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
-			"extents": extents[0],
-			"model": model_type,
-			"options": options,
-			"restrictions": restrictions,
-            "model_parameters": model_parameters,
-			"grass_type":extents[1]
+			"model_parameters":extents
+
 		};
-		console.log(data);
 
-
-
-
-
+		var csrftoken = Cookies.get('csrftoken');
             $.ajaxSetup({
                     headers: { "X-CSRFToken": csrftoken }
                 });
@@ -271,7 +227,6 @@ Ext.define('DSS.inspector.Main', {
             'url' : '/grazescape/get_model_results',
             'type' : 'POST',
             'data' : data,
-
 			success: function(response, opts) {
 			    console.log(response)
                 obj = response;
@@ -282,12 +237,11 @@ Ext.define('DSS.inspector.Main', {
                 }
 				console.log("response(obj): " + obj);
 				let e = obj.extent;
-				//console.log("this is e: " + e)
-				let pt1 = ol.proj.transform([e[0],e[3]], 'EPSG:3071', 'EPSG:3857'),
-				pt2 = ol.proj.transform([e[2],e[3]], 'EPSG:3071', 'EPSG:3857');
-				pt3 = ol.proj.transform([e[2],e[1]], 'EPSG:3071', 'EPSG:3857');
-				pt4 = ol.proj.transform([e[0],e[1]], 'EPSG:3071', 'EPSG:3857');
 
+                pt1 = [e[0],e[3]]
+                pt2 = [e[2],e[3]]
+                pt3 = [e[2],e[1]]
+                pt4 = [e[0],e[1]]
                 console.log("points")
 				console.log(e[0], e[3])
 				console.log(pt1)
@@ -314,21 +268,10 @@ Ext.define('DSS.inspector.Main', {
 				if (obj.fields) {
 			//		DSS.fieldList.addStats(me.DSS_mode, obj.fields)
 				}
-//                window.open('/grazescape/chart_data?data=[5,2,8]&labels=["field1","field2", "field3"]')
 
-//			chartLabels.push(extents[5]);
 
         var color = Chart.helpers.color;
-//        var barChartData = {
-//            labels: chartLabels,
-//            datasets: [{
-//                label: 'Farm',
-//                backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
-//                borderColor: window.chartColors.red,
-//                borderWidth: 1,
-//                data: chartData
-//            }]
-//        };
+
         newData ={
                 label: extents[5],
                 backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
@@ -339,7 +282,6 @@ Ext.define('DSS.inspector.Main', {
         window.barChartData.datasets.push(newData)
         console.log(window.barChart)
         console.log(window.barChartData)
-            chartPopup.show()
         window.barChart.options.scales.yAxes[0].scaleLabel.labelString = response.units
         window.barChart.update();
 
@@ -356,15 +298,18 @@ Ext.define('DSS.inspector.Main', {
 	//---------------------------------------------------------------------------------
 	validateImageOL: function(json, layer, tryCount) {
 		var me = this;
+		console.log(json.url)
 		console.log("validateImageOL run");
 		console.log(layer)
 		tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
 		Ext.defer(function() {
 			var src = new ol.source.ImageStatic({
-				url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
+				//url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
+				url: "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" +
+				"request=GetCoverage&CoverageId=" + json.url,
 				crossOrigin: '',
 				imageExtent: json.extent,
-				projection: 'EPSG:3071',
+				projection: 'EPSG:3857',
 				imageSmoothing: false
 			});
 			

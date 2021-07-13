@@ -11,6 +11,9 @@ DSS.utils.addStyle('.drop:after {overflow: visible!important; display: block; po
 DSS.utils.addStyle('.accent-text { color: #48b;}')
 DSS.utils.addStyle('.light-text { color: #ddd;}')
 DSS.utils.addStyle('.med-text { color: #999;}')
+DSS.utils.addStyle('.left1-text { text-align: left; color: #999;}')
+DSS.utils.addStyle('.box {box-sizing: border-box; float: left; width: 50%; height: 50%;}')
+DSS.utils.addStyle('.custom-tab {.x-panel-body-default {border-width: 0px;}}')
 DSS.utils.addStyle('.text-drp-20 { text-shadow: 0 1px rgba(0,0,0,0.2)}');
 DSS.utils.addStyle('.text-drp-50 { text-shadow: 0 1px rgba(0,0,0,0.3),1px 0 rgba(0,0,0,0.2)}');
 DSS.utils.addStyle('.font-10 { font-size: 1rem }');
@@ -43,6 +46,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 	alias: 'widget.application_flow',
 
 	requires: [
+		'DSS.state.ScenarioPicker',
 		'DSS.state.MapStateTools',
 		'DSS.state.BrowseOrCreate',
 		'DSS.state.CreateNew_wfs',
@@ -209,10 +213,17 @@ Ext.define('DSS.state.ApplicationFlow', {
 		Ext.resumeLayouts(true);
 		
 		DSS.mouseMoveFunction = undefined;
-		DSS.layer.farms_1.setVisible(false);
+		//DSS.layer.farms_1.setVisible(true);
+		//DSS.layer.scenarios.setVisible(false);
 		
+		DSS.MapState.showNewFarm(DSS.activeFarm);
 		DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-		
+		DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+
+		//var ext = DSS.layer.farms_1.getSource().getFeatures().forEach().getExtent();
+		//console.log(ext)
+		//DSS.map.getView().fit(ext);
+		//DSS.MapState.zoomToRealExtent(ext);
 		DSS.popupOverlay.setPosition(false);
 	},
 

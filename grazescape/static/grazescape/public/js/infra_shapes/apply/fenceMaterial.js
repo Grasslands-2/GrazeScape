@@ -2,10 +2,10 @@
 DSS.utils.addStyle('.hover {cursor: pointer}');
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.field_shapes.apply.Landcover', {
+Ext.define('DSS.infra_shapes.apply.fenceMaterial', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.Container',
-	alias: 'widget.field_shapes_apply_landcover',
+	alias: 'widget.infra_shapes_apply_fence_material',
 	
 	cls: 'restriction-widget',
 	margin: '2 0 4 0',
@@ -19,7 +19,7 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 	initComponent: function() {
 		let me = this;
 		
-		let rbName = "crop";
+		let rbName = "fenceMaterial";
 		
 		Ext.applyIf(me, {
 			items: [{
@@ -32,9 +32,9 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 					width: '100%',
 					height: 28,
 					cls: 'information accent-text bold',
-					html: "Set Crop / Landcover",
+					html: "Set Fence Material",
 				},
-					getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
+					getToggle(me, 'fenceMaterial.is_active') // Helper defined in DrawAndApply.js
 				]
 			},{
 				xtype: 'radiogroup',
@@ -45,50 +45,43 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 				vertical: true,
 				viewModel: {
 					formulas: {
-						cropValue: {
-							bind: '{crop.value}', // inherited from parent
+						fenceMaterialValue: {
+							bind: '{fenceMaterial.value}', // inherited from parent
 							get: function(val) {
 								let obj = {};
 								obj[rbName] = val;
 								return obj;
 							},
 							set: function(val) {
-								this.set('crop.value', val[rbName]);
+								this.set('fenceMaterial.value', val[rbName]);
 							}
 						}
 					}
 				},
-				bind: '{cropValue}', // formula from viewModel above
+				bind: '{fenceMaterialValue}', // formula from viewModel above
 				defaults: {
 					name: rbName,
 					listeners: {
 						afterrender: function(self) {
-							if ( self.boxLabelEl) {
-								self.boxLabelEl.setStyle('cursor', 'pointer')
+							if(DSS.infra_shapes.apply.infraType.inputValue != 'fl'){
+								//this.hide();
+								console.log('hi')
+							}
+							else{
+								if ( self.boxLabelEl) {
+									self.boxLabelEl.setStyle('cursor', 'pointer')
+								}
 							}
 						}
 					}
 				//	boxLabelCls: 'hover'
 				},
 				items: [{
-					boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
-				},{
-					boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
+					boxLabel: 'High Tensile Electric, 1 Strand', inputValue: 'hte1',
 				},{ 
-					boxLabel: 'New Pasture', 			inputValue: 'ps',
+					boxLabel: 'Electric - High Tensile', inputValue: 'hte',
 				},{ 
-					boxLabel: 'Dry Lot', 			inputValue: 'dl',
-				},{
-					boxLabel: 'Continuous Corn',	inputValue: 'cc',
-				},{
-					boxLabel: 'Cash Grain',			inputValue: 'cg',
-					boxLabelAttrTpl: 'data-qtip="Two-year rotation: Corn Grain & Soybeans"',
-				},{
-					boxLabel: 'Dairy Rotation 1',	inputValue: 'dr',
-					boxLabelAttrTpl: 'data-qtip="Five-year rotation: Corn Grain, Corn Silage, Three years of Alfalfa"',
-				},{
-					boxLabel: 'Dairy Rotation 2', 	inputValue: 'cso',
-					boxLabelAttrTpl: 'data-qtip="Three-year rotation: Corn Silage, Soybeans, Oats"',
+					boxLabel: 'Pasture Paddock', inputValue: 'pp',
 				}]
 			}]
 		});
