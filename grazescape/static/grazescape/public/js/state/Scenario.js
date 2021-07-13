@@ -522,6 +522,7 @@ Ext.define('DSS.state.Scenario', {
                             console.log("done updating scenario data")
 						}
                         Ext.getCmp("btnRunModels").setDisabled(true)
+						//Ext.getCmp("btnRemoveModelResults").setDisabled(false)
 //                        if dashboard hasnt been opened before
                         if (!Ext.getCmp("dashboardWindow")) {
                             //Ext.getCmp("btnOpenDashboard").setDisabled(false)
@@ -572,10 +573,23 @@ Ext.define('DSS.state.Scenario', {
 				// 	xtype: 'button',
 				// 	cls: 'button-text-pad',
 				// 	componentCls: 'button-margin',
+				// 	id: "btnRemoveModelResults",
+				// 	disabled:true,
+				// 	text: 'Remove Model Results',
+				// 	handler: function(self) {
+				// 		removeModelResults()
+				// 		// DSS.map.removeLayer(modelResult)
+				// 		// Ext.getCmp("btnRemoveModelResults").setDisabled(true)
+				// 	}
+				// }
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
 				// 	text: 'Open Dashboard',
 				// 	id: "btnOpenDashboard",
 				// 	disabled:true,
-				// 	//disabled: false,
+				// 	disabled: false,
 				// 	handler: function(self) {
 		        //         Ext.getCmp("dashboardWindow").show()
 
