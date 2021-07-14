@@ -1,5 +1,5 @@
 modelResult = {}
-function populateChartObj(chartObj, scenList, fieldList){
+function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
 
@@ -18,6 +18,7 @@ function populateChartObj(chartObj, scenList, fieldList){
             for (let field in fieldList){
                 data1 = {
                     label: fieldList[field],
+                    dbID: allField[field].dbID,
                     // each data entry represents a scenario
                     data: [],
                     hidden:false,
@@ -53,6 +54,8 @@ function populateChartObj(chartObj, scenList, fieldList){
             for (let scen in scenList){
                 data1 = {
                     label: scenList[scen],
+                    dbID: allScen[scen].dbID,
+
                     // each data entry represents a scenario
                     data: [],
                     backgroundColor:  chartColors[scen % chartDatasetContainer.colorLength],
@@ -84,68 +87,86 @@ function populateChartObj(chartObj, scenList, fieldList){
     }
 }
 
-function build_model_request(f, modelChoice){
-    let lac_grass_multi = null
-    let hei_grass_multi = null
-    let dry_grass_multi = null
-    let graze_factor = 1
-    console.log(f)
-    DSS.layer.scenarios.getSource().forEachFeature(function(g) {
-		var scenarioFeature = g;
-		if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
-			console.log(scenarioFeature);
-            lac_grass_multi = scenarioFeature.get("lac_rotate_freq")
-            hei_grass_multi = scenarioFeature.get("beef_rotate_freq")
-            dry_grass_multi = scenarioFeature.get("dry_rotate_freq")
-		}
-	})
-//	TODO this needs to be redone once the rotation checkboxes are fixed
-	if(f.get("graze_beef_cattle")){
-	    graze_factor = hei_grass_multi
-	}
-	if(f.get("graze_dairy_cattle")){
-	    graze_factor = lac_grass_multi
-	}
-	if(f.get("graze_dairy_non_lactating")){
-	    graze_factor = dry_grass_multi
-	}
-	if(graze_factor == null || graze_factor == undefined){
-	    graze_factor = 1
-	}
-    let rotation_split = f.get("rotation").split("-")
-    crop = rotation_split[0]
-    rotation = rotation_split.length > 1 ?rotation_split[1]:null
-    model_para = {
-        f_name: f.get("field_name"),
-        extent: f.getGeometry().getExtent(),
-        // at this point fields wont have any holes so just get the first entry
-        field_coors: f.getGeometry().getCoordinates()[0],
-        grass_type: f.get("grass_speciesval"),
-//            need to convert this to integer
-        contour: f.get("on_contour")?1:0,
-        soil_p: f.get("soil_p"),
-        tillage: f.get("tillage"),
-        fert: f.get("fertilizerpercent"),
-        manure: f.get("manurepercent"),
-        crop:crop,
-        area:f.getGeometry().getArea(),
-        crop_cover: f.get("cover_crop"),
-//			doesn't appear to be in the table at this time
-        rotation: rotation,
-        rotationFreq:"",
-        density: f.get("grazingdensityval"),
-//      comes from the the looping var in Dashboard.js
-        model_type: modelChoice,
-        graze_factor:graze_factor,
-        scen: chartDatasetContainer.getScenName(f.get("scenario_id")),
-    }
-    model_pack = {
-        "farm_id": DSS.activeFarm,
-        field_id: f.get("gid"),
+function build_model_request(f, modelChoice, activeScenario){
+    if(activeScenario){
 
-        "scenario_id": f.get("scenario_id"),
-        "isActiveScen": f.get("scenario_id") == DSS.activeScenario,
-        "model_parameters":model_para
+        let lac_grass_multi = null
+        let hei_grass_multi = null
+        let dry_grass_multi = null
+        let graze_factor = 1
+        console.log(f)
+        DSS.layer.scenarios.getSource().forEachFeature(function(g) {
+            var scenarioFeature = g;
+            if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
+                console.log(scenarioFeature);
+                lac_grass_multi = scenarioFeature.get("lac_rotate_freq")
+                hei_grass_multi = scenarioFeature.get("beef_rotate_freq")
+                dry_grass_multi = scenarioFeature.get("dry_rotate_freq")
+            }
+        })
+    //	TODO this needs to be redone once the rotation checkboxes are fixed
+        if(f.get("graze_beef_cattle")){
+            graze_factor = hei_grass_multi
+        }
+        if(f.get("graze_dairy_cattle")){
+            graze_factor = lac_grass_multi
+        }
+        if(f.get("graze_dairy_non_lactating")){
+            graze_factor = dry_grass_multi
+        }
+        if(graze_factor == null || graze_factor == undefined){
+            graze_factor = 1
+        }
+        let rotation_split = f.get("rotation").split("-")
+        crop = rotation_split[0]
+        rotation = rotation_split.length > 1 ?rotation_split[1]:null
+        model_para = {
+            f_name: f.get("field_name"),
+            extent: f.getGeometry().getExtent(),
+            // at this point fields wont have any holes so just get the first entry
+            field_coors: f.getGeometry().getCoordinates()[0],
+            grass_type: f.get("grass_speciesval"),
+    //            need to convert this to integer
+            contour: f.get("on_contour")?1:0,
+            soil_p: f.get("soil_p"),
+            tillage: f.get("tillage"),
+            fert: f.get("fertilizerpercent"),
+            manure: f.get("manurepercent"),
+            crop:crop,
+            area:f.getGeometry().getArea(),
+            crop_cover: f.get("cover_crop"),
+    //			doesn't appear to be in the table at this time
+            rotation: rotation,
+            rotationFreq:"",
+            density: f.get("grazingdensityval"),
+    //      comes from the the looping var in Dashboard.js
+            model_type: modelChoice,
+            graze_factor:graze_factor,
+            scen: chartDatasetContainer.getScenName(f.get("scenario_id")),
+        }
+        model_pack = {
+            "farm_id": DSS.activeFarm,
+            field_id: f.get("gid"),
+
+            "scenario_id": f.get("scenario_id"),
+            "isActiveScen": f.get("scenario_id") == DSS.activeScenario,
+            "model_parameters":model_para
+        }
+    }
+    else{
+        model_para = {
+            f_name: f["field_name"],
+            model_type: modelChoice,
+            scen: chartDatasetContainer.getScenName(f["scenario_id"]),
+        }
+        model_pack = {
+            "farm_id": DSS.activeFarm,
+            field_id: f["gid"],
+            "scenario_id": f["scenario_id"],
+            "isActiveScen": f["scenario_id"] == DSS.activeScenario,
+            "model_parameters":model_para
+        }
+
     }
     return model_pack
 }
@@ -155,8 +176,11 @@ function format_chart_data(model_data){
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
         return
     }
-    let fieldIndex = chartDatasetContainer.indexField(model_data.f_name)
-    let scenIndex = chartDatasetContainer.indexScenario(model_data.scen)
+    if(model_data.counted_cells == undefined){
+        return
+    }
+    let fieldIndex = chartDatasetContainer.indexField(model_data.field_id)
+    let scenIndex = chartDatasetContainer.indexScenario(model_data.scen_id)
     chartTypeField = null
     chartTypeFarm = null
     if (fieldIndex == undefined || scenIndex == undefined){
@@ -442,12 +466,20 @@ function create_graph(chart,title,element){
 //            maintainAspectRatio: false,
             legend: {
                 position: 'top',
+                test1: "Hi everyone!",
                 onClick: function (event, legendItem, legend){
                     console.log(event, legendItem, legend)
                     name = legendItem.text
                     console.log(event.path[0].id)
+                    if (event.path[0].id.includes('field')){
+                        dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
+                    }
+                    else{
+                        dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
 
-                    hideData(event.path[0].id, name)
+                    }
+
+                    hideData(event.path[0].id, name, dbID)
 
                 },
             },
@@ -487,8 +519,14 @@ function create_graph_line(chart,title,element){
                     console.log(event, legendItem, legend)
                     name = legendItem.text
                     console.log(event.path[0].id)
+                    if (event.path[0].id.includes('field')){
+                        dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
+                    }
+                    else{
+                        dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
 
-                    hideData(event.path[0].id, name)
+                    }
+                    hideData(event.path[0].id, name,dbID)
 
                 },
             },
@@ -532,14 +570,32 @@ function create_graph_radar(chart,title,element){
                 display: true,
                 text: title
             },
+             scale: {
+
+                beginAtZero: true,
+                min:0,
+                    ticks: {
+                        beginAtZero: true,
+                        min:0,
+//                        maxTicksLimit:5,
+                    },
+
+
+            },
             legend: {
                 position: 'top',
                 onClick: function (event, legendItem, legend){
                     console.log(event, legendItem, legend)
                     name = legendItem.text
                     console.log(event.path[0].id)
+                    if (event.path[0].id.includes('field')){
+                        dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
+                    }
+                    else{
+                        dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
 
-                    hideData(event.path[0].id, name)
+                    }
+                    hideData(event.path[0].id, name,dbID)
 
                 },
             },
@@ -549,7 +605,9 @@ function create_graph_radar(chart,title,element){
                     console.log(tooltipItem, data)
                     var dataset = data.datasets[tooltipItem.datasetIndex];
                     var index = tooltipItem.index;
-                    return dataset.labels[index] + ": " + dataset.data[index];
+                    console.log(dataset.label)
+                    console.log(dataset.data[index])
+                    return dataset.label + ": " + dataset.data[index];
 
               }
             }
@@ -571,57 +629,58 @@ function create_graph_radar(chart,title,element){
 }
 
 // name of the chart and the name of the field or scenario
-function hideData(chartName, datasetName){
-
+function hideData(chartName, datasetName,dbID){
+    console.log("Check box clicked!!!!!!!!!!!!!!!!!1")
+    console.log(chartName)
+    console.log(datasetName)
+    console.log(dbID)
     let chartType = null
     hide = true
     // turn off fields
     if (chartName.includes('field')){
         console.log('field')
         chartType = "field"
-        if(hiddenData.fields.includes(datasetName)){
+        if(hiddenData.fields.includes(dbID)){
             hide = false
-            let index = hiddenData.fields.indexOf(datasetName);
+            let index = hiddenData.fields.indexOf(dbID);
             hiddenData.fields.splice(index, 1);
-
-            let fieldIndex = chartDatasetContainer.indexField(datasetName)
-
+            let fieldIndex = chartDatasetContainer.indexField(dbID)
             chkBox = Ext.getCmp("checkBox_field_"+fieldIndex)
             chkBox.suspendEvents(false)
             chkBox.setValue(true);
             chkBox.resumeEvents()
         }
         else{
-            hiddenData.fields.push(datasetName)
-
-            let fieldIndex = chartDatasetContainer.indexField(datasetName)
+            hiddenData.fields.push(dbID)
+            let fieldIndex = chartDatasetContainer.indexField(dbID)
             chkBox = Ext.getCmp("checkBox_field_"+fieldIndex)
             chkBox.suspendEvents(false)
             chkBox.setValue(false);
             chkBox.resumeEvents()
-
         }
     }
-    // turn off scen
+    // turn off scen / farm
     else{
         console.log('farm')
         chartType = 'farm'
-        if(hiddenData.scens.includes(datasetName)){
+//        turn on checkbox if it is off
+        if(hiddenData.scens.includes(dbID)){
             hide = false
-            let index = hiddenData.scens.indexOf(datasetName);
+            let index = hiddenData.scens.indexOf(dbID);
             hiddenData.scens.splice(index, 1);
 
-            let scenIndex = chartDatasetContainer.indexScenario(datasetName)
-
+            let scenIndex = chartDatasetContainer.indexScenario(dbID)
+            console.log("checkBox_scen_"+scenIndex)
             chkBox = Ext.getCmp("checkBox_scen_"+scenIndex)
             chkBox.suspendEvents(false)
             chkBox.setValue(true);
             chkBox.resumeEvents()
 
         }
+//        turn off checkbox it is off
         else{
-            hiddenData.scens.push(datasetName)
-            let scenIndex = chartDatasetContainer.indexScenario(datasetName)
+            hiddenData.scens.push(dbID)
+            let scenIndex = chartDatasetContainer.indexScenario(dbID)
             chkBox = Ext.getCmp("checkBox_scen_"+scenIndex)
             chkBox.suspendEvents(false)
             chkBox.setValue(false);
@@ -635,7 +694,7 @@ function hideData(chartName, datasetName){
         if(chartLoop.includes(chartType)){
             // this will turn off fields and scenarios on their respective charts
             for(let data in chartObj[chartLoop].chartData.datasets){
-                if(chartObj[chartLoop].chartData.datasets[data].label == datasetName){
+                if(chartObj[chartLoop].chartData.datasets[data].dbID == dbID){
 
 //                    chartObj[chartLoop].chartData.datasets[data].hidden = chartObj[chartLoop].chartData.datasets[data].hidden?false:true
                     chartObj[chartLoop].chartData.datasets[data].hidden = !chartObj[chartLoop].chartData.datasets[data].hidden
@@ -644,20 +703,19 @@ function hideData(chartName, datasetName){
                         chartObj[chartLoop].chart.update()
                     }
                 }
-
             }
         }
         scenVis = []
+//        have to remove data from the field list
         if(chartType === 'farm' && chartLoop.includes('field')){
             chartObj[chartLoop].chartData.labels = []
              for(let scen in chartDatasetContainer.scenarios){
 //                set labels
                 scenVis[scen] = false
-                if(!hiddenData.scens.includes(chartDatasetContainer.scenarios[scen].name )){
+                if(!hiddenData.scens.includes(chartDatasetContainer.scenarios[scen].dbID )){
                     chartObj[chartLoop].chartData.labels.push(chartDatasetContainer.scenarios[scen].name)
                     scenVis[scen] = true
                 }
-
             }
             for(let dataEntry in chartObj[chartLoop].chartData.datasets){
                 chartObj[chartLoop].chartData.datasets[dataEntry].data = []
@@ -793,7 +851,7 @@ function populateRadarChart(){
     if(baseScen == null || baseScen == undefined){
         return
     }
-    chartObj.compare_farm.title = "Base Scenario - " + baseScen
+    chartObj.compare_farm.title = "Base Scenario - " + chartDatasetContainer.getScenName(baseScen)
     let baseIndex = chartDatasetContainer.indexScenario(baseScen)
     console.log("scen index is ", baseIndex, baseScen)
     chartObj.compare_farm.chartData.labels = []
@@ -965,7 +1023,8 @@ function retrieveFieldsGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+' AND scenario_id='+DSS.activeScenario +
+//	'CQL_filter=farm_id='+DSS.activeFarm+' AND scenario_id='+DSS.activeScenario +
+	'CQL_filter=farm_id='+DSS.activeFarm +
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1034,45 +1093,127 @@ function retrieveFarmGeoserver(){
 	})
     return farmName
 }
+function retrieveAllFieldsFarmGeoserver(){
+// DSS.activeScenario = 40
+//    DSS.activeFarm = 1
+
+    fieldUrl =
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_2&' +
+	'CQL_filter=id='+DSS.activeFarm+
+	'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+    console.log("getting wfs farm")
+    console.log(fieldUrl)
+    let fieldList = []
+    let fieldIdList = []
+    let field_dic = {}
+	$.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: fieldUrl,
+		async: false,
+		dataType: 'json',
+		success:function(responses)
+		{
+			console.log(responses)
+            for(response in responses.features){
+                let field = responses.features[response].properties.field_name
+                console.log(field)
+                let fieldID = responses.features[response].properties.gid
+//                fieldList.push(field)
+//                fieldIdList.push(fieldID)
+//                console.log(fieldList)
+                field_dic[fieldID] = field
+            }
+
+		}
+	})
+    return field_dic
+}
+function retrieveAllFieldsDataGeoserver(){
+// DSS.activeScenario = 40
+//    DSS.activeFarm = 1
+
+    fieldUrl =
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:field_2&' +
+	'CQL_filter=id='+DSS.activeFarm+
+	'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+    console.log("getting wfs farm")
+    console.log(fieldUrl)
+    let fieldList = []
+    let fieldIdList = []
+    let field_dic = {}
+    let responsesField = []
+	$.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: fieldUrl,
+		async: false,
+		dataType: 'json',
+		success:function(responses)
+		{
+			console.log(responses)
+            for(response in responses.features){
+                let field = responses.features[response].properties.field_name
+                responsesField.push(responses.features[response].properties)
+            }
+
+		}
+	})
+    return responsesField
+}
 function printSummary(){
     var pdf = new jsPDF();
-//    scenName = chartDatasetContainer.getScenName(DSS.activeScenario)
-//    let mainTabLength = Ext.getCmp("mainTab").items.length
-//    let mainTabs = Ext.getCmp("mainTab").items.items
-//    for (let mainTab in mainTabs ){
-//        Ext.getCmp("mainTab").setActiveTab(parseFloat(mainTab))
-//        subTabs = mainTabs[parseFloat(mainTab)].items.items
-//        for(let subTab in subTabs){
-//            console.log(subTab)
-//            Ext.getCmp("mainTab").items.items[parseFloat(mainTab)].setActiveTab(parseFloat(subTab))
-//        }
-//    }
+    scenName = chartDatasetContainer.getScenName(DSS.activeScenario)
+    let mainTabLength = Ext.getCmp("mainTab").items.length
+    let mainTabs = Ext.getCmp("mainTab").items.items
+    for (let mainTab in mainTabs ){
+        Ext.getCmp("mainTab").setActiveTab(parseFloat(mainTab))
+        subTabs = mainTabs[parseFloat(mainTab)].items.items
+        for(let subTab in subTabs){
+            console.log(subTab)
+            Ext.getCmp("mainTab").items.items[parseFloat(mainTab)].setActiveTab(parseFloat(subTab))
+        }
+    }
 ////    make the summary tab the active tab when done.
 //// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
-//    Ext.getCmp("mainTab").setActiveTab(8)
+    Ext.getCmp("mainTab").setActiveTab(8)
 
 
-//    var pdf = new jsPDF();
-//    setTimeout(() => {
-//        for (chart in chartList){
-//            canvas = document.getElementById(chartList[chart])
-//            console.log(canvas)
-//            if(canvas == null){
-//                continue
-//            }
-//            var newCanvas = canvas.cloneNode(true);
-//            var ctx = newCanvas.getContext('2d');
-//            ctx.fillStyle = "#FFF";
-//            ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-//            ctx.drawImage(canvas, 0, 0);
-//            var imgData = newCanvas.toDataURL("image/jpeg");
-////            pdf.addImage(imgData, 'JPEG', 0, 0);
-//            pdf.addPage(imgData)
+    var pdf = new jsPDF();
+    setTimeout(() => {
+        for (chart in chartList){
+            canvas = document.getElementById(chartList[chart])
+            console.log(canvas)
+            if(canvas == null){
+                continue
+            }
+            var newCanvas = canvas.cloneNode(true);
+            var ctx = newCanvas.getContext('2d');
+            ctx.fillStyle = "#FFF";
+            ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+            ctx.drawImage(canvas, 0, 0);
+            var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
-//        }
-//        pdf.save("GrazeScape_Summary.pdf");
-//    }, 1000);
-//    let type = "csv"
+            pdf.addPage(imgData)
+            pdf.addImage(imgData, 'JPEG', 0, 0);
+        }
+        pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
+    }, 1000);
+    let type = "csv"
+//    filename = chartDatasetContainer.farmName + "_model_data.csv"
+,
 //    let file_name = "GrazeScape_Summary.csv"
 
     fieldUrl =
@@ -1129,7 +1270,7 @@ function printSummary(){
                     else if(col== "field_id" ){
                         field_att_list.push(chartDatasetContainer.getFieldName(responses.features[response].properties[col]))
 //                        field_att_list.push("Test field 1")
-                        csvText = csvText + chartDatasetContainer.getFieldName(responses.features[response].properties[col]) + ","
+                        csvText = csvText + chartDatasetContainer.allFields[responses.features[response].properties[col]] + ","
 
                     }
                     else if(col== "scenario_id" ){
@@ -1154,12 +1295,7 @@ function printSummary(){
 
                 csvMain.push(field_att_list)
             }
-            console.log(csvHeader)
-            console.log(csvMain)
-            csvReturn = []
-            csvHeader.push("\n")
-            csvReturn.push(csvHeader)
-            csvReturn.push(csvMain)
+
             data = csvText
             filename = chartDatasetContainer.farmName + "_model_data.csv"
             type = "csv"
@@ -1183,6 +1319,106 @@ function printSummary(){
 	})
 
 
+    fieldUrl =
+	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	'service=wfs&'+
+	'?version=2.0.0&'+
+	'request=GetFeature&'+
+	'typeName=GrazeScape_Vector:infrastructure_2&' +
+	'CQL_filter=farm_id='+DSS.activeFarm+
+	'&'+
+	'outputformat=application/json&'+
+	'srsname=EPSG:3857';
+    $.ajax({
+		jsonp: false,
+		type: 'GET',
+		url: fieldUrl,
+		async: false,
+		dataType: 'json',
+		success:function(responses){
+            let csvMain = []
+
+		    let csvHeader = Object.keys(responses.features[0].properties)
+		    let csvText = ""
+
+//		    csvMain.push(csvHeader)
+		    let index = csvHeader.indexOf("cell_count");
+            if (index > -1) csvHeader.splice(index, 1);
+            index = csvHeader.indexOf("farm_id");
+            if (index > -1) csvHeader.splice(index, 1);
+//            index = csvHeader.indexOf("scenario_id");
+//            if (index > -1) csvHeader.splice(index, 1);
+            for (head in csvHeader){
+		        csvText = csvText + csvHeader[head] + ","
+		    }
+            csvText = csvText + "\n"
+
+            for(response of Object.keys(responses.features)){
+//                console.log(response)
+                let field_att_list = []
+                console.log("################################")
+                for(col of Object.keys(responses.features[response].properties)){
+                    let cell_count = responses.features[response].properties["cell_count"]
+                    if(col == "cell_count" || col == "farm_id"){
+//                            field_att_list.push("place holder")
+//                            csvText = csvText + responses.features[response].properties[col] + ","
+//                            csvText = csvText + responses.features[response].properties[col] + ","
+
+                            continue
+                        }
+                    else if(col== "field_id" ){
+                        field_att_list.push(chartDatasetContainer.getFieldName(responses.features[response].properties[col]))
+//                        field_att_list.push("Test field 1")
+                        csvText = csvText + chartDatasetContainer.allFields[responses.features[response].properties[col]] + ","
+
+                    }
+                    else if(col== "scenario_id" ){
+                        field_att_list.push(chartDatasetContainer.getScenName(responses.features[response].properties[col]))
+//                        field_att_list.push("Test field 1")
+                        csvText = csvText + chartDatasetContainer.getScenName(responses.features[response].properties[col]) + ","
+
+                    }
+                    else if(col == "area"){
+                        field_att_list.push(responses.features[response].properties[col])
+                        csvText = csvText + responses.features[response].properties[col] + ","
+
+                    }
+                    else{
+                        field_att_list.push(responses.features[response].properties[col]/ cell_count)
+                        csvText = csvText + (responses.features[response].properties[col] / cell_count) + ","
+
+                    }
+                }
+                field_att_list.push("\n")
+                csvText = csvText + "\n"
+
+                csvMain.push(field_att_list)
+            }
+
+            data = csvText
+            filename = chartDatasetContainer.farmName + "_model_data.csv"
+            type = "csv"
+            var file = new Blob([data], {type: type});
+            if (window.navigator.msSaveOrOpenBlob) // IE10+
+                window.navigator.msSaveOrOpenBlob(file, filename);
+            else { // Others
+                var a = document.createElement("a"),
+                        url = URL.createObjectURL(file);
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+            }
+
+		}
+	})
+
+
+
 }
 class ChartDatasetContainer{
     constructor() {
@@ -1201,7 +1437,42 @@ class ChartDatasetContainer{
         this.colorLength = chartColors.length
         this.getFields()
         this.getScenarios()
+        this.allFields = retrieveAllFieldsFarmGeoserver
+        this.setCheckBoxes()
 
+    }
+    setCheckBoxes(){
+        let counter = 0
+        for(let scen in this.scenarios){
+            let checkBox = {
+                boxLabel  : this.scenarios[scen].name,
+                    id: "checkBox_scen_"+counter,
+                    checked: true,
+                    name: 'farm',
+                    dbID: this.scenarios[scen].dbID,
+                    listeners:{change: function(box, newVal, oldVal, e) {
+                        console.log(box)
+                        hideData(box.name, box.boxLabel,box.dbID)
+                    }}
+            }
+            counter = counter + 1
+            checkBoxScen.push(checkBox)
+        }
+        counter = 0
+        for(let field in this.fields){
+            let checkBox = {
+                    boxLabel  : this.fields[field].name,
+                    id: "checkBox_field_"+counter,
+                    checked: true,
+                    name: 'field',
+                    dbID: this.fields[field].dbID,
+                     listeners:{change: function(box, newVal, oldVal, e) {
+                        hideData(box.name, box.boxLabel, box.dbID)
+                    }}
+            }
+            counter = counter + 1
+            checkBoxField.push(checkBox)
+        }
     }
     getFields(){
         let counter = 0
@@ -1218,17 +1489,7 @@ class ChartDatasetContainer{
 //        let fieldList = ['1', '2']
         for (let scen in fieldList){
             this.addSet(fieldList[scen],'field',fieldIdList[scen])
-            let checkBox = {
-                    boxLabel  : fieldList[scen],
-                    id: "checkBox_field_"+counter,
-                    checked: true,
-                    name: 'field',
-                     listeners:{change: function(box, newVal, oldVal, e) {
-                        hideData(box.name, box.boxLabel)
-                    }}
-            }
-            counter = counter + 1
-            checkBoxField.push(checkBox)
+
         }
         return fieldList
     }
@@ -1244,19 +1505,9 @@ class ChartDatasetContainer{
         for (let scen in scenList){
             this.addSet(scenList[scen], 'scen',scenIdList[scen])
             // populating scenario picker combobox for the compare chart
-            scenariosStore.loadData([[scenList[scen]]],true)
+            scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
             scenariosStore.sort('name', 'ASC');
-            let checkBox = {
-                boxLabel  : scenList[scen],
-                    id: "checkBox_scen_"+counter,
-                    checked: true,
-                    name: 'farm',
-                    listeners:{change: function(box, newVal, oldVal, e) {
-                        hideData(box.name, box.boxLabel)
-                    }}
-            }
-            counter = counter + 1
-            checkBoxScen.push(checkBox)
+
         }
         return scenList
     }
@@ -1294,36 +1545,36 @@ class ChartDatasetContainer{
 
     }
 //    get index of field by name
-    indexField(myField){
+    indexField(dbId){
         for (let field in this.fields){
-            if (this.fields[field].name == myField){
+            if (this.fields[field].dbID == dbId){
                 return field
             }
         }
     }
 //    get index of scenario by name
-    indexScenario(myScenario){
+    indexScenario(dbId){
         for (let scen in this.scenarios){
-            if (this.scenarios[scen].name== myScenario){
+            if (this.scenarios[scen].dbID== dbId){
                 return scen
             }
         }
     }
-    getDBIdScen(myScenario){
-        for (let scen in this.scenarios){
-            if (this.scenarios[scen].name== myScenario){
-                return this.scenarios[scen].dbID
-            }
-        }
-    }
-    getDBIdfield(myField){
-        for (let field in this.fields){
-            if (this.fields[field].name == myField){
-                return this.fields[field].dbID
-            }
-        }
-    }
-
+//    getDBIdScen(myScenario){
+//        for (let scen in this.scenarios){
+//            if (this.scenarios[scen].name== myScenario){
+//                return this.scenarios[scen].dbID
+//            }
+//        }
+//    }
+//    getDBIdfield(myField){
+//        for (let field in this.fields){
+//            if (this.fields[field].name == myField){
+//                return this.fields[field].dbID
+//            }
+//        }
+//    }
+//get field name from db id
     getFieldName(fieldID){
         for (let field in this.fields){
             if (this.fields[field].dbID == fieldID){
@@ -1331,7 +1582,7 @@ class ChartDatasetContainer{
             }
         }
     }
-//    get scenario name from id
+//    get scenario name from db id
     getScenName(scenId){
         for (let scen in this.scenarios){
             if (this.scenarios[scen].dbID== scenId){

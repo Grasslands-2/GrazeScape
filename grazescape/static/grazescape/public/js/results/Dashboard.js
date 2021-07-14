@@ -1,5 +1,5 @@
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['yield']
+//var modelTypes = ['yield', 'ploss','runoff', 'bio']
+var modelTypes = ['yield']
 //var modelTypes = ['bio']
 //list of all the current and future charts
 var chartList = ["cost_farm", "cost_field",
@@ -37,7 +37,7 @@ var hiddenData = {
     scens:[],
 }
 var scenariosStore = Ext.create('Ext.data.Store', {
-    fields: ['name'],
+    fields: ['name','dbID'],
     data : []
 });
 var demResultsLayers =[]
@@ -118,7 +118,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             chartDatasetContainer = new ChartDatasetContainer()
             scenList = chartDatasetContainer.getScenarioList()
             fieldList = chartDatasetContainer.getFieldList()
-            populateChartObj(chartObj,scenList,fieldList)
+            populateChartObj(chartObj,scenList,fieldList,chartDatasetContainer.fields, chartDatasetContainer.scenarios)
             console.log("check boxes for compare!")
             compCheckBoxes = compareChartCheckBox()
 //            get progress bars
@@ -167,13 +167,30 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
-                Ext.getCmp("compareTab").setDisabled(true)
                 Ext.getCmp('mainTab').update()
             }, 10);
 
-
-            console.log("running model")
+            layerList = []
             layer.getSource().forEachFeature(function(f) {
+                layerList.push(f)
+            })
+            console.log("running model")
+//            layer.getSource().forEachFeature(function(f) {
+            fieldIter = retrieveAllFieldsDataGeoserver()
+            for(item in fieldIter){
+                for(layer in layerList){
+                    if (layerList[layer].get("gid")== fieldIter[item].gid){
+                        activeScenario = true
+                        f = layerList[layer]
+                        break
+                    }
+                    else{
+                        f = fieldIter[item]
+                        activeScenario = false
+
+                    }
+                }
+
 //                if(f.get("scenario_id") != DSS.activeScenario){
 //                    console.log("field is not part of active scenario")
 //                    return
@@ -184,9 +201,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 //                only running on one field right now for testing
 //                    if (f.get("field_name") == "corn for 4"){
-                        model_request = build_model_request(f, modelTypes[model])
+                        model_request = build_model_request(f, modelTypes[model], activeScenario)
 //                        model_data = get_model_data(model_request)
 //                            if(f.get("field_name") != "corn for 4"){
+//                                continue;
+//                            }
+//                            if(f["scenario_id"] != 33){
+////                            if(f.get("scenario_id") != 33){
 //                                continue;
 //                            }
                         console.log(model_request)
@@ -202,7 +223,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                            progress bar management
                             switch (returnData[0].model_type){
                                 case 'yield':
-                                    yield_pb.value = yield_pb.value + 1
+                                    console.log("Yiiiiiiiiiiiield!!!!!!")
+                                    console.log(returnData)
+                                    if (returnData.length >1){
+                                        yield_pb.value = yield_pb.value + returnData.length - 1
+                                    }
+                                    else{
+                                        yield_pb.value = yield_pb.value + 1
+                                    }
 //                                    yield_pb.hidden = yield_pb.value==yield_pb.max?true:false
                                     if(yield_pb.value==yield_pb.max){
                                         yield_pb.hidden = true
@@ -253,7 +281,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 }
 
 
-            }) //iterates through fields to build extents array
+            }
+//            ) //iterates through fields to build extents array
 
 
         }
@@ -612,7 +641,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
-                        columns: 2
+                        columns: 1
                     },
                     defaults: {
 
@@ -642,25 +671,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="grass_yield_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="grass_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_yield_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="corn_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_silage_yield_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="corn_silage_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="soy_yield_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="soy_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="oat_yield_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="oat_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="alfalfa_yield_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="alfalfa_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="rotation_yield_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="rotation_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     }],
                     scope: this,
                     listeners:{activate: function() {
@@ -686,7 +715,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
-                        columns: 2
+                        columns: 1
                     },
                     defaults: {
 
@@ -715,25 +744,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'container',
                     },{
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="grass_yield_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="grass_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_yield_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="corn_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_silage_yield_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="corn_silage_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="soy_yield_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="soy_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="oat_yield_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="oat_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="alfalfa_yield_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="alfalfa_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     }],
                     listeners:{activate: function() {
                         console.log("activated field")
@@ -1204,7 +1233,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             forceSelection: true,
                             queryMode: 'local',
                             displayField: 'name',
-                            valueField: 'name',
+                            valueField: 'dbID',
                             listeners:{change: function() {
                                 populateRadarChart()
                             }},
