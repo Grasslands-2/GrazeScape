@@ -35,7 +35,6 @@ def get_db_conn():
     #     user="postgres",
     #     password="postgres"
     # )
-    print(conn)
     cur = conn.cursor()
     return cur, conn
 
@@ -47,9 +46,6 @@ def db_has_field(field_id, scenario_id, farm_id):
                 'where field_id = %s and scenario_id = %s and farm_id = %s',
                 [field_id,scenario_id,farm_id])
     db_result = cur.fetchone()
-    print("the result of the field model check")
-    print(db_result)
-    print(db_result is None)
     # close the communication with the PostgreSQL
 
     cur.close()
@@ -167,18 +163,10 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
         sql_values = sql_values[:-1]
         sql_values = sql_values + ""
         sql_request = sql_request + sql_values + sql_where
-    print(sql_request)
-    print(values)
     cur.execute(sql_request,values)
-
-
-
-
     cur.close()
     conn.commit()
     conn.close()
-# get_db_conn()
-
 
 def get_values_db(field_id, scenario_id, farm_id, request):
     cur, conn = get_db_conn()
@@ -215,15 +203,13 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                 'where field_id = %s and scenario_id = %s and farm_id = %s',
                 [field_id, scenario_id, farm_id])
     result = cur.fetchone()
-    column_names = [desc[0] for desc in cur.description]
-    print(column_names)
     print(result)
+    column_names = [desc[0] for desc in cur.description]
     for model in model_types:
         if model == request.POST.get('model_parameters[model_type]'):
             if result is None:
-                print("no results where found!!!!!!!!!!!!!1")
+                # print("the query return no results")
                 f_name = request.POST.get('model_parameters[f_name]')
-                # f_name = "test"
                 scen = request.POST.get('model_parameters[scen]')
                 data = {                    # overall model type crop, ploss, bio, runoff
                     "model_type": model,
@@ -234,7 +220,6 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                     "scen_id": scenario_id,
                     "field_id": field_id
                 }
-                print(data)
                 return_data.append(data)
             else:
                 for col in model_types[model]:
@@ -246,11 +231,8 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                     else:
                         col_index = column_names.index(col)
                         sum = result[col_index]
-                        print(sum)
                     if sum is None:
-                        continue
-                    # if type(sum) is not list:
-                    #     sum = round(sum, 2)
+                        sum = None
                     col_index = column_names.index("area")
                     area = result[col_index]
                     col_index = column_names.index("cell_count")
@@ -281,48 +263,10 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                         "scen_id": scenario_id,
                         "field_id": field_id
                     }
-                    print(data)
                     return_data.append(data)
-        cur.close()
-        conn.close()
+    cur.close()
+    conn.close()
+    print("Returning the following data!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print(return_data)
     return return_data
-def get_summary(farm_id):
-    cur, conn = get_db_conn()
-    cur.execute('SELECT * '
-                'from field_model_results, field_2 '
-                'where field_model_results.farm_id = %s and '
-                'field_model_results.farm_id = field_2.farm_id and field_2.gid = field_model_results.field_id',
-                [farm_id,])
-    results = cur.fetchall()
-    column_names = [desc[0] for desc in cur.description]
-    print(column_names)
 
-    # print(results)
-    results_dic = {}
-    for col in column_names:
-        results_dic[col] = []
-    for result in results:
-        print(result)
-    for result in results:
-        print("print result")
-        for index, col in enumerate(result):
-            if index == 69:
-                print(index)
-                print(col)
-            results_dic[column_names[index]].append(col)
-            # print (result)
-# get_values_db(1, 40, 1, "request")
-    del results_dic['farm_id']
-    del results_dic['scenario_id']
-    del results_dic['gid']
-    del results_dic['id']
-    del results_dic['field_id']
-    # print(results_dic)
-    for r in results_dic:
-        print(r, results_dic[r])
-        if r == "om":
-            print(results_dic[r][0])
-            print (float(results_dic[r][0]))
-
-# farm_id = 3
-# get_summary(farm_id)
