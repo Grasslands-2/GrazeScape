@@ -82,7 +82,6 @@ function populateChartObj(chartObj, scenList, fieldList){
         chartObj[chartName].chart = null
 
     }
-    //DSS.map.addLayer(modelResult)
 }
 
 function build_model_request(f, modelChoice){
@@ -349,7 +348,7 @@ function get_model_data(data){
                     // s.addFeature(new ol.Feature({
                     //     geometry: p
                     // }));
-                    DSS.MapState.showContinuousLegend(obj.palette, obj.values);
+                    //DSS.MapState.showContinuousLegend(obj.palette, obj.values);
                 }
 
                 if(responses[response].value_type != "dry lot"){
