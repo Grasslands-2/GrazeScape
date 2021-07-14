@@ -1339,10 +1339,13 @@ function printSummary(){
 		    let csvText = ""
 
 //		    csvMain.push(csvHeader)
-		    let index = csvHeader.indexOf("cell_count");
+		    let index = csvHeader.indexOf("gid");
+            if (index > -1) csvHeader.splice(index, 1);
+            index = csvHeader.indexOf("id");
             if (index > -1) csvHeader.splice(index, 1);
             index = csvHeader.indexOf("farm_id");
             if (index > -1) csvHeader.splice(index, 1);
+
 //            index = csvHeader.indexOf("scenario_id");
 //            if (index > -1) csvHeader.splice(index, 1);
             for (head in csvHeader){
@@ -1356,7 +1359,7 @@ function printSummary(){
                 console.log("################################")
                 for(col of Object.keys(responses.features[response].properties)){
                     let cell_count = responses.features[response].properties["cell_count"]
-                    if(col == "cell_count" || col == "farm_id"){
+                    if(col == "gid" || col == "farm_id"|| col == "id"){
 //                            field_att_list.push("place holder")
 //                            csvText = csvText + responses.features[response].properties[col] + ","
 //                            csvText = csvText + responses.features[response].properties[col] + ","
@@ -1364,25 +1367,21 @@ function printSummary(){
                             continue
                         }
                     else if(col== "field_id" ){
-                        field_att_list.push(chartDatasetContainer.getFieldName(responses.features[response].properties[col]))
 //                        field_att_list.push("Test field 1")
                         csvText = csvText + chartDatasetContainer.allFields[responses.features[response].properties[col]] + ","
 
                     }
                     else if(col== "scenario_id" ){
-                        field_att_list.push(chartDatasetContainer.getScenName(responses.features[response].properties[col]))
 //                        field_att_list.push("Test field 1")
                         csvText = csvText + chartDatasetContainer.getScenName(responses.features[response].properties[col]) + ","
 
                     }
                     else if(col == "area"){
-                        field_att_list.push(responses.features[response].properties[col])
                         csvText = csvText + responses.features[response].properties[col] + ","
 
                     }
                     else{
-                        field_att_list.push(responses.features[response].properties[col]/ cell_count)
-                        csvText = csvText + (responses.features[response].properties[col] / cell_count) + ","
+                        csvText = csvText + (responses.features[response].properties[col]) + ","
 
                     }
                 }
@@ -1393,7 +1392,7 @@ function printSummary(){
             }
 
             data = csvText
-            filename = chartDatasetContainer.farmName + "_model_data.csv"
+            filename = chartDatasetContainer.farmName + "_infrastructure.csv"
             type = "csv"
             var file = new Blob([data], {type: type});
             if (window.navigator.msSaveOrOpenBlob) // IE10+
