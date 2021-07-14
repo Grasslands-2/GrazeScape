@@ -93,16 +93,19 @@ Ext.define('DSS.inspector.Main', {
 			},
 			items: [{
 				cls: 'section-title light-text text-drp-20',
-				html: 'Inspector <i class="fas fa-search font-10 accent-text text-drp-50"></i>',
+				html: "GrazeScape",
+				//html: 'Inspector <i class="fas fa-search font-10 accent-text text-drp-50"></i>',
 				height: 35
-			},{
-				xtype: 'inspector_data_source',
-				itemId: 'dss-data-source',
-				DSS_Parent: me
-			},{
-				xtype: 'inspector_restrict_results',
-				itemId: 'dss-resrictor'
-			}]
+			},
+			// {
+			// 	xtype: 'inspector_data_source',
+			// 	itemId: 'dss-data-source',
+			// 	DSS_Parent: me
+			// },{
+			// 	xtype: 'inspector_restrict_results',
+			// 	itemId: 'dss-resrictor'
+			// }
+		]
 		});
 		
 		me.callParent(arguments);

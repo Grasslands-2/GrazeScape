@@ -218,56 +218,71 @@ def get_values_db(field_id, scenario_id, farm_id, request):
     column_names = [desc[0] for desc in cur.description]
     print(column_names)
     print(result)
-    if result is None:
-        return
     for model in model_types:
         if model == request.POST.get('model_parameters[model_type]'):
-            for col in model_types[model]:
-                if col == "runoff":
-                    sum = []
-                    for run_col in runoff_col:
-                        col_index = column_names.index(run_col)
-                        sum.append(result[col_index])
-                else:
-                    col_index = column_names.index(col)
-                    sum = result[col_index]
-                    print(sum)
-                if sum is None:
-                    continue
-                # if type(sum) is not list:
-                #     sum = round(sum, 2)
-                col_index = column_names.index("area")
-                area = result[col_index]
-                col_index = column_names.index("cell_count")
-                count = result[col_index]
-                if model == "bio":
-                    count = 1
+            if result is None:
+                print("no results where found!!!!!!!!!!!!!1")
                 f_name = request.POST.get('model_parameters[f_name]')
                 # f_name = "test"
                 scen = request.POST.get('model_parameters[scen]')
-                # scen = "farm"
-                data = {
-                    # "extent": [*bounds],
-                    # "palette": palette,
-                    # "url": model.file_name + ".png",
-                    # "values": values_legend,
-                    "units": model_types[model][col]["units"],
-                    "units_alternate": model_types[model][col]["units_alternate"],
-                    # overall model type crop, ploss, bio, runoff
+                data = {                    # overall model type crop, ploss, bio, runoff
                     "model_type": model,
                     # specific model for runs with multiple models like corn silage
-                    "value_type": model_types[model][col]["type"],
+                    # "value_type": model_types[model][col]["type"],
                     "f_name": f_name,
                     "scen": scen,
-                    # "avg": round(avg, 2),
-                    "area": area,
-                    "counted_cells": count,
-                    "sum_cells": sum,
                     "scen_id": scenario_id,
                     "field_id": field_id
                 }
                 print(data)
                 return_data.append(data)
+            else:
+                for col in model_types[model]:
+                    if col == "runoff":
+                        sum = []
+                        for run_col in runoff_col:
+                            col_index = column_names.index(run_col)
+                            sum.append(result[col_index])
+                    else:
+                        col_index = column_names.index(col)
+                        sum = result[col_index]
+                        print(sum)
+                    if sum is None:
+                        continue
+                    # if type(sum) is not list:
+                    #     sum = round(sum, 2)
+                    col_index = column_names.index("area")
+                    area = result[col_index]
+                    col_index = column_names.index("cell_count")
+                    count = result[col_index]
+                    if model == "bio":
+                        count = 1
+                    f_name = request.POST.get('model_parameters[f_name]')
+                    # f_name = "test"
+                    scen = request.POST.get('model_parameters[scen]')
+                    # scen = "farm"
+                    data = {
+                        # "extent": [*bounds],
+                        # "palette": palette,
+                        # "url": model.file_name + ".png",
+                        # "values": values_legend,
+                        "units": model_types[model][col]["units"],
+                        "units_alternate": model_types[model][col]["units_alternate"],
+                        # overall model type crop, ploss, bio, runoff
+                        "model_type": model,
+                        # specific model for runs with multiple models like corn silage
+                        "value_type": model_types[model][col]["type"],
+                        "f_name": f_name,
+                        "scen": scen,
+                        # "avg": round(avg, 2),
+                        "area": area,
+                        "counted_cells": count,
+                        "sum_cells": sum,
+                        "scen_id": scenario_id,
+                        "field_id": field_id
+                    }
+                    print(data)
+                    return_data.append(data)
         cur.close()
         conn.close()
     return return_data
