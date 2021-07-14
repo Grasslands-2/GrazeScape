@@ -159,10 +159,12 @@ Ext.create('Ext.data.Store', {
 	},{ 
 		value: 'nc',
 		display: 'No Cover'
-	},{
-		value: 'na',
-		display: 'Not Applicable'
-	}]
+	},
+	// {
+	// 	value: 'na',
+	// 	display: 'Not Applicable'
+	// }
+]
 });
 
 Ext.create('Ext.data.Store', {
@@ -534,14 +536,14 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let fertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+				xtype:'numberfield', maxValue: 100, step: 5
 			}, text: 'Percent<br>Fertilizer', dataIndex: 'fertPerc', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let manuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+				xtype:'numberfield', maxValue: 100, step: 5
 			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
@@ -578,7 +580,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt') {
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt' || rec.get('rotationVal') == 'ps') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
@@ -639,7 +641,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
         let area_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Area', dataIndex: 'area', width: 80,
+			}, text: 'Area(acre)', dataIndex: 'area', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
         // let perimeter_Column = {

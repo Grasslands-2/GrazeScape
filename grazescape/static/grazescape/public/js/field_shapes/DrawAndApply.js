@@ -135,7 +135,8 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			tillage: tillageInput,
 			tillage_disp:tillageDisp,
 			rotational_density:0,
-			area:fieldArea,
+			area:fieldArea * 0.000247105,
+			//this changes the square meters to acres
 			fertilizerpercent:0,
 			manurepercent:0,
 			spread_confined_manure_on_pastures: false,
