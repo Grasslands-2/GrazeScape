@@ -79,6 +79,6 @@ class GrassYield(ModelBase):
         grass_yield.set_data(pred)
         # convert from tons to lbss
         # rotation_avg.set_data(pred * 2000 * float(self.model_parameters["graze_factor"]))
-        rotation_avg.set_data(pred * 2000 )
+        rotation_avg.set_data(pred * 2000)
         # Remove the three dummy references9
         return [grass_yield,rotation_avg]

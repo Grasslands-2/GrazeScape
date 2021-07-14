@@ -42,7 +42,8 @@ function getWFSfields() {
 			console.log(fieldObj[0]);
 			popFieldsArray(fieldObj);
 			//console.log("PopFieldsArray should have fired if you are reading this")
-			//placed data store in call function to make sure it was locally available.	
+			//placed data store in call function to make sure it was locally available.
+			console.log("creating store")
 			Ext.create('Ext.data.Store', {
 				storeId: 'fieldStore1',
 				alternateClassName: 'DSS.FieldStore',
@@ -94,6 +95,7 @@ function popFieldsArray(obj) {
         fence_cost: obj[i].properties.fence_cost,
         fence_unit_cost:obj[i].properties.fence_unit_cost
 	});
+	console.log("DOne with popping fields")
 }
 
 //empty array to catch feature objects 
@@ -110,6 +112,7 @@ function gatherTableData() {
 	'srsname=EPSG:3857';
 	//--------------------------------------------
 	getWFSfields();
+	console.log(fieldUrl)
 	console.log("gatherTableData ran");
 	console.log(fieldArray);
 };
@@ -159,10 +162,12 @@ Ext.create('Ext.data.Store', {
 	},{ 
 		value: 'nc',
 		display: 'No Cover'
-	},{
-		value: 'na',
-		display: 'Not Applicable'
-	}]
+	},
+	// {
+	// 	value: 'na',
+	// 	display: 'Not Applicable'
+	// }
+]
 });
 
 Ext.create('Ext.data.Store', {
@@ -317,7 +322,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	alternateClassName: 'DSS.FieldGrid',
 	singleton: true,	
 	autoDestroy: false,
-	
+	id: "fieldTable",
 	hidden: true,
 	
 	height: 0,
@@ -534,14 +539,14 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let fertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+				xtype:'numberfield', maxValue: 100, step: 5
 			}, text: 'Percent<br>Fertilizer', dataIndex: 'fertPerc', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let manuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+				xtype:'numberfield', maxValue: 100, step: 5
 			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
@@ -578,7 +583,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt') {
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt' || rec.get('rotationVal') == 'ps') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
@@ -639,7 +644,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
         let area_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Area', dataIndex: 'area', width: 80,
+			}, text: 'Area(acre)', dataIndex: 'area', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
         // let perimeter_Column = {
