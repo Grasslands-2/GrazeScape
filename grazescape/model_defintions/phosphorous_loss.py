@@ -84,7 +84,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("pt_pi_file", os.path.join(self.model_file_path,"PasturePI.rds"))
         r.assign("dl_pi_file", os.path.join(self.model_file_path,"DryLot_tidyPI.rds"))
 
-        print(r(f"""
+        r(f"""
         #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
         #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
         #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
@@ -93,7 +93,6 @@ class PhosphorousLoss(ModelBase):
         library(randomForest)
 
 
-        print("loading  models")
         # load erosion models
         # load PI models
        
@@ -104,14 +103,10 @@ class PhosphorousLoss(ModelBase):
         # countour = 0,1
         # rotational = cn, rt 
         # density = hi or lo
-        print('Getting user input!!!!!!!!!!!!!!!!!!!!!!!')
         user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), Contour = c(contour), 
         rotational = c(rotational), density = c(density),initialP = c(initialP))
-        print(user_input_df)
         soil_df <- tibble(slope =  unlist(slope), slopelenusle.r = unlist(slope_length), sand = unlist(sand), silt = unlist(silt), clay = unlist(clay), k = unlist(k),
                            OM = unlist(om), total.depth = unlist(total_depth), LSsurgo = unlist(ls))
-        print(soil_df)
-        print("getting p needs")
         p_needs <- p_need
         grazedManureDM_lbs <- dm
         appliedDM_lbs <-  ((p_needs * (manure/100))/6) * 1000 * 8.4 * (6/100)
@@ -127,8 +122,6 @@ class PhosphorousLoss(ModelBase):
         crop_df <- user_input_df %>%
           select(where(~!all(is.na(.)))) # remove NAs
         full_df <- bind_cols(crop_df, fert_df, soil_df)
-        print(full_df)
-        print("comparing crop name")
         ##TODO the current output for Erosion and PI are tibbles (data frames) so we need to extract the data point from the tibble 
         # run models for different crops
         if (full_df$crop == "cc") {{
@@ -152,7 +145,6 @@ class PhosphorousLoss(ModelBase):
 
           pred_df <- df %>%
             filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
-          print('done filtering')
           #make erosion prediction
           erosion <- round(predict(cc_erosion, pred_df),2)
 
@@ -323,7 +315,6 @@ class PhosphorousLoss(ModelBase):
         
         pred_df <- df %>%
           filter(density == full_df$density)
-        print(pred_df)
         erosion <- round(predict(dl_erosion, pred_df),2)
         
         pi_pred_df <- pred_df %>%
@@ -336,7 +327,7 @@ class PhosphorousLoss(ModelBase):
         }}
 
           """
-                ))
+                )
         erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
         pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
 
