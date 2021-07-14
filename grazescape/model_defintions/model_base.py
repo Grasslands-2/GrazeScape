@@ -45,7 +45,7 @@ class ModelBase:
         self.raster_inputs = {}
 
     def parse_model_parameters(self, request):
-        # crop, crop cover rotation, densit
+        # crop, crop cover, rotation, densit
         nutrient_dict = {"ccgcdsnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
                                         "grazed_P2O5_lbs": 2.46},
                          "ccgcisnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
@@ -129,6 +129,8 @@ class ModelBase:
         parameters['area'] = area
         crop_cover = parameters["crop_cover"]
         if crop_cover.lower() == 'na':
+            crop_cover = 'nt'
+        if parameters["crop"] == "pt" or parameters["crop"] == "ps" or parameters["crop"] == "dl":
             crop_cover = 'nt'
         nutrient_key = parameters["crop"] + crop_cover + \
                        parameters["rotation"] + parameters["density"]
