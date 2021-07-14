@@ -1,4 +1,4 @@
-
+modelResult = {}
 function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
@@ -85,6 +85,7 @@ function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
         chartObj[chartName].chart = null
 
     }
+    //DSS.map.addLayer(modelResult)
 }
 
 function build_model_request(f, modelChoice, activeScenario){
@@ -350,7 +351,7 @@ function get_model_data(data){
                     let p = new ol.geom.Polygon([
                         [pt1, pt2, pt3, pt4, pt1]
                     ]);
-                    let modelResult = new ol.layer.Image({
+                    modelResult = new ol.layer.Image({
                         updateWhileAnimating: true,
                         updateWhileInteracting: true,
                         source: new ol.source.ImageStatic({
@@ -364,16 +365,14 @@ function get_model_data(data){
                         })
                     });
                     //DSS.map.addLayer(modelResult)
-
-
-
 //                    validateImageOL(obj, DSS.layer.ModelResult);
                     validateImageOL(obj, modelResult);
-                    let s = DSS.layer.ModelBox.getSource();
-                    s.clear();
-                    s.addFeature(new ol.Feature({
-                        geometry: p
-                    }));
+                    //DSS.map.addLayer(modelResult)
+                    // let s = DSS.layer.ModelBox.getSource();
+                    // s.clear();
+                    // s.addFeature(new ol.Feature({
+                    //     geometry: p
+                    // }));
                     DSS.MapState.showContinuousLegend(obj.palette, obj.values);
                 }
 
@@ -381,7 +380,6 @@ function get_model_data(data){
                     format_chart_data(obj)
                 }
             }
-
             resolve(responses);
         },
 
@@ -392,6 +390,12 @@ function get_model_data(data){
     })
 
 	}
+    function removeModelResults(){
+        console.log(modelResult)
+        console.log(DSS.map.getLayers())
+        DSS.map.removeLayer(modelResult)
+		//Ext.getCmp("btnRemoveModelResults").setDisabled(true)
+    }
 
 //---------------------------------------------------------------------------------
 function validateImageOL(json, layer, tryCount) {
