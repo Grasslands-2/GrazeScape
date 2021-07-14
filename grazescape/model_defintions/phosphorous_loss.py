@@ -149,10 +149,7 @@ class PhosphorousLoss(ModelBase):
           df <- cbind(level_df, df)
 
           #subset all combinations data set to just the user input
-          print('filtering data')
-          print(full_df$cover)
-          print(full_df$tillage)
-          print(full_df$Contour)
+
           pred_df <- df %>%
             filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
           print('done filtering')
