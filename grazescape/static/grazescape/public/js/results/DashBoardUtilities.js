@@ -274,11 +274,21 @@ function format_chart_data(model_data){
     if(chartTypeField !== null){
         chartTypeField.units = model_data.units
         chartTypeField.units_alternate = model_data.units_alternate
-
-        chartTypeField.chartData.datasets[fieldIndex].data[scenIndex] =  +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
+        let chartVal = null
+        if(model_data.sum_cells != null){
+            console.log("sum not null")
+            chartVal = +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
+        }
+        else{
+            console.log(model_data.sum_cells)
+            console.log(chartVal)
+            chartVal = null
+            console.log(chartVal)
+        }
+        chartTypeField.chartData.datasets[fieldIndex].data[scenIndex] =  chartVal
         chartTypeField.area[fieldIndex] =  model_data.area
         // creating a backup to pull data from
-        chartTypeField.chartData.chartDataOri[fieldIndex][scenIndex] =  +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
+        chartTypeField.chartData.chartDataOri[fieldIndex][scenIndex] =  chartVal
          if(chartTypeField.chart !== null){
             chartTypeField.chart.update()
             chartTypeField.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartTypeField.units;
@@ -286,9 +296,17 @@ function format_chart_data(model_data){
     }
 //      farm level
     //initialize sum and count if they havent been already
-    chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + model_data.counted_cells
-    chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + model_data.sum_cells
-    chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + model_data.area
+    let chartVal = null
+    let chartCells = null
+    let chartArea = null
+    if(model_data.sum_cells != null){
+        chartVal = model_data.sum_cells
+        chartCells = model_data.counted_cells
+        chartArea = model_data.area
+    }
+    chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
+    chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
+    chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
     chartTypeFarm.units = model_data.units
     chartTypeFarm.units_alternate = model_data.units_alternate
 
@@ -389,7 +407,7 @@ function get_model_data(data){
     })
 
 	}
-    function removeModelResults(){
+function removeModelResults(){
         console.log(modelResult)
         console.log(DSS.map.getLayers())
         DSS.map.removeLayer(modelResult)
@@ -784,11 +802,11 @@ function compareChartCheckBox(){
     // display values for the compare tab and the corresponding charts
 //    chart variable type, chart name, if the value is by area, checked
     boxes = {yieldVar :[
-        ["Grass Yield / Area",'grass_yield_farm', false, true ] ,
+        ["Grass Yield / Area",'grass_yield_farm', false, false ] ,
         ["Grass Yield Total",'grass_yield_farm', true, false ] ,
-        ["Corn Yield / Area",'corn_yield_farm', false, true ],
+        ["Corn Yield / Area",'corn_yield_farm', false, false ],
         ["Corn Yield Total",'corn_yield_farm', true, false],
-        ["Corn Silage Yield / Area  ",'corn_silage_yield_farm', false, true ],
+        ["Corn Silage Yield / Area  ",'corn_silage_yield_farm', false, false ],
         ["Corn Silage Yield Total",'corn_silage_yield_farm', true, false],
         ["Soy Yield / Area",'soy_yield_farm', false, false ],
         ["Soy Yield Total",'soy_yield_farm', true, false],
@@ -796,22 +814,22 @@ function compareChartCheckBox(){
         ["Oat Yield Total",'oat_yield_farm', true, false],
         ["Alfalfa Yield / Area",'alfalfa_yield_farm', false, false ],
         ["Alfalfa Yield Total",'alfalfa_yield_farm', true, false],
-        ["Rotation Yield / Area",'rotation_yield_farm', false, false ],
-        ["Rotation Yield Total",'rotation_yield_farm', true, false],
+        ["Rotation Yield / Area",'rotation_yield_farm', false, true ],
+        ["Rotation Yield Total",'rotation_yield_farm', true, true],
         ],
     erosionVar : [
-        ["Soil Erosion / Area  ",'soil_loss_farm', false, false],
+        ["Soil Erosion / Area  ",'soil_loss_farm', false, true],
         ["Soil Erosion Total",'soil_loss_farm', true, false]
     ],
     nutrientsVar : [
-        ["Phosphorus Runoff / Area  " , 'ploss_farm', false, false],
+        ["Phosphorus Runoff / Area  " , 'ploss_farm', false, true],
         ["Phosphorus Runoff Total" , 'ploss_farm', true, false],
 //        ["Nitrogen Leaching",'nitrogen_farm']
 
     ],
     runoffVar : [["Curve Number",'cn_num_farm', false, false] ,
         ["Runoff from 1 in storm","runoff_farm", false, false],
-        ["Runoff from 3 in storm","runoff_farm", false, false],
+        ["Runoff from 3 in storm","runoff_farm", false, true],
         ["Runoff from 5 in storm","runoff_farm", false, false]
      ],
      insectVar: [["Honey Bee Toxicity", 'insecticide_farm', false, false]],
@@ -1188,10 +1206,14 @@ function printSummary(){
     }
 ////    make the summary tab the active tab when done.
 //// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
-    Ext.getCmp("mainTab").setActiveTab(8)
+    Ext.getCmp("mainTab").setActiveTab(9)
 
-
-    var pdf = new jsPDF();
+//
+    var pdf = new jsPDF()
+//    var pdf = new jsPDF({
+//            unit:'px',
+//            format:'a4'
+//        });;
     setTimeout(() => {
         for (chart in chartList){
             canvas = document.getElementById(chartList[chart])
@@ -1199,6 +1221,9 @@ function printSummary(){
             if(canvas == null){
                 continue
             }
+//            if(chartList[chart]) == ""){
+//                continue
+//            }
             var newCanvas = canvas.cloneNode(true);
             var ctx = newCanvas.getContext('2d');
             ctx.fillStyle = "#FFF";
@@ -1206,7 +1231,7 @@ function printSummary(){
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
-            pdf.addPage(imgData)
+            pdf.addPage(imgData,'landscape')
             pdf.addImage(imgData, 'JPEG', 0, 0);
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
