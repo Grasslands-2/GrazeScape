@@ -33,7 +33,8 @@ function getWFSfields() {
 		url: fieldUrl,
 		async: false,
 		dataType: 'json',
-		success:function(response)
+		success:
+		function(response)
 		{
 			responseObj = response
 			fieldObj = response.features
