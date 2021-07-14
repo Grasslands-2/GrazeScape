@@ -43,7 +43,6 @@ class ModelBase:
         self.no_data = -9999
         self.model_parameters = self.parse_model_parameters(request)
         self.raster_inputs = {}
-        print(self.model_parameters)
 
     def parse_model_parameters(self, request):
         # crop, crop cover rotation, densit
@@ -129,8 +128,6 @@ class ModelBase:
         area = float(request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
         parameters['area'] = area
         crop_cover = parameters["crop_cover"]
-        print("Crop cover !!!!!!!!!!!!!!!!!!!!")
-        print(crop_cover)
         if crop_cover.lower() == 'na':
             crop_cover = 'nt'
         nutrient_key = parameters["crop"] + crop_cover + \
@@ -160,8 +157,6 @@ class ModelBase:
         interval_step = (max_value - min_value) / num_cat
         cate_value = min_value
         cat_list = []
-        print(max_value)
-        print(min_value)
         self.color_ramp_hex = [
             "#204484",
             "#3e75b2",
@@ -227,7 +222,6 @@ class ModelBase:
         return min_val, max_val, sum_val/count, sum_val, count
     def sum_count(self, data, no_data_array):
         # todo update this
-        print("length of data", len(data))
         sum_val = [0] * 12
         count = 0
         valid_count = 0
@@ -258,22 +252,15 @@ class ModelBase:
         for y in range(0, rows):
             for x in range(0, cols):
                 color = self.calculate_color(color_ramp, datanm[y][x])
-                # if color is None:
-                #     print(datanm[y][x])
                 three_d[y][x][0] = color[0]
                 three_d[y][x][1] = color[1]
                 three_d[y][x][2] = color[2]
                 three_d[y][x][3] = 255
-                # if no_data_array[y][x] == self.no_data:
                 if no_data_array[y][x] == 1:
-                    #     three_d[y][x][0] = 131
-                    #     three_d[y][x][1] = 8
-                    #     three_d[y][x][2] = 149
                     three_d[y][x][3] = 0
         three_d = three_d.astype(np.uint8)
         im = Image.fromarray(three_d)
         im.convert('RGBA')
-        print("raster image")
         im.save(self.raster_image_file_path)
         return float(mean), float(sum), float(count)
 
