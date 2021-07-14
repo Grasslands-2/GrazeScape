@@ -814,22 +814,22 @@ function compareChartCheckBox(){
         ["Oat Yield Total",'oat_yield_farm', true, false],
         ["Alfalfa Yield / Area",'alfalfa_yield_farm', false, false ],
         ["Alfalfa Yield Total",'alfalfa_yield_farm', true, false],
-        ["Rotation Yield / Area",'rotation_yield_farm', false, true ],
-        ["Rotation Yield Total",'rotation_yield_farm', true, true],
+        ["Rotation Yield / Area",'rotation_yield_farm', false, false ],
+        ["Rotation Yield Total",'rotation_yield_farm', true, false],
         ],
     erosionVar : [
-        ["Soil Erosion / Area  ",'soil_loss_farm', false, true],
+        ["Soil Erosion / Area  ",'soil_loss_farm', false, false],
         ["Soil Erosion Total",'soil_loss_farm', true, false]
     ],
     nutrientsVar : [
-        ["Phosphorus Runoff / Area  " , 'ploss_farm', false, true],
+        ["Phosphorus Runoff / Area  " , 'ploss_farm', false, false],
         ["Phosphorus Runoff Total" , 'ploss_farm', true, false],
 //        ["Nitrogen Leaching",'nitrogen_farm']
 
     ],
     runoffVar : [["Curve Number",'cn_num_farm', false, false] ,
         ["Runoff from 1 in storm","runoff_farm", false, false],
-        ["Runoff from 3 in storm","runoff_farm", false, true],
+        ["Runoff from 3 in storm","runoff_farm", false, false],
         ["Runoff from 5 in storm","runoff_farm", false, false]
      ],
      insectVar: [["Honey Bee Toxicity", 'insecticide_farm', false, false]],
