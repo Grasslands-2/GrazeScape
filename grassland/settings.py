@@ -15,7 +15,7 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
+#GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -27,7 +27,7 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 DEBUG = True
 
 
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_ALLOW_ALL = True
 
 

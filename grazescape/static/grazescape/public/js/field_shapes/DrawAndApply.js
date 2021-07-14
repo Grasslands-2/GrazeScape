@@ -210,8 +210,8 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				},
 				graze_animals: {
 					is_active: false,
-					dairy_lactating: true,
-					dairy_nonlactating: true,
+					dairy_lactating: false,
+					dairy_nonlactating: false,
 					beef: false
 				},
 				/*fertilizer: {
@@ -229,7 +229,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				xtype: 'component',
 				cls: 'section-title light-text text-drp-20',
 				html: 'Field Shapes <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
-				height: 35
+				height: 28
 				},{
 				xtype: 'container',
 				style: 'background-color: #666; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
@@ -245,15 +245,20 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					html: 'Add Field Options',
 				},{
 					xtype: 'field_shapes_apply_field_name'
-				},{
-					xtype: 'field_shapes_apply_graze_animals'
-				},{
+				},
+				// {
+				// 	xtype: 'field_shapes_apply_graze_animals'
+				// },
+				{
 					xtype: 'field_shapes_apply_landcover'
-				},{
-					xtype: 'field_shapes_apply_tillage'
-				},{
-					xtype: 'field_shapes_apply_soil_p'
-				},/*{
+				},
+				// {
+				// 	xtype: 'field_shapes_apply_tillage'
+				// },
+				// {
+				// 	xtype: 'field_shapes_apply_soil_p'
+				// }
+				,/*{
 					xtype: 'field_shapes_apply_fertilizer'
 				}*/
 				{

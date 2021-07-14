@@ -9,6 +9,7 @@ var scenarioUrlNS =
 '?version=2.0.0&'+
 'request=GetFeature&'+
 'typeName=GrazeScape_Vector:scenarios_2&' +
+//'CQL_filter=farm_id='+DSS.activeFarm+'&'+
 'outputformat=application/json&'+
 'srsname=EPSG:3857'
 
@@ -71,7 +72,7 @@ function getWFSScenarioNS() {
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: scenarioUrl,
+		url: scenarioUrlNS,
 		async: false,
 		dataType: 'json',
 		success:function(response)
