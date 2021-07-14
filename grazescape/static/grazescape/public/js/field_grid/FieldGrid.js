@@ -277,9 +277,6 @@ Ext.create('Ext.data.Store', {
 		value: 'sn',
 		display: 'Spring Chisel No Disk'
 	},{ 
-		value: 'smb',
-		display: 'Spring Moldboard Plow'
-	},{ 
 		value: 'fch',
 		display: 'Fall Chisel + Disk'
 	},{ 
@@ -401,7 +398,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt') {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt' || rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
 				}
 				 else {
@@ -446,22 +443,26 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					widget.setStore('tillageList_newPasture')
 				}
 				//widget gets grazing store options
-				else if ((rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') && (rec.get('coverCropVal') == 'gcis' || rec.get('coverCropVal') == 'gcds')) {
+				// else if ((rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt') && (rec.get('coverCropVal') == 'gcis' || rec.get('coverCropVal') == 'gcds')) {
+				// 	widget.setDisabled(false);
+				// 	widget.setStore('tillageList_crop_grazing')
+				// }
+				//widget gets cashcrop options
+				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg') 
+				&& (rec.get('coverCropVal') == 'cc' ||  rec.get('coverCropVal') == 'gcis' ||  rec.get('coverCropVal') == 'gcds')
+				){
 					widget.setDisabled(false);
 					widget.setStore('tillageList_crop_grazing')
-				}
-				//widget gets cashcrop options
-				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg') && rec.get('coverCropVal') == 'cc'){
-					widget.setDisabled(false);
-					widget.setStore('tillageList_cashCrop')
 				}
 				//widget gets grazing options for cash crop rotations
-				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') && (rec.get('coverCropVal') == 'nc' || rec.get('coverCropVal') == 'na' || rec.get('coverCropVal') == null)){
+				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') 
+				&& (rec.get('coverCropVal') == 'nc' ||  rec.get('coverCropVal') == null)){
 					widget.setDisabled(false);
-					widget.setStore('tillageList_crop_grazing')
+					widget.setStore('tillageList_noCoverCrop')
 				}
 				//cash grain tillage options
-				else if((rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') && rec.get('coverCropVal') == 'cc'){
+				else if((rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') 
+				&& (rec.get('coverCropVal') == 'cc' ||  rec.get('coverCropVal') == 'gcis' ||  rec.get('coverCropVal') == 'gcds')){
 					widget.setDisabled(false);
 					widget.setStore('tillageList_cashCrop')
 				}
@@ -482,7 +483,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('tillageVal', value.get('value'));
 						record.set('tillageDisp', value.get('display'));
-						me.getView().refresh();
+						//me.getView().refresh();
 					}
 				}
 			}
@@ -494,7 +495,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor:{}, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
 				}
 				else if(rec.get('onContour') == true){
@@ -525,7 +526,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						record.set('onContour',false)
 					}
 					console.log(record.get('onContour'))
-					me.getView().refresh();
+					//me.getView().refresh();
 				}
 			}
 			}
@@ -552,27 +553,183 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
-		let grazeDairyLactating = {
-			xtype: 'checkcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, 
+		let grazeDairyLactatingColumn = {
+			xtype: 'widgetcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, editor:{},
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
-			
+			onWidgetAttach: function(col,widget,rec) {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
+					widget.setDisabled(true);
+				}
+				else if(rec.get('grazeDairyLactating') == true){
+					widget.setValue(true)
+					widget.setDisabled(false);
+				}
+				else if(rec.get('grazeDairyLactating') == false){
+					widget.setValue(false)
+					widget.setDisabled(false);
+				}
+				else{
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'checkbox',
+				defaultBindProperty: 'grazeDairyLactating',
+				queryMode: 'local',
+				listeners: {
+					change: function(widget,value){
+					console.log("you've changed man graze lac")
+					var record = widget.getWidgetRecord();
+					
+					if (value == true){
+						record.set('grazeDairyLactating',true)
+					}
+					else if(value == false){
+						record.set('grazeDairyLactating',false)
+					}
+					console.log(record.get('grazeDairyLactating'))
+					//me.getView().refresh();
+				}
+			}
+			}
 		};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
-		let grazeDairyNonLactating = {
-			xtype: 'checkcolumn', text: 'Graze Dairy<br>Non-Lactating', dataIndex: 'grazeDairyNonLactating', width: 120, 
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		// let grazeDairyNonLactating = {
+		// 	xtype: 'checkcolumn', text: 'Graze Dairy<br>Non-Lactating', dataIndex: 'grazeDairyNonLactating', width: 120, 
+		// 	hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		// };
+		let grazeDairyNonLactatingColumn = {
+			xtype: 'widgetcolumn', text: 'Graze Dairy<br>Non-Lactating', dataIndex: 'grazeDairyNonLactating', width: 100, editor:{},
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			onWidgetAttach: function(col,widget,rec) {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
+					widget.setDisabled(true);
+				}
+				else if(rec.get('grazeDairyNonLactating') == true){
+					widget.setValue(true)
+					widget.setDisabled(false);
+				}
+				else if(rec.get('grazeDairyNonLactating') == false){
+					widget.setValue(false)
+					widget.setDisabled(false);
+				}
+				else{
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'checkbox',
+				defaultBindProperty: 'grazeDairyNonLactating',
+				queryMode: 'local',
+				listeners: {
+					change: function(widget,value){
+					console.log("you've changed man graze lac")
+					var record = widget.getWidgetRecord();
+					
+					if (value == true){
+						record.set('grazeDairyNonLactating',true)
+					}
+					else if(value == false){
+						record.set('grazeDairyNonLactating',false)
+					}
+					console.log(record.get('grazeDairyNonLactating'))
+					//me.getView().refresh();
+				}
+			}
+			}
 		};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
-		let grazeBeefCattle = {
-			xtype: 'checkcolumn', text: 'Graze<br>Beef Cattle', dataIndex: 'grazeBeefCattle', width: 100, 
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		// let grazeBeefCattle = {
+		// 	xtype: 'checkcolumn', text: 'Graze<br>Beef Cattle', dataIndex: 'grazeBeefCattle', width: 100, 
+		// 	hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		// };
+		let grazeBeefCattleColumn = {
+			xtype: 'widgetcolumn', text: 'Graze<br>Beef Cattle', dataIndex: 'grazeBeefCattle', width: 100, editor:{},
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			onWidgetAttach: function(col,widget,rec) {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
+					widget.setDisabled(true);
+				}
+				else if(rec.get('grazeBeefCattle') == true){
+					widget.setValue(true)
+					widget.setDisabled(false);
+				}
+				else if(rec.get('grazeBeefCattle') == false){
+					widget.setValue(false)
+					widget.setDisabled(false);
+				}
+				else{
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'checkbox',
+				defaultBindProperty: 'grazeBeefCattle',
+				queryMode: 'local',
+				listeners: {
+					change: function(widget,value){
+					console.log("you've changed man graze lac")
+					var record = widget.getWidgetRecord();
+					
+					if (value == true){
+						record.set('grazeBeefCattle',true)
+					}
+					else if(value == false){
+						record.set('grazeBeefCattle',false)
+					}
+					console.log(record.get('grazeBeefCattle'))
+					//me.getView().refresh();
+				}
+			}
+			}
 		};
+		
 		//------------------------------------------------------------------------------
-		let canManurePastures = {
-			xtype: 'checkcolumn', text: 'Confined Manure<br>to Pastures', dataIndex: 'manurePastures', width: 125, 
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		// let canManurePastures = {
+		// 	xtype: 'checkcolumn', text: 'Confined Manure<br>to Pastures', dataIndex: 'manurePastures', width: 125, 
+		// 	hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		// };
+		let manurePasturesColumn = {
+			xtype: 'widgetcolumn', text: 'Confined Manure<br>to Pastures', dataIndex: 'manurePastures', width: 100, editor:{},
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			onWidgetAttach: function(col,widget,rec) {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
+					widget.setDisabled(true);
+				}
+				else if(rec.get('manurePastures') == true){
+					widget.setValue(true)
+					widget.setDisabled(false);
+				}
+				else if(rec.get('manurePastures') == false){
+					widget.setValue(false)
+					widget.setDisabled(false);
+				}
+				else{
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'checkbox',
+				defaultBindProperty: 'manurePastures',
+				queryMode: 'local',
+				listeners: {
+					change: function(widget,value){
+					console.log("you've changed man graze lac")
+					var record = widget.getWidgetRecord();
+					
+					if (value == true){
+						record.set('manurePastures',true)
+					}
+					else if(value == false){
+						record.set('manurePastures',false)
+					}
+					console.log(record.get('manurePastures'))
+					//me.getView().refresh();
+				}
+			}
+			}
 		};
 		//------------------------------------------------------------------------------
 		//------------------------------------------------------------------------------
@@ -607,9 +764,49 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		};
 		//------------------------------------------------------------------------------
 		//turn on only for pasture and new pasture crop rotation
+		// let interseededCloverColumn = {
+		// 	xtype: 'checkcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 125, 
+		// 	hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		// };
 		let interseededCloverColumn = {
-			xtype: 'checkcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 125, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			xtype: 'widgetcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 100, editor:{},
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			onWidgetAttach: function(col,widget,rec) {
+				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
+					widget.setDisabled(true);
+				}
+				else if(rec.get('interseededClover') == true){
+					widget.setValue(true)
+					widget.setDisabled(false);
+				}
+				else if(rec.get('interseededClover') == false){
+					widget.setValue(false)
+					widget.setDisabled(false);
+				}
+				else{
+					widget.setDisabled(false);
+				}
+			},
+			widget: {
+				xtype: 'checkbox',
+				defaultBindProperty: 'interseededClover',
+				queryMode: 'local',
+				listeners: {
+					change: function(widget,value){
+					console.log("you've changed man graze lac")
+					var record = widget.getWidgetRecord();
+					
+					if (value == true){
+						record.set('interseededClover',true)
+					}
+					else if(value == false){
+						record.set('interseededClover',false)
+					}
+					console.log(record.get('interseededClover'))
+					//me.getView().refresh();
+				}
+			}
+			}
 		};
 		//------------------------------------------------------------------------------
 		let grazeDensityColumn = {
@@ -619,7 +816,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 
-				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt' || rec.get('rotationVal') == 'dl') {
+				if (rec.get('rotationVal') == 'pt-cn') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
@@ -647,12 +844,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}, text: 'Area(acre)', dataIndex: 'area', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
-        // let perimeter_Column = {
-		// 	xtype: 'numbercolumn', format: '0.00',editor: {
-		// 		xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-		// 	}, text: 'Perimeter', dataIndex: 'perimeter', width: 80,
-		// 	hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-		// };
 		
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
@@ -667,12 +858,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				onContourColumn,
 				fertPerc_Column,
 				manuPerc_Column,
-				grazeDairyLactating,
-				grazeDairyNonLactating,
-				grazeBeefCattle,
+				grazeDairyLactatingColumn,
+				grazeDairyNonLactatingColumn,
+				grazeBeefCattleColumn,
 				grassSpeciesColumn,
 				interseededCloverColumn,
-				canManurePastures,
+				//manurePasturesColumn,
 				grazeDensityColumn,
 				area_Column,
 				//perimeter_Column
