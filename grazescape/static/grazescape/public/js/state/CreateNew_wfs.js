@@ -178,9 +178,12 @@ function wfs_farm_insert(feat,geomType,fType) {
 			console.log("Current active Scenario!: " + DSS.activeScenario);
 			//DSS.ApplicationFlow.instance.showManageOperationPage();
 			//commented out to go straight to scneario page using showscenariopage
+			//DSS.layer.farms_1.getSource().refresh();
+			//DSS.layer.scenarios.getSource().refresh();
+			DSS.MapState.showNewFarm();
+			DSS.MapState.showFieldsForFarm();
+			DSS.MapState.showInfrasForFarm();
 			DSS.ApplicationFlow.instance.showScenarioPage();
-			DSS.layer.farms_1.getSource().refresh();
-			DSS.layer.scenarios.getSource().refresh();
 			//reSourcescenarios()
 			
 		},

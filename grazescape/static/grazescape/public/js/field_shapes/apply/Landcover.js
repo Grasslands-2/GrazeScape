@@ -30,18 +30,19 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 					xtype: 'component',
 					x: 0, y: -6,
 					width: '100%',
-					height: 28,
+					height: 50,
 					cls: 'information accent-text bold',
 					html: "Set Crop / Landcover",
 				},
 					getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
 				]
 			},{
+				//FIX ME TO SHOW ALL FIELD TYPES!!!!!
 				xtype: 'radiogroup',
 				itemId: 'contents',
 				style: 'padding: 0px; margin: 0px', // fixme: eh...
 				hideEmptyLabel: true,
-				columns: 1, 
+				columns: 2, 
 				vertical: true,
 				viewModel: {
 					formulas: {
