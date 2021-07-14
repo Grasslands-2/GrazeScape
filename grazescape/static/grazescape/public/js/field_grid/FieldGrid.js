@@ -42,7 +42,8 @@ function getWFSfields() {
 			console.log(fieldObj[0]);
 			popFieldsArray(fieldObj);
 			//console.log("PopFieldsArray should have fired if you are reading this")
-			//placed data store in call function to make sure it was locally available.	
+			//placed data store in call function to make sure it was locally available.
+			console.log("creating store")
 			Ext.create('Ext.data.Store', {
 				storeId: 'fieldStore1',
 				alternateClassName: 'DSS.FieldStore',
@@ -94,6 +95,7 @@ function popFieldsArray(obj) {
         fence_cost: obj[i].properties.fence_cost,
         fence_unit_cost:obj[i].properties.fence_unit_cost
 	});
+	console.log("DOne with popping fields")
 }
 
 //empty array to catch feature objects 
@@ -110,6 +112,7 @@ function gatherTableData() {
 	'srsname=EPSG:3857';
 	//--------------------------------------------
 	getWFSfields();
+	console.log(fieldUrl)
 	console.log("gatherTableData ran");
 	console.log(fieldArray);
 };
@@ -319,7 +322,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	alternateClassName: 'DSS.FieldGrid',
 	singleton: true,	
 	autoDestroy: false,
-	
+	id: "fieldTable",
 	hidden: true,
 	
 	height: 0,
