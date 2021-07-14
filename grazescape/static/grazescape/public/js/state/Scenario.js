@@ -552,7 +552,7 @@ Ext.define('DSS.state.Scenario', {
                                 scens:[],
                             }
                             scenariosStore = Ext.create('Ext.data.Store', {
-                                fields: ['name'],
+                                fields: ['name','dbID'],
                                 data : []
                             });
                             demResultsLayers =[]
