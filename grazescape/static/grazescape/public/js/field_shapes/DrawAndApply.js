@@ -245,15 +245,20 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					html: 'Add Field Options',
 				},{
 					xtype: 'field_shapes_apply_field_name'
-				},{
-					xtype: 'field_shapes_apply_graze_animals'
-				},{
+				},
+				// {
+				// 	xtype: 'field_shapes_apply_graze_animals'
+				// },
+				{
 					xtype: 'field_shapes_apply_landcover'
-				},{
-					xtype: 'field_shapes_apply_tillage'
-				},{
-					xtype: 'field_shapes_apply_soil_p'
-				},/*{
+				},
+				// {
+				// 	xtype: 'field_shapes_apply_tillage'
+				// },
+				// {
+				// 	xtype: 'field_shapes_apply_soil_p'
+				// }
+				,/*{
 					xtype: 'field_shapes_apply_fertilizer'
 				}*/
 				{

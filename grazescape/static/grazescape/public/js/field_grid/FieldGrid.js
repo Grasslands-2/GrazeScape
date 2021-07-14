@@ -449,11 +449,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				// }
 				//widget gets cashcrop options
 				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg') 
+				&& (rec.get('coverCropVal') == 'cc')
+				){
+					widget.setDisabled(false);
+					widget.setStore('tillageList_cashCrop')
+				}
+				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg') 
 				&& (rec.get('coverCropVal') == 'cc' ||  rec.get('coverCropVal') == 'gcis' ||  rec.get('coverCropVal') == 'gcds')
 				){
 					widget.setDisabled(false);
 					widget.setStore('tillageList_crop_grazing')
 				}
+				
 				//widget gets grazing options for cash crop rotations
 				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') 
 				&& (rec.get('coverCropVal') == 'nc' ||  rec.get('coverCropVal') == null)){
@@ -464,7 +471,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				else if((rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') 
 				&& (rec.get('coverCropVal') == 'cc' ||  rec.get('coverCropVal') == 'gcis' ||  rec.get('coverCropVal') == 'gcds')){
 					widget.setDisabled(false);
-					widget.setStore('tillageList_cashCrop')
+					widget.setStore('tillageList_crop_grazing')
 				}
 				else {
 					widget.setDisabled(false);
@@ -772,7 +779,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			xtype: 'widgetcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 100, editor:{},
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
 			onWidgetAttach: function(col,widget,rec) {
-				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
+				if (rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
 					widget.setDisabled(true);
 				}
 				else if(rec.get('interseededClover') == true){
@@ -816,7 +823,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 
-				if (rec.get('rotationVal') == 'pt-cn') {
+				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(false);
 				} else {
 					widget.setDisabled(true);
