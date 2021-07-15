@@ -176,14 +176,16 @@ function wfs_farm_insert(feat,geomType,fType) {
 			DSS.farmName = feat.values_.farm_name;
 			console.log("Current active farm!: " + DSS.activeFarm);
 			console.log("Current active Scenario!: " + DSS.activeScenario);
+			DSS.ApplicationFlow.instance.showScenarioPage();
 			//DSS.ApplicationFlow.instance.showManageOperationPage();
 			//commented out to go straight to scneario page using showscenariopage
-			//DSS.layer.farms_1.getSource().refresh();
-			//DSS.layer.scenarios.getSource().refresh();
+			//gatherScenarioTableData()
+			DSS.layer.farms_1.getSource().refresh();
+			DSS.layer.scenarios.getSource().refresh();
 			DSS.MapState.showNewFarm();
 			DSS.MapState.showFieldsForFarm();
 			DSS.MapState.showInfrasForFarm();
-			DSS.ApplicationFlow.instance.showScenarioPage();
+			
 			//reSourcescenarios()
 			
 		},

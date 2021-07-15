@@ -288,7 +288,7 @@ function wfs_scenario_insert(feat,geomType,fType) {
 			scenarioArrayNS = [];
 			//The commented out functions might be resourcing fields to the new scenario before it has fields
 			DSS.layer.farms_1.getSource().refresh();
-			DSS.layer.scenarios.getSource().refresh();
+			//DSS.layer.scenarios.getSource().refresh();
 			DSS.MapState.removeMapInteractions()
 			//getHighestFarmId();
 			scenarioArrayNS = []
@@ -327,6 +327,8 @@ function createNewScenario(sname,sdescript,snewhighID){
 	console.log('scenarioArrayNS at start of createnewscenario: ');
 	console.log(scenarioArrayNS)
 	console.log('current active scenario #: '+ DSS.activeScenario);
+	//reSourcescenarios()
+	//DSS.layer.scenarios.getSource().refresh();
 	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
@@ -334,7 +336,7 @@ function createNewScenario(sname,sdescript,snewhighID){
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
-		console.log("from scenario features loop through: " + newScenarioFeature);
+		console.log("from scenario features loop through: " + newScenarioFeature.values_.scenario_id);
 		if(newScenarioFeature.values_.scenario_id == DSS.activeScenario){
 			for (i in scenarioArrayNS){
 				console.log("scenarioArrayNS scenario_id: " + scenarioArrayNS[i].scenarioId);
