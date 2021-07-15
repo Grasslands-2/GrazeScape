@@ -94,7 +94,6 @@ def get_model_results(request):
         # convert area from sq meters to acres
         area = float(
             request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
-        counter = 0
         for result in results:
             if result.model_type == "insect":
                 sum = result.data[0]
@@ -105,9 +104,6 @@ def get_model_results(request):
             else:
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
-                # if model_type == 'ploss' and counter == 0:
-                #     pass
-            counter = counter + 1
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
@@ -137,6 +133,8 @@ def get_model_results(request):
             else:
                 update_field(field_id, scenario_id, farm_id, data, True)
             return_data.append(data)
+        print("Returning the following data from the view!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(return_data)
         return JsonResponse(return_data, safe=False)
     except KeyError:
         error = "Invalid parameters for field " + f_name
