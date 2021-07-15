@@ -329,7 +329,7 @@ function createNewScenario(sname,sdescript,snewhighID){
 	console.log('current active scenario #: '+ DSS.activeScenario);
 	//reSourcescenarios()
 	//DSS.layer.scenarios.getSource().refresh();
-	DSS.layer.scenarios.getSource().forEachFeature(function(f) {
+	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
 		console.log(newScenarioFeature.values_.scenario_id)
