@@ -96,6 +96,14 @@ function deleteOperation(feat,featLayer){
 		}).done();
 	}
 }
+function resetArraysDO(){
+	farmArrayDO=[];
+	scenArrayDO = [];
+	fieldArrayDO = [];
+	infraArrayDO = [];
+	farmIDToDelete = 0;
+	console.log("DO reset arrays complete!!!!!!!!")
+}
 
 async function deleteOpFeatures(){
 	DSS.layer.scenarios.getSource().forEachFeature(function(s) {
@@ -121,6 +129,7 @@ async function deleteOpFeatures(){
 	await deleteOperation(scenArrayDO,'scenarios_2');
 	await deleteOperation(infraArrayDO,'infrastructure_2');
 	await deleteOperation(fieldArrayDO,'field_2');
+	await resetArraysDO()
 };
 
 //------------------------------------------------------------------------------

@@ -48,7 +48,7 @@ function reSourcescenarios() {
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	//'CQL_filter=farm_id='+DSS.activeFarm+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857'
 	);
@@ -108,6 +108,7 @@ Ext.define('DSS.state.Manage', {
 									reSourceFields()
 									reSourceinfra()
 									reSourcefarms()
+									//reSourcescenarios()
 									DSS.ApplicationFlow.instance.showLandingPage();
 									//DSS.layer.fields_1.getSource().refresh();
 									DSS.MapState.showAllFields();
@@ -116,7 +117,6 @@ Ext.define('DSS.state.Manage', {
 									DSS.viewModel.scenario = {}
 									DSS.dialogs = {}
 									console.log("back to square 1")
-									DSS.map.removeLayer(DSS.layer.scenarios);
 									DSS.activeScenario = null;
 									DSS.activeFarm = null;
 									console.log(DSS.activeFarm)
