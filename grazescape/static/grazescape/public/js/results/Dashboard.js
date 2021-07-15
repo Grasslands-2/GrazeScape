@@ -161,7 +161,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 bio_pb.hidden = false
                 runoff_pb.hidden = false
                 yield_pb.hidden = false
-                nut_pb.hidden = false
+//                nut_pb.hidden = false
                 Ext.getCmp("erosionFarmConvert").setDisabled(true)
                 Ext.getCmp("erosionFieldConvert").setDisabled(true)
                 Ext.getCmp("yieldFarmConvert").setDisabled(true)
@@ -256,8 +256,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         nut_pb.hidden = true
                                         Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
                                         Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-                                Ext.getCmp("nutTab").setDisabled(false)
-
+//                                        Ext.getCmp("nutTab").setDisabled(false)
                                     }
 
                                     ero_pb.value = ero_pb.value + 1
