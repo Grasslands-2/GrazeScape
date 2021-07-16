@@ -323,8 +323,13 @@ class Runoff(ModelBase):
         if self.model_parameters["contour"] == 1:
             cn_adj = self.get_cn_ad(crop + "_" + cover + "" + tillage)
         for index, ffCN1 in enumerate(pred):
+            try:
+                ffCN1 = ffCN1[0] + cn_adj[hydrp_letter[index][0]]
+            except KeyError:
+                print("Invalid key: ", hydrp_letter[index][0])
+                print(cn_adj)
+                raise
 
-            ffCN1 = ffCN1[0] + cn_adj[hydrp_letter[index]]
             CNMC3 = min(ffCN1 * math.exp(0.00673 * (100 - ffCN1)), 99)
             if slope[index] > 0.05:
                 CNfinal = min((CNMC3 - ffCN1) / 3 * (
