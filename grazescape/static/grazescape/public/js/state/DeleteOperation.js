@@ -68,6 +68,7 @@ function deleteOperation(feat,featLayer){
 			data: str,
 			success: function (data) {
 				console.log("data deleted successfully!: "+ data);
+				cleanDB()
 				DSS.layer.farms_1.getSource().refresh();
 				DSS.layer.fields_1.getSource().refresh();
 				DSS.layer.infrastructure.getSource().refresh();
