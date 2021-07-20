@@ -141,8 +141,7 @@ class ModelBase:
             parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
             parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
         except KeyError:
-            print("Invalid key: ", nutrient_key)
-            raise
+            raise KeyError("Invalid key: ", nutrient_key)
 
         return parameters
 

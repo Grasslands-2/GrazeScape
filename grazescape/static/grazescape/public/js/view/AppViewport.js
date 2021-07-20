@@ -81,7 +81,16 @@ Ext.define('DSS.view.AppViewport', {
 				listeners: {
 					afterrender: function(self) {
 					 console.log("after render")
-
+                    $.ajax({
+                        jsonp: false,
+                        type: 'GET',
+                        'url' : '/grazescape/clean_data',
+                        async: false,
+                        dataType: 'json',
+                        success:function(response){
+                            console.log("data cleaned")
+                        }
+                    })
 					 me.DSS_WorkContainer = self; }
 				}
 			},{

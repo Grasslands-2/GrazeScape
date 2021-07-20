@@ -33,10 +33,10 @@ class RasterData:
         """
         # self.data_layer = data_layer
         self.extents = extents
-        # self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
-        #                      "request=GetCoverage&CoverageId="
-        self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
+        self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
+        # self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
+        #                      "request=GetCoverage&CoverageId="
 
         self.file_name = str(uuid.uuid4())
         self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs',self.file_name)
@@ -67,7 +67,8 @@ class RasterData:
             "ls": "InputRasters:LS_10m",
             "corn": "InputRasters:TC_Corn_10m",
             "soy": "InputRasters:TC_Soy_10m",
-            "hydgrp":"TC_hydgrp_10m"
+            "hydgrp":"TC_hydgrp_10m",
+            # "fake":"faks"
             # "wheat": "InputRasters:TC_Wheat_10m"
         }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
@@ -87,7 +88,7 @@ class RasterData:
         for layer in self.layer_dic:
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             r = requests.get(url)
-
+            print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
             with open(raster_file_path, "wb") as f:
                 f.write(r.content)
@@ -96,26 +97,7 @@ class RasterData:
         """
         delet anything older than a day
         """
-        input_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
-                     'raster_inputs')
-        output_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
-                     'raster_outputs')
-        now = time.time()
-        #
-        for f in os.listdir(input_path):
-            try:
-                f = os.path.join(input_path, f)
-                if os.stat(f).st_mtime < now - 86400:
-                    shutil.rmtree(f)
-            except OSError as e:
-                print("Error: %s : %s" % (f, e.strerror))
-        for f in os.listdir(output_path):
-            try:
-                f = os.path.join(output_path, f)
-                if os.stat(f).st_mtime < now - 86400:
-                    os.remove(os.path.join(output_path, f))
-            except OSError as e:
-                print("Error: %s : %s" % (f, e.strerror))
+
     def create_clip(self, field_geom_array):
         """
         Create a shapefile to clip the raster with
@@ -151,11 +133,12 @@ class RasterData:
             if '.tif' in file:
                 data_name = file.split(".")[0]
                 image = gdal.Open(os.path.join(self.dir_path, file))
-                band = image.GetRasterBand(1)
+                # band = image.GetRasterBand(1)
                 # arr1 = np.asarray(band.ReadAsArray())
 
                 # set all output rasters to have float 32 data type
                 # this allows for the use of -9999 as no data value
+                print("clipping raster ", data_name)
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, file + "_clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                     cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
@@ -197,5 +180,5 @@ class RasterData:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
-                raise Exception("Raster dimensions do not match")
+                raise ValueError("Raster dimensions do not match")
         self.bounds["y"], self.bounds["x"] = raster_shape
