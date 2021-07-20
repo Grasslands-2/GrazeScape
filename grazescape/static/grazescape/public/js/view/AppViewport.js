@@ -80,18 +80,9 @@ Ext.define('DSS.view.AppViewport', {
 				}],
 				listeners: {
 					afterrender: function(self) {
-					 console.log("after render")
-                    $.ajax({
-                        jsonp: false,
-                        type: 'GET',
-                        'url' : '/grazescape/clean_data',
-                        async: false,
-                        dataType: 'json',
-                        success:function(response){
-                            console.log("data cleaned")
-                        }
-                    })
-					 me.DSS_WorkContainer = self; }
+					    console.log("after render")
+                        cleanDB()
+					    me.DSS_WorkContainer = self; }
 				}
 			},{
 				xtype: 'container',
@@ -190,3 +181,15 @@ Ext.define('DSS.view.AppViewport', {
 	},
 	
 });
+// clean out any orphaned fields, scenarios, and model results
+function cleanDB(){
+     $.ajax({
+        jsonp: false,
+        type: 'GET',
+        'url' : '/grazescape/clean_data',
+        dataType: 'json',
+        success:function(response){
+            console.log("data cleaned")
+        }
+    })
+}

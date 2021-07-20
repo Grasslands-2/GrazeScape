@@ -52,7 +52,7 @@ class RasterData:
         self.no_data = -9999
         self.layer_dic = {
             "elevation": "InputRasters:TC_DEM",
-            "slope_data": "InputRasters:TC_Slope",
+            "slope_data": "InputRasters:TC_slope_10m",
             "sand": "InputRasters:TC_sand_10m",
             "silt": "InputRasters:TC_silt_10m",
             "clay": "InputRasters:TC_clay_10m",
@@ -165,20 +165,24 @@ class RasterData:
             for x in range(0, self.bounds["x"]):
                 for val in raster_data_dic:
                     # the hydgrp has a no data value and a NA value mapped to 6
-                    if val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
+                    raster_val = raster_data_dic[val][y][x]
+                    # slope max 65
+                    if val == "slope_data" and (raster_val == 0 or raster_val == self.no_data):
+                        raster_data_dic[val][y][x] = 0.5
+                    elif val == "slope_data" and raster_val > 65:
+                        raster_data_dic[val][y][x] = 65
+                    elif val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
                         self.no_data_aray[y][x] = 1
                         break
-                    if raster_data_dic[val][y][x] == self.no_data:
+                    elif raster_data_dic[val][y][x] == self.no_data:
                         self.no_data_aray[y][x] = 1
                         break
-
 
     def check_raster_data(self, raster_dic):
-        # raster_shape = raster_dic[next(raster_dic_it)].shape
-
         raster_dic_key_list = [*raster_dic.keys()]
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
-                raise ValueError("Raster dimensions do not match")
+                raise ValueError(raster +
+                                 " dimensions do not match other rasters")
         self.bounds["y"], self.bounds["x"] = raster_shape

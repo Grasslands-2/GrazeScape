@@ -1060,6 +1060,7 @@ function retrieveFieldsGeoserver(){
     console.log("getting wfs fields")
     let fieldList = []
     let fieldIdList = []
+    let scenIdList = []
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
@@ -1073,8 +1074,10 @@ function retrieveFieldsGeoserver(){
                 let field = responses.features[response].properties.field_name
                 console.log(field)
                 let fieldID = responses.features[response].properties.gid
+                let scenID = responses.features[response].properties.scenario_id
                 fieldList.push(field)
                 fieldIdList.push(fieldID)
+                scenIdList.push(scenID)
                 console.log(fieldList)
             }
 
@@ -1082,8 +1085,8 @@ function retrieveFieldsGeoserver(){
 	})
     console.log(fieldList)
     console.log(fieldIdList)
-    console.log(fieldList)
-    return {fieldList, fieldIdList}
+    console.log(scenIdList)
+    return {fieldList, fieldIdList,scenIdList}
 }
 function retrieveFarmGeoserver(){
 // DSS.activeScenario = 40
@@ -1161,6 +1164,7 @@ function retrieveAllFieldsFarmGeoserver(){
 	})
     return field_dic
 }
+// get all the data for each field in active farm
 function retrieveAllFieldsDataGeoserver(){
 // DSS.activeScenario = 40
 //    DSS.activeFarm = 1
@@ -1464,8 +1468,8 @@ class ChartDatasetContainer{
                     '#009988', '#BBBBBB'
             ]
         this.colorLength = chartColors.length
-        this.getFields()
         this.getScenarios()
+        this.getFields()
         this.allFields = retrieveAllFieldsFarmGeoserver
         this.setCheckBoxes()
 
@@ -1505,8 +1509,13 @@ class ChartDatasetContainer{
     }
     getFields(){
         let counter = 0
-        let {fieldList, fieldIdList} = retrieveFieldsGeoserver()
+//        let fieldList = null
+//        let fieldIdList = null
+//        let scenarioList = null
+        let {fieldList, fieldIdList, scenIdList} = retrieveFieldsGeoserver()
         console.log(fieldList)
+        console.log(fieldIdList)
+        console.log(scenIdList)
         // get every field associated with active scenario
 //        probably replace this with sql query
 //        layer.getSource().forEachFeature(function(f) {
@@ -1517,7 +1526,7 @@ class ChartDatasetContainer{
 //        fieldList.sort()
 //        let fieldList = ['1', '2']
         for (let scen in fieldList){
-            this.addSet(fieldList[scen],'field',fieldIdList[scen])
+            this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen])
 
         }
         return fieldList

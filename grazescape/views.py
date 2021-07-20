@@ -136,7 +136,9 @@ def get_model_results(request):
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
-
+            # erosion and ploss should not be less than zero
+            if model_type == 'ploss' and sum < 0:
+                sum = 0
             data = {
                 "extent": [*bounds],
                 "palette": palette,
@@ -172,6 +174,8 @@ def get_model_results(request):
     except TypeError as e:
         print("type error")
         error = str(e) + " while running models for field " + f_name
+    except FileNotFoundError as e:
+        error = str(e)
 
     except Exception as e:
         error = str(e) + " while running models for field " + f_name

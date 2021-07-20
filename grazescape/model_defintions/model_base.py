@@ -8,6 +8,7 @@ import json
 import uuid
 import grazescape.model_defintions.utilities as ut
 import pickle
+from pyper import R
 
 
 class ModelBase:
@@ -35,6 +36,11 @@ class ModelBase:
 
         self.r_file_path = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
         # self.r_file_path = "/opt/conda/envs/gscape/bin/R"
+        try:
+            r = R(RCMD=self.r_file_path, use_pandas=True)
+        except FileNotFoundError as e:
+            raise FileNotFoundError("R file path is incorrect")
+
         self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
                                             'data_files', 'input_models',
                                             'tidyModels')
@@ -152,9 +158,6 @@ class ModelBase:
     def run_model(self):
         pass
 
-
-
-
     def create_color_ramp(self, min_value, max_value, num_cat=9):
         interval_step = (max_value - min_value) / num_cat
         cate_value = min_value
@@ -222,6 +225,7 @@ class ModelBase:
                     count = count + 1
         print("The cell count is ", count)
         return min_val, max_val, sum_val/count, sum_val, count
+
     def sum_count(self, data, no_data_array):
         # todo update this
         sum_val = [0] * 12

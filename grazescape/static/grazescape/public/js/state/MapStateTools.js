@@ -342,6 +342,7 @@ Ext.define('DSS.state.MapStateTools', {
 
 				if (g && g.getType() === "Point") {
 					//if (DSS.activeFarm == null){
+					    cleanDB()
 						DSS.activeFarm = f.get("id");
 						DSS.farmName = f.get("farm_name")
 						//DSS.activeScenario = f.get("scenario");
