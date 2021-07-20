@@ -1,4 +1,6 @@
 modelResult = {}
+var modelError = false
+var modelErrorMessages = []
 function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
@@ -168,6 +170,7 @@ function build_model_request(f, modelChoice, activeScenario){
         }
 
     }
+    console.log(model_pack)
     return model_pack
 }
 function format_chart_data(model_data){
@@ -354,7 +357,11 @@ function get_model_data(data){
                 if(obj.error || response == null){
                     console.log("model did not run")
                     console.log(obj.error)
-                    alert(obj.error);
+                    if(!modelError){
+                        alert(obj.error);
+                        modelErrorMessages.push(obj.error)
+                        modelError = true
+                    }
                     continue
                 }
                 let e = obj.extent;

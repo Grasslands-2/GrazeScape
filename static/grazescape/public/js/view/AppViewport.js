@@ -80,10 +80,11 @@ Ext.define('DSS.view.AppViewport', {
 				}],
 				listeners: {
 					afterrender: function(self) {
-					 console.log("after render")
+//					 console.log("after render")
+                    console.log('hello world!!!!!!!!!!!!!')
+					 me.DSS_WorkContainer = self;
 
-					 me.DSS_WorkContainer = self; }
-				}
+                }
 			},{
 				xtype: 'container',
 				region: 'west',
