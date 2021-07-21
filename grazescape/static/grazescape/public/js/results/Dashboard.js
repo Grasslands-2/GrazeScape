@@ -256,7 +256,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         nut_pb.hidden = true
                                         Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
                                         Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-//                                        Ext.getCmp("nutTab").setDisabled(false)
+                                        Ext.getCmp("nutTab").setDisabled(false)
                                     }
 
                                     ero_pb.value = ero_pb.value + 1

@@ -1,4 +1,6 @@
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
+var modelTypes = [
+    'yield', 'ploss','runoff', 
+    'bio']
 //var modelTypes = ['yield']
 //var modelTypes = ['bio']
 //list of all the current and future charts
@@ -256,7 +258,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         nut_pb.hidden = true
                                         Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
                                         Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-                                Ext.getCmp("nutTab").setDisabled(false)
+                                        Ext.getCmp("nutTab").setDisabled(false)
 
                                     }
 
