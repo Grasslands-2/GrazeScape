@@ -1,5 +1,5 @@
-//var modelTypes = ['yield', 'ploss','runoff', 'bio']
-var modelTypes = ['ploss']
+var modelTypes = ['yield', 'ploss','runoff', 'bio']
+//var modelTypes = ['ploss']
 //var modelTypes = ['bio','runoff']
 //list of all the current and future charts
 var chartList = [
@@ -324,106 +324,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
         }
 
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2500,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Grass",
-                "f_name": "This is field 1",
-                "scen":"Base",
-                "counted_cells": 10,
-                "sum_cells": 5000,
-                "area":4
-            }
-//            format_chart_data(data)
-             data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2500,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Corn Grain",
-                "f_name": "This is field 2",
-                "scen":"Other",
-                "counted_cells": 10,
-                "sum_cells": 8000,
-                "area":10
-            }
-//            format_chart_data(data)
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2700,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Grass",
-                "units_alternate":"test1",
-                "f_name": "This is field 1",
-                "scen":"Other",
-                "counted_cells": 10,
-                "sum_cells": 5000,
-                 "area":10
-            }
-//            format_chart_data(data)
-
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2900,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Grass",
-                "f_name": "This is field 1",
-                "scen":"Base",
-                "counted_cells": 10,
-                "sum_cells": 7000,
-                "area":10
-            }
-//            format_chart_data(data)
-
-
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 50000,
-                "units": "",
-                "model_type": "runoff",
-                "value_type": "Runoff",
-                "f_name": "field 1",
-                "scen":"Scenario 2",
-                "counted_cells": 10,
-                "sum_cells": [1,2,3,4,5,6,7,8,9,10,11,12],
-                "area":10
-            }
-//            format_chart_data(data)
-             data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 50000,
-                "units": "",
-                "model_type": "runoff",
-                "value_type": "Runoff",
-                "f_name": "field 2",
-                "scen":"Scenario 2",
-                "counted_cells": 10,
-                "sum_cells": [1,2,3,4,5,6,7,8,9,10,11,12],
-                "area":10
-            }
-//            format_chart_data(data)
 //      put new tabs here
 //TODO update
         var infrastructure = {
