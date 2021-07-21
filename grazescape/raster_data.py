@@ -33,7 +33,7 @@ class RasterData:
         """
         # self.data_layer = data_layer
         self.extents = extents
-        # self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
+        #self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
         #                      "request=GetCoverage&CoverageId="
         self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
@@ -185,4 +185,5 @@ class RasterData:
             if raster_shape != raster_dic[raster].shape:
                 raise ValueError(raster +
                                  " dimensions do not match other rasters")
+
         self.bounds["y"], self.bounds["x"] = raster_shape
