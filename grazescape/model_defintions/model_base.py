@@ -8,6 +8,7 @@ import json
 import uuid
 import grazescape.model_defintions.utilities as ut
 import pickle
+from pyper import R
 
 
 class ModelBase:
@@ -35,6 +36,11 @@ class ModelBase:
 
         # self.r_file_path = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
         self.r_file_path = "/opt/conda/envs/gscape/bin/R"
+        try:
+            r = R(RCMD=self.r_file_path, use_pandas=True)
+        except FileNotFoundError as e:
+            raise FileNotFoundError("R file path is incorrect")
+
         self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
                                             'data_files', 'input_models',
                                             'tidyModels')
@@ -141,8 +147,7 @@ class ModelBase:
             parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
             parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
         except KeyError:
-            print("Invalid key: ", nutrient_key)
-            raise
+            raise KeyError("Invalid key: ", nutrient_key)
 
         return parameters
 
@@ -152,9 +157,6 @@ class ModelBase:
     @abstractmethod
     def run_model(self):
         pass
-
-
-
 
     def create_color_ramp(self, min_value, max_value, num_cat=9):
         interval_step = (max_value - min_value) / num_cat
@@ -221,8 +223,9 @@ class ModelBase:
                         min_val = data[y][x]
                     sum_val = sum_val + data[y][x]
                     count = count + 1
-
+        print("The cell count is ", count)
         return min_val, max_val, sum_val/count, sum_val, count
+
     def sum_count(self, data, no_data_array):
         # todo update this
         sum_val = [0] * 12
@@ -234,8 +237,8 @@ class ModelBase:
                 if no_data_array[y][x] != 1:
                     for i in range(0, len(sum_val)):
                         sum_val[i] = sum_val[i] + data[count][i]
-                valid_count = valid_count + 1
-                count = count + 1
+                    valid_count = valid_count + 1
+                    count = count + 1
         sum_val = [float(round(elem, 2)) for elem in sum_val]
         return sum_val, valid_count
 

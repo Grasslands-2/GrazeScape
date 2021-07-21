@@ -1,4 +1,6 @@
 modelResult = {}
+var modelError = false
+var modelErrorMessages = []
 function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
@@ -168,6 +170,7 @@ function build_model_request(f, modelChoice, activeScenario){
         }
 
     }
+    console.log(model_pack)
     return model_pack
 }
 function format_chart_data(model_data){
@@ -303,28 +306,32 @@ function format_chart_data(model_data){
         chartVal = model_data.sum_cells
         chartCells = model_data.counted_cells
         chartArea = model_data.area
+        chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
+        chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
+        chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
+
+
+        chartTypeFarm.units = model_data.units
+        chartTypeFarm.units_alternate = model_data.units_alternate
+
+        chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
+        chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
+
+
+
+        chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex)]
+        // creating a backup to pull data from
+        chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex)]
+
+        if(chartTypeFarm.chart !== null){
+            chartTypeFarm.chart.update()
+            //    set units on graph directly so it displays
+            chartTypeFarm.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartTypeFarm.units;
+
     }
-    chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
-    chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
-    chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
-    chartTypeFarm.units = model_data.units
-    chartTypeFarm.units_alternate = model_data.units_alternate
-
-    chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
-    chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
-
-
-
-    chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex)]
-    // creating a backup to pull data from
-    chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex)]
-
-    if(chartTypeFarm.chart !== null){
-        chartTypeFarm.chart.update()
-        //    set units on graph directly so it displays
-        chartTypeFarm.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartTypeFarm.units;
 
     }
+
 
 
 
@@ -350,7 +357,11 @@ function get_model_data(data){
                 if(obj.error || response == null){
                     console.log("model did not run")
                     console.log(obj.error)
-                    alert(obj.error);
+                    if(!modelError){
+                        alert(obj.error);
+                        modelErrorMessages.push(obj.error)
+                        modelError = true
+                    }
                     continue
                 }
                 let e = obj.extent;
@@ -993,7 +1004,7 @@ function populateRadarChart(){
 function retrieveScenariosGeoserver(){
 
 //    DSS.activeFarm = 1
-	fieldUrl =
+	let fieldUrl1 =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1009,7 +1020,7 @@ function retrieveScenariosGeoserver(){
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: fieldUrl,
+		url: fieldUrl1,
 		async: false,
 		dataType: 'json',
 		success:function(responses)
@@ -1035,7 +1046,7 @@ function retrieveFieldsGeoserver(){
 //    DSS.activeScenario = 40
 //    DSS.activeFarm = 1
 
-    fieldUrl =
+    let fieldUrl1 =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1047,13 +1058,13 @@ function retrieveFieldsGeoserver(){
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs fields")
-    console.log(fieldUrl)
     let fieldList = []
     let fieldIdList = []
+    let scenIdList = []
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: fieldUrl,
+		url: fieldUrl1,
 		async: false,
 		dataType: 'json',
 		success:function(responses)
@@ -1063,8 +1074,10 @@ function retrieveFieldsGeoserver(){
                 let field = responses.features[response].properties.field_name
                 console.log(field)
                 let fieldID = responses.features[response].properties.gid
+                let scenID = responses.features[response].properties.scenario_id
                 fieldList.push(field)
                 fieldIdList.push(fieldID)
+                scenIdList.push(scenID)
                 console.log(fieldList)
             }
 
@@ -1072,14 +1085,14 @@ function retrieveFieldsGeoserver(){
 	})
     console.log(fieldList)
     console.log(fieldIdList)
-    console.log(fieldList)
-    return {fieldList, fieldIdList}
+    console.log(scenIdList)
+    return {fieldList, fieldIdList,scenIdList}
 }
 function retrieveFarmGeoserver(){
 // DSS.activeScenario = 40
 //    DSS.activeFarm = 1
 
-    fieldUrl =
+    let fieldUrl1 =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1090,13 +1103,12 @@ function retrieveFarmGeoserver(){
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs farm")
-    console.log(fieldUrl)
     let farmName = ''
 
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: fieldUrl,
+		url: fieldUrl1,
 		async: false,
 		dataType: 'json',
 		success:function(responses)
@@ -1115,7 +1127,7 @@ function retrieveAllFieldsFarmGeoserver(){
 // DSS.activeScenario = 40
 //    DSS.activeFarm = 1
 
-    fieldUrl =
+    let fieldUrl1 =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1126,14 +1138,13 @@ function retrieveAllFieldsFarmGeoserver(){
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs farm")
-    console.log(fieldUrl)
     let fieldList = []
     let fieldIdList = []
     let field_dic = {}
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: fieldUrl,
+		url: fieldUrl1,
 		async: false,
 		dataType: 'json',
 		success:function(responses)
@@ -1153,11 +1164,12 @@ function retrieveAllFieldsFarmGeoserver(){
 	})
     return field_dic
 }
+// get all the data for each field in active farm
 function retrieveAllFieldsDataGeoserver(){
 // DSS.activeScenario = 40
 //    DSS.activeFarm = 1
 
-    fieldUrl =
+    let fieldUrl1 =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1168,7 +1180,6 @@ function retrieveAllFieldsDataGeoserver(){
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs farm")
-    console.log(fieldUrl)
     let fieldList = []
     let fieldIdList = []
     let field_dic = {}
@@ -1176,7 +1187,7 @@ function retrieveAllFieldsDataGeoserver(){
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: fieldUrl,
+		url: fieldUrl1,
 		async: false,
 		dataType: 'json',
 		success:function(responses)
@@ -1206,10 +1217,10 @@ function printSummary(){
     }
 ////    make the summary tab the active tab when done.
 //// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
-    Ext.getCmp("mainTab").setActiveTab(9)
+    Ext.getCmp("mainTab").setActiveTab(1)
 
 //
-    var pdf = new jsPDF()
+    var pdf = new jsPDF('l', 'in', 'letter')
 //    var pdf = new jsPDF({
 //            unit:'px',
 //            format:'a4'
@@ -1231,17 +1242,16 @@ function printSummary(){
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
+            pdf.addImage(imgData, 'JPEG', 0, 0,8, 4.4);
             pdf.addPage(imgData,'landscape')
-            pdf.addImage(imgData, 'JPEG', 0, 0);
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
     }, 1000);
-    let type = "csv"
+    let type = "csv";
 //    filename = chartDatasetContainer.farmName + "_model_data.csv"
-,
 //    let file_name = "GrazeScape_Summary.csv"
 
-    fieldUrl =
+    let fieldUrl_results =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1251,14 +1261,13 @@ function printSummary(){
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
-    console.log("getting wfs fields")
-    console.log(fieldUrl)
+    console.log("getting wfs fields");
     let fieldList = []
     let fieldIdList = []
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: fieldUrl,
+		url: fieldUrl_results,
 		async: false,
 		dataType: 'json',
 		success:function(responses){
@@ -1344,7 +1353,7 @@ function printSummary(){
 	})
 
 
-    fieldUrl =
+    let fieldUrl2 =
 	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1357,7 +1366,7 @@ function printSummary(){
     $.ajax({
 		jsonp: false,
 		type: 'GET',
-		url: fieldUrl,
+		url: fieldUrl2,
 		async: false,
 		dataType: 'json',
 		success:function(responses){
@@ -1459,8 +1468,8 @@ class ChartDatasetContainer{
                     '#009988', '#BBBBBB'
             ]
         this.colorLength = chartColors.length
-        this.getFields()
         this.getScenarios()
+        this.getFields()
         this.allFields = retrieveAllFieldsFarmGeoserver
         this.setCheckBoxes()
 
@@ -1500,8 +1509,13 @@ class ChartDatasetContainer{
     }
     getFields(){
         let counter = 0
-        let {fieldList, fieldIdList} = retrieveFieldsGeoserver()
+//        let fieldList = null
+//        let fieldIdList = null
+//        let scenarioList = null
+        let {fieldList, fieldIdList, scenIdList} = retrieveFieldsGeoserver()
         console.log(fieldList)
+        console.log(fieldIdList)
+        console.log(scenIdList)
         // get every field associated with active scenario
 //        probably replace this with sql query
 //        layer.getSource().forEachFeature(function(f) {
@@ -1512,7 +1526,7 @@ class ChartDatasetContainer{
 //        fieldList.sort()
 //        let fieldList = ['1', '2']
         for (let scen in fieldList){
-            this.addSet(fieldList[scen],'field',fieldIdList[scen])
+            this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen])
 
         }
         return fieldList
