@@ -33,10 +33,10 @@ class RasterData:
         """
         # self.data_layer = data_layer
         self.extents = extents
-        self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
-                             "request=GetCoverage&CoverageId="
-        # self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
+        # self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
         #                      "request=GetCoverage&CoverageId="
+        self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
+                             "request=GetCoverage&CoverageId="
 
         self.file_name = str(uuid.uuid4())
         self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs',self.file_name)
@@ -138,7 +138,7 @@ class RasterData:
 
                 # set all output rasters to have float 32 data type
                 # this allows for the use of -9999 as no data value
-                print("clipping raster ", data_name)
+                # print("clipping raster ", data_name)
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, file + "_clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                     cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)

@@ -1217,10 +1217,10 @@ function printSummary(){
     }
 ////    make the summary tab the active tab when done.
 //// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
-    Ext.getCmp("mainTab").setActiveTab(9)
+    Ext.getCmp("mainTab").setActiveTab(1)
 
 //
-    var pdf = new jsPDF()
+    var pdf = new jsPDF('l', 'in', 'letter')
 //    var pdf = new jsPDF({
 //            unit:'px',
 //            format:'a4'
@@ -1242,8 +1242,8 @@ function printSummary(){
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
+            pdf.addImage(imgData, 'JPEG', 0, 0,8, 4.4);
             pdf.addPage(imgData,'landscape')
-            pdf.addImage(imgData, 'JPEG', 0, 0);
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
     }, 1000);
