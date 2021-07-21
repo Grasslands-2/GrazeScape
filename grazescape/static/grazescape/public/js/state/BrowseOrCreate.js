@@ -41,6 +41,8 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					handler: function() {
 						DSS.ApplicationFlow.instance.showNewOperationPage();
 						DSS.MapState.removeMapInteractions();
+						//gethighestFarmIdCNO()
+						//gethighestScenarioIdCNO()
 					}
 				},
 				{
