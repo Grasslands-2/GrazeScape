@@ -3,6 +3,8 @@ import psycopg2
 import configparser
 import os
 from django.conf import settings
+from psycopg2.errors import UniqueViolation
+
 
 def config(filename='database.ini', section='postgresql'):
     # create a parser
@@ -54,6 +56,25 @@ def db_has_field(field_id, scenario_id, farm_id):
 
 
 def update_field(field_id, scenario_id, farm_id, data, insert_field):
+    """
+
+    Parameters
+    ----------
+    field_id : int
+        The primary key of the field
+    scenario_id : int
+        The primary key of the current scenario
+    farm_id : int
+        The primary key of the current farm
+    data : request object
+        The POST request containing the input parameters to the model
+    insert_field : bool
+        True if field should be inserted, otherwise field will be updated
+
+    Returns
+    -------
+
+    """
     cur, conn = get_db_conn()
     sql_request = ""
     sql_where = " WHERE field_id = %s and scenario_id = %s and farm_id = %s"
@@ -163,10 +184,25 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
         sql_values = sql_values[:-1]
         sql_values = sql_values + ""
         sql_request = sql_request + sql_values + sql_where
-    cur.execute(sql_request,values)
+    # https://stackoverflow.com/questions/29186112/postgresql-python-ignore-duplicate-key-exception
+    try:
+
+        cur.execute(sql_request, values)
+    except UniqueViolation as e:
+        print("field already exists in table")
+        update_field(field_id, scenario_id, farm_id, data, False)
+
+    except Exception as e:
+        print(e)
+        print(type(e).__name__)
+
+        error = str(e)
+        print(error)
+        raise
     cur.close()
     conn.commit()
     conn.close()
+
 
 def get_values_db(field_id, scenario_id, farm_id, request):
     cur, conn = get_db_conn()
@@ -270,3 +306,32 @@ def get_values_db(field_id, scenario_id, farm_id, request):
     print(return_data)
     return return_data
 
+
+def clean_db():
+    cur, conn = get_db_conn()
+    # delete scenario if farm doesnt exist
+    cur.execute('DELETE FROM scenarios_2 '
+                'WHERE scenarios_2.farm_id NOT IN (SELECT id FROM farm_2)')
+    conn.commit()
+    # delete field if farm doesn't exist
+    cur.execute('DELETE FROM field_2 '
+                'WHERE field_2.farm_id NOT IN (SELECT id FROM farm_2)')
+    conn.commit()
+    # delete field if parent scenario doesn't exist
+    cur.execute('DELETE FROM field_2 '
+                'WHERE field_2.scenario_id NOT IN (SELECT scenario_id FROM scenarios_2)')
+    conn.commit()
+    # delete model result if field doesnt exist
+    cur.execute('DELETE FROM field_model_results '
+                'WHERE field_model_results.field_id NOT IN (SELECT gid FROM field_2)')
+    conn.commit()
+
+
+    # cur.execute("SELECT field_name, gid "
+    #             "FROM field_2 "
+    #             "WHERE field_2.farm_id in (SELECT id FROM farm_2)")
+    # result = cur.fetchall()
+    # print(result)
+    cur.close()
+    conn.close()
+# clean_db()

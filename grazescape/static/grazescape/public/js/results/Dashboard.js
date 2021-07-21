@@ -1,6 +1,6 @@
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['yield']
-//var modelTypes = ['runoff']
+//var modelTypes = ['ploss']
+//var modelTypes = ['bio','runoff']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -161,7 +161,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 bio_pb.hidden = false
                 runoff_pb.hidden = false
                 yield_pb.hidden = false
-//                nut_pb.hidden = false
+                nut_pb.hidden = false
                 Ext.getCmp("erosionFarmConvert").setDisabled(true)
                 Ext.getCmp("erosionFieldConvert").setDisabled(true)
                 Ext.getCmp("yieldFarmConvert").setDisabled(true)
@@ -195,6 +195,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             console.log("running model")
 //            layer.getSource().forEachFeature(function(f) {
             fieldIter = retrieveAllFieldsDataGeoserver()
+//            get parameters for the active scenario fields from the layer display
+//          if fields arent in the active scenario then use the values from the database
+//          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
+//          while the inactive fields are just retrieving their models results from the db
             for(item in fieldIter){
                 for(layer in layerList){
                     if (layerList[layer].get("gid")== fieldIter[item].gid){
@@ -205,7 +209,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     else{
                         f = fieldIter[item]
                         activeScenario = false
-
                     }
                 }
 
@@ -298,14 +301,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
 //                                Ext.getCmp("nutFieldTab").setDisabled(false)
 //                                Ext.getCmp("insectFieldTab").setDisabled(false)
-//                                Ext.getCmp("mainTab").setDisabled(false)
-
 
                                 if(document.getElementById("modelSpinner") != null){
 
                                   document.getElementById("modelSpinner").style.display = "none";
                                 }
-
                                 delete $.ajaxSetup().headers
 
                             }
@@ -324,106 +324,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
         }
 
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2500,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Grass",
-                "f_name": "This is field 1",
-                "scen":"Base",
-                "counted_cells": 10,
-                "sum_cells": 5000,
-                "area":4
-            }
-//            format_chart_data(data)
-             data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2500,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Corn Grain",
-                "f_name": "This is field 2",
-                "scen":"Other",
-                "counted_cells": 10,
-                "sum_cells": 8000,
-                "area":10
-            }
-//            format_chart_data(data)
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2700,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Grass",
-                "units_alternate":"test1",
-                "f_name": "This is field 1",
-                "scen":"Other",
-                "counted_cells": 10,
-                "sum_cells": 5000,
-                 "area":10
-            }
-//            format_chart_data(data)
-
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 2900,
-                "units": "tons",
-                "model_type": "yield",
-                "value_type": "Grass",
-                "f_name": "This is field 1",
-                "scen":"Base",
-                "counted_cells": 10,
-                "sum_cells": 7000,
-                "area":10
-            }
-//            format_chart_data(data)
-
-
-            data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 50000,
-                "units": "",
-                "model_type": "runoff",
-                "value_type": "Runoff",
-                "f_name": "field 1",
-                "scen":"Scenario 2",
-                "counted_cells": 10,
-                "sum_cells": [1,2,3,4,5,6,7,8,9,10,11,12],
-                "area":10
-            }
-//            format_chart_data(data)
-             data = {
-//                "extent": [*bounds],
-//                "palette": palette,
-//                "url": model.file_name + ".png",
-//                "values": values,
-                "avg": 50000,
-                "units": "",
-                "model_type": "runoff",
-                "value_type": "Runoff",
-                "f_name": "field 2",
-                "scen":"Scenario 2",
-                "counted_cells": 10,
-                "sum_cells": [1,2,3,4,5,6,7,8,9,10,11,12],
-                "area":10
-            }
-//            format_chart_data(data)
 //      put new tabs here
 //TODO update
         var infrastructure = {

@@ -2,7 +2,7 @@ from abc import ABC
 
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 from pyper import *
-
+import numpy as np
 
 class PhosphorousLoss(ModelBase):
     def __init__(self, request, file_name=None):
@@ -330,8 +330,16 @@ class PhosphorousLoss(ModelBase):
                 )
         erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
         pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
-
-        erosion.set_data(r.get("erosion").to_numpy())
-        pl.set_data(r.get("final_pi").to_numpy())
+        ero = r.get("erosion").to_numpy()
+        ploss = r.get("final_pi").to_numpy()
+        # if np.sum(ero) < 0:
+        #     ero = np.array([0])
+        # print(np.sum(ploss))
+        # if np.sum(ploss) < 0:
+        #     for index, value in enumerate(ploss):
+        #         ploss[index] = 0
+        # ploss = np.array([-999999999999990])
+        erosion.set_data(ero)
+        pl.set_data(ploss)
         return [erosion, pl]
 

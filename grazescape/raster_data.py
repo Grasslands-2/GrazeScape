@@ -67,7 +67,8 @@ class RasterData:
             "ls": "InputRasters:LS_10m",
             "corn": "InputRasters:TC_Corn_10m",
             "soy": "InputRasters:TC_Soy_10m",
-            "hydgrp":"TC_hydgrp_10m"
+            "hydgrp":"TC_hydgrp_10m",
+            # "fake":"faks"
             # "wheat": "InputRasters:TC_Wheat_10m"
         }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
@@ -87,7 +88,7 @@ class RasterData:
         for layer in self.layer_dic:
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             r = requests.get(url)
-
+            print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
             with open(raster_file_path, "wb") as f:
                 f.write(r.content)
@@ -96,26 +97,7 @@ class RasterData:
         """
         delet anything older than a day
         """
-        input_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
-                     'raster_inputs')
-        output_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
-                     'raster_outputs')
-        now = time.time()
-        #
-        for f in os.listdir(input_path):
-            try:
-                f = os.path.join(input_path, f)
-                if os.stat(f).st_mtime < now - 86400:
-                    shutil.rmtree(f)
-            except OSError as e:
-                print("Error: %s : %s" % (f, e.strerror))
-        for f in os.listdir(output_path):
-            try:
-                f = os.path.join(output_path, f)
-                if os.stat(f).st_mtime < now - 86400:
-                    os.remove(os.path.join(output_path, f))
-            except OSError as e:
-                print("Error: %s : %s" % (f, e.strerror))
+
     def create_clip(self, field_geom_array):
         """
         Create a shapefile to clip the raster with
@@ -151,11 +133,12 @@ class RasterData:
             if '.tif' in file:
                 data_name = file.split(".")[0]
                 image = gdal.Open(os.path.join(self.dir_path, file))
-                band = image.GetRasterBand(1)
+                # band = image.GetRasterBand(1)
                 # arr1 = np.asarray(band.ReadAsArray())
 
                 # set all output rasters to have float 32 data type
                 # this allows for the use of -9999 as no data value
+                # print("clipping raster ", data_name)
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, file + "_clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                     cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
@@ -182,24 +165,25 @@ class RasterData:
             for x in range(0, self.bounds["x"]):
                 for val in raster_data_dic:
                     # the hydgrp has a no data value and a NA value mapped to 6
-                    if val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
+                    raster_val = raster_data_dic[val][y][x]
+                    # slope max 65
+                    if val == "slope_data" and (raster_val == 0 or raster_val == self.no_data):
+                        raster_data_dic[val][y][x] = 0.5
+                    elif val == "slope_data" and raster_val > 65:
+                        raster_data_dic[val][y][x] = 65
+                    elif val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
                         self.no_data_aray[y][x] = 1
                         break
-                    if raster_data_dic[val][y][x] == self.no_data:
+                    elif raster_data_dic[val][y][x] == self.no_data:
                         self.no_data_aray[y][x] = 1
                         break
-
 
     def check_raster_data(self, raster_dic):
-        # raster_shape = raster_dic[next(raster_dic_it)].shape
-
         raster_dic_key_list = [*raster_dic.keys()]
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
-                print(raster)
-                print("slope raster is", raster_shape)
-                print("comparing raster", raster_dic[raster].shape)
+                raise ValueError(raster +
+                                 " dimensions do not match other rasters")
 
-                raise Exception("Raster dimensions do not match")
         self.bounds["y"], self.bounds["x"] = raster_shape
