@@ -134,6 +134,8 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			graze_dairy_non_lactating: non_lac,
 			tillage: tillageInput,
 			tillage_disp:tillageDisp,
+			cover_crop:'nc',
+			cover_crop_disp:'No Cover',
 			rotational_density:0,
 			area:fieldArea * 0.000247105,
 			//this changes the square meters to acres

@@ -50,7 +50,7 @@ function showNewFarm() {
 	console.log("show new farm ran");
 }
 //bring in farm layer table as object for iteration
-function getWFSFarm() {
+function getWFSFarmCNO() {
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
@@ -60,12 +60,19 @@ function getWFSFarm() {
 		success:function(response)
 		{
 			farmObj = response.features
-			console.log(farmObj[0])
+			console.log(farmObj)
+			popfarmArrayCNO(farmObj);
+			// for (i in farmArrayCNO){
+			// 	if (farmArrayCNO[i].id > highestFarmIdCNO){
+			// 		highestFarmIdCNO = farmArrayCNO[i].id
+			// 		console.log(highestFarmIdCNO);
+			// 	};
+			// };
 		}
 	})
 }
 //bring in farm layer table as object for iteration
-function getWFSScenario() {
+function getWFSScenarioCNO() {
 	return $.ajax({
 		jsonp: false,
 		type: 'GET',
@@ -76,33 +83,58 @@ function getWFSScenario() {
 		{
 			scenarioObj = response.features
 			console.log(scenarioObj)
-			//popScenarioArray(scenarioObj);
+			popscenarioArrayCNO(scenarioObj);
+			// for (i in scenarioArrayCNO){
+			// 	if (scenarioArrayCNO[i].scenarioId > highestScenarioIdCNO){
+			// 		highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
+			// 		console.log(highestScenarioIdCNO);
+			// 	};
+			// };
 		}
 	})
 }
 //empty array to catch feature objects 
-farmArray = [];
-scenarioArray = [];
-// call getWFSFarm to get farm table object
-//getWFSFarm()
+farmArrayCNO = [];
+scenarioArrayCNO = [];
+// call getWFSFarmCNO to get farm table object
+//getWFSFarmCNO()
 //define function to populate data array with farm table data
-function popFarmArray(obj) {
-	for (i in obj) 
-	farmArray.push({
-		id: obj[i].properties.id,
-		gid: obj[i].properties.gid,
-		name: obj[i].properties.farm_name
-	});
+function popfarmArrayCNO(obj) {
+	console.log('running popfarmArrayCNO')
+	for (i in obj) {
+		console.log(obj[i].properties.id)
+		farmArrayCNO.push({
+			id: obj[i].properties.id,
+			gid: obj[i].properties.gid,
+			name: obj[i].properties.farm_name
+		})
+	};
+	for (i in farmArrayCNO){
+		if (farmArrayCNO[i].id > highestFarmIdCNO){
+			highestFarmIdCNO = farmArrayCNO[i].id
+			console.log(highestFarmIdCNO);
+		};
+	};
+	console.log('popfarmArrayCNO Completed')
 }
-function popScenarioArray(obj) {
-	for (i in obj) 
-	scenarioArray.push({
-		id: obj[i].id,
-		gid: obj[i].properties.gid,
-		name: obj[i].properties.farm_name,
-		scenarioId:obj[i].properties.scenario_id
-
-	});
+function popscenarioArrayCNO(obj) {
+	console.log('running popscenarioArrayCNO')
+	for (i in obj){ 
+		console.log(obj[i].properties.scenario_id)
+		scenarioArrayCNO.push({
+			id: obj[i].id,
+			gid: obj[i].properties.gid,
+			name: obj[i].properties.farm_name,
+			scenarioId:obj[i].properties.scenario_id
+		})
+	};
+	for (i in scenarioArrayCNO){
+		if (scenarioArrayCNO[i].scenarioId > highestScenarioIdCNO){
+			highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
+			console.log(highestScenarioIdCNO);
+		};
+	};
+	console.log('popscenarioArrayCNO Completed')
 }
 //populate data array with farm object data from each farm
 //popArray(farmObj);
@@ -112,24 +144,26 @@ highestScenarioIdCNO = 0;
 //loops through data array gids to find largest value and hold on to it with highestFarmIdCNO
 
 function gethighestFarmIdCNO(){
-	getWFSFarm()
-	popFarmArray(farmObj);
-	for (i in farmArray){
-		if (farmArray[i].id > highestFarmIdCNO){
-			highestFarmIdCNO = farmArray[i].id
-			console.log(highestFarmIdCNO);
-		};
-	};
+	console.log('running gethighestFarmIDCNO')
+	getWFSFarmCNO()
+	//popfarmArrayCNO(farmObj);
+	// for (i in farmArrayCNO){
+	// 	if (farmArrayCNO[i].id > highestFarmIdCNO){
+	// 		highestFarmIdCNO = farmArrayCNO[i].id
+	// 		console.log(highestFarmIdCNO);
+	// 	};
+	// };
 }
 function gethighestScenarioIdCNO(){
-	getWFSScenario()
-	popScenarioArray(scenarioObj);
-	for (i in scenarioArray){
-		if (scenarioArray[i].scenarioId > highestScenarioIdCNO){
-			highestScenarioIdCNO = scenarioArray[i].scenarioId
-			console.log(highestScenarioIdCNO);
-		};
-	};
+	console.log('running gethighestScenarioIDCNO')
+	getWFSScenarioCNO()
+	//popscenarioArrayCNO(scenarioObj);
+	// for (i in scenarioArrayCNO){
+	// 	if (scenarioArrayCNO[i].scenarioId > highestScenarioIdCNO){
+	// 		highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
+	// 		console.log(highestScenarioIdCNO);
+	// 	};
+	// };
 }
 gethighestFarmIdCNO()
 gethighestScenarioIdCNO()
@@ -137,7 +171,7 @@ DSS.activeFarm = highestFarmIdCNO;
 DSS.activeScenario = highestScenarioIdCNO;
 //highestFarmIdCNO = 0
 console.log(highestFarmIdCNO);
-//console.log(highestScenarioIdCNO);
+console.log(highestScenarioIdCNO);
 
 
 //---------------------------------Working Functions-------------------------------
@@ -212,6 +246,8 @@ function wfs_farm_insert(feat,geomType,fType) {
     }).done();
 }
 function createFarm(fname,fowner,faddress,sname,sdescript){
+	//gethighestFarmIdCNO();
+	//gethighestScenarioIdCNO();
 	let me = this;
 	DSS.MapState.removeMapInteractions()
 	DSS.mapClickFunction = undefined;
@@ -225,6 +261,8 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 	console.log("draw is on");
 	console.log(DSS.draw);
 	DSS.draw.on('drawend', function (e) {
+		//gethighestFarmIdCNO();
+		//gethighestScenarioIdCNO();
 		console.log(e)
 		//DSS.map.getView().fit(e);
 		e.feature.setProperties({
