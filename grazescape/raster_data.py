@@ -33,7 +33,7 @@ class RasterData:
         """
         # self.data_layer = data_layer
         self.extents = extents
-        # self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
+        #self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
         #                      "request=GetCoverage&CoverageId="
         self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
@@ -52,7 +52,7 @@ class RasterData:
         self.no_data = -9999
         self.layer_dic = {
             "elevation": "InputRasters:TC_DEM",
-            "slope_data": "InputRasters:TC_Slope",
+            "slope_data": "InputRasters:TC_slope_10m",
             "sand": "InputRasters:TC_sand_10m",
             "silt": "InputRasters:TC_silt_10m",
             "clay": "InputRasters:TC_clay_10m",
@@ -197,5 +197,9 @@ class RasterData:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
+                print(raster)
+                print("slope raster is", raster_shape)
+                print("comparing raster", raster_dic[raster].shape)
+
                 raise Exception("Raster dimensions do not match")
         self.bounds["y"], self.bounds["x"] = raster_shape
