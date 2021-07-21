@@ -1,4 +1,6 @@
 modelResult = {}
+var modelError = false
+var modelErrorMessages = []
 function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
@@ -168,6 +170,7 @@ function build_model_request(f, modelChoice, activeScenario){
         }
 
     }
+    console.log(model_pack)
     return model_pack
 }
 function format_chart_data(model_data){
@@ -354,7 +357,11 @@ function get_model_data(data){
                 if(obj.error || response == null){
                     console.log("model did not run")
                     console.log(obj.error)
-                    alert(obj.error);
+                    if(!modelError){
+                        alert(obj.error);
+                        modelErrorMessages.push(obj.error)
+                        modelError = true
+                    }
                     continue
                 }
                 let e = obj.extent;
@@ -1053,6 +1060,7 @@ function retrieveFieldsGeoserver(){
     console.log("getting wfs fields")
     let fieldList = []
     let fieldIdList = []
+    let scenIdList = []
 	$.ajax({
 		jsonp: false,
 		type: 'GET',
@@ -1066,8 +1074,10 @@ function retrieveFieldsGeoserver(){
                 let field = responses.features[response].properties.field_name
                 console.log(field)
                 let fieldID = responses.features[response].properties.gid
+                let scenID = responses.features[response].properties.scenario_id
                 fieldList.push(field)
                 fieldIdList.push(fieldID)
+                scenIdList.push(scenID)
                 console.log(fieldList)
             }
 
@@ -1075,8 +1085,8 @@ function retrieveFieldsGeoserver(){
 	})
     console.log(fieldList)
     console.log(fieldIdList)
-    console.log(fieldList)
-    return {fieldList, fieldIdList}
+    console.log(scenIdList)
+    return {fieldList, fieldIdList,scenIdList}
 }
 function retrieveFarmGeoserver(){
 // DSS.activeScenario = 40
@@ -1154,6 +1164,7 @@ function retrieveAllFieldsFarmGeoserver(){
 	})
     return field_dic
 }
+// get all the data for each field in active farm
 function retrieveAllFieldsDataGeoserver(){
 // DSS.activeScenario = 40
 //    DSS.activeFarm = 1
@@ -1206,10 +1217,10 @@ function printSummary(){
     }
 ////    make the summary tab the active tab when done.
 //// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
-    Ext.getCmp("mainTab").setActiveTab(9)
+    Ext.getCmp("mainTab").setActiveTab(1)
 
 //
-    var pdf = new jsPDF()
+    var pdf = new jsPDF('l', 'in', 'letter')
 //    var pdf = new jsPDF({
 //            unit:'px',
 //            format:'a4'
@@ -1231,8 +1242,8 @@ function printSummary(){
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
+            pdf.addImage(imgData, 'JPEG', 0, 0,8, 4.4);
             pdf.addPage(imgData,'landscape')
-            pdf.addImage(imgData, 'JPEG', 0, 0);
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
     }, 1000);
@@ -1457,8 +1468,8 @@ class ChartDatasetContainer{
                     '#009988', '#BBBBBB'
             ]
         this.colorLength = chartColors.length
-        this.getFields()
         this.getScenarios()
+        this.getFields()
         this.allFields = retrieveAllFieldsFarmGeoserver
         this.setCheckBoxes()
 
@@ -1498,8 +1509,13 @@ class ChartDatasetContainer{
     }
     getFields(){
         let counter = 0
-        let {fieldList, fieldIdList} = retrieveFieldsGeoserver()
+//        let fieldList = null
+//        let fieldIdList = null
+//        let scenarioList = null
+        let {fieldList, fieldIdList, scenIdList} = retrieveFieldsGeoserver()
         console.log(fieldList)
+        console.log(fieldIdList)
+        console.log(scenIdList)
         // get every field associated with active scenario
 //        probably replace this with sql query
 //        layer.getSource().forEachFeature(function(f) {
@@ -1510,7 +1526,7 @@ class ChartDatasetContainer{
 //        fieldList.sort()
 //        let fieldList = ['1', '2']
         for (let scen in fieldList){
-            this.addSet(fieldList[scen],'field',fieldIdList[scen])
+            this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen])
 
         }
         return fieldList

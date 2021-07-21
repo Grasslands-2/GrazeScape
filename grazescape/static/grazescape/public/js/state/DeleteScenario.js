@@ -29,6 +29,7 @@ function wfsDeleteItem(featsArray,layerString){
 		data: str,
 		success: function (data) {
 			console.log("data deleted successfully!: ");
+			cleanDB()
 			console.log(data)
 			//DSS.layer.farms_1.getSource().refresh();
 			getWFSScenarioSP(DSS.activeFarm)
