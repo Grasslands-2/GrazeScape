@@ -411,26 +411,28 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Edit Scenario Attributes'
-				},{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Animals',
-					handler: function(self) {
+				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'Animals',
+				// 	handler: function(self) {
 						
-						//if (!DSS.dialogs) DSS.dialogs = {};
-						//if (!DSS.dialogs.AnimalDialog) 
-						{
-							DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
-							DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
-						}
-						AppEvents.triggerEvent('hide_field_grid')
-						AppEvents.triggerEvent('hide_infra_grid')
-						AppEvents.triggerEvent('hide_field_shape_mode');
-						AppEvents.triggerEvent('hide_infra_line_mode');
-						DSS.dialogs.AnimalDialog.show().center().setY(0);
-					}
-				},{
+				// 		//if (!DSS.dialogs) DSS.dialogs = {};
+				// 		//if (!DSS.dialogs.AnimalDialog) 
+				// 		{
+				// 			DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
+				// 			DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
+				// 		}
+				// 		AppEvents.triggerEvent('hide_field_grid')
+				// 		AppEvents.triggerEvent('hide_infra_grid')
+				// 		AppEvents.triggerEvent('hide_field_shape_mode');
+				// 		AppEvents.triggerEvent('hide_infra_line_mode');
+				// 		DSS.dialogs.AnimalDialog.show().center().setY(0);
+				// 	}
+				// },
+				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',

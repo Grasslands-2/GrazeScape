@@ -336,7 +336,7 @@ function createNewScenario(sname,sdescript,snewhighID){
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
-		console.log("from scenario features loop through: " + newScenarioFeature.values_.scenario_id);
+		//console.log("from scenario features loop through: " + newScenarioFeature.values_.scenario_id);
 		if(newScenarioFeature.values_.scenario_id == DSS.activeScenario){
 			for (i in scenarioArrayNS){
 				console.log("scenarioArrayNS scenario_id: " + scenarioArrayNS[i].scenarioId);
