@@ -513,7 +513,7 @@ Ext.define('DSS.state.Scenario', {
 					id: "btnRunModels",
 					text: 'Run Models',
 					handler: function(self) {
-						console.log("compute hi")
+						cleanDB()
 						//DSS.DrawFieldShapes.addModeControl()
 						console.log()
 						if (DSS['viewModel'].scenario.data != null){
@@ -529,7 +529,6 @@ Ext.define('DSS.state.Scenario', {
 //                            Ext.getCmp("btnRunModels").setDisabled(true)
                             let dash = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,
-
                                 runModel:true,
                                 // any other option you like...
                             });
@@ -541,10 +540,10 @@ Ext.define('DSS.state.Scenario', {
 //                            close model to destroy it to rerun models
                             console.log("destroy dashboard")
                             chartObj = {}
+//                            reset global vars
                             //controls order of how datasets are displayed and with what colors
                             chartDatasetContainer = {}
                             //https://personal.sron.nl/~pault/
-
                             checkBoxScen = []
                             checkBoxField = []
                             hiddenData = {

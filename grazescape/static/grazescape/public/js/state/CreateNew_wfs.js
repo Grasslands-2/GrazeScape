@@ -76,7 +76,7 @@ function getWFSScenario() {
 		{
 			scenarioObj = response.features
 			console.log(scenarioObj)
-			popScenarioArray(scenarioObj);
+			//popScenarioArray(scenarioObj);
 		}
 	})
 }
@@ -123,7 +123,7 @@ function gethighestFarmIdCNO(){
 }
 function gethighestScenarioIdCNO(){
 	getWFSScenario()
-	//popScenarioArray(scenarioObj);
+	popScenarioArray(scenarioObj);
 	for (i in scenarioArray){
 		if (scenarioArray[i].scenarioId > highestScenarioIdCNO){
 			highestScenarioIdCNO = scenarioArray[i].scenarioId
@@ -165,7 +165,8 @@ function wfs_farm_insert(feat,geomType,fType) {
         contentType: 'text/xml',
         data: str,
 		success: function (response) {
-			console.log("uploaded data successfully!: "+ response[0]);
+			console.log("uploaded data successfully!: ");
+			console.log(response)
 			// DSS.layer.farms_1.getSource().refresh();
 			// DSS.layer.scenarios.getSource().refresh();
 			DSS.MapState.removeMapInteractions()
@@ -176,14 +177,16 @@ function wfs_farm_insert(feat,geomType,fType) {
 			DSS.farmName = feat.values_.farm_name;
 			console.log("Current active farm!: " + DSS.activeFarm);
 			console.log("Current active Scenario!: " + DSS.activeScenario);
+			DSS.ApplicationFlow.instance.showScenarioPage();
 			//DSS.ApplicationFlow.instance.showManageOperationPage();
 			//commented out to go straight to scneario page using showscenariopage
-			//DSS.layer.farms_1.getSource().refresh();
-			//DSS.layer.scenarios.getSource().refresh();
+			//gatherScenarioTableData()
+			DSS.layer.farms_1.getSource().refresh();
+			DSS.layer.scenarios.getSource().refresh();
 			DSS.MapState.showNewFarm();
 			DSS.MapState.showFieldsForFarm();
 			DSS.MapState.showInfrasForFarm();
-			DSS.ApplicationFlow.instance.showScenarioPage();
+			
 			//reSourcescenarios()
 			
 		},

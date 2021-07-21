@@ -18,7 +18,37 @@ from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.db_connect import *
 import sys
+import time
+import sys
+import shutil
+
 raster_data = None
+
+
+def clean_data(request):
+    print("cleaning data")
+    input_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
+                              'raster_inputs')
+    output_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
+                               'raster_outputs')
+    now = time.time()
+    #
+    for f in os.listdir(input_path):
+        try:
+            f = os.path.join(input_path, f)
+            if os.stat(f).st_mtime < now - 3600:
+                shutil.rmtree(f)
+        except OSError as e:
+            print("Error: %s : %s" % (f, e.strerror))
+    for f in os.listdir(output_path):
+        try:
+            f = os.path.join(output_path, f)
+            if os.stat(f).st_mtime < now - 3600:
+                os.remove(os.path.join(output_path, f))
+        except OSError as e:
+            print("Error: %s : %s" % (f, e.strerror))
+    clean_db()
+    return JsonResponse({"clean":"finished"})
 def index(request):
     context = {
 
@@ -31,6 +61,9 @@ def get_model_results(request):
     field_id = request.POST.getlist("field_id")[0]
     scenario_id = request.POST.getlist("scenario_id")[0]
     farm_id = request.POST.getlist("farm_id")[0]
+    model_type = request.POST.get('model_parameters[model_type]')
+    f_name = request.POST.get('model_parameters[f_name]')
+    scen = request.POST.get('model_parameters[scen]')
 
     if request.POST.getlist("isActiveScen")[0] == 'false':
         print("not active scenario")
@@ -42,15 +75,11 @@ def get_model_results(request):
     for input in request.POST:
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
-    geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"))
-    geo_data.load_layers()
-    geo_data.create_clip(field_coors)
-    clipped_rasters, bounds = geo_data.clip_raster()
-
-    model_type = request.POST.get('model_parameters[model_type]')
-    f_name = request.POST.get('model_parameters[f_name]')
-    scen = request.POST.get('model_parameters[scen]')
     try:
+        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"))
+        geo_data.load_layers()
+        geo_data.create_clip(field_coors)
+        clipped_rasters, bounds = geo_data.clip_raster()
         if model_type == 'yield':
             crop_ro = request.POST.getlist("model_parameters[crop]")[0]
             if crop_ro == 'pt' or crop_ro == 'ps':
@@ -94,7 +123,6 @@ def get_model_results(request):
         # convert area from sq meters to acres
         area = float(
             request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
-        counter = 0
         for result in results:
             if result.model_type == "insect":
                 sum = result.data[0]
@@ -105,13 +133,12 @@ def get_model_results(request):
             else:
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
-                # if model_type == 'ploss' and counter == 0:
-                #     pass
-            counter = counter + 1
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
-
+            # erosion and ploss should not be less than zero
+            if model_type == 'ploss' and sum < 0:
+                sum = 0
             data = {
                 "extent": [*bounds],
                 "palette": palette,
@@ -137,12 +164,22 @@ def get_model_results(request):
             else:
                 update_field(field_id, scenario_id, farm_id, data, True)
             return_data.append(data)
+        print("Returning the following data from the view!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(return_data)
         return JsonResponse(return_data, safe=False)
     except KeyError:
         error = "Invalid parameters for field " + f_name
+    except ValueError as e:
+        error = str(e) + " while running models for field " + f_name
+    except TypeError as e:
+        print("type error")
+        error = str(e) + " while running models for field " + f_name
+    except FileNotFoundError as e:
+        error = str(e)
 
     except Exception as e:
         error = str(e) + " while running models for field " + f_name
+        print(type(e).__name__)
         # error = "Unexpected error:", sys.exc_info()[0]
         # error = "Unexpected error"
     print(error)
