@@ -167,8 +167,8 @@ def get_model_results(request):
         print("Returning the following data from the view!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(return_data)
         return JsonResponse(return_data, safe=False)
-    except KeyError:
-        error = "Invalid parameters for field " + f_name
+    except KeyError as e:
+        error = str(e) + " while running models for field " + f_name
     except ValueError as e:
         error = str(e) + " while running models for field " + f_name
     except TypeError as e:
