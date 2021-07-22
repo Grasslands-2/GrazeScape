@@ -51,8 +51,8 @@ class CropYield(ModelBase):
             raise Exception("Invalid crop rotation selected")
 
         rotation_avg = OutputDataNode("Rotational Average",
-                                      "Yield (lb-Dry Matter/ac/year)",
-                                      "Yield (lb-Dry Matter/year)")
+                                      "Yield (tons-Dry Matter/ac/year)",
+                                      "Yield (tons-Dry Matter/year)")
         return_data.append(rotation_avg)
         for y in range(0, self.bounds["y"]):
             for x in range(0, self.bounds["x"]):
@@ -63,7 +63,7 @@ class CropYield(ModelBase):
                 # cont corn
                 if crop_ro == "cc":
                     corn_yield = corn_yield_raw
-                    corn_yield_kgDMha = corn_yield * 56 * (1 - 0.155)
+                    corn_yield_kgDMha = corn_yield * 56 * (1 - 0.155) / 2000
                     rotation_avg_kgDMha = corn_yield_kgDMha
 
                     corn.set_data(corn_yield)
@@ -73,10 +73,10 @@ class CropYield(ModelBase):
                 elif crop_ro == "cg":
                     corn_yield = corn_yield_raw
                     corn_yield_kgDMha = corn_yield * 56 * (
-                            1 - 0.155)
+                            1 - 0.155) / 2000
 
                     soy_yield = soy_yield_raw
-                    soy_yield_kgDMha = soy_yield * 60 ** 0.792 * 0.9008
+                    soy_yield_kgDMha = soy_yield * 60 * 0.792 * 0.9008 / 2000
 
                     rotation_avg_kgDMha = 0.5 * corn_yield_kgDMha + 0.5 * soy_yield_kgDMha
 
@@ -90,13 +90,13 @@ class CropYield(ModelBase):
                 elif crop_ro == "dr":
                     silage_yield = 3.73E-4 * math.pow(corn_yield_raw,
                                                       2) + 3.95E-2 * corn_yield_raw + 6.0036
-                    silage_yield_kgDMha = silage_yield * 2000 ** (1 - 0.65)
+                    silage_yield_kgDMha = silage_yield * 2000 * (1 - 0.65) / 2000
 
                     corn_yield = corn_yield_raw
                     corn_yield_kgDMha = corn_yield * 56 * (
-                            1 - 0.155)
+                            1 - 0.155) / 2000
                     alfalfa_yield = corn_yield_raw * 0.0195
-                    alfalfa_yield_kgDMha = alfalfa_yield * 2000 ** (1 - 0.13)
+                    alfalfa_yield_kgDMha = alfalfa_yield * 2000 * (1 - 0.13) / 2000
 
                     rotation_avg_kgDMha = 1 / 5 * silage_yield_kgDMha + 1 / 5 * corn_yield_kgDMha + 3 / 5 * alfalfa_yield_kgDMha
 
@@ -114,13 +114,13 @@ class CropYield(ModelBase):
                     silage_yield = 3.73E-4 * math.pow(corn_yield_raw,
                                                       2) + 3.95E-2 * corn_yield_raw + 6.0036
                     silage_yield_kgDMha = silage_yield * 2000 * (
-                            1 - 0.65)
+                            1 - 0.65) /2000
 
                     soy_yield = soy_yield_raw
-                    soy_yield_kgDMha = soy_yield * 60 * 0.792 * 0.9008
+                    soy_yield_kgDMha = soy_yield * 60 * 0.792 * 0.9008 / 2000
 
                     oat_yield = corn_yield_raw * 0.42
-                    oat_yield_kgDMha = oat_yield * 32 ** (1 - 0.14)
+                    oat_yield_kgDMha = oat_yield * 32 * (1 - 0.14) / 2000
 
                     rotation_avg_kgDMha = 1 / 3 * silage_yield_kgDMha + 1 / 3 * soy_yield_kgDMha + 1 / 3 * oat_yield_kgDMha
 

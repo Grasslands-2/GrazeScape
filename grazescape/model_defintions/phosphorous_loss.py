@@ -84,7 +84,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("pt_pi_file", os.path.join(self.model_file_path,"PasturePI.rds"))
         r.assign("dl_pi_file", os.path.join(self.model_file_path,"DryLot_tidyPI.rds"))
 
-        r(f"""
+        print(r(f"""
         #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
         #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
         #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
@@ -327,7 +327,7 @@ class PhosphorousLoss(ModelBase):
         }}
 
           """
-                )
+                ))
         erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
         pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
         ero = r.get("erosion").to_numpy()

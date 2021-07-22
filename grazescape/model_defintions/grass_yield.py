@@ -75,10 +75,10 @@ class GrassYield(ModelBase):
         print("$$$$$$$$$$$$$$$")
         pred = pred * float(self.model_parameters["graze_factor"])
         grass_yield = OutputDataNode("Grass", "Yield (tons/acre/year)", 'Yield (tons/year')
-        rotation_avg = OutputDataNode("Rotational Average", "Yield (lb-Dry Matter/ac/year)", "Yield (lb-Dry Matter/year)")
+        rotation_avg = OutputDataNode("Rotational Average", "Yield (tons-Dry Matter/ac/year)", "Yield (tons-Dry Matter/year)")
         grass_yield.set_data(pred)
         # convert from tons to lbss
         # rotation_avg.set_data(pred * 2000 * float(self.model_parameters["graze_factor"]))
-        rotation_avg.set_data(pred * 2000)
+        rotation_avg.set_data(pred)
         # Remove the three dummy references9
         return [grass_yield,rotation_avg]
