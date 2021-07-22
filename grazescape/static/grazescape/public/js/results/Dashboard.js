@@ -22,8 +22,13 @@ var chartList = [
     'rotation_yield_farm' , 'rotation_yield_field',
     'insecticide_farm', 'insecticide_field']
 var chartColors = [
-            '#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311',
-                '#009988', '#BBBBBB'
+            {trans:'rgba(238, 119, 51,.2)', opa:'rgb(238, 119, 51)'},
+             {trans:'rgba(0, 119, 187,.2)',opa:'rgb(0, 119, 187)'},
+             {trans:'rgba(51, 187, 238,.2)',opa:'rgb(51, 187, 238)'},
+             {trans:'rgba(238, 51, 119,.2)',opa:'rgb(238, 51, 119)'},
+             {trans:'rgba(204, 51, 17,.2)',opa:'rgb(204, 51, 17)'},
+             {trans:'rgba(0, 153, 136,.2)',opa:'rgb(0, 153, 136)'},
+             {trans:'rgba(187, 187, 187,.2)',opa:'rgb(187, 187, 187)'}
         ]
 // stores references to each chart object. Stores ChartNodes which store the actual chart object and stores the data for each chart
 var chartObj = {}
@@ -118,7 +123,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 //        ero is included in pl
         if (this.runModel) {
-
             chartDatasetContainer = new ChartDatasetContainer()
             scenList = chartDatasetContainer.getScenarioList()
             fieldList = chartDatasetContainer.getFieldList()
@@ -613,6 +617,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     {
 
                         xtype: 'container',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="rotation_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
                     {
                         xtype: 'container',
@@ -632,10 +639,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },{
                         xtype: 'container',
                         html: '<div id="container"><canvas  id="alfalfa_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="rotation_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    }],
+                    },
+                    ],
                     scope: this,
                     listeners:{activate: function() {
                         console.log("activated farm")
@@ -691,6 +696,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'container',
                     },{
                         xtype: 'container',
+                        html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },{
+                        xtype: 'container',
                         html: '<div id="container" ><canvas id="grass_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
                         xtype: 'container',
@@ -707,10 +715,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },{
                         xtype: 'container',
                         html: '<div id="container"><canvas  id="alfalfa_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    }],
+                    },
+                    ],
                     listeners:{activate: function() {
                         console.log("activated field")
                         if (chartObj["grass_yield_field"].chart !== null){

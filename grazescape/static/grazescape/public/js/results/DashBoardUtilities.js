@@ -6,9 +6,7 @@ function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 //    list of every chart currently in app
 
     for (chart in chartList){
-
         chartName = chartList[chart]
-
         if(chartName.includes('field')){
             node = new ChartData()
             node.chartData =  {
@@ -24,7 +22,8 @@ function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
                     // each data entry represents a scenario
                     data: [],
                     hidden:false,
-                    backgroundColor:  chartColors[field % chartDatasetContainer.colorLength],
+                    backgroundColor:  allField[field].color.opa,
+//                    backgroundColor:  chartColors[field % chartDatasetContainer.colorLength].opa,
                     minBarLength: 7
                 }
                 node.chartData.datasets[field] = data1
@@ -60,8 +59,10 @@ function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 
                     // each data entry represents a scenario
                     data: [],
-                    backgroundColor:  chartColors[scen % chartDatasetContainer.colorLength],
-                    borderColor: chartColors[scen % chartDatasetContainer.colorLength],
+                    backgroundColor:  allScen[scen].color.opa,
+//                    backgroundColor:  chartColors[scen % chartDatasetContainer.colorLength].opa,
+                    borderColor: allScen[scen].color.opa,
+//                    borderColor: chartColors[scen % chartDatasetContainer.colorLength].opa,
                     minBarLength: 7
                 }
                 node.chartData.datasets[scen] = data1
@@ -622,7 +623,6 @@ function create_graph_radar(chart,title,element){
                     }
                     else{
                         dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
-
                     }
                     hideData(event.path[0].id, name,dbID)
 
@@ -902,6 +902,7 @@ function populateRadarChart(){
 
     if(checkBoxArr.length > 9){
         console.log("too many boxes")
+        alert("Please only select 8 variable to display")
         return
     }
 //    for (let i = 0; i < checkBoxArr.length; i++ ){
@@ -948,6 +949,7 @@ function populateRadarChart(){
         for (let data in scen_data){
 
             console.log("$$$$$$$$$$$")
+            console.log(scen_data[data])
 //            console.log(data)
 //            console.log(scen_data[data])
 //            console.log(scen_data[data].data[0])
@@ -993,6 +995,12 @@ function populateRadarChart(){
 //    let checkInfrastructur = Ext.getCmp('checkInfrastructur').getChecked()
 //    console.log(baseScen, scenIndex,checkBoxCounter )
     //    check each checkbox group for checked boxes (max 8)
+    let datasets = chartObj.compare_farm.chartData.datasets
+    console.log(datasets)
+    for (data in datasets){
+        datasets[data].backgroundColor = chartDatasetContainer.getColorScen(scen_data[data].dbID).trans
+
+    }
      if(chartObj.compare_farm.chart !== null){
         chartObj.compare_farm.chart.options.title.text = chartObj.compare_farm.title
         chartObj.compare_farm.chart.update()
@@ -1463,11 +1471,11 @@ class ChartDatasetContainer{
 //        this.fieldsDBID = []
 //        this.scenDBID = []
         this.colorIndex = 0
-        this.chartColors = [
-                '#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311',
-                    '#009988', '#BBBBBB'
-            ]
-        this.colorLength = chartColors.length
+//        this.chartColors = [
+//                '#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311',
+//                    '#009988', '#BBBBBB'
+//            ]
+//        this.colorLength = 7
         this.getScenarios()
         this.getFields()
         this.allFields = retrieveAllFieldsFarmGeoserver
@@ -1513,21 +1521,9 @@ class ChartDatasetContainer{
 //        let fieldIdList = null
 //        let scenarioList = null
         let {fieldList, fieldIdList, scenIdList} = retrieveFieldsGeoserver()
-        console.log(fieldList)
-        console.log(fieldIdList)
-        console.log(scenIdList)
-        // get every field associated with active scenario
-//        probably replace this with sql query
-//        layer.getSource().forEachFeature(function(f) {
-//            console.log(f.get("field_name"))
-//        })
 
-//        let fieldList = ['field 3', 'field2', 'field 1', '1', '2']
-//        fieldList.sort()
-//        let fieldList = ['1', '2']
         for (let scen in fieldList){
-            this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen])
-
+            this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen], scen)
         }
         return fieldList
     }
@@ -1541,7 +1537,7 @@ class ChartDatasetContainer{
 //        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
 //        scenList.sort()
         for (let scen in scenList){
-            this.addSet(scenList[scen], 'scen',scenIdList[scen])
+            this.addSet(scenList[scen], 'scen',scenIdList[scen], scen)
             // populating scenario picker combobox for the compare chart
             scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
             scenariosStore.sort('name', 'ASC');
@@ -1554,7 +1550,7 @@ class ChartDatasetContainer{
 //@ type field or scen
 //@ id primary key of the scenario or field
 // return index of field
-    addSet(setName, type, id){
+    addSet(setName, type, id, index){
         let sets = null
         if (type == "field"){
             sets  = this.fields
@@ -1563,11 +1559,11 @@ class ChartDatasetContainer{
             sets  = this.scenarios
         }
         if (sets.length < 1){
-            let currField = new DatasetNode(setName, this.getColor(), id)
+            let currField = new DatasetNode(setName, chartColors[index % chartColors.length], id)
             sets.push(currField)
             return
         }
-        let currField = new DatasetNode(setName, this.getColor(), id)
+        let currField = new DatasetNode(setName,  chartColors[index % chartColors.length], id)
         var found = false
 //        sort alphabetically
         for (let set in sets){
@@ -1629,8 +1625,12 @@ class ChartDatasetContainer{
         }
     }
 
-    getColor(index){
-        this.chartColors[index%this.colorLength]
+    getColorScen(scenId){
+       for (let scen in this.scenarios){
+            if (this.scenarios[scen].dbID== scenId){
+                return this.scenarios[scen].color
+            }
+        }
     }
 //    get list of all fields in scen and populate checkbox for legend
     getFieldList(){
