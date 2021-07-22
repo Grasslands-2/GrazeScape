@@ -78,7 +78,8 @@ function popInfraArray(obj) {
 		laneMaterialDisp: obj[i].properties.lane_material_disp,
 		laneWidth: obj[i].properties.lane_width,
         costPerFoot: obj[i].properties.cost_per_foot,
-		totalCost: obj[i].properties.total_cost
+		totalCost: obj[i].properties.total_cost,
+		infraLength:obj[i].properties.infra_length
 	});
 	//DSS.infrastructure_grid.InfrastructureGrid.store.reload(infraArray);
 }
@@ -179,7 +180,7 @@ Ext.create('Ext.data.Store', {
 	storeId: 'InfraStore',
 	alternateClassName: 'DSS.InfraStore',
 	fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe',
-	'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','totalCost'],
+	'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','infraLength','totalCost'],
 	data: infraArray
 });
 
@@ -346,8 +347,14 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		//------------------------------------------------------------------
 		let widthColumn = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Width', dataIndex: 'laneWidth', width: 80, 
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
+			}, text: 'Lane<br>Width', dataIndex: 'laneWidth', width: 80, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		let lengthColumn = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
+			}, text: 'Length', dataIndex: 'infraLength', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
@@ -368,7 +375,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		Ext.applyIf(me, {
 
 			columns: [infraNameColumn,infraTypeColumn,fenceMaterialColumn,
-				waterPipeColumn,laneLineColumn,widthColumn,costPerFootColumn,totalCostColumn],
+				waterPipeColumn,laneLineColumn,lengthColumn,widthColumn,costPerFootColumn,totalCostColumn],
 			
 			plugins: {
 				ptype: 'cellediting',
