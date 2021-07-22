@@ -90,6 +90,8 @@ function popFieldsArray(obj) {
 		grazeDairyLactating: obj[i].properties.graze_dairy_lactating,
 		grazeDairyNonLactating: obj[i].properties.graze_dairy_non_lactating,
 		grazeBeefCattle: obj[i].properties.graze_beef_cattle,
+		rotationFreqVal: obj[i].properties.rotational_freq_val,
+		rotationFreqDisp: obj[i].properties.rotational_freq_disp,
         area: obj[i].properties.area,
         fence_type: obj[i].properties.fence_type,
         fence_cost: obj[i].properties.fence_cost,
@@ -126,10 +128,12 @@ Ext.create('Ext.data.Store', {
 	},{
 		value: 'pt-rt',
 		display: 'Rotational Pasture'
-	},{
-		value: 'ps',
-		display: 'New Pasture'
-	},{
+	},
+	// {
+	// 	value: 'ps',
+	// 	display: 'New Pasture'
+	// },
+	{
 		value: 'dl',
 		display: 'Dry Lot'
 	},{ 
@@ -298,6 +302,26 @@ Ext.create('Ext.data.Store', {
 		display: 'Not Applicable'
 	}]
 });
+Ext.create('Ext.data.Store', {
+	storeId: 'rotationFreq',
+	fields:['display', 'value'],
+	data: [{
+		value: '1.2',
+		display: 'More then once a day'
+	},{ 
+		value: '1',
+		display: 'Once a day'
+	},{ 
+		value: '0.95',
+		display: 'Every 3 days'
+	},{ 
+		value:'0.75',
+		display: 'Every 7 days'
+	},{ 
+		value: '0.65',
+		display: 'Continuous'
+	}]
+});
 //-----------------------------------fieldStore!---------------------------------
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldStore',
@@ -307,7 +331,7 @@ Ext.create('Ext.data.Store', {
 		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp',
 		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
 		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
-        'fence_cost','fence_unit_cost'],
+        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp'],
 	data: fieldArray
 });
 
@@ -364,7 +388,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let soilOM_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5
+				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: true
 			}, text: 'Soil-OM', dataIndex: 'soilOM', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
@@ -769,6 +793,36 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				}
 			}
 		};
+		let rotationalFreqColumn = {
+			xtype: 'widgetcolumn',
+			editor: {}, // workaround for exception
+			text: 'Rotational<br>Frequency', dataIndex: 'rotationFreqDisp', width: 200, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			onWidgetAttach: function(col, widget, rec) {
+				if (rec.get('rotationVal') == 'pt-rt') {
+					widget.setDisabled(false);
+				}
+				 else {
+					widget.setDisabled(true);
+				}
+			},
+			widget: {
+				xtype: 'combobox',
+				queryMode: 'local',
+				store: 'rotationFreq',
+				displayField: 'display',
+				valueField: 'value',
+				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
+				listeners:{
+					select: function(combo, value, eOpts){
+						var record = combo.getWidgetRecord();
+						record.set('rotationFreqVal', value.get('value'));
+						record.set('rotationFreqDisp', value.get('display'));
+						//me.getView().refresh();
+					}
+				}
+			}
+		};
 		//------------------------------------------------------------------------------
 		//turn on only for pasture and new pasture crop rotation
 		// let interseededCloverColumn = {
@@ -847,7 +901,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		};
         let area_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
 			}, text: 'Area(acre)', dataIndex: 'area', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
@@ -862,14 +916,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				cropRotationColumn,
 				coverCropColumn,
 				tillageColumn,
-				onContourColumn,
+				//onContourColumn,
 				fertPerc_Column,
 				manuPerc_Column,
-				grazeDairyLactatingColumn,
-				grazeDairyNonLactatingColumn,
-				grazeBeefCattleColumn,
+				//grazeDairyLactatingColumn,
+				//grazeDairyNonLactatingColumn,
+				//grazeBeefCattleColumn,
 				grassSpeciesColumn,
-				interseededCloverColumn,
+				rotationalFreqColumn,
+				//interseededCloverColumn,
 				//manurePasturesColumn,
 				grazeDensityColumn,
 				area_Column,

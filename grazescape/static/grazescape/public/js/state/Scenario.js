@@ -175,6 +175,8 @@ function runFieldUpdate(){
 					graze_dairy_lactating: fieldArray[i].grazeDairyLactating,
 					graze_dairy_non_lactating: fieldArray[i].grazeDairyNonLactating,
 					graze_beef_cattle: fieldArray[i].grazeBeefCattle,
+					rotational_freq_disp:fieldArray[i].rotationFreqDisp,
+					rotational_freq_val:fieldArray[i].rotationFreqVal,
 					area: fieldArray[i].area,
 					perimeter: fieldArray[i].perimeter,
 					fence_type: fieldArray[i].fence_type,
