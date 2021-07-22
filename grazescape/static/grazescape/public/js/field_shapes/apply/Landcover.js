@@ -75,9 +75,11 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 					boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
 				},{
 					boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
-				},{ 
-					boxLabel: 'New Pasture', 			inputValue: 'ps',
-				},{ 
+				},
+				// { 
+				// 	boxLabel: 'New Pasture', 			inputValue: 'ps',
+				// },
+				{ 
 					boxLabel: 'Dry Lot', 			inputValue: 'dl',
 				},{
 					boxLabel: 'Continuous Corn',	inputValue: 'cc',
