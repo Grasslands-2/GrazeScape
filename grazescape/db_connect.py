@@ -9,7 +9,7 @@ from psycopg2.errors import UniqueViolation
 def config(filename='database.ini', section='postgresql'):
     # create a parser
     parser = configparser.ConfigParser()
-    filename = os.path.join(settings.BASE_DIR,'grazescape','database.ini')
+    filename = os.path.join(settings.BASE_DIR, 'grazescape', 'database.ini')
     # filename = "database.ini"
     parser.read(filename)
     # get section, default to postgresql
@@ -19,7 +19,8 @@ def config(filename='database.ini', section='postgresql'):
         for param in params:
             db[param[0]] = param[1]
     else:
-        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+        raise Exception(
+            'Section {0} not found in the {1} file'.format(section, filename))
 
     return db
 
@@ -40,13 +41,14 @@ def get_db_conn():
     cur = conn.cursor()
     return cur, conn
 
+
 # execute a statement
 # determines if the field_model_results already has the given field with the current scenario and farm
 def db_has_field(field_id, scenario_id, farm_id):
     cur, conn = get_db_conn()
     cur.execute('SELECT * from field_model_results '
                 'where field_id = %s and scenario_id = %s and farm_id = %s',
-                [field_id,scenario_id,farm_id])
+                [field_id, scenario_id, farm_id])
     db_result = cur.fetchone()
     # close the communication with the PostgreSQL
 
@@ -76,7 +78,6 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
 
     """
     cur, conn = get_db_conn()
-    sql_request = ""
     sql_where = " WHERE field_id = %s and scenario_id = %s and farm_id = %s"
     sql_values = ""
     col_name = []
@@ -166,7 +167,7 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
     for index, col in enumerate(col_name):
         if insert_field:
             sql_request = sql_request + col + ","
-            sql_values = sql_values +"%s" + ","
+            sql_values = sql_values + "%s" + ","
             pass
         else:
             sql_values = sql_values + col + " = %s,"
@@ -212,25 +213,51 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                   'event_runoff_3.5_inch', 'event_runoff_4_inch',
                   'event_runoff_4.5_inch', 'event_runoff_5_inch',
                   'event_runoff_5.5_inch', 'event_runoff_6_inch']
-    model_types = {'yield':{
-            "grass_yield_tons_per_ac":{"units":"Yield (tons/acre/year)","units_alternate":"'Yield (tons/year'","type":"Grass"},
-            "corn_yield_brus_per_ac":{"units":"Yield (bushels/ac/year)","units_alternate":"Yield (bushels/year)","type":"Corn Grain"},
-            "corn_silage_tons_per_ac":{"units":"Yield (tons/ac/year)","units_alternate":"Yield (tons/year)","type":"Corn Silage"},
-            "soy_yield_brus_per_ac":{"units":"Yield (bushels/ac/year)","units_alternate":"Yield (bushels/year)","type":"Soy"},
-            "alfalfa_yield_tons_per_acre":{"units":"Yield (tons/ac/year)","units_alternate":"Yield (tons/year)","type":"Alfalfa"},
-            "oat_yield_brus_per_ac":{"units":"Yield (bushels/ac/year)","units_alternate":"Yield (bushels/year)","type":"Oats"},
-            "rotation_dry_matter_yield_kg-DM/ac/year":{"units":"Yield (lb-Dry Matter/ac/year)","units_alternate":"Yield (lb-Dry Matter/year)","type":"Rotational Average"}
+    model_types = {'yield': {
+        "grass_yield_tons_per_ac": {"units": "Yield (tons/acre/year)",
+                                    "units_alternate": "'Yield (tons/year'",
+                                    "type": "Grass"},
+        "corn_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
+                                   "units_alternate": "Yield (bushels/year)",
+                                   "type": "Corn Grain"},
+        "corn_silage_tons_per_ac": {"units": "Yield (tons/ac/year)",
+                                    "units_alternate": "Yield (tons/year)",
+                                    "type": "Corn Silage"},
+        "soy_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
+                                  "units_alternate": "Yield (bushels/year)",
+                                  "type": "Soy"},
+        "alfalfa_yield_tons_per_acre": {"units": "Yield (tons/ac/year)",
+                                        "units_alternate": "Yield (tons/year)",
+                                        "type": "Alfalfa"},
+        "oat_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
+                                  "units_alternate": "Yield (bushels/year)",
+                                  "type": "Oats"},
+        "rotation_dry_matter_yield_kg-DM/ac/year": {
+            "units": "Yield (lb-Dry Matter/ac/year)",
+            "units_alternate": "Yield (lb-Dry Matter/year)",
+            "type": "Rotational Average"}
+    },
+        'ploss': {
+            "P_runoff_lbs_per_acre": {
+                "units": "Phosphorus Runoff (lb/acre/year)",
+                "units_alternate": "Phosphorus Runoff (lb/year)",
+                "type": "ploss"},
+            "soil_erosion_tons_per_acre": {
+                "units": "Phosphorus Runoff (lb/acre/year)",
+                "units_alternate": "Soil Erosion (tons of soil/year",
+                "type": "ero"}
         },
-        'ploss':{
-            "P_runoff_lbs_per_acre":{"units":"Phosphorus Runoff (lb/acre/year)","units_alternate":"Phosphorus Runoff (lb/year)","type":"ploss"},
-            "soil_erosion_tons_per_acre":{"units":"Phosphorus Runoff (lb/acre/year)","units_alternate":"Soil Erosion (tons of soil/year","type":"ero"}
+        'runoff': {
+            "runoff": {"units": "Runoff (in)",
+                       "units_alternate": "Runoff (in)", "type": "Runoff"},
+            "runoff_curve_number": {"units": "Curve Number",
+                                    "units_alternate": "Curve Number",
+                                    "type": "Curve Number"}
         },
-        'runoff':{
-            "runoff":{"units":"Runoff (in)","units_alternate":"Runoff (in)","type":"Runoff"},
-            "runoff_curve_number":{"units":"Curve Number","units_alternate":"Curve Number","type":"Curve Number"}
-        },
-        'bio':{
-            "honey_bee_toxicity":{"units":"Insecticide Index","units_alternate":"Insecticide Index","type":"insect"}
+        'bio': {
+            "honey_bee_toxicity": {"units": "Insecticide Index",
+                                   "units_alternate": "Insecticide Index",
+                                   "type": "insect"}
         }
     }
 
@@ -247,7 +274,7 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                 # print("the query return no results")
                 f_name = request.POST.get('model_parameters[f_name]')
                 scen = request.POST.get('model_parameters[scen]')
-                data = {                    # overall model type crop, ploss, bio, runoff
+                data = {  # overall model type crop, ploss, bio, runoff
                     "model_type": model,
                     # specific model for runs with multiple models like corn silage
                     # "value_type": model_types[model][col]["type"],
@@ -260,18 +287,24 @@ def get_values_db(field_id, scenario_id, farm_id, request):
             else:
                 for col in model_types[model]:
                     if col == "runoff":
-                        sum = []
+                        sum1 = []
                         for run_col in runoff_col:
                             col_index = column_names.index(run_col)
-                            sum.append(result[col_index])
+                            sum1.append(result[col_index])
                     else:
                         col_index = column_names.index(col)
-                        sum = result[col_index]
-                    if sum is None:
-                        sum = None
+                        sum1 = result[col_index]
+                    units = model_types[model][col]["units"]
+                    units_alternate = model_types[model][col][
+                            "units_alternate"]
+                    if sum1 is None:
+                        sum1 = None
+                        units = ""
+                        units_alternate = ""
                     col_index = column_names.index("area")
                     area = result[col_index]
                     col_index = column_names.index("cell_count")
+
                     count = result[col_index]
                     if model == "bio":
                         count = 1
@@ -284,8 +317,8 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                         # "palette": palette,
                         # "url": model.file_name + ".png",
                         # "values": values_legend,
-                        "units": model_types[model][col]["units"],
-                        "units_alternate": model_types[model][col]["units_alternate"],
+                        "units": units,
+                        "units_alternate":units_alternate ,
                         # overall model type crop, ploss, bio, runoff
                         "model_type": model,
                         # specific model for runs with multiple models like corn silage
@@ -295,7 +328,7 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                         # "avg": round(avg, 2),
                         "area": area,
                         "counted_cells": count,
-                        "sum_cells": sum,
+                        "sum_cells": sum1,
                         "scen_id": scenario_id,
                         "field_id": field_id
                     }
@@ -325,7 +358,6 @@ def clean_db():
     cur.execute('DELETE FROM field_model_results '
                 'WHERE field_model_results.field_id NOT IN (SELECT gid FROM field_2)')
     conn.commit()
-
 
     # cur.execute("SELECT field_name, gid "
     #             "FROM field_2 "
