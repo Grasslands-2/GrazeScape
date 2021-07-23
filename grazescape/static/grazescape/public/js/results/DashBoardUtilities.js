@@ -92,45 +92,20 @@ function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 
 function build_model_request(f, modelChoice, activeScenario){
     if(activeScenario){
+        console.log(f)
         let rotation_split = f.get("rotation").split("-")
         crop = rotation_split[0]
         rotation = rotation_split.length > 1 ?rotation_split[1]:null
         let density = f.get("grazingdensityval")
-//        let lac_grass_multi = null
-//        let hei_grass_multi = null
-//        let dry_grass_multi = null
         let graze_factor = 1
         if (rotation == "cn"){
             graze_factor = 0.65
         }
         else if (rotation == "rt" ){
-            graze_factor = 1
+            graze_factor = parseFloat(f.get("rotational_freq_val"))
             density = "na"
         }
-//        DSS.layer.scenarios.getSource().forEachFeature(function(g) {
-//            var scenarioFeature = g;
-//            if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
-//                lac_grass_multi = scenarioFeature.get("lac_rotate_freq")
-//                hei_grass_multi = scenarioFeature.get("beef_rotate_freq")
-//                dry_grass_multi = scenarioFeature.get("dry_rotate_freq")
-//            }
-//        })
-    //	TODO this needs to be redone once the rotation checkboxes are fixed
-//        if(f.get("graze_beef_cattle")){
-//            graze_factor = hei_grass_multi
-//        }
-//        if(f.get("graze_dairy_cattle")){
-//            graze_factor = lac_grass_multi
-//        }
-//        if(f.get("graze_dairy_non_lactating")){
-//            graze_factor = dry_grass_multi
-//        }
-//        if(graze_factor == null || graze_factor == undefined){
-//            graze_factor = 1
-//        }
-//        let rotation_split = f.get("rotation").split("-")
-//        crop = rotation_split[0]
-//        rotation = rotation_split.length > 1 ?rotation_split[1]:null
+
         model_para = {
             f_name: f.get("field_name"),
             extent: f.getGeometry().getExtent(),
@@ -1408,7 +1383,11 @@ function printSummary(){
 		dataType: 'json',
 		success:function(responses){
             let csvMain = []
-
+            console.log(responses)
+//            no infrastructure
+            if(responses.features[0] == undefined){
+                return
+            }
 		    let csvHeader = Object.keys(responses.features[0].properties)
 		    let csvText = ""
 
