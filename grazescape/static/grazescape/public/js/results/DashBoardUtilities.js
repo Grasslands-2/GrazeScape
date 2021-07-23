@@ -92,37 +92,20 @@ function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 
 function build_model_request(f, modelChoice, activeScenario){
     if(activeScenario){
-
-        let lac_grass_multi = null
-        let hei_grass_multi = null
-        let dry_grass_multi = null
-        let graze_factor = 1
         console.log(f)
-        DSS.layer.scenarios.getSource().forEachFeature(function(g) {
-            var scenarioFeature = g;
-            if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
-                console.log(scenarioFeature);
-                lac_grass_multi = scenarioFeature.get("lac_rotate_freq")
-                hei_grass_multi = scenarioFeature.get("beef_rotate_freq")
-                dry_grass_multi = scenarioFeature.get("dry_rotate_freq")
-            }
-        })
-    //	TODO this needs to be redone once the rotation checkboxes are fixed
-        if(f.get("graze_beef_cattle")){
-            graze_factor = hei_grass_multi
-        }
-        if(f.get("graze_dairy_cattle")){
-            graze_factor = lac_grass_multi
-        }
-        if(f.get("graze_dairy_non_lactating")){
-            graze_factor = dry_grass_multi
-        }
-        if(graze_factor == null || graze_factor == undefined){
-            graze_factor = 1
-        }
         let rotation_split = f.get("rotation").split("-")
         crop = rotation_split[0]
         rotation = rotation_split.length > 1 ?rotation_split[1]:null
+        let density = f.get("grazingdensityval")
+        let graze_factor = 1
+        if (rotation == "cn"){
+            graze_factor = 0.65
+        }
+        else if (rotation == "rt" ){
+            graze_factor = parseFloat(f.get("rotational_freq_val"))
+            density = "na"
+        }
+
         model_para = {
             f_name: f.get("field_name"),
             extent: f.getGeometry().getExtent(),
@@ -141,7 +124,7 @@ function build_model_request(f, modelChoice, activeScenario){
     //			doesn't appear to be in the table at this time
             rotation: rotation,
             rotationFreq:"",
-            density: f.get("grazingdensityval"),
+            density: density,
     //      comes from the the looping var in Dashboard.js
             model_type: modelChoice,
             graze_factor:graze_factor,
@@ -458,6 +441,9 @@ function validateImageOL(json, layer, tryCount) {
 
 function create_graph(chart,title,element){
     units = chart.units
+//    if (units == "" || units == null){
+//        return
+//    }
     data = chart.chartData
     let barchart = new Chart(element, {
         type: 'bar',
@@ -875,7 +861,15 @@ function compareChartCheckBox(){
 }
 function populateRadarChart(){
     console.log("Populate radar chart")
+//    get scenario db id
     let baseScen = Ext.getCmp('scenCombobox').getValue()
+    let datasets = chartObj.compare_farm.chartData.datasets
+    console.log(datasets)
+//    set backcolor of chart datasets to be translucent
+    for (data in datasets){
+        datasets[data].data = []
+
+    }
 //    console.log(baseScen)
     if(baseScen == null || baseScen == undefined){
         return
@@ -921,12 +915,10 @@ function populateRadarChart(){
 
         let scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[0]
         if(name.indexOf("1 in storm")>0){
-
             scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[1]
         }
         else if(name.indexOf("3 in storm")>0){
             scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[5]
-
         }
         else if(name.indexOf("5 in storm")>0){
             console.log("5 in storm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -984,7 +976,18 @@ function populateRadarChart(){
             console.log(scenBaseVal)
             console.log(currentData)
 //            if (data != scenIndex){
-            chartObj.compare_farm.chartData.datasets[data].data[i] = +((currentData / scenBaseVal).toFixed(2))
+
+//            set the active scenario to 1. Avoids issues of infinity if the base scenario has a zero
+            if(baseScen ==  chartObj.compare_farm.chartData.datasets[data].dbID){
+            chartObj.compare_farm.chartData.datasets[data].data[i]  = 1
+            }
+            else{
+                chartObj.compare_farm.chartData.datasets[data].data[i] = +((currentData / scenBaseVal).toFixed(2))
+//                if both datasets have a zero then we got infinity instead of 1
+                if (currentData == scenBaseVal){
+                    chartObj.compare_farm.chartData.datasets[data].data[i] =1
+                }
+            }
 //                chartObj.compare_farm.chartData.datasets[j].data[i] = 2
             j++
 //            }
@@ -995,10 +998,11 @@ function populateRadarChart(){
 //    let checkInfrastructur = Ext.getCmp('checkInfrastructur').getChecked()
 //    console.log(baseScen, scenIndex,checkBoxCounter )
     //    check each checkbox group for checked boxes (max 8)
-    let datasets = chartObj.compare_farm.chartData.datasets
+    datasets = chartObj.compare_farm.chartData.datasets
     console.log(datasets)
+//    set backcolor of chart datasets to be translucent
     for (data in datasets){
-        datasets[data].backgroundColor = chartDatasetContainer.getColorScen(scen_data[data].dbID).trans
+        datasets[data].backgroundColor = chartDatasetContainer.getColorScen(datasets[data].dbID).trans
 
     }
      if(chartObj.compare_farm.chart !== null){
@@ -1379,7 +1383,11 @@ function printSummary(){
 		dataType: 'json',
 		success:function(responses){
             let csvMain = []
-
+            console.log(responses)
+//            no infrastructure
+            if(responses.features[0] == undefined){
+                return
+            }
 		    let csvHeader = Object.keys(responses.features[0].properties)
 		    let csvText = ""
 
