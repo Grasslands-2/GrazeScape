@@ -18,7 +18,7 @@ class PhosphorousLoss(ModelBase):
         silt = self.raster_inputs["silt"].flatten()
         clay = self.raster_inputs["clay"].flatten()
         k = self.raster_inputs["k"].flatten()
-        om = self.raster_inputs["om"].flatten()
+        # om = self.raster_inputs["om"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
         ls = self.raster_inputs["ls"].flatten()
 
@@ -38,7 +38,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("silt", silt)
         r.assign("clay", clay)
         r.assign("k", k)
-        r.assign("om", om)
+        # r.assign("om", om)
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
 
@@ -67,6 +67,8 @@ class PhosphorousLoss(ModelBase):
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
+        r.assign("om", self.model_parameters["om"])
+
 
         r.assign("cc_erosion_file", os.path.join(self.model_file_path,"ContCornErosion.rds"))
         r.assign("cg_erosion_file", os.path.join(self.model_file_path,"cornGrainErosion.rds"))
@@ -84,7 +86,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("pt_pi_file", os.path.join(self.model_file_path,"PasturePI.rds"))
         r.assign("dl_pi_file", os.path.join(self.model_file_path,"DryLot_tidyPI.rds"))
 
-        print(r(f"""
+        r(f"""
         #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
         #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
         #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
@@ -104,9 +106,10 @@ class PhosphorousLoss(ModelBase):
         # rotational = cn, rt 
         # density = hi or lo
         user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), Contour = c(contour), 
-        rotational = c(rotational), density = c(density),initialP = c(initialP))
+        rotational = c(rotational), density = c(density),initialP = c(initialP), OM = c(om))
+
         soil_df <- tibble(slope =  unlist(slope), slopelenusle.r = unlist(slope_length), sand = unlist(sand), silt = unlist(silt), clay = unlist(clay), k = unlist(k),
-                           OM = unlist(om), total.depth = unlist(total_depth), LSsurgo = unlist(ls))
+                           total.depth = unlist(total_depth), LSsurgo = unlist(ls))
         p_needs <- p_need
         grazedManureDM_lbs <- dm
         appliedDM_lbs <-  ((p_needs * (manure/100))/6) * 1000 * 8.4 * (6/100)
@@ -327,7 +330,7 @@ class PhosphorousLoss(ModelBase):
         }}
 
           """
-                ))
+                )
         erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
         pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
         ero = r.get("erosion").to_numpy()

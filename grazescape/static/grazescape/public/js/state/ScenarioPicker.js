@@ -4,7 +4,7 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 //local functions to make sure selected scenario infra and fields only draw
 function showFieldsForScenario() {
 	DSS.layer.fields_1.getSource().setUrl(
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -22,7 +22,7 @@ function showFieldsForScenario() {
 function showInfraForScenario() {
 	
 	DSS.layer.infrastructure.getSource().setUrl(
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -40,7 +40,7 @@ function getWFSScenarioSP(farm) {
 	scenarioPickerArray = [];
 	console.log(DSS.activeFarm);
 	var scenarioUrlSP = 
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+

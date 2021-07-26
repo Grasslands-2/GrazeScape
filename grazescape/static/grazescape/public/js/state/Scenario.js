@@ -3,7 +3,7 @@ var farmObj = {};
 var scenarioArray = [];
 var scenarioObj = {};
 
-scenarioUrl = 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+scenarioUrl = geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -82,7 +82,7 @@ function getWFSScenario(scenarioUrl) {
 function gatherScenarioTableData() {
 	//redeclaring scenarioUrl to only show filtered fields
 	scenarioUrl = 
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -95,7 +95,7 @@ function gatherScenarioTableData() {
 };
 
 var infrastructure_Source = new ol.source.Vector({
-	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	url: geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -107,7 +107,7 @@ var infrastructure_Source = new ol.source.Vector({
 });
 
 var fields_1Source = new ol.source.Vector({
-	url:'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	url:geoserverURL + '/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
@@ -246,7 +246,7 @@ function wfs_update(feat,layer) {
 	str=str.replace("feature:"+layer,"Farms:"+layer);
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
     console.log(str);
-    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+    $.ajax(geoserverURL + '/geoserver/wfs?'
 	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
@@ -543,6 +543,8 @@ Ext.define('DSS.state.Scenario', {
                         else{
 //                            close model to destroy it to rerun models
                             console.log("destroy dashboard")
+                            modelError = false
+                            modelErrorMessages = []
                             chartObj = {}
 //                            reset global vars
                             //controls order of how datasets are displayed and with what colors
