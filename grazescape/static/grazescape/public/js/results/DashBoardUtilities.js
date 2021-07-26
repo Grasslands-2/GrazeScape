@@ -120,6 +120,7 @@ function build_model_request(f, modelChoice, activeScenario){
             manure: f.get("manurepercent"),
             crop:crop,
             area:f.getGeometry().getArea(),
+            om: f.get("om"),
             crop_cover: f.get("cover_crop"),
     //			doesn't appear to be in the table at this time
             rotation: rotation,
@@ -1017,7 +1018,7 @@ function retrieveScenariosGeoserver(){
 
 //    DSS.activeFarm = 1
 	let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1059,7 +1060,7 @@ function retrieveFieldsGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1105,7 +1106,7 @@ function retrieveFarmGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1140,7 +1141,7 @@ function retrieveAllFieldsFarmGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1182,7 +1183,7 @@ function retrieveAllFieldsDataGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1264,7 +1265,7 @@ function printSummary(){
 //    let file_name = "GrazeScape_Summary.csv"
 
     let fieldUrl_results =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1366,7 +1367,7 @@ function printSummary(){
 
 
     let fieldUrl2 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+

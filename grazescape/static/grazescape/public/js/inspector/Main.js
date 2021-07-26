@@ -308,7 +308,7 @@ Ext.define('DSS.inspector.Main', {
 		Ext.defer(function() {
 			var src = new ol.source.ImageStatic({
 				//url: "http://localhost:8000/grazescape/get_image?file_name=" + json.url,
-				url: "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" +
+				url: geoserverURL + "/geoserver/ows?service=WCS&version=2.0.1&" +
 				"request=GetCoverage&CoverageId=" + json.url,
 				crossOrigin: '',
 				imageExtent: json.extent,

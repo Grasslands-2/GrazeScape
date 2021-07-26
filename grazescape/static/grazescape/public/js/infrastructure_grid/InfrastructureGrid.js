@@ -7,7 +7,7 @@ var infraArray = [];
 var infraObj = {};
 
 var infraUrl = 
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -89,7 +89,7 @@ console.log(infraArray);
 function gatherInfraTableData() {
 	//redeclaring infraUrl to only show filtered fields
 	infraUrl = 
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -348,26 +348,59 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		let widthColumn = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
-			}, text: 'Lane<br>Width', dataIndex: 'laneWidth', width: 80, 
+			}, text: 'Lane<br>Width [ft]', dataIndex: 'laneWidth', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		let lengthColumn = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
-			}, text: 'Length', dataIndex: 'infraLength', width: 80, 
+			}, text: 'Length [ft]', dataIndex: 'infraLength', width: 80,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let costPerFootColumn = {
-			xtype: 'numbercolumn', format: '0.00',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
-			}, text: 'Cost Per<br>Foot', dataIndex: 'costPerFoot', width: 80, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			xtype: 'widgetcolumn', format: '0.00',
+			    editor: {},
+			    widget:{
+				    xtype:'numberfield',
+				    minValue: 0, maxValue: Infinity, step: .2,
+				    listeners:{change: function(editor, newv,oldv, eOpts) {
+				                let changeVal = newv
+
+				                let record = editor.getWidgetRecord();
+				                let length = record.get("infraLength")
+
+//				                editor.suspendEvents(false)
+				                record.set("totalCost",changeVal*length )
+//                              the change event for this field first 2 times
+//which cause the value to not change. Setting the value fires the event a
+// third time which seems to fix the issue.
+//The change event only fires twice when we set the value of another column
+// Probably a bug with extjs
+				                record.set("costPerFoot", changeVal)
+//				                setTimeout(() => {
+//				                    editor.resumeEvents()
+//				                                }, 1000);
+
+//				                console.log(record.get("totalCost"))s
+                            },
+//                            single: true
+                            },
+
+			    },
+			    text: 'Cost Per<br>Foot', dataIndex: 'costPerFoot', width: 90,
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+
 		};
 		//------------------------------------------------------------------------------
 		let totalCostColumn = {
 			xtype: 'numbercolumn', format: '0.00',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5,
+				listeners:{change: function(editor, newv,oldv, eOpts) {
+
+				    console.log("total cost updated")
+				}
+				}
 			}, text: 'Total<br>Cost', dataIndex: 'totalCost', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
