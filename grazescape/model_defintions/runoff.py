@@ -50,7 +50,6 @@ class Runoff(ModelBase):
         r.assign("silt", silt)
         r.assign("clay", clay)
         r.assign("k", k)
-        r.assign("om", om)
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
         r.assign("hydgrp", hydrp_letter)
@@ -79,6 +78,7 @@ class Runoff(ModelBase):
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
+        r.assign("om", self.model_parameters["om"])
 
         r.assign("cc_erosion_file",
                  os.path.join(self.model_file_path, "ContCornErosion.rds"))
@@ -129,9 +129,9 @@ class Runoff(ModelBase):
         # rotational = cn, rt 
         # density = hi or lo
         user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), Contour = c(contour), 
-        rotational = c(rotational), density = c(density),initialP = c(initialP))
+        rotational = c(rotational), density = c(density),initialP = c(initialP), OM = c(om))
         soil_df <- tibble(hydgrp = unlist(hydgrp), slope =  unlist(slope), slopelenusle.r = unlist(slope_length), sand = unlist(sand), silt = unlist(silt), clay = unlist(clay), k = unlist(k),
-                           OM = unlist(om), total.depth = unlist(total_depth), LSsurgo = unlist(ls))
+                           total.depth = unlist(total_depth), LSsurgo = unlist(ls))
         p_needs <- p_need
         grazedManureDM_lbs <- dm
         appliedDM_lbs <-  ((p_needs * (manure/100))/6) * 1000 * 8.4 * (6/100)

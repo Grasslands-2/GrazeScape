@@ -373,10 +373,10 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 //				                editor.suspendEvents(false)
 				                record.set("totalCost",changeVal*length )
 //                              the change event for this field first 2 times
-//which cause the value to not change. Setting the value fires the event a
-// third time which seems to fix the issue.
-//The change event only fires twice when we set the value of another column
-// Probably a bug with extjs
+                                //which cause the value to not change. Setting the value fires the event a
+                                // third time which seems to fix the issue.
+                                //The change event only fires twice when we set the value of another column
+                                // Probably a bug with extjs
 				                record.set("costPerFoot", changeVal)
 //				                setTimeout(() => {
 //				                    editor.resumeEvents()

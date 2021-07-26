@@ -388,7 +388,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let soilOM_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: true
+				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: false
 			}, text: 'Soil-OM', dataIndex: 'soilOM', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
