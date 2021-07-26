@@ -1,5 +1,5 @@
 var InfrastructureSource_loc = new ol.source.Vector({
-	url:'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	url:geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -24,7 +24,7 @@ function wfs_infra_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+    $.ajax(geoserverURL + '/geoserver/wfs?'
 	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
@@ -133,9 +133,10 @@ lane_materialInput){
 		//var geom = e.target;
 		
 		console.log(e);
-		infraLength = e.feature.values_.geom.getLength();
+//		in meters convert to feet
+		infraLength = e.feature.values_.geom.getLength() * 3.28084;
 		console.log(infraLength);
-		totalCost = ((infraLength * 3.28084) * costPerFoot).toFixed(2)
+		totalCost = (infraLength * costPerFoot).toFixed(2)
 		console.log(totalCost);
 		e.feature.setProperties({
 			id: af,

@@ -33,9 +33,12 @@ class RasterData:
         """
         # self.data_layer = data_layer
         self.extents = extents
+        geoServerURL = "http://geoserver-dev1.glbrc.org:8080"
+        # geoServerURL = "https://geoserver:8443"
+
         #self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
         #                      "request=GetCoverage&CoverageId="
-        self.geoserver_url = "http://geoserver-dev1.glbrc.org:8080//geoserver/ows?service=WCS&version=2.0.1&" \
+        self.geoserver_url = geoServerURL + "/geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
 
         self.file_name = str(uuid.uuid4())
@@ -88,7 +91,7 @@ class RasterData:
         for layer in self.layer_dic:
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             r = requests.get(url)
-            print(url)
+            # print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
             with open(raster_file_path, "wb") as f:
                 f.write(r.content)

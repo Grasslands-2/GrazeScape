@@ -1,5 +1,5 @@
 var fields_1Source_loc = new ol.source.Vector({
-	url:'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	url:geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -24,7 +24,7 @@ function wfs_field_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+    $.ajax(geoserverURL + '/geoserver/wfs?'
 	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',

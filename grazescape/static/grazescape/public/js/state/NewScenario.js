@@ -4,7 +4,7 @@
 //wfs farm layer url for general use
 var scenarioObj = {};
 var scenarioUrlNS = 
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -14,7 +14,7 @@ var scenarioUrlNS =
 'srsname=EPSG:3857'
 
 fieldUrlNS = 
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -24,7 +24,7 @@ fieldUrlNS =
 'srsname=EPSG:3857';
 
 infraUrlNS = 
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -219,7 +219,7 @@ function wfs_new_scenario_features_copy(featsArray,fType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?',
+    $.ajax(geoserverURL + '/geoserver/wfs?',
 	{
         type: 'POST',
         dataType: 'xml',
@@ -271,7 +271,7 @@ function wfs_scenario_insert(feat,geomType,fType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log('Transaction xml: '+str);
-    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?',
+    $.ajax(geoserverURL + '/geoserver/wfs?',
 	{
         type: 'POST',
         dataType: 'xml',
