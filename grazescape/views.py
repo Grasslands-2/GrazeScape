@@ -51,7 +51,7 @@ def clean_data(request):
     return JsonResponse({"clean":"finished"})
 def index(request):
     context = {
-
+        "my_color": {"test1":1234}
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
@@ -64,7 +64,7 @@ def get_model_results(request):
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
     scen = request.POST.get('model_parameters[scen]')
-
+    print(request.POST)
     if request.POST.getlist("isActiveScen")[0] == 'false':
         print("not active scenario")
         return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request), safe=False)
@@ -164,8 +164,8 @@ def get_model_results(request):
             else:
                 update_field(field_id, scenario_id, farm_id, data, True)
             return_data.append(data)
-        print("Returning the following data from the view!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(return_data)
+        # print("Returning the following data from the view!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        # print(return_data)
         return JsonResponse(return_data, safe=False)
     except KeyError as e:
         error = str(e) + " while running models for field " + f_name

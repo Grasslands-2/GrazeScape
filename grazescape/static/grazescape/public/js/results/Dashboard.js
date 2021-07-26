@@ -1,5 +1,5 @@
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['ploss']
+//var modelTypes = ['yield', 'ploss','runoff', 'bio']
+var modelTypes = ['yield']
 //var modelTypes = ['bio','runoff']
 //list of all the current and future charts
 var chartList = [

@@ -330,7 +330,7 @@ Ext.define('DSS.map.Main', {
 		var scenario_1SourceMain = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent){
-				return'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				return geoserverURL + '/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
@@ -343,7 +343,7 @@ Ext.define('DSS.map.Main', {
 		var infrastructure_Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent) {
-				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				return geoserverURL + '/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
@@ -356,7 +356,7 @@ Ext.define('DSS.map.Main', {
 		var farms_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent) {
-				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				return geoserverURL + '/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+
@@ -368,7 +368,7 @@ Ext.define('DSS.map.Main', {
 		var fields_1Source = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
 			url: function(extent) {
-				return 'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+				return geoserverURL + '/geoserver/wfs?'+
 				'service=wfs&'+
 				'?version=2.0.0&'+
 				'request=GetFeature&'+

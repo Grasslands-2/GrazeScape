@@ -7,7 +7,7 @@ DSS.utils.addStyle('.right-pad { padding-right: 32px }')
 //wfs farm layer url for general use
 var scenarioObj = {};
 var farmUrl = 
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -15,7 +15,7 @@ var farmUrl =
 'outputformat=application/json&'+
 'srsname=EPSG:3857'
 var scenarioUrlCN = 
-'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -33,7 +33,7 @@ var scenario_1SourceCN = new ol.source.Vector({
 });
 function showNewFarm() {
 	DSS.layer.farms_1.getSource().setUrl(
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -191,7 +191,7 @@ function wfs_farm_insert(feat,geomType,fType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+    $.ajax(geoserverURL + '/geoserver/wfs?'
 	/*'http://localhost:8081/geoserver/wfs?'*/,{
         type: 'POST',
         dataType: 'xml',
