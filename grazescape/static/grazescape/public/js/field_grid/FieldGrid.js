@@ -6,7 +6,7 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 var fieldArray = [];
 var fieldObj = {};
 
-var fieldUrl ='http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+var fieldUrl =geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
 '?version=2.0.0&'+
 'request=GetFeature&'+
@@ -104,7 +104,7 @@ function popFieldsArray(obj) {
 function gatherTableData() {
 	//redeclaring fieldUrl to only show filtered fields
 	fieldUrl = 
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -388,7 +388,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let soilOM_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: true
+				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: false
 			}, text: 'Soil-OM', dataIndex: 'soilOM', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};

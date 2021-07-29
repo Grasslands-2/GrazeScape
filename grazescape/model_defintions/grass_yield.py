@@ -32,7 +32,7 @@ class GrassYield(ModelBase):
         print("RRRR")
         print(self.model_data_inputs_path)
 
-        slope = self.raster_inputs["slope_data"].flatten()
+        slope = self.raster_inputs["slope"].flatten()
         elevation = self.raster_inputs["elevation"].flatten()
         sand = self.raster_inputs["sand"].flatten()
         silt = self.raster_inputs["silt"].flatten()
@@ -40,7 +40,7 @@ class GrassYield(ModelBase):
         ksat = self.raster_inputs["ksat"].flatten()
         cec = self.raster_inputs["cec"].flatten()
         ph = self.raster_inputs["ph"].flatten()
-        om = self.raster_inputs["om"].flatten()
+        # om = self.raster_inputs["om"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
 
         r.assign("slope", slope)
@@ -48,11 +48,14 @@ class GrassYield(ModelBase):
         r.assign("sand", sand)
         r.assign("silt", silt)
         r.assign("clay", clay)
-        r.assign("om", om)
+        # r.assign("om", om)
         r.assign("ksat", ksat)
         r.assign("cec", cec)
         r.assign("ph", ph)
         r.assign("total_depth", total_depth)
+        print("assigning om")
+        r.assign("om", self.model_parameters["om"])
+        print("assigning om done")
 
         print(r("library(randomForest)"))
         print(r("library(dplyr)"))

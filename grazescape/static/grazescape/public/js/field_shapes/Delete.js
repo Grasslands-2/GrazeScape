@@ -38,7 +38,7 @@ function deleteField(feat){
 		s = new XMLSerializer();
 		str = s.serializeToString(node);
 		console.log(str);
-		$.ajax('http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'
+		$.ajax(geoserverURL + '/geoserver/wfs?'
 	/*'http://localhost:8081/geoserver/wfs?'*/,{
 			type: 'POST',
 			dataType: 'xml',

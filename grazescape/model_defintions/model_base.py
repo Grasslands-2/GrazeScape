@@ -117,6 +117,7 @@ class ModelBase:
             "density": request.POST.getlist("model_parameters[density]")[0],
             "graze_factor": request.POST.getlist("model_parameters[graze_factor]")[0],
             "area": "",
+            "om": request.POST.getlist("model_parameters[om]")[0],
         }
         numeric_para = ["soil_p", "fert", "manure"]
         # soil_p, fert, manure

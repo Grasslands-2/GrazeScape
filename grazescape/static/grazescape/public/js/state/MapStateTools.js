@@ -131,7 +131,7 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
 	showNewFarm: function() {
 		DSS.layer.farms_1.getSource().setUrl(
-		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		geoserverURL + '/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
@@ -152,7 +152,7 @@ Ext.define('DSS.state.MapStateTools', {
     showFieldsForFarm: function(farmId, opacity) {
     	
 		DSS.layer.fields_1.getSource().setUrl(
-		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		geoserverURL + '/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
@@ -170,7 +170,7 @@ Ext.define('DSS.state.MapStateTools', {
 	showInfrasForFarm: function(farmId, opacity) {
     	
 		DSS.layer.infrastructure.getSource().setUrl(
-		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		geoserverURL + '/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
@@ -187,7 +187,7 @@ Ext.define('DSS.state.MapStateTools', {
 	showAllFields: function(opacity) {
 			
 		DSS.layer.fields_1.getSource().setUrl(
-		'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+		geoserverURL + '/geoserver/wfs?'+
 		'service=wfs&'+
 		'?version=2.0.0&'+
 		'request=GetFeature&'+
