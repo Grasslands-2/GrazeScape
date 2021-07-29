@@ -92,7 +92,6 @@ function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
 
 function build_model_request(f, modelChoice, activeScenario){
     if(activeScenario){
-        console.log(f)
         let rotation_split = f.get("rotation").split("-")
         crop = rotation_split[0]
         rotation = rotation_split.length > 1 ?rotation_split[1]:null
@@ -120,6 +119,7 @@ function build_model_request(f, modelChoice, activeScenario){
             manure: f.get("manurepercent"),
             crop:crop,
             area:f.getGeometry().getArea(),
+            om: f.get("om"),
             crop_cover: f.get("cover_crop"),
     //			doesn't appear to be in the table at this time
             rotation: rotation,
@@ -139,6 +139,7 @@ function build_model_request(f, modelChoice, activeScenario){
             "model_parameters":model_para
         }
     }
+//    getting model results from db
     else{
         model_para = {
             f_name: f["field_name"],
@@ -376,16 +377,8 @@ function get_model_data(data){
                             ],
                         })
                     });
-                    //DSS.map.addLayer(modelResult)
-//                    validateImageOL(obj, DSS.layer.ModelResult);
                     validateImageOL(obj, modelResult);
-                    //DSS.map.addLayer(modelResult)
-                    // let s = DSS.layer.ModelBox.getSource();
-                    // s.clear();
-                    // s.addFeature(new ol.Feature({
-                    //     geometry: p
-                    // }));
-                    //DSS.MapState.showContinuousLegend(obj.palette, obj.values);
+
                 }
 
                 if(responses[response].value_type != "dry lot"){
@@ -408,8 +401,6 @@ function removeModelResults(){
         DSS.map.removeLayer(modelResult)
 		//Ext.getCmp("btnRemoveModelResults").setDisabled(true)
     }
-
-//---------------------------------------------------------------------------------
 function validateImageOL(json, layer, tryCount) {
     var me = this;
     tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
@@ -748,19 +739,17 @@ function hideData(chartName, datasetName,dbID){
         }
     }
 }
-
+// toggle between displaying data between yearly total vs total per area
 function displayAlternate(chartName, btnId){
     chartDatasets = chartObj[chartName].chartData.datasets
     chartData = chartObj[chartName]
-    console.log(chartObj[chartName])
-    btnObject = Ext.getCmp(btnId)
+//    btnObject = Ext.getCmp(btnId)
     divideArea = true
 
 
 //    switch back to yield by area
     if(chartData.useAlternate){
-        btnObject.setText('Average Yield')
-        console.log("Switching to Yield per area@@@@@@@@@@@@@@@@@@@@@2")
+//        btnObject.setText('Average Yield')
         chartData.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartData.units;
 
         chartData.useAlternate = false
@@ -769,19 +758,20 @@ function displayAlternate(chartName, btnId){
 
     }
     else{
-        btnObject.setText('Average Yield / Area')
+//        btnObject.setText('Average Yield / Area')
         chartData.chart.options.scales.yAxes[ 0 ].scaleLabel.labelString = chartData.units_alternate;
-        console.log("Switching to Yield  Total &&&&&&&&&&&&&&&&&&&&")
 
         chartData.useAlternate = true
 //        conv = area
         divideArea = false
     }
     for (data in chartDatasets){
-        console.log(chartData)
         if(chartData.area[data]!= undefined){
-        console.log(chartData.area[data])
             for(set in chartDatasets[data].data){
+                // if we don't catch null then we will have null arithmetic which will causes zeros to appear on graph
+                if(chartDatasets[data].data[set] == undefined || chartDatasets[data].data[set] == null){
+                    continue
+                }
                 if(divideArea){
                     chartDatasets[data].data[set] = +((chartDatasets[data].data[set]/chartData.area[data]).toFixed(2))
                 }
@@ -1017,7 +1007,7 @@ function retrieveScenariosGeoserver(){
 
 //    DSS.activeFarm = 1
 	let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1059,7 +1049,7 @@ function retrieveFieldsGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1105,7 +1095,7 @@ function retrieveFarmGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1140,7 +1130,7 @@ function retrieveAllFieldsFarmGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1182,7 +1172,7 @@ function retrieveAllFieldsDataGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1264,7 +1254,7 @@ function printSummary(){
 //    let file_name = "GrazeScape_Summary.csv"
 
     let fieldUrl_results =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1366,7 +1356,7 @@ function printSummary(){
 
 
     let fieldUrl2 =
-	'http://geoserver-dev1.glbrc.org:8080/geoserver/wfs?'+
+	geoserverURL + '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1468,6 +1458,54 @@ function printSummary(){
 
 
 
+}
+function downloadRasters(){
+    return new Promise(function(resolve) {
+        layer = DSS.layer.fields_1
+        let downloadCount = 0
+        let numFields = DSS.layer.fields_1.getSource().getFeatures().length
+        layer.getSource().forEachFeature(function(f) {
+            model_para = {
+                f_name: f.get("field_name"),
+                field_id: f.get("gid"),
+                extent: f.getGeometry().getExtent(),
+                // at this point fields wont have any holes so just get the first entry
+                field_coors: f.getGeometry().getCoordinates()[0]
+            }
+            downloadRastersRequest(model_para).then(function(value){
+                downloadCount = downloadCount + 1
+                console.log(downloadCount)
+                console.log(value)
+                if(downloadCount==numFields){
+                    console.log("All files downloaded")
+                    resolve(downloadCount)
+                }
+
+            })
+        })
+    })
+}
+function downloadRastersRequest(data){
+    return new Promise(function(resolve) {
+        var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+                headers: { "X-CSRFToken": csrftoken }
+        });
+        $.ajax({
+            'url' : '/grazescape/download_rasters',
+            'type' : 'POST',
+            'data' : data,
+            success: function(responses, opts) {
+                delete $.ajaxSetup().headers
+                console.log(responses)
+                resolve(responses)
+            },
+
+            failure: function(response, opts) {
+                me.stopWorkerAnimation();
+            }
+        })
+    })
 }
 class ChartDatasetContainer{
     constructor() {

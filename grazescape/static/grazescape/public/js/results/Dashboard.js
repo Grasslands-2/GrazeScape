@@ -1,6 +1,6 @@
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['ploss']
-//var modelTypes = ['bio','runoff']
+//var modelTypes = ['yield']
+//var modelTypes = ['yield','runoff']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -113,15 +113,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         let chart_width_double = '58vw'
 
 		let me = this;
-//      this layer contains the active fields from the active farm
 		layer = DSS.layer.fields_1
-//		setup chart data and bring in scenario data
-
-
-    ////    make the summary tab the active tab when done.
-    //// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
-
-//        ero is included in pl
+//
         if (this.runModel) {
             chartDatasetContainer = new ChartDatasetContainer()
             scenList = chartDatasetContainer.getScenarioList()
@@ -174,126 +167,91 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
-//                Ext.getCmp("mainTab").setActiveTab(4)
-//                Ext.getCmp('mainTab').update()
-//                Ext.getCmp("mainTab").setActiveTab(1)
                 Ext.getCmp('mainTab').update()
-//                let mainTabLength = Ext.getCmp("mainTab").items.length
-//                let mainTabs = Ext.getCmp("mainTab").items.items
-//                    for (let mainTab in mainTabs ){
-//                        Ext.getCmp("mainTab").setActiveTab(parseFloat(mainTab))
-//                        subTabs = mainTabs[parseFloat(mainTab)].items.items
-//                        for(let subTab in subTabs){
-//                            console.log(subTab)
-//                            Ext.getCmp("mainTab").items.items[parseFloat(mainTab)].setActiveTab(parseFloat(subTab))
-//                        }
-//                    }
-//                Ext.getCmp("mainTab").setActiveTab(0)
-//
-                }, 10);
+            }, 10);
 
-            layerList = []
-            layer.getSource().forEachFeature(function(f) {
-                layerList.push(f)
+    //      this layer contains the active fields from the active farm
+            downloadRasters().then(function(){
+                console.log("rasters downloaded open dashboard")
+                createDashBoard(me)
             })
-            console.log("running model")
-//            layer.getSource().forEachFeature(function(f) {
-            fieldIter = retrieveAllFieldsDataGeoserver()
-//            get parameters for the active scenario fields from the layer display
-//          if fields arent in the active scenario then use the values from the database
-//          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
-//          while the inactive fields are just retrieving their models results from the db
-            for(item in fieldIter){
-                for(layer in layerList){
-                    if (layerList[layer].get("gid")== fieldIter[item].gid){
-                        activeScenario = true
-                        f = layerList[layer]
-                        break
-                    }
-                    else{
-                        f = fieldIter[item]
-                        activeScenario = false
-                    }
-                }
+        }
+        function createDashBoard(dashboard){
 
-//              for each layer run each model type: yield (grass or crop), ero, pl
-                for (model in modelTypes){
 
-//                only running on one field right now for testing
-//                    if (f.get("field_name") == "corn for 4"){
+                layerList = []
+                layer.getSource().forEachFeature(function(f) {
+                    layerList.push(f)
+                })
+                console.log("running model")
+    //            layer.getSource().forEachFeature(function(f) {
+                fieldIter = retrieveAllFieldsDataGeoserver()
+    //            get parameters for the active scenario fields from the layer display
+    //          if fields arent in the active scenario then use the values from the database
+    //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
+    //          while the inactive fields are just retrieving their models results from the db
+                for(item in fieldIter){
+                    for(layer in layerList){
+                        if (layerList[layer].get("gid")== fieldIter[item].gid){
+                            activeScenario = true
+                            f = layerList[layer]
+                            break
+                        }
+                        else{
+                            f = fieldIter[item]
+                            activeScenario = false
+                        }
+                    }
+
+    //              for each layer run each model type: yield (grass or crop), ero, pl
+                    for (model in modelTypes){
                         model_request = build_model_request(f, modelTypes[model], activeScenario)
-//                        model_data = get_model_data(model_request)
-//                            if(f.get("field_name") != "corn for 4"){
-//                                continue;
-//                            }
-//                            if(f["scenario_id"] != 33){
-////                            if(f.get("scenario_id") != 33){
-//                                continue;
-//                            }
                         get_model_data(model_request).then(returnData =>{
-
+    //                      no model results with that particular field
                             if(returnData.length < 1){
                                 return
                             }
-//                            console.log(returnData[0].model_type)
-//                            console.log(modelTypes[model])
-//                            progress bar management
                             switch (returnData[0].model_type){
                                 case 'yield':
-//                                    console.log('yield', returnData)
-//                                    if (returnData.length >1){
-//                                        yield_pb.value = yield_pb.value + returnData.length - 1
-//                                    }
-//                                    else{
-//                                    }
-                                        yield_pb.value = yield_pb.value + 1
-//                                    yield_pb.hidden = yield_pb.value==yield_pb.max?true:false
+                                    yield_pb.value = yield_pb.value + 1
                                     if(yield_pb.value==yield_pb.max){
                                         yield_pb.hidden = true
                                         Ext.getCmp("yieldTab").setDisabled(false)
-
                                         Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                         Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                     }
                                     break
                                 case 'ploss':
                                     nut_pb.value = nut_pb.value + 1
-//                                    nut_pb.hidden = nut_pb.value==nut_pb.max?true:false
                                     if(nut_pb.value==nut_pb.max){
                                         nut_pb.hidden = true
                                         Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
                                         Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
                                         Ext.getCmp("nutTab").setDisabled(false)
                                     }
-
                                     ero_pb.value = ero_pb.value + 1
-//                                    ero_pb.hidden = ero_pb.value==ero_pb.max?true:false
                                     if(ero_pb.value==ero_pb.max){
                                         ero_pb.hidden = true
                                         Ext.getCmp("eroTab").setDisabled(false)
-
                                         Ext.getCmp("erosionFarmConvert").setDisabled(false)
                                         Ext.getCmp("erosionFieldConvert").setDisabled(false)
                                     }
-
                                     break
                                 case 'runoff':
                                     runoff_pb.value = runoff_pb.value + 1
-//                                    runoff_pb.hidden = runoff_pb.value==runoff_pb.max?true:false
+    //                                    runoff_pb.hidden = runoff_pb.value==runoff_pb.max?true:false
                                     if(runoff_pb.value == runoff_pb.max){
                                         runoff_pb.hidden =true
                                         Ext.getCmp("runoffTab").setDisabled(false)
                                     }
-
                                     break
                                 case 'bio':
                                     bio_pb.value = bio_pb.value + 1
-//                                    bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
+    //                                    bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
                                     if(bio_pb.value == bio_pb.max){
                                         bio_pb.hidden = true
                                         Ext.getCmp("bioTab").setDisabled(false)
                                     }
-
                                     break
                             }
                             totalFields = totalFields - 1
@@ -301,33 +259,27 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 Ext.getCmp("btnRunModels").setDisabled(false)
                                 Ext.getCmp("compareTab").setDisabled(false)
                                 Ext.getCmp("compareTabBtn").setDisabled(false)
-//                                Ext.getCmp("eroFieldTab").setDisabled(false)
-//                                Ext.getCmp("yieldFieldTab").setDisabled(false)
-//                                Ext.getCmp("nutFieldTab").setDisabled(false)
-//                                Ext.getCmp("insectFieldTab").setDisabled(false)
+    //                                Ext.getCmp("eroFieldTab").setDisabled(false)
+    //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
+    //                                Ext.getCmp("nutFieldTab").setDisabled(false)
+    //                                Ext.getCmp("insectFieldTab").setDisabled(false)
 
                                 if(document.getElementById("modelSpinner") != null){
-
                                   document.getElementById("modelSpinner").style.display = "none";
                                 }
                                 delete $.ajaxSetup().headers
 
                             }
                             Ext.getCmp('mainTab').update()
-
                         })
-//                      can be multiple models in one run (e.g. ploss and erosion)
+                    }
 
-//                    }
-                }
 
 
             }
-//            ) //iterates through fields to build extents array
 
 
         }
-
 //      put new tabs here
 //TODO update
         var infrastructure = {
@@ -473,20 +425,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
-                        xtype: 'button',
-                        text: 'Average Yield',
+                        xtype: 'radiogroup',
                         id: 'erosionFarmConvert',
-                        tooltip: 'Convert between average yield by area and yearly yield',
-                          handler: function(e) {
-                            console.log(e)
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Erosion / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Average Erosion',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("soil_loss_farm", e.id)
-                          }
-//                        text: 'Yearly Yield'
+                         }},
                     },
                     {
-
-                        xtype: 'container',
-                    },{
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
@@ -527,20 +484,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
-                        xtype: 'button',
-                        text: 'Average Yield',
+                        xtype: 'radiogroup',
                         id: 'erosionFieldConvert',
-                        tooltip: 'Convert between average yield by area and yearly yield',
-                          handler: function(e) {
-                            console.log(e)
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Erosion / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Average Erosion',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("soil_loss_field", e.id)
-                          }
-//                        text: 'Yearly Yield'
+                         }},
                     },
                     {
-
-                        xtype: 'container',
-                    },{
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
@@ -598,12 +560,21 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         border:0,
                     },
                     items:[{
-                        xtype: 'button',
-                        text: 'Average Yield',
+                        xtype: 'radiogroup',
                         id: 'yieldFarmConvert',
-                        tooltip: 'Convert between average yield by area and yearly yield',
-                          handler: function(e) {
-                            console.log(e)
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Yield / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Average Yield',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("grass_yield_farm", e.id)
                             displayAlternate("corn_yield_farm", e.id)
                             displayAlternate("corn_silage_yield_farm", e.id)
@@ -611,13 +582,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             displayAlternate("oat_yield_farm", e.id)
                             displayAlternate("alfalfa_yield_farm", e.id)
                             displayAlternate("rotation_yield_farm", e.id)
-                          }
-//                        text: 'Yearly Yield'
-                    },
-                    {
+                         }},
 
-                        xtype: 'container',
-                    },{
+//
+                    },
+//                    {
+//
+//                        xtype: 'container',
+//                    },
+                    {
                         xtype: 'container',
                         html: '<div id="container"><canvas  id="rotation_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
@@ -675,12 +648,21 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
-                        xtype: 'button',
-                        text: 'Average Yield',
+                        xtype: 'radiogroup',
                         id: 'yieldFieldConvert',
-                        tooltip: 'Convert between average yield by area and yearly yield',
-                          handler: function(e) {
-                            console.log(e)
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Yield / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Average Yield',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("grass_yield_field", e.id)
                             displayAlternate("corn_yield_field", e.id)
                             displayAlternate("corn_silage_yield_field", e.id)
@@ -688,13 +670,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             displayAlternate("oat_yield_field", e.id)
                             displayAlternate("alfalfa_yield_field", e.id)
                             displayAlternate("rotation_yield_field", e.id)
-                          }
-//                        text: 'Yearly Yield'
+                         }},
                     },
-                    {
 
-                        xtype: 'container',
-                    },{
+                    {
                         xtype: 'container',
                         html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
@@ -881,20 +860,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
-                        xtype: 'button',
-                        text: 'Average Yield',
+                        xtype: 'radiogroup',
                         id: 'nutrientsFarmConvert',
-                        tooltip: 'Convert between average yield by area and yearly yield',
-                          handler: function(e) {
-                            console.log(e)
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Nutrients / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Average Nutrients',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_farm", e.id)
-                          }
-//                        text: 'Yearly Yield'
+                         }},
                     },
-                    {
-
-                        xtype: 'container',
-                    },{
+                   {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
@@ -937,15 +921,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
-                        xtype: 'button',
-                        text: 'Average Yield',
+                        xtype: 'radiogroup',
                         id: 'nutrientsFieldConvert',
-                        tooltip: 'Convert between average yield by area and yearly yield',
-                          handler: function(e) {
-                            console.log(e)
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Nutrients / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Average Nutrients',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_field", e.id)
-                          }
-//                        text: 'Yearly Yield'
+                         }},
                     },
                     {
 
