@@ -21,7 +21,7 @@ arr_slope_length = np.asarray(band_slope_length.ReadAsArray(), dtype=np.float64)
 
 
 ls_list = []
-# slopes = self.input_raster_dic["slope_data"]
+# slopes = self.input_raster_dic["slope"]
 # slope_lengths = self.input_raster_dic["slope_length"]
 print(arr_slope.shape)
 print(arr_slope_length.shape)
