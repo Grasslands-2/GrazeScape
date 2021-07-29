@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import FileResponse
+import traceback
+
 from django.core.files import File
 from django.conf import settings
 import os
@@ -56,6 +58,17 @@ def index(request):
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
 @ensure_csrf_cookie
+def download_rasters(request):
+    field_id = request.POST.getlist("field_id")[0]
+    field_coors = []
+
+    for input in request.POST:
+        if "field_coors" in input:
+            field_coors.append(request.POST.getlist(input))
+    geo_data = RasterData(request.POST.getlist("extent[]"),
+                          field_coors, field_id, True)
+    return JsonResponse({"download":"finished"})
+
 def get_model_results(request):
 
     field_id = request.POST.getlist("field_id")[0]
@@ -64,22 +77,20 @@ def get_model_results(request):
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
     scen = request.POST.get('model_parameters[scen]')
-    print(request.POST)
     if request.POST.getlist("isActiveScen")[0] == 'false':
         print("not active scenario")
         return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request), safe=False)
-
-    global raster_data
     field_coors = []
     # format field geometry
     for input in request.POST:
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
     try:
-        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"))
-        geo_data.load_layers()
-        geo_data.create_clip(field_coors)
-        clipped_rasters, bounds = geo_data.clip_raster()
+        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, False)
+        # geo_data.load_layers()
+        # geo_data.create_clip(field_coors)
+        clipped_rasters, bounds = geo_data.get_clipped_rasters()
+        # geo_data.clean()
         if model_type == 'yield':
             crop_ro = request.POST.getlist("model_parameters[crop]")[0]
             if crop_ro == 'pt' or crop_ro == 'ps':
@@ -180,6 +191,7 @@ def get_model_results(request):
     except Exception as e:
         error = str(e) + " while running models for field " + f_name
         print(type(e).__name__)
+        traceback.print_exc()
         # error = "Unexpected error:", sys.exc_info()[0]
         # error = "Unexpected error"
     print(error)

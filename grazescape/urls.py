@@ -11,6 +11,7 @@ urlpatterns = [
     path('get_model_results', views.get_model_results, name='get_model_results'),
     path('get_image', views.get_image, name='get_image'),
     path('clean_data', views.clean_data, name='clean_data'),
+    path('download_rasters', views.download_rasters, name='download_rasters'),
     # path('chart_data', views.chart, name='chart'),
     # path('point_elevations', views.point_elevations, name='point_elevations'),
 ]
