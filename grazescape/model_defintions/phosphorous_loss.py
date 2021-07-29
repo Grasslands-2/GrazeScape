@@ -12,7 +12,7 @@ class PhosphorousLoss(ModelBase):
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
-        slope = self.raster_inputs["slope_data"].flatten()
+        slope = self.raster_inputs["slope"].flatten()
         slope_length = self.raster_inputs["slope_length"].flatten()
         sand = self.raster_inputs["sand"].flatten()
         silt = self.raster_inputs["silt"].flatten()
