@@ -18,6 +18,7 @@ from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.crop_yield import CropYield
 from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.insecticide import Insecticide
+from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
 import sys
 import time
@@ -68,6 +69,16 @@ def download_rasters(request):
     geo_data = RasterData(request.POST.getlist("extent[]"),
                           field_coors, field_id, True)
     return JsonResponse({"download":"finished"})
+
+
+def geoserver_request(request):
+    print(request.POST)
+    request_type = request.POST.get("request_type")
+    url = request.POST.get("url")
+    geo = GeoServer(request_type, url)
+    geo.makeRequest()
+    return JsonResponse({"data": geo.makeRequest()}, safe=False)
+
 
 def get_model_results(request):
 
