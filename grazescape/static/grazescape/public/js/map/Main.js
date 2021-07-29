@@ -327,60 +327,10 @@ Ext.define('DSS.map.Main', {
 //				}
 //			})
 		})
-		var scenario_1SourceMain = new ol.source.Vector({
-//			format: new ol.format.GeoJSON(),
-//			url: function(extent){
-//				return geoserverURL + '/geoserver/wfs?'+
-//				'service=wfs&'+
-//				'?version=2.0.0&'+
-//				'request=GetFeature&'+
-//				'typeName=GrazeScape_Vector:scenarios_2&' +
-//				'outputformat=application/json&'+
-//				'srsname=EPSG:3857'
-//			},
-			
-		});
-		var infrastructure_Source = new ol.source.Vector({
-//			format: new ol.format.GeoJSON(),
-//			url: function(extent) {
-//				return geoserverURL + '/geoserver/wfs?'+
-//				'service=wfs&'+
-//				'?version=2.0.0&'+
-//				'request=GetFeature&'+
-//				'typeName=GrazeScape_Vector:infrastructure_2&' +
-//				//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-//				'outputformat=application/json&'+
-//				'srsname=EPSG:3857';
-//			},
-		});
-		var farms_1Source = new ol.source.Vector({
-//			format: new ol.format.GeoJSON(),
-//			url: function(extent) {
-//				return geoserverURL + '/geoserver/wfs?'+
-//				'service=wfs&'+
-//				'?version=2.0.0&'+
-//				'request=GetFeature&'+
-//				'typeName=GrazeScape_Vector:farm_2&' +
-//				'outputformat=application/json&'+
-//				'srsname=EPSG:3857';
-//			},
-		});
-
-
-//
-		var fields_1Source = new ol.source.Vector({
-//			format: new ol.format.GeoJSON(),
-//			url: function(extent) {
-//				return geoserverURL + '/geoserver/wfs?'+
-//				'service=wfs&'+
-//				'?version=2.0.0&'+
-//				'request=GetFeature&'+
-//				'typeName=GrazeScape_Vector:field_2&' +
-//				//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-//				'outputformat=application/json&'+
-//				'srsname=EPSG:3857';
-//			},
-		});
+		var scenario_1SourceMain = new ol.source.Vector({});
+		var infrastructure_Source = new ol.source.Vector({});
+		var farms_1Source = new ol.source.Vector({});
+		var fields_1Source = new ol.source.Vector({});
 		//-------------------------------------Scenario Style------------------------
 		function scenStyle() {
 			if( 1 ==1 ){return scenStyle1}
