@@ -3,16 +3,17 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 //DSS.scenarioName = ''
 //local functions to make sure selected scenario infra and fields only draw
 function showFieldsForScenario() {
-	DSS.layer.fields_1.getSource().setUrl(
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_2&'+
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-	);
+//	DSS.layer.fields_1.getSource().setUrl(
+//	geoserverURL + '/geoserver/wfs?'+
+//	'service=wfs&'+
+//	'?version=2.0.0&'+
+//	'request=GetFeature&'+
+//	'typeName=GrazeScape_Vector:field_2&'+
+//	+'&'+
+//	'outputformat=application/json&'+
+//	'srsname=EPSG:3857'
+//	);
+    geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	console.log(DSS.layer.fields_1.getStyle())
 	DSS.layer.fields_1.getSource().refresh();
 	console.log("showfieldsforfarm ran");
@@ -21,54 +22,56 @@ function showFieldsForScenario() {
 //----------------------------------------
 function showInfraForScenario() {
 	
-	DSS.layer.infrastructure.getSource().setUrl(
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:infrastructure_2&'+
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857');
+//	DSS.layer.infrastructure.getSource().setUrl(
+//	geoserverURL + '/geoserver/wfs?'+
+//	'service=wfs&'+
+//	'?version=2.0.0&'+
+//	'request=GetFeature&'+
+//	'typeName=GrazeScape_Vector:infrastructure_2&'+
+//	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+//	'outputformat=application/json&'+
+//	'srsname=EPSG:3857');
 	console.log(DSS.layer.infrastructure.getStyle())
+	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	DSS.layer.infrastructure.getSource().refresh();
 	console.log("showInfrasforfarm ran");
 }
 //-------------------------------------------------------
 scenarioPickerArray = [];
-function getWFSScenarioSP(farm) {
+function getWFSScenarioSP() {
 	scenarioPickerArray = [];
-	console.log(DSS.activeFarm);
-	var scenarioUrlSP = 
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-    console.log("getting wfs scenarios")
-	return $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: scenarioUrlSP,
-		async: false,
-		dataType: 'json',
-		success:function(response)
-		{
-			responseObj = response
-			scenObj = response.features
-			console.log(responseObj);
-			farmArray = [];
-			itemsArray = [];
-			console.log(scenObj[0]);
-			popScenarioArraySP(scenObj);
-			popItemsArray(scenObj);
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			console.log(response);
-		}
-	})
+	geoServer.getWFSScenarioSP('&CQL_filter=farm_id='+DSS.activeFarm)
+//	console.log(DSS.activeFarm);
+//	var scenarioUrlSP =
+//	geoserverURL + '/geoserver/wfs?'+
+//	'service=wfs&'+
+//	'?version=2.0.0&'+
+//	'request=GetFeature&'+
+//	'typeName=GrazeScape_Vector:scenarios_2&' +
+//	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+//	'outputformat=application/json&'+
+//	'srsname=EPSG:3857'
+//    console.log("getting wfs scenarios")
+//	return $.ajax({
+//		jsonp: false,
+//		type: 'GET',
+//		url: scenarioUrlSP,
+//		async: false,
+//		dataType: 'json',
+//		success:function(response)
+//		{
+//			responseObj = response
+//			scenObj = response.features
+//			console.log(responseObj);
+//			farmArray = [];
+//			itemsArray = [];
+//			console.log(scenObj[0]);
+//			popScenarioArraySP(scenObj);
+//			popItemsArray(scenObj);
+//			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//			console.log(response);
+//		}
+//	})
 }
 
 function popScenarioArraySP(obj) {
@@ -109,13 +112,21 @@ function popScenarioArraySP(obj) {
 itemsArray = []
 
 function popItemsArray(obj){
-	for (i in obj)
-	itemsArray.push({
-		text:obj[i].properties.scenario_name,
-		inputValue:obj[i].properties.scenario_id,
-		itemFid: obj[i].id
-	})
+    Ext.getCmp("scenarioMenu").removeAll()
+	for (i in obj){
+        Ext.getCmp("scenarioMenu").add({
+            text:obj[i].properties.scenario_name,
+            inputValue:obj[i].properties.scenario_id,
+            itemFid: obj[i].id
+        })
+    }
+//	itemsArray.push({
+//		text:obj[i].properties.scenario_name,
+//		inputValue:obj[i].properties.scenario_id,
+//		itemFid: obj[i].id
+//	})
 	console.log(itemsArray);
+
 }
 //getWFSScenarioSP(DSS.activeFarm)
 //console.log("Picker array and items array!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -127,9 +138,9 @@ Ext.define('DSS.state.ScenarioPicker', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
 	alias: 'widget.state_scenario_picker',
-	
-	autoDestroy: false,
-	closeAction: 'hide',
+	id: "scenarioPicker",
+//	autoDestroy: false,
+//	closeAction: 'hide',
 	constrain: true,
 	modal: true,
 	width: 832,
@@ -163,6 +174,7 @@ Ext.define('DSS.state.ScenarioPicker', {
 				},
 				Ext.create('Ext.menu.Menu', {
 					width: 100,
+					id: "scenarioMenu",
 					margin: '0 0 10 0',
 					floating: false,  // usually you want this set to True (default)
 					renderTo: Ext.getBody(),  // usually rendered by it's containing component

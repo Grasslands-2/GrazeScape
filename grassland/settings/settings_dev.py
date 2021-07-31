@@ -14,7 +14,9 @@ from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 #GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
 
 # Quick-start development settings - unsuitable for production
@@ -25,8 +27,8 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-
+GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
+R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_ALLOW_ALL = True
 

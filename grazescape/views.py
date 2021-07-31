@@ -74,9 +74,12 @@ def download_rasters(request):
 def geoserver_request(request):
     print(request.POST)
     request_type = request.POST.get("request_type")
+    pay_load = request.POST.get("pay_load")
+    print("Pay loaddddddddddddddddddddddddd")
+    print(pay_load)
     url = request.POST.get("url")
     geo = GeoServer(request_type, url)
-    geo.makeRequest()
+    geo.makeRequest(pay_load)
     return JsonResponse({"data": geo.makeRequest()}, safe=False)
 
 

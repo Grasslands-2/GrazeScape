@@ -443,10 +443,10 @@ Ext.define('DSS.map.Main', {
 			//defaultFieldStyle
 		})
 //		set sources of the major layers
-        geoServer.getFieldSource()
-		geoServer.getFarmSource()
-		geoServer.getInfrastructureSource()
-		geoServer.getScenariosSource()
+        geoServer.setFieldSource()
+		geoServer.setFarmSource()
+		geoServer.setInfrastructureSource()
+		geoServer.setScenariosSource()
 
 		//final function called in fieldStyle
 		function hatchAssignFieldStyle(png){
