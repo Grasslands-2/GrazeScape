@@ -2,25 +2,27 @@ var farmArray = [];
 var farmObj = {};
 var scenarioArray = [];
 var scenarioObj = {};
+//scenarioUrl = geoserverURL + '/geoserver/wfs?'+
+//'service=wfs&'+
+//'?version=2.0.0&'+
+//'request=GetFeature&'+
+//'typeName=GrazeScape_Vector:scenarios_2&' +
+////'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+//'outputformat=application/json&'+
+//'srsname=EPSG:3857';
 
-scenarioUrl = geoserverURL + '/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=GrazeScape_Vector:scenarios_2&' +
-//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-'outputformat=application/json&'+
-'srsname=EPSG:3857';
+function waitForScen(){
+	    return new Promise(function(resolve) {
+	        console.log(scenarioArray.length == 0)
+            if (scenarioArray.length == 0){
+                console.log("waiting...")
 
-var scenario_1Source = new ol.source.Vector({
-	format: new ol.format.GeoJSON(),
-	url: scenarioUrl
-});
-var scenario_1Layer = new ol.layer.Vector({
-	title: 'Scenarios',
-	source: scenario_1Source
-});
-
+            }
+            console.log("done waiting!!!!!!!!!!!!")
+            console.log("2222")
+            resolve("done")
+        })
+	}
 function popScenarioArray(obj) {
 	for (i in obj)
 	//console.log(i);
@@ -56,67 +58,16 @@ function popScenarioArray(obj) {
 	console.log(scenarioArray);
 }
 
-function getWFSScenario(scenarioUrl) {
-    console.log("getting wfs scenarios")
-	return $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: scenarioUrl,
-		async: false,
-		dataType: 'json',
-		success:function(response)
-		{
-			responseObj = response
-			scenarioObj = response.features
-			console.log(responseObj);
-			scenarioArray = [];
-			console.log("I am geoscenarioarray response object")
-			console.log(scenarioObj);
-			popScenarioArray(scenarioObj);
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			//console.log(response);
-		}
-	})
+function getWFSScenario() {
+        geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+
 }
 
 function gatherScenarioTableData() {
-	//redeclaring scenarioUrl to only show filtered fields
-	scenarioUrl = 
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857';
-	//--------------------------------------------
-	getWFSScenario(scenarioUrl);
+	getWFSScenario();
 };
 
-var infrastructure_Source = new ol.source.Vector({
-	url: geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:infrastructure_2&' +
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857',
-	format: new ol.format.GeoJSON()
-});
 
-var fields_1Source = new ol.source.Vector({
-	url:geoserverURL + '/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:field_2&' +
-		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857',
-	format: new ol.format.GeoJSON()
-});
 function runInfraUpdate(){
 	DSS.layer.infrastructure.getSource().forEachFeature(function(f) {
 		var infraFeature = f;
@@ -246,36 +197,37 @@ function wfs_update(feat,layer) {
 	str=str.replace("feature:"+layer,"Farms:"+layer);
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
     console.log(str);
-    $.ajax(geoserverURL + '/geoserver/wfs?'
-	/*'http://localhost:8081/geoserver/wfs?'*/,{
-        type: 'POST',
-        dataType: 'xml',
-        processData: false,
-        contentType: 'text/xml',
-		data: str,
-		success: function (data) {
-			console.log("uploaded data successfully!: "+ data);
-		},
-        error: function (xhr, exception) {
-            var msg = "";
-            if (xhr.status === 0) {
-                msg = "Not connect.\n Verify Network." + xhr.responseText;
-            } else if (xhr.status == 404) {
-                msg = "Requested page not found. [404]" + xhr.responseText;
-            } else if (xhr.status == 500) {
-                msg = "Internal Server Error [500]." +  xhr.responseText;
-            } else if (exception === "parsererror") {
-                msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-                msg = "Time out error." + xhr.responseText;
-            } else if (exception === "abort") {
-                msg = "Ajax request aborted.";
-            } else {
-                msg = "Error:" + xhr.status + " " + xhr.responseText;
-            }
-			console.log(msg);
-        }
-    }).done();
+    geoServer.updateFieldAtt(str,feat )
+//    $.ajax(geoserverURL + '/geoserver/wfs?'
+//	/*'http://localhost:8081/geoserver/wfs?'*/,{
+//        type: 'POST',
+//        dataType: 'xml',
+//        processData: false,
+//        contentType: 'text/xml',
+//		data: str,
+//		success: function (data) {
+//			console.log("uploaded data successfully!: "+ data);
+//		},
+//        error: function (xhr, exception) {
+//            var msg = "";
+//            if (xhr.status === 0) {
+//                msg = "Not connect.\n Verify Network." + xhr.responseText;
+//            } else if (xhr.status == 404) {
+//                msg = "Requested page not found. [404]" + xhr.responseText;
+//            } else if (xhr.status == 500) {
+//                msg = "Internal Server Error [500]." +  xhr.responseText;
+//            } else if (exception === "parsererror") {
+//                msg = "Requested JSON parse failed.";
+//            } else if (exception === "timeout") {
+//                msg = "Time out error." + xhr.responseText;
+//            } else if (exception === "abort") {
+//                msg = "Ajax request aborted.";
+//            } else {
+//                msg = "Error:" + xhr.status + " " + xhr.responseText;
+//            }
+//			console.log(msg);
+//        }
+//    }).done();
 }
 
 //------------------------------------------------------------------------------
@@ -610,11 +562,18 @@ Ext.define('DSS.state.Scenario', {
 		DSS.draw.setActive(false);
 		DSS.modify.setActive(false);
 		DSS.fieldStyleFunction = undefined;	DSS.layer.fields_1.changed();
+//        having trouble getting the promise to work. Just using a timeout for now
+        setTimeout(() => {
+            console.log("calling model setup")
+            waitForScen().then(function(value){
+                console.log("promise done")
+                me.initViewModel();
 
-		me.initViewModel();
-	},
+            })
+            }, 500);
+        },
 	
-	
+
 	//-----------------------------------------------------------------------------
 	initViewModel: function() {
 		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
@@ -623,7 +582,7 @@ Ext.define('DSS.state.Scenario', {
 		if (!DSS['viewModel'])*/ 
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
-		gatherScenarioTableData()
+//		gatherScenarioTableData()
 		console.log('in animal view model')
 		console.log('this is the farms beef cows: ')
 		//console.log(scenarioArray[0].beefCows)

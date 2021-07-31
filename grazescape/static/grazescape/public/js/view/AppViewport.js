@@ -3,8 +3,6 @@ var DSS_isDataLoaded = false;
 var DSS_chart_data = 1;
 var DSS_dataLoadAjax;
 var geoServer = new GeoServer()
-//var geoserverURL = "http://geoserver-dev1.glbrc.org:8080"
-////var geoserverURL = "https://geoserver:8443"
 
 DSS.utils.addStyle('.x-btn-focus.x-btn-over.x-btn-default-toolbar-small {z-index:2000;overflow: visible;box-shadow: #4297d4 0 1px 0px 0 inset, #4297d4 0 -1px 0px 0 inset, #4297d4 -1px 0 0px 0 inset, #4297d4 1px 0 0px 0 inset, -2px 4px 4px rgba(0,0,0,0.5);}')
 DSS.utils.addStyle('.x-btn-default-toolbar-small {box-shadow: -1px 2px 2px rgba(0,0,0,0.25);}')

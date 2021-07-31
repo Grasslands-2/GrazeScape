@@ -6,58 +6,45 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 var infraArray = [];
 var infraObj = {};
 
-var infraUrl = 
-geoserverURL + '/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=GrazeScape_Vector:infrastructure_2&' +
-'outputformat=application/json&'+
-'srsname=EPSG:3857';
+var infraUrl = ""
 
-var infrastructure_Source = new ol.source.Vector({
-	format: new ol.format.GeoJSON(),
-	url: infraUrl
-});
-var infrastructureLayer = new ol.layer.Vector({
-	title: 'infrastructure',
-	source: infrastructure_Source
-})
-console.log(infrastructureLayer)
 
-function getWFSinfra() {
+
+
+function getWFSinfra(parameter = "") {
     console.log("getting wfs infra")
-	return $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: infraUrl,
-		async: false,
-		dataType: 'json',
-		success:function(response)
-		{
-			responseObj = response
-			infraObj = response.features
-			console.log(responseObj);
-			infraArray = [];
-			console.log(infraObj[0]);
-			popInfraArray(infraObj);
-			//placed data store in call function to make sure it was locally available.	
-			Ext.create('Ext.data.Store', {
-				storeId: 'infraStore1',
-				alternateClassName: 'DSS.infraStore',
-				fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe',
-				'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','totalCost'],
-				data: infraArray
-			});
-			//Setting store to just declared store fieldStore1, and reloading the store to the grid
-			DSS.infrastructure_grid.InfrastructureGrid.setStore(Ext.data.StoreManager.lookup('infraStore1'));
-			DSS.infrastructure_grid.InfrastructureGrid.store.reload();
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			console.log(response);
-			//console.log('DSS.infrastructure_grid.InfrastructureGrid')
-			//console.log(DSS.infrastructure_grid.InfrastructureGrid);
-		}
-	})
+    geoServer.getWFSinfra(parameter)
+//	return $.ajax({
+//		jsonp: false,
+//		type: 'GET',
+//		url: infraUrl,
+//		async: false,
+//		dataType: 'json',
+//		success:function(response)
+//		{
+//			responseObj = response
+//			infraObj = response.features
+//			console.log(responseObj);
+//			infraArray = [];
+//			console.log(infraObj[0]);
+//			popInfraArray(infraObj);
+//			//placed data store in call function to make sure it was locally available.
+//			Ext.create('Ext.data.Store', {
+//				storeId: 'infraStore1',
+//				alternateClassName: 'DSS.infraStore',
+//				fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe',
+//				'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','totalCost'],
+//				data: infraArray
+//			});
+//			//Setting store to just declared store fieldStore1, and reloading the store to the grid
+//			DSS.infrastructure_grid.InfrastructureGrid.setStore(Ext.data.StoreManager.lookup('infraStore1'));
+//			DSS.infrastructure_grid.InfrastructureGrid.store.reload();
+//			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//			console.log(response);
+//			//console.log('DSS.infrastructure_grid.InfrastructureGrid')
+//			//console.log(DSS.infrastructure_grid.InfrastructureGrid);
+//		}
+//	})
 }
 
 function popInfraArray(obj) {
@@ -87,18 +74,8 @@ console.log(infraArray);
 
 //empty array to catch feature objects 
 function gatherInfraTableData() {
-	//redeclaring infraUrl to only show filtered fields
-	infraUrl = 
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:infrastructure_2&' +
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857';
-	//--------------------------------------------
-	getWFSinfra();
+
+	getWFSinfra('&CQL_filter=scenario_id='+DSS.activeScenario);
 	console.log("InfraStructure gatherTableData ran");
 	console.log(infraArray);
 };
