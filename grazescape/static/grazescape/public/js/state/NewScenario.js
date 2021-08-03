@@ -1,71 +1,73 @@
-
+DSS.newScenarioID = null
 //DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 //--------------Geoserver WFS source connection-------------------
 //wfs farm layer url for general use
 var scenarioObj = {};
 var scenarioUrlNS = 
-geoserverURL + '/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=GrazeScape_Vector:scenarios_2&' +
-//'CQL_filter=farm_id='+DSS.activeFarm+'&'+
-'outputformat=application/json&'+
-'srsname=EPSG:3857'
+//geoserverURL + '/geoserver/wfs?'+
+//'service=wfs&'+
+//'?version=2.0.0&'+
+//'request=GetFeature&'+
+//'typeName=GrazeScape_Vector:scenarios_2&' +
+////'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+//'outputformat=application/json&'+
+//'srsname=EPSG:3857'
 
-fieldUrlNS = 
-geoserverURL + '/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=GrazeScape_Vector:field_2&' +
-'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-'outputformat=application/json&'+
-'srsname=EPSG:3857';
+fieldUrlNS = ""
+//geoserverURL + '/geoserver/wfs?'+
+//'service=wfs&'+
+//'?version=2.0.0&'+
+//'request=GetFeature&'+
+//'typeName=GrazeScape_Vector:field_2&' +
+//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+//'outputformat=application/json&'+
+//'srsname=EPSG:3857';
 
-infraUrlNS = 
-geoserverURL + '/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=GrazeScape_Vector:infrastructure_2&' +
-'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-'outputformat=application/json&'+
-'srsname=EPSG:3857';
+infraUrlNS = ""
+//geoserverURL + '/geoserver/wfs?'+
+//'service=wfs&'+
+//'?version=2.0.0&'+
+//'request=GetFeature&'+
+//'typeName=GrazeScape_Vector:infrastructure_2&' +
+//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+//'outputformat=application/json&'+
+//'srsname=EPSG:3857';
 //--------------------------------------------
 //declaring farm source var
-var farms_1Source = new ol.source.Vector({
-    url: farmUrl,
-    format: new ol.format.GeoJSON()
-});
-var scenario_1SourceNS = new ol.source.Vector({
-    url: scenarioUrlNS,
-    format: new ol.format.GeoJSON()
-});
-var field_1SourceNS = new ol.source.Vector({
-    url: fieldUrlNS,
-    format: new ol.format.GeoJSON()
-});
-var infrastructureSourceNS = new ol.source.Vector({
-    url: infraUrlNS,
-    format: new ol.format.GeoJSON()
-});
+//var farms_1Source = new ol.source.Vector({
+//    url: farmUrl,
+//    format: new ol.format.GeoJSON()
+//});
+//var scenario_1SourceNS = new ol.source.Vector({
+//    url: scenarioUrlNS,
+//    format: new ol.format.GeoJSON()
+//});
+//var field_1SourceNS = new ol.source.Vector({
+//    url: fieldUrlNS,
+//    format: new ol.format.GeoJSON()
+//});
+//var infrastructureSourceNS = new ol.source.Vector({
+//    url: infraUrlNS,
+//    format: new ol.format.GeoJSON()
+//});
 newScenarioName = ''
 //console.log(field_1SourceNS)
 //bring in farm layer table as object for iteration
 function getWFSFarm() {
-	return $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: farmUrl,
-		async: false,
-		dataType: 'json',
-		success:function(response)
-		{
-			farmObj = response.features
-			console.log(farmObj[0])
-		}
-	})
+
+
+//	return $.ajax({
+//		jsonp: false,
+//		type: 'GET',
+//		url: farmUrl,
+//		async: false,
+//		dataType: 'json',
+//		success:function(response)
+//		{
+//			farmObj = response.features
+//			console.log(farmObj[0])
+//		}
+//	})
 }
 //bring in farm layer table as object for iteration
 function getWFSScenarioNS() {
@@ -95,7 +97,7 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
 		if(f.values_.scenario_id == copyScenarioNum){
 			delete f.id_
 			f.geometryName_ = 'geom'
-			f.values_.scenario_id = highestScenarioId;
+			f.values_.scenario_id = DSS.activeScenario;
 			f.values_.geom = f.values_.geometry;
 			delete f.values_.geometry
 			console.log(f);
@@ -109,14 +111,10 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
 		console.log('featArrayNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 		console.log(featArray);
 		await wfs_new_scenario_features_copy(featArray,layerTitle)
-		// for(i in featArray){
-		// 	await wfs_new_scenario_features_copy(featArray[i],layerTitle)
-		// }
+
 }
 
 //empty array to catch feature objects 
-// call getWFSFarm to get farm table object
-//getWFSFarm()
 //define function to populate data array with farm table data
 function popFarmArray(obj) {
 	for (i in obj) 
@@ -172,32 +170,25 @@ function getHighestFarmId(){
 		console.log(farmArray[i].id)
 		if (farmArray[i].id > highestFarmId){
 			highestFarmId = farmArray[i].id
-			console.log('hightestFarmId after getHighestFarmId run: ' + highestFarmId)
+			console.log('hightestFarmId after getHighestFarm run: ' + highestFarmId)
 		};
 	};
 }
-function rerunPopScenarioArrayNS(){
-	getWFSScenarioNS();
-	//popscenarioArrayNS(scenarioObj);
-}
+//function rerunPopScenarioArrayNS(){
+//	getWFSScenarioNS();
+//}
 function getHighestScenarioId(){
 	getWFSScenarioNS();
-	//popscenarioArrayNS(scenarioObj);
 	for (i in scenarioArrayNS){
 		console.log(scenarioArrayNS[i].scenarioId)
 		console.log(highestScenarioId)
 		if (scenarioArrayNS[i].scenarioId > highestScenarioId){
 			highestScenarioId = scenarioArrayNS[i].scenarioId
-			console.log('hightestScenarioId after getHighestScenarioId run: ' + highestScenarioId)
+			console.log('hightestScenarioId after getHighestScenario run: ' + highestScenarioId)
 		};
 	};
 }
 //Do we need to call these?  I guess it doesnt hurt in the mean time.
-//getHighestFarmId()
-//getHighestScenarioId()
-//highestFarmId = 0
-console.log(highestFarmId);
-console.log(highestScenarioId);
 
 
 //---------------------------------Working Functions-------------------------------
@@ -218,42 +209,43 @@ function wfs_new_scenario_features_copy(featsArray,fType) {
 	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
-    console.log(str);
-    $.ajax(geoserverURL + '/geoserver/wfs?',
-	{
-        type: 'POST',
-        dataType: 'xml',
-        processData: false,
-        contentType: 'text/xml',
-        data: str,
-		success: function (response) {
-			console.log("uploaded data successfully!: "+ response);
-			console.log(response)
-			// DSS.layer.fields_1.getSource().refresh();
-			// DSS.layer.fieldsLabels.getSource().refresh();
-			// DSS.layer.infrastructure.getSource().refresh();
-			console.log("copied field or infra over for feat: ");
-		},
-        error: function (xhr, exception) {
-            var msg = "";
-            if (xhr.status === 0) {
-                msg = "Not connect.\n Verify Network." + xhr.responseText;
-            } else if (xhr.status == 404) {
-                msg = "Requested page not found. [404]" + xhr.responseText;
-            } else if (xhr.status == 500) {
-                msg = "Internal Server Error [500]." +  xhr.responseText;
-            } else if (exception === "parsererror") {
-                msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-                msg = "Time out error." + xhr.responseText;
-            } else if (exception === "abort") {
-                msg = "Ajax request aborted.";
-            } else {
-                msg = "Error:" + xhr.status + " " + xhr.responseText;
-            }
-			console.log(msg);
-        }
-    }).done();
+    geoServer.wfs_new_scenario_features_copy(str, featsArray)
+//    console.log(str);
+//    $.ajax(geoserverURL + '/geoserver/wfs?',
+//	{
+//        type: 'POST',
+//        dataType: 'xml',
+//        processData: false,
+//        contentType: 'text/xml',
+//        data: str,
+//		success: function (response) {
+//			console.log("uploaded data successfully!: "+ response);
+//			console.log(response)
+//			// DSS.layer.fields_1.getSource().refresh();
+//			// DSS.layer.fieldsLabels.getSource().refresh();
+//			// DSS.layer.infrastructure.getSource().refresh();
+//			console.log("copied field or infra over for feat: ");
+//		},
+//        error: function (xhr, exception) {
+//            var msg = "";
+//            if (xhr.status === 0) {
+//                msg = "Not connect.\n Verify Network." + xhr.responseText;
+//            } else if (xhr.status == 404) {
+//                msg = "Requested page not found. [404]" + xhr.responseText;
+//            } else if (xhr.status == 500) {
+//                msg = "Internal Server Error [500]." +  xhr.responseText;
+//            } else if (exception === "parsererror") {
+//                msg = "Requested JSON parse failed.";
+//            } else if (exception === "timeout") {
+//                msg = "Time out error." + xhr.responseText;
+//            } else if (exception === "abort") {
+//                msg = "Ajax request aborted.";
+//            } else {
+//                msg = "Error:" + xhr.status + " " + xhr.responseText;
+//            }
+//			console.log(msg);
+//        }
+//    }).done();
 }
 
 function wfs_scenario_insert(feat,geomType,fType) {
@@ -264,67 +256,67 @@ function wfs_scenario_insert(feat,geomType,fType) {
         featureType: fType,
         srsName: 'EPSG:3857'
     });
-    console.log('wfs_scenario_insert feature: '+feat)
+    console.log('wfs_scenario_ins feature: '+feat)
 	//console.log(feat.values_.id)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log('feature node: '+node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log('Transaction xml: '+str);
-    $.ajax(geoserverURL + '/geoserver/wfs?',
-	{
-        type: 'POST',
-        dataType: 'xml',
-        processData: false,
-        contentType: 'text/xml',
-        data: str,
-		success: function (response) {
-			console.log("uploaded data successfully!: "+ response);
-			//scenarioNumHold = DSS.activeScenario
-			//getWFSFieldsInfraNS(scenarioNumHold);
-			getWFSFieldsInfraNS(scenarioNumHold,fieldArrayNS,DSS.layer.fields_1,'field_2');
-			getWFSFieldsInfraNS(scenarioNumHold,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
-			farmArray = [];
-			scenarioArrayNS = [];
-			//The commented out functions might be resourcing fields to the new scenario before it has fields
-			DSS.layer.farms_1.getSource().refresh();
-			//DSS.layer.scenarios.getSource().refresh();
-			DSS.MapState.removeMapInteractions()
-			//getHighestFarmId();
-			scenarioArrayNS = []
-			getHighestScenarioId();
-			console.log(highestScenarioId);
-			DSS.activeScenario = highestScenarioId;
-			DSS.scenarioName = feat.values_.scenario_name
-			DSS.ApplicationFlow.instance.showManageOperationPage();
-			console.log(DSS.activeScenario);
-			
-		},
-        error: function (xhr, exception) {
-            var msg = "";
-            if (xhr.status === 0) {
-                msg = "Not connect.\n Verify Network." + xhr.responseText;
-            } else if (xhr.status == 404) {
-                msg = "Requested page not found. [404]" + xhr.responseText;
-            } else if (xhr.status == 500) {
-                msg = "Internal Server Error [500]." +  xhr.responseText;
-            } else if (exception === "parsererror") {
-                msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-                msg = "Time out error." + xhr.responseText;
-            } else if (exception === "abort") {
-                msg = "Ajax request aborted.";
-            } else {
-                msg = "Error:" + xhr.status + " " + xhr.responseText;
-            }
-			console.log(msg);
-        }
-    }).done();
+    geoServer.wfs_scenario_insert(str, feat)
+//    $.ajax(geoserverURL + '/geoserver/wfs?',
+//	{
+//        type: 'POST',
+//        dataType: 'xml',
+//        processData: false,
+//        contentType: 'text/xml',
+//        data: str,
+//		success: function (response) {
+//			console.log("uploaded data successfully!: "+ response);
+//			//scenarioNumHold = DSS.activeScenario
+//			// current scenario
+//			getWFSFieldsInfraNS(scenarioNumHold,fieldArrayNS,DSS.layer.fields_1,'field_2');
+//			getWFSFieldsInfraNS(scenarioNumHold,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
+//			farmArray = [];
+//			scenarioArrayNS = [];
+//			//The commented out functions might be resourcing fields to the new scenario before it has fields
+//			DSS.layer.farms_1.getSource().refresh();
+//			//DSS.layer.scenarios.getSource().refresh();
+//			DSS.MapState.removeMapInteractions()
+//			scenarioArrayNS = []
+//			getHighestScenarioId();
+//			console.log(highestScenarioId);
+//			DSS.activeScenario = highestScenarioId;
+//			DSS.scenarioName = feat.values_.scenario_name
+//			DSS.ApplicationFlow.instance.showManageOperationPage();
+//			console.log(DSS.activeScenario);
+//
+//		},
+//        error: function (xhr, exception) {
+//            var msg = "";
+//            if (xhr.status === 0) {
+//                msg = "Not connect.\n Verify Network." + xhr.responseText;
+//            } else if (xhr.status == 404) {
+//                msg = "Requested page not found. [404]" + xhr.responseText;
+//            } else if (xhr.status == 500) {
+//                msg = "Internal Server Error [500]." +  xhr.responseText;
+//            } else if (exception === "parsererror") {
+//                msg = "Requested JSON parse failed.";
+//            } else if (exception === "timeout") {
+//                msg = "Time out error." + xhr.responseText;
+//            } else if (exception === "abort") {
+//                msg = "Ajax request aborted.";
+//            } else {
+//                msg = "Error:" + xhr.status + " " + xhr.responseText;
+//            }
+//			console.log(msg);
+//        }
+//    }).done();
 }
 function createNewScenario(sname,sdescript,snewhighID){
-	console.log('in createnewscenario')
-	//rerunPopScenarioArrayNS();
-	console.log('scenarioArrayNS at start of createnewscenario: ');
+    DSS.newScenarioID = snewhighID
+	console.log('in createnewscen')
+	console.log('scenarioArrayNS at start of createnewscen: ');
 	console.log(scenarioArrayNS)
 	console.log('current active scenario #: '+ DSS.activeScenario);
 	//reSourcescenarios()
@@ -332,12 +324,13 @@ function createNewScenario(sname,sdescript,snewhighID){
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
-		console.log(newScenarioFeature.values_.scenario_id)
+//		console.log(newScenarioFeature.values_.scenario_id)
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
-		//console.log("from scenario features loop through: " + newScenarioFeature.values_.scenario_id);
+
 		if(newScenarioFeature.values_.scenario_id == DSS.activeScenario){
+
 			for (i in scenarioArrayNS){
 				console.log("scenarioArrayNS scenario_id: " + scenarioArrayNS[i].scenarioId);
 				if(scenarioArrayNS[i].scenarioId == DSS.activeScenario){
@@ -375,7 +368,6 @@ function createNewScenario(sname,sdescript,snewhighID){
 					wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')
 					//currently calling getwfsfields here to save runs.  this func will call
 					//insert for fields.  can do better job organizing later
-					//getWFSFieldsInfraNS();
 					console.log("HI! WFS new scenario Insert ran!")
 					break;
 				}else{}
@@ -385,8 +377,8 @@ function createNewScenario(sname,sdescript,snewhighID){
 }
 
 //------------------working variables--------------------
-var type = "Point";
-var source = farms_1Source;
+//var type = "Point";
+//var source = farms_1Source;
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.NewScenario', {
@@ -439,6 +431,10 @@ Ext.define('DSS.state.NewScenario', {
 						labelWidth: 70,
 						triggerWrapCls: 'underlined-input',
 					},
+					listeners:{show: function() {
+
+					 console.log("i'm showing!!!!!!!!!!!!!!")
+					}},
 					items: [{
 						fieldLabel: 'Scenario Name',
 						name: 'scenario_name',
@@ -465,25 +461,14 @@ Ext.define('DSS.state.NewScenario', {
 								scenarioArrayNS = [];
 								fieldArrayNS = []
 								infraArrayNS = []
-								getHighestFarmId()
-								getHighestScenarioId()
 								scenarioNumHold = DSS.activeScenario
-								console.log('highest farm id: '+highestFarmId);
-								console.log('highest scenario id: '+highestScenarioId);
-								highestScenarioId = highestScenarioId + 1
-								console.log('new highest scenario id: '+ highestScenarioId);
-								createNewScenario(form.findField('scenario_name').getSubmitValue(),
-									form.findField('scenario_description').getSubmitValue(),
-									highestScenarioId
-									);
-								//DSS.activeScenario = highestScenarioId;
+
+								let scenName = form.findField('scenario_name').getSubmitValue()
+								let scenDes = form.findField('scenario_description').getSubmitValue()
+								geoServer.copyScenario(scenName, scenDes)
+
 								this.up('window').destroy();
-								// DSS.layer.fields_1.getSource().refresh();
-								// DSS.layer.fieldsLabels.getSource().refresh();
-								// DSS.layer.infrastructure.getSource().refresh();
-								//DSS.activeScenario = highestScenarioId;
-								// DSS.scenarioName = newScenarioName
-								// DSS.ApplicationFlow.instance.showManageOperationPage();
+
 							}
 						}
 					}],

@@ -1,14 +1,4 @@
 var fields_1Source_loc = ""
-//var fields_1Source_loc = new ol.source.Vector({
-//	url:geoserverURL + '/geoserver/wfs?'+
-//	'service=wfs&'+
-//	'?version=2.0.0&'+
-//	'request=GetFeature&'+
-//	'typeName=GrazeScape_Vector:field_2&' +
-//	'outputformat=application/json&'+
-//	'srsname=EPSG:3857',
-//	format: new ol.format.GeoJSON()
-//});
 
 function wfs_field_insert(feat,geomType) {
     var formatWFS = new ol.format.WFS();
@@ -26,42 +16,7 @@ function wfs_field_insert(feat,geomType) {
     str = s.serializeToString(node);
     console.log(str);
     geoServer.wfs_field_insert(str, feat)
-//    $.ajax(geoserverURL + '/geoserver/wfs?'
-//	/*'http://localhost:8081/geoserver/wfs?'*/,{
-//        type: 'POST',
-//        dataType: 'xml',
-//        processData: false,
-//        contentType: 'text/xml',
-//        data: str,
-//		success: function (data) {
-//			DSS.MapState.removeMapInteractions()
-//			console.log("uploaded data successfully!: "+ data);
-//			DSS.layer.fields_1.getSource().refresh();
-//			DSS.layer.farms_1.getSource().refresh();
-//		},
-//        error: function (xhr, exception) {
-//            var msg = "";
-//            if (xhr.status === 0) {
-//                msg = "Not connect.\n Verify Network." + xhr.responseText;
-//            } else if (xhr.status == 404) {
-//                msg = "Requested page not found. [404]" + xhr.responseText;
-//            } else if (xhr.status == 500) {
-//                msg = "Internal Server Error [500]." +  xhr.responseText;
-//            } else if (exception === "parsererror") {
-//                msg = "Requested JSON parse failed.";
-//            } else if (exception === "timeout") {
-//                msg = "Time out error." + xhr.responseText;
-//            } else if (exception === "abort") {
-//                msg = "Ajax request aborted.";
-//            } else {
-//                msg = "Error:" + xhr.status + " " + xhr.responseText;
-//            }
-//			console.log(msg);
-//        }
-//    })
-//	.done();
-	//console.log("Field wrote to Geoserver")
-//	DSS.layer.fields_1.getSource().refresh();
+
 }
 function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
 
