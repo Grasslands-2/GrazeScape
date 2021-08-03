@@ -34,7 +34,8 @@ class ModelBase:
                                                    'raster_outputs',
                                                    file_name + ".png")
 
-        self.r_file_path = settings.GEOSERVER_URL
+        self.r_file_path = settings.R_PATH
+        print(settings.R_PATH)
         # self.r_file_path = "/opt/conda/envs/gscape/bin/R"
         try:
             r = R(RCMD=self.r_file_path, use_pandas=True)

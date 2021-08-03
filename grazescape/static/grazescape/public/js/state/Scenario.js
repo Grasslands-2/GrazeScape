@@ -144,13 +144,8 @@ function runFieldUpdate(){
 function runScenarioUpdate(){
 
 	//reSourcescenarios()
-	console.log(DSS['viewModel'].scenario.data.dairy.dry);
-	console.log(DSS.layer.scenarios.getSource().getUrl())
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeature = f;
-		console.log(f);
-		console.log(DSS.activeScenario)
-		console.log("from scenario loop through: " + scenarioFeature.values_.scenario_id);
 		if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
 			//console.log(scenarioArray[i].scenarioName);
 			console.log(scenarioArray[i]);
