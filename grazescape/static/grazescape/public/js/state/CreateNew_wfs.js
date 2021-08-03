@@ -67,7 +67,6 @@ function popscenarioArrayCNO(obj) {
 	for (i in scenarioArrayCNO){
 		if (scenarioArrayCNO[i].scenarioId > highestScenarioIdCNO){
 			highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
-			console.log(highestScenarioIdCNO);
 		};
 	};
 	console.log('popscenarioArrayCNO Completed')
@@ -105,8 +104,7 @@ function gethighestScenarioIdCNO(){
 }
 gethighestFarmIdCNO()
 gethighestScenarioIdCNO()
-//DSS.activeFarm = highestFarmIdCNO;
-//DSS.activeScenario = highestScenarioIdCNO;
+
 //highestFarmIdCNO = 0
 console.log(highestFarmIdCNO);
 console.log(highestScenarioIdCNO);

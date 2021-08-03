@@ -8,7 +8,6 @@ class GeoServer{
         this.geoInfra_Url ='/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Ainfrastructure_2&outputFormat=application%2Fjson'
 
         this.geoUpdate_Url =this.geoScen_Url
-        this.geoUpdate_Url =this.geoScen_Url
     }
 //    returns a geojson of the farms
     setScenariosSource(parameter = ""){
@@ -195,6 +194,135 @@ class GeoServer{
             currObj.setFieldSource()
             currObj.setInfrastructureSource()
          })
+    }
+    wfs_infra_insert(payLoad, feat){
+         this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
+            let geoJson = returnData.geojson
+            let currObj = returnData.current
+            cleanDB()
+//            currObj.setScenariosSource()
+//            currObj.setFarmSource()
+            currObj.setFieldSource()
+//            currObj.setInfrastructureSource()
+         })
+    }
+    deleteField(payLoad, feat){
+        this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
+
+            let geoJson = returnData.geojson
+            let currObj = returnData.current
+            cleanDB()
+//            currObj.setScenariosSource()
+            currObj.setFarmSource()
+            currObj.setFieldSource()
+//            currObj.setInfrastructureSource()
+         })
+
+    }
+    wfs_scenario_insert(payLoad, feat){
+        this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
+
+            let geoJson = returnData.geojson
+            let currObj = returnData.current
+            cleanDB()
+//            currObj.setScenariosSource()
+            currObj.setFarmSource()
+            currObj.setFieldSource()
+//            currObj.setInfrastructureSource()
+
+
+			//scenarioNumHold = DSS.activeScenario
+			// current scenario
+            DSS.activeScenario = DSS.newScenarioID
+
+			console.log("copying features$$$$$$$$$")
+			getWFSFieldsInfraNS(scenarioNumHold,fieldArrayNS,DSS.layer.fields_1,'field_2');
+			getWFSFieldsInfraNS(scenarioNumHold,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
+			farmArray = [];
+			scenarioArrayNS = [];
+			//The commented out functions might be resourcing fields to the new scenario before it has fields
+			//DSS.layer.scenarios.getSource().refresh();
+			DSS.MapState.removeMapInteractions()
+			scenarioArrayNS = []
+
+			DSS.newScenarioID = null
+			DSS.scenarioName = feat.values_.scenario_name
+			DSS.ApplicationFlow.instance.showManageOperationPage();
+			console.log(DSS.activeScenario);
+         })
+         }
+    copyScenario(scenName, scenDes, payLoad = ""){
+        this.makeRequest(this.geoScen_Url, "insert", payLoad, this).then(function(returnData){
+            console.log(returnData)
+            let geoJson =JSON.parse(returnData.geojson)
+            let currObj = returnData.current
+            geoJson = geoJson.features
+            let maxScenarioId = 0;
+            popscenarioArrayNS(geoJson)
+            for (let feat in geoJson){
+                if(geoJson[feat].properties.scenario_id>maxScenarioId ){
+                    maxScenarioId = geoJson[feat].properties.scenario_id
+                }
+            }
+            highestScenarioId = maxScenarioId
+            console.log(geoJson)
+            console.log(maxScenarioId)
+            console.log(scenName)
+            console.log(scenDes)
+
+            createNewScenario(scenName,
+                scenDes,
+                highestScenarioId +1
+            );
+//            cleanDB()
+//            farmObj = geoJson.features
+////            currObj.setScenariosSource()
+////            currObj.setFarmSource()
+////            currObj.setFieldSource()
+//            currObj.setInfrastructureSource()
+
+        })
+
+    }
+    deleteInfra(payLoad, feat){
+        this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
+
+            let geoJson = returnData.geojson
+            let currObj = returnData.current
+            cleanDB()
+//            currObj.setScenariosSource()
+//            currObj.setFarmSource()
+//            currObj.setFieldSource()
+            currObj.setInfrastructureSource()
+         })
+
+    }
+    wfs_new_scenario_features_copy(payLoad, feat){
+        this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
+            console.log("Done inserting copies of fields%%%%%%%%%")
+//            let geoJson = returnData.geojson
+            let currObj = returnData.current
+//            cleanDB()
+////            currObj.setScenariosSource()
+////            currObj.setFarmSource()
+            currObj.setFieldSource()
+//            currObj.setInfrastructureSource()
+         })
+
+    }
+    wfsDeleteItem(payLoad, feat){
+        this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
+
+            let geoJson = returnData.geojson
+            let currObj = returnData.current
+//            currObj.getWFSScenarioSP('&CQL_filter=farm_id='+DSS.activeFarm)
+
+            currObj.setScenariosSource()
+//            currObj.setFarmSource()
+            currObj.setFieldSource()
+            currObj.setInfrastructureSource()
+         })
+
     }
     makeRequest(url, requestType, payLoad="", currObj = null){
         return new Promise(function(resolve) {
