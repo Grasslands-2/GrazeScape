@@ -1,5 +1,5 @@
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['yield']
+//var modelTypes = ['bio']
 //var modelTypes = ['yield','runoff']
 //list of all the current and future charts
 var chartList = [
@@ -117,9 +117,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //
         if (this.runModel) {
             chartDatasetContainer = new ChartDatasetContainer()
-            scenList = chartDatasetContainer.getScenarioList()
-            fieldList = chartDatasetContainer.getFieldList()
-            populateChartObj(chartObj,scenList,fieldList,chartDatasetContainer.fields, chartDatasetContainer.scenarios)
+//            scenList = chartDatasetContainer.getScenarioList()
+//            fieldList = chartDatasetContainer.getFieldList()
+//            console.log(fieldList)
+//            populateChartObj(chartObj,scenList,fieldList,chartDatasetContainer.fields, chartDatasetContainer.scenarios)
             compCheckBoxes = compareChartCheckBox()
 //            get progress bars
 
@@ -133,7 +134,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff_pb = document.getElementById("runoff_pb");
 
                 eco_pb = document.getElementById("eco_pb");
-                numbFields = fieldList.length
+//                numbFields = fieldList.length
+//                numbFields = 0
+                numbFields = DSS.layer.fields_1.getSource().getFeatures().length
+//                numbFields = 3
                 totalFields = numbFields * modelTypes.length
                 for (model in modelTypes){
                      switch (modelTypes[model]){
@@ -176,103 +180,103 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 createDashBoard(me)
             })
         }
-        function createDashBoard(dashboard){
-
-
-                layerList = []
-                layer.getSource().forEachFeature(function(f) {
-                    layerList.push(f)
-                })
-                console.log("running model")
-    //            layer.getSource().forEachFeature(function(f) {
-                fieldIter = retrieveAllFieldsDataGeoserver()
-    //            get parameters for the active scenario fields from the layer display
-    //          if fields arent in the active scenario then use the values from the database
-    //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
-    //          while the inactive fields are just retrieving their models results from the db
-                for(item in fieldIter){
-                    for(layer in layerList){
-                        if (layerList[layer].get("gid")== fieldIter[item].gid){
-                            activeScenario = true
-                            f = layerList[layer]
-                            break
-                        }
-                        else{
-                            f = fieldIter[item]
-                            activeScenario = false
-                        }
+        async function createDashBoard(dashboard){
+            layerList = []
+            layer.getSource().forEachFeature(function(f) {
+                layerList.push(f)
+            })
+            console.log("running model")
+//            layer.getSource().forEachFeature(function(f) {
+            fieldIter = retrieveAllFieldsDataGeoserver()
+            fieldIter = await fieldIter
+            console.log(fieldIter)
+//            get parameters for the active scenario fields from the layer display
+//          if fields arent in the active scenario then use the values from the database
+//          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
+//          while the inactive fields are just retrieving their models results from the db
+            for(item in fieldIter){
+                for(layer in layerList){
+                    if (layerList[layer].get("gid") == fieldIter[item].gid){
+                        activeScenario = true
+                        f = layerList[layer]
+                        break
                     }
+                    else{
+                        f = fieldIter[item]
+                        activeScenario = false
+                    }
+                }
 
-    //              for each layer run each model type: yield (grass or crop), ero, pl
-                    for (model in modelTypes){
-                        model_request = build_model_request(f, modelTypes[model], activeScenario)
-                        get_model_data(model_request).then(returnData =>{
-    //                      no model results with that particular field
-                            if(returnData.length < 1){
-                                return
-                            }
-                            switch (returnData[0].model_type){
-                                case 'yield':
-                                    yield_pb.value = yield_pb.value + 1
-                                    if(yield_pb.value==yield_pb.max){
-                                        yield_pb.hidden = true
-                                        Ext.getCmp("yieldTab").setDisabled(false)
-                                        Ext.getCmp("yieldFarmConvert").setDisabled(false)
-                                        Ext.getCmp("yieldFieldConvert").setDisabled(false)
-                                    }
-                                    break
-                                case 'ploss':
-                                    nut_pb.value = nut_pb.value + 1
-                                    if(nut_pb.value==nut_pb.max){
-                                        nut_pb.hidden = true
-                                        Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
-                                        Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-                                        Ext.getCmp("nutTab").setDisabled(false)
-                                    }
-                                    ero_pb.value = ero_pb.value + 1
-                                    if(ero_pb.value==ero_pb.max){
-                                        ero_pb.hidden = true
-                                        Ext.getCmp("eroTab").setDisabled(false)
-                                        Ext.getCmp("erosionFarmConvert").setDisabled(false)
-                                        Ext.getCmp("erosionFieldConvert").setDisabled(false)
-                                    }
-                                    break
-                                case 'runoff':
-                                    runoff_pb.value = runoff_pb.value + 1
-    //                                    runoff_pb.hidden = runoff_pb.value==runoff_pb.max?true:false
-                                    if(runoff_pb.value == runoff_pb.max){
-                                        runoff_pb.hidden =true
-                                        Ext.getCmp("runoffTab").setDisabled(false)
-                                    }
-                                    break
-                                case 'bio':
-                                    bio_pb.value = bio_pb.value + 1
-    //                                    bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
-                                    if(bio_pb.value == bio_pb.max){
-                                        bio_pb.hidden = true
-                                        Ext.getCmp("bioTab").setDisabled(false)
-                                    }
-                                    break
-                            }
-                            totalFields = totalFields - 1
-                            if(totalFields == 0){
-                                Ext.getCmp("btnRunModels").setDisabled(false)
-                                Ext.getCmp("compareTab").setDisabled(false)
-                                Ext.getCmp("compareTabBtn").setDisabled(false)
-    //                                Ext.getCmp("eroFieldTab").setDisabled(false)
-    //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
-    //                                Ext.getCmp("nutFieldTab").setDisabled(false)
-    //                                Ext.getCmp("insectFieldTab").setDisabled(false)
-
-                                if(document.getElementById("modelSpinner") != null){
-                                  document.getElementById("modelSpinner").style.display = "none";
+//              for each layer run each model type: yield (grass or crop), ero, pl
+                for (model in modelTypes){
+                    model_request = build_model_request(f, modelTypes[model], activeScenario)
+                    get_model_data(model_request).then(returnData =>{
+//                      no model results with that particular field
+                        if(returnData.length < 1){
+                            return
+                        }
+                        switch (returnData[0].model_type){
+                            case 'yield':
+                                yield_pb.value = yield_pb.value + 1
+                                if(yield_pb.value==yield_pb.max){
+                                    yield_pb.hidden = true
+                                    Ext.getCmp("yieldTab").setDisabled(false)
+                                    Ext.getCmp("yieldFarmConvert").setDisabled(false)
+                                    Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                 }
-                                delete $.ajaxSetup().headers
+                                break
+                            case 'ploss':
+                                nut_pb.value = nut_pb.value + 1
+                                if(nut_pb.value==nut_pb.max){
+                                    nut_pb.hidden = true
+                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
+                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
+                                    Ext.getCmp("nutTab").setDisabled(false)
+                                }
+                                ero_pb.value = ero_pb.value + 1
+                                if(ero_pb.value==ero_pb.max){
+                                    ero_pb.hidden = true
+                                    Ext.getCmp("eroTab").setDisabled(false)
+                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
+                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
+                                }
+                                break
+                            case 'runoff':
+                                runoff_pb.value = runoff_pb.value + 1
+//                                    runoff_pb.hidden = runoff_pb.value==runoff_pb.max?true:false
+                                if(runoff_pb.value == runoff_pb.max){
+                                    runoff_pb.hidden =true
+                                    Ext.getCmp("runoffTab").setDisabled(false)
+                                }
+                                break
+                            case 'bio':
+                                bio_pb.value = bio_pb.value + 1
+//                                    bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
+                                if(bio_pb.value == bio_pb.max){
+                                    bio_pb.hidden = true
+                                    Ext.getCmp("bioTab").setDisabled(false)
+                                }
+                                break
+                        }
+                        totalFields = totalFields - 1
+                        if(totalFields == 0){
+                            Ext.getCmp("btnRunModels").setDisabled(false)
+                            Ext.getCmp("compareTab").setDisabled(false)
+                            Ext.getCmp("compareTabBtn").setDisabled(false)
+//                                Ext.getCmp("eroFieldTab").setDisabled(false)
+//                                Ext.getCmp("yieldFieldTab").setDisabled(false)
+//                                Ext.getCmp("nutFieldTab").setDisabled(false)
+//                                Ext.getCmp("insectFieldTab").setDisabled(false)
 
+                            if(document.getElementById("modelSpinner") != null){
+                              document.getElementById("modelSpinner").style.display = "none";
                             }
-                            Ext.getCmp('mainTab').update()
-                        })
-                    }
+                            delete $.ajaxSetup().headers
+
+                        }
+                        Ext.getCmp('mainTab').update()
+                    })
+                }
 
 
 

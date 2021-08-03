@@ -1,10 +1,14 @@
 modelResult = {}
 var modelError = false
 var modelErrorMessages = []
-function populateChartObj(chartObj, scenList, fieldList, allField, allScen){
+function populateChartObj(scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
-
+    console.log("populate charts*******")
+    console.log(scenList)
+    console.log(fieldList)
+    console.log(allField)
+    console.log(allScen)
     for (chart in chartList){
         chartName = chartList[chart]
         if(chartName.includes('field')){
@@ -1006,8 +1010,7 @@ function populateRadarChart(){
 function retrieveScenariosGeoserver(){
 
 //    DSS.activeFarm = 1
-	let fieldUrl1 =
-	geoserverURL + '/geoserver/wfs?'+
+	let fieldUrl1 = '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1018,38 +1021,23 @@ function retrieveScenariosGeoserver(){
     console.log("getting wfs scenarios")
     let scenList = []
     let scenIdList = []
-
-	$.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl1,
-		async: false,
-		dataType: 'json',
-		success:function(responses)
-		{
-            for(response in responses.features){
-                let scen = responses.features[response].properties.scenario_name
-                let scenID = responses.features[response].properties.scenario_id
-                scenList.push(scen)
-                scenIdList.push(scenID)
-            }
-
-		}
-	})
-	console.log(scenList)
-	console.log(scenIdList)
-//	only for testing before merging
-//	scenIdList = [40, 35]
-//	scenList = ["Base", "Other"]
-    console.log(scenList)
-	return {scenList, scenIdList}
+    return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
+        let responses =JSON.parse(returnData.geojson)
+        for(response in responses.features){
+            let scen = responses.features[response].properties.scenario_name
+            let scenID = responses.features[response].properties.scenario_id
+            scenList.push(scen)
+            scenIdList.push(scenID)
+        }
+        return {scenList, scenIdList}
+    })
 }
 function retrieveFieldsGeoserver(){
 //    DSS.activeScenario = 40
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	geoserverURL + '/geoserver/wfs?'+
+	'/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1063,15 +1051,8 @@ function retrieveFieldsGeoserver(){
     let fieldList = []
     let fieldIdList = []
     let scenIdList = []
-	$.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl1,
-		async: false,
-		dataType: 'json',
-		success:function(responses)
-		{
-			console.log(responses)
+    return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
+            let responses =JSON.parse(returnData.geojson)
             for(response in responses.features){
                 let field = responses.features[response].properties.field_name
                 console.log(field)
@@ -1082,20 +1063,18 @@ function retrieveFieldsGeoserver(){
                 scenIdList.push(scenID)
                 console.log(fieldList)
             }
+            console.log(fieldList)
+            console.log(fieldIdList)
+            console.log(scenIdList)
+            return {fieldList, fieldIdList,scenIdList}
 
-		}
-	})
-    console.log(fieldList)
-    console.log(fieldIdList)
-    console.log(scenIdList)
-    return {fieldList, fieldIdList,scenIdList}
+        })
+
+
 }
 function retrieveFarmGeoserver(){
-// DSS.activeScenario = 40
-//    DSS.activeFarm = 1
-
     let fieldUrl1 =
-	geoserverURL + '/geoserver/wfs?'+
+	'/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1106,31 +1085,20 @@ function retrieveFarmGeoserver(){
 	'srsname=EPSG:3857';
     console.log("getting wfs farm")
     let farmName = ''
-
-	$.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl1,
-		async: false,
-		dataType: 'json',
-		success:function(responses)
-		{
-			console.log(responses)
-            for(response in responses.features){
+    return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
+        let responses =JSON.parse(returnData.geojson)
+        for(response in responses.features){
                 farmName = responses.features[response].properties.farm_name
 
             }
-
-		}
-	})
-    return farmName
+        return farmName
+    })
 }
 function retrieveAllFieldsFarmGeoserver(){
 // DSS.activeScenario = 40
 //    DSS.activeFarm = 1
 
-    let fieldUrl1 =
-	geoserverURL + '/geoserver/wfs?'+
+    let fieldUrl1 ='/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1143,28 +1111,16 @@ function retrieveAllFieldsFarmGeoserver(){
     let fieldList = []
     let fieldIdList = []
     let field_dic = {}
-	$.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl1,
-		async: false,
-		dataType: 'json',
-		success:function(responses)
-		{
-			console.log(responses)
+    return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
+        let responses =JSON.parse(returnData.geojson)
             for(response in responses.features){
                 let field = responses.features[response].properties.field_name
                 console.log(field)
                 let fieldID = responses.features[response].properties.gid
-//                fieldList.push(field)
-//                fieldIdList.push(fieldID)
-//                console.log(fieldList)
                 field_dic[fieldID] = field
             }
-
-		}
-	})
-    return field_dic
+            return field_dic
+    })
 }
 // get all the data for each field in active farm
 function retrieveAllFieldsDataGeoserver(){
@@ -1172,7 +1128,7 @@ function retrieveAllFieldsDataGeoserver(){
 //    DSS.activeFarm = 1
 
     let fieldUrl1 =
-	geoserverURL + '/geoserver/wfs?'+
+	'/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1186,23 +1142,15 @@ function retrieveAllFieldsDataGeoserver(){
     let fieldIdList = []
     let field_dic = {}
     let responsesField = []
-	$.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl1,
-		async: false,
-		dataType: 'json',
-		success:function(responses)
-		{
-			console.log(responses)
-            for(response in responses.features){
-                let field = responses.features[response].properties.field_name
-                responsesField.push(responses.features[response].properties)
-            }
+    return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
+        let responses =JSON.parse(returnData.geojson)
+        for(response in responses.features){
+            let field = responses.features[response].properties.field_name
+            responsesField.push(responses.features[response].properties)
+        }
+        return responsesField
 
-		}
-	})
-    return responsesField
+    })
 }
 function printSummary(){
     var pdf = new jsPDF();
@@ -1254,7 +1202,7 @@ function printSummary(){
 //    let file_name = "GrazeScape_Summary.csv"
 
     let fieldUrl_results =
-	geoserverURL + '/geoserver/wfs?'+
+	 '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1266,13 +1214,17 @@ function printSummary(){
     console.log("getting wfs fields");
     let fieldList = []
     let fieldIdList = []
-	$.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl_results,
-		async: false,
-		dataType: 'json',
-		success:function(responses){
+     geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
+        let responses =JSON.parse(returnData.geojson)
+
+//        })
+//	$.ajax({
+//		jsonp: false,
+//		type: 'GET',
+//		url: fieldUrl_results,
+//		async: false,
+//		dataType: 'json',
+//		success:function(responses){
             let csvMain = []
 
 		    let csvHeader = Object.keys(responses.features[0].properties)
@@ -1351,12 +1303,12 @@ function printSummary(){
                 }, 0);
             }
 
-		}
+//		}
 	})
 
 
     let fieldUrl2 =
-	geoserverURL + '/geoserver/wfs?'+
+	 '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
@@ -1365,13 +1317,15 @@ function printSummary(){
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
-    $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl2,
-		async: false,
-		dataType: 'json',
-		success:function(responses){
+	     geoServer.makeRequest(fieldUrl2,"","", geoServer).then(function(returnData){
+        let responses =JSON.parse(returnData.geojson)
+//    $.ajax({
+//		jsonp: false,
+//		type: 'GET',
+//		url: fieldUrl2,
+//		async: false,
+//		dataType: 'json',
+//		success:function(responses){
             let csvMain = []
             console.log(responses)
 //            no infrastructure
@@ -1453,7 +1407,7 @@ function printSummary(){
                 }, 0);
             }
 
-		}
+//		}
 	})
 
 
@@ -1511,22 +1465,29 @@ class ChartDatasetContainer{
     constructor() {
         this.fields = []
         this.scenarios = []
-        this.farmName = retrieveFarmGeoserver()
+        this.farmName = ""
+//        arrow function keeps 'this' of calling function
+         retrieveFarmGeoserver().then(returnData =>{
+            console.log(this)
+            this.farmName =  returnData
+         })
         this.farmID = DSS.activeFarm
 
-//        this.fieldsDBID = []
-//        this.scenDBID = []
         this.colorIndex = 0
-//        this.chartColors = [
-//                '#EE7733', '#0077BB', '#33BBEE', '#EE3377', '#CC3311',
-//                    '#009988', '#BBBBBB'
-//            ]
-//        this.colorLength = 7
-        this.getScenarios()
-        this.getFields()
-        this.allFields = retrieveAllFieldsFarmGeoserver
-        this.setCheckBoxes()
-
+        this.getScenarios().then(returnData =>{
+            this.getFields().then(returnData =>{
+                console.log(this.getScenarioList())
+                console.log(this.getFieldList())
+                console.log(this.fields)
+                console.log(this.scenarios)
+                populateChartObj(this.getScenarioList(), this.getFieldList(),this.fields, this.scenarios)
+                this.setCheckBoxes()
+        })
+        })
+        this.allFields
+        retrieveAllFieldsFarmGeoserver().then(returnData =>{
+            this.allFields = returnData
+        })
     }
     setCheckBoxes(){
         let counter = 0
@@ -1562,34 +1523,42 @@ class ChartDatasetContainer{
         }
     }
     getFields(){
-        let counter = 0
-//        let fieldList = null
-//        let fieldIdList = null
-//        let scenarioList = null
-        let {fieldList, fieldIdList, scenIdList} = retrieveFieldsGeoserver()
+        return new Promise(resolve =>{
 
-        for (let scen in fieldList){
-            this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen], scen)
-        }
-        return fieldList
+        let counter = 0
+        retrieveFieldsGeoserver().then(results =>{
+            console.log(results)
+            let {fieldList, fieldIdList, scenIdList} = results
+            for (let scen in fieldList){
+                this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen], scen)
+            }
+            resolve()
+        })
+
+        })
     }
     getScenarios(){
+        return new Promise(resolve =>{
         // get every scenario from active user
         //         replace this with sql query
         let counter = 0
-        let {scenList, scenIdList} = retrieveScenariosGeoserver()
-        console.log(scenList)
-        console.log(scenIdList)
-//        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
-//        scenList.sort()
-        for (let scen in scenList){
-            this.addSet(scenList[scen], 'scen',scenIdList[scen], scen)
-            // populating scenario picker combobox for the compare chart
-            scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
-            scenariosStore.sort('name', 'ASC');
+        retrieveScenariosGeoserver().then(results =>{
+            let {scenList, scenIdList} =  results
+            console.log(scenList)
+            console.log(scenIdList)
+    //        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
+    //        scenList.sort()
+            for (let scen in scenList){
+                this.addSet(scenList[scen], 'scen',scenIdList[scen], scen)
+                // populating scenario picker combobox for the compare chart
+                scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
+                scenariosStore.sort('name', 'ASC');
 
-        }
-        return scenList
+            }
+            resolve()
+        })
+        })
+
     }
 //    sort fields alphabetically(so they show in same order on each graph) and choose color.
 //@ param setName Name of scenario

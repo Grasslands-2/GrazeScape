@@ -202,8 +202,8 @@ class GeoServer{
             cleanDB()
 //            currObj.setScenariosSource()
 //            currObj.setFarmSource()
-            currObj.setFieldSource()
-//            currObj.setInfrastructureSource()
+//            currObj.setFieldSource()
+            currObj.setInfrastructureSource()
          })
     }
     deleteField(payLoad, feat){
