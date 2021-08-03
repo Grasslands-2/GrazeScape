@@ -151,6 +151,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 		DSS.MapState.removeMapInteractions()
 		wfs_field_insert(e.feature, geomType)
 		console.log("HI! WFS feild Insert ran!")
+		//form.reset()
 	})     
 }
 //------------------working variables--------------------
@@ -233,7 +234,12 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				html: 'Field Shapes <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
 				height: 28
 				},{
-				xtype: 'container',
+				//xtype: 'container',
+				xtype: 'form',
+				url: 'create_field', // brought in for form test
+				jsonSubmit: true,// brought in for form test
+				header: false,// brought in for form test
+				border: false,// brought in for form test
 				style: 'background-color: #666; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 				margin: '8 4',
@@ -269,8 +275,10 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 					componentCls: 'button-margin',
 					text: 'Draw Field',
 					formBind: true,
-					handler: function() { 
+					handler: function() {
+						var form =  this.up('form').getForm();
 						var data = me.viewModel.data;
+						if(form.isValid()){
 						DSS.map.removeInteraction(DSS.select);
 						//console.log(DSS.activeFarm);
 
@@ -283,6 +291,9 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 							data.field_name.value,
 							//probably wrong, look up data schema
 							data.on_contour);
+							//data.field_name.value.setValue('')
+							form.reset()
+						}
 					}
 			    }]
 			}]
