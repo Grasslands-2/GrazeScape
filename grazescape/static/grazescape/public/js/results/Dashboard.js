@@ -134,28 +134,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff_pb = document.getElementById("runoff_pb");
 
                 eco_pb = document.getElementById("eco_pb");
-//                numbFields = fieldList.length
-//                numbFields = 0
-                numbFields = DSS.layer.fields_1.getSource().getFeatures().length
-//                numbFields = 3
-                totalFields = numbFields * modelTypes.length
-                for (model in modelTypes){
-                     switch (modelTypes[model]){
-                        case 'yield':
-                            yield_pb.max = numbFields
-                            break
-                        case 'ploss':
-                             nut_pb.max = numbFields
-                             ero_pb.max = numbFields
-                            break
-                        case 'runoff':
-                            runoff_pb.max = numbFields
-                            break
-                        case 'bio':
-                            bio_pb.max = numbFields
-                            break
-                    }
-                }
+
                 // show progress bars when models run
 //                eco_pb.hidden = false
                 ero_pb.hidden = false
@@ -189,6 +168,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //            layer.getSource().forEachFeature(function(f) {
             fieldIter = retrieveAllFieldsDataGeoserver()
             fieldIter = await fieldIter
+            numbFields = fieldIter.length
+            totalFields = numbFields * modelTypes.length
+            for (model in modelTypes){
+                 switch (modelTypes[model]){
+                    case 'yield':
+                        yield_pb.max = numbFields
+                        break
+                    case 'ploss':
+                         nut_pb.max = numbFields
+                         ero_pb.max = numbFields
+                        break
+                    case 'runoff':
+                        runoff_pb.max = numbFields
+                        break
+                    case 'bio':
+                        bio_pb.max = numbFields
+                        break
+                }
+            }
             console.log(fieldIter)
 //            get parameters for the active scenario fields from the layer display
 //          if fields arent in the active scenario then use the values from the database
@@ -204,6 +202,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     else{
                         f = fieldIter[item]
                         activeScenario = false
+                        console.log("not active")
+                        numbFields = numbFields + 1
+//                        totalFields = totalFields + modelTypes.length
+//                          yield_pb.max = numbFields
+//                          nut_pb.max = numbFields
+//                          ero_pb.max = numbFields
+//                          runoff_pb.max = numbFields
+//                          bio_pb.max = numbFields
                     }
                 }
 
@@ -1397,6 +1403,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                 scrollable: true,
 //                inner tabs for farm and field scale
+
                 items:[{
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
@@ -1448,6 +1455,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     bodyBorder: false
                 },
                 scrollable: true,
+                listeners:{activate: function() {
+                    console.log("options")
+                    if(Ext.getCmp('fieldLegend').items.length<1){
+
+                        Ext.getCmp('fieldLegend').add(checkBoxField)
+                        Ext.getCmp('scenLegend').add(checkBoxScen)
+                    }
+                }},
 
 //                inner tabs for farm and field scale
                 items:[{
@@ -1467,8 +1482,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 
                 items:[{
-                    xtype: 'fieldcontainer',
+                    xtype: 'checkboxgroup',
                     fieldLabel: 'Scenario',
+                    columns: 1,
+                     vertical: true,
+                    id: 'scenLegend',
 //                    collapsible: true,
                     labelAlign: 'top',
                     defaultType: 'checkboxfield',
@@ -1476,8 +1494,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 
                 },{
-                    xtype: 'fieldcontainer',
+                    xtype: 'checkboxgroup',
                     fieldLabel: 'Field',
+                    columns: 1,
+                     vertical: true,
+                    id: 'fieldLegend',
                     labelAlign: 'top',
                     defaultType: 'checkboxfield',
                     items: checkBoxField,
