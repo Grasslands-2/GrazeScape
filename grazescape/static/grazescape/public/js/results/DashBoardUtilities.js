@@ -159,7 +159,7 @@ function build_model_request(f, modelChoice, activeScenario){
         }
 
     }
-    console.log(model_pack)
+//    console.log(model_pack)
     return model_pack
 }
 function format_chart_data(model_data){
@@ -268,14 +268,14 @@ function format_chart_data(model_data){
         chartTypeField.units_alternate = model_data.units_alternate
         let chartVal = null
         if(model_data.sum_cells != null){
-            console.log("sum not null")
+//            console.log("sum not null")
             chartVal = +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
         }
         else{
-            console.log(model_data.sum_cells)
-            console.log(chartVal)
+//            console.log(model_data.sum_cells)
+//            console.log(chartVal)
             chartVal = null
-            console.log(chartVal)
+//            console.log(chartVal)
         }
         chartTypeField.chartData.datasets[fieldIndex].data[scenIndex] =  chartVal
         chartTypeField.area[fieldIndex] =  model_data.area
@@ -355,8 +355,8 @@ function get_model_data(data){
                 }
                 let e = obj.extent;
 //              not doing the dem for beta launch
-                console.log("@@@@@@@@@@@@@@@@")
-                console.log(responses[response].value_type)
+//                console.log("@@@@@@@@@@@@@@@@")
+//                console.log(responses[response].value_type)
 //                only display erosion on the map
                 if (responses[response].value_type == 'ero'&&responses[response].scen_id==DSS.activeScenario){
                     console.log("There is erosion")
@@ -1051,23 +1051,21 @@ function retrieveFieldsGeoserver(){
     let fieldList = []
     let fieldIdList = []
     let scenIdList = []
+    let geomList = []
     return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
             let responses =JSON.parse(returnData.geojson)
+            console.log(responses)
             for(response in responses.features){
                 let field = responses.features[response].properties.field_name
-                console.log(field)
                 let fieldID = responses.features[response].properties.gid
                 let scenID = responses.features[response].properties.scenario_id
+                let geom = responses.features[response].geometry.coordinates[0][0]
                 fieldList.push(field)
                 fieldIdList.push(fieldID)
                 scenIdList.push(scenID)
-                console.log(fieldList)
+                geomList.push(geom)
             }
-            console.log(fieldList)
-            console.log(fieldIdList)
-            console.log(scenIdList)
-            return {fieldList, fieldIdList,scenIdList}
-
+            return {fieldList, fieldIdList,scenIdList, geomList}
         })
 
 
@@ -1158,6 +1156,10 @@ function printSummary(){
     let mainTabLength = Ext.getCmp("mainTab").items.length
     let mainTabs = Ext.getCmp("mainTab").items.items
     for (let mainTab in mainTabs ){
+        console.log(mainTab)
+        if(mainTab == 0){
+            continue
+        }
         Ext.getCmp("mainTab").setActiveTab(parseFloat(mainTab))
         subTabs = mainTabs[parseFloat(mainTab)].items.items
         for(let subTab in subTabs){
@@ -1214,7 +1216,7 @@ function printSummary(){
     console.log("getting wfs fields");
     let fieldList = []
     let fieldIdList = []
-     geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
+     geoServer.makeRequest(fieldUrl_results,"","", geoServer).then(function(returnData){
         let responses =JSON.parse(returnData.geojson)
 
 //        })
@@ -1476,13 +1478,9 @@ class ChartDatasetContainer{
         this.colorIndex = 0
         this.getScenarios().then(returnData =>{
             this.getFields().then(returnData =>{
-                console.log(this.getScenarioList())
-                console.log(this.getFieldList())
-                console.log(this.fields)
-                console.log(this.scenarios)
                 populateChartObj(this.getScenarioList(), this.getFieldList(),this.fields, this.scenarios)
                 this.setCheckBoxes()
-        })
+            })
         })
         this.allFields
         retrieveAllFieldsFarmGeoserver().then(returnData =>{
@@ -1491,6 +1489,7 @@ class ChartDatasetContainer{
     }
     setCheckBoxes(){
         let counter = 0
+        console.log(this.scenarios)
         for(let scen in this.scenarios){
             let checkBox = {
                 boxLabel  : this.scenarios[scen].name,
@@ -1504,6 +1503,7 @@ class ChartDatasetContainer{
                     }}
             }
             counter = counter + 1
+//            Ext.getCmp('fieldScen').add(checkBox)
             checkBoxScen.push(checkBox)
         }
         counter = 0
@@ -1520,52 +1520,83 @@ class ChartDatasetContainer{
             }
             counter = counter + 1
             checkBoxField.push(checkBox)
+//            Ext.getCmp('fieldLegend').add(checkBox)
         }
     }
     getFields(){
         return new Promise(resolve =>{
-
-        let counter = 0
-        retrieveFieldsGeoserver().then(results =>{
-            console.log(results)
-            let {fieldList, fieldIdList, scenIdList} = results
-            for (let scen in fieldList){
-                this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen], scen)
-            }
-            resolve()
-        })
+            let counter = 0
+            retrieveFieldsGeoserver().then(results =>{
+                console.log(results)
+                let {fieldList, fieldIdList, scenIdList,geomList} = results
+                for (let scen in fieldList){
+                    this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen], scen, geomList[scen])
+                }
+                resolve()
+            })
 
         })
     }
     getScenarios(){
         return new Promise(resolve =>{
         // get every scenario from active user
-        //         replace this with sql query
-        let counter = 0
-        retrieveScenariosGeoserver().then(results =>{
+            let counter = 0
+            retrieveScenariosGeoserver().then(results =>{
             let {scenList, scenIdList} =  results
-            console.log(scenList)
-            console.log(scenIdList)
-    //        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
-    //        scenList.sort()
-            for (let scen in scenList){
-                this.addSet(scenList[scen], 'scen',scenIdList[scen], scen)
-                // populating scenario picker combobox for the compare chart
-                scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
-                scenariosStore.sort('name', 'ASC');
+                console.log(scenList)
+                console.log(scenIdList)
+        //        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
+        //        scenList.sort()
+                for (let scen in scenList){
+                    this.addSet(scenList[scen], 'scen',scenIdList[scen], scen)
+                    // populating scenario picker combobox for the compare chart
+                    scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
+                    scenariosStore.sort('name', 'ASC');
 
-            }
+                }
             resolve()
-        })
+            })
         })
 
+    }
+    // fields that are the same across scenarios should have the same color
+    // right now we are looking at geometry to tie fields between scenarios
+    fieldDuplicate(geom, index){
+        console.log(geom)
+        let match = null
+        let foundMatch = true
+        // loop through all fields
+        for(let field in this.fields){
+            // loop through all fields' geometry
+            foundMatch = true
+            for(let point in this.fields[field].geom){
+//                console.log(geom[point])
+//                console.log(this.fields[field].geom[point])
+                if(geom[point] == undefined){
+                    foundMatch = false
+                    break
+                }
+                if(geom[point][0] != this.fields[field].geom[point][0] ||geom[point][1] != this.fields[field].geom[point][1]){
+                    foundMatch = false
+                    break
+                }
+            }
+            if(foundMatch){
+
+                match = this.fields[field]
+            }
+        }
+        if (match != null){
+            return match.color
+        }
+        return chartColors[index % chartColors.length]
     }
 //    sort fields alphabetically(so they show in same order on each graph) and choose color.
 //@ param setName Name of scenario
 //@ type field or scen
 //@ id primary key of the scenario or field
 // return index of field
-    addSet(setName, type, id, index){
+    addSet(setName, type, id, index, geom=""){
         let sets = null
         if (type == "field"){
             sets  = this.fields
@@ -1573,24 +1604,23 @@ class ChartDatasetContainer{
         else if (type == "scen"){
             sets  = this.scenarios
         }
+        let color = this.fieldDuplicate(geom, index)
+        let currField = new DatasetNode(setName, color, id, geom)
         if (sets.length < 1){
-            let currField = new DatasetNode(setName, chartColors[index % chartColors.length], id)
             sets.push(currField)
             return
         }
-        let currField = new DatasetNode(setName,  chartColors[index % chartColors.length], id)
         var found = false
 //        sort alphabetically
         for (let set in sets){
-
             if (setName < sets[set].name){
                 sets.splice(set,0,currField)
-                return set
+                return
             }
         }
-
+        // add value onto the end if its last alphabetically
         sets.splice(sets.length,0,currField)
-        return sets.length
+        return
 
     }
 //    get index of field by name
@@ -1609,20 +1639,7 @@ class ChartDatasetContainer{
             }
         }
     }
-//    getDBIdScen(myScenario){
-//        for (let scen in this.scenarios){
-//            if (this.scenarios[scen].name== myScenario){
-//                return this.scenarios[scen].dbID
-//            }
-//        }
-//    }
-//    getDBIdfield(myField){
-//        for (let field in this.fields){
-//            if (this.fields[field].name == myField){
-//                return this.fields[field].dbID
-//            }
-//        }
-//    }
+
 //get field name from db id
     getFieldName(fieldID){
         for (let field in this.fields){
@@ -1672,10 +1689,11 @@ class ChartDatasetContainer{
 }
 // node for field and scenario attributes
 class DatasetNode{
-    constructor(name, color, dbID) {
+    constructor(name, color, dbID, geom = "") {
         this.name = name
         this.color = color
         this.dbID = dbID
+        this.geom = geom
     }
 }
 

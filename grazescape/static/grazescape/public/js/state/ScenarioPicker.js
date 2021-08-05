@@ -156,7 +156,10 @@ Ext.define('DSS.state.ScenarioPicker', {
 	initComponent: function() {
 		let me = this;
 		getWFSScenarioSP()
-
+//        var myMask = {
+//                msg    : 'Please wait...',
+//                xtype: 'loadmask'
+//            };
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',
@@ -192,7 +195,9 @@ Ext.define('DSS.state.ScenarioPicker', {
 							this.up('window').destroy();
 						}
 					}
-				})
+				}),
+//				myMask
+
 			]
 		});
 		
