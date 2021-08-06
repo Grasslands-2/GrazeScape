@@ -9,6 +9,7 @@ DSS.utils.addStyle('.layer-menu:hover {background:rgba(0,0,0,0.6);color: #48f; t
 
 let canvas = document.createElement('canvas');
 let context = canvas.getContext('2d');
+//var hatchPattern = new Image();
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
@@ -28,7 +29,7 @@ Ext.define('DSS.map.Main', {
 		'DSS.state.ScenarioPicker',
 		'DSS.map.BoxModel',
 		'DSS.map.LayerMenu',
-		//'DSS.map.RotationLayer',
+		'DSS.map.RotationLayer',
 		'DSS.field_grid.FieldGrid',
 		'DSS.infrastructure_grid.InfrastructureGrid'
 	],
@@ -314,18 +315,21 @@ Ext.define('DSS.map.Main', {
 		});	
 
 		//--------------------------------------------------------- 
+		DEMSource = new ol.source.ImageWMS({
+			ratio: 1,
+			url: geoserverURL + '/geoserver/'/*GS_Rasters*/+ '/wms',
+			params: {'FORMAT': 'image/png',
+					 'VERSION': '1.1.1',
+					 'TRANSPARENT': 'true',
+				  "STYLES": '',
+				  "LAYERS": 'InputRasters:TC_DEM',
+				  //"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
+				  "exceptions": 'application/vnd.ogc.se_inimage',
+			},
+			serverType: 'geoserver',
+		})
 		DSS.layer.DEM_image = new ol.layer.Image({
-			source: new ol.source.ImageWMS({
-				ratio: 1,
-				url: 'http://localhost:8081/geoserver/GS_Rasters/wms',
-				params: {'FORMAT': 'image/png',
-						 'VERSION': '1.1.1',
-						 'TRANSPARENT': 'true',
-					  "STYLES": '',
-					  "LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
-					  "exceptions": 'application/vnd.ogc.se_inimage',
-				}
-			})
+			source: DEMSource
 		})
 		var scenario_1SourceMain = new ol.source.Vector({
 			format: new ol.format.GeoJSON(),
@@ -490,9 +494,11 @@ Ext.define('DSS.map.Main', {
 			}
 		})
 		DSS.layer.fieldsLabels
-		
+		DSS.map.RotationLayer;
 		//main field symbology layer. Style calls fieldStyle function
-		DSS.layer.fields_1 = new ol.layer.Vector({
+		DSS.layer.fields_1 = 
+		
+		new ol.layer.Vector({
 			title: 'fields_1',
 			visible: true,
 			updateWhileAnimating: true,
@@ -503,21 +509,21 @@ Ext.define('DSS.map.Main', {
 		})
 
 		//final function called in fieldStyle
-		function hatchAssignFieldStyle(png){
+		let hatchAssignFieldStyle = function(png){
 			var hatchPattern = new Image();
-			var pattern;
 			hatchPattern.src = '/static/grazescape/public/images/'+png
-			pattern = context.createPattern(hatchPattern, 'repeat');
+			var pattern = context.createPattern(hatchPattern, 'repeat');
 			//hatchPattern.onload = function() {
-				var fieldHatch = new ol.style.Style({
-					stroke: new ol.style.Stroke({
-						color: '#994f00',
-						width: 1}),
-					fill: new ol.style.Fill({
-						color: pattern
-					})
+			var fieldHatch = new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#994f00',
+					width: 1}),
+				fill: new ol.style.Fill({
+					color: pattern
 				})
-				return fieldHatch
+			})
+		//}
+			return fieldHatch
 		};
 		//fieldStyle assigns hatch style based on the fields rotation column value.
 		function fieldStyle(feature){
@@ -556,17 +562,17 @@ Ext.define('DSS.map.Main', {
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
 				DSS.layer.bingAerial,
+				DSS.layer.DEM_image,
 				DSS.layer.bingRoad,
 				DSS.layer.osm,
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
-				//DSS.layer.DEM_image,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
-				DSS.layer.fields_1,
+				//DSS.layer.fields_1,
 				DSS.layer.fieldsLabels,
 				DSS.layer.infrastructure
-				 ],
+				],
 				//------------------------------------------------------------------------
 
 
@@ -616,15 +622,48 @@ Ext.define('DSS.map.Main', {
 		
 		//-----------------------------------------------------------
 		me.map.on('click', function(e) {
+			//document.getElementById('info').innerHTML = '';
 			let coords = me.map.getEventCoordinate(e.originalEvent);
 
 
 
         var view = me.map.getView();
         var viewResolution = view.getResolution();
+		//const demVal = DSS.layer.DEM_image.getFeatureInfo
+		var value = {};
+		const demVal = DEMSource.getFeatureInfoUrl(
+			e.coordinate,
+			viewResolution,
+			'EPSG:3857',
+			{'INFO_FORMAT': 'application/json'}
+		   );
+		   if(demVal){
+		 	 fetch(demVal)
+		// 	  response = fetch(demVal)
+		 	  //console.log(demVal)
+		// 	  console.log(response)
+		// 	  value = response.getElementById("featureInfo").innerHTML;
+		// 	  console.log(value);
+			//   var value =  	''
+			   .then(response => response.json())
+			   .then((out) => {
+				console.log('Output: ', out.features[0].properties.GRAY_INDEX);
+				value = out.features[0].properties.GRAY_INDEX
+				console.log(value)
+		}).catch(err => console.error(err));
+			   //.then((html) => console.log(html)
+			// 	value = html;
+			//document.getElementById('info').innerHTML = html;
+			 //  );
+			 
+		}
         //var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
         console.log(view)
         console.log(viewResolution)
+		//console.log(demVal.getElementByClass("featureInfo"))
+		
+		console.log(demVal)
+
 
 
 
@@ -641,7 +680,7 @@ Ext.define('DSS.map.Main', {
 				return;
 			}
 		});
-		me.drawTools 	= Ext.create('DSS.map.DrawAndModify').instantiate(me.map, DSS.layer.fields_1.getSource());
+		me.drawTools 	= Ext.create('DSS.map.DrawAndModify').instantiate(me.map, fields_1Source);
 		
 		me.boxModelTool = Ext.create('DSS.map.BoxModel').instantiate(me.map);
 		
