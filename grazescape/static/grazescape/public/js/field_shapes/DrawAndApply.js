@@ -151,6 +151,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 		DSS.MapState.removeMapInteractions()
 		wfs_field_insert(e.feature, geomType)
 		console.log("HI! WFS feild Insert ran!")
+		alert('Field Added!')
 		//form.reset()
 	})     
 }
