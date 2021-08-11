@@ -10,6 +10,7 @@ function reSourceFields() {
 	'srsname=EPSG:3857'
 	);
 	DSS.layer.fields_1.getSource().refresh();
+	DSS.layer.fieldsLabels.getSource().refresh();
 	console.log("reSource Fields ran");
 }
 function reSourceinfra() {
@@ -111,6 +112,7 @@ Ext.define('DSS.state.Manage', {
 									//reSourcescenarios()
 									DSS.ApplicationFlow.instance.showLandingPage();
 									//DSS.layer.fields_1.getSource().refresh();
+									//DSS.layer.fieldsLabels.getSource().refresh();
 									DSS.MapState.showAllFields();
 									DSS.viewModel.scenario = !DSS['viewModel']
 									DSS['viewModel'] = {}

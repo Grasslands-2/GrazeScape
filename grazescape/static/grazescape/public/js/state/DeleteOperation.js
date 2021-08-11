@@ -71,6 +71,7 @@ function deleteOperation(feat,featLayer){
 				cleanDB()
 				DSS.layer.farms_1.getSource().refresh();
 				DSS.layer.fields_1.getSource().refresh();
+				DSS.layer.fieldsLabels.getSource().refresh();
 				DSS.layer.infrastructure.getSource().refresh();
 				DSS.layer.scenarios.getSource().refresh();
 

@@ -34,8 +34,8 @@ class ModelBase:
                                                    'raster_outputs',
                                                    file_name + ".png")
 
-        # self.r_file_path = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
-        self.r_file_path = "/opt/conda/envs/gscape/bin/R"
+        self.r_file_path = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+        #self.r_file_path = "/opt/conda/envs/gscape/bin/R"
         try:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:

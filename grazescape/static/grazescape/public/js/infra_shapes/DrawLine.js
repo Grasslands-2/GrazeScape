@@ -218,6 +218,7 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 			}
 		})
 		
+		
 		me.setViewModel(DSS.viewModel.drawLine);
 		
 		Ext.applyIf(me, {
@@ -247,7 +248,7 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 				},{
 					xtype: 'infra_shapes_apply_infra_name'
 				},{
-					xtype: 'infra_shapes_apply_infra_type'
+					xtype: 'infra_shapes_apply_infra_type',
 				},{
 					xtype: 'infra_shapes_apply_fence_material'
 				},{
@@ -262,12 +263,12 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 					text: 'Draw Infrastructure',
 					formBind: true,
 					handler: function() {
+						//console.log(DSS.infra_shapes.apply.infraType.getValue())
 						var form =  this.up('form').getForm(); 
 						var data = me.viewModel.data;
 						if(form.isValid()){
 							DSS.map.removeInteraction(DSS.select);
 							//console.log(DSS.activeFarm);
-
 							createinfra(
 								data.infraName.value,
 								data.infraType.value,

@@ -47,7 +47,7 @@ Ext.define('DSS.map.RotationLayer', {
 
 		console.log(DSS['rotationStyles']);
 		
-		DSS.layer.cropOverlay = new ol.layer.Vector({
+		DSS.layer.fields_1 = new ol.layer.Vector({
 			visible: DSS.layer['crop:visible'],
 			opacity: DSS.layer['crop:opacity'],
 			updateWhileAnimating: true,
@@ -63,7 +63,7 @@ Ext.define('DSS.map.RotationLayer', {
 			}
 		});	
 
-		map.addLayer(DSS.layer.cropOverlay);
+		map.addLayer(DSS.layer.fields_1);
 		return me;
 	},
 

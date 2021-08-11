@@ -329,6 +329,7 @@ Ext.define('DSS.map.Main', {
 			serverType: 'geoserver',
 		})
 		DSS.layer.DEM_image = new ol.layer.Image({
+			visible: false,
 			source: DEMSource
 		})
 		var scenario_1SourceMain = new ol.source.Vector({
@@ -496,66 +497,64 @@ Ext.define('DSS.map.Main', {
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;
 		//main field symbology layer. Style calls fieldStyle function
-		DSS.layer.fields_1 = 
-		
-		new ol.layer.Vector({
-			title: 'fields_1',
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source: fields_1Source,
-			style:fieldStyle
-			//defaultFieldStyle
-		})
+		// DSS.layer.fields_1 = new ol.layer.Vector({
+		// 	title: 'fields_1',
+		// 	visible: true,
+		// 	updateWhileAnimating: true,
+		// 	updateWhileInteracting: true,
+		// 	source: fields_1Source,
+		// 	style:fieldStyle
+		// 	//defaultFieldStyle
+		// })
 
-		//final function called in fieldStyle
-		let hatchAssignFieldStyle = function(png){
-			var hatchPattern = new Image();
-			hatchPattern.src = '/static/grazescape/public/images/'+png
-			var pattern = context.createPattern(hatchPattern, 'repeat');
-			//hatchPattern.onload = function() {
-			var fieldHatch = new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#994f00',
-					width: 1}),
-				fill: new ol.style.Fill({
-					color: pattern
-				})
-			})
-		//}
-			return fieldHatch
-		};
-		//fieldStyle assigns hatch style based on the fields rotation column value.
-		function fieldStyle(feature){
-			var fieldType = feature.get("rotation");
-			if(fieldType == 'pt-cn' || fieldType == 'pt-rt'){
-				return hatchAssignFieldStyle('pasture.png')
-			}
-			else if(fieldType == 'ps'){
-				return hatchAssignFieldStyle('pasture2.png')
-			}
-			else if(fieldType == 'ps'){
-				return hatchAssignFieldStyle('pasture2.png')
-			}
-			else if(fieldType == 'dl'){
-				return hatchAssignFieldStyle('dry_lot.png')
-			}
-			else if(fieldType == 'cc'){
-				return hatchAssignFieldStyle('continuous_corn.png')
-			}
-			else if(fieldType == 'cg'){
-				return hatchAssignFieldStyle('cash_grain.png')
-			}
-			else if(fieldType == 'dr'){
-				return hatchAssignFieldStyle('dairy_rotation_1.png')
-			}
-			else if(fieldType == 'cso'){
-				return hatchAssignFieldStyle('dairy_rotation_2.png')
-			}
-			else{
-				return defaultFieldStyle
-			}
-		}
+		// //final function called in fieldStyle
+		// let hatchAssignFieldStyle = function(png){
+		// 	var hatchPattern = new Image();
+		// 	hatchPattern.src = '/static/grazescape/public/images/'+png
+		// 	var pattern = context.createPattern(hatchPattern, 'repeat');
+		// 	//hatchPattern.onload = function() {
+		// 	var fieldHatch = new ol.style.Style({
+		// 		stroke: new ol.style.Stroke({
+		// 			color: '#994f00',
+		// 			width: 1}),
+		// 		fill: new ol.style.Fill({
+		// 			color: pattern
+		// 		})
+		// 	})
+		// //}
+		// 	return fieldHatch
+		// };
+		// //fieldStyle assigns hatch style based on the fields rotation column value.
+		// function fieldStyle(feature){
+		// 	var fieldType = feature.get("rotation");
+		// 	if(fieldType == 'pt-cn' || fieldType == 'pt-rt'){
+		// 		return hatchAssignFieldStyle('pasture.png')
+		// 	}
+		// 	else if(fieldType == 'ps'){
+		// 		return hatchAssignFieldStyle('pasture2.png')
+		// 	}
+		// 	else if(fieldType == 'ps'){
+		// 		return hatchAssignFieldStyle('pasture2.png')
+		// 	}
+		// 	else if(fieldType == 'dl'){
+		// 		return hatchAssignFieldStyle('dry_lot.png')
+		// 	}
+		// 	else if(fieldType == 'cc'){
+		// 		return hatchAssignFieldStyle('continuous_corn.png')
+		// 	}
+		// 	else if(fieldType == 'cg'){
+		// 		return hatchAssignFieldStyle('cash_grain.png')
+		// 	}
+		// 	else if(fieldType == 'dr'){
+		// 		return hatchAssignFieldStyle('dairy_rotation_1.png')
+		// 	}
+		// 	else if(fieldType == 'cso'){
+		// 		return hatchAssignFieldStyle('dairy_rotation_2.png')
+		// 	}
+		// 	else{
+		// 		return defaultFieldStyle
+		// 	}
+		// }
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
@@ -570,8 +569,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
 				//DSS.layer.fields_1,
-				DSS.layer.fieldsLabels,
-				DSS.layer.infrastructure
+				//DSS.layer.fieldsLabels,
+				//DSS.layer.infrastructure
 				],
 				//------------------------------------------------------------------------
 
@@ -690,6 +689,8 @@ Ext.define('DSS.map.Main', {
 		//me.map.addLayer(DSS.layer.fields_1);
 		
 		me.cropRotationOverlay = Ext.create('DSS.map.RotationLayer').instantiate(me.map);
+		me.map.addLayer(DSS.layer.fieldsLabels);
+		me.map.addLayer(DSS.layer.infrastructure);
 	},
 	
 	

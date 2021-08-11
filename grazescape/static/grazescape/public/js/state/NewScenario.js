@@ -230,6 +230,7 @@ function wfs_new_scenario_features_copy(featsArray,fType) {
 			console.log("uploaded data successfully!: "+ response);
 			console.log(response)
 			// DSS.layer.fields_1.getSource().refresh();
+				//DSS.layer.fieldsLabels.getSource().refresh();
 			// DSS.layer.fieldsLabels.getSource().refresh();
 			// DSS.layer.infrastructure.getSource().refresh();
 			console.log("copied field or infra over for feat: ");
@@ -479,6 +480,7 @@ Ext.define('DSS.state.NewScenario', {
 								//DSS.activeScenario = highestScenarioId;
 								this.up('window').destroy();
 								// DSS.layer.fields_1.getSource().refresh();
+								//DSS.layer.fieldsLabels.getSource().refresh();
 								// DSS.layer.fieldsLabels.getSource().refresh();
 								// DSS.layer.infrastructure.getSource().refresh();
 								//DSS.activeScenario = highestScenarioId;

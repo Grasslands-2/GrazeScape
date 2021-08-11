@@ -14,6 +14,10 @@ Ext.define('DSS.infra_shapes.apply.laneMaterial', {
 	layout: DSS.utils.layout('vbox', 'start', 'center'),
 	
 	DSS_sectionHeight: 150,
+
+	requires: [
+		'DSS.infra_shapes.apply.infraType',
+	],
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {

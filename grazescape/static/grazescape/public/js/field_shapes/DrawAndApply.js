@@ -35,6 +35,7 @@ function wfs_field_insert(feat,geomType) {
 			DSS.MapState.removeMapInteractions()
 			console.log("uploaded data successfully!: "+ data);
 			DSS.layer.fields_1.getSource().refresh();
+			DSS.layer.fieldsLabels.getSource().refresh();
 			DSS.layer.farms_1.getSource().refresh();
 		},
         error: function (xhr, exception) {
@@ -61,6 +62,7 @@ function wfs_field_insert(feat,geomType) {
 	//console.log("Field wrote to Geoserver")
 	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
 	DSS.layer.fields_1.getSource().refresh();
+	DSS.layer.fieldsLabels.getSource().refresh();
 }
 function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
 
