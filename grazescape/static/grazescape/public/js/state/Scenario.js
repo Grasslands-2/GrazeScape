@@ -191,7 +191,7 @@ function wfs_update(feat,layer) {
     str = s.serializeToString(node);
 	str=str.replace("feature:"+layer,"Farms:"+layer);
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
-    console.log(str);
+//    console.log(str);
     geoServer.updateFieldAtt(str,feat )
 //    $.ajax(geoserverURL + '/geoserver/wfs?'
 //	/*'http://localhost:8081/geoserver/wfs?'*/,{
@@ -476,7 +476,7 @@ Ext.define('DSS.state.Scenario', {
 						//Ext.getCmp("btnRemoveModelResults").setDisabled(false)
 //                        if dashboard hasnt been opened before
                         if (!Ext.getCmp("dashboardWindow")) {
-                            //Ext.getCmp("btnOpenDashboard").setDisabled(false)
+                            Ext.getCmp("btnOpenDashboard").setDisabled(false)
 //                            Ext.getCmp("btnRunModels").setDisabled(true)
                             let dash = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,
@@ -534,19 +534,19 @@ Ext.define('DSS.state.Scenario', {
 				// 		// Ext.getCmp("btnRemoveModelResults").setDisabled(true)
 				// 	}
 				// }
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'Open Dashboard',
-				// 	id: "btnOpenDashboard",
-				// 	disabled:true,
-				// 	disabled: false,
-				// 	handler: function(self) {
-		        //         Ext.getCmp("dashboardWindow").show()
+				 {
+				 	xtype: 'button',
+				 	cls: 'button-text-pad',
+				 	componentCls: 'button-margin',
+				 	text: 'View Results',
+				 	id: "btnOpenDashboard",
+				 	disabled:true,
+//				 	disabled: false,
+				 	handler: function(self) {
+		                 Ext.getCmp("dashboardWindow").show()
 
-				// 	}
-				// }
+				 	}
+				 }
 				]
 			}]
 		});
