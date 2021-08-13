@@ -33,8 +33,10 @@ class ModelBase:
                                                    'grazescape', 'data_files',
                                                    'raster_outputs',
                                                    file_name + ".png")
+        R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 
-        self.r_file_path = settings.R_PATH
+        self.r_file_path = R_PATH
+        # self.r_file_path = settings.R_PATH
         print(settings.R_PATH)
         # self.r_file_path = "/opt/conda/envs/gscape/bin/R"
         try:

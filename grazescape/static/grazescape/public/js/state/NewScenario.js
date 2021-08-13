@@ -314,6 +314,7 @@ function wfs_scenario_insert(feat,geomType,fType) {
 //    }).done();
 }
 function createNewScenario(sname,sdescript,snewhighID){
+    DSS.changedScenarios.push(snewhighID)
     DSS.newScenarioID = snewhighID
 	console.log('in createnewscen')
 	console.log('scenarioArrayNS at start of createnewscen: ');
@@ -377,8 +378,7 @@ function createNewScenario(sname,sdescript,snewhighID){
 }
 
 //------------------working variables--------------------
-//var type = "Point";
-//var source = farms_1Source;
+//+
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.NewScenario', {

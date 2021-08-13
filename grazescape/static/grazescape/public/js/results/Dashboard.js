@@ -1,6 +1,6 @@
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['bio']
-//var modelTypes = ['yield','runoff']
+//var modelTypes = ['yield', 'ploss','runoff', 'bio']
+var modelTypes = ['yield']
+//var modelTypes = ['yield,','runoff']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -166,6 +166,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             })
             console.log("running model")
 //            layer.getSource().forEachFeature(function(f) {
+            // f
             fieldIter = retrieveAllFieldsDataGeoserver()
             fieldIter = await fieldIter
             numbFields = fieldIter.length
@@ -193,10 +194,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
 //          while the inactive fields are just retrieving their models results from the db
             for(item in fieldIter){
+                let scenarioID = null
                 for(layer in layerList){
                     if (layerList[layer].get("gid") == fieldIter[item].gid){
                         activeScenario = true
                         f = layerList[layer]
+                        scenarioID = f["scenario_id"]
                         break
                     }
                     else{
@@ -204,12 +207,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         activeScenario = false
                         console.log("not active")
                         numbFields = numbFields + 1
-//                        totalFields = totalFields + modelTypes.length
-//                          yield_pb.max = numbFields
-//                          nut_pb.max = numbFields
-//                          ero_pb.max = numbFields
-//                          runoff_pb.max = numbFields
-//                          bio_pb.max = numbFields
                     }
                 }
 

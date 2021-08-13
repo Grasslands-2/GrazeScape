@@ -79,12 +79,12 @@ def geoserver_request(request):
     print(pay_load)
     url = request.POST.get("url")
     geo = GeoServer(request_type, url)
-    geo.makeRequest(pay_load)
-    return JsonResponse({"data": geo.makeRequest()}, safe=False)
+    result = geo.makeRequest(pay_load)
+    return JsonResponse({"data": result}, safe=False)
 
 
 def get_model_results(request):
-
+    print(request.POST)
     field_id = request.POST.getlist("field_id")[0]
     scenario_id = request.POST.getlist("scenario_id")[0]
     farm_id = request.POST.getlist("farm_id")[0]
@@ -111,14 +111,12 @@ def get_model_results(request):
                 model = GrassYield(request)
             elif crop_ro == 'dl':
                 data = {
-
                     # overall model type crop, ploss, bio, runoff
                     "model_type": model_type,
                     # specific model for runs with multiple models like corn silage
                     "value_type": "dry lot",
                     "f_name": f_name,
                     "scen": scen,
-
                     "scen_id": scenario_id,
                     "field_id": field_id
                 }
@@ -182,7 +180,12 @@ def get_model_results(request):
                 "counted_cells": count,
                 "sum_cells": sum,
                 "scen_id": scenario_id,
-                "field_id": field_id
+                "field_id": field_id,
+                "crop_ro": model.model_parameters["crop"],
+                "grass_ro": model.model_parameters["rotation"],
+                "grass_type": model.model_parameters["grass_type"],
+                "till": model.model_parameters["tillage"]
+
             }
             if db_has_field(field_id, scenario_id, farm_id):
                 update_field(field_id, scenario_id, farm_id, data, False)
