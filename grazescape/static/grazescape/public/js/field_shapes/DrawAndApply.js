@@ -1,13 +1,4 @@
-var fields_1Source_loc = new ol.source.Vector({
-	url:geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_2&' +
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857',
-	format: new ol.format.GeoJSON()
-});
+var fields_1Source_loc = ""
 
 function wfs_field_insert(feat,geomType) {
     var formatWFS = new ol.format.WFS();
@@ -24,45 +15,43 @@ function wfs_field_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax(geoserverURL + '/geoserver/wfs?'
-	/*'http://localhost:8081/geoserver/wfs?'*/,{
-        type: 'POST',
-        dataType: 'xml',
-        processData: false,
-        contentType: 'text/xml',
-        data: str,
-		success: function (data) {
-			DSS.MapState.removeMapInteractions()
-			console.log("uploaded data successfully!: "+ data);
-			DSS.layer.fields_1.getSource().refresh();
-			DSS.layer.farms_1.getSource().refresh();
-		},
-        error: function (xhr, exception) {
-            var msg = "";
-            if (xhr.status === 0) {
-                msg = "Not connect.\n Verify Network." + xhr.responseText;
-            } else if (xhr.status == 404) {
-                msg = "Requested page not found. [404]" + xhr.responseText;
-            } else if (xhr.status == 500) {
-                msg = "Internal Server Error [500]." +  xhr.responseText;
-            } else if (exception === "parsererror") {
-                msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-                msg = "Time out error." + xhr.responseText;
-            } else if (exception === "abort") {
-                msg = "Ajax request aborted.";
-            } else {
-                msg = "Error:" + xhr.status + " " + xhr.responseText;
-            }
-			console.log(msg);
+    geoServer.wfs_field_insert(str, feat)
+
+}
+function setFeatureAttributes(feature,af,as){
+    console.log(feature.getGeometry().getExtent())
+    console.log(feature.getGeometry().getCoordinates()[0])
+    data = {
+        'extents':feature.getGeometry().getExtent(),
+        'coordinates':feature.getGeometry().getCoordinates()[0]
+    }
+    var csrftoken = Cookies.get('csrftoken');
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": csrftoken }
+    });
+    return new Promise(function(resolve) {
+    $.ajax({
+        'url' : '/grazescape/get_default_om',
+        'type' : 'POST',
+        'data' : data,
+        success: function(responses, opts) {
+            delete $.ajaxSetup().headers
+            console.log(responses)
+            feature.setProperties({"om":responses['om']})
+
+            var geomType = 'polygon'
+
+            DSS.MapState.removeMapInteractions()
+            wfs_field_insert(feature, geomType)
+            resolve('done')
+        },
+        failure: function(response, opts) {
+            me.stopWorkerAnimation();
         }
     })
-	.done();
-	//console.log("Field wrote to Geoserver")
-	DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-	DSS.layer.fields_1.getSource().refresh();
+    })
 }
-function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
+async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
 
 	cropDisp='';
 	tillageDisp='';
@@ -96,7 +85,7 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 		tillageDisp = 'Spring Vertical'}
 	else if(tillageInput=='smb'){
 		tillageDisp = 'Spring Moldboard Plow'}
-	else if(tillageInput=='fch'){
+	else if(tillageInput=='fc'){
 		tillageDisp = 'Fall Chisel + Disk'}
 	else if(tillageInput=='fm'){
 		tillageDisp = 'Fall Moldboard Plow'}
@@ -114,44 +103,41 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 	var af = parseInt(DSS.activeFarm,10);
 	var as = DSS.activeScenario;
 	console.log('This is the active scenario#: ');
-	console.log(as)
 
 	DSS.draw.on('drawend', function (e,) {
 		fieldArea = e.feature.values_.geom.getArea();
 		console.log(fieldArea);
+        // get default OM value
+        console.log(e)
+        e.feature.setProperties({
+                id: af,
+                farm_id: af,
+                scenario_id: as,
+                field_name: field_nameInput,
+                soil_p: soil_pInput,
+                rotation: crop,
+                rotation_disp: cropDisp,
+                graze_beef_cattle: beef,
+                graze_dairy_lactating: lac,
+                graze_dairy_non_lactating: non_lac,
+                tillage: tillageInput,
+                tillage_disp:tillageDisp,
+                cover_crop:'nc',
+                cover_crop_disp:'No Cover',
+                rotational_density:0,
+                area:fieldArea * 0.000247105,
+                //this changes the square meters to acres
+                fertilizerpercent:0,
+                manurepercent:0,
+                spread_confined_manure_on_pastures: false,
+                on_contour: false,
+                interseeded_clover: false,
+                pasture_grazing_rot_cont:false,
+                is_dirty:true
+            })
+        setFeatureAttributes(e.feature)
 
-		e.feature.setProperties({
-			id: af,
-			farm_id: af,
-			scenario_id: as,
-			field_name: field_nameInput,
-			soil_p: soil_pInput,
-			om: 10,
-			rotation: crop,
-			rotation_disp: cropDisp,
-			graze_beef_cattle: beef,
-			graze_dairy_lactating: lac,
-			graze_dairy_non_lactating: non_lac,
-			tillage: tillageInput,
-			tillage_disp:tillageDisp,
-			cover_crop:'nc',
-			cover_crop_disp:'No Cover',
-			rotational_density:0,
-			area:fieldArea * 0.000247105,
-			//this changes the square meters to acres
-			fertilizerpercent:0,
-			manurepercent:0,
-			spread_confined_manure_on_pastures: false,
-			on_contour: false,
-			interseeded_clover: false,
-			pasture_grazing_rot_cont:false
-		})
-		var geomType = 'polygon'
-		
-		DSS.MapState.removeMapInteractions()
-		wfs_field_insert(e.feature, geomType)
-		console.log("HI! WFS feild Insert ran!")
-	})     
+	})
 }
 //------------------working variables--------------------
 var type = "Polygon";

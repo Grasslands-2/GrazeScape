@@ -17,12 +17,7 @@ Ext.application({
 	],
 	mainView: 'DSS.view.AppViewport',
 	init: function() {
-
-		Ext.state.Manager.setProvider(
-			Ext.create('Ext.state.CookieProvider', {
-				path: '/'
-			})
-		);
+		Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 	},
 
 //	 Routes handling....
