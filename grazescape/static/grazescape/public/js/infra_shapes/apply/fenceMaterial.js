@@ -35,7 +35,7 @@ Ext.define('DSS.infra_shapes.apply.fenceMaterial', {
 					xtype: 'component',
 					x: 0, y: -6,
 					width: '100%',
-					height: 28,
+					height: 14,
 					cls: 'information accent-text bold',
 					html: "Set Fence Material",
 				},
@@ -43,8 +43,9 @@ Ext.define('DSS.infra_shapes.apply.fenceMaterial', {
 				]
 			},{
 				xtype: 'radiogroup',
-				itemId: 'contents',
+				id: 'FMcontents',
 				style: 'padding: 0px; margin: 0px', // fixme: eh...
+				padding: 15,
 				hideEmptyLabel: true,
 				columns: 1, 
 				//disabled: true,
@@ -74,20 +75,7 @@ Ext.define('DSS.infra_shapes.apply.fenceMaterial', {
 				bind: '{fenceMaterialValue}', // formula from viewModel above
 				defaults: {
 					name: rbName,
-					//listeners: {
-						// afterrender: function(self) {
-						// 	if(DSS.infra_shapes.apply.infraType.inputValue != 'fl'){
-						// 		this.setDisabled(true);
-						// 		console.log('hi from fence material after render')
-						// 	}
-						// 	else{
-						// 		if ( self.boxLabelEl) {
-						// 			self.boxLabelEl.setStyle('cursor', 'pointer')
-						// 		}
-						// 	}
-						// }
 					}
-				//	boxLabelCls: 'hover'
 				},
 				items: [{
 					boxLabel: 'High Tensile Electric, 1 Strand', inputValue: 'hte1',

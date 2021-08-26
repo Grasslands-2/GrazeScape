@@ -11,6 +11,7 @@ from django.conf import settings
 import os
 # Create your views here.
 from grazescape.raster_data import RasterData
+from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
@@ -26,6 +27,27 @@ import shutil
 
 raster_data = None
 
+def run_InfraTrueLength(data):
+    print('here is the data')
+    print('POST in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print(data.POST)
+    #infraId = []
+    infraextent = data.POST.getlist('extents[]')
+    infracords =  data.POST.getlist('infraCords[]')
+    infraId = data.POST.get('infraId')
+    print(infraId)
+    print('infraextents in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print(infraextent)
+    print('infracords in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print(infracords)
+    toolName = InfraTrueLength(infraextent,infracords,infraId)
+
+    print('run_infraTrueLength')
+    #print(data)
+    #return InfraTrueLength.featid.calc()
+    return JsonResponse({"trueInfraDist":toolName.calc(),
+    "output":toolName.load_dem()})
+    
 
 def clean_data(request):
     print("cleaning data")
@@ -217,6 +239,7 @@ def get_image(response):
     response = FileResponse(img)
 
     return response
+
 
 
 

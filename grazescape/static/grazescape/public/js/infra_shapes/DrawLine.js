@@ -9,6 +9,32 @@ var InfrastructureSource_loc = new ol.source.Vector({
 	format: new ol.format.GeoJSON()
 });
 
+
+function get_terrian_distance(data){
+    return new Promise(function(resolve) {
+    var csrftoken = Cookies.get('csrftoken');
+	console.log('data coming into ajax call')
+	console.log(data)
+    $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+    $.ajax({
+    'url' : '/grazescape/run_InfraTrueLength',
+    'type' : 'POST',
+    'data' : data,
+        success: function(responses, opts) {
+			console.log('hit infra profile tool')
+			console.log(responses)
+			resolve([])
+		},
+		error: function(responses) {
+			console.log('python tool call error')
+			console.log(responses)
+		}
+	})}
+	)}
+
+
 function wfs_infra_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
@@ -33,7 +59,15 @@ function wfs_infra_insert(feat,geomType) {
         data: str,
 		success: function (data) {
 			DSS.MapState.removeMapInteractions()
-			console.log("uploaded data successfully!: "+ data);
+			console.log("uploaded data successfully!: ");
+			console.log(data)
+			console.log(feat)
+			featExtents = feat.values_.geom.extent_;
+			featCords = feat.values_.geom.flatCoordinates;
+			featID = feat.ol_uid
+			console.log(featExtents);
+			console.log(featCords);
+			get_terrian_distance({extents: featExtents, infraCords: featCords, infraId: featID})
 			DSS.layer.infrastructure.getSource().refresh();
 			DSS.layer.farms_1.getSource().refresh();
 		},
@@ -167,6 +201,8 @@ lane_materialInput){
 var type = "Line";
 var source = InfrastructureSource_loc
 
+var InfraTypeVar = ''
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.infra_shapes.DrawLine', {
 //------------------------------------------------------------------------------
@@ -181,8 +217,8 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 
 	requires: [
 		//'DSS.ApplicationFlow.activeFarm',
-		'DSS.infra_shapes.apply.infraName',
-		'DSS.infra_shapes.apply.infraType',
+		//'DSS.infra_shapes.apply.infraName',
+		//'DSS.infra_shapes.apply.infraType',
 		'DSS.infra_shapes.apply.fenceMaterial',
 		'DSS.infra_shapes.apply.waterPipe',
 		'DSS.infra_shapes.apply.laneMaterial'
@@ -245,17 +281,278 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
 					html: 'Infrastructure Options',
-				},{
-					xtype: 'infra_shapes_apply_infra_name'
-				},{
-					xtype: 'infra_shapes_apply_infra_type',
-				},{
-					xtype: 'infra_shapes_apply_fence_material'
-				},{
-					xtype: 'infra_shapes_apply_lane_material'
-				},{
-					xtype: 'infra_shapes_apply_water_pipe'
 				},
+				//Infra Naming Component!!!!!!!!!
+				{
+					xtype: 'component',
+					x: 0, y: -6,
+					width: '100%',
+					height: 28,
+					cls: 'information accent-text bold',
+					html: "Infra Label",
+				},
+						{
+						xtype: 'textfield',
+						itemId: 'dss-infra-name',
+						layout: 'center',
+						padding: 15,
+						allowBlank: false,
+						labelWidth: 35,
+						labelAlign: 'right',
+						bind: { value: '{infraName.value}' },
+						minValue: 1,
+						maxValue: 200,
+						width: 160,
+						step: 5
+					// }]
+				},
+				//infra type component!!!!!!!!
+				{
+					xtype: 'container',
+					width: '100%',
+					layout: 'absolute',
+					items: [{
+						xtype: 'component',
+						x: 0, y: -6,
+						width: '100%',
+						height: 7,
+						cls: 'information accent-text bold',
+						html: "Infrastructure Type",
+					},
+					//getToggle(this, 'infraType.is_active') 
+				]},
+				{
+					xtype: 'radiogroup',
+					id: 'ITcontents',
+					style: 'padding: 0px; margin: 0px', // fixme: eh...
+					//hideEmptyLabel: true,
+					padding: 15,
+					columns: 1, 
+					vertical: true,
+					viewModel: {
+						formulas: {
+							infraTypeValue: {
+								bind: '{infraType.value}', // inherited from parent
+								get: function(val) {
+									let obj = {};
+									obj["infraType"] = val;
+									return obj;
+								},
+								set: function(val) {
+									this.set('infraType.value', val["infraType"]);
+								}
+							}
+						}
+					},
+					listeners:{
+						change: function(){
+							selectedType = this.getValue().infraType
+							InfraTypeVar = selectedType
+							 if(InfraTypeVar == 'wl'){
+								 console.log('water lines')
+								 Ext.getCmp('WPcontents').enable()
+								 Ext.getCmp('LMcontents').disable()
+								 Ext.getCmp('FMcontents').disable()
+							 }else if(InfraTypeVar == 'll'){
+								 console.log('lane lines')
+								 Ext.getCmp('WPcontents').disable()
+								 Ext.getCmp('LMcontents').enable()
+								 Ext.getCmp('FMcontents').disable()
+							 }else if(InfraTypeVar == 'fl'){
+								 console.log('fence lines')
+								 Ext.getCmp('WPcontents').disable()
+								 Ext.getCmp('LMcontents').disable()
+								 Ext.getCmp('FMcontents').enable()
+							 }
+						}
+					},
+					bind: '{infraTypeValue}', // formula from viewModel above
+					defaults: {
+						name: "infraType",
+						listeners: {
+							afterrender: function(self) {
+								if ( self.boxLabelEl) {
+									self.boxLabelEl.setStyle('cursor', 'pointer')
+								}
+							},
+						}
+					},
+					items: [{ 
+						boxLabel: 'Water Line', inputValue: 'wl',
+					},{ 
+						boxLabel: 'Lane Line', inputValue: 'll',
+					},{
+						boxLabel: 'Fencing', inputValue: 'fl',
+					}]
+				},
+				//Waterpipe!!!!!!!!!!!!!
+				{
+					xtype: 'container',
+					width: '100%',
+					layout: 'absolute',
+					//disabled: true,
+					//itemId: 'WPcontents',
+					items: [{
+						xtype: 'component',
+						x: 0, y: -3,
+						width: '100%',
+						height: 7,
+						cls: 'information accent-text bold',
+						html: "Set Water Infrastructure",
+					},
+				]},
+					{
+						xtype: 'radiogroup',
+						id: 'WPcontents',
+						disabled: true,
+						style: 'padding: 0px; margin: 0px', // fixme: eh...
+						//hideEmptyLabel: true,
+						padding: 15,
+						columns: 1, 
+						vertical: true,
+						viewModel: {
+							formulas: {
+								waterPipeValue: {
+									bind: '{waterPipe.value}', // inherited from parent
+									get: function(val) {
+										let obj = {};
+										obj["waterPipe"] = val;
+										return obj;
+									},
+									set: function(val) {
+										this.set('waterPipe.value', val["waterPipe"]);
+									}
+								}
+							}
+						},
+						bind: '{waterPipeValue}', // formula from viewModel above
+						defaults: {
+							name: "waterPipe",
+							listeners: {
+								afterrender: function(self) {
+									if ( self.boxLabelEl) {
+										self.boxLabelEl.setStyle('cursor', 'pointer')
+									}
+								}
+							}
+						//	boxLabelCls: 'hover'
+						},
+						items: [{
+							boxLabel: 'Surface HDPE or PVC Pipe', inputValue: 'sup',
+						},{ 
+							boxLabel: 'Shallow Buried HDPE or PVC Pipe', inputValue: 'sbp',
+						}]
+					},
+					//Lane Materials!!!!!!!!
+					{
+						xtype: 'component',
+						x: 0, y: -6,
+						width: '100%',
+						height: 7,
+						cls: 'information accent-text bold',
+						html: "Set Lane Material",
+					},
+					{
+						xtype: 'radiogroup',
+						id: 'LMcontents',
+						disabled: true,
+						style: 'padding: 0px; margin: 0px', // fixme: eh...
+						//hideEmptyLabel: true,
+						padding: 15,
+						columns: 1, 
+						vertical: true,
+						viewModel: {
+							formulas: {
+								laneMaterialValue: {
+									bind: '{laneMaterial.value}', // inherited from parent
+									get: function(val) {
+										let obj = {};
+										obj["laneMaterial"] = val;
+										return obj;
+									},
+									set: function(val) {
+										this.set('laneMaterial.value', val["laneMaterial"]);
+									}
+								}
+							}
+						},
+						bind: '{laneMaterialValue}', // formula from viewModel above
+						defaults: {
+							name: "laneMaterial",
+							listeners: {
+								afterrender: function(self) {
+									if ( self.boxLabelEl) {
+										self.boxLabelEl.setStyle('cursor', 'pointer')
+									}
+								}
+							}
+						//	boxLabelCls: 'hover'
+						},
+						items: [{
+							boxLabel: 'Raised Earth Walkway', inputValue: 're',
+						},{ 
+							boxLabel: 'Gravel Walkway', inputValue: 'gw',
+						},{ 
+							boxLabel: 'Gravel over Geotextile', inputValue: 'gg',
+						},{ 
+							boxLabel: 'Gravel Over Graded Rock', inputValue: 'ggr',
+						},{ 
+							boxLabel: 'Gravel Over Graded Rock <br>and Geotextile', inputValue: 'ggrg',
+						}]
+					},
+					{
+						xtype: 'component',
+						x: 0, y: -6,
+						width: '100%',
+						height: 7,
+						cls: 'information accent-text bold',
+						html: "Set Fence Material",
+					},
+					{
+						xtype: 'radiogroup',
+						id: 'FMcontents',
+						disabled: true,
+						style: 'padding: 0px; margin: 0px', // fixme: eh...
+						hideEmptyLabel: true,
+						padding: 15,
+						columns: 1, 
+						//disabled: true,
+						vertical: true,
+						viewModel: {
+							formulas: {
+								fenceMaterialValue: {
+									bind: '{fenceMaterial.value}', // inherited from parent
+									get: function(val) {
+										let obj = {};
+										obj["fenceMaterial"] = val;
+										return obj;
+									},
+									set: function(val) {
+										this.set('fenceMaterial.value', val["fenceMaterial"]);
+									}
+								}
+							}
+						},
+						listeners:{
+							change: function(self) {
+									if(this.inputValue == 'fl'){
+										//this.setDisabled(true);
+										console.log('hi from fence material after render')
+									}
+						},
+						bind: '{fenceMaterialValue}', // formula from viewModel above
+						defaults: {
+							name: "fenceMaterial",
+							}
+						},
+						items: [{
+							boxLabel: 'High Tensile Electric, 1 Strand', inputValue: 'hte1',
+						},{ 
+							 boxLabel: 'Electric - High Tensile', inputValue: 'hte',
+						},{ 
+							boxLabel: 'Pasture Paddock', inputValue: 'pp',
+						}]
+					},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',

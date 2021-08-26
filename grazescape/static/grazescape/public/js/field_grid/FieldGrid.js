@@ -5,6 +5,8 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 
 var fieldArray = [];
 var fieldObj = {};
+var pastAcreage = 0
+var cropAcreage = 0
 
 var fieldUrl =geoserverURL + '/geoserver/wfs?'+
 'service=wfs&'+
@@ -63,6 +65,16 @@ function getWFSfields() {
 		}
 	})
 }
+function getRotAcrage(obj){
+	for (i in obj)
+	if(obj[i].rotationVal == 'pt-cn'|| obj[i].rotationVal == 'pt-rt'){
+		pastAcreage = pastAcreage + obj[i].area
+	}
+	if(obj[i].rotationVal == 'cc'|| obj[i].rotationVal =='cg' || obj[i].rotationVal =='dr' || obj[i].rotationVal =='cso'){
+		cropAcreage = cropAcreage + obj[i].area
+	}
+	
+}
 
 function popFieldsArray(obj) {
 	for (i in obj)
@@ -117,6 +129,9 @@ function gatherTableData() {
 	console.log(fieldUrl)
 	console.log("gatherTableData ran");
 	console.log(fieldArray);
+	getRotAcrage(fieldArray);
+	console.log(pastAcreage);
+	console.log(cropAcreage);
 };
 
 Ext.create('Ext.data.Store', {
