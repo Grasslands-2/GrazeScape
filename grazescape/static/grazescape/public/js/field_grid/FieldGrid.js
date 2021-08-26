@@ -5,7 +5,8 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 
 var fieldArray = [];
 var fieldObj = {};
-
+// keep track of what fields have had values changed
+var fieldChangeList= []
 var fieldUrl =""
 //geoserverURL + '/geoserver/wfs?'+
 //'service=wfs&'+
@@ -252,7 +253,7 @@ Ext.create('Ext.data.Store', {
 		value: 'sv',
 		display: 'Spring Vertical'
 	},{ 
-		value: 'fch',
+		value: 'fc',
 		display: 'Fall Chisel + Disk'
 	},{ 
 		value: 'fm',
@@ -275,7 +276,7 @@ Ext.create('Ext.data.Store', {
 		value: 'sn',
 		display: 'Spring Chisel No Disk'
 	},{ 
-		value: 'fch',
+		value: 'fc',
 		display: 'Fall Chisel + Disk'
 	},{ 
 		value: 'fm',
@@ -355,7 +356,11 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	listeners: {
 		resize: function(self, newW, newH, oldW, oldH) {
 			if (!self.isAnimating) self.internalHeight = newH;
+		},
+		update: function (me, record) {
+		    console.log(me, record)
 		}
+
 	},
 	//requires: ['DSS.map.Main'],
 

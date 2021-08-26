@@ -3,8 +3,11 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_protect
+
 from django.http import FileResponse
 import traceback
+import uuid
 
 from django.core.files import File
 from django.conf import settings
@@ -27,7 +30,7 @@ import shutil
 
 raster_data = None
 
-
+@csrf_protect
 def clean_data(request):
     print("cleaning data")
     input_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
@@ -52,12 +55,17 @@ def clean_data(request):
             print("Error: %s : %s" % (f, e.strerror))
     clean_db()
     return JsonResponse({"clean":"finished"})
+
+
+@csrf_protect
 def index(request):
     context = {
         "my_color": {"test1":1234}
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+
+
 @ensure_csrf_cookie
 def download_rasters(request):
     field_id = request.POST.getlist("field_id")[0]
@@ -70,28 +78,54 @@ def download_rasters(request):
                           field_coors, field_id, True)
     return JsonResponse({"download":"finished"})
 
-
+@csrf_protect
 def geoserver_request(request):
-    print(request.POST)
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
-    print("Pay loaddddddddddddddddddddddddd")
-    print(pay_load)
     url = request.POST.get("url")
+    print(url)
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
     return JsonResponse({"data": result}, safe=False)
 
 
-def get_model_results(request):
+def get_default_om(request):
     print(request.POST)
+    field_id = file_name = str(uuid.uuid4())
+    extents = request.POST.getlist("extents[]")
+    print("the extents are ", extents)
+    field_coors = []
+    for coor in request.POST:
+        if "coordinates" in coor:
+            field_coors.append(request.POST.getlist(coor))
+    print(field_coors)
+
+    geo_data = RasterData(extents, field_coors, field_id, True, True)
+
+    clipped_rasters, bounds = geo_data.get_clipped_rasters()
+    print(clipped_rasters)
+    om = clipped_rasters["om"].flatten()
+    sum = 0
+    count = 0
+    for val in om:
+        if val != geo_data.no_data:
+            sum = sum + val
+            count = count + 1
+    print("average om is ", round(sum / count,2))
+    return JsonResponse({"om": round(sum / count,2)}, safe=False)
+
+
+@csrf_protect
+def get_model_results(request):
     field_id = request.POST.getlist("field_id")[0]
     scenario_id = request.POST.getlist("scenario_id")[0]
     farm_id = request.POST.getlist("farm_id")[0]
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
     scen = request.POST.get('model_parameters[scen]')
-    if request.POST.getlist("isActiveScen")[0] == 'false':
+    db_has_field(field_id, scenario_id, farm_id)
+
+    if request.POST.getlist("runModels")[0] == 'false':
         print("not active scenario")
         return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request), safe=False)
     field_coors = []
@@ -144,8 +178,8 @@ def get_model_results(request):
         # result will be a OutputDataNode
         return_data = []
         # convert area from sq meters to acres
-        area = float(
-            request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
+        area = float(request.POST.getlist("model_parameters[area]")[0])
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", area)
         for result in results:
             if result.model_type == "insect":
                 sum = result.data[0]
@@ -188,12 +222,12 @@ def get_model_results(request):
 
             }
             if db_has_field(field_id, scenario_id, farm_id):
-                update_field(field_id, scenario_id, farm_id, data, False)
+                update_field_results(field_id, scenario_id, farm_id, data, False)
             else:
-                update_field(field_id, scenario_id, farm_id, data, True)
+                update_field_results(field_id, scenario_id, farm_id, data, True)
+            update_field_dirty(field_id, scenario_id, farm_id)
             return_data.append(data)
-        # print("Returning the following data from the view!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        # print(return_data)
+
         return JsonResponse(return_data, safe=False)
     except KeyError as e:
         error = str(e) + " while running models for field " + f_name
@@ -224,7 +258,7 @@ def get_model_results(request):
         "error": error
     }
     return JsonResponse([data], safe=False)
-
+@csrf_protect
 def get_image(response):
     file_name = response.GET.get('file_name')
     file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files','raster_outputs',file_name)

@@ -15,15 +15,7 @@ class GeoServer:
     def makeRequest(self, data=""):
         r = requests.post(self.request_url, data=data)
         # print(r)
-        print(r.text)
         return r.text
 # url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afield_2&outputFormat=application%2Fjson'
 # g =GeoServer("source", url)
 # g.makeRequest()
-if __name__ == "__main__":
-    parameter = '/CQL_filter=scenario_id=' + str(88)
-    geoField_Url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afield_2&outputFormat=application%2Fjson' + parameter
-
-    g = GeoServer("", geoField_Url)
-    result = g.makeRequest()
-    print(g)

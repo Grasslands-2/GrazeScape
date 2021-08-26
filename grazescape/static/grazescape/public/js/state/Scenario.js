@@ -96,6 +96,11 @@ function runInfraUpdate(){
 	})
 };
 function runFieldUpdate(){
+    let changedFieldsList = []
+    for (field in fieldChangeList){
+        changedFieldsList.push(fieldChangeList[field].id)
+    }
+    console.log(changedFieldsList)
 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
 		var feildFeature = f;
 		console.log("from fields_1 loop through: " + feildFeature.id_);
@@ -104,6 +109,13 @@ function runFieldUpdate(){
 			console.log(fieldArray[i]);
 			if(fieldArray[i].id === feildFeature.id_){
 				console.log(fieldArray[i].name);
+				console.log(fieldArray[i].id);
+				let is_dirty = false
+
+				// if our field has been changed we need to run model
+				if (changedFieldsList.includes(fieldArray[i].id)){
+				    feildFeature.setProperties({is_dirty:true})
+				}
 				feildFeature.setProperties({
 					field_name: fieldArray[i].name,
 					soil_p: fieldArray[i].soilP,
@@ -133,7 +145,6 @@ function runFieldUpdate(){
 					fence_type: fieldArray[i].fence_type,
 					fence_cost: fieldArray[i].fence_cost,
 					fence_unit_cost: fieldArray[i].fence_unit_cost,
-
 				});
 				wfs_update(feildFeature,'field_2');
 				break;
@@ -399,11 +410,14 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_infra_line_mode');
 						}
 						else {
+						    console.log("running update")
+						    fieldChangeList = []
+						    fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
+
 							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
 							runFieldUpdate()
-							console.log(fieldArray);
 						}
 					}
 				},
@@ -464,7 +478,7 @@ Ext.define('DSS.state.Scenario', {
 					id: "btnRunModels",
 					text: 'Run Models',
 					handler: function(self) {
-						cleanDB()
+//						cleanDB()
 						//DSS.DrawFieldShapes.addModeControl()
 						console.log()
 						if (DSS['viewModel'].scenario.data != null){
@@ -472,11 +486,12 @@ Ext.define('DSS.state.Scenario', {
 						    runScenarioUpdate();
                             console.log("done updating scenario data")
 						}
+                        Ext.getCmp("btnOpenDashboard").setDisabled(false)
+
                         Ext.getCmp("btnRunModels").setDisabled(true)
 						//Ext.getCmp("btnRemoveModelResults").setDisabled(false)
 //                        if dashboard hasnt been opened before
                         if (!Ext.getCmp("dashboardWindow")) {
-                            Ext.getCmp("btnOpenDashboard").setDisabled(false)
 //                            Ext.getCmp("btnRunModels").setDisabled(true)
                             let dash = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,

@@ -58,11 +58,9 @@ function wfsDeleteItem(featsArray,layerString){
 }
 function selectDeleteScenario(fgid){
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
-		console.log(f);
 		var delScenarioFeature = f;
-		console.log(delScenarioFeature.values_.scenario_id);
-		console.log("from scenario features loop through: " + delScenarioFeature.values_.scenario_id);
 		if (delScenarioFeature.values_.scenario_id == fgid){
+		    console.log(fgid)
 			itemToBeDeleted = delScenarioFeature;
 			console.log("scenario selected for termination:")
 			console.log(itemToBeDeleted);

@@ -15,7 +15,7 @@ function showFieldsForScenario() {
 //	);
     geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	console.log(DSS.layer.fields_1.getStyle())
-	DSS.layer.fields_1.getSource().refresh();
+//	DSS.layer.fields_1.getSource().refresh();
 	console.log("showfieldsforfarm ran");
 }
 
@@ -188,6 +188,7 @@ Ext.define('DSS.state.ScenarioPicker', {
 							console.log(item.inputValue);
 							DSS.activeScenario = item.inputValue;
 							DSS.scenarioName = item.text;
+//							console.log("Showing ")
 							showFieldsForScenario()
 				 			showInfraForScenario()
 							DSS.ApplicationFlow.instance.showManageOperationPage();

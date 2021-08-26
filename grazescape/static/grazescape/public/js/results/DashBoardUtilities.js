@@ -60,7 +60,7 @@ function populateChartObj(scenList, fieldList, allField, allScen){
                 data1 = {
                     label: scenList[scen],
                     dbID: allScen[scen].dbID,
-
+                    compareData: [],
                     // each data entry represents a scenario
                     data: new Array(scenList.length).fill(null),
                     backgroundColor:  allScen[scen].color.opa,
@@ -80,75 +80,99 @@ function populateChartObj(scenList, fieldList, allField, allScen){
 
         chartObj[chartName] = node
         chartObj[chartName].chart = null
+        chartObj[chartName].show = false
 
     }
 }
 
-function build_model_request(f, modelChoice, activeScenario){
-
-    if(activeScenario){
-//    if(activeScenario || DSS.changedScenarios){
-        let rotation_split = f.get("rotation").split("-")
-        crop = rotation_split[0]
-        rotation = rotation_split.length > 1 ?rotation_split[1]:null
-        let density = f.get("grazingdensityval")
-        let graze_factor = 1
-        if (rotation == "cn"){
-            graze_factor = 0.65
-        }
-        else if (rotation == "rt" ){
-            graze_factor = parseFloat(f.get("rotational_freq_val"))
-            density = "na"
-        }
-        model_para = {
-            f_name: f.get("field_name"),
-            extent: f.getGeometry().getExtent(),
-            // at this point fields wont have any holes so just get the first entry
-            field_coors: f.getGeometry().getCoordinates()[0],
-            grass_type: f.get("grass_speciesval"),
-    //            need to convert this to integer
-            contour: f.get("on_contour")?1:0,
-            soil_p: f.get("soil_p"),
-            tillage: f.get("tillage"),
-            fert: f.get("fertilizerpercent"),
-            manure: f.get("manurepercent"),
-            crop:crop,
-            area:f.getGeometry().getArea(),
-            om: f.get("om"),
-            crop_cover: f.get("cover_crop"),
-    //			doesn't appear to be in the table at this time
-            rotation: rotation,
-            rotationFreq:"",
-            density: density,
-    //      comes from the the looping var in Dashboard.js
-            model_type: modelChoice,
-            graze_factor:graze_factor,
-            scen: chartDatasetContainer.getScenName(f.get("scenario_id")),
-        }
-        model_pack = {
-            "farm_id": DSS.activeFarm,
-            field_id: f.get("gid"),
-            "scenario_id": f.get("scenario_id"),
-            "isActiveScen": f.get("scenario_id") == DSS.activeScenario,
-            "model_parameters":model_para
-        }
+function build_model_request(f, geometry, modelChoice){
+    let runModel = false
+    let split = ""
+    console.log(f)
+    if(f["is_dirty"] == true){
+        runModel = true
     }
+    console.log(runModel)
+//    if(f["scenario_id"] == DSS.activeScenario){
+//        runModel = true
+//    }
+//    if(changedScenarios.includes(f["scenario_id"])){
+//        runModel = true
+//    }
+//    else {
+//        for (field in fieldChangeList){
+//            split = fieldChangeList[field].id.split(".")[1]
+//            if(split != "undefined"&& split == f["gid"]){
+//                console.log('field has been changed, running models')
+//                runModel = true
+//                break
+//            }
+//        }
+//    }
+
+
+//    runModel = true
+    let rotation_split = f["rotation"].split("-")
+    crop = rotation_split[0]
+    rotation = rotation_split.length > 1 ?rotation_split[1]:null
+    let density = f["grazingdensityval"]
+    let graze_factor = 1
+    if (rotation == "cn"){
+        graze_factor = 0.65
+    }
+    else if (rotation == "rt" ){
+        graze_factor = parseFloat(f["rotational_freq_val"])
+        density = "na"
+    }
+    model_para = {
+        f_name: f["field_name"],
+        extent: geometry.bbox,
+        // at this point fields wont have any holes so just get the first entry
+        field_coors: geometry.geometry.coordinates[0],
+        grass_type: f["grass_speciesval"],
+//            need to convert this to integer
+        contour: f["on_contour"]?1:0,
+        soil_p: f["soil_p"],
+        tillage: f["tillage"],
+        fert: f["fertilizerpercent"],
+        manure: f["manurepercent"],
+        crop:crop,
+        area:f["area"],
+        om: f["om"],
+        crop_cover: f["cover_crop"],
+//			doesn't appear to be in the table at this time
+        rotation: rotation,
+        rotationFreq:"",
+        density: density,
+//      comes from the the looping var in Dashboard.js
+        model_type: modelChoice,
+        graze_factor:graze_factor,
+        scen: chartDatasetContainer.getScenName(f["scenario_id"]),
+    }
+    model_pack = {
+        "farm_id": DSS.activeFarm,
+        field_id: f["gid"],
+        "scenario_id": f["scenario_id"],
+        "runModels": runModel,
+        "model_parameters":model_para
+    }
+
 //    getting model results from db
-    else{
-        model_para = {
-            f_name: f["field_name"],
-            model_type: modelChoice,
-            scen: chartDatasetContainer.getScenName(f["scenario_id"]),
-        }
-        model_pack = {
-            "farm_id": DSS.activeFarm,
-            field_id: f["gid"],
-            "scenario_id": f["scenario_id"],
-            "isActiveScen": f["scenario_id"] == DSS.activeScenario,
-            "model_parameters":model_para
-        }
-
-    }
+//    else{
+//        model_para = {
+//            f_name: f["field_name"],
+//            model_type: modelChoice,
+//            scen: chartDatasetContainer.getScenName(f["scenario_id"]),
+//        }
+//        model_pack = {
+//            "farm_id": DSS.activeFarm,
+//            field_id: f["gid"],
+//            "scenario_id": f["scenario_id"],
+//            "isActiveScen": f["scenario_id"] == DSS.activeScenario,
+//            "model_parameters":model_para
+//        }
+//
+//    }
     console.log(model_pack)
     return model_pack
 }
@@ -243,7 +267,6 @@ function format_chart_data(model_data){
 //                chartTypeFarm.chartData.toolTip[scenIndex] = model_data.crop_ro;
             return
             }
-
             break
         case 'bio':
             chartTypeField = chartObj.insecticide_field
@@ -261,6 +284,8 @@ function format_chart_data(model_data){
         if(model_data.sum_cells != null){
 //            console.log("sum not null")
             chartVal = +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
+            chartTypeField.show = true
+
         }
         else{
 //            console.log(model_data.sum_cells)
@@ -279,6 +304,7 @@ function format_chart_data(model_data){
             chartTypeField.chart.update()
             chartTypeField.chart.options.scales.y.title.text= chartTypeField.units;
         }
+
     }
 //      farm level
     //initialize sum and count if they havent been already
@@ -286,6 +312,8 @@ function format_chart_data(model_data){
     let chartCells = null
     let chartArea = null
     if(model_data.sum_cells != null){
+        chartTypeFarm.show = true
+
         chartVal = model_data.sum_cells
         chartCells = model_data.counted_cells
         chartArea = model_data.area
@@ -311,14 +339,8 @@ function format_chart_data(model_data){
             chartTypeFarm.chart.update()
             //    set units on graph directly so it displays
             chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
-
+        }
     }
-
-    }
-
-
-
-
 }
 function get_model_data(data){
     return new Promise(function(resolve) {
@@ -353,32 +375,32 @@ function get_model_data(data){
 //                console.log("@@@@@@@@@@@@@@@@")
 //                console.log(responses[response].value_type)
 //                only display erosion on the map
-                if (responses[response].value_type == 'ero'&&responses[response].scen_id==DSS.activeScenario){
-                    console.log("There is erosion")
-                    pt1 = [e[0],e[3]]
-                    pt2 = [e[2],e[3]]
-                    pt3 = [e[2],e[1]]
-                    pt4 = [e[0],e[1]]
-
-                    let p = new ol.geom.Polygon([
-                        [pt1, pt2, pt3, pt4, pt1]
-                    ]);
-                    modelResult = new ol.layer.Image({
-                        updateWhileAnimating: true,
-                        updateWhileInteracting: true,
-                        source: new ol.source.ImageStatic({
-                            imageSmoothing: false,
-                            projection: 'EPSG:3857',
-                            // Something is required here or there will be an exception whilst trying to draw this layer
-                            imageExtent: [
-                                44240,328120,
-                                448350,335420
-                            ],
-                        })
-                    });
-                    validateImageOL(obj, modelResult);
-
-                }
+//                if (responses[response].value_type == 'ero'&&responses[response].scen_id==DSS.activeScenario){
+//                    console.log("There is erosion")
+//                    pt1 = [e[0],e[3]]
+//                    pt2 = [e[2],e[3]]
+//                    pt3 = [e[2],e[1]]
+//                    pt4 = [e[0],e[1]]
+//
+//                    let p = new ol.geom.Polygon([
+//                        [pt1, pt2, pt3, pt4, pt1]
+//                    ]);
+//                    modelResult = new ol.layer.Image({
+//                        updateWhileAnimating: true,
+//                        updateWhileInteracting: true,
+//                        source: new ol.source.ImageStatic({
+//                            imageSmoothing: false,
+//                            projection: 'EPSG:3857',
+//                            // Something is required here or there will be an exception whilst trying to draw this layer
+//                            imageExtent: [
+//                                44240,328120,
+//                                448350,335420
+//                            ],
+//                        })
+//                    });
+//                    validateImageOL(obj, modelResult);
+//
+//                }
 
                 if(responses[response].value_type != "dry lot"){
                     format_chart_data(obj)
@@ -451,7 +473,6 @@ function create_graph(chart,title,element){
               },
 //            maintainAspectRatio: false,
 
-
             plugins:{
                 title:
                 {
@@ -463,15 +484,10 @@ function create_graph(chart,title,element){
                     callbacks: {
                         label: function(context) {
                             console.log(context)
-
-                            return context.label + ": " + context.dataset.data[context.dataIndex];
+                            return context.dataset.label + ": " + context.dataset.data[context.dataIndex];
                         },
-                        footerFont:function(context) {return{weight: 'normal'}},
-
                         footer: function(context) {
                             console.log(context)
-
-
 //                            tooltipItem = tooltipItem[0]
                             var dataset = context[0].dataset
                             if(dataset.toolTip == undefined){
@@ -479,10 +495,6 @@ function create_graph(chart,title,element){
                             }
                             console.log(dataset)
                             let tooltipPath = dataset.toolTip[context[0].dataIndex]
-//                            // chart doesn't have any extra parameters
-//                            if(data.toolTip[tooltipItem.datasetIndex][1] == "undefined"){
-//                                return ["Rotation: " + tooltipPath[0]]
-//                            }
                             console.log(tooltipPath)
                             // all rotations except pasture
                             if(tooltipPath[0] != "pt"){
@@ -502,7 +514,6 @@ function create_graph(chart,title,element){
                     position: 'top',
                     test1: "Hi everyone!",
                     onClick: function (event, legendItem, legend){
-                        console.log(event, legendItem, legend)
                         name = legendItem.text
                         if (event.chart.canvas.id.includes('field')){
                             dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
@@ -510,7 +521,6 @@ function create_graph(chart,title,element){
                         else{
                             dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
                         }
-
                         hideData(event.chart.canvas.id, name, dbID)
                     },
                 },
@@ -524,11 +534,14 @@ function create_graph(chart,title,element){
                     },
                     title: {
                     display: true,
-                    text: units
+                    text: units,
+                    font: {
+                        size:14,
+                        weight: 'bold'
+                    }
                   }
                 }
             },
-
         }
     });
     return barchart
@@ -544,7 +557,7 @@ function farmAccMapping(inputString){
      'sc':'Spring Chisel + Disk',
      'sn':'Spring Chisel No Disk',
      'sv':'Spring Vertical',
-     'fch':'Fall Chisel + Disk',
+     'fc':'Fall Chisel + Disk',
      'fm':'Fall Moldboard Plow',
      'cn':'Continuous Pasture',
      'rt':'Rotational Pasture',
@@ -565,45 +578,45 @@ function create_graph_line(chart,title,element){
         options: {
             responsive: true,
 //            maintainAspectRatio: false,
-            legend: {
-                position: 'top',
-                onClick: function (event, legendItem, legend){
-                    console.log(event, legendItem, legend)
-                    name = legendItem.text
-                    console.log(event.path[0].id)
-                    if (event.path[0].id.includes('field')){
-                        dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
-                    }
-                    else{
-                        dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
-
-                    }
-                    hideData(event.path[0].id, name,dbID)
-
+            plugins:{
+                title:{
+                    display: true,
+                    text: title
                 },
+                legend: {
+                    position: 'top',
+                    onClick: function (event, legendItem, legend){
+                        name = legendItem.text
+                        if (event.chart.canvas.id.includes('field')){
+                            dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
+                        }
+                        else{
+                            dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
+                        }
+                        hideData(event.chart.canvas.id, name, dbID)
+                    },
+                },
+
             },
-            title: {
-                display: true,
-                text: title
-            },
+
+
             scales: {
-                yAxes: [{
+                y: {
                     ticks: {
                         beginAtZero: true,
                         maxTicksLimit:5,
                     },
-                    scaleLabel: {
+                    title: {
                     display: true,
-                    labelString: units
+                    text: units
                   }
-                }],
-                xAxes:[{
-                    scaleLabel:{
+                },
+                x:{
+                    title:{
                         display:true,
-                        labelString: "Rain Event [in]"
+                        text: "Rain Event [in]"
                     }
-
-                }]
+                }
             }
         }
     });
@@ -616,64 +629,54 @@ function create_graph_radar(chart,title,element){
         data: data,
         options: {
             responsive: true,
-//            maintainAspectRatio: false,
-
+             scales: {
+                r: {
+                    title: {
+                    display: true,
+                  },
+                min:0,
+                }
+            },
+          plugins: {
             title: {
                 display: true,
                 text: title
             },
-             scale: {
-                beginAtZero: true,
-                min:0,
-                    ticks: {
-                        beginAtZero: true,
-                        min:0,
-//                        maxTicksLimit:5,
-                    },
-            },
             legend: {
                 position: 'top',
                 onClick: function (event, legendItem, legend){
-                    console.log(event, legendItem, legend)
-                    name = legendItem.text
-                    console.log(event.path[0].id)
-                    if (event.path[0].id.includes('field')){
-                        dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
-                    }
-                    else{
-                        dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
-                    }
-                    hideData(event.path[0].id, name,dbID)
+                        name = legendItem.text
+                        if (event.chart.canvas.id.includes('field')){
+                            dbID = chartDatasetContainer.fields[legendItem.datasetIndex].dbID
+                        }
+                        else{
+                            dbID = chartDatasetContainer.scenarios[legendItem.datasetIndex].dbID
+                        }
+                        hideData(event.chart.canvas.id, name, dbID)
                 },
             },
-            tooltips: {
+             tooltip: {
+               footerFont: {weight: 'normal'},
                 callbacks: {
-                  label: function(tooltipItem, data) {
-                    console.log(tooltipItem, data)
-                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                    var index = tooltipItem.index;
-                    console.log(data.chartDataOri)
-                    console.log(data.chartDataOri[tooltipItem.datasetIndex])
-                    console.log(data.chartDataOri[tooltipItem.datasetIndex][tooltipItem.index])
-                    return [dataset.label + ": " + dataset.data[index]]
+                  label: function(context) {
+                         console.log(context)
+                        return [context.label + ": " + context.dataset.data[context.dataIndex]]
                     },
-                  footer: function(tooltipItem, data) {
-                        tooltipItem = tooltipItem[0]
-                        console.log(tooltipItem)
-                        console.log(data)
-                      return ["Original Value: " +
-                                data.chartDataOri[tooltipItem.datasetIndex][tooltipItem.index]];
+                    footer: function(context) {
+
+                        console.log(context)
+                        tip = []
+                        for (let val in context){
+                            console.log(context[val])
+                            console.log(context[val].dataset)
+                            console.log(context[val].dataset.compareData[context[val].dataIndex])
+                            data = context[val].dataset.compareData[context[val].dataIndex]
+                            tip.push("Original Value: "  + data)
+                        }
+                      return tip
                 }
             }
           },
-          plugins: {
-              datalabels: {
-                formatter: function(value, context) {
-                    console.log("************************************************")
-                  return 'line1\nline2\n' + value;
-    //              return context.chart.data.labels[context.dataIndex];
-                }
-              }
           }
 
 
@@ -787,6 +790,8 @@ function hideData(chartName, datasetName,dbID){
 
             }
             if(chartObj[chartLoop].chart !== null){
+                console.log(chartLoop)
+                console.log(chartObj[chartLoop])
                 chartObj[chartLoop].chart.update()
             }
         }
@@ -948,10 +953,6 @@ function populateRadarChart(){
         alert("Please only select 8 variable to display")
         return
     }
-//    for (let i = 0; i < checkBoxArr.length; i++ ){
-//        chartObj.compare_farm.chartData.datasets[0].data[i] = 1
-//
-//    }
     let i = 0
     for (let check in checkBoxArr){
         // each checkbox is an entry in the array
@@ -986,54 +987,34 @@ function populateRadarChart(){
         let j = 0
 //      loop through each scenario
         for (let data in scen_data){
-
-            console.log("$$$$$$$$$$$")
-            console.log(scen_data[data])
-//            console.log(data)
-//            console.log(scen_data[data])
-//            console.log(scen_data[data].data[0])
-//            console.log(scen_data[0].data[data])
-//            each data series on a scenario chart only has one entry
             let currentData = scen_data[data].data[0]
             if(name.indexOf("1 in storm")>0){
                 currentData = scen_data[data].data[1]
             }
             else if(name.indexOf("3 in storm")>0){
                 currentData = scen_data[data].data[5]
-
             }
             else if(name.indexOf("5 in storm")>0){
                 currentData = scen_data[data].data[9]
-
             }
-            console.log(scenBaseVal)
-            console.log(currentData)
             if (isTotal && chartObj[type].useAlternate != true){
                 currentData = (currentData * chartObj[type].area[data]).toFixed(2)
             }
-
-            console.log(scenBaseVal)
-            console.log(currentData)
-//            if (data != scenIndex){
-
 //            set the active scenario to 1. Avoids issues of infinity if the base scenario has a zero
-            if(baseScen ==  chartObj.compare_farm.chartData.datasets[data].dbID){
+            if(baseScen == chartObj.compare_farm.chartData.datasets[data].dbID){
                 chartObj.compare_farm.chartData.datasets[data].data[i]  = 1
             }
             else{
                 chartObj.compare_farm.chartData.datasets[data].data[i] = +((currentData / scenBaseVal).toFixed(2))
 //                if both datasets have a zero then we got infinity instead of 1
                 if (currentData == scenBaseVal){
-                    chartObj.compare_farm.chartData.datasets[data].data[i] =1
+                    chartObj.compare_farm.chartData.datasets[data].data[i] = 1
                 }
-            }
-            console.log(data)
-            console.log(i)
-            chartObj.compare_farm.chartData.chartDataOri[data][i]  = currentData
 
-//                chartObj.compare_farm.chartData.datasets[j].data[i] = 2
+            }
+            chartObj.compare_farm.chartData.datasets[data].compareData[i] = currentData
+            chartObj.compare_farm.chartData.chartDataOri[data][i]  = currentData
             j++
-//            }
         }
         i++
     }
@@ -1049,7 +1030,7 @@ function populateRadarChart(){
 
     }
      if(chartObj.compare_farm.chart !== null){
-        chartObj.compare_farm.chart.options.title.text = chartObj.compare_farm.title
+        chartObj.compare_farm.chart.options.plugins.title.text = chartObj.compare_farm.title
         chartObj.compare_farm.chart.update()
 
      }
@@ -1193,7 +1174,7 @@ function retrieveAllFieldsDataGeoserver(){
         let responses =JSON.parse(returnData.geojson)
         for(response in responses.features){
             let field = responses.features[response].properties.field_name
-            responsesField.push(responses.features[response].properties)
+            responsesField.push(responses.features[response])
         }
         return responsesField
 
@@ -1218,7 +1199,6 @@ function printSummary(){
         }
     }
 ////    make the summary tab the active tab when done.
-//// TODO probably should get some kind of ref to the sum tab instead of hardcoded value
     Ext.getCmp("mainTab").setActiveTab(activeTab)
 
 //
@@ -1357,8 +1337,6 @@ function printSummary(){
 
 //		}
 	})
-
-
     let fieldUrl2 =
 	 '/geoserver/wfs?'+
 	'service=wfs&'+
@@ -1418,20 +1396,16 @@ function printSummary(){
                     else if(col== "field_id" ){
 //                        field_att_list.push("Test field 1")
                         csvText = csvText + chartDatasetContainer.allFields[responses.features[response].properties[col]] + ","
-
                     }
                     else if(col== "scenario_id" ){
 //                        field_att_list.push("Test field 1")
                         csvText = csvText + chartDatasetContainer.getScenName(responses.features[response].properties[col]) + ","
-
                     }
                     else if(col == "area"){
                         csvText = csvText + responses.features[response].properties[col] + ","
-
                     }
                     else{
                         csvText = csvText + (responses.features[response].properties[col]) + ","
-
                     }
                 }
                 field_att_list.push("\n")
@@ -1461,22 +1435,31 @@ function printSummary(){
 
 //		}
 	})
-
-
-
 }
-function downloadRasters(){
+function downloadRasters(fieldIter){
     return new Promise(function(resolve) {
+        console.log(fieldIter)
         layer = DSS.layer.fields_1
         let downloadCount = 0
         let numFields = DSS.layer.fields_1.getSource().getFeatures().length
-        layer.getSource().forEachFeature(function(f) {
+//        layer.getSource().forEachFeature(function(f) {
+        for(item in fieldIter){
+            f = fieldIter[item].properties
+            if(f["is_dirty"] == false){
+                downloadCount = downloadCount + 1
+                 if(downloadCount==numFields){
+                    console.log("All files downloaded")
+                    resolve(downloadCount)
+                }
+                continue
+            }
+            geometry = fieldIter[item]
             model_para = {
-                f_name: f.get("field_name"),
-                field_id: f.get("gid"),
-                extent: f.getGeometry().getExtent(),
+                f_name: f["field_name"],
+                field_id: f["gid"],
+                extent: geometry.bbox,
                 // at this point fields wont have any holes so just get the first entry
-                field_coors: f.getGeometry().getCoordinates()[0]
+                field_coors: geometry.geometry.coordinates[0]
             }
             downloadRastersRequest(model_para).then(function(value){
                 downloadCount = downloadCount + 1
@@ -1488,7 +1471,7 @@ function downloadRasters(){
                 }
 
             })
-        })
+        }
     })
 }
 function downloadRastersRequest(data){

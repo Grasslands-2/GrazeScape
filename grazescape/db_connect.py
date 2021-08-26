@@ -68,7 +68,58 @@ def db_has_field(field_id, scenario_id, farm_id):
     return db_result is not None
 
 
-def update_field(field_id, scenario_id, farm_id, data, insert_field):
+def update_field_dirty(field_id, scenario_id, farm_id):
+    """
+
+    Parameters
+    ----------
+    field_id : int
+        The primary key of the field
+    scenario_id : int
+        The primary key of the current scenario
+    farm_id : int
+        The primary key of the current farm
+    data : request object
+        The POST request containing the input parameters to the model
+    insert_field : bool
+        True if field should be inserted, otherwise field will be updated
+
+    Returns
+    -------
+
+    """
+    print("updating dirty field")
+    cur, conn = get_db_conn()
+    sql_where = " WHERE field_id = %s and scenario_id = %s and farm_id = %s"
+    sql_values = ""
+    col_name = []
+    values = [field_id, scenario_id, farm_id]
+    update_text = "UPDATE field_2 SET is_dirty = false WHERE gid = %s and scenario_id = %s and farm_id = %s"
+    # cur.execute("""UPDATE table_name
+    #     SET column1 = value1, column2 = value2, ...
+    #     WHERE condition;
+    # """)
+    #     cur.execute("INSERT INTO field_model_results(field_id, scenario_id)
+    #
+    #     VALUES (%s,%s)",(30,40))
+
+    # col_name.append("is_dirty")
+    # values.append(False)
+    try:
+        cur.execute(update_text, values)
+    except Exception as e:
+        print(e)
+        print(type(e).__name__)
+
+        error = str(e)
+        print(error)
+        raise
+    finally:
+        cur.close()
+        conn.commit()
+        conn.close()
+
+def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     """
 
     Parameters
@@ -162,6 +213,7 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
         col_name.append("area")
         values.append(data['area'])
 
+
     col_name.append("field_id")
     col_name.append("scenario_id")
     col_name.append("farm_id")
@@ -202,7 +254,7 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
         cur.execute(sql_request, values)
     except UniqueViolation as e:
         print("field already exists in table")
-        update_field(field_id, scenario_id, farm_id, data, False)
+        update_field_results(field_id, scenario_id, farm_id, data, False)
 
     except Exception as e:
         print(e)
@@ -211,9 +263,10 @@ def update_field(field_id, scenario_id, farm_id, data, insert_field):
         error = str(e)
         print(error)
         raise
-    cur.close()
-    conn.commit()
-    conn.close()
+    finally:
+        cur.close()
+        conn.commit()
+        conn.close()
 
 
 def get_values_db(field_id, scenario_id, farm_id, request):
@@ -280,9 +333,7 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                 'and field_2.gid = %s',
                 [field_id, scenario_id, farm_id,field_id])
     result = cur.fetchone()
-    print(result)
     column_names = [desc[0] for desc in cur.description]
-    print(column_names)
     for model in model_types:
         if model == request.POST.get('model_parameters[model_type]'):
             if result is None:
@@ -329,16 +380,11 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                     till_index = column_names.index("tillage")
                     tillage = result[till_index]
                     grass_rotation = ""
-                    print(rotation)
-                    print("$$$$$$$$$$$$$$$$$")
                     if "pt-" in rotation or "cn-" in rotation:
                         r = rotation.split("-")
-                        print(request.POST.get('model_parameters[f_name]'))
                         # rotation = rotation.split("-")[0]
                         grass_rotation = r[1]
                         rotation = r[0]
-
-
                     if model == "bio":
                         count = 1
                     f_name = request.POST.get('model_parameters[f_name]')
@@ -365,16 +411,14 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                         "scen_id": scenario_id,
                         "field_id": field_id,
                         "crop_ro": rotation,
-                        "grass_ro":grass_rotation,
+                        "grass_ro": grass_rotation,
                         "grass_type": grass_type,
-                        "till":tillage
+                        "till": tillage
 
                     }
                     return_data.append(data)
     cur.close()
     conn.close()
-    print("Returning the following data!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print(return_data)
     return return_data
 
 
