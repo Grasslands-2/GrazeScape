@@ -66,16 +66,8 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 				listeners:{
 					change: function(){
 						selectedType = this.getValue().infraType
-						//console.log(selectedType)
 						 if(selectedType == 'wl'){
 						 	console.log('water lines')
-							console.log(DSS.infra_shapes.DrawLine)
-							console.log(DSS.infra_shapes.apply.waterPipe.viewModel.data)
-							//DSS.infra_shapes.apply.waterPipe.setDisabled(false)
-							//DSS.infra_shapes.DrawLine.setViewModel(DSS.viewModel.drawLine)
-							//DSS.infra_shapes.DrawLine.viewModel.reload()
-							//DSS.infra_shapes.DrawLine.reset()
-						// 	//widget.infra_shapes_apply_water_pipe.setDisabled(false)
 						 }else if(selectedType == 'll'){
 						 	console.log('lane lines')
 						 }else if(selectedType == 'fl'){
@@ -92,24 +84,8 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 								self.boxLabelEl.setStyle('cursor', 'pointer')
 							}
 						},
-						// click: function() {
-						// 	if(DSS.infra_shapes.apply.infraType.inputValue == 'fl'){
-						// 		//this.setDisabled(true);
-						// 		console.log('Fencing selected')
-						// 	}else if(DSS.infra_shapes.apply.infraType.inputValue == 'll'){
-						// 		console.log('lane line selected')
-						// 	}else if(DSS.infra_shapes.apply.infraType.inputValue == 'wl'){
-						// 		console.log('water line selected')
-						// 	}
-	
-						// }
-						// change: function(){
-						// 	if (this.inputValue == 'fl'){
-						// 		DSS.infra_shapes.apply.fenceMaterial.setDisabled(false);
-						// 	}
-						// }
+
 					}
-				//	boxLabelCls: 'hover'
 				},
 				items: [{ 
 					boxLabel: 'Water Line', inputValue: 'wl',

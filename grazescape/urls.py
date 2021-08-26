@@ -12,6 +12,7 @@ urlpatterns = [
     path('get_image', views.get_image, name='get_image'),
     path('clean_data', views.clean_data, name='clean_data'),
     path('download_rasters', views.download_rasters, name='download_rasters'),
+    path('run_InfraTrueLength',views.run_InfraTrueLength, name='run_InfraTrueLength')
     # path('chart_data', views.chart, name='chart'),
     # path('point_elevations', views.point_elevations, name='point_elevations'),
 ]
