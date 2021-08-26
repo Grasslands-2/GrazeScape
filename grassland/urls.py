@@ -21,6 +21,7 @@ urlpatterns = [
     #path('', views.index,name = 'index'),
     path('grazescape/', include('grazescape.urls')),
     path('', include('grazescape.urls')),
+    path('smartscape/', include('smartscape.urls')),
     path('admin/', admin.site.urls),
 ]
 

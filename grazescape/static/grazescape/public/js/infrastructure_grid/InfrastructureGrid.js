@@ -14,37 +14,7 @@ var infraUrl = ""
 function getWFSinfra(parameter = "") {
     console.log("getting wfs infra")
     geoServer.getWFSinfra(parameter)
-//	return $.ajax({
-//		jsonp: false,
-//		type: 'GET',
-//		url: infraUrl,
-//		async: false,
-//		dataType: 'json',
-//		success:function(response)
-//		{
-//			responseObj = response
-//			infraObj = response.features
-//			console.log(responseObj);
-//			infraArray = [];
-//			console.log(infraObj[0]);
-//			popInfraArray(infraObj);
-//			//placed data store in call function to make sure it was locally available.
-//			Ext.create('Ext.data.Store', {
-//				storeId: 'infraStore1',
-//				alternateClassName: 'DSS.infraStore',
-//				fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe',
-//				'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','totalCost'],
-//				data: infraArray
-//			});
-//			//Setting store to just declared store fieldStore1, and reloading the store to the grid
-//			DSS.infrastructure_grid.InfrastructureGrid.setStore(Ext.data.StoreManager.lookup('infraStore1'));
-//			DSS.infrastructure_grid.InfrastructureGrid.store.reload();
-//			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//			console.log(response);
-//			//console.log('DSS.infrastructure_grid.InfrastructureGrid')
-//			//console.log(DSS.infrastructure_grid.InfrastructureGrid);
-//		}
-//	})
+
 }
 
 function popInfraArray(obj) {

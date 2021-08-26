@@ -92,17 +92,18 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
     console.log("getting wfs fields and infra for new scenario")
 	//layerName.setSource(source);
 		layerName.getSource().forEachFeature(function(f){
-		console.log("current features scenario ID: " + f.values_.scenario_id);
-		console.log("Scenario being pulled from: " + copyScenarioNum);
-		if(f.values_.scenario_id == copyScenarioNum){
-			delete f.id_
-			f.geometryName_ = 'geom'
-			f.values_.scenario_id = DSS.activeScenario;
-			f.values_.geom = f.values_.geometry;
-			delete f.values_.geometry
-			console.log(f);
-			featArray.push(f);
-		}
+            console.log("current features scenario ID: " + f.values_.scenario_id);
+            console.log("Scenario being pulled from: " + copyScenarioNum);
+            if(f.values_.scenario_id == copyScenarioNum){
+                delete f.id_
+                f.geometryName_ = 'geom'
+                f.values_.scenario_id = highestScenarioId + 1;
+                f.values_.geom = f.values_.geometry;
+                delete f.values_.geometry
+                f.values_.is_dirty = true
+                console.log(f);
+                featArray.push(f);
+            }
 		//-----------------------------------
 		//Figured out that the geom was being taken from geometry in values_!!!!!!
 		//We can use this to copy exact geometry, thus creating exact copies of feautres
@@ -314,8 +315,6 @@ function wfs_scenario_insert(feat,geomType,fType) {
 //    }).done();
 }
 function createNewScenario(sname,sdescript,snewhighID){
-    DSS.changedScenarios.push(snewhighID)
-    DSS.newScenarioID = snewhighID
 	console.log('in createnewscen')
 	console.log('scenarioArrayNS at start of createnewscen: ');
 	console.log(scenarioArrayNS)

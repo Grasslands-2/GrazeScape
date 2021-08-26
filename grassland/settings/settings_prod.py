@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'grazescape'
+    'grazescape',
+    'smartscape'
 ]
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

@@ -37,8 +37,8 @@ class GeoServer{
     //    returns a geojson of the fields
     setFieldSource(parameter = ""){
 //        let url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afield_2&outputFormat=application%2Fjson' + parameter
-        this.makeRequest(this.geoField_Url + parameter, "source").then(function(geoJson){
-//            console.log(geoJson.geojson)
+        return this.makeRequest(this.geoField_Url + parameter, "source").then(function(geoJson){
+            console.log(geoJson)
             geoJson = geoJson.geojson
             DSS.layer.fields_1.getSource().clear()
             DSS.layer.fieldsLabels.getSource().clear()
@@ -56,9 +56,12 @@ class GeoServer{
     }
     //    returns a geojson of the infrastructure
     setInfrastructureSource(parameter = ""){
+        console.log(parameter)
         this.makeRequest(this.geoInfra_Url + parameter, "source").then(function(geoJson){
             DSS.layer.infrastructure.getSource().clear()
             geoJson = geoJson.geojson
+                        console.log(geoJson)
+
             var format = new ol.format.GeoJSON();
             var myGeoJsonFeatures = format.readFeatures(
                 geoJson,
@@ -101,10 +104,10 @@ class GeoServer{
     }
     insertFarm(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
-            let geoJson = returnData.geojson
+//            let geoJson = returnData.geojson
             let currObj = returnData.current
-            console.log(returnData)
-            geoJson = JSON.parse(geoJson)
+//            console.log(returnData)
+//            geoJson = JSON.parse(geoJson)
             currObj.setFarmSource()
 			DSS.MapState.removeMapInteractions()
 			DSS.activeFarm = highestFarmIdCNO + 1;
@@ -122,12 +125,16 @@ class GeoServer{
     wfs_field_insert(payLoad, feat){
          this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
             DSS.MapState.removeMapInteractions()
+            console.log(returnData)
             let geoJson = returnData.geojson
             let currObj = returnData.current
-            currObj.setFarmSource()
-            currObj.setFieldSource()
-            DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-
+//            currObj.setFarmSource()
+            currObj.setFieldSource().then(function(){
+                console.log("redraw fields")
+                DSS.MapState.showNewFarm(DSS.activeFarm);
+                DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+                DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+            })
          })
 
     }
@@ -138,8 +145,8 @@ class GeoServer{
     }
     getWFSfields(parameter = ""){
         this.makeRequest(this.geoField_Url + parameter, "source").then(function(geoJson){
-            console.log(geoJson)
             geoJson = JSON.parse(geoJson.geojson)
+            console.log(geoJson)
             fieldObj = geoJson.features
             fieldArray = [];
 			console.log(fieldObj[0]);
@@ -188,7 +195,7 @@ class GeoServer{
          this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
             let geoJson = returnData.geojson
             let currObj = returnData.current
-            cleanDB()
+//            cleanDB()
             currObj.setScenariosSource()
             currObj.setFarmSource()
             currObj.setFieldSource()
@@ -199,7 +206,7 @@ class GeoServer{
          this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
             let geoJson = returnData.geojson
             let currObj = returnData.current
-            cleanDB()
+//            cleanDB()
 //            currObj.setScenariosSource()
 //            currObj.setFarmSource()
 //            currObj.setFieldSource()
@@ -211,10 +218,14 @@ class GeoServer{
 
             let geoJson = returnData.geojson
             let currObj = returnData.current
-            cleanDB()
+//            cleanDB()
 //            currObj.setScenariosSource()
-            currObj.setFarmSource()
-            currObj.setFieldSource()
+            currObj.setFieldSource().then(function(){
+                console.log("redraw fields")
+                DSS.MapState.showNewFarm(DSS.activeFarm);
+                DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+                DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+            })
 //            currObj.setInfrastructureSource()
          })
 
@@ -224,7 +235,7 @@ class GeoServer{
 
             let geoJson = returnData.geojson
             let currObj = returnData.current
-            cleanDB()
+//            cleanDB()
 //            currObj.setScenariosSource()
             currObj.setFarmSource()
             currObj.setFieldSource()
@@ -233,11 +244,12 @@ class GeoServer{
 
 			//scenarioNumHold = DSS.activeScenario
 			// current scenario
-            DSS.activeScenario = DSS.newScenarioID
 
 			console.log("copying features$$$$$$$$$")
-			getWFSFieldsInfraNS(scenarioNumHold,fieldArrayNS,DSS.layer.fields_1,'field_2');
-			getWFSFieldsInfraNS(scenarioNumHold,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
+			getWFSFieldsInfraNS(DSS.activeScenario,fieldArrayNS,DSS.layer.fields_1,'field_2');
+			getWFSFieldsInfraNS(DSS.activeScenario,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
+            DSS.activeScenario = highestScenarioId + 1
+
 			farmArray = [];
 			scenarioArrayNS = [];
 			//The commented out functions might be resourcing fields to the new scenario before it has fields
@@ -289,7 +301,7 @@ class GeoServer{
 
             let geoJson = returnData.geojson
             let currObj = returnData.current
-            cleanDB()
+//            cleanDB()
 //            currObj.setScenariosSource()
 //            currObj.setFarmSource()
 //            currObj.setFieldSource()
@@ -299,14 +311,8 @@ class GeoServer{
     }
     wfs_new_scenario_features_copy(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
-            console.log("Done inserting copies of fields%%%%%%%%%")
-//            let geoJson = returnData.geojson
             let currObj = returnData.current
-//            cleanDB()
-////            currObj.setScenariosSource()
-////            currObj.setFarmSource()
             currObj.setFieldSource()
-//            currObj.setInfrastructureSource()
          })
 
     }
@@ -325,6 +331,7 @@ class GeoServer{
 
     }
     makeRequest(url, requestType, payLoad="", currObj = null){
+        console.log(url)
         return new Promise(function(resolve) {
             var csrftoken = Cookies.get('csrftoken');
             $.ajaxSetup({
