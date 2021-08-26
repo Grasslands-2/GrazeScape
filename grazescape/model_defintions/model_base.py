@@ -33,9 +33,13 @@ class ModelBase:
                                                    'grazescape', 'data_files',
                                                    'raster_outputs',
                                                    file_name + ".png")
+        # R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 
-        # self.r_file_path = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
-        self.r_file_path = "/opt/conda/envs/gscape/bin/R"
+        # self.r_file_path = R_PATH
+        self.r_file_path = settings.R_PATH
+        print(settings.R_PATH)
+        # self.r_file_path = "/opt/conda/envs/gscape/bin/R"
+
         try:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
@@ -140,8 +144,12 @@ class ModelBase:
             crop_cover = 'nt'
         if parameters["crop"] == "pt" or parameters["crop"] == "ps" or parameters["crop"] == "dl":
             crop_cover = 'nt'
+        density = 'na'
+        # ignore animal density if the field is not a pasture or a dry lot
+        if parameters["crop"] == "pt" or parameters["crop"] == "dl":
+            density = parameters["density"]
         nutrient_key = parameters["crop"] + crop_cover + \
-                       parameters["rotation"] + parameters["density"]
+                       parameters["rotation"] + density
         nutrient_key = nutrient_key.lower()
         try:
             parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]

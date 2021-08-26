@@ -67,7 +67,9 @@ class PhosphorousLoss(ModelBase):
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
-        r.assign("om", self.model_parameters["om"])
+        r.assign("om", float(self.model_parameters["om"]))
+        print(self.model_parameters["om"])
+        # r.assign("om", 2.56)
 
 
         r.assign("cc_erosion_file", os.path.join(self.model_file_path,"ContCornErosion.rds"))

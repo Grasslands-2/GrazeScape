@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+<title>SmartScape 2.0</title>
+<link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html {
+	position: relative;
+	min-height: 100%;
+}
+body {
+	background: #F0F2F0; 
+	background: -webkit-linear-gradient(to top, #cfdfcf, #ffe, #f2f2f0) fixed; 
+	background: linear-gradient(to top, #cfdfcf, #ffe,  #f2f2f0) fixed;
+	margin-bottom: 120px;
+}
+	.dss-container {
+		background: #fff; 
+		border: 1px solid #ccc; 
+		border-radius: 8px; 
+		padding: 2px 8px; 
+  		box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  		margin-bottom: 8px;
+  		overflow: hidden;
+	}
+	
+	.dss-container h4 {
+		height: 2em;
+	}
+	.footer {
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		height: 100px;
+		padding: 16px;
+		background-color: #a0b0a0; 
+		background: -webkit-linear-gradient(to top, #a0b0a0, 809080);
+		background: linear-gradient(to top, #a0b0a0, #809080); 
+		color: #fff; 
+		text-shadow: 0 0 1px #00000050; 
+		font-size: 16px; 
+		border-top: 1px solid #00000050;
+	}
+	.preset-header {
+		font-size: 16px;
+		color: #777;
+		text-align: center;
+		padding: 8px 0;
+	}
+	.img-center {
+		display: block;
+		margin: 8px auto;
+		margin-bottom: 16px;
+	}
+	.img-center img {
+		width: 70%;
+		max-width: 400px;
+	}
+	.table-row-selected {
+		background-color: #337ab7;
+		color: #fff;
+	}
+	.table-hover > tbody > tr:hover {
+		cursor: pointer;
+	}
+	.table-hover > tbody > .table-row-selected:hover {
+    	background-color: #286090;
+    	text-shadow: 0 0 2px #0000009f;
+	}
+	.dss-container img {
+	  height: 100%;
+	  margin: 0 auto;
+	  background-position: center bottom;
+	}
+</style>
+
+</head>
+<body>
+
+<footer class="footer">
+	<div class="container text-center">
+	<p>Footer text and more. And more and more and more.</p>
+	<p> &copy;2019 wei.wisc.edu</p>
+	</div>
+</footer>
+<div role="main" class="container">
+
+	<div class="row">
+		<a href="/assets/wip/landing_bs.html">
+			<div class="col-xs-12 img-center">
+				<img class="img-center" src="/assets/images/dss_logo.png">
+			</div>
+		</a>
+	</div>
+	<div class="row text-center">
+		<div class="col-md-offset-1 col-md-9">
+			<h4>Select an Area of Interest by Political Boundary</h4>
+		</div>
+  		<div class="col-md-offset-1 col-md-9">
+			<div class="row">
+				<div class="col-xs-5">
+		  			<div class="dss-container" style="height: 300px">
+		  				<div class="preset-header">Available Presets</div>
+		  				<table class="table text-left table-hover table-condensed" id="dss-presets">
+		  					<tbody>
+		  						<tr id="one" class="clickable-row"><td>Central Sands</td></tr>
+		  						<tr id="two" class="clickable-row"><td>Driftless</td></tr>
+		  						<tr id="three" class="clickable-row"><td>Fox Valley</td></tr>
+		  						<tr id="four" class="clickable-row table-default"><td>Urban Corridor</td></tr>
+		  					</tbody>
+		  				</table>
+		  			</div>
+		  			<div class="col-xs-6 col-md-offset-2 col-md-4">
+		  				<a href="/assets/wip/landing_bs.html" class="btn btn-default btn-block" role="button">Back</a>
+	  				</div>
+		  			<div class="col-xs-6 col-md-4">
+		  				<a href="/alt" class="btn btn-primary btn-block" role="button">OK</a>
+		  			</div>
+	  			</div>
+				<div class="col-xs-7">
+		  			<div class="dss-container" style="height: 340px;">
+		  			<img id="relay" src="/assets/images/pol_urb_corr.gif">
+		  			</div>
+	  			</div>
+  			</div>
+  		</div>
+  	</div>
+	
+</div><!-- /.container -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script>window.jQuery || document.write('<script src="/docs/4.2/assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+<script src="/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<script>
+$('#dss-presets').on('click', '.clickable-row', function(event) {
+	$(this).addClass('table-row-selected');
+	$(this).siblings().removeClass('table-row-selected');
+	var id = $(this).attr('id');
+	var src = $('#'+id).data('img');
+	$('#relay').attr("src", src);
+});
+
+$('#one').data('img', "/assets/images/pol_csand.gif");
+$('#two').data('img', "/assets/images/pol_drift.gif");
+$('#three').data('img', "/assets/images/pol_fox_hot.gif");
+$('#four').data('img', "/assets/images/pol_urb_corr.gif");
+
+$('.table-default').addClass('table-row-selected');
+
+</script>
+</body>
+</html>
