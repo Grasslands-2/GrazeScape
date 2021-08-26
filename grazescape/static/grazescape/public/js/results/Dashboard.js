@@ -1,6 +1,6 @@
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
 //var modelTypes = ['yield']
-//var modelTypes = ['yield','runoff']
+//var modelTypes = ['yield,','runoff']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -116,10 +116,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		layer = DSS.layer.fields_1
 //
         if (this.runModel) {
+            fieldChangeList = fieldChangeList.flat()
             chartDatasetContainer = new ChartDatasetContainer()
-            scenList = chartDatasetContainer.getScenarioList()
-            fieldList = chartDatasetContainer.getFieldList()
-            populateChartObj(chartObj,scenList,fieldList,chartDatasetContainer.fields, chartDatasetContainer.scenarios)
+//            scenList = chartDatasetContainer.getScenarioList()
+//            fieldList = chartDatasetContainer.getFieldList()
+//            console.log(fieldList)
+//            populateChartObj(chartObj,scenList,fieldList,chartDatasetContainer.fields, chartDatasetContainer.scenarios)
             compCheckBoxes = compareChartCheckBox()
 //            get progress bars
 
@@ -133,25 +135,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff_pb = document.getElementById("runoff_pb");
 
                 eco_pb = document.getElementById("eco_pb");
-                numbFields = fieldList.length
-                totalFields = numbFields * modelTypes.length
-                for (model in modelTypes){
-                     switch (modelTypes[model]){
-                        case 'yield':
-                            yield_pb.max = numbFields
-                            break
-                        case 'ploss':
-                             nut_pb.max = numbFields
-                             ero_pb.max = numbFields
-                            break
-                        case 'runoff':
-                            runoff_pb.max = numbFields
-                            break
-                        case 'bio':
-                            bio_pb.max = numbFields
-                            break
-                    }
-                }
+
                 // show progress bars when models run
 //                eco_pb.hidden = false
                 ero_pb.hidden = false
@@ -169,110 +153,149 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp('mainTab').update()
             }, 10);
+            createDashBoard(me)
 
     //      this layer contains the active fields from the active farm
-            downloadRasters().then(function(){
-                console.log("rasters downloaded open dashboard")
-                createDashBoard(me)
-            })
+//            downloadRasters().then(function(){
+//                console.log("rasters downloaded open dashboard")
+//            })
         }
-        function createDashBoard(dashboard){
+        async function createDashBoard(dashboard){
+            layerList = []
+            layer.getSource().forEachFeature(function(f) {
+                layerList.push(f)
+            })
+            let fieldIter = retrieveAllFieldsDataGeoserver()
+            fieldIter = await fieldIter
+            let download = downloadRasters(fieldIter)
+            download = await download
 
+            console.log("running model")
+//            layer.getSource().forEachFeature(function(f) {
+            // f
 
-                layerList = []
-                layer.getSource().forEachFeature(function(f) {
-                    layerList.push(f)
-                })
-                console.log("running model")
-    //            layer.getSource().forEachFeature(function(f) {
-                fieldIter = retrieveAllFieldsDataGeoserver()
-    //            get parameters for the active scenario fields from the layer display
-    //          if fields arent in the active scenario then use the values from the database
-    //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
-    //          while the inactive fields are just retrieving their models results from the db
-                for(item in fieldIter){
-                    for(layer in layerList){
-                        if (layerList[layer].get("gid")== fieldIter[item].gid){
-                            activeScenario = true
-                            f = layerList[layer]
-                            break
+            numbFields = fieldIter.length
+            totalFields = numbFields * modelTypes.length
+            for (model in modelTypes){
+                 switch (modelTypes[model]){
+                    case 'yield':
+                        yield_pb.max = numbFields
+                        break
+                    case 'ploss':
+                         nut_pb.max = numbFields
+                         ero_pb.max = numbFields
+                        break
+                    case 'runoff':
+                        runoff_pb.max = numbFields
+                        break
+                    case 'bio':
+                        bio_pb.max = numbFields
+                        break
+                }
+            }
+            console.log(fieldIter)
+//            get parameters for the active scenario fields from the layer display
+//          if fields arent in the active scenario then use the values from the database
+//          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
+//          while the inactive fields are just retrieving their models results from the db
+            for(item in fieldIter){
+//                for(layer in layerList){
+//                    if (layerList[layer].get("gid") == fieldIter[item].gid){
+//                        activeScenario = true
+//                        f = layerList[layer]
+//                        break
+//                    }
+//                    else{
+//                        f = fieldIter[item]
+//                        activeScenario = false
+//                        console.log("not active")
+//                        numbFields = numbFields + 1
+//                    }
+//                }
+
+                f = fieldIter[item]
+                console.log(f)
+//              for each layer run each model type: yield (grass or crop), ero, pl
+                for (model in modelTypes){
+                    model_request = build_model_request(f.properties, f, modelTypes[model])
+                    get_model_data(model_request).then(returnData =>{
+//                      no model results with that particular field
+                        if(returnData.length < 1){
+                            return
                         }
-                        else{
-                            f = fieldIter[item]
-                            activeScenario = false
-                        }
-                    }
-
-    //              for each layer run each model type: yield (grass or crop), ero, pl
-                    for (model in modelTypes){
-                        model_request = build_model_request(f, modelTypes[model], activeScenario)
-                        get_model_data(model_request).then(returnData =>{
-    //                      no model results with that particular field
-                            if(returnData.length < 1){
-                                return
-                            }
-                            switch (returnData[0].model_type){
-                                case 'yield':
-                                    yield_pb.value = yield_pb.value + 1
-                                    if(yield_pb.value==yield_pb.max){
-                                        yield_pb.hidden = true
-                                        Ext.getCmp("yieldTab").setDisabled(false)
-                                        Ext.getCmp("yieldFarmConvert").setDisabled(false)
-                                        Ext.getCmp("yieldFieldConvert").setDisabled(false)
-                                    }
-                                    break
-                                case 'ploss':
-                                    nut_pb.value = nut_pb.value + 1
-                                    if(nut_pb.value==nut_pb.max){
-                                        nut_pb.hidden = true
-                                        Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
-                                        Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-                                        Ext.getCmp("nutTab").setDisabled(false)
-                                    }
-                                    ero_pb.value = ero_pb.value + 1
-                                    if(ero_pb.value==ero_pb.max){
-                                        ero_pb.hidden = true
-                                        Ext.getCmp("eroTab").setDisabled(false)
-                                        Ext.getCmp("erosionFarmConvert").setDisabled(false)
-                                        Ext.getCmp("erosionFieldConvert").setDisabled(false)
-                                    }
-                                    break
-                                case 'runoff':
-                                    runoff_pb.value = runoff_pb.value + 1
-    //                                    runoff_pb.hidden = runoff_pb.value==runoff_pb.max?true:false
-                                    if(runoff_pb.value == runoff_pb.max){
-                                        runoff_pb.hidden =true
-                                        Ext.getCmp("runoffTab").setDisabled(false)
-                                    }
-                                    break
-                                case 'bio':
-                                    bio_pb.value = bio_pb.value + 1
-    //                                    bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
-                                    if(bio_pb.value == bio_pb.max){
-                                        bio_pb.hidden = true
-                                        Ext.getCmp("bioTab").setDisabled(false)
-                                    }
-                                    break
-                            }
-                            totalFields = totalFields - 1
-                            if(totalFields == 0){
-                                Ext.getCmp("btnRunModels").setDisabled(false)
-                                Ext.getCmp("compareTab").setDisabled(false)
-                                Ext.getCmp("compareTabBtn").setDisabled(false)
-    //                                Ext.getCmp("eroFieldTab").setDisabled(false)
-    //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
-    //                                Ext.getCmp("nutFieldTab").setDisabled(false)
-    //                                Ext.getCmp("insectFieldTab").setDisabled(false)
-
-                                if(document.getElementById("modelSpinner") != null){
-                                  document.getElementById("modelSpinner").style.display = "none";
+                        switch (returnData[0].model_type){
+                            case 'yield':
+                                yield_pb.value = yield_pb.value + 1
+                                if(yield_pb.value==yield_pb.max){
+//                                    console.log("done with yield")
+//                                    for (chart in chartObj){
+////                                        if(chart.chartObj.show == false && chartObj.includes('compare') !=true ){
+//                                        if(chartObj[chart].show == false){
+//                                            console.log(chart)
+//                                            console.log(document.getElementById(String(chart)))
+////                                            document.getElementById(chart).style.display="none";
+//
+//                                        }
+//                                    }
+//                                    console.log('done hiding charts')
+                                    yield_pb.hidden = true
+                                    Ext.getCmp("yieldTab").setDisabled(false)
+                                    Ext.getCmp("yieldFarmConvert").setDisabled(false)
+                                    Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                 }
-                                delete $.ajaxSetup().headers
+                                break
+                            case 'ploss':
+                                nut_pb.value = nut_pb.value + 1
+                                if(nut_pb.value==nut_pb.max){
+                                    nut_pb.hidden = true
+                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
+                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
+                                    Ext.getCmp("nutTab").setDisabled(false)
+                                }
+                                ero_pb.value = ero_pb.value + 1
+                                if(ero_pb.value==ero_pb.max){
+                                    ero_pb.hidden = true
+                                    Ext.getCmp("eroTab").setDisabled(false)
+                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
+                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
+                                }
+                                break
+                            case 'runoff':
+                                runoff_pb.value = runoff_pb.value + 1
+//                                    runoff_pb.hidden = runoff_pb.value==runoff_pb.max?true:false
+                                if(runoff_pb.value == runoff_pb.max){
+                                    runoff_pb.hidden =true
+                                    Ext.getCmp("runoffTab").setDisabled(false)
+                                }
+                                break
+                            case 'bio':
+                                bio_pb.value = bio_pb.value + 1
+//                                    bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
+                                if(bio_pb.value == bio_pb.max){
+                                    bio_pb.hidden = true
+                                    Ext.getCmp("bioTab").setDisabled(false)
+                                }
+                                break
+                        }
+                        totalFields = totalFields - 1
+                        if(totalFields == 0){
+                            Ext.getCmp("btnRunModels").setDisabled(false)
+                            Ext.getCmp("compareTab").setDisabled(false)
+                            Ext.getCmp("compareTabBtn").setDisabled(false)
+//                                Ext.getCmp("eroFieldTab").setDisabled(false)
+//                                Ext.getCmp("yieldFieldTab").setDisabled(false)
+//                                Ext.getCmp("nutFieldTab").setDisabled(false)
+//                                Ext.getCmp("insectFieldTab").setDisabled(false)
 
+                            if(document.getElementById("modelSpinner") != null){
+                              document.getElementById("modelSpinner").style.display = "none";
                             }
-                            Ext.getCmp('mainTab').update()
-                        })
-                    }
+                            delete $.ajaxSetup().headers
+
+                        }
+                        Ext.getCmp('mainTab').update()
+                    })
+                }
 
 
 
@@ -435,7 +458,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Average Erosion',
+                                boxLabel  : 'Total Erosion',
                                 inputValue: 't',
                             },
                         ],
@@ -494,7 +517,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Average Erosion',
+                                boxLabel  : 'Total Erosion',
                                 inputValue: 't',
                             },
                         ],
@@ -570,7 +593,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Average Yield',
+                                boxLabel  : 'Total Yield',
                                 inputValue: 't',
                             },
                         ],
@@ -617,8 +640,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     scope: this,
                     listeners:{activate: function() {
                         console.log("activated farm")
+                        if(!chartObj.grass_yield_farm.show){document.getElementById('grass_yield_farm').style.display="none"};
+                        if(!chartObj.corn_yield_farm.show){document.getElementById('corn_yield_farm').style.display="none"}
+                        if(!chartObj.corn_silage_yield_farm.show){document.getElementById('corn_silage_yield_farm').style.display="none"}
+                        if(!chartObj.soy_yield_farm.show){document.getElementById('soy_yield_farm').style.display="none"}
+                        if(!chartObj.oat_yield_farm.show){document.getElementById('oat_yield_farm').style.display="none"}
+                        if(!chartObj.alfalfa_yield_farm.show){document.getElementById('alfalfa_yield_farm').style.display="none"}
+                        if(!chartObj.rotation_yield_farm.show){document.getElementById('rotation_yield_farm').style.display="none"}
+
                          if (chartObj["grass_yield_farm"].chart !== null){
-                            return
+                         return
                         }
                         chartObj.grass_yield_farm.chart = create_graph(chartObj.grass_yield_farm, 'Grass Yield', document.getElementById('grass_yield_farm').getContext('2d'));
                         chartObj.corn_yield_farm.chart = create_graph(chartObj.corn_yield_farm, 'Corn Grain Yield', document.getElementById('corn_yield_farm').getContext('2d'));
@@ -627,8 +658,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         chartObj.oat_yield_farm.chart = create_graph(chartObj.oat_yield_farm, 'Oat Yield', document.getElementById('oat_yield_farm').getContext('2d'));
                         chartObj.alfalfa_yield_farm.chart = create_graph(chartObj.alfalfa_yield_farm, 'Alfalfa Yield', document.getElementById('alfalfa_yield_farm').getContext('2d'));
                         chartObj.rotation_yield_farm.chart = create_graph(chartObj.rotation_yield_farm, 'Total Yield', document.getElementById('rotation_yield_farm').getContext('2d'));
-//                        create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_farm').getContext('2d'));
+
+
                     }}
+
 
                 },{ xtype: 'panel',
                     title: '<i class="fas fa-seedling"></i></i>  Field',
@@ -658,7 +691,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Average Yield',
+                                boxLabel  : 'Total Yield',
                                 inputValue: 't',
                             },
                         ],
@@ -698,7 +731,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     ],
                     listeners:{activate: function() {
                         console.log("activated field")
+                        if(!chartObj.grass_yield_field.show){document.getElementById('grass_yield_field').style.display="none"};
+                        if(!chartObj.corn_yield_field.show){document.getElementById('corn_yield_field').style.display="none"}
+                        if(!chartObj.corn_silage_yield_field.show){document.getElementById('corn_silage_yield_field').style.display="none"}
+                        if(!chartObj.soy_yield_field.show){document.getElementById('soy_yield_field').style.display="none"}
+                        if(!chartObj.oat_yield_field.show){document.getElementById('oat_yield_field').style.display="none"}
+                        if(!chartObj.alfalfa_yield_field.show){document.getElementById('alfalfa_yield_field').style.display="none"}
+                        if(!chartObj.rotation_yield_field.show){document.getElementById('rotation_yield_field').style.display="none"}
                         if (chartObj["grass_yield_field"].chart !== null){
+
                             return
                         }
                         chartObj.grass_yield_field.chart = create_graph(chartObj.grass_yield_field, 'Grass Yield', document.getElementById('grass_yield_field').getContext('2d'));
@@ -708,7 +749,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         chartObj.oat_yield_field.chart = create_graph(chartObj.oat_yield_field, 'Oat Yield', document.getElementById('oat_yield_field').getContext('2d'));
                         chartObj.alfalfa_yield_field.chart = create_graph(chartObj.alfalfa_yield_field, 'Alfalfa Yield', document.getElementById('alfalfa_yield_field').getContext('2d'));
                         chartObj.rotation_yield_field.chart = create_graph(chartObj.rotation_yield_field, 'Total Yield', document.getElementById('rotation_yield_field').getContext('2d'));
-//                        te_graph(barChartData, 'test units', 'test title', document.getElementById('milk_field').getContext('2d'));
+
+
                     },
 //                        {onShow:function(){
 //                            console.log("Showing yieeeeeeeeeeeeeld")
@@ -870,7 +912,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Average Nutrients',
+                                boxLabel  : 'Total Nutrients',
                                 inputValue: 't',
                             },
                         ],
@@ -931,7 +973,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Average Nutrients',
+                                boxLabel  : 'Total Nutrients',
                                 inputValue: 't',
                             },
                         ],
@@ -1330,6 +1372,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 { xtype: 'panel',
                     title: '<i class="fas fa-seedling"></i></i>  Comparison',
                      border: false,
+                     scrollable: true,
+
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
@@ -1342,7 +1386,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                     items:[{
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="compare_farm" style = "width:'+chart_width_single+';height:'+chart_height_single+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="compare_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 
                     ],
@@ -1393,6 +1437,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                 scrollable: true,
 //                inner tabs for farm and field scale
+
                 items:[{
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
@@ -1444,6 +1489,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     bodyBorder: false
                 },
                 scrollable: true,
+                listeners:{activate: function() {
+                    console.log("options")
+                    if(Ext.getCmp('fieldLegend').items.length<1){
+
+                        Ext.getCmp('fieldLegend').add(checkBoxField)
+                        Ext.getCmp('scenLegend').add(checkBoxScen)
+                    }
+                }},
 
 //                inner tabs for farm and field scale
                 items:[{
@@ -1463,8 +1516,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 
                 items:[{
-                    xtype: 'fieldcontainer',
+                    xtype: 'checkboxgroup',
                     fieldLabel: 'Scenario',
+                    columns: 1,
+                     vertical: true,
+                    id: 'scenLegend',
 //                    collapsible: true,
                     labelAlign: 'top',
                     defaultType: 'checkboxfield',
@@ -1472,8 +1528,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 
                 },{
-                    xtype: 'fieldcontainer',
+                    xtype: 'checkboxgroup',
                     fieldLabel: 'Field',
+                    columns: 1,
+                     vertical: true,
+                    id: 'fieldLegend',
                     labelAlign: 'top',
                     defaultType: 'checkboxfield',
                     items: checkBoxField,
