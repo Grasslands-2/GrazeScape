@@ -6,7 +6,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings')
+    # set DJANGO_SETTINGS_MODULE=grassland.settings.settings_prod
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

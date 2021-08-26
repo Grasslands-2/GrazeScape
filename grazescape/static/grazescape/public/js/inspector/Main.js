@@ -116,12 +116,12 @@ Ext.define('DSS.inspector.Main', {
 			    console.log("Drawing bounding box")
 				//me.computeResults(extents,DSS.layer.ModelResult);
 				//DISABLE ME TO TEST INSPECTOR MODE!!!!!
-			     if(DSS_isDataLoaded == false){
-				    alert("data not loaded!")
-                }
-                else{
-				    me.computeResults(extents,DSS.layer.ModelResult);
-                }
+                me.computeResults(extents,DSS.layer.ModelResult);
+//			     if(DSS_isDataLoaded == false){
+//				    alert("data not loaded!")
+//                }
+//                else{
+//                }
 			}
 		})
 	},
