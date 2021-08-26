@@ -35,10 +35,11 @@ class RasterData:
         # self.data_layer = data_layer
         self.extents = extents
         self.field_id = field_id
+
         geo_server_url = settings.GEOSERVER_URL
+
         # geo_server_url = "http://geoserver-dev1.glbrc.org:8080"
         # temporary for when we start getting the dev server booted up
-        # geo_server_url = "http://grazescape-dev1.glbrc.org:8080"
         # geo_server_url = "https://geoserver:8443"
 
         #self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \

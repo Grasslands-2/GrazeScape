@@ -39,6 +39,7 @@ class ModelBase:
         self.r_file_path = settings.R_PATH
         print(settings.R_PATH)
         # self.r_file_path = "/opt/conda/envs/gscape/bin/R"
+
         try:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
