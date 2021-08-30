@@ -67,7 +67,9 @@ function wfs_infra_insert(feat,geomType) {
 			featID = feat.ol_uid
 			console.log(featExtents);
 			console.log(featCords);
-			get_terrian_distance({extents: featExtents, infraCords: featCords, infraId: featID})
+			//This is where the profile tool is ran from Qgis.  commented out for now in order to 
+			//pervent errors 
+			//get_terrian_distance({extents: featExtents, infraCords: featCords, infraId: featID})
 			DSS.layer.infrastructure.getSource().refresh();
 			DSS.layer.farms_1.getSource().refresh();
 		},

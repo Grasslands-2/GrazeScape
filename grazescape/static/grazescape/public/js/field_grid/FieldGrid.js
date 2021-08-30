@@ -73,7 +73,6 @@ function getRotAcrage(obj){
 	if(obj[i].rotationVal == 'cc'|| obj[i].rotationVal =='cg' || obj[i].rotationVal =='dr' || obj[i].rotationVal =='cso'){
 		cropAcreage = cropAcreage + obj[i].area
 	}
-	
 }
 
 function popFieldsArray(obj) {
