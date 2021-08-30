@@ -376,6 +376,27 @@ Ext.define('DSS.state.Scenario', {
 				// 	xtype: 'button',
 				// 	cls: 'button-text-pad',
 				// 	componentCls: 'button-margin',
+				// 	text: 'Heifer Scape',
+				// 	handler: function(self) {
+
+				// 		{
+				// 			DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
+				// 			DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);		
+				// 		}
+				// 		pastAcreage = 0
+				// 		pastAcreage = 0
+				// 		gatherTableData();
+				// 		AppEvents.triggerEvent('hide_field_grid')
+				// 		AppEvents.triggerEvent('hide_infra_grid')
+				// 		AppEvents.triggerEvent('hide_field_shape_mode');
+				// 		AppEvents.triggerEvent('hide_infra_line_mode');
+				// 		DSS.dialogs.HeiferScapeDialog.show().center().setY(0);
+				// 	}
+				// },
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
 				// 	text: 'Animals',
 				// 	handler: function(self) {
 						
@@ -404,6 +425,8 @@ Ext.define('DSS.state.Scenario', {
 							//console.log(DSS.field_grid.FieldGrid.getView()); 
 							DSS.MapState.removeMapInteractions();
 							//Running gatherTableData before showing grid to get latest
+							pastAcreage = 0
+							pastAcreage = 0
 							gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
 							AppEvents.triggerEvent('hide_field_shape_mode');
@@ -453,12 +476,13 @@ Ext.define('DSS.state.Scenario', {
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
 					allowDepress: false,
-					text: 'Save All Attribute Edits',
+					text: 'Save Edits',
 					handler: function() {
 						//DSS.layer.scenarios.getSource().refresh();
 						runScenarioUpdate();
 						runFieldUpdate();
 						runInfraUpdate();
+						alert('All Scenario Data Saved!')
 						
 					},
 				},

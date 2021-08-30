@@ -14,6 +14,7 @@ import math
 import time
 import sys
 import shutil
+import grass 
 
 """
 This class will manage retrieving data from geoserver and manage the clipping of extents to fields

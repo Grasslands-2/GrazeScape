@@ -40,7 +40,8 @@ Ext.define('DSS.infra_shapes.apply.infraName', {
 				items: [{
 					xtype: 'textfield',
 					itemId: 'dss-infra-name',
-					fieldLabel: "Label",
+					fieldLabel: "Feature Label",
+					allowBlank: false,
 					labelWidth: 35,
 					labelAlign: 'right',
 					bind: { value: '{infraName.value}' },

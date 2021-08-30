@@ -27,6 +27,7 @@ Ext.define('DSS.field_shapes.apply.FieldName', {
 					xtype: 'textfield',
 					itemId: 'dss-field-name',
 					fieldLabel: 'Field Name',
+					allowBlank: false,
 					labelWidth: 90,
 					labelAlign: 'right',
 					bind: { value: '{field_name.value}' },
