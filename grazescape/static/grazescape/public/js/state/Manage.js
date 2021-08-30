@@ -1,4 +1,5 @@
 function reSourceFields() {
+
     geoServer.setFieldSource()
 	console.log("reSource Fields ran");
 }
@@ -70,6 +71,7 @@ Ext.define('DSS.state.Manage', {
 									//reSourcescenarios()
 									DSS.ApplicationFlow.instance.showLandingPage();
 									//DSS.layer.fields_1.getSource().refresh();
+									//DSS.layer.fieldsLabels.getSource().refresh();
 									DSS.MapState.showAllFields();
 									DSS.viewModel.scenario = !DSS['viewModel']
 									DSS['viewModel'] = {}
