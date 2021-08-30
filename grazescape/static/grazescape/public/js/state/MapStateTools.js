@@ -130,73 +130,75 @@ Ext.define('DSS.state.MapStateTools', {
     // Opacity defaults to opacity for showFields()
     //-------------------------------------------------------------
 	showNewFarm: function() {
-		DSS.layer.farms_1.getSource().setUrl(
-		geoserverURL + '/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:farm_2&'+
-		'CQL_filter=id='+DSS.activeFarm+'&'+
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'
-		);
+	    geoServer.setFarmSource('&CQL_filter=id='+DSS.activeFarm)
+//		DSS.layer.farms_1.getSource().setUrl(
+//		geoserverURL + '/geoserver/wfs?'+
+//		'service=wfs&'+
+//		'?version=2.0.0&'+
+//		'request=GetFeature&'+
+//		'typeName=GrazeScape_Vector:farm_2&'+
+//		'CQL_filter=id='+DSS.activeFarm+'&'+
+//		'outputformat=application/json&'+
+//		'srsname=EPSG:3857'
+//		);
 		DSS.layer.farms_1.setOpacity(1);
-		console.log(DSS.layer.farms_1.getStyle())
-		console.log(DSS.layer.farms_1.getSource())
-		DSS.layer.farms_1.getSource().refresh();
-		console.log(DSS.activeFarm)
-		console.log("show new farm ran");
+//		console.log(DSS.layer.farms_1.getStyle())
+//		console.log(DSS.layer.farms_1.getSource())
+//		DSS.layer.farms_1.getSource().refresh();
+//		console.log(DSS.activeFarm)
+//		console.log("show new farm ran");
 	},
 
 	//used to limit return of fields to just active farm
     showFieldsForFarm: function(farmId, opacity) {
-    	
-		DSS.layer.fields_1.getSource().setUrl(
-		geoserverURL + '/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:field_2&'+
-		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857'
-		);
-		console.log(DSS.layer.fields_1.getStyle())
-		DSS.layer.fields_1.getSource().refresh();
-		DSS.layer.fieldsLabels.getSource().refresh();
+
+    	geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+//		DSS.layer.fields_1.getSource().setUrl(
+//		geoserverURL + '/geoserver/wfs?'+
+//		'service=wfs&'+
+//		'?version=2.0.0&'+
+//		'request=GetFeature&'+
+//		'typeName=GrazeScape_Vector:field_2&'+
+//		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+//		'outputformat=application/json&'+
+//		'srsname=EPSG:3857'
+//		);
+//		console.log(DSS.layer.fields_1.getStyle())
+//		DSS.layer.fields_1.getSource().refresh();
 		console.log("showfieldsforfarm ran");
     },
     
     //----------------------------------------
 	showInfrasForFarm: function(farmId, opacity) {
-    	
-		DSS.layer.infrastructure.getSource().setUrl(
-		geoserverURL + '/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:infrastructure_2&'+
-		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857');
-		console.log(DSS.layer.infrastructure.getStyle())
-		DSS.layer.infrastructure.getSource().refresh();
-		console.log("showInfrasforfarm ran");
+    	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+//		DSS.layer.infrastructure.getSource().setUrl(
+//		geoserverURL + '/geoserver/wfs?'+
+//		'service=wfs&'+
+//		'?version=2.0.0&'+
+//		'request=GetFeature&'+
+//		'typeName=GrazeScape_Vector:infrastructure_2&'+
+//		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+//		'outputformat=application/json&'+
+//		'srsname=EPSG:3857');
+//		console.log(DSS.layer.infrastructure.getStyle())
+//		DSS.layer.infrastructure.getSource().refresh();
+//		console.log("showInfrasforfarm ran");
     },
 	//-------------------------------------------------------------
 	//shows all fields in db
 	showAllFields: function(opacity) {
-			
-		DSS.layer.fields_1.getSource().setUrl(
-		geoserverURL + '/geoserver/wfs?'+
-		'service=wfs&'+
-		'?version=2.0.0&'+
-		'request=GetFeature&'+
-		'typeName=GrazeScape_Vector:field_2&' +
-		'outputformat=application/json&'+
-		'srsname=EPSG:3857');
-		DSS.layer.fields_1.getSource().refresh();
-		DSS.layer.fieldsLabels.getSource().refresh();
+
+        geoServer.setFieldSource()
+//		DSS.layer.fields_1.getSource().setUrl(
+//		geoserverURL + '/geoserver/wfs?'+
+//		'service=wfs&'+
+//		'?version=2.0.0&'+
+//		'request=GetFeature&'+
+//		'typeName=GrazeScape_Vector:field_2&' +
+//		'outputformat=application/json&'+
+//		'srsname=EPSG:3857');
+//		DSS.layer.fields_1.getSource().refresh();
+
 		console.log("showAllFields ran");
 	},
 
@@ -346,7 +348,7 @@ Ext.define('DSS.state.MapStateTools', {
 
 				if (g && g.getType() === "Point") {
 					//if (DSS.activeFarm == null){
-					    cleanDB()
+//					    cleanDB()
 						DSS.activeFarm = f.get("id");
 						DSS.farmName = f.get("farm_name")
 						//DSS.activeScenario = f.get("scenario");

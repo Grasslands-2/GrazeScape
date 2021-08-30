@@ -1,59 +1,18 @@
 function reSourceFields() {
-	DSS.layer.fields_1.getSource().setUrl(
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_2&'+
-	//'CQL_filter=scenario_id='+fgid+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-	);
-	DSS.layer.fields_1.getSource().refresh();
-	DSS.layer.fieldsLabels.getSource().refresh();
+
+    geoServer.setFieldSource()
 	console.log("reSource Fields ran");
 }
 function reSourceinfra() {
-	DSS.layer.infrastructure.getSource().setUrl(
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:infrastructure_2&'+
-	//'CQL_filter=scenario_id='+fgid+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-	);
-	DSS.layer.infrastructure.getSource().refresh();
+    geoServer.setInfrastructureSource()
 	console.log("reSource Infra ran");
 }
 function reSourcefarms() {
-	DSS.layer.farms_1.getSource().setUrl(
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:farm_2&'+
-	//'CQL_filter=scenario_id='+fgid+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-	);
-	DSS.layer.farms_1.getSource().refresh();
+    geoServer.setFarmSource()
 	console.log("reSource Infra ran");
 }
 function reSourcescenarios() {
-	DSS.layer.scenarios.getSource().refresh();
-	DSS.layer.scenarios.getSource().setUrl(
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:scenarios_2&' +
-	//'CQL_filter=farm_id='+DSS.activeFarm+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857'
-	);
-	//DSS.layer.scenarios.getSource().refresh();
+    geoServer.setScenariosSource()
 	console.log("reSource scenarios ran");
 }
 //------------------------------------------------------------------------------
@@ -172,7 +131,9 @@ Ext.define('DSS.state.Manage', {
 					handler: function(self) {
 						//itemsArray = [];
 						getWFSScenarioSP()
-						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
+//						Ext.getCmp("scenarioMenu").destroy()
+//						Ext.getCmp("scenarioPicker").destroy()
+						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
 					}
@@ -198,7 +159,7 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Delete Scenario',
 					handler: function(self) {
-						//gatherScenarioTableData()
+
 						//getWFSScenario()
 						reSourceFields()
 						reSourceinfra()

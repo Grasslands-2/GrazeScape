@@ -1,12 +1,12 @@
 var InfrastructureSource_loc = new ol.source.Vector({
-	url:geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:infrastructure_2&' +
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857',
-	format: new ol.format.GeoJSON()
+//	url:geoserverURL + '/geoserver/wfs?'+
+//	'service=wfs&'+
+//	'?version=2.0.0&'+
+//	'request=GetFeature&'+
+//	'typeName=GrazeScape_Vector:infrastructure_2&' +
+//	'outputformat=application/json&'+
+//	'srsname=EPSG:3857',
+//	format: new ol.format.GeoJSON()
 });
 
 
@@ -50,53 +50,45 @@ function wfs_infra_insert(feat,geomType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    $.ajax(geoserverURL + '/geoserver/wfs?'
-	/*'http://localhost:8081/geoserver/wfs?'*/,{
-        type: 'POST',
-        dataType: 'xml',
-        processData: false,
-        contentType: 'text/xml',
-        data: str,
-		success: function (data) {
-			DSS.MapState.removeMapInteractions()
-			console.log("uploaded data successfully!: ");
-			console.log(data)
-			console.log(feat)
-			featExtents = feat.values_.geom.extent_;
-			featCords = feat.values_.geom.flatCoordinates;
-			featID = feat.ol_uid
-			console.log(featExtents);
-			console.log(featCords);
-			//This is where the profile tool is ran from Qgis.  commented out for now in order to 
-			//pervent errors 
-			//get_terrian_distance({extents: featExtents, infraCords: featCords, infraId: featID})
-			DSS.layer.infrastructure.getSource().refresh();
-			DSS.layer.farms_1.getSource().refresh();
-		},
-        error: function (xhr, exception) {
-            var msg = "";
-            if (xhr.status === 0) {
-                msg = "Not connect.\n Verify Network." + xhr.responseText;
-            } else if (xhr.status == 404) {
-                msg = "Requested page not found. [404]" + xhr.responseText;
-            } else if (xhr.status == 500) {
-                msg = "Internal Server Error [500]." +  xhr.responseText;
-            } else if (exception === "parsererror") {
-                msg = "Requested JSON parse failed.";
-            } else if (exception === "timeout") {
-                msg = "Time out error." + xhr.responseText;
-            } else if (exception === "abort") {
-                msg = "Ajax request aborted.";
-            } else {
-                msg = "Error:" + xhr.status + " " + xhr.responseText;
-            }
-			console.log(msg);
-        }
-    })
-	.done();
+
+    geoServer.wfs_infra_insert(str, feat)
+//    $.ajax(geoserverURL + '/geoserver/wfs?'
+//	/*'http://localhost:8081/geoserver/wfs?'*/,{
+//        type: 'POST',
+//        dataType: 'xml',
+//        processData: false,
+//        contentType: 'text/xml',
+//        data: str,
+//		success: function (data) {
+//			DSS.MapState.removeMapInteractions()
+//			console.log("uploaded data successfully!: "+ data);
+//			DSS.layer.infrastructure.getSource().refresh();
+//			DSS.layer.farms_1.getSource().refresh();
+//		},
+//        error: function (xhr, exception) {
+//            var msg = "";
+//            if (xhr.status === 0) {
+//                msg = "Not connect.\n Verify Network." + xhr.responseText;
+//            } else if (xhr.status == 404) {
+//                msg = "Requested page not found. [404]" + xhr.responseText;
+//            } else if (xhr.status == 500) {
+//                msg = "Internal Server Error [500]." +  xhr.responseText;
+//            } else if (exception === "parsererror") {
+//                msg = "Requested JSON parse failed.";
+//            } else if (exception === "timeout") {
+//                msg = "Time out error." + xhr.responseText;
+//            } else if (exception === "abort") {
+//                msg = "Ajax request aborted.";
+//            } else {
+//                msg = "Error:" + xhr.status + " " + xhr.responseText;
+//            }
+//			console.log(msg);
+//        }
+//    })
+//	.done();
 	//console.log("Infra wrote to Geoserver")
-	DSS.MapState.showInfrasForFarm(DSS.activeFarm);
-	DSS.layer.infrastructure.getSource().refresh();
+//	DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+//	DSS.layer.infrastructure.getSource().refresh();
 }
 function createinfra(infra_nameInput,
 infra_typeInput,

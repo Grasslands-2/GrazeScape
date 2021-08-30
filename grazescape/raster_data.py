@@ -24,7 +24,8 @@ Created by Matthew Bayles 2021
 
 class RasterData:
 
-    def __init__(self, extents, field_geom_array, field_id, first_time):
+    def __init__(self, extents, field_geom_array, field_id, first_time,
+                 only_om=False):
         """
 
         Parameters
@@ -35,9 +36,11 @@ class RasterData:
         # self.data_layer = data_layer
         self.extents = extents
         self.field_id = field_id
-        geo_server_url = "http://geoserver-dev1.glbrc.org:8080"
+
+        geo_server_url = settings.GEOSERVER_URL
+
+        # geo_server_url = "http://geoserver-dev1.glbrc.org:8080"
         # temporary for when we start getting the dev server booted up
-        #geo_server_url = "http://grazescape-dev1.glbrc.org:8080"
         # geo_server_url = "https://geoserver:8443"
 
         #self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
@@ -46,7 +49,7 @@ class RasterData:
                              "request=GetCoverage&CoverageId="
 
         # self.file_name = str(uuid.uuid4())
-        self.file_name = "field_"+ field_id
+        self.file_name = "field_" + field_id
         self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
                                      'data_files', 'raster_inputs',
                                      self.file_name)
@@ -78,8 +81,6 @@ class RasterData:
             "corn": "InputRasters:TC_Corn_10m",
             "soy": "InputRasters:TC_Soy_10m",
             "hydgrp":"TC_hydgrp_10m",
-            # "fake":"faks"
-            # "wheat": "InputRasters:TC_Wheat_10m"
         }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
@@ -90,7 +91,7 @@ class RasterData:
                 self.clean()
             # if not os.path.exists(self.dir_path):
             os.makedirs(self.dir_path)
-            self.load_layers()
+            self.load_layers(only_om)
             self.create_clip(field_geom_array)
             self.clip_rasters()
 
@@ -103,7 +104,7 @@ class RasterData:
         """
         return os.path.exists(self.dir_path)
 
-    def load_layers(self):
+    def load_layers(self, only_om=False):
         """
         Download data from geoserver
         Returns
@@ -112,7 +113,11 @@ class RasterData:
         """
         # layer_list = requests.get("http://localhost:8081/geoserver/rest/
         # layers.json")
+
         for layer in self.layer_dic:
+            if only_om:
+                if layer != "om":
+                    continue
             print("downloading layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             r = requests.get(url)
