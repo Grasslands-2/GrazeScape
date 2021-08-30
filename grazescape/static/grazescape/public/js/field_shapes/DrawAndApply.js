@@ -66,13 +66,21 @@ function wfs_field_insert(feat,geomType) {
 }
 function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
 
+	//Starter values for dependant variables
 	cropDisp='';
 	tillageDisp='';
+	grassDisp='';
+	grassVal='';
 	//--------------------Setting Display Values------------------
 	if(crop=='pt-cn'){
-		cropDisp ='Continuous Pasture'}
+		cropDisp ='Continuous Pasture';
+		grassDisp='Bluegrass-clover';
+		grassVal='Bluegrass';
+	}
 	else if(crop=='pt-rt'){
-		cropDisp ='Rotational Pasture'}
+		cropDisp ='Rotational Pasture'
+		grassDisp='Bluegrass-clover';
+		grassVal='Bluegrass';}
 	else if(crop=='ps'){
 		cropDisp ='New Pasture'}
 	else if(crop=='dl'){
@@ -146,7 +154,9 @@ function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameIn
 			spread_confined_manure_on_pastures: false,
 			on_contour: false,
 			interseeded_clover: false,
-			pasture_grazing_rot_cont:false
+			pasture_grazing_rot_cont:false,
+			grass_speciesval: grassVal,
+			grass_speciesdisp: grassDisp
 		})
 		var geomType = 'polygon'
 		

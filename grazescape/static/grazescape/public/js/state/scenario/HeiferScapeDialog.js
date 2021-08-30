@@ -1,8 +1,8 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
-var pastAcreageHS = 14.35
-var cropAcreageHS = 2.65
+// var pastAcreageHS = 0
+// var cropAcreageHS = 0
 let breedSizeStore = Ext.create('Ext.data.Store', {
 	storeId: 'breedSizeStore',
 	fields:[ 'label', 'value'],
@@ -102,22 +102,24 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 						{
 						xtype: 'textfield',
 						fieldLabel: 'Acres in Pasture',
+						id:'pastAcreage',
 						editable:false,
 						allowBlank: true,
 						labelWidth: 140,
 						width: 360,
 						labelAlign: 'right',
-						value:pastAcreageHS
+						value:""
 						},
 						{
 						xtype: 'textfield',
 						fieldLabel: 'Acres in Crops',
+						id:'cropAcreage',
 						editable:false,
 						allowBlank: true,
 						labelWidth: 140,
 						width: 360,
 						labelAlign: 'right',
-						value:cropAcreageHS
+						value:""
 						},
 						{
 						xtype: 'combo',
@@ -253,9 +255,14 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					toggleHandler: function(self, pressed) {
 						let container = me.down("#heifer-section");
 						if (pressed) {
-							console.log(fieldArray);
-							console.log(pastAcreage);
-							console.log(cropAcreage);
+							console.log(container.items)
+							var pastAcreageHS = pastAcreage.toFixed(2)
+							var cropAcreageHS = cropAcreage.toFixed(2)
+							//console.log(fieldArray);
+							//console.log(pastAcreage);
+							//console.log(cropAcreage);
+							Ext.getCmp('pastAcreage').setValue(pastAcreageHS)
+							Ext.getCmp('cropAcreage').setValue(cropAcreageHS)
 							container.setHeight(0);
 							container.setVisible(true)
 							container.animate({
@@ -266,6 +273,8 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 							});
 						} 
 						else {
+							pastAcreage = 0
+							pastAcreage = 0
 							me.setHeight(null)
 							container.animate({
 								dynamic: true,

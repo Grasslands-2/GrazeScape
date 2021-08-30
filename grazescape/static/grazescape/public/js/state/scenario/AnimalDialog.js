@@ -156,18 +156,30 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					itemId: 'lactating-cattle',
 					layout: DSS.utils.layout('vbox', 'start', 'middle'),
 					margin: 8,
-					items: [{
+					items: [	{
+						xtype: 'numberfield',
+						fieldLabel: 'Animals On Pasture',
+						labelAlign: 'right',
+						labelWidth: 148,
+						width:300,
+						bind: '{dairy.animalsOnPasture}',
+						minValue: 1,
+						step: 1,
+						},
+						{
 						xtype: 'container',
 						width: undefined,
 						layout: DSS.utils.layout('hbox', 'center'),
-						items: [{
+						items: [
+							{
 							xtype: 'component',
 							itemId: 'grazed-display',
 							cls: 'information',
 							padding: 4,margin: '0 4',
 							width: 32,
 							style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
-						},{
+						},
+						{
 							xtype: 'slider',
 							width: 200,
 							minValue: 0,
@@ -242,6 +254,15 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					layout: DSS.utils.layout('vbox', 'start', 'middle'),
 					margin: 8,
 					items: [
+						{
+						xtype: 'numberfield',
+						fieldLabel: 'Animals On Pasture',
+						labelAlign: 'right',
+						labelWidth: 148,
+						bind: '{heifer.animalsOnPasture}',
+						minValue: 1,
+						step: 1,
+						},
 						{
 						xtype: 'combo',
 						fieldLabel: 'Breed Size',

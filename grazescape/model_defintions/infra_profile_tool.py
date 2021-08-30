@@ -25,7 +25,7 @@ from qgis.core import (
 )
 # Initialize QGIS Application
 qgs = QgsApplication([], False)
-QgsApplication.setPrefixPath("C:\OSGeo4W\apps\qgis", True)
+#QgsApplication.setPrefixPath("C:\OSGeo4W\apps\qgis", True)
 QgsApplication.initQgis()
 QgsProcessingOutputFile
 for alg in QgsApplication.processingRegistry().algorithms():
@@ -88,7 +88,7 @@ class InfraTrueLength():
         print('RAN PROFILE TOOL!!!')
         #Finally got the output to show up. It was working all along, it just didnt have an output folder to place the results in.  Work on getting that resolved with the DEM download, and folder creation.  Then work on disceting the output to pull out the data you need and do your trig!
         
-        processing.run("grass7:r.profile", {'input':'C:/Users/zjhas/Documents/Ellisas_Rasters_08162021/DEM_10m_NED_3857_countuy_masked.tif','output':r'C:\Users\zjhas\Documents\GrazeScape\grazescape\data_files\output2.txt','coordinates':'-10116500,5354750,-10116564,5355735,-10115331,5355468','resolution':None,'null_value':'*','file':'','-g':False,'-c':False,'GRASS_REGION_PARAMETER':None,'GRASS_REGION_CELLSIZE_PARAMETER':0})
+        processing.run("grass7:r.profile", {'input':'C:/Users/zjhas/Documents/Ellisas_Rasters_08162021/DEM_10m_NED_3857_countuy_masked.tif','output':'C:/Users/zjhas/Documents/GrazeScape/grazescape/data_files/output3.txt','coordinates':'-10116500,5354750,-10116564,5355735,-10115331,5355468','resolution':None,'null_value':'*','file':'','-g':False,'-c':False,'GRASS_REGION_PARAMETER':None,'GRASS_REGION_CELLSIZE_PARAMETER':0})
         
         # layer_list = requests.get("http://localhost:8081/geoserver/rest/
         # layers.json")
