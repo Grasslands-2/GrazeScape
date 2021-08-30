@@ -77,7 +77,7 @@ class GrassYield(ModelBase):
         print(pred)
         print("$$$$$$$$$$$$$$$")
         pred = pred * float(self.model_parameters["graze_factor"])
-        grass_yield = OutputDataNode("Grass", "Yield (tons/acre/year)", 'Yield (tons/year')
+        grass_yield = OutputDataNode("Grass", "Yield (tons/acre)", 'Total Yield (tons/year')
         rotation_avg = OutputDataNode("Rotational Average", "Yield (tons-Dry Matter/ac/year)", "Yield (tons-Dry Matter/year)")
         grass_yield.set_data(pred)
         # convert from tons to lbss

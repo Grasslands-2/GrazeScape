@@ -300,19 +300,19 @@ Ext.define('DSS.map.Main', {
 		DSS.layerSource['fields'] = new ol.source.Vector({
 			format: new ol.format.GeoJSON()
 		}); 
-		DSS.layer.fields = new ol.layer.Vector({
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source:fields_1Source,
-			style: function(feature, resolution) {
-				
-				if (DSS.fieldStyleFunction) {
-					return DSS.fieldStyleFunction(feature, resolution);
-				}
-				else return defaultFieldStyle;
-			},
-		});	
+//		DSS.layer.fields = new ol.layer.Vector({
+//			visible: true,
+//			updateWhileAnimating: true,
+//			updateWhileInteracting: true,
+//			source:fields_1Source,
+//			style: function(feature, resolution) {
+//
+//				if (DSS.fieldStyleFunction) {
+//					return DSS.fieldStyleFunction(feature, resolution);
+//				}
+//				else return defaultFieldStyle;
+//			},
+//		});
 
 		//--------------------------------------------------------- 
 		DEMSource = new ol.source.ImageWMS({
@@ -331,71 +331,12 @@ Ext.define('DSS.map.Main', {
 		DSS.layer.DEM_image = new ol.layer.Image({
 			visible: false,
 			source: DEMSource
+
 		})
-		var scenario_1SourceMain = new ol.source.Vector({
-			format: new ol.format.GeoJSON(),
-			url: function(extent){
-				return geoserverURL + '/geoserver/wfs?'+
-				'service=wfs&'+
-				'?version=2.0.0&'+
-				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:scenarios_2&' +
-				'outputformat=application/json&'+
-				'srsname=EPSG:3857'
-			},
-			
-		});
-		var infrastructure_Source = new ol.source.Vector({
-			format: new ol.format.GeoJSON(),
-			url: function(extent) {
-				return geoserverURL + '/geoserver/wfs?'+
-				'service=wfs&'+
-				'?version=2.0.0&'+
-				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:infrastructure_2&' +
-				//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-				'outputformat=application/json&'+
-				'srsname=EPSG:3857';
-			},
-		});
-		var farms_1Source = new ol.source.Vector({
-			format: new ol.format.GeoJSON(),
-			url: function(extent) {
-				return geoserverURL + '/geoserver/wfs?'+
-				'service=wfs&'+
-				'?version=2.0.0&'+
-				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:farm_2&' +
-				'outputformat=application/json&'+
-				'srsname=EPSG:3857';
-			},
-		});
-
-//		var myGeoJson = '{"type":"FeatureCollection","features":[{"type":"Feature","id":"field_2.1","geometry":{"type":"MultiPolygon","coordinates":[[[[-1.011809069199972E7,5377346.82605163],[-1.011809069199972E7,5377346.82605163],[-1.011809069199972E7,5377346.82605163],[-1.011785658056545E7,5377709.58133924],[-1.011809069199972E7,5377346.82605163]]]]},"geometry_name":"geom","properties":{"gid":1,"id":27,"soil_p":35,"om":10,"rotation":"pt-cn","tillage":"su","cover_crop":"nc","area":0,"fertilizerpercent":0,"manurepercent":0,"field_name":"","tillage_disp":"Spring Cultivation","rotation_disp":"Continuous Pasture","cover_crop_disp":"No Cover","grass_speciesval":null,"grass_speciesdisp":null,"grazingdensityval":null,"grazingdensitydisp":null,"graze_beef_cattle":false,"spread_confined_manure_on_pastures":false,"graze_dairy_lactating":false,"graze_dairy_non_lactating":false,"on_contour":false,"interseeded_clover":false,"fence_type":null,"fence_cost":null,"fence_unit_cost":null,"scenario_id":73,"farm_id":27,"rotational_freq_disp":null,"rotational_freq_val":null}},{"type":"Feature","id":"field_2.5","geometry":{"type":"MultiPolygon","coordinates":[[[[-1.011540883985112E7,5377800.09396529],[-1.011587982967105E7,5377794.07492606],[-1.011588735347009E7,5377751.94165143],[-1.011585274399451E7,5377724.85597488],[-1.011580910596007E7,5377676.70366102],[-1.011577449648449E7,5377639.08466582],[-1.011568872517542E7,5377624.03706774],[-1.011558992156589E7,5377592.43711177],[-1.011548759789894E7,5377571.37047446],[-1.011541687418796E7,5377580.3990333],[-1.011537022663391E7,5377675.19890121],[-1.011537323615352E7,5377751.94165143],[-1.011540883985112E7,5377800.09396529]]]]},"geometry_name":"geom","properties":{"gid":5,"id":29,"soil_p":35,"om":10,"rotation":"pt-cn","tillage":"su","cover_crop":"nc","area":21.815234421757815,"fertilizerpercent":0,"manurepercent":0,"field_name":null,"tillage_disp":"Spring Cultivation","rotation_disp":"Continuous Pasture","cover_crop_disp":"No Cover","grass_speciesval":"Bluegrass-clover","grass_speciesdisp":"Bluegrass","grazingdensityval":"lo","grazingdensitydisp":"low","graze_beef_cattle":false,"spread_confined_manure_on_pastures":false,"graze_dairy_lactating":false,"graze_dairy_non_lactating":false,"on_contour":false,"interseeded_clover":false,"fence_type":null,"fence_cost":null,"fence_unit_cost":null,"scenario_id":77,"farm_id":29,"rotational_freq_disp":null,"rotational_freq_val":null}},{"type":"Feature","id":"field_2.3","geometry":{"type":"MultiPolygon","coordinates":[[[[-1.011363067244222E7,5357459.44283492],[-1.01136672628915E7,5357425.34719765],[-1.011361154562944E7,5357387.09355623],[-1.011355042294928E7,5357392.49895846],[-1.011358327118847E7,5357462.76923508],[-1.011363067244222E7,5357459.44283492]]]]},"geometry_name":"geom","properties":{"gid":3,"id":26,"soil_p":35,"om":0,"rotation":"pt-cn","tillage":"su","cover_crop":"nc","area":1.3918401480859375,"fertilizerpercent":0,"manurepercent":0,"field_name":"pasture","tillage_disp":"Spring Cultivation","rotation_disp":"Continuous Pasture","cover_crop_disp":"No Cover","grass_speciesval":"Orchardgrass-clover","grass_speciesdisp":"Orchardgrass","grazingdensityval":"hi","grazingdensitydisp":"high","graze_beef_cattle":false,"spread_confined_manure_on_pastures":false,"graze_dairy_lactating":false,"graze_dairy_non_lactating":false,"on_contour":false,"interseeded_clover":false,"fence_type":null,"fence_cost":null,"fence_unit_cost":null,"scenario_id":74,"farm_id":26,"rotational_freq_disp":null,"rotational_freq_val":null}},{"type":"Feature","id":"field_2.2","geometry":{"type":"MultiPolygon","coordinates":[[[[-1.011363067244222E7,5357459.44283492],[-1.01136672628915E7,5357425.34719765],[-1.011361154562944E7,5357387.09355623],[-1.011355042294928E7,5357392.49895846],[-1.011358327118847E7,5357462.76923508],[-1.011363067244222E7,5357459.44283492]]]]},"geometry_name":"geom","properties":{"gid":2,"id":26,"soil_p":35,"om":50,"rotation":"pt-cn","tillage":"su","cover_crop":"nc","area":1.3918401480859375,"fertilizerpercent":0,"manurepercent":0,"field_name":"pasture","tillage_disp":"Spring Cultivation","rotation_disp":"Continuous Pasture","cover_crop_disp":"No Cover","grass_speciesval":"Orchardgrass-clover","grass_speciesdisp":"Orchardgrass","grazingdensityval":"hi","grazingdensitydisp":"high","graze_beef_cattle":false,"spread_confined_manure_on_pastures":false,"graze_dairy_lactating":false,"graze_dairy_non_lactating":false,"on_contour":false,"interseeded_clover":false,"fence_type":null,"fence_cost":null,"fence_unit_cost":null,"scenario_id":72,"farm_id":26,"rotational_freq_disp":null,"rotational_freq_val":null}},{"type":"Feature","id":"field_2.6","geometry":{"type":"MultiPolygon","coordinates":[[[[-1.011350923445374E7,5357483.64232361],[-1.011351192886484E7,5357437.29846083],[-1.011347312936138E7,5357409.81545523],[-1.011342678549859E7,5357422.20976275],[-1.011345265182053E7,5357464.24257188],[-1.011345480735764E7,5357493.3421892],[-1.011346989607627E7,5357513.81973004],[-1.011349252911311E7,5357512.74197177],[-1.0113489834702E7,5357486.336745],[-1.011347151269827E7,5357476.63685885],[-1.011350923445374E7,5357483.64232361]]]]},"geometry_name":"geom","properties":{"gid":6,"id":26,"soil_p":35,"om":10,"rotation":"cg","tillage":"su","cover_crop":"nc","area":1.2808407751367188,"fertilizerpercent":0,"manurepercent":0,"field_name":"2","tillage_disp":"Spring Cultivation","rotation_disp":"Cash Grain (cg/sb)","cover_crop_disp":"No Cover","grass_speciesval":null,"grass_speciesdisp":null,"grazingdensityval":null,"grazingdensitydisp":null,"graze_beef_cattle":false,"spread_confined_manure_on_pastures":false,"graze_dairy_lactating":false,"graze_dairy_non_lactating":false,"on_contour":false,"interseeded_clover":false,"fence_type":null,"fence_cost":null,"fence_unit_cost":null,"scenario_id":72,"farm_id":26,"rotational_freq_disp":null,"rotational_freq_val":null}},{"type":"Feature","id":"field_2.7","geometry":{"type":"MultiPolygon","coordinates":[[[[-1.011357882575246E7,5357653.18767847],[-1.011365670696559E7,5357564.78199933],[-1.011363039575036E7,5357520.57916979],[-1.01135946124816E7,5357512.15958895],[-1.011356830126637E7,5357495.32038712],[-1.011354514738895E7,5357517.421832],[-1.011356935373907E7,5357558.46732373],[-1.011353251803776E7,5357566.88686443],[-1.011354725229419E7,5357618.4568824],[-1.011357882575246E7,5357653.18767847]]]]},"geometry_name":"geom","properties":{"gid":7,"id":26,"soil_p":35,"om":10,"rotation":"dr","tillage":"su","cover_crop":"nc","area":2.6679434570507814,"fertilizerpercent":0,"manurepercent":0,"field_name":"3","tillage_disp":"Spring Cultivation","rotation_disp":"Corn Silage to Corn Grain to Alfalfa(3x)","cover_crop_disp":"No Cover","grass_speciesval":null,"grass_speciesdisp":null,"grazingdensityval":null,"grazingdensitydisp":null,"graze_beef_cattle":false,"spread_confined_manure_on_pastures":false,"graze_dairy_lactating":false,"graze_dairy_non_lactating":false,"on_contour":false,"interseeded_clover":false,"fence_type":null,"fence_cost":null,"fence_unit_cost":null,"scenario_id":72,"farm_id":26,"rotational_freq_disp":null,"rotational_freq_val":null}},{"type":"Feature","id":"field_2.4","geometry":{"type":"MultiPolygon","coordinates":[[[[-1.011540883985112E7,5377800.09396529],[-1.011587982967105E7,5377794.07492606],[-1.011588735347009E7,5377751.94165143],[-1.011585274399451E7,5377724.85597488],[-1.011580910596007E7,5377676.70366102],[-1.011577449648449E7,5377639.08466582],[-1.011568872517542E7,5377624.03706774],[-1.011558992156589E7,5377592.43711177],[-1.011548759789894E7,5377571.37047446],[-1.011541687418796E7,5377580.3990333],[-1.011537022663391E7,5377675.19890121],[-1.011537323615352E7,5377751.94165143],[-1.011540883985112E7,5377800.09396529]]]]},"geometry_name":"geom","properties":{"gid":4,"id":29,"soil_p":35,"om":10,"rotation":"cc","tillage":"su","cover_crop":"nc","area":21.815234421757815,"fertilizerpercent":0,"manurepercent":0,"field_name":"","tillage_disp":"Spring Cultivation","rotation_disp":"Continuous Corn","cover_crop_disp":"No Cover","grass_speciesval":null,"grass_speciesdisp":null,"grazingdensityval":null,"grazingdensitydisp":null,"graze_beef_cattle":false,"spread_confined_manure_on_pastures":false,"graze_dairy_lactating":false,"graze_dairy_non_lactating":false,"on_contour":false,"interseeded_clover":false,"fence_type":null,"fence_cost":null,"fence_unit_cost":null,"scenario_id":76,"farm_id":29,"rotational_freq_disp":null,"rotational_freq_val":null}}],"totalFeatures":7,"numberMatched":7,"numberReturned":7,"timeStamp":"2021-07-29T15:32:41.620Z","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3857"}}}'
-//		var format = new ol.format.GeoJSON();
-//        var myGeoJsonFeatures = format.readFeatures(
-//        myGeoJson,
-//        {featureProjection: 'EPSG:3857'}
-//        );
-        //        console.log(myGeoJsonFeatures)
-        //        vector.getSource().addFeatures(myGeoJsonFeatures);
-        // resets the layer
-//        DSS.layer.fields_1.getSource().clear()
-
-
-		var fields_1Source = new ol.source.Vector({
-			format: new ol.format.GeoJSON(),
-			url: function(extent) {
-				return geoserverURL + '/geoserver/wfs?'+
-				'service=wfs&'+
-				'?version=2.0.0&'+
-				'request=GetFeature&'+
-				'typeName=GrazeScape_Vector:field_2&' +
-				//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-				'outputformat=application/json&'+
-				'srsname=EPSG:3857';
-			},
-		});
+		var scenario_1SourceMain = new ol.source.Vector({});
+		var infrastructure_Source = new ol.source.Vector({});
+		var farms_1Source = new ol.source.Vector({});
+		var fields_1Source = new ol.source.Vector({});
 		//-------------------------------------Scenario Style------------------------
 		function scenStyle() {
 			if( 1 ==1 ){return scenStyle1}
@@ -489,72 +430,16 @@ Ext.define('DSS.map.Main', {
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
+//			source: '',
 			style: function(feature, resolution) {
 				fieldLabel.getText().setText(feature.values_.field_name);
 				return fieldLabel;
 			}
 		})
+
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;
-		//main field symbology layer. Style calls fieldStyle function
-		// DSS.layer.fields_1 = new ol.layer.Vector({
-		// 	title: 'fields_1',
-		// 	visible: true,
-		// 	updateWhileAnimating: true,
-		// 	updateWhileInteracting: true,
-		// 	source: fields_1Source,
-		// 	style:fieldStyle
-		// 	//defaultFieldStyle
-		// })
 
-		// //final function called in fieldStyle
-		// let hatchAssignFieldStyle = function(png){
-		// 	var hatchPattern = new Image();
-		// 	hatchPattern.src = '/static/grazescape/public/images/'+png
-		// 	var pattern = context.createPattern(hatchPattern, 'repeat');
-		// 	//hatchPattern.onload = function() {
-		// 	var fieldHatch = new ol.style.Style({
-		// 		stroke: new ol.style.Stroke({
-		// 			color: '#994f00',
-		// 			width: 1}),
-		// 		fill: new ol.style.Fill({
-		// 			color: pattern
-		// 		})
-		// 	})
-		// //}
-		// 	return fieldHatch
-		// };
-		// //fieldStyle assigns hatch style based on the fields rotation column value.
-		// function fieldStyle(feature){
-		// 	var fieldType = feature.get("rotation");
-		// 	if(fieldType == 'pt-cn' || fieldType == 'pt-rt'){
-		// 		return hatchAssignFieldStyle('pasture.png')
-		// 	}
-		// 	else if(fieldType == 'ps'){
-		// 		return hatchAssignFieldStyle('pasture2.png')
-		// 	}
-		// 	else if(fieldType == 'ps'){
-		// 		return hatchAssignFieldStyle('pasture2.png')
-		// 	}
-		// 	else if(fieldType == 'dl'){
-		// 		return hatchAssignFieldStyle('dry_lot.png')
-		// 	}
-		// 	else if(fieldType == 'cc'){
-		// 		return hatchAssignFieldStyle('continuous_corn.png')
-		// 	}
-		// 	else if(fieldType == 'cg'){
-		// 		return hatchAssignFieldStyle('cash_grain.png')
-		// 	}
-		// 	else if(fieldType == 'dr'){
-		// 		return hatchAssignFieldStyle('dairy_rotation_1.png')
-		// 	}
-		// 	else if(fieldType == 'cso'){
-		// 		return hatchAssignFieldStyle('dairy_rotation_2.png')
-		// 	}
-		// 	else{
-		// 		return defaultFieldStyle
-		// 	}
-		// }
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({

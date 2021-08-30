@@ -5,65 +5,63 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 
 var fieldArray = [];
 var fieldObj = {};
+
 var pastAcreage = 0
 var cropAcreage = 0
 
-var fieldUrl =geoserverURL + '/geoserver/wfs?'+
-'service=wfs&'+
-'?version=2.0.0&'+
-'request=GetFeature&'+
-'typeName=GrazeScape_Vector:field_2&' +
-'outputformat=application/json&'+
-'srsname=EPSG:3857';
-
-var fields_1Source = new ol.source.Vector({
-	format: new ol.format.GeoJSON(),
-	url: fieldUrl
-});
-var fields_1Layer = new ol.layer.Vector({
-	title: 'fields_1',
-	source: fields_1Source
-})
-console.log(fields_1Layer)
+// keep track of what fields have had values changed
+var fieldChangeList= []
+var fieldUrl =""
+//geoserverURL + '/geoserver/wfs?'+
+//'service=wfs&'+
+//'?version=2.0.0&'+
+//'request=GetFeature&'+
+//'typeName=GrazeScape_Vector:field_2&' +
+//'outputformat=application/json&'+
+//'srsname=EPSG:3857';
 
 
-function getWFSfields() {
+
+
+
+function getWFSfields(parameter = '') {
     console.log("getting wfs fields")
-	return $.ajax({
-		jsonp: false,
-		type: 'GET',
-		url: fieldUrl,
-		async: false,
-		dataType: 'json',
-		success:function(response)
-		{
-			responseObj = response
-			fieldObj = response.features
-			console.log(fieldObj);
-			fieldArray = [];
-			console.log(fieldObj[0]);
-			popFieldsArray(fieldObj);
-			//console.log("PopFieldsArray should have fired if you are reading this")
-			//placed data store in call function to make sure it was locally available.
-			console.log("creating store")
-			Ext.create('Ext.data.Store', {
-				storeId: 'fieldStore1',
-				alternateClassName: 'DSS.FieldStore',
-				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
-					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover', 'pastureGrazingRotCont',
-					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-					'grazeDairyNonLactating', 'grazeBeefCattle', 'area', 'perimeter'],
-				data: fieldArray
-			});
-			//Setting store to just declared store fieldStore1, and reloading the store to the grid
-			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
-			DSS.field_grid.FieldGrid.store.reload();
-			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			console.log(response);
-			//console.log('DSS.field_grid.FieldGrid')
-			//console.log(DSS.field_grid.FieldGrid);
-		}
-	})
+    geoServer.getWFSfields(parameter)
+//	return $.ajax({
+//		jsonp: false,
+//		type: 'GET',
+//		url: fieldUrl,
+//		async: false,
+//		dataType: 'json',
+//		success:function(response)
+//		{
+//			responseObj = response
+//			fieldObj = response.features
+//			console.log(fieldObj);
+//			fieldArray = [];
+//			console.log(fieldObj[0]);
+//			popFieldsArray(fieldObj);
+//			//console.log("PopFieldsArray should have fired if you are reading this")
+//			//placed data store in call function to make sure it was locally available.
+//			console.log("creating store")
+//			Ext.create('Ext.data.Store', {
+//				storeId: 'fieldStore1',
+//				alternateClassName: 'DSS.FieldStore',
+//				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
+//					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover', 'pastureGrazingRotCont',
+//					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+//					'grazeDairyNonLactating', 'grazeBeefCattle', 'area', 'perimeter'],
+//				data: fieldArray
+//			});
+//			//Setting store to just declared store fieldStore1, and reloading the store to the grid
+//			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
+//			DSS.field_grid.FieldGrid.store.reload();
+//			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//			console.log(response);
+//			//console.log('DSS.field_grid.FieldGrid')
+//			//console.log(DSS.field_grid.FieldGrid);
+//		}
+//	})
 }
 function getRotAcrage(obj){
 	for (i in obj)
@@ -114,16 +112,17 @@ function popFieldsArray(obj) {
 //empty array to catch feature objects 
 function gatherTableData() {
 	//redeclaring fieldUrl to only show filtered fields
-	fieldUrl = 
-	geoserverURL + '/geoserver/wfs?'+
-	'service=wfs&'+
-	'?version=2.0.0&'+
-	'request=GetFeature&'+
-	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-	'outputformat=application/json&'+
-	'srsname=EPSG:3857';
+//	fieldUrl =
+//	geoserverURL + '/geoserver/wfs?'+
+//	'service=wfs&'+
+//	'?version=2.0.0&'+
+//	'request=GetFeature&'+
+//	'typeName=GrazeScape_Vector:field_2&' +
+//	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+//	'outputformat=application/json&'+
+//	'srsname=EPSG:3857';
 	//--------------------------------------------
+
 	getWFSfields();
 	console.log(fieldUrl)
 	console.log("gatherTableData ran");
@@ -131,6 +130,12 @@ function gatherTableData() {
 	getRotAcrage(fieldArray);
 	console.log(pastAcreage);
 	console.log(cropAcreage);
+
+	getWFSfields('&CQL_filter=scenario_id='+DSS.activeScenario);
+//	console.log(fieldUrl)
+//	console.log("gatherTableData ran");
+//	console.log(fieldArray);
+
 };
 
 Ext.create('Ext.data.Store', {
@@ -272,7 +277,7 @@ Ext.create('Ext.data.Store', {
 		value: 'sv',
 		display: 'Spring Vertical'
 	},{ 
-		value: 'fch',
+		value: 'fc',
 		display: 'Fall Chisel + Disk'
 	},{ 
 		value: 'fm',
@@ -295,7 +300,7 @@ Ext.create('Ext.data.Store', {
 		value: 'sn',
 		display: 'Spring Chisel No Disk'
 	},{ 
-		value: 'fch',
+		value: 'fc',
 		display: 'Fall Chisel + Disk'
 	},{ 
 		value: 'fm',
@@ -375,7 +380,11 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	listeners: {
 		resize: function(self, newW, newH, oldW, oldH) {
 			if (!self.isAnimating) self.internalHeight = newH;
+		},
+		update: function (me, record) {
+		    console.log(me, record)
 		}
+
 	},
 	//requires: ['DSS.map.Main'],
 

@@ -11,8 +11,7 @@ Ext.define('DSS.map.RotationLayer', {
 		console.log("init rotation layer &&&&&&&&&&&&&&&&&&&777")
 		DSS['rotationStyles'] = { };
 		
-		fields_1Source
-		
+
 		let canvas = document.createElement('canvas');
 		let context = canvas.getContext('2d');
 		
