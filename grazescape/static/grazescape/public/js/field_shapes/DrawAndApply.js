@@ -142,46 +142,12 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
                 on_contour: false,
                 interseeded_clover: false,
                 pasture_grazing_rot_cont:false,
+				grass_speciesval: grassVal,
+		 		grass_speciesdisp: grassDisp,
                 is_dirty:true
             })
         setFeatureAttributes(e.feature)
-
-
-		e.feature.setProperties({
-			id: af,
-			farm_id: af,
-			scenario_id: as,
-			field_name: field_nameInput,
-			soil_p: soil_pInput,
-			om: 10,
-			rotation: crop,
-			rotation_disp: cropDisp,
-			graze_beef_cattle: beef,
-			graze_dairy_lactating: lac,
-			graze_dairy_non_lactating: non_lac,
-			tillage: tillageInput,
-			tillage_disp:tillageDisp,
-			cover_crop:'nc',
-			cover_crop_disp:'No Cover',
-			rotational_density:0,
-			area:fieldArea * 0.000247105,
-			//this changes the square meters to acres
-			fertilizerpercent:0,
-			manurepercent:0,
-			spread_confined_manure_on_pastures: false,
-			on_contour: false,
-			interseeded_clover: false,
-			pasture_grazing_rot_cont:false,
-			grass_speciesval: grassVal,
-			grass_speciesdisp: grassDisp
-		})
-		var geomType = 'polygon'
-		
-		DSS.MapState.removeMapInteractions()
-		wfs_field_insert(e.feature, geomType)
-		console.log("HI! WFS feild Insert ran!")
 		alert('Field Added!')
-		//form.reset()
 	})     
 
 
