@@ -336,7 +336,21 @@ Ext.define('DSS.map.Main', {
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
-		var fields_1Source = new ol.source.Vector({});
+		//var fields_1Source = new ol.source.Vector({});
+
+		// var fields_1Source = new ol.source.Vector({
+		// 	format: new ol.format.GeoJSON(),
+		// 	url: function(extent) {
+		// 		return geoserverURL + '/geoserver/wfs?'+
+		// 		'service=wfs&'+
+		// 		'?version=2.0.0&'+
+		// 		'request=GetFeature&'+
+		// 		'typeName=GrazeScape_Vector:field_2&' +
+		// 		//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
+		// 		'outputformat=application/json&'+
+		// 		'srsname=EPSG:3857';
+		// 	},
+		// });
 		//-------------------------------------Scenario Style------------------------
 		function scenStyle() {
 			if( 1 ==1 ){return scenStyle1}
@@ -388,6 +402,12 @@ Ext.define('DSS.map.Main', {
 				return infraDefaultStyle
 			}
 		};
+
+		geoServer.setFieldSource()
+		geoServer.setFarmSource()
+		geoServer.setInfrastructureSource()
+		geoServer.setScenariosSource()
+
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
 			visible: true,
@@ -436,6 +456,21 @@ Ext.define('DSS.map.Main', {
 				return fieldLabel;
 			}
 		})
+		DSS.layer.fields_1 = new ol.layer.Vector({
+			visible: DSS.layer['crop:visible'],
+			opacity: DSS.layer['crop:opacity'],
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: fields_1Source,
+			style: function(feature, resolution) {
+				if (feature && feature.getProperties()) {
+					let rot = feature.getProperties()['rotation']; 
+					if (rot && DSS.rotationStyles[rot]) {
+						return DSS.rotationStyles[rot];
+					}
+				}
+			}
+		});	
 
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;

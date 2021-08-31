@@ -123,11 +123,11 @@ function gatherTableData() {
 //	'srsname=EPSG:3857';
 	//--------------------------------------------
 
-	getWFSfields();
+	//getWFSfields();
 	console.log(fieldUrl)
 	console.log("gatherTableData ran");
 	console.log(fieldArray);
-	getRotAcrage(fieldArray);
+	//getRotAcrage(fieldArray);
 	console.log(pastAcreage);
 	console.log(cropAcreage);
 
