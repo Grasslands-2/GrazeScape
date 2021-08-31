@@ -1,8 +1,8 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
-// var pastAcreageHS = 0
-// var cropAcreageHS = 0
+ var pastAcreageHS = 0
+ var cropAcreageHS = 0
 let breedSizeStore = Ext.create('Ext.data.Store', {
 	storeId: 'breedSizeStore',
 	fields:[ 'label', 'value'],
@@ -52,7 +52,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 	extend: 'Ext.window.Window',
 	alias: 'widget.state_heifter_scape_dialog',
 	
-	autoDestroy: false,
+	autoDestroy: true,
 	closeAction: 'hide',
 	constrain: true,
 	modal: true,
@@ -72,13 +72,15 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 		//--------------------------------------------
 		// Dairy Container
 		//--------------------------------------------
-		let dairyContainer = {
+		let heiferContainer = {
 			xtype: 'container',
 			layout: 'fit',
+			autoDestroy: true,
 			items: [{
 				xtype: 'container',
 				itemId: 'heifer-section',
 				cls: 'sub-container',
+				autoScroll: true,
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 				hidden: true,
 				items: [{
@@ -93,6 +95,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					defaults: {
 						xtype: 'numberfield',
 						minValue: 0,
+						step: 1,
 						allowBlank: false,
 						labelAlign: 'right',
 						labelWidth: 100,
@@ -100,10 +103,24 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					},
 					items: [
 						{
+							fieldLabel: 'Lactating Cows',
+							bind: '{dairy.lactating}'
+						},{
+							fieldLabel: 'Dry Cows',
+							bind: '{dairy.dry}'
+						},{
+							fieldLabel: 'Heifers',
+							bind: '{dairy.heifers}'
+						},{
+							fieldLabel: 'Youngstock',
+							bind: '{dairy.youngstock}'
+						},
+						{
 						xtype: 'textfield',
 						fieldLabel: 'Acres in Pasture',
-						id:'pastAcreage',
+						//id:'pastAcreage',
 						editable:false,
+						autoDestroy: true,
 						allowBlank: true,
 						labelWidth: 140,
 						width: 360,
@@ -113,8 +130,9 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 						{
 						xtype: 'textfield',
 						fieldLabel: 'Acres in Crops',
-						id:'cropAcreage',
+						//id:'cropAcreage',
 						editable:false,
+						autoDestroy: true,
 						allowBlank: true,
 						labelWidth: 140,
 						width: 360,
@@ -256,13 +274,13 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 						let container = me.down("#heifer-section");
 						if (pressed) {
 							console.log(container.items)
-							var pastAcreageHS = pastAcreage.toFixed(2)
-							var cropAcreageHS = cropAcreage.toFixed(2)
-							//console.log(fieldArray);
-							//console.log(pastAcreage);
-							//console.log(cropAcreage);
-							Ext.getCmp('pastAcreage').setValue(pastAcreageHS)
-							Ext.getCmp('cropAcreage').setValue(cropAcreageHS)
+							// var pastAcreageHS = pastAcreage.toFixed(2)
+							// var cropAcreageHS = cropAcreage.toFixed(2)
+							// //console.log(fieldArray);
+							// //console.log(pastAcreage);
+							// //console.log(cropAcreage);
+							// Ext.getCmp('pastAcreage').setValue(pastAcreageHS)
+							// Ext.getCmp('cropAcreage').setValue(cropAcreageHS)
 							container.setHeight(0);
 							container.setVisible(true)
 							container.animate({
@@ -273,8 +291,8 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 							});
 						} 
 						else {
-							pastAcreage = 0
-							pastAcreage = 0
+							// pastAcreage = 0
+							// pastAcreage = 0
 							me.setHeight(null)
 							container.animate({
 								dynamic: true,
@@ -285,6 +303,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 									container.setVisible(false);
 								}
 							});
+							//container.destroy()
 						}
 					}
 				},]
@@ -296,7 +315,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					width: 400,
 				},
 				items: [
-					dairyContainer
+					heiferContainer
 				]	
 			}]
 		});
