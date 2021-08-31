@@ -113,7 +113,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						xtype: 'numberfield',
 						value: 20,
 						minValue: 0,
-						step: 5,
+						step: 1,
 						labelAlign: 'right',
 						labelWidth: 100,
 						width: 200,
