@@ -6,9 +6,6 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 var fieldArray = [];
 var fieldObj = {};
 
-var pastAcreage = 0
-var cropAcreage = 0
-
 // keep track of what fields have had values changed
 var fieldChangeList= []
 var fieldUrl =""
@@ -63,15 +60,15 @@ function getWFSfields(parameter = '') {
 //		}
 //	})
 }
-function getRotAcrage(obj){
-	for (i in obj)
-	if(obj[i].rotationVal == 'pt-cn'|| obj[i].rotationVal == 'pt-rt'){
-		pastAcreage = pastAcreage + obj[i].area
-	}
-	if(obj[i].rotationVal == 'cc'|| obj[i].rotationVal =='cg' || obj[i].rotationVal =='dr' || obj[i].rotationVal =='cso'){
-		cropAcreage = cropAcreage + obj[i].area
-	}
-}
+// function getRotAcrage(obj){
+// 	for (i in obj)
+// 	if(obj[i].rotationVal == 'pt-cn'|| obj[i].rotationVal == 'pt-rt'){
+// 		pastAcreage = pastAcreage + obj[i].area
+// 	}
+// 	if(obj[i].rotationVal == 'cc'|| obj[i].rotationVal =='cg' || obj[i].rotationVal =='dr' || obj[i].rotationVal =='cso'){
+// 		cropAcreage = cropAcreage + obj[i].area
+// 	}
+// }
 
 function popFieldsArray(obj) {
 	for (i in obj)

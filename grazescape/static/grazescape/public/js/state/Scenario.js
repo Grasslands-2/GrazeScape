@@ -2,6 +2,8 @@ var farmArray = [];
 var farmObj = {};
 var scenarioArray = [];
 var scenarioObj = {};
+var pastAcreage = 0
+var cropAcreage = 0
 //scenarioUrl = geoserverURL + '/geoserver/wfs?'+
 //'service=wfs&'+
 //'?version=2.0.0&'+
@@ -178,6 +180,18 @@ function runScenarioUpdate(){
 				lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
 				dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
 				beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
+				heifers_on_pasture: DSS['viewModel'].scenario.data.heifer.animalsOnPasture,
+				pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
+				crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
+				heifer_breed_size: DSS['viewModel'].scenario.data.heifer.breedSize,
+				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifer.bred,
+				heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifer.tdwg,
+				heifer_starting_weight: DSS['viewModel'].scenario.data.heifer.asw,
+				heifer_days_on_pasture: DSS['viewModel'].scenario.data.heifer.daysOnPasture,
+				heifer_perc_feed_nonpasture: DSS['viewModel'].scenario.data.heifer.percNonPasture,
+				heifer_feed_from_pasture_per_head_day: DSS['viewModel'].scenario.data.heifer.forageFromPasturePerHeadDay,
+				heifer_feed_from_pasture_per_herd_day: DSS['viewModel'].scenario.data.heifer.forageFromPasturePerDayHerd,
+				heifer_dmi_demand_per_season: DSS['viewModel'].scenario.data.heifer.dmiDemandPerSeason,
 			});
 			wfs_update(scenarioFeature,'scenarios_2');
 		}						
@@ -376,36 +390,8 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Heifer Scape',
+					text: 'Feed Worksheet',
 					handler: function(self) {
-						// if(typeof DSS.dialogs.HeiferScapeDialog !== 'undefined'){
-						// 	console.log('in heiferscape if!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-						// 	DSS.dialogs.HeiferScapeDialog.destroy()
-						// 	//Ext.destroy('DSS.state.scenario.HeiferScapeDialog'); 
-						// 	console.log('destroyed should have ran')
-						// 	pastAcreage = 0
-						// 	pastAcreage = 0
-						// 	gatherTableData();
-						// 	AppEvents.triggerEvent('hide_field_grid')
-						// 	AppEvents.triggerEvent('hide_infra_grid')
-						// 	AppEvents.triggerEvent('hide_field_shape_mode');
-						// 	AppEvents.triggerEvent('hide_infra_line_mode');
-						// 	DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
-						// 	DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);
-						// 	DSS.dialogs.HeiferScapeDialog.show().center().setY(0);
-						// }else
-						// {
-						// 	DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
-						// 	DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);
-						// 	pastAcreage = 0
-						// 	pastAcreage = 0
-						// 	gatherTableData();
-						// 	AppEvents.triggerEvent('hide_field_grid')
-						// 	AppEvents.triggerEvent('hide_infra_grid')
-						// 	AppEvents.triggerEvent('hide_field_shape_mode');
-						// 	AppEvents.triggerEvent('hide_infra_line_mode');
-						// 	DSS.dialogs.HeiferScapeDialog.show().center().setY(0);		
-						// }
 						DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
 						DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);
 						pastAcreage = 0

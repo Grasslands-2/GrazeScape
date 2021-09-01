@@ -19,6 +19,16 @@ function wfs_field_insert(feat,geomType) {
     geoServer.wfs_field_insert(str, feat)
 
 }
+function addFieldAcreage(feature){
+	console.log(feature)
+	if(feature.rotationVal == 'pt-cn'|| feature.rotationVal == 'pt-rt'){
+		pastAcreage = pastAcreage + feature.area
+	}
+	if(feature.rotationVal == 'cc'|| feature.rotationVal =='cg' || feature.rotationVal =='dr' || obj[i].rotationVal =='cso'){
+		cropAcreage = cropAcreage + feature.area
+	}
+
+}
 function setFeatureAttributes(feature,af,as){
     console.log(feature.getGeometry().getExtent())
     console.log(feature.getGeometry().getCoordinates()[0])
@@ -147,6 +157,7 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
                 is_dirty:true
             })
         setFeatureAttributes(e.feature)
+		addFieldAcreage(e.feature)
 		alert('Field Added!')
 	})     
 
