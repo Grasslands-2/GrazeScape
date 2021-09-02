@@ -259,7 +259,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						fieldLabel: 'Animals On Pasture',
 						labelAlign: 'right',
 						labelWidth: 148,
-						bind: '{heifer.animalsOnPasture}',
+						bind: '{heifers.animalsOnPasture}',
 						minValue: 1,
 						step: 1,
 						},
@@ -274,7 +274,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						store: 'breedSizeStore',
 						displayField: 'label',
 						valueField: 'value',
-						bind: '{heifer.breedSize}',
+						bind: '{heifers.breedSize}',
 						},{
 						xtype: 'combo',
 						fieldLabel: 'Bred or Unbred',
@@ -286,10 +286,10 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						store: 'bredStore',
 						displayField: 'label',
 						valueField: 'value',
-						bind: '{heifer.bred}',
+						bind: '{heifers.bred}',
 						},{
 						fieldLabel: 'Average Starting Weight(lbs)',
-						bind: '{heifer.asw}'
+						bind: '{heifers.asw}'
 						},{
 						xtype: 'combo',
 						fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
@@ -301,7 +301,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						store: 'weightGainStore',
 						displayField: 'label',
 						valueField: 'value',
-						bind: '{heifer.tdwg}',
+						bind: '{heifers.tdwg}',
 						},
 						{
 						xtype: 'container',
