@@ -139,7 +139,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 						store: 'breedSizeStore',
 						displayField: 'label',
 						valueField: 'value',
-						bind: '{heifer.breedSize}',
+						bind: '{heifers.breedSize}',
 						},{
 						xtype: 'combo',
 						fieldLabel: 'Bred or Unbred',
@@ -151,10 +151,10 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 						store: 'bredStore',
 						displayField: 'label',
 						valueField: 'value',
-						bind: '{heifer.bred}',
+						bind: '{heifers.bred}',
 						},{
 						fieldLabel: 'Average Starting Weight(lbs)',
-						bind: '{heifer.asw}'
+						bind: '{heifers.asw}'
 						},{
 						xtype: 'combo',
 						fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
@@ -166,10 +166,10 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 						store: 'weightGainStore',
 						displayField: 'label',
 						valueField: 'value',
-						bind: '{heifer.tdwg}',
+						bind: '{heifers.tdwg}',
 						},{
 						fieldLabel: 'Days on Pasture',
-						bind: '{heifer.daysOnPasture}'
+						bind: '{heifers.daysOnPasture}'
 					}]
 				},{
 					xtype: 'component',
@@ -235,7 +235,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					fieldLabel: '% dry matter form sources besides pasture ',
 					labelAlign: 'right',
 					labelWidth: 148,
-					bind: '{heifer.percNonPasture}',
+					bind: '{heifers.percNonPasture}',
 					minValue: 1,
 					step: 0.5,
 				},
@@ -249,7 +249,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					maxValue: 100,
 					minValue: 0,
 					value:0,
-					bind: '{heifer.forageFromPasturePerHeadDay}',
+					bind: '{heifers.forageFromPasturePerHeadDay}',
 					minValue: 1,
 					step: 0.5,
 				},
@@ -263,7 +263,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					maxValue: 100,
 					minValue: 0,
 					value:0,
-					bind: '{heifer.forageFromPasturePerDayHerd}',
+					bind: '{heifers.forageFromPasturePerDayHerd}',
 					minValue: 1,
 					step: 0.5,
 				},
@@ -277,7 +277,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					maxValue: 100,
 					minValue: 0,
 					value:0,
-					bind: '{heifer.dmiDemandPerSeason}',
+					bind: '{heifers.dmiDemandPerSeason}',
 					minValue: 1,
 					step: 0.5,
 				},
