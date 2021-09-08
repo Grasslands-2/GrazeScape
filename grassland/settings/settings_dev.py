@@ -57,6 +57,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    # Manages sessions across requests
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Associates users with requests using sessions.
 ]
 
 
@@ -101,6 +105,17 @@ WSGI_APPLICATION = 'grassland.wsgi.application'
 #         'PORT': '5432'
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'GrazeScape',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '144.92.98.22',
+        'PORT': '5432'
+    }
+}
 
 
 # Password validation
