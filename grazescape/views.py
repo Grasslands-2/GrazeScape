@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
 
 from django.http import FileResponse
 import traceback
@@ -23,13 +24,16 @@ from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
+from grazescape.users import *
 import sys
 import time
 import sys
 import shutil
 
 raster_data = None
-
+# def get_users(request):
+#     get_users()
+#     return JsonResponse({"clean": "finished"})
 @csrf_protect
 def clean_data(request):
     print("cleaning data")
@@ -54,10 +58,12 @@ def clean_data(request):
         except OSError as e:
             print("Error: %s : %s" % (f, e.strerror))
     clean_db()
+    # get_users()
     return JsonResponse({"clean":"finished"})
 
 
 @csrf_protect
+# @login_required
 def index(request):
     context = {
         "my_color": {"test1":1234}
