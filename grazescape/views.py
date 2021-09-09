@@ -29,6 +29,7 @@ import sys
 import time
 import sys
 import shutil
+import math
 
 raster_data = None
 
