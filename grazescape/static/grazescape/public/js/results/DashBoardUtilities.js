@@ -342,6 +342,30 @@ function format_chart_data(model_data){
         }
     }
 }
+
+function calcHeiferFeedBreakdown(data){
+    return new Promise(function(resolve) {
+    var csrftoken = Cookies.get('csrftoken');
+	console.log('data coming into ajax call')
+	console.log(data)
+    $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+    $.ajax({
+    'url' : '/grazescape/heiferFeedBreakDown',
+    'type' : 'POST',
+    'data' : data,
+        success: function(responses, opts) {
+			console.log('hit heiferFeedBreakDown tool')
+			console.log(responses)
+			resolve([])
+		},
+		error: function(responses) {
+			console.log('python tool call error')
+			console.log(responses)
+		}
+	})}
+)}
 function get_model_data(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');

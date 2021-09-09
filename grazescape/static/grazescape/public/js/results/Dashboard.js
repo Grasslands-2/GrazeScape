@@ -20,7 +20,9 @@ var chartList = [
     'oat_yield_farm', 'oat_yield_field',
     'alfalfa_yield_farm','alfalfa_yield_field',
     'rotation_yield_farm' , 'rotation_yield_field',
-    'insecticide_farm', 'insecticide_field']
+    'insecticide_farm', 'insecticide_field','feed_breakdown',
+    //'crop_feed_breakdown'
+]
 var chartColors = [
             {trans:'rgba(238, 119, 51,.2)', opa:'rgb(238, 119, 51)'},
              {trans:'rgba(0, 119, 187,.2)',opa:'rgb(0, 119, 187)'},
@@ -188,6 +190,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     case 'runoff':
                         runoff_pb.max = numbFields
                         break
+                    case 'Feedoutput':
+                        runoff_pb.max = numbFields
+                        break
                     case 'bio':
                         bio_pb.max = numbFields
                         break
@@ -215,6 +220,24 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                 f = fieldIter[item]
                 console.log(f)
+
+                console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
+                console.log(chartObj)
+
+                var heiferFeedData = {
+                    pastYield: chartObj.grass_yield_farm.sum[0],
+                    cornYield: chartObj.corn_yield_farm.sum[0],
+                    oatYield: chartObj.oat_yield_farm.sum[0],
+                    alfalfaYield: chartObj.alfalfa_yield_farm[0],
+                    totalHeifers: scenarioArray.heifers,
+                    heiferBreed: scenarioArray.heiferBreedSize,
+                    heiferBred: scenarioArray.heiferBred,
+                    heiferDOP: scenarioArray.heiferDaysOnPasture,
+                    heiferASW: scenariosStore.heiferASW,
+                    heiferWGG: scenarioArray.heiferTDWG
+                }
+                //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
+                calcHeiferFeedBreakdown(heiferFeedData)
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
                     model_request = build_model_request(f.properties, f, modelTypes[model])
@@ -240,8 +263,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                                    console.log('done hiding charts')
                                     yield_pb.hidden = true
                                     Ext.getCmp("yieldTab").setDisabled(false)
+                                    //testing setting feedTab to active
+                                    //Ext.getCmp("feedTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
+                                    
                                 }
                                 break
                             case 'ploss':
@@ -1013,6 +1039,100 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
             }
             //TODO update
+
+            var feedoutput = {
+                title: '<i class="fab fa-pagelines"></i> Feed Breakdown<br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=bio_pb >50%</progress>',
+                plain: true,
+                id:"feedTab",
+                disabled:true,
+                tabBar : {
+                    layout: {
+                        pack: 'center',
+                            //background: '#C81820',
+                     }
+                 },
+                xtype: 'tabpanel',
+                style: 'background-color: #377338;',
+
+                defaults: {
+                   border:false,
+                    bodyBorder: false
+                },
+//                scrollable: true,
+//                inner tabs for farm and field scale
+                items:[{
+                    xtype: 'container',
+                    title: '<i class="fas fa-warehouse"></i>  Farm',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+//                    html: "hiiiiiiiiii"
+                },
+                    items:[{
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="insecticide_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        },
+                    ],
+                    listeners:{activate: function() {
+                        if (chartObj["insecticide_farm"].chart !== null){
+                            return
+                        }
+                        chartObj.insecticide_farm.chart = create_graph(chartObj.insecticide_farm, 'Honey Bee Toxicity', document.getElementById('insecticide_farm').getContext('2d'));
+
+                    }}
+
+                },
+//                 { xtype: 'panel',
+//                     title: '<i class="fas fa-seedling"></i></i>  Field',
+//                      border: false,
+//                      id: 'insectFieldTab',
+// //                    disabled: true,
+//                     layout: {
+//                         type: 'table',
+//                         // The total column count must be specified here
+//                         columns: 1
+//                     },
+//                     defaults: {
+
+//                     style: 'padding:10px; ',
+//                     border:0,
+//                 },
+//                     items:[ {xtype: 'container',
+//                         html: '<div id="container" ><canvas id="insecticide_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                         },
+// //                    {
+// //                        xtype: 'container',
+// //                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+// //                    },{
+// //                        xtype: 'container',
+// //                    },{
+// //                        xtype: 'container',
+// //                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+// //                    }
+//                     ],
+//                     listeners:{activate: function() {
+//                         if (chartObj["insecticide_field"].chart !== null){
+//                             return
+//                         }
+//                         chartObj.insecticide_field.chart = create_graph(chartObj.insecticide_field, 'Honey Bee Toxicity', document.getElementById('insecticide_field').getContext('2d'));
+
+//                     }}
+//                 }
+                ],
+            }    
+
+
+
+//------------------------------------------------------------------------------------------
+
+
         var bio = {
                 title: '<i class="fa fa-leaf"></i>  Insecticide<br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=bio_pb >50%</progress>',
                 plain: true,
@@ -1341,7 +1461,28 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             }},
                             items:compCheckBoxes.insectVar
                         }]
-                    },{
+                    },
+                    // {
+                    //     title: "Feed Breakdown",
+                    //     xtype: 'panel',
+
+                    //     width: chart_width,
+                    //     collapsible: true,
+                    //     items:[{
+                    //       id: 'checkInsecticide',
+                    //       xtype: 'checkboxgroup',
+                    //         layout: {
+                    //             type: 'table',
+                    //             // The total column count must be specified here
+                    //             columns: 1
+                    //         },
+                    //         listeners:{change: function(box, newVal, oldVal, e) {
+                    //             populateRadarChart()
+                    //         }},
+                    //         items:compCheckBoxes.insectVar
+                    //     }]
+                    // },
+                    {
                         title: "Infrastructure",
                         xtype: 'panel',
                         width: chart_width,
@@ -1669,6 +1810,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 erosion,
                 nutrients,
                 runoff,
+                //feedoutput,
                 bio,
                 economics,
                 infrastructure,

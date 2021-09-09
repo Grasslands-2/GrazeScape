@@ -15,6 +15,7 @@ import os
 # Create your views here.
 from grazescape.raster_data import RasterData
 from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
+from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
@@ -30,6 +31,32 @@ import sys
 import shutil
 
 raster_data = None
+
+def heiferFeedBreakDown(data):
+    print(data.POST)
+    #data being total pasture, corn, alfalfa, and oat yeilds.  
+    #heifer numbers, breed, bred or unbred, days on pasture, average starting weight
+    #and weight gain goals
+    pastYield = data.POST.get('pastYield')
+    print(pastYield)
+    #print(pastYield.sum)
+    cornYield = data.POST.get('cornYield')
+    print(cornYield)
+    alfalfaYield = data.POST.get('alfalfaYield')
+    oatYield = data.POST.get('oatYield')
+    heifers = data.POST.get('heifers')
+    breed = data.POST.get('heiferBreed')
+    bred = data.POST.get('heiferBred')
+    daysOnPasture = data.POST.get('heiferDOP')
+    asw = data.POST.get('heiferASW')
+    wgg = data.POST.get('heiferWGG')
+
+    # toolName = HeiferFeedBreakdown(pastYield,cornYield,alfalfaYield,oatYield,heifers,
+    # breed,bred,daysOnPasture,asw,wgg)
+
+    # return JsonResponse({"calcFeed":toolName.calcFeed(),
+    # "output":toolName.load_dem()})
+    return JsonResponse({"feed_calc":"finished"})
 
 def run_InfraTrueLength(data):
     print('here is the data')

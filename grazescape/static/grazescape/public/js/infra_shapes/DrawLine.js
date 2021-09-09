@@ -32,7 +32,7 @@ function get_terrian_distance(data){
 			console.log(responses)
 		}
 	})}
-	)}
+)}
 
 
 function wfs_infra_insert(feat,geomType) {  

@@ -1,26 +1,8 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
-let rotationFreq = Ext.create('Ext.data.Store', {
-	storeId: 'rotationFreqStore',
-	fields:[ 'label', 'enum'],
-	data: [{
-		enum: 1.2,
-		label: 'More then once a day'
-	},{ 
-		enum: 1,
-		label: 'Once a day'
-	},{ 
-		enum: 0.95,
-		label: 'Every 3 days'
-	},{ 
-		enum: 0.75,
-		label: 'Every 7 days'
-	},{ 
-		enum: 0.65,
-		label: 'Continuous'
-	}]
-});
+var pastAcreageHS = 0
+ var cropAcreageHS = 0
 let breedSizeStore = Ext.create('Ext.data.Store', {
 	storeId: 'breedSizeStore',
 	fields:[ 'label', 'value'],
@@ -61,6 +43,27 @@ let weightGainStore = Ext.create('Ext.data.Store', {
 	},{ 
 		value: 1.98,
 		label: '1.98'
+	}]
+});
+
+let rotationFreq = Ext.create('Ext.data.Store', {
+	storeId: 'rotationFreqStore',
+	fields:[ 'label', 'enum'],
+	data: [{
+		enum: 1.2,
+		label: 'More then once a day'
+	},{ 
+		enum: 1,
+		label: 'Once a day'
+	},{ 
+		enum: 0.95,
+		label: 'Every 3 days'
+	},{ 
+		enum: 0.75,
+		label: 'Every 7 days'
+	},{ 
+		enum: 0.65,
+		label: 'Continuous'
 	}]
 });
 
@@ -538,6 +541,97 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 				}]
 			}]
 		};
+		//-----------------------------------------------------
+		//Heifer Section
+		//-----------------------------------------------------
+		let heiferContainer = {
+			xtype: 'container',
+			layout: 'fit',
+			items: [{
+				xtype: 'container',
+				itemId: 'heifer-section',
+				cls: 'sub-container',
+				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
+				hidden: true,
+				items: [{
+					xtype: 'component',
+					cls: 'information accent-text box-underline',
+					html: 'Configure the <b>size of the heifer herd</b>',
+					margin: '0 32',
+				},{
+					xtype: 'container',
+					layout: DSS.utils.layout('vbox', 'start', 'middle'),
+					margin: 8,
+					defaults: {
+						xtype: 'numberfield',
+						minValue: 0,
+						step: 1,
+						allowBlank: false,
+						labelAlign: 'right',
+						labelWidth: 100,
+						width: 200,
+					},
+					items: [
+						{
+							fieldLabel: 'Heifers',
+							bind: '{dairy.heifers}'
+						},
+						{
+							xtype: 'numberfield',
+							fieldLabel: 'Heifers On Pasture',
+							labelAlign: 'right',
+							labelWidth: 148,
+							width:300,
+							bind: '{dairy.animalsOnPasture}',
+							minValue: 1,
+							step: 1,
+							},
+						{
+							xtype: 'combo',
+							fieldLabel: 'Breed Size',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'breedSizeStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.breedSize}',
+						},{
+							xtype: 'combo',
+							fieldLabel: 'Bred or Unbred',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'bredStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.bred}',
+						},{
+							fieldLabel: 'Average Starting Weight(lbs)',
+							bind: '{heifers.asw}'
+						},{
+							xtype: 'combo',
+							fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'weightGainStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.tdwg}',
+						},{
+							fieldLabel: 'Days on Pasture',
+							bind: '{heifers.daysOnPasture}'
+					}]
+				}]
+			}]
+		};
 		
 		Ext.applyIf(me, {
 			items: [{
@@ -555,7 +649,35 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					minWidth: 100,
 					enableToggle: true
 				},
-				items: [{//--------------------------------------------------------------------------
+				items: [{ //--------------------------------------------------------------------------
+					text: 'Heifers',
+					toggleHandler: function(self, pressed) {
+						let container = me.down("#heifer-section");
+						if (pressed) {
+							container.setHeight(0);
+							container.setVisible(true)
+							container.animate({
+								dynamic: true,
+								to: {
+									height: 500
+								}
+							});
+						} 
+						else {
+							me.setHeight(null)
+							container.animate({
+								dynamic: true,
+								to: {
+									height: 0
+								},
+								callback: function() {
+									container.setVisible(false);
+								}
+							});
+						}
+					}
+				},
+					{//--------------------------------------------------------------------------
 					text: 'Dairy',
 					toggleHandler: function(self, pressed) {
 						let container = me.down("#dairy-section");
@@ -618,6 +740,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					width: 400,
 				},
 				items: [
+					heiferContainer,
 					dairyContainer,
 					beefContainer
 				]	
