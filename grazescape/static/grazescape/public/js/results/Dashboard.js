@@ -221,27 +221,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 f = fieldIter[item]
                 console.log(f)
 
-                console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
-                console.log(chartObj)
-
-                var heiferFeedData = {
-                    pastYield: chartObj.grass_yield_farm.sum[0],
-                    cornYield: chartObj.corn_yield_farm.sum[0],
-                    oatYield: chartObj.oat_yield_farm.sum[0],
-                    alfalfaYield: chartObj.alfalfa_yield_farm[0],
-                    totalHeifers: scenarioArray.heifers,
-                    heiferBreed: scenarioArray.heiferBreedSize,
-                    heiferBred: scenarioArray.heiferBred,
-                    heiferDOP: scenarioArray.heiferDaysOnPasture,
-                    heiferASW: scenariosStore.heiferASW,
-                    heiferWGG: scenarioArray.heiferTDWG
-                }
-                //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
-                calcHeiferFeedBreakdown(heiferFeedData)
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
                     model_request = build_model_request(f.properties, f, modelTypes[model])
                     get_model_data(model_request).then(returnData =>{
+                        console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
+                        console.log(chartObj)
 //                      no model results with that particular field
                         if(returnData.length < 1){
                             return
@@ -267,6 +252,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     //Ext.getCmp("feedTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
+                                    console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
+                                    console.log(chartObj)
+
+                                    var heiferFeedData = {
+                                        pastYield: chartObj.grass_yield_farm.sum[0],
+                                        cornYield: chartObj.corn_yield_farm.sum[0],
+                                        oatYield: chartObj.oat_yield_farm.sum[0],
+                                        alfalfaYield: chartObj.alfalfa_yield_farm[0],
+                                        totalHeifers: scenarioArray.heifers,
+                                        heiferBreed: scenarioArray.heiferBreedSize,
+                                        heiferBred: scenarioArray.heiferBred,
+                                        heiferDOP: scenarioArray.heiferDaysOnPasture,
+                                        heiferASW: scenariosStore.heiferASW,
+                                        heiferWGG: scenarioArray.heiferTDWG
+                                    }
+                                    //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
+                                    calcHeiferFeedBreakdown(heiferFeedData)
                                     
                                 }
                                 break
