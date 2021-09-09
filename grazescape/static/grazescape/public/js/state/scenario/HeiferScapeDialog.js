@@ -1,50 +1,50 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
- var pastAcreageHS = 0
- var cropAcreageHS = 0
-let breedSizeStore = Ext.create('Ext.data.Store', {
-	storeId: 'breedSizeStore',
-	fields:[ 'label', 'value'],
-	data: [{
-		value: 'small',
-		label: 'Small'
-	},{ 
-		value: 'large',
-		label: 'Large'
-	}]
-});
-let bredStore = Ext.create('Ext.data.Store', {
-	storeId: 'bredStore',
-	fields:[ 'label', 'value'],
-	data: [{
-		value: 'Bred',
-		label: 'Bred'
-	},{ 
-		value: 'Unbred',
-		label: 'Unbred'
-	}]
-});
-let weightGainStore = Ext.create('Ext.data.Store', {
-	storeId: 'weightGainStore',
-	fields:[ 'label', 'value'],
-	data: [{
-		value: 1.10,
-		label: '1.10'
-	},{ 
-		value: 1.32,
-		label: '1.32'
-	},{ 
-		value: 1.54,
-		label: '1.54'
-	},{ 
-		value: 1.76,
-		label: '1.76'
-	},{ 
-		value: 1.98,
-		label: '1.98'
-	}]
-});
+//  var pastAcreageHS = 0
+//  var cropAcreageHS = 0
+// let breedSizeStore = Ext.create('Ext.data.Store', {
+// 	storeId: 'breedSizeStore',
+// 	fields:[ 'label', 'value'],
+// 	data: [{
+// 		value: 'small',
+// 		label: 'Small'
+// 	},{ 
+// 		value: 'large',
+// 		label: 'Large'
+// 	}]
+// });
+// let bredStore = Ext.create('Ext.data.Store', {
+// 	storeId: 'bredStore',
+// 	fields:[ 'label', 'value'],
+// 	data: [{
+// 		value: 'Bred',
+// 		label: 'Bred'
+// 	},{ 
+// 		value: 'Unbred',
+// 		label: 'Unbred'
+// 	}]
+// });
+// let weightGainStore = Ext.create('Ext.data.Store', {
+// 	storeId: 'weightGainStore',
+// 	fields:[ 'label', 'value'],
+// 	data: [{
+// 		value: 1.10,
+// 		label: '1.10'
+// 	},{ 
+// 		value: 1.32,
+// 		label: '1.32'
+// 	},{ 
+// 		value: 1.54,
+// 		label: '1.54'
+// 	},{ 
+// 		value: 1.76,
+// 		label: '1.76'
+// 	},{ 
+// 		value: 1.98,
+// 		label: '1.98'
+// 	}]
+// });
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.scenario.HeiferScapeDialog', {
@@ -103,21 +103,10 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 						width: 200,
 					},
 					items: [
-						// {
-						// 	fieldLabel: 'Lactating Cows',
-						// 	bind: '{dairy.lactating}'
-						// },{
-						// 	fieldLabel: 'Dry Cows',
-						// 	bind: '{dairy.dry}'
-						// },
 						{
 							fieldLabel: 'Heifers',
 							bind: '{dairy.heifers}'
 						},
-						// {
-						// 	fieldLabel: 'Youngstock',
-						// 	bind: '{dairy.youngstock}'
-						// },
 						{
 							xtype: 'numberfield',
 							fieldLabel: 'Heifers On Pasture',
@@ -129,47 +118,47 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 							step: 1,
 							},
 						{
-						xtype: 'combo',
-						fieldLabel: 'Breed Size',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'breedSizeStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifers.breedSize}',
+							xtype: 'combo',
+							fieldLabel: 'Breed Size',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'breedSizeStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.breedSize}',
 						},{
-						xtype: 'combo',
-						fieldLabel: 'Bred or Unbred',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'bredStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifers.bred}',
+							xtype: 'combo',
+							fieldLabel: 'Bred or Unbred',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'bredStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.bred}',
 						},{
-						fieldLabel: 'Average Starting Weight(lbs)',
-						bind: '{heifers.asw}'
+							fieldLabel: 'Average Starting Weight(lbs)',
+							bind: '{heifers.asw}'
 						},{
-						xtype: 'combo',
-						fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'weightGainStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifers.tdwg}',
+							xtype: 'combo',
+							fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'weightGainStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.tdwg}',
 						},{
-						fieldLabel: 'Days on Pasture',
-						bind: '{heifers.daysOnPasture}'
+							fieldLabel: 'Days on Pasture',
+							bind: '{heifers.daysOnPasture}'
 					}]
 				},{
 					xtype: 'component',
