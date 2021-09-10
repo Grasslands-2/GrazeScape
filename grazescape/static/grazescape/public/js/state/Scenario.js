@@ -500,9 +500,7 @@ Ext.define('DSS.state.Scenario', {
 						//DSS.layer.scenarios.getSource().refresh();
 						runScenarioUpdate();
 						runFieldUpdate();
-						runInfraUpdate();
-						alert('All Scenario Data Saved!')
-						
+						runInfraUpdate();	
 					},
 				},
 						
@@ -652,7 +650,6 @@ Ext.define('DSS.state.Scenario', {
 					// counts
 					lactating: scenarioArray[0].lacCows,
 					dry: scenarioArray[0].dryCows,
-					heifers: scenarioArray[0].heifers,
 					youngstock: scenarioArray[0].youngStock,
 					// milk yield
 					dailyYield: scenarioArray[0].aveMilkYield,
@@ -677,6 +674,7 @@ Ext.define('DSS.state.Scenario', {
 					rotationFreq: scenarioArray[0].beefRotateFreq,
 				},
 				heifers: {
+					heifers: scenarioArray[0].heifers,
 					animalsOnPasture: scenarioArray[0].heifersOnPasture,
 					breedSize: scenarioArray[0].heiferBreedSize,
 					bred: scenarioArray[0].heiferBred,

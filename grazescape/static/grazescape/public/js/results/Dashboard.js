@@ -225,8 +225,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 for (model in modelTypes){
                     model_request = build_model_request(f.properties, f, modelTypes[model])
                     get_model_data(model_request).then(returnData =>{
-                        console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
-                        console.log(chartObj)
+                        // console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
+                        // console.log(chartObj)
 //                      no model results with that particular field
                         if(returnData.length < 1){
                             return
@@ -254,18 +254,24 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
+                                    console.log(DSS['viewModel'].scenario.data.heifers.heifers)
 
                                     var heiferFeedData = {
                                         pastYield: chartObj.grass_yield_farm.sum[0],
                                         cornYield: chartObj.corn_yield_farm.sum[0],
                                         oatYield: chartObj.oat_yield_farm.sum[0],
                                         alfalfaYield: chartObj.alfalfa_yield_farm[0],
-                                        totalHeifers: scenarioArray.heifers,
-                                        heiferBreed: scenarioArray.heiferBreedSize,
-                                        heiferBred: scenarioArray.heiferBred,
-                                        heiferDOP: scenarioArray.heiferDaysOnPasture,
-                                        heiferASW: scenariosStore.heiferASW,
-                                        heiferWGG: scenarioArray.heiferTDWG
+                                        totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
+                                        heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
+                                        heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
+                                        heiferDOP: DSS['viewModel'].scenario.data.heifers.breedSize,
+                                        heiferASW: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+                                        heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
+                                    }
+                                    for (const prop in heiferFeedData){
+                                        if (heiferFeedData[prop] == undefined){
+                                            heiferFeedData[prop] = 0
+                                        }
                                     }
                                     //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
                                     calcHeiferFeedBreakdown(heiferFeedData)
