@@ -360,7 +360,6 @@ function runFeedBreakdownUpdate(outputObj){
         }
     })
 }
-
 function calcHeiferFeedBreakdown(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
