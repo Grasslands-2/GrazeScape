@@ -251,13 +251,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
                                     console.log(DSS['viewModel'].scenario.data.heifers.heifers)
+                                    let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
+                                    console.log(scenIndexAS)
 
                                     var heiferFeedData = {
-                                        pastYield: chartObj.grass_yield_farm.chartData.datasets[0].data[0],
-                                        cornYield: chartObj.corn_yield_farm.chartData.datasets[0].data[0],
-                                        cornSilageYield: chartObj.corn_silage_yield_farm.chartData.datasets[0].data[0],
-                                        oatYield: chartObj.oat_yield_farm.chartData.datasets[0].data[0],
-                                        alfalfaYield: chartObj.alfalfa_yield_farm.chartData.datasets[0].data[0],
+                                        pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
+                                        cornYield:(chartObj.corn_yield_farm.sum[scenIndexAS]/chartObj.corn_yield_farm.count[scenIndexAS])*chartObj.corn_yield_farm.area[scenIndexAS],
+                                        cornSilageYield: (chartObj.corn_silage_yield_farm.sum[scenIndexAS]/chartObj.corn_silage_yield_farm.count[scenIndexAS])*chartObj.corn_silage_yield_farm.area[scenIndexAS],
+                                        oatYield: (chartObj.oat_yield_farm.sum[scenIndexAS]/chartObj.oat_yield_farm.count[scenIndexAS])*chartObj.oat_yield_farm.area[scenIndexAS],
+                                        alfalfaYield: (chartObj.alfalfa_yield_farm.sum[scenIndexAS]/chartObj.alfalfa_yield_farm.count[scenIndexAS])*chartObj.alfalfa_yield_farm.area[scenIndexAS],
                                         totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
                                         heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
                                         heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
@@ -266,7 +268,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
                                     }
                                     for (const prop in heiferFeedData){
-                                        if (heiferFeedData[prop] == undefined){
+                                        if (heiferFeedData[prop] == undefined || isNaN(heiferFeedData[prop] && typeof(heiferFeedData) !== 'string')){
                                             heiferFeedData[prop] = 0
                                         }
                                     }

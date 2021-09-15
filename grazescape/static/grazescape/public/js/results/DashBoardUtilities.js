@@ -386,14 +386,14 @@ function calcHeiferFeedBreakdown(data){
                 backgroundColor: "rgb(0, 119, 187)"
             },
             pastYieldTon_obj = {
-                label: 'Pasture DMI Yield',
+                label: 'Pasture DM Yield',
                 hidden: false,
                 data: [responses.output[1].toFixed(2)],
                 minBarLength: 7,
                 backgroundColor: "rgb(238, 51, 119)"
             }
             cropsYieldTon_obj = {
-                label: 'Crops DMI Yield',
+                label: 'Crops DM Yield',
                 hidden: false,
                 data: [responses.output[2].toFixed(2)],
                 minBarLength: 7,

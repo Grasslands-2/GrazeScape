@@ -32,7 +32,7 @@ class HeiferFeedBreakdown():
         #35.714286 is the number of bushels that go into an english ton of DM for corn
         self.cornSilageYield = float(cornSilageYield)
         self.alfalfaYield = float(alfalfaYield)
-        self.oatYield = float(oatYield)/ 62.5
+        self.oatYield = float(oatYield)/62.5
         #62.5 is the number of oat bushels in a english tonne
         self.heifers = int(totalheifers)
         self.breed = str(breed)
@@ -40,6 +40,8 @@ class HeiferFeedBreakdown():
         self.daysOnPasture = float(daysOnPasture)
         self.asw = float(asw)
         self.wgg = float(wgg)
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(self.wgg)
         
     def calcFeed(self):
         #Step 5
@@ -51,11 +53,14 @@ class HeiferFeedBreakdown():
         print(avg_weight)
         nrc = self.NRC[self.NRC["Breed"]==self.breed]
         nrc_x= nrc[nrc["Bred"]==self.bred]
-        nrc_data = nrc_x[nrc_x["ADG"]== str(self.wgg)]
+        nrc_data = nrc_x[nrc_x["ADG"] == str(self.wgg)]
         heifer = pd.concat([nrc_data[nrc_data["BW"] < str(avg_weight)].tail(1)])
-        print(nrc_x)
+        #print(nrc_x)
+        print(nrc_data)
+        print(heifer)
         # DMI_Per_Season is the Tons of Dry Matter the herd will eat in a season
         DMI_Per_Season = (eval(heifer["DMI"].tolist()[0])*self.heifers*self.daysOnPasture)/2000
+
         #DMI_Demand is the total DMI that is needed on hand to make sure the herd is fed for the season.
         DMI_Demand = DMI_Per_Season * 1.20
         print(DMI_Demand)

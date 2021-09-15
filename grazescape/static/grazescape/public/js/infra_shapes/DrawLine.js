@@ -184,7 +184,7 @@ lane_materialInput){
 			total_cost: totalCost
 		})
 		var geomType = 'Line'
-		
+		console.log(e.feature)
 		DSS.MapState.removeMapInteractions()
 		wfs_infra_insert(e.feature, geomType)
 		console.log("HI! WFS infra Insert ran!")
