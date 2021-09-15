@@ -39,25 +39,23 @@ def heiferFeedBreakDown(data):
     #heifer numbers, breed, bred or unbred, days on pasture, average starting weight
     #and weight gain goals
     pastYield = data.POST.get('pastYield')
-    print(pastYield)
-    #print(pastYield.sum)
     cornYield = data.POST.get('cornYield')
-    print(cornYield)
+    cornSilageYield = data.POST.get('cornSilageYield')
     alfalfaYield = data.POST.get('alfalfaYield')
     oatYield = data.POST.get('oatYield')
-    heifers = data.POST.get('heifers')
+    totalheifers = data.POST.get('totalHeifers')
     breed = data.POST.get('heiferBreed')
     bred = data.POST.get('heiferBred')
     daysOnPasture = data.POST.get('heiferDOP')
     asw = data.POST.get('heiferASW')
     wgg = data.POST.get('heiferWGG')
+    #print(type(asw))
 
-    # toolName = HeiferFeedBreakdown(pastYield,cornYield,alfalfaYield,oatYield,heifers,
-    # breed,bred,daysOnPasture,asw,wgg)
+    toolName = HeiferFeedBreakdown(pastYield,cornYield,cornSilageYield,alfalfaYield,oatYield,totalheifers,
+    breed,bred,daysOnPasture,asw,wgg)
 
-    # return JsonResponse({"calcFeed":toolName.calcFeed(),
-    # "output":toolName.load_dem()})
-    return JsonResponse({"feed_calc":"finished"})
+    return JsonResponse({"output":toolName.calcFeed()})
+    #return JsonResponse({"feed_calc":"finished"})
 
 def run_InfraTrueLength(data):
     print('here is the data')
@@ -78,7 +76,7 @@ def run_InfraTrueLength(data):
     #print(data)
     #return InfraTrueLength.featid.calc()
     return JsonResponse({"trueInfraDist":toolName.calc(),
-    "output":toolName.load_dem()})
+    "output":toolName.calc()})
 
 def clean_data(request):
     print("cleaning data")

@@ -138,7 +138,7 @@ class InfraTrueLength():
     def clip_rasters(self):
         """
         Clip raster and return a rectangular array
-
+ 
         Returns array of values of the raster
         -------
 

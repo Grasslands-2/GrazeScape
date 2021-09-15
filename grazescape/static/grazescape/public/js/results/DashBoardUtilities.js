@@ -274,6 +274,8 @@ function format_chart_data(model_data){
             break
         case 'econ':
             break
+        case 'feed breakdown':
+            chartTypeField = chartObj.feed_breakdown
     }
 //      field level
 // some charts don't have a field level
@@ -342,6 +344,22 @@ function format_chart_data(model_data){
         }
     }
 }
+function runFeedBreakdownUpdate(outputObj){
+    DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
+		var scenarioFeatureDU = f;
+		if(DSS.activeScenario === scenarioFeatureDU.values_.scenario_id){
+			//console.log(scenarioArray[i].scenarioName);
+			console.log(scenarioArray[i]);
+			scenarioFeatureDU.setProperties({
+                heifer_dmi_demand_per_season: outputObj.output[0].toFixed(2),
+                heifer_pasture_dmi_yield: outputObj.output[1].toFixed(2),
+                heifer_crop_dmi_yield: outputObj.output[2].toFixed(2),
+                heifer_remained_dmi_demand: outputObj.output[3].toFixed(2)
+			});
+            wfs_update(scenarioFeatureDU,'scenarios_2');
+        }
+    })
+}
 
 function calcHeiferFeedBreakdown(data){
     return new Promise(function(resolve) {
@@ -358,6 +376,45 @@ function calcHeiferFeedBreakdown(data){
         success: function(responses, opts) {
 			console.log('hit heiferFeedBreakDown tool')
 			console.log(responses)
+            //updating the scenario table with outputs from heieferscape calcs
+            runFeedBreakdownUpdate(responses)
+            console.log("ChartObj!!!!!!!!!!!!!!!!&&&*&**&*(((***************")
+            DMI_Demand_obj = {
+                label: 'DMI Demand',
+                hidden: false,
+                data: [responses.output[0].toFixed(2)],
+                minBarLength: 7,
+                backgroundColor: "rgb(0, 119, 187)"
+            },
+            pastYieldTon_obj = {
+                label: 'Pasture DMI Yield',
+                hidden: false,
+                data: [responses.output[1].toFixed(2)],
+                minBarLength: 7,
+                backgroundColor: "rgb(238, 51, 119)"
+            }
+            cropsYieldTon_obj = {
+                label: 'Crops DMI Yield',
+                hidden: false,
+                data: [responses.output[2].toFixed(2)],
+                minBarLength: 7,
+                backgroundColor: "rgb(238, 119, 51)"
+            }
+            remainingDemand_obj = {
+                label: 'Remaining Feed Demand',
+                hidden: false,
+                data: [responses.output[3].toFixed(2)],
+                minBarLength: 7,
+                backgroundColor: "rgb(255,0,0)"
+            }
+            chartObj.feed_breakdown.units = "Yield (tons/year)"
+            chartObj.feed_breakdown.units_alternate = "Total Yield (tons-Dry Matter/year)"
+            chartObj.feed_breakdown.chartData.labels = []
+            chartObj.feed_breakdown.chartData.labels = ['Feed Breakdown Outputs']
+            chartObj.feed_breakdown.chartData.datasets = []
+            chartObj.feed_breakdown.chartData.datasets.push(DMI_Demand_obj,pastYieldTon_obj,cropsYieldTon_obj,remainingDemand_obj)
+            console.log(chartObj)
+
 			resolve([])
 		},
 		error: function(responses) {

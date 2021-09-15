@@ -18,10 +18,10 @@ let bredStore = Ext.create('Ext.data.Store', {
 	storeId: 'bredStore',
 	fields:[ 'label', 'value'],
 	data: [{
-		value: 'Bred',
+		value: 'bred',
 		label: 'Bred'
 	},{ 
-		value: 'Unbred',
+		value: 'non bred',
 		label: 'Unbred'
 	}]
 });
@@ -29,20 +29,29 @@ let weightGainStore = Ext.create('Ext.data.Store', {
 	storeId: 'weightGainStore',
 	fields:[ 'label', 'value'],
 	data: [{
-		value: 1.10,
-		label: '1.10'
+		value: 0.7,
+		label: '0.7'
+	},{
+		value: 0.9,
+		label: '0.9'
+	},{
+		value: 1.1,
+		label: '1.1'
 	},{ 
-		value: 1.32,
-		label: '1.32'
+		value: 1.3,
+		label: '1.3'
 	},{ 
-		value: 1.54,
-		label: '1.54'
+		value: 1.5,
+		label: '1.5'
 	},{ 
-		value: 1.76,
-		label: '1.76'
+		value: 1.8,
+		label: '1.8'
 	},{ 
-		value: 1.98,
-		label: '1.98'
+		value: 2.0,
+		label: '2.0'
+	},{ 
+		value: 2.2,
+		label: '2.2'
 	}]
 });
 
