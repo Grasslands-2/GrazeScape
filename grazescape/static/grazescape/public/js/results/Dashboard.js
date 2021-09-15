@@ -225,8 +225,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 for (model in modelTypes){
                     model_request = build_model_request(f.properties, f, modelTypes[model])
                     get_model_data(model_request).then(returnData =>{
-                        // console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
-                        // console.log(chartObj)
 //                      no model results with that particular field
                         if(returnData.length < 1){
                             return
@@ -248,8 +246,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                                    console.log('done hiding charts')
                                     yield_pb.hidden = true
                                     Ext.getCmp("yieldTab").setDisabled(false)
-                                    //testing setting feedTab to active
-                                    //Ext.getCmp("feedTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
@@ -257,15 +253,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     console.log(DSS['viewModel'].scenario.data.heifers.heifers)
 
                                     var heiferFeedData = {
-                                        pastYield: chartObj.grass_yield_farm.sum[0],
-                                        cornYield: chartObj.corn_yield_farm.sum[0],
-                                        oatYield: chartObj.oat_yield_farm.sum[0],
-                                        alfalfaYield: chartObj.alfalfa_yield_farm[0],
+                                        pastYield: chartObj.grass_yield_farm.chartData.datasets[0].data[0],
+                                        cornYield: chartObj.corn_yield_farm.chartData.datasets[0].data[0],
+                                        cornSilageYield: chartObj.corn_silage_yield_farm.chartData.datasets[0].data[0],
+                                        oatYield: chartObj.oat_yield_farm.chartData.datasets[0].data[0],
+                                        alfalfaYield: chartObj.alfalfa_yield_farm.chartData.datasets[0].data[0],
                                         totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
                                         heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
                                         heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
-                                        heiferDOP: DSS['viewModel'].scenario.data.heifers.breedSize,
-                                        heiferASW: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+                                        heiferDOP: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+                                        heiferASW: DSS['viewModel'].scenario.data.heifers.asw,
                                         heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
                                     }
                                     for (const prop in heiferFeedData){
@@ -273,9 +270,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                             heiferFeedData[prop] = 0
                                         }
                                     }
+                                    console.log(heiferFeedData)
                                     //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
                                     calcHeiferFeedBreakdown(heiferFeedData)
-                                    
+                                    Ext.getCmp("feedTab").setDisabled(false)      
                                 }
                                 break
                             case 'ploss':
@@ -1085,14 +1083,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                     items:[{
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="insecticide_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="feed_breakdown" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                         },
                     ],
                     listeners:{activate: function() {
                         if (chartObj["insecticide_farm"].chart !== null){
                             return
                         }
-                        chartObj.insecticide_farm.chart = create_graph(chartObj.insecticide_farm, 'Honey Bee Toxicity', document.getElementById('insecticide_farm').getContext('2d'));
+
+                        //console.log(heifer_feed_breakdown_data)
+                        chartObj.feed_breakdown.chart = create_graph(chartObj.feed_breakdown, 'Heifer Feeding Break Down', document.getElementById('feed_breakdown').getContext('2d'));
 
                     }}
 
@@ -1818,7 +1818,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 erosion,
                 nutrients,
                 runoff,
-                //feedoutput,
+                feedoutput,
                 bio,
                 economics,
                 infrastructure,
