@@ -9,7 +9,6 @@ var InfrastructureSource_loc = new ol.source.Vector({
 //	format: new ol.format.GeoJSON()
 });
 
-
 function get_terrian_distance(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -25,6 +24,8 @@ function get_terrian_distance(data){
         success: function(responses, opts) {
 			console.log('hit infra profile tool')
 			console.log(responses)
+			infraLength = infraLength + responses.output
+			console.log(infraLength)
 			resolve([])
 		},
 		error: function(responses) {
@@ -33,7 +34,6 @@ function get_terrian_distance(data){
 		}
 	})}
 )}
-
 
 function wfs_infra_insert(feat,geomType) {  
     var formatWFS = new ol.format.WFS();
@@ -44,52 +44,15 @@ function wfs_infra_insert(feat,geomType) {
 			featureType: 'infrastructure_2',
 			srsName: 'EPSG:3857'
 		});
-    console.log(feat)
+    console.log(feat.values_)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-
     geoServer.wfs_infra_insert(str, feat)
-//    $.ajax(geoserverURL + '/geoserver/wfs?'
-//	/*'http://localhost:8081/geoserver/wfs?'*/,{
-//        type: 'POST',
-//        dataType: 'xml',
-//        processData: false,
-//        contentType: 'text/xml',
-//        data: str,
-//		success: function (data) {
-//			DSS.MapState.removeMapInteractions()
-//			console.log("uploaded data successfully!: "+ data);
-//			DSS.layer.infrastructure.getSource().refresh();
-//			DSS.layer.farms_1.getSource().refresh();
-//		},
-//        error: function (xhr, exception) {
-//            var msg = "";
-//            if (xhr.status === 0) {
-//                msg = "Not connect.\n Verify Network." + xhr.responseText;
-//            } else if (xhr.status == 404) {
-//                msg = "Requested page not found. [404]" + xhr.responseText;
-//            } else if (xhr.status == 500) {
-//                msg = "Internal Server Error [500]." +  xhr.responseText;
-//            } else if (exception === "parsererror") {
-//                msg = "Requested JSON parse failed.";
-//            } else if (exception === "timeout") {
-//                msg = "Time out error." + xhr.responseText;
-//            } else if (exception === "abort") {
-//                msg = "Ajax request aborted.";
-//            } else {
-//                msg = "Error:" + xhr.status + " " + xhr.responseText;
-//            }
-//			console.log(msg);
-//        }
-//    })
-//	.done();
-	//console.log("Infra wrote to Geoserver")
-//	DSS.MapState.showInfrasForFarm(DSS.activeFarm);
-//	DSS.layer.infrastructure.getSource().refresh();
 }
+
 function createinfra(infra_nameInput,
 infra_typeInput,
 fence_materialInput,
@@ -153,16 +116,24 @@ lane_materialInput){
 	DSS.map.addInteraction(DSS.draw);
 	DSS.map.addInteraction(DSS.snap);
 	console.log("draw is on");
-	//console.log(DSS.activeFarm);
 	var af = parseInt(DSS.activeFarm,10)
 	var as = DSS.activeScenario;
 
-	DSS.draw.on('drawend', function (e) {
+	DSS.draw.on('drawend', async function (e) {
 		//var geom = e.target;
-		
 		console.log(e);
 //		in meters convert to feet
 		infraLength = e.feature.values_.geom.getLength() * 3.28084;
+		data = {
+			extents: e.feature.values_.geom.extent_,
+			cords: e.feature.values_.geom.flatCoordinates,
+			infraID: e.feature.ol_uid,
+			// infraLengthXY kept in meters
+			infraLengthXY: e.feature.values_.geom.getLength()
+		}
+		console.log(data)
+		console.log(infraLength);
+		await get_terrian_distance(data)
 		console.log(infraLength);
 		totalCost = (infraLength * costPerFoot).toFixed(2)
 		console.log(totalCost);

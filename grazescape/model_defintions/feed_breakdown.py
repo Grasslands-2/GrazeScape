@@ -13,7 +13,6 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 from django.conf import settings
 import math
-from grazescape.raster_data import RasterData
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 from pyper import R
 from django.conf import settings

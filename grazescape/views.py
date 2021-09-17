@@ -58,25 +58,19 @@ def heiferFeedBreakDown(data):
     #return JsonResponse({"feed_calc":"finished"})
 
 def run_InfraTrueLength(data):
-    print('here is the data')
     print('POST in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     print(data.POST)
-    #infraId = []
     infraextent = data.POST.getlist('extents[]')
-    infracords =  data.POST.getlist('infraCords[]')
-    infraId = data.POST.get('infraId')
-    print(infraId)
-    print('infraextents in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print(infraextent)
-    print('infracords in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print(infracords)
-    toolName = InfraTrueLength(infraextent,infracords,infraId)
+    infracords =  data.POST.getlist('cords[]')
+    infraId = data.POST.get('infraID')
+    infraLengthXY = data.POST.get('infraLengthXY')
+
+    toolName = InfraTrueLength(infraextent,infracords,infraId,infraLengthXY)
 
     print('run_infraTrueLength')
     #print(data)
     #return InfraTrueLength.featid.calc()
-    return JsonResponse({"trueInfraDist":toolName.calc(),
-    "output":toolName.calc()})
+    return JsonResponse({"output":toolName.profileTool()})
 
 def clean_data(request):
     print("cleaning data")
