@@ -29,7 +29,10 @@ class HeiferFeedBreakdown():
         self.pastYield = float(pastYield)
         self.cornYield = float(cornYield)/35.714286
         #35.714286 is the number of bushels that go into an english ton of DM for corn
-        self.cornSilageYield = float(cornSilageYield)
+        #print(cornSilageYield)
+        self.cornSilageYield = float(cornSilageYield) * 0.35
+        print('new corn silage value for DM!!!!!!!!!!!**&###############*******!!!')
+        print(self.cornSilageYield)
         self.alfalfaYield = float(alfalfaYield)
         self.oatYield = float(oatYield)/62.5
         #62.5 is the number of oat bushels in a english tonne

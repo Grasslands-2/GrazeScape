@@ -49,7 +49,8 @@ def heiferFeedBreakDown(data):
     daysOnPasture = data.POST.get('heiferDOP')
     asw = data.POST.get('heiferASW')
     wgg = data.POST.get('heiferWGG')
-    #print(type(asw))
+    print('cornsillage in views!!!!!!!!!!1!@@@@@@@@@@############@')
+    print(cornSilageYield)
 
     toolName = HeiferFeedBreakdown(pastYield,cornYield,cornSilageYield,alfalfaYield,oatYield,totalheifers,
     breed,bred,daysOnPasture,asw,wgg)

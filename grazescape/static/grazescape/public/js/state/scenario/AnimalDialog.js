@@ -276,6 +276,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						step: 1,
 						},
 						{
+						//id: 'bredDropDown',
 						xtype: 'combo',
 						fieldLabel: 'Breed Size',
 						labelWidth: 140,
@@ -287,6 +288,25 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						displayField: 'label',
 						valueField: 'value',
 						bind: '{heifers.breedSize}',
+						// listeners:{ 
+						// 	change: function(){
+						// 		selectedType = Ext.getCmp('bredDropDown').getValue()
+						// 		console.log(selectedType)
+						// 		if(selectedType == 'small'){
+						// 			console.log(Ext.getCmp('bredDropDown'))
+						// 			Ext.getCmp('asw').setBind(220)
+						// 			// Ext.getCmp('asw').setMinValue(220)
+						// 			// Ext.getCmp('asw').setMaxValue(460)
+									
+						// 		}else if (selectedType == 'large'){
+						// 			console.log(Ext.getCmp('asw'))
+						// 			Ext.getCmp('asw').setBind(330)
+									
+						// 			// Ext.getCmp('asw').setMinValue(330)
+						// 			// Ext.getCmp('asw').setMaxValue(670)
+						// 		}
+						// 	}
+						// }
 						},{
 						xtype: 'combo',
 						fieldLabel: 'Bred or Unbred',
@@ -300,8 +320,9 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						valueField: 'value',
 						bind: '{heifers.bred}',
 						},{
+						//id: 'asw',
 						fieldLabel: 'Average Starting Weight(lbs)',
-						bind: '{heifers.asw}'
+						bind: '{heifers.asw}',
 						},{
 						xtype: 'combo',
 						fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
