@@ -12,6 +12,40 @@ var cropAcreage = 0
 ////'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 //'outputformat=application/json&'+
 //'srsname=EPSG:3857';
+function aswCheck(breedSizeData,aswValueInput){
+	console.log(breedSizeData)
+	console.log(aswValueInput)
+	if(breedSizeData = 'small'){
+		if(aswValueInput < 220){
+			aswValue = 220
+		}else if(aswValueInput > 460){
+			aswValue = 460
+		}else{
+			aswValue = aswValueInput
+		}
+	}
+	if(breedSizeData = 'large'){
+		if(aswValueInput < 330){
+			aswValue = 330
+		}else if(aswValueInput > 670){
+			aswValue = 670
+		}else{
+			aswValue = aswValueInput
+		}
+	}
+	// if(breedSizeData = 'small' && aswValueInput < 220){
+	// 	aswValue = 220
+	// }else if(breedSizeData = 'small' && aswValueInput > 460){
+	// 	aswValue = 460
+	// }else if(breedSizeData = 'large' && aswValueInput < 330){
+	// 	aswValue = 330
+	// }else if(breedSizeData = 'large' && aswValueInput > 670){
+	// 	aswValue = 670
+	// }else{
+	// 	aswValue = aswValueInput
+	// }
+	console.log(aswValue)
+}
 
 function waitForScen(){
 	    return new Promise(function(resolve) {
@@ -163,8 +197,10 @@ function runFieldUpdate(){
 		}				
 	})
 };
-function runScenarioUpdate(){
-
+async function runScenarioUpdate(){
+	aswValue = 0
+	await aswCheck(DSS['viewModel'].scenario.data.heifers.breedSize,
+	DSS['viewModel'].scenario.data.heifers.asw)
 	//reSourcescenarios()
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeature = f;
@@ -195,7 +231,7 @@ function runScenarioUpdate(){
 				heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
 				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
 				heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,
-				heifer_starting_weight: DSS['viewModel'].scenario.data.heifers.asw,
+				heifer_starting_weight: aswValue,
 				heifer_days_on_pasture: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
 				heifer_feed_from_pasture_per_head_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerHeadDay,
 				heifer_feed_from_pasture_per_herd_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerDayHerd,
@@ -417,7 +453,8 @@ Ext.define('DSS.state.Scenario', {
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					text: 'Animals',
-					handler: function(self) {
+					handler: async function(self) {
+						await getWFSScenario()
 						
 						//if (!DSS.dialogs) DSS.dialogs = {};
 						//if (!DSS.dialogs.AnimalDialog) 

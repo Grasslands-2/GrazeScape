@@ -21,10 +21,10 @@ function wfs_field_insert(feat,geomType) {
 }
 function addFieldAcreage(feature){
 	console.log(feature)
-	if(feature.rotationVal == 'pt-cn'|| feature.rotationVal == 'pt-rt'){
+	if(feature.values_.rotation == 'pt-cn'|| feature.values_.rotation == 'pt-rt'){
 		pastAcreage = pastAcreage + feature.area
 	}
-	if(feature.rotationVal == 'cc'|| feature.rotationVal =='cg' || feature.rotationVal =='dr' || obj[i].rotationVal =='cso'){
+	if(feature.values_.rotation == 'cc'|| feature.values_.rotation =='cg' || feature.values_.rotation =='dr' || feature.values_.rotation =='cso'){
 		cropAcreage = cropAcreage + feature.area
 	}
 
