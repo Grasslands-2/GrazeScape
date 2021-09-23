@@ -377,6 +377,11 @@ function calcHeiferFeedBreakdown(data){
 			console.log(responses)
             //updating the scenario table with outputs from heieferscape calcs
             runFeedBreakdownUpdate(responses)
+            var demandColorSwitch = false
+            console.log(responses.output[3].toFixed(2))
+            if(responses.output[3].toFixed(2) < 0){
+                demandColorSwitch = true
+            }
             console.log("ChartObj!!!!!!!!!!!!!!!!&&&*&**&*(((***************")
             DMI_Demand_obj = {
                 label: 'DMI Demand',
@@ -404,7 +409,7 @@ function calcHeiferFeedBreakdown(data){
                 hidden: false,
                 data: [responses.output[3].toFixed(2)],
                 minBarLength: 7,
-                backgroundColor: "rgb(255,0,0)"
+                backgroundColor: demandColorSwitch ? "rgb(0,204,0)" : "rgb(255,0,0)"
             }
             chartObj.feed_breakdown.units = "Yield (tons/year)"
             chartObj.feed_breakdown.units_alternate = "Total Yield (tons-Dry Matter/year)"
@@ -1521,7 +1526,8 @@ function downloadRasters(fieldIter){
         console.log(fieldIter)
         layer = DSS.layer.fields_1
         let downloadCount = 0
-        let numFields = DSS.layer.fields_1.getSource().getFeatures().length
+        let numFields = fieldIter.length
+        //let numFields = DSS.layer.fields_1.getSource().getFeatures().length
 //        layer.getSource().forEachFeature(function(f) {
         for(item in fieldIter){
             f = fieldIter[item].properties
