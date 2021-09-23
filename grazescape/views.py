@@ -63,8 +63,11 @@ def clean_data(request):
 
 
 @csrf_protect
-# @login_required
+@login_required
 def index(request):
+    print(request)
+    print(request.user)
+    print(request.user.id)
     context = {
         "my_color": {"test1":1234}
     }

@@ -31,9 +31,10 @@ __pycache__/
 dynamicFiles/
 layerData/
 data_files/
+node_modules/
 
 # startup helper
 graze
-# database info
+# database info and keys
 *.ini
 

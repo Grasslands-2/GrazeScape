@@ -1441,13 +1441,15 @@ function downloadRasters(fieldIter){
         console.log(fieldIter)
         layer = DSS.layer.fields_1
         let downloadCount = 0
-        let numFields = DSS.layer.fields_1.getSource().getFeatures().length
+//        let numFields = DSS.layer.fields_1.getSource().getFeatures().length
+        let numFields = fieldIter.length
 //        layer.getSource().forEachFeature(function(f) {
         for(item in fieldIter){
             f = fieldIter[item].properties
             if(f["is_dirty"] == false){
                 downloadCount = downloadCount + 1
                  if(downloadCount==numFields){
+                    console.log(downloadCount, numFields)
                     console.log("All files downloaded")
                     resolve(downloadCount)
                 }
@@ -1466,7 +1468,7 @@ function downloadRasters(fieldIter){
                 console.log(downloadCount)
                 console.log(value)
                 if(downloadCount==numFields){
-                    console.log("All files downloaded")
+                    console.log("All files downloaded11")
                     resolve(downloadCount)
                 }
 
