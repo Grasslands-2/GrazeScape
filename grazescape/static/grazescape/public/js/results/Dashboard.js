@@ -253,6 +253,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     console.log(DSS['viewModel'].scenario.data.heifers.heifers)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
+                                    console.log(chartObj)
 
                                     var heiferFeedData = {
                                         pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
@@ -330,12 +331,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         Ext.getCmp('mainTab').update()
                     })
                 }
-
-
-
             }
-
-
         }
 //      put new tabs here
 //TODO update
@@ -1089,10 +1085,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         },
                     ],
                     listeners:{activate: function() {
-                        if (chartObj["insecticide_farm"].chart !== null){
+                        if (chartObj["feed_breakdown"].chart !== null){
                             return
                         }
-
                         //console.log(heifer_feed_breakdown_data)
                         chartObj.feed_breakdown.chart = create_graph(chartObj.feed_breakdown, 'Heifer Feeding Break Down', document.getElementById('feed_breakdown').getContext('2d'));
 
