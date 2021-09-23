@@ -2,6 +2,8 @@ var farmArray = [];
 var farmObj = {};
 var scenarioArray = [];
 var scenarioObj = {};
+var pastAcreage = 0
+var cropAcreage = 0
 //scenarioUrl = geoserverURL + '/geoserver/wfs?'+
 //'service=wfs&'+
 //'?version=2.0.0&'+
@@ -10,6 +12,40 @@ var scenarioObj = {};
 ////'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
 //'outputformat=application/json&'+
 //'srsname=EPSG:3857';
+function aswCheck(breedSizeData,aswValueInput){
+	console.log(breedSizeData)
+	console.log(aswValueInput)
+	if(breedSizeData = 'small'){
+		if(aswValueInput < 220){
+			aswValue = 220
+		}else if(aswValueInput > 460){
+			aswValue = 460
+		}else{
+			aswValue = aswValueInput
+		}
+	}
+	if(breedSizeData = 'large'){
+		if(aswValueInput < 330){
+			aswValue = 330
+		}else if(aswValueInput > 670){
+			aswValue = 670
+		}else{
+			aswValue = aswValueInput
+		}
+	}
+	// if(breedSizeData = 'small' && aswValueInput < 220){
+	// 	aswValue = 220
+	// }else if(breedSizeData = 'small' && aswValueInput > 460){
+	// 	aswValue = 460
+	// }else if(breedSizeData = 'large' && aswValueInput < 330){
+	// 	aswValue = 330
+	// }else if(breedSizeData = 'large' && aswValueInput > 670){
+	// 	aswValue = 670
+	// }else{
+	// 	aswValue = aswValueInput
+	// }
+	console.log(aswValue)
+}
 
 function waitForScen(){
 	    return new Promise(function(resolve) {
@@ -53,6 +89,15 @@ function popScenarioArray(obj) {
 		lacRotateFreq: obj[i].properties.lac_rotate_freq,
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
+		heifersOnPasture: obj[i].properties.heifers_on_pasture,
+		heiferBreedSize: obj[i].properties.heifer_breed_size,
+		heiferBred: obj[i].properties.heifer_bred_unbred,
+		heiferTDWG: obj[i].properties.heifer_target_weight_gain,
+		heiferASW: obj[i].properties.heifer_starting_weight,
+		heiferDaysOnPasture: obj[i].properties.heifer_days_on_pasture,
+		heiferFeedFromPasturePerHeadDay: obj[i].properties.heifer_feed_from_pasture_per_head_day,
+		heiferFeedFromPasturePerDayHerd: obj[i].properties.heifer_feed_from_pasture_per_herd_day,
+		heiferDMIDemandPerSeason: obj[i].properties.heifer_dmi_demand_per_season
 	});
 	console.log("gatherTableData for scenarios ran");
 	console.log(scenarioArray);
@@ -152,8 +197,10 @@ function runFieldUpdate(){
 		}				
 	})
 };
-function runScenarioUpdate(){
-
+async function runScenarioUpdate(){
+	aswValue = 0
+	await aswCheck(DSS['viewModel'].scenario.data.heifers.breedSize,
+	DSS['viewModel'].scenario.data.heifers.asw)
 	//reSourcescenarios()
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeature = f;
@@ -178,6 +225,17 @@ function runScenarioUpdate(){
 				lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
 				dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
 				beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
+				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.animalsOnPasture,
+				pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
+				crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
+				heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
+				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
+				heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,
+				heifer_starting_weight: aswValue,
+				heifer_days_on_pasture: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+				heifer_feed_from_pasture_per_head_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerHeadDay,
+				heifer_feed_from_pasture_per_herd_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerDayHerd,
+				heifer_dmi_demand_per_season: DSS['viewModel'].scenario.data.heifers.dmiDemandPerSeason,
 			});
 			wfs_update(scenarioFeature,'scenarios_2');
 		}						
@@ -376,13 +434,10 @@ Ext.define('DSS.state.Scenario', {
 				// 	xtype: 'button',
 				// 	cls: 'button-text-pad',
 				// 	componentCls: 'button-margin',
-				// 	text: 'Heifer Scape',
+				// 	text: 'Feed Worksheet',
 				// 	handler: function(self) {
-
-				// 		{
-				// 			DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
-				// 			DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);		
-				// 		}
+				// 		DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
+				// 		DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);
 				// 		pastAcreage = 0
 				// 		pastAcreage = 0
 				// 		gatherTableData();
@@ -393,26 +448,27 @@ Ext.define('DSS.state.Scenario', {
 				// 		DSS.dialogs.HeiferScapeDialog.show().center().setY(0);
 				// 	}
 				// },
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'Animals',
-				// 	handler: function(self) {
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Animals',
+					handler: async function(self) {
+						await getWFSScenario()
 						
-				// 		//if (!DSS.dialogs) DSS.dialogs = {};
-				// 		//if (!DSS.dialogs.AnimalDialog) 
-				// 		{
-				// 			DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
-				// 			DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
-				// 		}
-				// 		AppEvents.triggerEvent('hide_field_grid')
-				// 		AppEvents.triggerEvent('hide_infra_grid')
-				// 		AppEvents.triggerEvent('hide_field_shape_mode');
-				// 		AppEvents.triggerEvent('hide_infra_line_mode');
-				// 		DSS.dialogs.AnimalDialog.show().center().setY(0);
-				// 	}
-				// },
+						//if (!DSS.dialogs) DSS.dialogs = {};
+						//if (!DSS.dialogs.AnimalDialog) 
+						{
+							DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
+							DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
+						}
+						AppEvents.triggerEvent('hide_field_grid')
+						AppEvents.triggerEvent('hide_infra_grid')
+						AppEvents.triggerEvent('hide_field_shape_mode');
+						AppEvents.triggerEvent('hide_infra_line_mode');
+						DSS.dialogs.AnimalDialog.show().center().setY(0);
+					}
+				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -481,9 +537,7 @@ Ext.define('DSS.state.Scenario', {
 						//DSS.layer.scenarios.getSource().refresh();
 						runScenarioUpdate();
 						runFieldUpdate();
-						runInfraUpdate();
-						alert('All Scenario Data Saved!')
-						
+						runInfraUpdate();	
 					},
 				},
 						
@@ -633,7 +687,6 @@ Ext.define('DSS.state.Scenario', {
 					// counts
 					lactating: scenarioArray[0].lacCows,
 					dry: scenarioArray[0].dryCows,
-					heifers: scenarioArray[0].heifers,
 					youngstock: scenarioArray[0].youngStock,
 					// milk yield
 					dailyYield: scenarioArray[0].aveMilkYield,
@@ -656,6 +709,22 @@ Ext.define('DSS.state.Scenario', {
 					confined: scenarioArray[0].beefMonthsConfined,
 					grazeTime: scenarioArray[0].beefGrazeTime,
 					rotationFreq: scenarioArray[0].beefRotateFreq,
+				},
+				heifers: {
+					heifers: scenarioArray[0].heifers,
+					animalsOnPasture: scenarioArray[0].heifersOnPasture,
+					breedSize: scenarioArray[0].heiferBreedSize,
+					bred: scenarioArray[0].heiferBred,
+					tdwg:scenarioArray[0].heiferTDWG,
+					asw:scenarioArray[0].heiferASW,
+					daysOnPasture:scenarioArray[0].heiferDaysOnPasture,
+					forageFromPasturePerHeadDay:scenarioArray[0].heiferFeedFromPasturePerHeadDay,
+					forageFromPasturePerDayHerd:scenarioArray[0].heiferFeedFromPasturePerDayHerd,
+					dmiDemandPerSeason:scenarioArray[0].heiferDMIDemandPerSeason,
+				},
+				acreage: {
+					pasture:scenarioArray[0].pasture_acreage,
+					crop:scenarioArray[0].crop_acreage
 				}
 			}
 		})

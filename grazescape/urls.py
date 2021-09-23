@@ -13,6 +13,7 @@ urlpatterns = [
     path('clean_data', views.clean_data, name='clean_data'),
     path('download_rasters', views.download_rasters, name='download_rasters'),
     path('run_InfraTrueLength',views.run_InfraTrueLength, name='run_InfraTrueLength'),
+    path('heiferFeedBreakDown',views.heiferFeedBreakDown, name='heiferFeedBreakDown'),
     path('geoserver_request', views.geoserver_request, name='geoserver_request'),
     path('get_default_om', views.get_default_om, name='get_default_om'),
     # path('chart_data', views.chart, name='chart'),

@@ -1,50 +1,50 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
-// var pastAcreageHS = 0
-// var cropAcreageHS = 0
-let breedSizeStore = Ext.create('Ext.data.Store', {
-	storeId: 'breedSizeStore',
-	fields:[ 'label', 'value'],
-	data: [{
-		value: 'small',
-		label: 'Small'
-	},{ 
-		value: 'large',
-		label: 'Large'
-	}]
-});
-let bredStore = Ext.create('Ext.data.Store', {
-	storeId: 'bredStore',
-	fields:[ 'label', 'value'],
-	data: [{
-		value: 'Bred',
-		label: 'Bred'
-	},{ 
-		value: 'Unbred',
-		label: 'Unbred'
-	}]
-});
-let weightGainStore = Ext.create('Ext.data.Store', {
-	storeId: 'weightGainStore',
-	fields:[ 'label', 'value'],
-	data: [{
-		value: 1.10,
-		label: '1.10'
-	},{ 
-		value: 1.32,
-		label: '1.32'
-	},{ 
-		value: 1.54,
-		label: '1.54'
-	},{ 
-		value: 1.76,
-		label: '1.76'
-	},{ 
-		value: 1.98,
-		label: '1.98'
-	}]
-});
+//  var pastAcreageHS = 0
+//  var cropAcreageHS = 0
+// let breedSizeStore = Ext.create('Ext.data.Store', {
+// 	storeId: 'breedSizeStore',
+// 	fields:[ 'label', 'value'],
+// 	data: [{
+// 		value: 'small',
+// 		label: 'Small'
+// 	},{ 
+// 		value: 'large',
+// 		label: 'Large'
+// 	}]
+// });
+// let bredStore = Ext.create('Ext.data.Store', {
+// 	storeId: 'bredStore',
+// 	fields:[ 'label', 'value'],
+// 	data: [{
+// 		value: 'Bred',
+// 		label: 'Bred'
+// 	},{ 
+// 		value: 'Unbred',
+// 		label: 'Unbred'
+// 	}]
+// });
+// let weightGainStore = Ext.create('Ext.data.Store', {
+// 	storeId: 'weightGainStore',
+// 	fields:[ 'label', 'value'],
+// 	data: [{
+// 		value: 1.10,
+// 		label: '1.10'
+// 	},{ 
+// 		value: 1.32,
+// 		label: '1.32'
+// 	},{ 
+// 		value: 1.54,
+// 		label: '1.54'
+// 	},{ 
+// 		value: 1.76,
+// 		label: '1.76'
+// 	},{ 
+// 		value: 1.98,
+// 		label: '1.98'
+// 	}]
+// });
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.scenario.HeiferScapeDialog', {
@@ -52,16 +52,17 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 	extend: 'Ext.window.Window',
 	alias: 'widget.state_heifter_scape_dialog',
 	
-	autoDestroy: false,
+	autoDestroy: true,
 	closeAction: 'hide',
-	constrain: true,
+	autoScroll: true,
+	constrain: false,
 	modal: true,
-	width: 832,
-	resizable: false,
+	width: 800,
+	resizable: true,
 	bodyPadding: 8,
 	titleAlign: 'center',
 	
-	title: 'Heifer Scape!',
+	title: 'Herd Feed Worksheet',
 	
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
@@ -72,19 +73,21 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 		//--------------------------------------------
 		// Dairy Container
 		//--------------------------------------------
-		let dairyContainer = {
+		let heiferContainer = {
 			xtype: 'container',
 			layout: 'fit',
+			autoDestroy: false,
 			items: [{
 				xtype: 'container',
 				itemId: 'heifer-section',
 				cls: 'sub-container',
+				autoScroll: true,
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 				hidden: true,
 				items: [{
 					xtype: 'component',
 					cls: 'information accent-text box-underline',
-					html: 'Configure the <b>size of the dairy herd</b>',
+					html: 'Configure the <b>heifer compoent of herd</b>',
 					margin: '0 32',
 				},{
 					xtype: 'container',
@@ -93,6 +96,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					defaults: {
 						xtype: 'numberfield',
 						minValue: 0,
+						step: 1,
 						allowBlank: false,
 						labelAlign: 'right',
 						labelWidth: 100,
@@ -100,71 +104,115 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					},
 					items: [
 						{
-						xtype: 'textfield',
-						fieldLabel: 'Acres in Pasture',
-						id:'pastAcreage',
-						editable:false,
-						allowBlank: true,
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						value:""
+							fieldLabel: 'Heifers',
+							bind: '{dairy.heifers}'
 						},
 						{
-						xtype: 'textfield',
-						fieldLabel: 'Acres in Crops',
-						id:'cropAcreage',
-						editable:false,
-						allowBlank: true,
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						value:""
-						},
+							xtype: 'numberfield',
+							fieldLabel: 'Heifers On Pasture',
+							labelAlign: 'right',
+							labelWidth: 148,
+							width:300,
+							bind: '{dairy.animalsOnPasture}',
+							minValue: 1,
+							step: 1,
+							},
 						{
-						xtype: 'combo',
-						fieldLabel: 'Breed Size',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'breedSizeStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifer.breedSize}',
+							xtype: 'combo',
+							fieldLabel: 'Breed Size',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'breedSizeStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.breedSize}',
 						},{
-						xtype: 'combo',
-						fieldLabel: 'Bred or Unbred',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'bredStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifer.bred}',
+							xtype: 'combo',
+							fieldLabel: 'Bred or Unbred',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'bredStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.bred}',
 						},{
-						fieldLabel: 'Average Starting Weight(lbs)',
-						bind: '{heifer.asw}'
+							fieldLabel: 'Average Starting Weight(lbs)',
+							bind: '{heifers.asw}'
 						},{
-						xtype: 'combo',
-						fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'weightGainStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifer.tdwg}',
+							xtype: 'combo',
+							fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'weightGainStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.tdwg}',
 						},{
-						fieldLabel: 'Days on Pasture',
-						bind: '{heifer.daysOnPasture}'
+							fieldLabel: 'Days on Pasture',
+							bind: '{heifers.daysOnPasture}'
 					}]
-				},{//----------------------------------------------------------------
+				},{
+					xtype: 'component',
+					cls: 'information accent-text box-underline',
+					html: 'Scenario Yield Breakdown',
+					margin: '0 32',
+				},{
+					xtype: 'textfield',
+					fieldLabel: 'Acres in Pasture',
+					//id:'pastAcreage',
+					editable:false,
+					autoDestroy: true,
+					allowBlank: true,
+					labelWidth: 140,
+					width: 360,
+					labelAlign: 'right',
+					bind: '{acreage.pasture}'
+					},
+					{
+					xtype: 'textfield',
+					fieldLabel: 'Acres in Crops',
+					//id:'cropAcreage',
+					editable:false,
+					autoDestroy: true,
+					allowBlank: true,
+					labelWidth: 140,
+					width: 360,
+					labelAlign: 'right',
+					bind: '{acreage.crop}'
+					},{
+					xtype: 'textfield',
+					fieldLabel: 'Total Pasture Feed Available (Tons DMI)',
+					//id:'cropAcreage',
+					editable:false,
+					autoDestroy: true,
+					allowBlank: true,
+					labelWidth: 140,
+					width: 360,
+					labelAlign: 'right',
+					//bind: '{acreage.crop}'
+					},{
+					xtype: 'textfield',
+					fieldLabel: 'Suffient Feed From Pastures for Heifer Herd?',
+					//id:'cropAcreage',
+					editable:false,
+					autoDestroy: true,
+					allowBlank: true,
+					labelWidth: 140,
+					width: 360,
+					labelAlign: 'right',
+					value: 'True',
+					//bind: '{acreage.crop}'
+					},
+				{
 					xtype: 'component',
 					cls: 'information accent-text box-underline',
 					html: 'Specify the <b>Pasture Non-Pasture Feed Break Down</b>',
@@ -176,7 +224,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					fieldLabel: '% dry matter form sources besides pasture ',
 					labelAlign: 'right',
 					labelWidth: 148,
-					bind: '{heifer.percNonPasture}',
+					bind: '{heifers.percNonPasture}',
 					minValue: 1,
 					step: 0.5,
 				},
@@ -190,7 +238,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					maxValue: 100,
 					minValue: 0,
 					value:0,
-					bind: '{heifer.forageFromPasturePerHeadDay}',
+					bind: '{heifers.forageFromPasturePerHeadDay}',
 					minValue: 1,
 					step: 0.5,
 				},
@@ -204,7 +252,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					maxValue: 100,
 					minValue: 0,
 					value:0,
-					bind: '{heifer.forageFromPasturePerDayHerd}',
+					bind: '{heifers.forageFromPasturePerDayHerd}',
 					minValue: 1,
 					step: 0.5,
 				},
@@ -218,30 +266,33 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					maxValue: 100,
 					minValue: 0,
 					value:0,
-					bind: '{heifer.dmiDemandPerSeason}',
+					bind: '{heifers.dmiDemandPerSeason}',
 					minValue: 1,
 					step: 0.5,
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Run Heiferscape Model',
+					handler: function() { 
+						console.log('running Heiferscape models')
+					}
 				}
 				]
-			},{
-				xtype: 'button',
-				cls: 'button-text-pad',
-				componentCls: 'button-margin',
-				text: 'Run Heiferscape Model',
-				handler: function() { 
-					console.log('running Heiferscape models')
-				}
 			}]
 		};
 		
 		Ext.applyIf(me, {
-			items: [{
-				xtype: 'component',
-				padding: 4,
-				cls: 'information med-text',
-				html: 'Click to manage the types of animals present at this operation'
+			items: [
+			// 	{
+			// 	xtype: 'component',
+			// 	padding: 4,
+			// 	cls: 'information med-text',
+			// 	html: 'Click to manage the types of animals present at this operation'
 					
-			},{
+			// },
+			{
 				xtype: 'container',
 				layout: DSS.utils.layout('hbox', 'center'),
 				defaults: {
@@ -251,30 +302,31 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					enableToggle: true
 				},
 				items: [{//--------------------------------------------------------------------------
-					text: 'Pasture-Heifer Balance',
+					text: 'Heifer Feed Balance',
 					toggleHandler: function(self, pressed) {
 						let container = me.down("#heifer-section");
 						if (pressed) {
 							console.log(container.items)
-							var pastAcreageHS = pastAcreage.toFixed(2)
-							var cropAcreageHS = cropAcreage.toFixed(2)
-							//console.log(fieldArray);
-							//console.log(pastAcreage);
-							//console.log(cropAcreage);
-							Ext.getCmp('pastAcreage').setValue(pastAcreageHS)
-							Ext.getCmp('cropAcreage').setValue(cropAcreageHS)
+							// var pastAcreageHS = pastAcreage.toFixed(2)
+							// var cropAcreageHS = cropAcreage.toFixed(2)
+							// //console.log(fieldArray);
+							// //console.log(pastAcreage);
+							// //console.log(cropAcreage);
+							// Ext.getCmp('pastAcreage').setValue(pastAcreageHS)
+							// Ext.getCmp('cropAcreage').setValue(cropAcreageHS)
 							container.setHeight(0);
 							container.setVisible(true)
 							container.animate({
 								dynamic: true,
 								to: {
-									height: 550
+									width:1000,
+									height: 600
 								}
 							});
 						} 
 						else {
-							pastAcreage = 0
-							pastAcreage = 0
+							// pastAcreage = 0
+							// pastAcreage = 0
 							me.setHeight(null)
 							container.animate({
 								dynamic: true,
@@ -285,6 +337,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 									container.setVisible(false);
 								}
 							});
+							//container.destroy()
 						}
 					}
 				},]
@@ -296,7 +349,7 @@ Ext.define('DSS.state.scenario.HeiferScapeDialog', {
 					width: 400,
 				},
 				items: [
-					dairyContainer
+					heiferContainer
 				]	
 			}]
 		});
