@@ -550,38 +550,38 @@ Ext.define('DSS.map.Main', {
         var viewResolution = view.getResolution();
 		//const demVal = DSS.layer.DEM_image.getFeatureInfo
 		var value = {};
-		const demVal = DEMSource.getFeatureInfoUrl(
-			e.coordinate,
-			viewResolution,
-			'EPSG:3857',
-			{'INFO_FORMAT': 'application/json'}
-		   );
-		   if(demVal){
-		 	 fetch(demVal)
-		// 	  response = fetch(demVal)
-		 	  //console.log(demVal)
-		// 	  console.log(response)
-		// 	  value = response.getElementById("featureInfo").innerHTML;
-		// 	  console.log(value);
-			//   var value =  	''
-			   .then(response => response.json())
-			   .then((out) => {
-				console.log('Output: ', out.features[0].properties.GRAY_INDEX);
-				value = out.features[0].properties.GRAY_INDEX
-				console.log(value)
-		}).catch(err => console.error(err));
-			   //.then((html) => console.log(html)
-			// 	value = html;
-			//document.getElementById('info').innerHTML = html;
-			 //  );
+		// const demVal = DEMSource.getFeatureInfoUrl(
+		// 	e.coordinate,
+		// 	viewResolution,
+		// 	'EPSG:3857',
+		// 	{'INFO_FORMAT': 'application/json'}
+		//    );
+		//    if(demVal){
+		//  	 fetch(demVal)
+		// // 	  response = fetch(demVal)
+		//  	  //console.log(demVal)
+		// // 	  console.log(response)
+		// // 	  value = response.getElementById("featureInfo").innerHTML;
+		// // 	  console.log(value);
+		// 	//   var value =  	''
+		// 	   .then(response => response.json())
+		// 	   .then((out) => {
+		// 		console.log('Output: ', out.features[0].properties.GRAY_INDEX);
+		// 		value = out.features[0].properties.GRAY_INDEX
+		// 		console.log(value)
+		// }).catch(err => console.error(err));
+		// 	   //.then((html) => console.log(html)
+		// 	// 	value = html;
+		// 	//document.getElementById('info').innerHTML = html;
+		// 	 //  );
 			 
-		}
+		// }
         //var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
         console.log(view)
         console.log(viewResolution)
 		//console.log(demVal.getElementByClass("featureInfo"))
 		
-		console.log(demVal)
+		//console.log(demVal)
 
 
 
