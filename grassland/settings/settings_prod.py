@@ -35,6 +35,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'grazescape',
+    'smartscape',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,8 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'grazescape',
-    'smartscape'
+
 ]
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

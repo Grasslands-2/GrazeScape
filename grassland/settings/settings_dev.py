@@ -12,17 +12,34 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+import configparser
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+print(BASE_DIR)
 #GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+parser = configparser.ConfigParser()
+GOOGLE_RECAPTCHA_SECRET_KEY = ""
+filename = 'secret.ini'
+# filename = "database.ini"
+filename = os.path.join(BASE_DIR, 'grassland','settings', 'secret.ini')
+
+parser.read(filename)
+# get section, default to postgresql
+db = {}
+if parser.has_section("captcha_google"):
+    params = parser.items("captcha_google")
+    GOOGLE_RECAPTCHA_SECRET_KEY = params[0][1]
+else:
+    raise Exception(
+        'Section {0} not found in the {1} file'.format("captcha_google", filename))
+
 SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -37,6 +54,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'homepage',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,7 +64,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'grazescape',
-    'smartscape'
+    'smartscape',
+
 ]
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -69,7 +88,7 @@ ROOT_URLCONF = 'grassland.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -155,12 +174,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGIN_URL = '/'
 # STATIC_ROOT = 'static'
 # STATIC_URL = '/static/'
 #
-# STATICFILES_DIRS = (
-#                 os.path.join(PROJECT_DIR,'staticfiles'), # if your static files folder is named "staticfiles"
-# )
+STATICFILES_DIRS = (
+                os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles"
+)
+print(STATICFILES_DIRS)
 # TEMPLATE_DIRS = (
 #                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
 # )
