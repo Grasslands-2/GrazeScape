@@ -68,6 +68,23 @@ def db_has_field(field_id, scenario_id, farm_id):
     return db_result is not None
 
 
+def get_user_farms(user_id):
+    cur, conn = get_db_conn()
+    cur.execute('SELECT farm_id from farm_user '
+                'where user_id = %s and (is_owner = true or can_write=true or can_read =true)',
+                [user_id])
+    db_result = cur.fetchall()
+    # close the communication with the PostgreSQL
+
+    cur.close()
+    conn.close()
+    farm_id = []
+    for id in db_result:
+        print(id[0])
+        farm_id.append(id[0])
+    return farm_id
+
+
 def update_field_dirty(field_id, scenario_id, farm_id):
     """
 
@@ -431,6 +448,10 @@ def clean_db():
     # delete field if farm doesn't exist
     cur.execute('DELETE FROM field_2 '
                 'WHERE field_2.farm_id NOT IN (SELECT id FROM farm_2)')
+    conn.commit()
+    # delete field if farm doesn't exist
+    cur.execute('DELETE FROM farm_user '
+                'WHERE farm_user.farm_id NOT IN (SELECT id FROM farm_2)')
     conn.commit()
     # delete field if parent scenario doesn't exist
     cur.execute('DELETE FROM field_2 '

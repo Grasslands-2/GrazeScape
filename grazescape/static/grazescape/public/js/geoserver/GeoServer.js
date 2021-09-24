@@ -6,7 +6,6 @@ class GeoServer{
         this.geoScen_Url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Ascenarios_2&outputFormat=application%2Fjson'
         this.geoField_Url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afield_2&outputFormat=application%2Fjson'
         this.geoInfra_Url ='/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Ainfrastructure_2&outputFormat=application%2Fjson'
-
         this.geoUpdate_Url =this.geoScen_Url
     }
 //    returns a geojson of the farms
@@ -23,7 +22,7 @@ class GeoServer{
         })
     }
     setFarmSource(parameter = ""){
-        this.makeRequest(this.geoFarm_Url + parameter, "source").then(function(geoJson){
+        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
             DSS.layer.farms_1.getSource().clear()
             var format = new ol.format.GeoJSON();
             var myGeoJsonFeatures = format.readFeatures(

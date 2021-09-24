@@ -65,11 +65,15 @@ def clean_data(request):
 @csrf_protect
 @login_required
 def index(request):
+    current_user = request.user
+    print(current_user.id)
+    farm_ids = get_user_farms(current_user.id)
+    print(current_user.id)
     print(request)
     print(request.user)
     print(request.user.id)
     context = {
-        "my_color": {"test1":1234}
+        "param": {"farm_ids": farm_ids}
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
@@ -95,6 +99,25 @@ def geoserver_request(request):
     print(url)
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
+    if request_type == "source_farm":
+        input_dict = json.loads(result)
+        current_user = request.user
+        # print(current_user.id)
+        # print(result)
+        print("\n \n")
+        # print(input_dict)
+        features = input_dict["features"]
+        # print(features)
+        farm_ids = get_user_farms(current_user.id)
+        # Filter python objects with list comprehensions
+        print(features[0]["properties"])
+        output_dict = [x for x in features if x["properties"]['id'] in farm_ids]
+        # output_dict = [x for x in features if x['id'] in farm_ids]
+        input_dict["features"] = output_dict
+        # Transform python object back into json
+        output_json = json.dumps(input_dict)
+        result = output_json
+        print(result)
     return JsonResponse({"data": result}, safe=False)
 
 
