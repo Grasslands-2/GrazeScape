@@ -14,11 +14,6 @@ from django.shortcuts import redirect
 
 
 def home(request):
-    print("homepage!")
-    print(request.POST)
-    print(request.user)
-    print(request.GET.get("register"))
-    print(request.GET.get("logout"))
     is_new_user = request.POST.get("new_user")
     user_name = "Not signed in"
     is_logged_in = "False"
@@ -26,7 +21,6 @@ def home(request):
     error = ""
     validators = [MinimumLengthValidator, CommonPasswordValidator, NumericPasswordValidator]
     recaptcha_response = request.POST.get('g-recaptcha-response')
-    print(recaptcha_response)
     data = {
         'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
         'response': recaptcha_response
@@ -34,8 +28,6 @@ def home(request):
     r = requests.post('https://www.google.com/recaptcha/api/siteverify',
                       data=data)
     result_cap = r.json()
-    print(result_cap)
-    print(result_cap['success'])
 
     if request.method == 'POST' and request.POST.get("logout") == "True":
         print("Logging out")

@@ -26,16 +26,30 @@ print(BASE_DIR)
 # SECURITY WARNING: keep the secret key used in production secret!
 parser = configparser.ConfigParser()
 GOOGLE_RECAPTCHA_SECRET_KEY = ""
-filename = 'secret.ini'
+filename = 'app_secret.ini'
 # filename = "database.ini"
-filename = os.path.join(BASE_DIR, 'grassland','settings', 'secret.ini')
+filename = os.path.join(BASE_DIR, 'grassland', 'settings', 'app_secret.ini')
 
 parser.read(filename)
 # get section, default to postgresql
 db = {}
-if parser.has_section("captcha_google"):
+params = ""
+db_name = ""
+db_user = ""
+db_pass = ""
+db_host = ""
+db_port = ""
+if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     params = parser.items("captcha_google")
+
     GOOGLE_RECAPTCHA_SECRET_KEY = params[0][1]
+    params = parser.items("postgresql")
+    print(params)
+    db_name = params[1][1]
+    db_user = params[2][1]
+    db_pass = params[3][1]
+    db_host = params[0][1]
+    db_port = params[4][1]
 else:
     raise Exception(
         'Section {0} not found in the {1} file'.format("captcha_google", filename))
@@ -128,15 +142,15 @@ WSGI_APPLICATION = 'grassland.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'GrazeScape',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '144.92.98.22',
-        'PORT': '5432'
+        'NAME': db_name,
+        'USER': db_user,
+        'PASSWORD': db_pass,
+        'HOST': db_host,
+        'PORT': db_port
     }
 }
 
-
+print(DATABASES)
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
