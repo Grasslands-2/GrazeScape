@@ -31,10 +31,10 @@ import sys
 import shutil
 
 raster_data = None
-# def get_users(request):
-#     get_users()
-#     return JsonResponse({"clean": "finished"})
+
+
 @csrf_protect
+@login_required
 def clean_data(request):
     print("cleaning data")
     input_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
@@ -68,6 +68,7 @@ def index(request):
     current_user = request.user
     print(current_user.id)
     farm_ids = get_user_farms(current_user.id)
+    print(farm_ids)
     print(current_user.id)
     print(request)
     print(request.user)
@@ -80,6 +81,7 @@ def index(request):
 
 
 @ensure_csrf_cookie
+@login_required
 def download_rasters(request):
     field_id = request.POST.getlist("field_id")[0]
     field_coors = []
@@ -91,14 +93,20 @@ def download_rasters(request):
                           field_coors, field_id, True)
     return JsonResponse({"download":"finished"})
 
+@login_required
 @csrf_protect
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
+    feature_id = request.POST.get("feature_id")
     print(url)
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
+    if request_type == "insert_farm" and feature_id != "":
+        print(request.POST)
+
+        update_user_farms(request.user.id, feature_id)
     if request_type == "source_farm":
         input_dict = json.loads(result)
         current_user = request.user
@@ -121,6 +129,7 @@ def geoserver_request(request):
     return JsonResponse({"data": result}, safe=False)
 
 
+@login_required
 def get_default_om(request):
     print(request.POST)
     field_id = file_name = str(uuid.uuid4())
@@ -147,6 +156,7 @@ def get_default_om(request):
     return JsonResponse({"om": round(sum / count,2)}, safe=False)
 
 
+@login_required
 @csrf_protect
 def get_model_results(request):
     field_id = request.POST.getlist("field_id")[0]
@@ -290,6 +300,9 @@ def get_model_results(request):
         "error": error
     }
     return JsonResponse([data], safe=False)
+
+
+@login_required
 @csrf_protect
 def get_image(response):
     file_name = response.GET.get('file_name')

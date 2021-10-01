@@ -70,7 +70,7 @@ const App = (props) => (
       <Navbar.Brand href="#home">
         <img
           alt=""
-          src="static/public/library/src/images/color-flush-Grassland2.0-logo-web.svg"
+          src="/images/color-flush-Grassland2.0-logo-web.svg"
           width="50%"
           className="d-inline-block align-top"
         />{' '}

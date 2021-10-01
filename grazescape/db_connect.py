@@ -37,18 +37,18 @@ def config(filename='database.ini', section='postgresql'):
 
 
 def get_db_conn():
-    params = config()
+    # params = config()
 
     # connect to the PostgreSQL server
     print('Connecting to the PostgreSQL database...')
-    conn = psycopg2.connect(**params)
-
-    # conn = psycopg2.connect(
-    #     host="144.92.98.22",
-    #     database="GrazeScape",
-    #     user="postgres",
-    #     password="postgres"
-    # )
+    # conn = psycopg2.connect(**params)
+    db = settings.DATABASES['default']
+    conn = psycopg2.connect(
+        host=db['HOST'],
+        database=db['NAME'],
+        user=db['USER'],
+        password=db['PASSWORD']
+    )
     cur = conn.cursor()
     return cur, conn
 
@@ -85,6 +85,27 @@ def get_user_farms(user_id):
     return farm_id
 
 
+def update_user_farms(user_id, farm_id):
+    cur, conn = get_db_conn()
+    try:
+        cur.execute("""INSERT INTO farm_user 
+        (user_id, is_owner, can_read, can_write,farm_id)
+        VALUES(%s,%s,%s,%s,%s)""",
+                (user_id, True, True, True, farm_id))
+    except Exception as e:
+        print(e)
+        print(type(e).__name__)
+
+        error = str(e)
+        print(error)
+        raise
+    # close the communication with the PostgreSQL
+    finally:
+        cur.close()
+        conn.commit()
+        conn.close()
+
+
 def update_field_dirty(field_id, scenario_id, farm_id):
     """
 
@@ -107,21 +128,8 @@ def update_field_dirty(field_id, scenario_id, farm_id):
     """
     print("updating dirty field")
     cur, conn = get_db_conn()
-    sql_where = " WHERE field_id = %s and scenario_id = %s and farm_id = %s"
-    sql_values = ""
-    col_name = []
     values = [field_id, scenario_id, farm_id]
     update_text = "UPDATE field_2 SET is_dirty = false WHERE gid = %s and scenario_id = %s and farm_id = %s"
-    # cur.execute("""UPDATE table_name
-    #     SET column1 = value1, column2 = value2, ...
-    #     WHERE condition;
-    # """)
-    #     cur.execute("INSERT INTO field_model_results(field_id, scenario_id)
-    #
-    #     VALUES (%s,%s)",(30,40))
-
-    # col_name.append("is_dirty")
-    # values.append(False)
     try:
         cur.execute(update_text, values)
     except Exception as e:
