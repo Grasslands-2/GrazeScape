@@ -6,6 +6,8 @@ from django.contrib.auth.password_validation import validate_password,MinimumLen
 from django.core.exceptions import (
     FieldDoesNotExist, ImproperlyConfigured, ValidationError,
 )
+from django.contrib.auth.decorators import login_required
+
 from django.db.utils import IntegrityError
 import traceback
 from django.conf import settings
@@ -49,9 +51,7 @@ def home(request):
                 email = request.POST['email']
                 show_register = "True"
                 try:
-                    user = User.objects.create_user(user_name,
-                                                    email,
-                                                    password)
+
                     # if User.objects.filter(username=user_name).exists():
                     #     raise ValueError("user name already exists")
                     for validator in validators:
@@ -60,6 +60,9 @@ def home(request):
                         raise ValueError("Passwords do not match")
                     show_register = "False"
                     print("register sucessful")
+                    user = User.objects.create_user(user_name,
+                                                    email,
+                                                    password)
                     user = authenticate(request, username=user_name,
                                         password=password)
                     if user is not None:
