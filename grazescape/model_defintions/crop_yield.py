@@ -103,6 +103,7 @@ class CropYield(ModelBase):
                     silage.set_data(silage_yield)
                     # silage.set_alternate_data(silage_yield_kgDMha)
 
+
                     corn.set_data(corn_yield)
                     # corn.set_alternate_data(corn_yield_kgDMha)
 

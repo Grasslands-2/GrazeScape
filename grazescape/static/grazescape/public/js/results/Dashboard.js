@@ -171,7 +171,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             fieldIter = await fieldIter
             let download = downloadRasters(fieldIter)
             download = await download
-
+            console.log("download done")
             console.log("running model")
 //            layer.getSource().forEachFeature(function(f) {
             // f
