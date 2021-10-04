@@ -1,7 +1,4 @@
-html, body, #root, .App {
-  height: 100%;
-   overflow-x: hidden;
-}
+
 #root{
 height:100%;
 }

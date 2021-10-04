@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static%}
+{% csrf_token %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Grasslands 2.0</title>
+
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        var static_global_folder= "{% static 'public/library/images/color-flush-Grassland2.0-logo-web.svg' %}"
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
+    <script src="{% static 'public/library/smartscape/dist/main.js' %}"></script>
+</body>
+</html>

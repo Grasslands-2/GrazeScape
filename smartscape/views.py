@@ -5,5 +5,5 @@ def index(request):
         "my_color": {"test1":1234}
     }
     # Render the HTML template index.html with the data in the context variable
-    return render(request, 'smartscape/index.html', context=context)
+    return render(request, 'smartscape_home.html', context=context)
 
