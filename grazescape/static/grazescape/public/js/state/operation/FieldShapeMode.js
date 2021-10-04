@@ -148,7 +148,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 				feature.setProperties({'f_id': obj.f_id});
 				DSS_RefilterDelayed(25);
 				DSS.layerSource.fields_1.refresh();
-//				DSS.layer.cropOverlay.changed(); //needs to be "poked" after add??
+//				DSS.layer.fields_1.changed(); //needs to be "poked" after add??
 			},
 			
 			failure: function(respose, opts) {
@@ -222,7 +222,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 				DSS_RefilterDelayed(25);
 				DSS.layerSource.fields_1.refresh();
 //				DSS.layerSource.fields_1.refresh();
-//				DSS.layer.cropOverlay.changed(); //needs to be "poked" after add??
+//				DSS.layer.fields_1.changed(); //needs to be "poked" after add??
 			},
 			
 			failure: function(respose, opts) {
