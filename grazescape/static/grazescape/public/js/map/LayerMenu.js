@@ -1,4 +1,14 @@
+async function downloadRaster(layer){
+	var extents = DSS.map.getView().calculateExtent(DSS.map.getSize())
+	console.log(extents)
+	await geoServer.makeRasterRequest(layer,extents)
+	console.log('Ran DEM pull from frontend')
+	// DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
+	// DSS.layer.DEM_image.setVisible(self.checked);
+	//DSS.layer.DEM_image.getSource().refresh()
 
+
+}
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.LayerMenu', {
 //------------------------------------------------------------------------------
@@ -203,7 +213,7 @@ Ext.define('DSS.map.LayerMenu', {
                 }
 			},{ //-------------------------------------------
 				text: 'Hillshade',					
-                checked: true,
+                checked: false,
                 menu: makeOpacityMenu("hillshade", DSS.layer.hillshade, 30),
                 listeners: {
                 	afterrender: function(self) {
@@ -211,10 +221,33 @@ Ext.define('DSS.map.LayerMenu', {
                 	}
                 },
                 handler: function(self) {
-                	Ext.util.Cookies.set("hillshade:visible", self.checked ? "1" : "0");                	
+                	Ext.util.Cookies.set("hillshade:visible", self.checked ? "0" : "1");                	
                 	DSS.layer.hillshade.setVisible(self.checked);                    	
                 }
-			},{//-----------------------------------------------------------------
+			},
+			{ //-------------------------------------------
+				text: 'Elevation',					
+                checked: true,
+                menu: makeOpacityMenu("elevation", DSS.layer.DEM_image, 30),
+                listeners: {
+                	afterrender: function(self) {
+                		self.setChecked(DSS.layer.DEM_image.getVisible());
+                	}
+                },
+                handler: async function(self) {
+                	Ext.util.Cookies.set("elevation:visible", self.checked ? "0" : "1"); 
+					downloadRaster('InputRasters:TC_DEM')
+					//geoServer.setDEMSource()
+					//DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
+					await DSS.layer.DEM_image.setVisible(true); 
+                	//DSS.layer.DEM_image.setVisible(self.checked); 
+					//console.log(DSS.layer.DEM_image)   
+					//console.log(DSS.map.getView().calculateExtent(DSS.map.getSize()))  
+					//geoServer.setDEMSource()
+					//geoServer.setRasterSource('InputRasters:TC_DEM')       	
+                }
+			},
+			{//-----------------------------------------------------------------
 				xtype: 'menuitem',
 				text: 'Base Layer', disabled: true,
 				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'

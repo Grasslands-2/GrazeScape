@@ -16,6 +16,7 @@ import os
 from grazescape.raster_data import RasterData
 from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
 from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown
+from grazescape.model_defintions.manage_raster_visuals import retreiveRaster
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
@@ -56,21 +57,13 @@ def heiferFeedBreakDown(data):
     breed,bred,daysOnPasture,asw,wgg)
 
     return JsonResponse({"output":toolName.calcFeed()})
-    #return JsonResponse({"feed_calc":"finished"})
 
 def run_InfraTrueLength(data):
-    print('POST in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print(data.POST)
     infraextent = data.POST.getlist('extents[]')
     infracords =  data.POST.getlist('cords[]')
     infraId = data.POST.get('infraID')
     infraLengthXY = data.POST.get('infraLengthXY')
-
     toolName = InfraTrueLength(infraextent,infracords,infraId,infraLengthXY)
-
-    print('run_infraTrueLength')
-    #print(data)
-    #return InfraTrueLength.featid.calc()
     return JsonResponse({"output":toolName.profileTool()})
 
 def clean_data(request):
@@ -106,8 +99,6 @@ def index(request):
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
-
-
 @ensure_csrf_cookie
 def download_rasters(request):
     field_id = request.POST.getlist("field_id")[0]
@@ -130,6 +121,20 @@ def geoserver_request(request):
     result = geo.makeRequest(pay_load)
     return JsonResponse({"data": result}, safe=False)
 
+def manage_raster_visuals(data):
+    rasterextent = data.POST.getlist('extents[]')
+    layer = data.POST.get('layer')
+    print('INside manage raster visuals in views!!!!!!!!!!!!')
+    raster_data = retreiveRaster(layer,rasterextent)
+
+    return JsonResponse({"download":"finished"})
+    # request_type = request.POST.get("request_type")
+    # pay_load = request.POST.get("pay_load")
+    # url = request.POST.get("url")
+    # print(url)
+    # geo = GeoServer(request_type, url)
+    # result = geo.makeRasterRequest(pay_load)
+    # return JsonResponse({"data": result}, safe=False)
 
 def get_default_om(request):
     print(request.POST)

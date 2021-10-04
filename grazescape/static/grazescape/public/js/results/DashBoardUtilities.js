@@ -378,9 +378,11 @@ function calcHeiferFeedBreakdown(data){
             //updating the scenario table with outputs from heieferscape calcs
             runFeedBreakdownUpdate(responses)
             var demandColorSwitch = false
+            finalDemandOutput = responses.output[3].toFixed(2)
             console.log(responses.output[3].toFixed(2))
-            if(responses.output[3].toFixed(2) < 0){
+            if(finalDemandOutput < 0){
                 demandColorSwitch = true
+                finalDemandOutput = Math.abs(finalDemandOutput)
             }
             console.log("ChartObj!!!!!!!!!!!!!!!!&&&*&**&*(((***************")
             DMI_Demand_obj = {
@@ -405,9 +407,9 @@ function calcHeiferFeedBreakdown(data){
                 backgroundColor: "rgb(238, 119, 51)"
             }
             remainingDemand_obj = {
-                label: 'Remaining Feed Demand',
+                label: demandColorSwitch ? "Surplus Feed" : 'Remaining Feed Demand',
                 hidden: false,
-                data: [responses.output[3].toFixed(2)],
+                data: [finalDemandOutput],
                 minBarLength: 7,
                 backgroundColor: demandColorSwitch ? "rgb(0,204,0)" : "rgb(255,0,0)"
             }
