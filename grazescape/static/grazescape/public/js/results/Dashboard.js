@@ -83,7 +83,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	plain: true,
 //    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
-	runModel: false,
+	runModel: true,
 
 	config: {
         // ...
@@ -250,10 +250,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
-                                    console.log(DSS['viewModel'].scenario.data.heifers.heifers)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
-                                    console.log(chartObj)
 
                                     var heiferFeedData = {
                                         pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
@@ -274,7 +272,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         }
                                     }
                                     console.log(heiferFeedData)
-                                    //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
                                     calcHeiferFeedBreakdown(heiferFeedData)
                                     Ext.getCmp("feedTab").setDisabled(false)      
                                 }

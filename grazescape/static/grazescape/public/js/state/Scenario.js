@@ -210,7 +210,6 @@ async function runScenarioUpdate(){
 			scenarioFeature.setProperties({
 				lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
 				dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
-				heifers: DSS['viewModel'].scenario.data.dairy.heifers,
 				youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
 				beef_cows: DSS['viewModel'].scenario.data.beef.cows,
 				stockers: DSS['viewModel'].scenario.data.beef.stockers,
@@ -228,6 +227,7 @@ async function runScenarioUpdate(){
 				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.animalsOnPasture,
 				pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
 				crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
+				heifers: DSS['viewModel'].scenario.data.heifers.heifers,
 				heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
 				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
 				heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,

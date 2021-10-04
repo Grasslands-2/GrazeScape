@@ -315,27 +315,44 @@ Ext.define('DSS.map.Main', {
 //		});
 
 		//--------------------------------------------------------- 
-		DEMSource = new ol.source.ImageWMS({
-			ratio: 1,
-			url: geoserverURL + '/geoserver/'/*GS_Rasters*/+ '/wms',
+		
+		// DEMSource = new ol.source.ImageWMS({
+		// 	ratio: 1,
+		// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM'
+		// })
+		
+		var DEMSource = new ol.source.ImageWMS({
+			url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
+			//'/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=InputRasters%3ATC_DEM&width=453&width=453&height=768&srs=EPSG%3A3857&styles=&format=image/png',
+			//'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
+			//geoServer.setDEMSource(),
 			params: {'FORMAT': 'image/png',
-					 'VERSION': '1.1.1',
-					 'TRANSPARENT': 'true',
-				  "STYLES": '',
-				  "LAYERS": 'InputRasters:TC_DEM',
-				  //"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
-				  "exceptions": 'application/vnd.ogc.se_inimage',
+			'VERSION': '1.1.1',
+			'TRANSPARENT': 'false',
+		 	"STYLES": '',
+		 	"LAYERS": 'InputRasters:TC_DEM',
+		 	//"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
+		 	"exceptions": 'application/vnd.ogc.se_inimage',
 			},
-			serverType: 'geoserver',
+			serverType: 'geoserver'
 		})
-		DSS.layer.DEM_image = new ol.layer.Image({
-			visible: false,
-			source: DEMSource
 
+		DSS.layer.DEM_image = new ol.layer.Image({
+			visible: DSS.layer["elevation:visible"],
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			opacity: DSS.layer['elevation:opacity'],
+			source: DEMSource
+			// source: new ol.source.ImageStatic({
+			// 	url: "/data_files/raster_layers/elevation/elevation.png",
+			// 	//imageExtent: extent
+			// })
 		})
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
+		//var DEMSource = new ol.source.ImageStatic({});
+		
 		//var fields_1Source = new ol.source.Vector({});
 
 		// var fields_1Source = new ol.source.Vector({
@@ -402,11 +419,11 @@ Ext.define('DSS.map.Main', {
 				return infraDefaultStyle
 			}
 		};
-
 		geoServer.setFieldSource()
 		geoServer.setFarmSource()
 		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
+		//geoServer.setDEMSource()
 
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
@@ -481,9 +498,9 @@ Ext.define('DSS.map.Main', {
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
 				DSS.layer.bingAerial,
-				DSS.layer.DEM_image,
 				DSS.layer.bingRoad,
 				DSS.layer.osm,
+				DSS.layer.DEM_image,
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,

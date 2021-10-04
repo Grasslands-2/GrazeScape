@@ -136,10 +136,12 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					},{
 						fieldLabel: 'Dry Cows',
 						bind: '{dairy.dry}'
-					},{
-						fieldLabel: 'Heifers',
-						bind: '{dairy.heifers}'
-					},{
+					},
+					// {
+					// 	fieldLabel: 'Heifers',
+					// 	bind: '{dairy.heifers}'
+					// },
+					{
 						fieldLabel: 'Youngstock',
 						bind: '{dairy.youngstock}'
 					}]
@@ -606,16 +608,6 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							fieldLabel: 'Heifers',
 							bind: '{heifers.heifers}'
 						},
-						// {
-						// 	xtype: 'numberfield',
-						// 	fieldLabel: 'Heifers On Pasture',
-						// 	labelAlign: 'right',
-						// 	labelWidth: 148,
-						// 	width:300,
-						// 	bind: '{heifers.animalsOnPasture}',
-						// 	minValue: 1,
-						// 	step: 1,
-						// 	},
 						{
 							xtype: 'combo',
 							fieldLabel: 'Breed Size',
