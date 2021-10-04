@@ -17,5 +17,5 @@ urlpatterns = [
     path('geoserver_request', views.geoserver_request, name='geoserver_request'),
     path('get_default_om', views.get_default_om, name='get_default_om'),
     # path('chart_data', views.chart, name='chart'),
-    # path('point_elevations', views.point_elevations, name='point_elevations'),
+    # path('point_elevations', views.point_elevation    s, name='point_elevations'),
 ]

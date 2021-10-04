@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
 
 from django.http import FileResponse
 import traceback
@@ -25,6 +26,7 @@ from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
+from grazescape.users import *
 import sys
 import time
 import sys
@@ -33,6 +35,8 @@ import math
 
 raster_data = None
 
+@csrf_protect
+@login_required
 def heiferFeedBreakDown(data):
     print(data.POST)
     #data being total pasture, corn, alfalfa, and oat yeilds.  
@@ -73,6 +77,7 @@ def run_InfraTrueLength(data):
     #return InfraTrueLength.featid.calc()
     return JsonResponse({"output":toolName.profileTool()})
 
+@login_required
 def clean_data(request):
     print("cleaning data")
     input_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
@@ -96,19 +101,30 @@ def clean_data(request):
         except OSError as e:
             print("Error: %s : %s" % (f, e.strerror))
     clean_db()
+    # get_users()
     return JsonResponse({"clean":"finished"})
 
 
 @csrf_protect
+@login_required
 def index(request):
+    current_user = request.user
+    print(current_user.id)
+    farm_ids = get_user_farms(current_user.id)
+    print(farm_ids)
+    print(current_user.id)
+    print(request)
+    print(request.user)
+    print(request.user.id)
     context = {
-        "my_color": {"test1":1234}
+        "param": {"farm_ids": farm_ids}
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
 
 
 @ensure_csrf_cookie
+@login_required
 def download_rasters(request):
     field_id = request.POST.getlist("field_id")[0]
     field_coors = []
@@ -120,17 +136,43 @@ def download_rasters(request):
                           field_coors, field_id, True)
     return JsonResponse({"download":"finished"})
 
+@login_required
 @csrf_protect
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
+    feature_id = request.POST.get("feature_id")
     print(url)
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
+    if request_type == "insert_farm" and feature_id != "":
+        print(request.POST)
+
+        update_user_farms(request.user.id, feature_id)
+    if request_type == "source_farm":
+        input_dict = json.loads(result)
+        current_user = request.user
+        # print(current_user.id)
+        # print(result)
+        print("\n \n")
+        # print(input_dict)
+        features = input_dict["features"]
+        # print(features)
+        farm_ids = get_user_farms(current_user.id)
+        # Filter python objects with list comprehensions
+        print(features[0]["properties"])
+        output_dict = [x for x in features if x["properties"]['id'] in farm_ids]
+        # output_dict = [x for x in features if x['id'] in farm_ids]
+        input_dict["features"] = output_dict
+        # Transform python object back into json
+        output_json = json.dumps(input_dict)
+        result = output_json
+        print(result)
     return JsonResponse({"data": result}, safe=False)
 
 
+@login_required
 def get_default_om(request):
     print(request.POST)
     field_id = file_name = str(uuid.uuid4())
@@ -157,6 +199,7 @@ def get_default_om(request):
     return JsonResponse({"om": round(sum / count,2)}, safe=False)
 
 
+@login_required
 @csrf_protect
 def get_model_results(request):
     field_id = request.POST.getlist("field_id")[0]
@@ -300,6 +343,9 @@ def get_model_results(request):
         "error": error
     }
     return JsonResponse([data], safe=False)
+
+
+@login_required
 @csrf_protect
 def get_image(response):
     file_name = response.GET.get('file_name')
