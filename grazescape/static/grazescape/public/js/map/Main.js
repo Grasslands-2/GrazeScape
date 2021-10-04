@@ -403,9 +403,9 @@ Ext.define('DSS.map.Main', {
 			}
 		};
 
-		geoServer.setFieldSource()
+//		geoServer.setFieldSource()
 		geoServer.setFarmSource()
-		geoServer.setInfrastructureSource()
+//		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
 
 		DSS.layer.infrastructure = new ol.layer.Vector({
@@ -473,9 +473,9 @@ Ext.define('DSS.map.Main', {
 		});	
       //		set sources of the major layers
 //        geoServer.setFieldSource()
-		geoServer.setFarmSource()
+//		geoServer.setFarmSource()
 //		geoServer.setInfrastructureSource()
-		geoServer.setScenariosSource()
+//		geoServer.setScenariosSource()
 
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;
