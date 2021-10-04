@@ -59,6 +59,7 @@ function deleteOperation(feat,featLayer){
 		s = new XMLSerializer();
 		str = s.serializeToString(node);
 		console.log(str);
+
 		geoServer.deleteOperation(str, feat)
 //		$.ajax(geoserverURL + '/geoserver/wfs?'
 //	/*'http://localhost:8081/geoserver/wfs?'*/,{

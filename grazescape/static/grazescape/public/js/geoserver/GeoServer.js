@@ -215,7 +215,8 @@ class GeoServer{
 //            currObj.setScenariosSource()
 //            currObj.setFarmSource()
 //            currObj.setFieldSource()
-            currObj.setInfrastructureSource()
+            currObj.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+            
          })
     }
     deleteField(payLoad, feat){
@@ -232,6 +233,7 @@ class GeoServer{
                 DSS.MapState.showInfrasForFarm(DSS.activeFarm);
             })
 //            currObj.setInfrastructureSource()
+            
          })
 
     }
@@ -306,13 +308,16 @@ class GeoServer{
 
             let geoJson = returnData.geojson
             let currObj = returnData.current
+            console.log (currObj)
 //            cleanDB()
 //            currObj.setScenariosSource()
 //            currObj.setFarmSource()
 //            currObj.setFieldSource()
-            currObj.setInfrastructureSource()
+            currObj.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+            //showInfraForScenario()
          })
-
+         //DSS.layer.infrastructure.getSource().refresh();
+        // showInfraForScenario()
     }
     wfs_new_scenario_features_copy(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){

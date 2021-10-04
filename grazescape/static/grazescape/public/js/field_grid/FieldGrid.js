@@ -5,6 +5,7 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 
 var fieldArray = [];
 var fieldObj = {};
+
 // keep track of what fields have had values changed
 var fieldChangeList= []
 var fieldUrl =""
@@ -15,6 +16,7 @@ var fieldUrl =""
 //'typeName=GrazeScape_Vector:field_2&' +
 //'outputformat=application/json&'+
 //'srsname=EPSG:3857';
+
 
 
 
@@ -58,6 +60,15 @@ function getWFSfields(parameter = '') {
 //		}
 //	})
 }
+// function getRotAcrage(obj){
+// 	for (i in obj)
+// 	if(obj[i].rotationVal == 'pt-cn'|| obj[i].rotationVal == 'pt-rt'){
+// 		pastAcreage = pastAcreage + obj[i].area
+// 	}
+// 	if(obj[i].rotationVal == 'cc'|| obj[i].rotationVal =='cg' || obj[i].rotationVal =='dr' || obj[i].rotationVal =='cso'){
+// 		cropAcreage = cropAcreage + obj[i].area
+// 	}
+// }
 
 function popFieldsArray(obj) {
 	for (i in obj)
@@ -108,10 +119,20 @@ function gatherTableData() {
 //	'outputformat=application/json&'+
 //	'srsname=EPSG:3857';
 	//--------------------------------------------
+
+	//getWFSfields();
+	console.log(fieldUrl)
+	console.log("gatherTableData ran");
+	console.log(fieldArray);
+	//getRotAcrage(fieldArray);
+	console.log(pastAcreage);
+	console.log(cropAcreage);
+
 	getWFSfields('&CQL_filter=scenario_id='+DSS.activeScenario);
 //	console.log(fieldUrl)
 //	console.log("gatherTableData ran");
 //	console.log(fieldArray);
+
 };
 
 Ext.create('Ext.data.Store', {

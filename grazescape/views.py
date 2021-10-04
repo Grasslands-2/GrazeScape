@@ -15,6 +15,8 @@ from django.conf import settings
 import os
 # Create your views here.
 from grazescape.raster_data import RasterData
+from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
+from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
@@ -29,11 +31,52 @@ import sys
 import time
 import sys
 import shutil
+import math
 
 raster_data = None
 
-
 @csrf_protect
+@login_required
+def heiferFeedBreakDown(data):
+    print(data.POST)
+    #data being total pasture, corn, alfalfa, and oat yeilds.  
+    #heifer numbers, breed, bred or unbred, days on pasture, average starting weight
+    #and weight gain goals
+    pastYield = data.POST.get('pastYield')
+    cornYield = data.POST.get('cornYield')
+    cornSilageYield = data.POST.get('cornSilageYield')
+    alfalfaYield = data.POST.get('alfalfaYield')
+    oatYield = data.POST.get('oatYield')
+    totalheifers = data.POST.get('totalHeifers')
+    breed = data.POST.get('heiferBreed')
+    bred = data.POST.get('heiferBred')
+    daysOnPasture = data.POST.get('heiferDOP')
+    asw = data.POST.get('heiferASW')
+    wgg = data.POST.get('heiferWGG')
+    print('cornsillage in views!!!!!!!!!!1!@@@@@@@@@@############@')
+    print(cornSilageYield)
+
+    toolName = HeiferFeedBreakdown(pastYield,cornYield,cornSilageYield,alfalfaYield,oatYield,totalheifers,
+    breed,bred,daysOnPasture,asw,wgg)
+
+    return JsonResponse({"output":toolName.calcFeed()})
+    #return JsonResponse({"feed_calc":"finished"})
+
+def run_InfraTrueLength(data):
+    print('POST in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    print(data.POST)
+    infraextent = data.POST.getlist('extents[]')
+    infracords =  data.POST.getlist('cords[]')
+    infraId = data.POST.get('infraID')
+    infraLengthXY = data.POST.get('infraLengthXY')
+
+    toolName = InfraTrueLength(infraextent,infracords,infraId,infraLengthXY)
+
+    print('run_infraTrueLength')
+    #print(data)
+    #return InfraTrueLength.featid.calc()
+    return JsonResponse({"output":toolName.profileTool()})
+
 @login_required
 def clean_data(request):
     print("cleaning data")
@@ -313,6 +356,7 @@ def get_image(response):
     response = FileResponse(img)
 
     return response
+
 
 
 
