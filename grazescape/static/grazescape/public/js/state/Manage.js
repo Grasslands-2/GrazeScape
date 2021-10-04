@@ -8,7 +8,7 @@ function reSourceinfra() {
     geoServer.setInfrastructureSource()
 	console.log("reSource Infra ran");
 }
-=function reSourcefarms() {
+function reSourcefarms() {
     geoServer.setFarmSource()
 	console.log("reSource Infra ran");
 }
