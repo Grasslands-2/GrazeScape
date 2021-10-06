@@ -54,8 +54,13 @@ const App = (props) => (
 
     <div>
     <Row xs= '7'>
-      <Col xs='4' >User pannel</Col>
-      <Col xs='8' >
+      <Col xs='3' >User pannel
+        <Button variant="primary">Primary</Button>{' '}
+
+
+
+      </Col>
+      <Col xs='9' >
     <OLMapFragment/>
     </Col>
     </Row>

@@ -1,4 +1,8 @@
-
+html, body, #root, .App {
+  height: 100%;
+   overflow-x: hidden;
+   overflow-y: hidden;
+}
 #root{
 height:100%;
 }

@@ -44,13 +44,32 @@ import {
     Projection,
     get as getProjection
  } from 'ol/proj'
-
+var map11 = null;
 class OLMapFragment extends React.Component {
     constructor(props) {
         super(props)
+        console.log(props)
         this.updateDimensions = this.updateDimensions.bind(this)
         this.bing_key = 'Anug_v1v0dwJiJPxdyrRWz0BBv_p2sm5XA72OW-ypA064_JoUViwpDXZl3v7KZC1'
-
+        this.layers = [
+                new TileLayer({
+                    source: new XYZSource({
+                        url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        projection: 'EPSG:3857'
+                    })
+                }),
+//                new TileLayer({
+//                    source: new TileWMSSource({
+//                        url: 'https://ahocevar.com/geoserver/wms',
+//                        params: {
+//                            layers: 'topp:states',
+//                            'TILED': true,
+//                        },
+//                        projection: 'EPSG:4326'
+//                    }),
+//                    name: 'USA'
+//                }),
+        ]
     }
     updateDimensions(){
         const h = window.innerWidth >= 992 ? window.innerHeight : 400
@@ -59,34 +78,18 @@ class OLMapFragment extends React.Component {
 //    componentWillMount(){
 //        this.updateDimensions()
 //    }
+    // rendered to DOM
     componentDidMount(){
+        console.log("did mount")
         // Create an Openlayer Map instance with two tile layers
-        const map = new Map({
+        const map11 = new Map({
             //  Display the map in the div with the id of map
             target: 'map',
-            layers: [
-                new TileLayer({
-                    source: new XYZSource({
-                        url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        projection: 'EPSG:3857'
-                    })
-                }),
-                new TileLayer({
-                    source: new TileWMSSource({
-                        url: 'https://ahocevar.com/geoserver/wms',
-                        params: {
-                            layers: 'topp:states',
-                            'TILED': true,
-                        },
-                        projection: 'EPSG:4326'
-                    }),
-                    name: 'USA'
-                }),
-            ],
+            layers: this.layers ,
             // Add in the following map controls
             controls: DefaultControls().extend([
-                new ZoomSlider(),
-                new MousePosition(),
+//                new ZoomSlider(),
+//                new MousePosition(),
                 new ScaleLine(),
                 new OverviewMap()
             ]),

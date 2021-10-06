@@ -21,10 +21,4 @@ import { HashRouter } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert'
 import App from './layout'
-ReactDOM.render(
-<>
-
-<App />
-</>,
-  document.getElementById("root")
-);
+ReactDOM.render(<> <App name="test" /> </>, document.getElementById("root"));
