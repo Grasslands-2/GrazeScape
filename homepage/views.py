@@ -58,13 +58,14 @@ def home(request):
                         validator().validate(password)
                     if password != password2:
                         raise ValueError("Passwords do not match")
-                    show_register = "False"
-                    print("register sucessful")
                     user = User.objects.create_user(user_name,
                                                     email,
                                                     password)
                     user = authenticate(request, username=user_name,
                                         password=password)
+                    print("register sucessful")
+                    show_register = "False"
+
                     if user is not None:
                         print("logging in")
                         login(request, user)
