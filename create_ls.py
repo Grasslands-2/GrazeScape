@@ -1,7 +1,8 @@
 import os
-import gdal
+from osgeo import gdal
 import numpy as np
 import math
+from osgeo import grass
 # https://gis.stackexchange.com/questions/164853/reading-modifying-and-writing-a-geotiff-with-gdal-in-python
 file = r"C:\Users\zjhas\Documents\making_ls_raster"
 slope_tiff = gdal.Open("TC_Slope_Perc_0719_v2.tif")
@@ -19,6 +20,11 @@ arr_slope_length = np.asarray(band_slope_length.ReadAsArray(), dtype=np.float64)
 # arr_mean = int(arr.mean())
 # arr_out = numpy.where((arr < 10000), 999, arr)
 
+# def trueDist(coords,input):
+#     grass.run_command('r.profile',
+#                input = input_map,
+#                output = output_file,
+#                profile = [12244.256,-295112.597,12128.012,-295293.77]
 
 ls_list = []
 # slopes = self.input_raster_dic["slope"]

@@ -12,9 +12,16 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 	layout: DSS.utils.layout('vbox', 'start', 'center'),
 	
 	DSS_sectionHeight: 75,
+
+	// requires: [
+	// 	'DSS.infra_shapes.apply.fenceMaterial',
+	// 	'DSS.infra_shapes.apply.waterPipe',
+	// 	'DSS.infra_shapes.apply.laneMaterial'
+	// ],
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
+		var selectedType = '';
 		let me = this;
 
 		let rbName = "infraType";
@@ -56,6 +63,18 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 						}
 					}
 				},
+				listeners:{
+					change: function(){
+						selectedType = this.getValue().infraType
+						 if(selectedType == 'wl'){
+						 	console.log('water lines')
+						 }else if(selectedType == 'll'){
+						 	console.log('lane lines')
+						 }else if(selectedType == 'fl'){
+						 	console.log('fence lines')
+						 }
+					}
+				},
 				bind: '{infraTypeValue}', // formula from viewModel above
 				defaults: {
 					name: rbName,
@@ -64,16 +83,16 @@ Ext.define('DSS.infra_shapes.apply.infraType', {
 							if ( self.boxLabelEl) {
 								self.boxLabelEl.setStyle('cursor', 'pointer')
 							}
-						}
+						},
+
 					}
-				//	boxLabelCls: 'hover'
 				},
-				items: [{
-					boxLabel: 'Fencing', inputValue: 'fl',
-				},{ 
+				items: [{ 
 					boxLabel: 'Water Line', inputValue: 'wl',
 				},{ 
 					boxLabel: 'Lane Line', inputValue: 'll',
+				},{
+					boxLabel: 'Fencing', inputValue: 'fl',
 				}]
 			}]
 		});

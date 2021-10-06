@@ -14,6 +14,10 @@ Ext.define('DSS.infra_shapes.apply.waterPipe', {
 	layout: DSS.utils.layout('vbox', 'start', 'center'),
 	
 	DSS_sectionHeight: 150,
+
+	requires: [
+		'DSS.infra_shapes.apply.infraType',
+	],
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
@@ -26,6 +30,7 @@ Ext.define('DSS.infra_shapes.apply.waterPipe', {
 				xtype: 'container',
 				width: '100%',
 				layout: 'absolute',
+				disabled: true,
 				items: [{
 					xtype: 'component',
 					x: 0, y: -6,
