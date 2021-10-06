@@ -14,6 +14,7 @@ import Alert from 'react-bootstrap/Alert'
 import './App.css';
 import CSRFToken from './csrf';
 import OLMapFragment from './map.js';
+import Header from './header.js';
 
 // get parameters from python and get form working
 //option1
@@ -22,35 +23,10 @@ import OLMapFragment from './map.js';
 // user is logged in show app selection
 //option3
 // user wants to register
+
 const App = (props) => (
   <div id='main'>
-    <Navbar bg="light" variant="light">
-    <Container>
-      <Navbar.Brand href="#home">
-        <img
-          alt=""
-          src= {static_global_folder}
-          width="50%"
-          className="d-inline-block align-top"
-        />
-      </Navbar.Brand>
-      <Nav className="justify-content-center ">
-          <Nav.Link href="https://grasslandag.org/" target="_blank">Grassland 2.0</Nav.Link>
-          <Nav.Link href="https://github.com/Grasslands-2" target="_blank">Source Code</Nav.Link>
-        </Nav>
-    <Nav>
-
-
-       </Nav>
-       <Nav className="justify-content-right ">
-       <Form method="POST" className="d-flex">
-       <CSRFToken />
-        <input type="hidden" name="logout" value="True" />
-        <Button type="submit" variant="outline-success"><DoorOpen/> Logout</Button>
-        </Form>
-    </Nav>
-    </Container>
-    </Navbar>
+    <Header user = {"matthew"}/>
 
     <div>
     <Row xs= '7'>

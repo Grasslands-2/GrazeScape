@@ -44,7 +44,9 @@ import {
     Projection,
     get as getProjection
  } from 'ol/proj'
+
 var map11 = null;
+
 class OLMapFragment extends React.Component {
     constructor(props) {
         super(props)
