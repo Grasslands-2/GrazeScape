@@ -39,6 +39,7 @@ function deleteField(feat){
 		s = new XMLSerializer();
 		str = s.serializeToString(node);
 		console.log(str);
+
 		geoServer.deleteField(str, feat)
 }
 

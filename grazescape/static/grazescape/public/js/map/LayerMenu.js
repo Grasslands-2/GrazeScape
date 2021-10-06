@@ -81,7 +81,7 @@ Ext.define('DSS.map.LayerMenu', {
             			Ext.Object.eachValue(DSS.rotationStyles, function(val) {
             				val.getFill().getColor().setTransform(matrix);
             			});
-            			DSS.layer.cropOverlay.changed();
+            			DSS.layer.fields_1.changed();
             		}	                		
             	}
 			},{
@@ -104,7 +104,7 @@ Ext.define('DSS.map.LayerMenu', {
             			Ext.Object.eachValue(DSS.rotationStyles, function(val) {
             				val.getFill().getColor().setTransform(matrix);
             			});
-            			DSS.layer.cropOverlay.changed();
+            			DSS.layer.fields_1.changed();
             		}	                		
             	}
 			},{
@@ -127,7 +127,7 @@ Ext.define('DSS.map.LayerMenu', {
             			Ext.Object.eachValue(DSS.rotationStyles, function(val) {
             				val.getFill().getColor().setTransform(matrix);
             			});
-            			DSS.layer.cropOverlay.changed();
+            			DSS.layer.fields_1.changed();
             		}	                		
             	}
 				
@@ -135,8 +135,8 @@ Ext.define('DSS.map.LayerMenu', {
 			return baseMenu;
 		};
 		
-		let tMen = makeOpacityMenu("crop", DSS.layer.cropOverlay);
-		tMen = appendTextureMenu(tMen, DSS.layer.cropOverlay);
+		let tMen = makeOpacityMenu("crop", DSS.layer.fields_1);
+		tMen = appendTextureMenu(tMen, DSS.layer.fields_1);
 		
 		Ext.applyIf(me, {
 			defaults: {
@@ -151,15 +151,15 @@ Ext.define('DSS.map.LayerMenu', {
 			},{ //-------------------------------------------
 				text: 'Crops <i class="fas fa-seedling accent-text text-drp-50"></i>',
                 checked: true,
-                menu: tMen,//makeOpacityMenu("crop", DSS.layer.cropOverlay),
+                menu: tMen,//makeOpacityMenu("crop", DSS.layer.fields_1),
                 listeners: {
                 	afterrender: function(self) {
-                		self.setChecked(DSS.layer.cropOverlay.getVisible());
+                		self.setChecked(DSS.layer.fields_1.getVisible());
                 	}
                 },
                 handler: function(self) {
                 	Ext.util.Cookies.set("crop:visible", self.checked ? "1" : "0");                	
-                	DSS.layer.cropOverlay.setVisible(self.checked);                    	
+                	DSS.layer.fields_1.setVisible(self.checked);                    	
                 }
 			},{ //-------------------------------------------
 				text: 'Inspector <i class="fas fa-search accent-text text-drp-50"></i>',

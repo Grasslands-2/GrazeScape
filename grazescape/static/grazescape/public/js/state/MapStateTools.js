@@ -151,6 +151,7 @@ Ext.define('DSS.state.MapStateTools', {
 
 	//used to limit return of fields to just active farm
     showFieldsForFarm: function(farmId, opacity) {
+
     	geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 //		DSS.layer.fields_1.getSource().setUrl(
 //		geoserverURL + '/geoserver/wfs?'+
@@ -186,6 +187,7 @@ Ext.define('DSS.state.MapStateTools', {
 	//-------------------------------------------------------------
 	//shows all fields in db
 	showAllFields: function(opacity) {
+
         geoServer.setFieldSource()
 //		DSS.layer.fields_1.getSource().setUrl(
 //		geoserverURL + '/geoserver/wfs?'+
@@ -196,6 +198,7 @@ Ext.define('DSS.state.MapStateTools', {
 //		'outputformat=application/json&'+
 //		'srsname=EPSG:3857');
 //		DSS.layer.fields_1.getSource().refresh();
+
 		console.log("showAllFields ran");
 	},
 
@@ -283,6 +286,7 @@ Ext.define('DSS.state.MapStateTools', {
 							DSS.layer.fields_1.getSource().setUrl("get_fields?farm="+ f.get("id"));
 
 							DSS.layer.fields_1.getSource().refresh();
+							DSS.layer.fieldsLabels.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
 						}*/
@@ -304,6 +308,7 @@ Ext.define('DSS.state.MapStateTools', {
 						/*if (lastF !== f) {
 							DSS.layer.fields_1.getSource().setUrl("get_fields?field="+ f.get("id"));
 							DSS.layer.fields_1.getSource().refresh();
+							DSS.layer.fieldsLabels.getSource().refresh();
 							DSS.MapState.showFields(0.9);
 							lastF = f;
 						}*/

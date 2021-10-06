@@ -3,16 +3,7 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 //DSS.scenarioName = ''
 //local functions to make sure selected scenario infra and fields only draw
 function showFieldsForScenario() {
-//	DSS.layer.fields_1.getSource().setUrl(
-//	geoserverURL + '/geoserver/wfs?'+
-//	'service=wfs&'+
-//	'?version=2.0.0&'+
-//	'request=GetFeature&'+
-//	'typeName=GrazeScape_Vector:field_2&'+
-//	+'&'+
-//	'outputformat=application/json&'+
-//	'srsname=EPSG:3857'
-//	);
+
     geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	console.log(DSS.layer.fields_1.getStyle())
 //	DSS.layer.fields_1.getSource().refresh();

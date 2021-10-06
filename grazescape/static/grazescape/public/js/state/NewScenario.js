@@ -210,6 +210,7 @@ function wfs_new_scenario_features_copy(featsArray,fType) {
 	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
+
     geoServer.wfs_new_scenario_features_copy(str, featsArray)
 //    console.log(str);
 //    $.ajax(geoserverURL + '/geoserver/wfs?',
@@ -467,7 +468,6 @@ Ext.define('DSS.state.NewScenario', {
 								geoServer.copyScenario(scenName, scenDes)
 
 								this.up('window').destroy();
-
 							}
 						}
 					}],

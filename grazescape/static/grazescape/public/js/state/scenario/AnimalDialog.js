@@ -1,6 +1,60 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
+var pastAcreageHS = 0
+ var cropAcreageHS = 0
+let breedSizeStore = Ext.create('Ext.data.Store', {
+	storeId: 'breedSizeStore',
+	fields:[ 'label', 'value'],
+	data: [{
+		value: 'small',
+		label: 'Small'
+	},{ 
+		value: 'large',
+		label: 'Large'
+	}]
+});
+let bredStore = Ext.create('Ext.data.Store', {
+	storeId: 'bredStore',
+	fields:[ 'label', 'value'],
+	data: [{
+		value: 'bred',
+		label: 'Bred'
+	},{ 
+		value: 'non bred',
+		label: 'Unbred'
+	}]
+});
+let weightGainStore = Ext.create('Ext.data.Store', {
+	storeId: 'weightGainStore',
+	fields:[ 'label', 'value'],
+	data: [{
+		value: 0.7,
+		label: '0.7'
+	},{
+		value: 0.9,
+		label: '0.9'
+	},{
+		value: 1.1,
+		label: '1.1'
+	},{ 
+		value: 1.3,
+		label: '1.3'
+	},{ 
+		value: 1.5,
+		label: '1.5'
+	},{ 
+		value: 1.8,
+		label: '1.8'
+	},{ 
+		value: 2.0,
+		label: '2.0'
+	},{ 
+		value: 2.2,
+		label: '2.2'
+	}]
+});
+
 let rotationFreq = Ext.create('Ext.data.Store', {
 	storeId: 'rotationFreqStore',
 	fields:[ 'label', 'enum'],
@@ -55,6 +109,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 				xtype: 'container',
 				itemId: 'dairy-section',
 				cls: 'sub-container',
+				autoScroll: true,
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 				hidden: true,
 				items: [{
@@ -70,7 +125,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						xtype: 'numberfield',
 						value: 20,
 						minValue: 0,
-						step: 5,
+						step: 1,
 						labelAlign: 'right',
 						labelWidth: 100,
 						width: 200,
@@ -113,18 +168,30 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					itemId: 'lactating-cattle',
 					layout: DSS.utils.layout('vbox', 'start', 'middle'),
 					margin: 8,
-					items: [{
+					items: [	{
+						xtype: 'numberfield',
+						fieldLabel: 'Animals On Pasture',
+						labelAlign: 'right',
+						labelWidth: 148,
+						width:300,
+						bind: '{dairy.animalsOnPasture}',
+						minValue: 1,
+						step: 1,
+						},
+						{
 						xtype: 'container',
 						width: undefined,
 						layout: DSS.utils.layout('hbox', 'center'),
-						items: [{
+						items: [
+							{
 							xtype: 'component',
 							itemId: 'grazed-display',
 							cls: 'information',
 							padding: 4,margin: '0 4',
 							width: 32,
 							style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
-						},{
+						},
+						{
 							xtype: 'slider',
 							width: 200,
 							minValue: 0,
@@ -187,19 +254,6 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						width: 240,
 						fieldLabel: 'Grazing Time (h/d)',
 						maxValue: 24
-					},{
-						xtype: 'combo',
-						dssID: 'if-grazed',
-						fieldLabel: 'Rotational Frequency',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'rotationFreqStore',
-						displayField: 'label',
-						valueField: 'enum',
-						bind: '{dairy.lactatingRotationFreq}',
 					}]
 				},{ //------------------------------------------------------------
 					xtype: 'component',
@@ -211,7 +265,78 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					itemId: 'non-lactating-cattle',
 					layout: DSS.utils.layout('vbox', 'start', 'middle'),
 					margin: 8,
-					items: [{
+					items: [
+						{
+						xtype: 'numberfield',
+						fieldLabel: 'Animals On Pasture',
+						labelAlign: 'right',
+						labelWidth: 148,
+						bind: '{heifers.animalsOnPasture}',
+						minValue: 1,
+						step: 1,
+						},
+						{
+						//id: 'bredDropDown',
+						xtype: 'combo',
+						fieldLabel: 'Breed Size',
+						labelWidth: 140,
+						width: 360,
+						labelAlign: 'right',
+						mode: 'remote',
+						triggerAction: 'all',
+						store: 'breedSizeStore',
+						displayField: 'label',
+						valueField: 'value',
+						bind: '{heifers.breedSize}',
+						// listeners:{ 
+						// 	change: function(){
+						// 		selectedType = Ext.getCmp('bredDropDown').getValue()
+						// 		console.log(selectedType)
+						// 		if(selectedType == 'small'){
+						// 			console.log(Ext.getCmp('bredDropDown'))
+						// 			Ext.getCmp('asw').setBind(220)
+						// 			// Ext.getCmp('asw').setMinValue(220)
+						// 			// Ext.getCmp('asw').setMaxValue(460)
+									
+						// 		}else if (selectedType == 'large'){
+						// 			console.log(Ext.getCmp('asw'))
+						// 			Ext.getCmp('asw').setBind(330)
+									
+						// 			// Ext.getCmp('asw').setMinValue(330)
+						// 			// Ext.getCmp('asw').setMaxValue(670)
+						// 		}
+						// 	}
+						// }
+						},{
+						xtype: 'combo',
+						fieldLabel: 'Bred or Unbred',
+						labelWidth: 140,
+						width: 360,
+						labelAlign: 'right',
+						mode: 'remote',
+						triggerAction: 'all',
+						store: 'bredStore',
+						displayField: 'label',
+						valueField: 'value',
+						bind: '{heifers.bred}',
+						},{
+						//id: 'asw',
+						fieldLabel: 'Average Starting Weight(lbs)',
+						bind: '{heifers.asw}',
+						},{
+						xtype: 'combo',
+						fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
+						labelWidth: 140,
+						width: 360,
+						labelAlign: 'right',
+						mode: 'remote',
+						triggerAction: 'all',
+						store: 'weightGainStore',
+						displayField: 'label',
+						valueField: 'value',
+						bind: '{heifers.tdwg}',
+						},
+						{
 						xtype: 'container',
 						width: undefined,
 						layout: DSS.utils.layout('hbox', 'center'),
@@ -285,19 +410,6 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						width: 240,
 						fieldLabel: 'Grazing Time (h/d)',
 						maxValue: 24
-					},{
-						xtype: 'combo',
-						dssID: 'if-grazed',
-						fieldLabel: 'Rotational Frequency',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'rotationFreqStore',
-						displayField: 'label',
-						valueField: 'enum',
-						bind: '{dairy.nonLactatingRotationFreq}',
 					}]
 				}]
 			}]
@@ -459,6 +571,97 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 				}]
 			}]
 		};
+		//-----------------------------------------------------
+		//Heifer Section
+		//-----------------------------------------------------
+		let heiferContainer = {
+			xtype: 'container',
+			layout: 'fit',
+			items: [{
+				xtype: 'container',
+				itemId: 'heifer-section',
+				cls: 'sub-container',
+				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
+				hidden: true,
+				items: [{
+					xtype: 'component',
+					cls: 'information accent-text box-underline',
+					html: 'Configure the <b>size of the heifer herd</b>',
+					margin: '0 32',
+				},{
+					xtype: 'container',
+					layout: DSS.utils.layout('vbox', 'start', 'middle'),
+					margin: 8,
+					defaults: {
+						xtype: 'numberfield',
+						minValue: 0,
+						step: 1,
+						allowBlank: false,
+						labelAlign: 'right',
+						labelWidth: 100,
+						width: 200,
+					},
+					items: [
+						{
+							fieldLabel: 'Heifers',
+							bind: '{heifers.heifers}'
+						},
+						// {
+						// 	xtype: 'numberfield',
+						// 	fieldLabel: 'Heifers On Pasture',
+						// 	labelAlign: 'right',
+						// 	labelWidth: 148,
+						// 	width:300,
+						// 	bind: '{heifers.animalsOnPasture}',
+						// 	minValue: 1,
+						// 	step: 1,
+						// 	},
+						{
+							xtype: 'combo',
+							fieldLabel: 'Breed Size',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'breedSizeStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.breedSize}',
+						},{
+							xtype: 'combo',
+							fieldLabel: 'Bred or Unbred',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'bredStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.bred}',
+						},{
+							fieldLabel: 'Average Starting Weight(lbs)',
+							bind: '{heifers.asw}'
+						},{
+							xtype: 'combo',
+							fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
+							labelWidth: 140,
+							width: 360,
+							labelAlign: 'right',
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'weightGainStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{heifers.tdwg}',
+						},{
+							fieldLabel: 'Days on Pasture',
+							bind: '{heifers.daysOnPasture}'
+					}]
+				}]
+			}]
+		};
 		
 		Ext.applyIf(me, {
 			items: [{
@@ -476,7 +679,35 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					minWidth: 100,
 					enableToggle: true
 				},
-				items: [{//--------------------------------------------------------------------------
+				items: [{ //--------------------------------------------------------------------------
+					text: 'Heifers',
+					toggleHandler: function(self, pressed) {
+						let container = me.down("#heifer-section");
+						if (pressed) {
+							container.setHeight(0);
+							container.setVisible(true)
+							container.animate({
+								dynamic: true,
+								to: {
+									height: 500
+								}
+							});
+						} 
+						else {
+							me.setHeight(null)
+							container.animate({
+								dynamic: true,
+								to: {
+									height: 0
+								},
+								callback: function() {
+									container.setVisible(false);
+								}
+							});
+						}
+					}
+				},
+					{//--------------------------------------------------------------------------
 					text: 'Dairy',
 					toggleHandler: function(self, pressed) {
 						let container = me.down("#dairy-section");
@@ -486,7 +717,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							container.animate({
 								dynamic: true,
 								to: {
-									height: 550
+									height: 500
 								}
 							});
 						} 
@@ -513,7 +744,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							container.animate({
 								dynamic: true,
 								to: {
-									height: 390
+									height: 500
 								}
 							});
 						} 
@@ -539,6 +770,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					width: 400,
 				},
 				items: [
+					heiferContainer,
 					dairyContainer,
 					beefContainer
 				]	

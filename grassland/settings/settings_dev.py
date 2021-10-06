@@ -12,23 +12,51 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+import configparser
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+print(BASE_DIR)
 #GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+parser = configparser.ConfigParser()
+GOOGLE_RECAPTCHA_SECRET_KEY = ""
+filename = os.path.join(BASE_DIR, 'grassland', 'settings', 'app_secret.ini')
+
+parser.read(filename)
+# get section, default to postgresql
+db = {}
+params = ""
+db_name = ""
+db_user = ""
+db_pass = ""
+db_host = ""
+db_port = ""
+if parser.has_section("captcha_google") and parser.has_section("postgresql"):
+    params = parser.items("captcha_google")
+    GOOGLE_RECAPTCHA_SECRET_KEY = params[0][1]
+    params = parser.items("postgresql")
+    db_name = params[1][1]
+    db_user = params[2][1]
+    db_pass = params[3][1]
+    db_host = params[0][1]
+    db_port = params[4][1]
+else:
+    raise Exception(
+        'Section {0} not found in the {1} file'.format("captcha_google", filename))
+
 SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
 GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
+#GEOSERVER_URL = "http://geoserver:8080/"
 R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_ALLOW_ALL = True
@@ -37,6 +65,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'homepage',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,7 +75,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'grazescape',
-    'smartscape'
+    'smartscape',
+
 ]
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -57,6 +87,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    # Manages sessions across requests
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Associates users with requests using sessions.
 ]
 
 
@@ -65,7 +99,7 @@ ROOT_URLCONF = 'grassland.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,6 +136,16 @@ WSGI_APPLICATION = 'grassland.wsgi.application'
 #     }
 # }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': db_name,
+        'USER': db_user,
+        'PASSWORD': db_pass,
+        'HOST': db_host,
+        'PORT': db_port
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -140,12 +184,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGIN_URL = '/'
 # STATIC_ROOT = 'static'
 # STATIC_URL = '/static/'
 #
-# STATICFILES_DIRS = (
-#                 os.path.join(PROJECT_DIR,'staticfiles'), # if your static files folder is named "staticfiles"
-# )
+STATICFILES_DIRS = (
+                os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles"
+)
+print(STATICFILES_DIRS)
 # TEMPLATE_DIRS = (
 #                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
 # )
