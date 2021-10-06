@@ -184,10 +184,10 @@ const App = (props) => (
                   <a href="/grazescape"><Image  className = "shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
                         </Row>
 
-                        <Row>
+                        {/*<Row>
 
                   <a href="/smartscape"><Image className = "shadow-lg app_click image" fluid src="static/public/library/images/dss_logo.png" rounded /></a>
-                        </Row>
+                        </Row>*/}
              </Col>
              <Col xs='3'>
             </Col>
