@@ -357,6 +357,7 @@ class GeoServer{
                     feature_id:featureID
                 },
                 success: function(responses, opts) {
+                    console.log(responses)
                     delete $.ajaxSetup().headers
                     resolve({geojson:responses.data, current:currObj})
                 },
