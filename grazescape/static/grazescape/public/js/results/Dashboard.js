@@ -1,3 +1,77 @@
+function gatherYieldTableData() {
+	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
+	console.log(chartObjyieldarray)
+
+	for(field in chartObjyieldarray){
+		fieldYieldArray.push({
+            id: chartObjyieldarray[field].dbID,
+			name: chartObjyieldarray[field].label.slice(0,-3),
+			rotationVal: chartObjyieldarray[field].toolTip[0][0],
+			//dMYieldAc: chartObjyieldarray[field].data[0],
+		})
+	}
+	console.log(fieldYieldArray)
+    // var yielddatasetsarray = [grass_yield_field,corn_yield_field,corn_silage_yield_field,
+    //     soy_yield_field,oat_yield_field,alfalfa_yield_field]
+    var grassdataarray = chartObj.grass_yield_field.chartData.datasets
+    var corndataarray = chartObj.corn_yield_field.chartData.datasets
+    var silagedataarray = chartObj.corn_silage_yield_field.chartData.datasets
+    var soydataarray = chartObj.soy_yield_field.chartData.datasets
+    var oatdataarray = chartObj.oat_yield_field.chartData.datasets
+    var alfalfadataarray = chartObj.alfalfa_yield_field.chartData.datasets
+    for(i in fieldYieldArray){
+        var fieldID = fieldYieldArray[i].id
+        for(g in grassdataarray){
+            console.log('grassarray id: ' + grassdataarray[g].dbID)
+            if (grassdataarray[g].dbID == fieldID){
+                console.log('HIT!');
+                console.log(grassdataarray[g].data[0])
+                fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].data[0]
+            }
+        }
+        for(c in corndataarray){
+            if (corndataarray[c].dbID == fieldID){
+                fieldYieldArray[i].cornGrainBrusdAc = corndataarray[c].data[0]
+            }
+        }
+        for(s in silagedataarray){
+            if (silagedataarray[s].dbID == fieldID){
+                fieldYieldArray[i].cornSilageTonsAc = silagedataarray[s].data[0]
+            }
+        }
+        for(so in soydataarray){
+            if (soydataarray[so].dbID == fieldID){
+                fieldYieldArray[i].soyGrainBrusAc = soydataarray[so].data[0]
+            }
+        }
+        for(o in oatdataarray){
+            if (oatdataarray[o].dbID == fieldID){
+                fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].data[0]
+            }
+        }
+        for(a in alfalfadataarray){
+            if (alfalfadataarray[a].dbID == fieldID){
+                fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].data[0]
+            }
+        }
+    }
+        // var fieldID = fieldYieldArray[i].id
+        // console.log('fieldID: ' + fieldID)
+        // for (d in yielddatasetsarray){
+        //     dataset = chartObj.grass_yield_field.chartData.datasets
+        //     for(g in yielddatasetsarray[d]){
+        //         console.log('grassarray id: ' + grassdataarray[g].dbID)
+        //         if (grassdataarray[g].dbID == fieldID){
+        //             console.log('HIT!');
+        //             console.log(grassdataarray[g].data[0])
+        //             fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].data[0]
+        //         }
+        //     }
+        // }
+        
+    console.log(fieldYieldArray)
+};
+var fieldYieldArray = [];
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
 //var modelTypes = ['yield']
 //var modelTypes = ['yield,','runoff']
@@ -609,7 +683,24 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         style: 'padding:10px; ',
                         border:0,
                     },
-                    items:[{
+                    items:[
+                        {
+                        xtype: 'button',
+                        cls: 'button-text-pad',
+                        componentCls: 'button-margin',
+                        text: 'Manually Adjust Yields',
+                        handler: async function(self) {
+                            //await getWFSScenario()
+                            console.log(chartObj)
+                            await gatherYieldTableData()
+                            {
+                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
+                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
+                            }
+                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+                        }
+                    },
+                    {
                         xtype: 'radiogroup',
                         id: 'yieldFarmConvert',
                         vertical: true,
