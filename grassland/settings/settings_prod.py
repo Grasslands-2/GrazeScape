@@ -28,7 +28,7 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # GEOSERVER_URL = "https://geoserver:8443/geoserver/"
-GEOSERVER_URL = "http://grazescape:8080"
+GEOSERVER_URL = "http://geoserver:8080"
 R_PATH = "/opt/conda/envs/gscape/bin/R"
 ALLOWED_HOSTS = ['*']
 parser = configparser.ConfigParser()
