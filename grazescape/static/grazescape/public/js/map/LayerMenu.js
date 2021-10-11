@@ -1,7 +1,7 @@
-async function downloadRaster(layer){
+function downloadRaster(layer){
 	var extents = DSS.map.getView().calculateExtent(DSS.map.getSize())
 	console.log(extents)
-	await geoServer.makeRasterRequest(layer,extents)
+	geoServer.makeRasterRequest(layer,extents)
 	console.log('Ran DEM pull from frontend')
 	// DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
 	// DSS.layer.DEM_image.setVisible(self.checked);
@@ -227,19 +227,20 @@ Ext.define('DSS.map.LayerMenu', {
 			},
 			{ //-------------------------------------------
 				text: 'Elevation',					
-                checked: true,
+                checked: false,
                 menu: makeOpacityMenu("elevation", DSS.layer.DEM_image, 30),
                 listeners: {
                 	afterrender: function(self) {
                 		self.setChecked(DSS.layer.DEM_image.getVisible());
                 	}
                 },
-                handler: async function(self) {
+                handler: function(self) {
                 	Ext.util.Cookies.set("elevation:visible", self.checked ? "0" : "1"); 
-					downloadRaster('InputRasters:TC_DEM')
+					//downloadRaster('InputRasters:TC_DEM')
+					DSS.layer.DEM_image.setVisible(self.checked);
+
 					//geoServer.setDEMSource()
 					//DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
-					await DSS.layer.DEM_image.setVisible(true); 
                 	//DSS.layer.DEM_image.setVisible(self.checked); 
 					//console.log(DSS.layer.DEM_image)   
 					//console.log(DSS.map.getView().calculateExtent(DSS.map.getSize()))  

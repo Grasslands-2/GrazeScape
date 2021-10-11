@@ -18,6 +18,9 @@ from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 from pyper import R
 from django.conf import settings
 import shutil
+from osgeo import gdal
+from PIL import Image
+
 
 class retreiveRaster():
     def __init__(self,layer,extents):
@@ -67,6 +70,25 @@ class retreiveRaster():
             print('requestURL!!!!!!!!!!!!!************$$$$$$$$$$$$$$$$$$$**************')
             print(r)
             print(self.layer)
-            raster_file_path = os.path.join(self.dir_path, layer + ".png")
+            #raster_file_path = os.path.join(self.dir_path, layer + ".png")
+            raster_file_path = os.path.join(self.dir_path, layer + ".tif")
+            jpg_file_path = os.path.join(self.dir_path, layer + ".jpg")
+            
             with open(raster_file_path, "wb") as f:
                 f.write(r.content)
+            im1 = Image.open(raster_file_path)
+            im1.save(jpg_file_path)
+            options_list = [
+            '-ot Byte',
+            '-of JPEG',
+            '-b 1','-b 2','-b 3',
+            '-scale'
+            ]           
+
+            options_string = " ".join(options_list)
+                
+            gdal.Translate(
+                'save_image_path.jpg',
+                png_file_path,
+                options=options_string
+            )

@@ -226,7 +226,7 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		let extent = [ -10128000, 5358000, -10109000, 5392000];
+		var extent = [ -10128000, 5358000, -10109000, 5392000];
 
 		DSS.layer.hillshade = new ol.layer.Image({
 			visible: DSS.layer['hillshade:visible'],
@@ -236,6 +236,28 @@ Ext.define('DSS.map.Main', {
 			source: new ol.source.ImageStatic({
 				url: '/static/grazescape/public/images/hillshade_high.png',
 				imageExtent: extent
+			})
+		})
+		//var elextent = [-10113594.4624000005424023,5375972.3128000004217029,-10113594.4624000005424023,5380622.3128000004217029]
+		//var elextent = [-10116504.4624000005424023,5379442.3128000004217029,-10114754.4624000005424023,5377472.3128000004217029]
+		var elextent = [-10116504,5377472,-10114754,5379442]
+		DSS.layer.DEM_image = new ol.layer.Image({
+			visible: false,
+			opacity: 0.5,
+			//updateWhileAnimating: true,
+			//updateWhileInteracting: true,
+			//zIndex: 0,
+			//imageSmoothing: true,
+			//DSS.layer["elevation:visible"],
+			//updateWhileAnimating: true,
+			//updateWhileInteracting: true,
+			//opacity: DSS.layer['elevation:opacity'],
+			//source: DEMSource
+			source: new ol.source.ImageStatic({
+				//url: '/static/grazescape/public/images/elevation.png',
+				//url: "/static/grazescape/public/images/elevation_CopyRaster.png",
+				url: "/static/grazescape/public/images/elevation_CopyRaster_1.jpg",
+				imageExtent: elextent
 			})
 		})
 		var pointStyle = new ol.style.Style({
@@ -321,33 +343,34 @@ Ext.define('DSS.map.Main', {
 		// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM'
 		// })
 		
-		var DEMSource = new ol.source.ImageWMS({
-			url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
-			//'/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=InputRasters%3ATC_DEM&width=453&width=453&height=768&srs=EPSG%3A3857&styles=&format=image/png',
-			//'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
-			//geoServer.setDEMSource(),
-			params: {'FORMAT': 'image/png',
-			'VERSION': '1.1.1',
-			'TRANSPARENT': 'false',
-		 	"STYLES": '',
-		 	"LAYERS": 'InputRasters:TC_DEM',
-		 	//"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
-		 	"exceptions": 'application/vnd.ogc.se_inimage',
-			},
-			serverType: 'geoserver'
-		})
-
-		DSS.layer.DEM_image = new ol.layer.Image({
-			visible: DSS.layer["elevation:visible"],
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			opacity: DSS.layer['elevation:opacity'],
-			source: DEMSource
-			// source: new ol.source.ImageStatic({
-			// 	url: "/data_files/raster_layers/elevation/elevation.png",
-			// 	//imageExtent: extent
-			// })
-		})
+		// var DEMSource = new ol.source.ImageWMS({
+		// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
+		// 	//'/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=InputRasters%3ATC_DEM&width=453&width=453&height=768&srs=EPSG%3A3857&styles=&format=image/png',
+		// 	//'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
+		// 	//geoServer.setDEMSource(),
+		// 	params: {'FORMAT': 'image/png',
+		// 	'VERSION': '1.1.1',
+		// 	'TRANSPARENT': 'false',
+		//  	"STYLES": '',
+		//  	"LAYERS": 'InputRasters:TC_DEM',
+		//  	//"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
+		//  	"exceptions": 'application/vnd.ogc.se_inimage',
+		// 	},
+		// 	serverType: 'geoserver'
+		// })
+		
+		// DSS.layer.DEM_image = new ol.layer.Image({
+		// 	visible: true,
+		// 	updateWhileAnimating: true,
+		// 	updateWhileInteracting: true,
+		// 	opacity: DSS.layer['elevation:opacity'],
+		// 	//source: DEMSource
+		// 	source: new ol.source.ImageStatic({
+		// 		url: '/static/grazescape/public/images/elevation.png',
+		// 		//url: "/data_files/raster_layers/elevation/elevation",
+		// 		imageExtent: extent
+		// 	})
+		// })
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
@@ -500,11 +523,11 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.bingAerial,
 				DSS.layer.bingRoad,
 				DSS.layer.osm,
-				DSS.layer.DEM_image,
 				DSS.layer.watershed,             
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
+				DSS.layer.DEM_image,
 				//DSS.layer.fields_1,
 				//DSS.layer.fieldsLabels,
 				//DSS.layer.infrastructure
