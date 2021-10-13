@@ -7,7 +7,7 @@ function gatherYieldTableData() {
             id: chartObjyieldarray[field].dbID,
 			name: chartObjyieldarray[field].label.slice(0,-3),
 			rotationVal: chartObjyieldarray[field].toolTip[0][0],
-			dMYieldAc: chartObjyieldarray[field].data[0],
+			dMYieldAc: chartObjyieldarray[field].data[0]
 		})
 	}
 	console.log(fieldYieldArray)
@@ -347,6 +347,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     }
                                     console.log(heiferFeedData)
                                     calcHeiferFeedBreakdown(heiferFeedData)
+                                    gatherYieldTableData()
                                     Ext.getCmp("feedTab").setDisabled(false)      
                                 }
                                 break
@@ -692,7 +693,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         handler: async function(self) {
                             //await getWFSScenario()
                             console.log(chartObj)
-                            await gatherYieldTableData()
+                            //await gatherYieldTableData()
                             {
                                 DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
                                 DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
