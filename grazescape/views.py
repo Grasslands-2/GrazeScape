@@ -62,6 +62,9 @@ def heiferFeedBreakDown(data):
     return JsonResponse({"output":toolName.calcFeed()})
     #return JsonResponse({"feed_calc":"finished"})
 
+@ensure_csrf_cookie
+@csrf_protect
+@login_required
 def run_InfraTrueLength(data):
     print('POST in VIEWS!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     print(data.POST)
