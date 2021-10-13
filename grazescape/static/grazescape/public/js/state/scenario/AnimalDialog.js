@@ -87,7 +87,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 	constrain: true,
 	modal: true,
 	width: 832,
-	resizable: false,
+	resizable: true,
 	bodyPadding: 8,
 	titleAlign: 'center',
 	
