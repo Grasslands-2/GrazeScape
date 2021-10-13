@@ -2,7 +2,7 @@
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
 function userUpdateYields(){
-	//var dmFarmTotal = chartObj.rotation_yield_farm.chartData.datasets[0]
+	var dmFarmTotal = chartObj.rotation_yield_farm.chartData.datasets[0]
 	var grassFarmTotal = chartObj.grass_yield_farm.chartData.datasets[0]
 	var cornFarmTotal = chartObj.corn_yield_farm.chartData.datasets[0]
 	var soyFarmTotal = chartObj.soy_yield_farm.chartData.datasets[0]
@@ -16,71 +16,103 @@ function userUpdateYields(){
     var soydataarray = chartObj.soy_yield_field.chartData.datasets
     var oatdataarray = chartObj.oat_yield_field.chartData.datasets
     var alfalfadataarray = chartObj.alfalfa_yield_field.chartData.datasets
-	//dmFarmTotal.data[0] = 0
+	dmFarmTotal.data[0] = 0
 	grassFarmTotal.data[0] = 0
 	cornFarmTotal.data[0] = 0
 	soyFarmTotal.data[0] = 0
 	silageFarmTotal.data[0] = 0
 	oatFarmTotal.data[0] = 0
 	alfalfaFarmTotal.data[0] = 0
-	
+
 	for(f in fieldYieldArray){
 		var fieldID = fieldYieldArray[f].id
+		fieldYieldArray[f].dMYieldAc = 0
 		// for(d in dmDataArray){
 		// 	if(dmDataArray[d].dbID == fieldID){
-		// 		dmDataArray[d].data[0] = fieldYieldArray[f].dMYieldAc
-		// 		console.log(chartObj.rotation_yield_field.area[d])
-		// 		dmFarmTotal.data[0] = dmFarmTotal.data[0] + (fieldYieldArray[f].dMYieldAc * chartObj.rotation_yield_field.area[d])
+		// 		dmFarmTotal.data[0] = dmFarmTotal.data[0] + 
 		// 		console.log(dmFarmTotal.data[0])
 		// 	}
 		// }
 		//use the above example to update the farm values in the chartobj to reflect the new totals after a user adjusts the yields.
 		for(g in grassdataarray){
 			if (grassdataarray[g].dbID == fieldID){
-				grassdataarray[g].data[0] = fieldYieldArray[f].grassYieldTonsAc
-				grassFarmTotal.data[0] = grassFarmTotal.data[0] + fieldYieldArray[f].grassYieldTonsAc
+				//console.log(fieldYieldArray[f].grassYieldTonsAc)
+				/*field crop value*/grassdataarray[g].data[0] = fieldYieldArray[f].grassYieldTonsAc
+				/*farm crop value*/grassFarmTotal.data[0] = grassFarmTotal.data[0] + (fieldYieldArray[f].grassYieldTonsAc * chartObj.grass_yield_field.area[g])
+				console.log(grassFarmTotal.data[0])
+				/*total DM for field*/fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + fieldYieldArray[f].grassYieldTonsAc
 			}
 		}
 		for(c in corndataarray){
 			if (corndataarray[c].dbID == fieldID){
 				corndataarray[c].data[0] = fieldYieldArray[f].cornGrainBrusdAc
-				cornFarmTotal.data[0] = cornFarmTotal.data[0] + (fieldYieldArray[f].cornGrainBrusdAc * chartObj.corn_yield_field.area[d])
+				cornFarmTotal.data[0] = cornFarmTotal.data[0] + (fieldYieldArray[f].cornGrainBrusdAc * chartObj.corn_yield_field.area[c])
+				//console.log(cornFarmTotal.data[0])
+				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].cornGrainBrusdAc/39.3680)
+				//console.log(fieldYieldArray[f].dMYieldAc)
 			}
 		}
 		for(so in soydataarray){
 			if (soydataarray[so].dbID == fieldID){
-				soydataarray[so].data[0] = fieldYieldArray[f].soydataarray
-				soyFarmTotal.data[0] = soyFarmTotal.data[0] + (fieldYieldArray[f].soydataarray * chartObj.soy_yield_field.area[d])
+				soydataarray[so].data[0] = fieldYieldArray[f].soyGrainBrusAc
+				soyFarmTotal.data[0] = soyFarmTotal.data[0] + (fieldYieldArray[f].soyGrainBrusAc * chartObj.soy_yield_field.area[so])
+				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].soyGrainBrusAc/33.33)
 			}
 		}
 		for(s in silagedataarray){
 			if (silagedataarray[s].dbID == fieldID){
-				silagedataarray[s].data[0] = fieldYieldArray[f].silagedataarray
-				silageFarmTotal.data[0] = silageFarmTotal.data[0] + (fieldYieldArray[f].silagedataarray * chartObj.corn_silage_yield_field.area[d])
+				silagedataarray[s].data[0] = fieldYieldArray[f].cornSilageTonsAc
+				silageFarmTotal.data[0] = silageFarmTotal.data[0] + fieldYieldArray[f].cornSilageTonsAc
+				//dmDataArray.data[0] = dmDataArray.data[0] +
+				//Apperently silage is not considered as part of the DM yield in this case.  Ask team.
 			}
 		}
 		for(o in oatdataarray){
 			if (oatdataarray[o].dbID == fieldID){
 				oatdataarray[o].data[0] = fieldYieldArray[f].oatYieldBrusAc
-				oatFarmTotal.data[0] = oatFarmTotal.data[0] + (fieldYieldArray[f].oatYieldBrusAc * chartObj.oat_yield_field.area[d])
+				oatFarmTotal.data[0] = oatFarmTotal.data[0] + fieldYieldArray[f].oatYieldBrusAc
+				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].oatYieldBrusAc/62.5)
 			}
 		}
 		for(a in alfalfadataarray){
 			if (alfalfadataarray[a].dbID == fieldID){
 				alfalfadataarray[a].data[0] = fieldYieldArray[f].alfalfaYieldTonsAc
-				alfalfaFarmTotal.data[0] = alfalfaFarmTotal.data[0] +(fieldYieldArray[f].alfalfaYieldTonsAc * chartObj.alfalfa_yield_field[d])
+				alfalfaFarmTotal.data[0] = alfalfaFarmTotal.data[0] + (fieldYieldArray[f].alfalfaYieldTonsAc * chartObj.alfalfa_yield_field.area[a])
+				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + fieldYieldArray[f].alfalfaYieldTonsAc
 			}
 		}
+		console.log('DM yeild total for field: ' + fieldID + ': ' + fieldYieldArray[f].dMYieldAc)
+		for(d in dmDataArray){
+			if (dmDataArray[d].dbID == fieldID){
+				dmDataArray[d].data[0] = fieldYieldArray[f].dMYieldAc///chartObj.rotation_yield_field.area[d]
+				dmFarmTotal.data[0] = dmFarmTotal.data[0] + fieldYieldArray[f].dMYieldAc
+				console.log(dmFarmTotal.data[0])
+			}
+		}
+		//dmFarmTotal.data[0] = dmFarmTotal.data[0] + fieldYieldArray[f].dMYieldAc
 	}
+	//final farm and DM calcs
+	grassFarmTotal.data[0] = grassFarmTotal.data[0] /chartObj.grass_yield_farm.area[0]
+	console.log(grassFarmTotal.data[0])
+	cornFarmTotal.data[0] = cornFarmTotal.data[0]/chartObj.corn_yield_farm.area[0]
+	console.log(cornFarmTotal.data[0])
+	soyFarmTotal.data[0] = soyFarmTotal.data[0] /chartObj.soy_yield_farm.area[0]
+	console.log(soyFarmTotal.data[0])
+	oatFarmTotal.data[0] = oatFarmTotal.data[0] /chartObj.oat_yield_farm.area[0]
+	console.log(oatFarmTotal.data[0])
+	alfalfaFarmTotal.data[0] = alfalfaFarmTotal.data[0] /chartObj.oat_yield_farm.area[0]
+	console.log(alfalfaFarmTotal.data[0])
+	dmFarmTotal.data[0] = dmFarmTotal.data[0] /chartObj.rotation_yield_farm.area[0]
+
 	console.log(chartObj)
 }
-
+//FOLLOW THE CORN MODEL TO GET THE MULTIPLE AND DIVIDE BY ACRES RIGHT!!!!!!!!!!!!!!
 //------------------------------------------------------------------------------
 Ext.define('DSS.results.YieldAdjustment', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
 	alias: 'widget.results_yield_adjust',
-	autoDestroy: true,
+	autoDestroy: false,
 	closeAction: 'hide',
 	constrain: true,
 	modal: true,
@@ -186,7 +218,6 @@ Ext.define('DSS.results.YieldAdjustment', {
 		}
 
 		var grid = Ext.create('Ext.grid.Panel', {
-			id: 'yieldTable',
 			store: Ext.data.StoreManager.lookup('yieldStore'),
 			loadMask: true,
 			width: 400,
@@ -227,7 +258,7 @@ Ext.define('DSS.results.YieldAdjustment', {
 						console.log("Changes saved")
 
 						let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
-						console.log(scenIndexAS)
+						//console.log(scenIndexAS)
 						
 						var heiferFeedData = {
 							pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
@@ -247,11 +278,11 @@ Ext.define('DSS.results.YieldAdjustment', {
 								heiferFeedData[prop] = 0
 							}
 						}
-						console.log(heiferFeedData)
-						calcHeiferFeedBreakdown(heiferFeedData)
-						console.log(chartObj)
+						//console.log(heiferFeedData)
+						//calcHeiferFeedBreakdown(heiferFeedData)
+						//console.log(chartObj)
 					}
-				},]
+				}]
 		});
 		
 		me.callParent(arguments);

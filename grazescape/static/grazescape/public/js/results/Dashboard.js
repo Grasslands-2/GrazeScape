@@ -7,7 +7,7 @@ function gatherYieldTableData() {
             id: chartObjyieldarray[field].dbID,
 			name: chartObjyieldarray[field].label.slice(0,-3),
 			rotationVal: chartObjyieldarray[field].toolTip[0][0],
-			//dMYieldAc: chartObjyieldarray[field].data[0],
+			dMYieldAc: chartObjyieldarray[field].data[0],
 		})
 	}
 	console.log(fieldYieldArray)
