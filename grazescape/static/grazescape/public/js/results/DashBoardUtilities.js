@@ -110,7 +110,6 @@ function build_model_request(f, geometry, modelChoice){
 //        }
 //    }
 
-
 //    runModel = true
     let rotation_split = f["rotation"].split("-")
     crop = rotation_split[0]
@@ -177,7 +176,7 @@ function build_model_request(f, geometry, modelChoice){
     return model_pack
 }
 function format_chart_data(model_data){
-    console.log("Model data")
+    console.log("Model data!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$")
     console.log(model_data)
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
         return
@@ -193,6 +192,7 @@ function format_chart_data(model_data){
         console.log("data is not part of a valid field or scenario")
         return
     }
+    modelTypeString = model_data.value_type +'_'+ model_data.crop_ro
     switch (model_data.model_type) {
         case 'yield':
             switch (model_data.value_type){
@@ -226,6 +226,8 @@ function format_chart_data(model_data){
                 break
             }
             break;
+            break
+
 
         case 'ploss':
 

@@ -118,7 +118,17 @@ def update_field_dirty(field_id, scenario_id, farm_id):
         cur.close()
         conn.commit()
         conn.close()
-
+def null_out_yield_results(field_id, scenario_id, farm_id, data):
+    if data['crop_ro'] == 'pt' and data['value_type'] != 'Grass':
+        data['sum_cells'] = 0
+    if data['crop_ro'] == 'cc' and data['value_type'] != 'Corn Grain':
+        data['sum_cells'] = 0
+    if data['crop_ro'] == 'cg' and data['value_type'] != 'Corn Grain' or 'Soy':
+        data['sum_cells'] = 0
+    if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or'Corn Grain' or 'Alfalfa':
+        data['sum_cells'] =0
+    if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or'Soy' or 'Oats':
+        data['sum_cells'] = 0
 def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     """
 

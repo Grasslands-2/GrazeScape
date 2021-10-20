@@ -24,6 +24,7 @@ function userUpdateYields(){
 	oatYeildFarm.data[0] = 0
 	alfalfaYeildFarm.data[0] = 0
 
+	console.log(fieldYieldArray)
 	for(f in fieldYieldArray){
 		var fieldID = fieldYieldArray[f].id
 		fieldYieldArray[f].dMYieldAc = 0
@@ -36,9 +37,11 @@ function userUpdateYields(){
 		//use the above example to update the farm values in the chartobj to reflect the new totals after a user adjusts the yields.
 		for(g in grassYeildFieldDS){
 			if (grassYeildFieldDS[g].dbID == fieldID){
+				console.log(grassYeildFarm.data[0])
+				console.log(chartObj.grass_yield_field.area[g])
 				//console.log(fieldYieldArray[f].grassYieldTonsAc)
 				grassYeildFieldDS[g].data[0] = fieldYieldArray[f].grassYieldTonsAc
-				grassYeildFarm.data[0] = grassYeildFarm.data[0] + (fieldYieldArray[f].grassYieldTonsAc * chartObj.grass_yield_field.area[g])
+				grassYeildFarm.data[0] = grassYeildFarm.data[0] + (fieldYieldArray[f].grassYieldTonsAc * chartObj.rotation_yield_field.area[g])
 				console.log(grassYeildFarm.data[0])
 				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + fieldYieldArray[f].grassYieldTonsAc
 			}
@@ -46,7 +49,7 @@ function userUpdateYields(){
 		for(c in cornYeildFieldDS){
 			if (cornYeildFieldDS[c].dbID == fieldID){
 				cornYeildFieldDS[c].data[0] = fieldYieldArray[f].cornGrainBrusdAc
-				cornYeildFarm.data[0] = cornYeildFarm.data[0] + (fieldYieldArray[f].cornGrainBrusdAc * chartObj.corn_yield_field.area[c])
+				cornYeildFarm.data[0] = cornYeildFarm.data[0] + (fieldYieldArray[f].cornGrainBrusdAc * chartObj.rotation_yield_field.area[c])
 				//console.log(cornYeildFarm.data[0])
 				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].cornGrainBrusdAc/39.3680)
 				//console.log(fieldYieldArray[f].dMYieldAc)
@@ -55,7 +58,7 @@ function userUpdateYields(){
 		for(so in soyYeildFieldDS){
 			if (soyYeildFieldDS[so].dbID == fieldID){
 				soyYeildFieldDS[so].data[0] = fieldYieldArray[f].soyGrainBrusAc
-				soyYeildFarm.data[0] = soyYeildFarm.data[0] + (fieldYieldArray[f].soyGrainBrusAc * chartObj.soy_yield_field.area[so])
+				soyYeildFarm.data[0] = soyYeildFarm.data[0] + (fieldYieldArray[f].soyGrainBrusAc * chartObj.rotation_yield_field.area[so])
 				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].soyGrainBrusAc/33.33)
 			}
 		}
@@ -69,7 +72,7 @@ function userUpdateYields(){
 		}
 		for(o in oatYeildFieldDS){
 			if (oatYeildFieldDS[o].dbID == fieldID){
-				oatYeildFieldDS[o].data[0] = fieldYieldArray[f].oatYieldBrusAc
+				oatYeildFieldDS[o].data[0] = (fieldYieldArray[f].oatYieldBrusAc * chartObj.rotation_yield_field.area[o])
 				oatYeildFarm.data[0] = oatYeildFarm.data[0] + fieldYieldArray[f].oatYieldBrusAc
 				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].oatYieldBrusAc/62.5)
 			}
@@ -77,7 +80,7 @@ function userUpdateYields(){
 		for(a in alfalfaYeildFieldDS){
 			if (alfalfaYeildFieldDS[a].dbID == fieldID){
 				alfalfaYeildFieldDS[a].data[0] = fieldYieldArray[f].alfalfaYieldTonsAc
-				alfalfaYeildFarm.data[0] = alfalfaYeildFarm.data[0] + (fieldYieldArray[f].alfalfaYieldTonsAc * chartObj.alfalfa_yield_field.area[a])
+				alfalfaYeildFarm.data[0] = alfalfaYeildFarm.data[0] + (fieldYieldArray[f].alfalfaYieldTonsAc * chartObj.rotation_yield_field.area[a])
 				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + fieldYieldArray[f].alfalfaYieldTonsAc
 			}
 		}
@@ -87,22 +90,24 @@ function userUpdateYields(){
 				rotYeildFieldDS[d].data[0] = (fieldYieldArray[f].dMYieldAc).toFixed(2)
 				rotYeildFarm.data[0] = rotYeildFarm.data[0] + ((fieldYieldArray[f].dMYieldAc * chartObj.rotation_yield_field.area[d])/chartObj.rotation_yield_farm.area[0])
 				//Total DM formula!!!! each fields DM * its acres / total acres + each other = total DM
-				console.log(rotYeildFarm.data[0])
+				//console.log(rotYeildFarm.data[0])
 			}
 		}
 		//rotYeildFarm.data[0] = rotYeildFarm.data[0] + fieldYieldArray[f].dMYieldAc
 	}
 	//final farm and DM calcs
+	console.log(grassYeildFarm.data[0])
+	console.log(chartObj.grass_yield_farm.area[0])
 	grassYeildFarm.data[0] = (grassYeildFarm.data[0] /chartObj.grass_yield_farm.area[0]).toFixed(2)
 	console.log(grassYeildFarm.data[0])
 	cornYeildFarm.data[0] = (cornYeildFarm.data[0]/chartObj.corn_yield_farm.area[0]).toFixed(2)
-	console.log(cornYeildFarm.data[0])
+	//console.log(cornYeildFarm.data[0])
 	soyYeildFarm.data[0] = (soyYeildFarm.data[0] /chartObj.soy_yield_farm.area[0]).toFixed(2)
-	console.log(soyYeildFarm.data[0])
+	//console.log(soyYeildFarm.data[0])
 	oatYeildFarm.data[0] = (oatYeildFarm.data[0] /chartObj.oat_yield_farm.area[0]).toFixed(2)
-	console.log(oatYeildFarm.data[0])
+	//console.log(oatYeildFarm.data[0])
 	alfalfaYeildFarm.data[0] = (alfalfaYeildFarm.data[0] /chartObj.oat_yield_farm.area[0]).toFixed(2)
-	console.log(alfalfaYeildFarm.data[0])
+	//console.log(alfalfaYeildFarm.data[0])
 	//rotYeildFarm.data[0] = rotYeildFarm.data[0] /chartObj.rotation_yield_farm.area[0]
 	rotYeildFarm.data[0] = rotYeildFarm.data[0].toFixed(2)
 
@@ -118,7 +123,7 @@ Ext.define('DSS.results.YieldAdjustment', {
 	closeAction: 'hide',
 	constrain: true,
 	modal: true,
-	width: 832,
+	width: 1050,
 	resizable: true,
 	bodyPadding: 8,
 	titleAlign: 'center',
@@ -139,8 +144,7 @@ Ext.define('DSS.results.YieldAdjustment', {
 			},{
 				value: 'pt-rt',
 				display: 'Rotational Pasture'
-			},
-			{
+			},{
 				value: 'dl',
 				display: 'Dry Lot'
 			},{ 
@@ -166,14 +170,14 @@ Ext.define('DSS.results.YieldAdjustment', {
 			data: fieldYieldArray
 		});
 		let fieldNameColumn = { 
-			editor: 'textfield', text: 'Fields', dataIndex: 'name', width: 120, 
+			editor: 'textfield', text: 'Fields', dataIndex: 'name', width: 100, 
 			locked: true, draggable: false, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 
 		};
 		let cropRotationColumn = {
 			editor: 'textfield',
-			text: 'Crop Rotation', dataIndex: 'rotationVal', width: 200, editable: false,
+			text: 'Crop Rotation', dataIndex: 'rotationDisp', width: 120, editable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 		};
 		// let dmYield_Column = {
@@ -185,37 +189,37 @@ Ext.define('DSS.results.YieldAdjustment', {
 		let grassYield_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
-			}, text: 'Grass Yield t/acre', dataIndex: 'grassYieldTonsAc', width: 80,
+			}, text: 'Grass Yield t/acre', dataIndex: 'grassYieldTonsAc', width: 130,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		}
 		let cornGrain_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
-			}, text: 'Corn Grain b/acre', dataIndex: 'cornGrainBrusdAc', width: 80,
+			}, text: 'Corn Grain b/acre', dataIndex: 'cornGrainBrusdAc', width: 130,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		}
 		let cornSilage_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
-			}, text: 'Corn Silage t/acre', dataIndex: 'cornSilageTonsAc', width: 80,
+			}, text: 'Corn Silage t/acre', dataIndex: 'cornSilageTonsAc', width: 130,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		}
 		let soyGrain_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
-			}, text: 'Soy Grain b/acre', dataIndex: 'soyGrainBrusAc', width: 80,
+			}, text: 'Soy Grain b/acre', dataIndex: 'soyGrainBrusAc', width: 130,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		}
 		let oatGrain_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
-			}, text: 'Oat Grain b/acre', dataIndex: 'oatYieldBrusAc', width: 80,
+			}, text: 'Oat Grain b/acre', dataIndex: 'oatYieldBrusAc', width: 130,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		}
 		let alfalfaYield_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
-			}, text: 'Alfalfa t/acre', dataIndex: 'alfalfaYieldTonsAc', width: 80,
+			}, text: 'Alfalfa t/acre', dataIndex: 'alfalfaYieldTonsAc', width: 120,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		}
 
@@ -282,7 +286,15 @@ Ext.define('DSS.results.YieldAdjustment', {
 						}
 						//console.log(heiferFeedData)
 						calcHeiferFeedBreakdown(heiferFeedData)
+
 						//console.log(chartObj)
+						chartObj.grass_yield_farm.chart.update()
+						chartObj.corn_yield_farm.chart.update()
+						chartObj.corn_silage_yield_farm.chart.update()
+						chartObj.soy_yield_farm.chart.update()
+						chartObj.oat_yield_farm.chart.update()
+						chartObj.alfalfa_yield_farm.chart.update()
+						chartObj.rotation_yield_farm.chart.update()
 						this.up('window').close();
 					}
 				}]

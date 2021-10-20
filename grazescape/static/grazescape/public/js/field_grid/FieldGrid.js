@@ -869,7 +869,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				//grazeDairyNonLactatingColumn,
 				//grazeBeefCattleColumn,
 				grassSpeciesColumn,
-				rotationalFreqColumn,
+				//rotationalFreqColumn,
 				//interseededCloverColumn,
 				//manurePasturesColumn,
 				grazeDensityColumn,
