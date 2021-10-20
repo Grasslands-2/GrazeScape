@@ -266,8 +266,8 @@ def get_model_results(request):
                 "grass_ro": model.model_parameters["rotation"],
                 "grass_type": model.model_parameters["grass_type"],
                 "till": model.model_parameters["tillage"]
-
             }
+            #null_out_yield_results(field_id, scenario_id, farm_id, data)
             if db_has_field(field_id, scenario_id, farm_id):
                 update_field_results(field_id, scenario_id, farm_id, data, False)
             else:

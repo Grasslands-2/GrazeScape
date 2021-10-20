@@ -2,7 +2,27 @@
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
 var pastAcreageHS = 0
- var cropAcreageHS = 0
+var cropAcreageHS = 0
+Ext.create('Ext.data.Store', {
+	storeId: 'rotationFreq',
+	fields:['display', 'value'],
+	data: [{
+		value: '1.2',
+		display: 'More then once a day'
+	},{ 
+		value: '1',
+		display: 'Once a day'
+	},{ 
+		value: '0.95',
+		display: 'Every 3 days'
+	},{ 
+		value:'0.75',
+		display: 'Every 7 days'
+	},{ 
+		value: '0.65',
+		display: 'Continuous'
+	}]
+});
 let breedSizeStore = Ext.create('Ext.data.Store', {
 	storeId: 'breedSizeStore',
 	fields:[ 'label', 'value'],
@@ -86,7 +106,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 	closeAction: 'hide',
 	constrain: true,
 	modal: true,
-	width: 832,
+	width: 925,
 	resizable: true,
 	bodyPadding: 8,
 	titleAlign: 'center',
@@ -104,6 +124,8 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 		//--------------------------------------------
 		let dairyContainer = {
 			xtype: 'container',
+			width: 300,
+			height: 550,
 			layout: 'fit',
 			items: [{
 				xtype: 'container',
@@ -119,16 +141,16 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					margin: '0 32',
 				},{
 					xtype: 'container',
-					layout: DSS.utils.layout('vbox', 'start', 'middle'),
+					layout: DSS.utils.layout('vbox', 'start', 'left'),
 					margin: 8,
 					defaults: {
 						xtype: 'numberfield',
 						value: 20,
 						minValue: 0,
 						step: 1,
-						labelAlign: 'right',
+						labelAlign: 'left',
 						labelWidth: 100,
-						width: 200,
+						width: 250,
 					},
 					items: [{
 						fieldLabel: 'Lactating Cows',
@@ -153,12 +175,12 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 				},{
 					xtype: 'numberfield',
 					width: 200,
-					margin: '8 82',
+					margin: '0 32',
 					fieldLabel: 'Milk Yield (lb/day/Cow)',
-					labelAlign: 'right',
-					labelWidth: 148,
+					labelAlign: 'left',
+					labelWidth: 100,
 					bind: '{dairy.dailyYield}',
-					minValue: 1,
+					minValue: 0,
 					step: 0.5,
 				},{ //------------------------------------------------------------
 					xtype: 'component',
@@ -168,14 +190,14 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 				},{
 					xtype: 'container',
 					itemId: 'lactating-cattle',
-					layout: DSS.utils.layout('vbox', 'start', 'middle'),
+					layout: DSS.utils.layout('vbox', 'start', 'left'),
 					margin: 8,
 					items: [	{
 						xtype: 'numberfield',
 						fieldLabel: 'Animals On Pasture',
-						labelAlign: 'right',
-						labelWidth: 148,
-						width:300,
+						labelAlign: 'left',
+						labelWidth: 100,
+						width: 250,
 						bind: '{dairy.animalsOnPasture}',
 						minValue: 1,
 						step: 1,
@@ -183,19 +205,20 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						{
 						xtype: 'container',
 						width: undefined,
-						layout: DSS.utils.layout('hbox', 'center'),
+						layout: DSS.utils.layout('hbox', 'left'),
 						items: [
 							{
 							xtype: 'component',
 							itemId: 'grazed-display',
 							cls: 'information',
-							padding: 4,margin: '0 4',
+							padding: 4,
+							margin: '0 4',
 							width: 32,
 							style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
 						},
 						{
 							xtype: 'slider',
-							width: 200,
+							width: 190,
 							minValue: 0,
 							maxValue: 12,
 							bind: '{dairy.lactatingConfined}',
@@ -227,7 +250,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					},{
 						xtype: 'container',
 						width: undefined,
-						layout: DSS.utils.layout('hbox', 'center'),
+						layout: DSS.utils.layout('hbox', 'left'),
 						items: [{
 							xtype: 'component',
 							width: 64,
@@ -236,13 +259,14 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						},{
 							xtype: 'component',
 							cls: 'information-compact med-text',
-							width: 180,
+							width: 130,
 							html: 'Period (mo / yr)'
 						},{
 							xtype: 'component',
 							width: 64,
 							cls: 'information med-text bold',
-							html: 'Confined'
+							html: 'Confined',
+							labelAlign: 'right'
 						}]
 					},{
 						xtype: 'numberfield',
@@ -251,169 +275,199 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						minValue: 0,
 						maxValue: 12,
 						step: 1,
-						labelAlign: 'right',
-						labelWidth: 140,
-						width: 240,
+						labelAlign: 'left',
+						labelWidth: 100,
+						width: 250,
 						fieldLabel: 'Grazing Time (h/d)',
 						maxValue: 24
-					}]
-				},{ //------------------------------------------------------------
-					xtype: 'component',
-					cls: 'information accent-text box-underline',
-					html: 'How are the <b>non-lactating</b> cattle managed?',
-					margin: '0 32',
-				},{
-					xtype: 'container',
-					itemId: 'non-lactating-cattle',
-					layout: DSS.utils.layout('vbox', 'start', 'middle'),
-					margin: 8,
-					items: [
-						{
+					},
+					{
 						xtype: 'numberfield',
-						fieldLabel: 'Animals On Pasture',
-						labelAlign: 'right',
-						labelWidth: 148,
-						bind: '{heifers.animalsOnPasture}',
-						minValue: 1,
 						step: 1,
-						},
-						{
-						//id: 'bredDropDown',
+						allowBlank: false,
+						labelAlign: 'left',
+						labelWidth: 100,
+						width: 250,
+						fieldLabel: 'Target % Dairy Pasture Residual',
+						bind: '{percResidualOnPasture}',
+						value: 30,
+						maxValue: 50,
+						minValue: 10
+					},
+					{
 						xtype: 'combo',
-						fieldLabel: 'Breed Size',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
+						fieldLabel: 'Dairy Rotational Frequency',
+						labelAlign: 'left',
+						labelWidth: 100,
+						width: 250,
 						mode: 'remote',
 						triggerAction: 'all',
-						store: 'breedSizeStore',
+						store: 'rotationFreqStore',
 						displayField: 'label',
 						valueField: 'value',
-						bind: '{heifers.breedSize}',
-						// listeners:{ 
-						// 	change: function(){
-						// 		selectedType = Ext.getCmp('bredDropDown').getValue()
-						// 		console.log(selectedType)
-						// 		if(selectedType == 'small'){
-						// 			console.log(Ext.getCmp('bredDropDown'))
-						// 			Ext.getCmp('asw').setBind(220)
-						// 			// Ext.getCmp('asw').setMinValue(220)
-						// 			// Ext.getCmp('asw').setMaxValue(460)
+						bind: '{rotationFreqVal}',
+					},]
+				},
+				// { //------------------------------------------------------------
+				// 	xtype: 'component',
+				// 	cls: 'information accent-text box-underline',
+				// 	html: 'How are the <b>non-lactating</b> cattle managed?',
+				// 	margin: '0 32',
+				// },
+				// {
+				// 	xtype: 'container',
+				// 	itemId: 'non-lactating-cattle',
+				// 	layout: DSS.utils.layout('vbox', 'start', 'left'),
+				// 	margin: 8,
+				// 	items: [
+				// 		{
+				// 		xtype: 'numberfield',
+				// 		fieldLabel: 'Animals On Pasture',
+				// 		labelAlign: 'left',
+				// 		labelWidth: 100,
+				// 		width: 250,
+				// 		bind: '{heifers.animalsOnPasture}',
+				// 		minValue: 1,
+				// 		step: 1,
+				// 		},
+				// 		{
+				// 		xtype: 'combo',
+				// 		fieldLabel: 'Breed Size',
+				// 		labelAlign: 'left',
+				// 		labelWidth: 100,
+				// 		width: 250,
+				// 		mode: 'remote',
+				// 		triggerAction: 'all',
+				// 		store: 'breedSizeStore',
+				// 		displayField: 'label',
+				// 		valueField: 'value',
+				// 		bind: '{heifers.breedSize}',
+				// 		// listeners:{ 
+				// 		// 	change: function(){
+				// 		// 		selectedType = Ext.getCmp('bredDropDown').getValue()
+				// 		// 		console.log(selectedType)
+				// 		// 		if(selectedType == 'small'){
+				// 		// 			console.log(Ext.getCmp('bredDropDown'))
+				// 		// 			Ext.getCmp('asw').setBind(220)
+				// 		// 			// Ext.getCmp('asw').setMinValue(220)
+				// 		// 			// Ext.getCmp('asw').setMaxValue(460)
 									
-						// 		}else if (selectedType == 'large'){
-						// 			console.log(Ext.getCmp('asw'))
-						// 			Ext.getCmp('asw').setBind(330)
+				// 		// 		}else if (selectedType == 'large'){
+				// 		// 			console.log(Ext.getCmp('asw'))
+				// 		// 			Ext.getCmp('asw').setBind(330)
 									
-						// 			// Ext.getCmp('asw').setMinValue(330)
-						// 			// Ext.getCmp('asw').setMaxValue(670)
-						// 		}
-						// 	}
-						// }
-						},{
-						xtype: 'combo',
-						fieldLabel: 'Bred or Unbred',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'bredStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifers.bred}',
-						},{
-						//id: 'asw',
-						fieldLabel: 'Average Starting Weight(lbs)',
-						bind: '{heifers.asw}',
-						},{
-						xtype: 'combo',
-						fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
-						mode: 'remote',
-						triggerAction: 'all',
-						store: 'weightGainStore',
-						displayField: 'label',
-						valueField: 'value',
-						bind: '{heifers.tdwg}',
-						},
-						{
-						xtype: 'container',
-						width: undefined,
-						layout: DSS.utils.layout('hbox', 'center'),
-						items: [{
-							xtype: 'component',
-							itemId: 'grazed-display',
-							cls: 'information',
-							padding: 4,margin: '0 4',
-							width: 32,
-							style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
-						},{
-							xtype: 'slider',
-							width: 200,
-							minValue: 0,
-							maxValue: 12,
-							bind: '{dairy.nonLactatingConfined}',
-							step: 1,
-							listeners: {
-								change: function(slider, newValue) {
-									slider.up().down('#grazed-display').update('' + (12 - newValue));
-									slider.up().down('#confined-display').update('' + newValue);
-									Ext.each(
-										Ext.ComponentQuery.query('[dssID=if-grazed]', me.down('#non-lactating-cattle')),
-										function(item) {
-											item.setDisabled(newValue == 12);
-										}
-									);
-								}
-							},
-							tipText: function(thumb)  {
-								const v = thumb.slider.getValue();
-								return 12 - v + " / " + v;
-							}
-						},{
-							xtype: 'component',
-							itemId: 'confined-display',
-							cls: 'information',
-							padding: 4,margin: '0 4',
-							width: 32,
-							style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
-						}]
-					},{
-						xtype: 'container',
-						width: undefined,
-						layout: DSS.utils.layout('hbox', 'center'),
-						items: [{
-							xtype: 'component',
-							width: 64,
-							cls: 'information med-text bold',
-							html: 'Pastured'
-						},{
-							xtype: 'component',
-							cls: 'information-compact med-text',
-							width: 180,
-							html: 'Period (mo / yr)'
-						},{
-							xtype: 'component',
-							width: 64,
-							cls: 'information med-text bold',
-							html: 'Confined'
-						}]
-					},{
-						xtype: 'numberfield',
-						dssID: 'if-grazed',
-						bind: '{dairy.nonLactatingGrazeTime}',
-						minValue: 0,
-						maxValue: 12,
-						step: 1,
-						labelAlign: 'right',
-						labelWidth: 140,
-						width: 240,
-						fieldLabel: 'Grazing Time (h/d)',
-						maxValue: 24
-					}]
-				}]
+				// 		// 			// Ext.getCmp('asw').setMinValue(330)
+				// 		// 			// Ext.getCmp('asw').setMaxValue(670)
+				// 		// 		}
+				// 		// 	}
+				// 		// }
+				// 		},
+				// 		{
+				// 		xtype: 'combo',
+				// 		fieldLabel: 'Bred or Unbred',
+				// 		labelAlign: 'left',
+				// 		labelWidth: 100,
+				// 		width: 250,
+				// 		mode: 'remote',
+				// 		triggerAction: 'all',
+				// 		store: 'bredStore',
+				// 		displayField: 'label',
+				// 		valueField: 'value',
+				// 		bind: '{heifers.bred}',
+				// 		},{
+				// 		//id: 'asw',
+				// 		fieldLabel: 'Average Starting Weight(lbs)',
+				// 		bind: '{heifers.asw}',
+				// 		},{
+				// 		xtype: 'combo',
+				// 		fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
+				// 		labelAlign: 'left',
+				// 		labelWidth: 100,
+				// 		width: 250,
+				// 		mode: 'remote',
+				// 		triggerAction: 'all',
+				// 		store: 'weightGainStore',
+				// 		displayField: 'label',
+				// 		valueField: 'value',
+				// 		bind: '{heifers.tdwg}',
+				// 		},
+				// 		{
+				// 		xtype: 'container',
+				// 		width: undefined,
+				// 		layout: DSS.utils.layout('hbox', 'left'),
+				// 		items: [{
+				// 			xtype: 'component',
+				// 			itemId: 'grazed-display',
+				// 			cls: 'information',
+				// 			padding: 4,margin: '0 4',
+				// 			width: 32,
+				// 			style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
+				// 		},{
+				// 			xtype: 'slider',
+				// 			width: 170,
+				// 			minValue: 0,
+				// 			maxValue: 12,
+				// 			bind: '{dairy.nonLactatingConfined}',
+				// 			step: 1,
+				// 			listeners: {
+				// 				change: function(slider, newValue) {
+				// 					slider.up().down('#grazed-display').update('' + (12 - newValue));
+				// 					slider.up().down('#confined-display').update('' + newValue);
+				// 					Ext.each(
+				// 						Ext.ComponentQuery.query('[dssID=if-grazed]', me.down('#non-lactating-cattle')),
+				// 						function(item) {
+				// 							item.setDisabled(newValue == 12);
+				// 						}
+				// 					);
+				// 				}
+				// 			},
+				// 			tipText: function(thumb)  {
+				// 				const v = thumb.slider.getValue();
+				// 				return 12 - v + " / " + v;
+				// 			}
+				// 		},{
+				// 			xtype: 'component',
+				// 			itemId: 'confined-display',
+				// 			cls: 'information',
+				// 			padding: 4,margin: '0 4',
+				// 			width: 32,
+				// 			style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
+				// 		}]
+				// 	},{
+				// 		xtype: 'container',
+				// 		width: undefined,
+				// 		layout: DSS.utils.layout('hbox', 'left'),
+				// 		items: [{
+				// 			xtype: 'component',
+				// 			width: 64,
+				// 			cls: 'information med-text bold',
+				// 			html: 'Pastured'
+				// 		},{
+				// 			xtype: 'component',
+				// 			cls: 'information-compact med-text',
+				// 			width: 180,
+				// 			html: 'Period (mo / yr)'
+				// 		},{
+				// 			xtype: 'component',
+				// 			width: 64,
+				// 			cls: 'information med-text bold',
+				// 			html: 'Confined'
+				// 		}]
+				// 	},{
+				// 		xtype: 'numberfield',
+				// 		dssID: 'if-grazed',
+				// 		bind: '{dairy.nonLactatingGrazeTime}',
+				// 		minValue: 0,
+				// 		maxValue: 12,
+				// 		step: 1,
+				// 		labelAlign: 'left',
+				// 		labelWidth: 100,
+				// 		width: 250,
+				// 		fieldLabel: 'Grazing Time (h/d)',
+				// 		maxValue: 24
+				// 	}]
+				// }
+			]
 			}]
 		};
 		
@@ -422,6 +476,8 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 		//------------------------------------------------------------------
 		let beefContainer = {
 			xtype: 'container',
+			width: 300,
+			height: 500,
 			layout: 'fit',
 			items: [{
 				xtype: 'container',
@@ -436,15 +492,15 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					margin: '0 32',
 				},{
 					xtype: 'container',
-					layout: DSS.utils.layout('vbox', 'start', 'middle'),
+					layout: DSS.utils.layout('vbox', 'start', 'left'),
 					margin: 8,
 					defaults: {
 						xtype: 'numberfield',
 						minValue: 0,
 						step: 10,
-						labelAlign: 'right',
+						labelAlign: 'left',
 						labelWidth: 100,
-						width: 200,
+						width: 250,
 					},
 					items: [{
 						fieldLabel: 'Beef Cows',
@@ -454,7 +510,6 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						bind: '{beef.stockers}'
 					},{
 						fieldLabel: 'Finishers',
-						margin: '0 0 34 0',
 						bind: '{beef.finishers}'
 					}]
 				},{//----------------------------------------------------------------
@@ -464,11 +519,11 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					margin: '0 32',
 				},{
 					xtype: 'numberfield',
-					width: 200,
-					margin: '8 82',
+					margin: '0 32',
 					fieldLabel: 'Daily Gain (lb/day/AU)',
-					labelAlign: 'right',
-					labelWidth: 140,
+					labelAlign: 'left',
+					labelWidth: 100,
+					width: 200,
 					bind: '{beef.dailyGain}',
 					minValue: 0.25,
 					step: 0.25,
@@ -480,12 +535,12 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 				},{
 					xtype: 'container',
 					itemId: 'beef-cattle',
-					layout: DSS.utils.layout('vbox', 'start', 'middle'),
+					layout: DSS.utils.layout('vbox', 'start', 'left'),
 					margin: 8,
 					items: [{
 						xtype: 'container',
 						width: undefined,
-						layout: DSS.utils.layout('hbox', 'center'),
+						layout: DSS.utils.layout('hbox', 'left'),
 						items: [{
 							xtype: 'component',
 							itemId: 'grazed-display',
@@ -495,7 +550,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							style: 'border: 1px solid rgba(0,0,0,0.1); background-color: white; border-radius: 2px',
 						},{
 							xtype: 'slider',
-							width: 200,
+							width: 190,
 							minValue: 0,
 							maxValue: 12,
 							bind: '{beef.confined}',
@@ -536,7 +591,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						},{
 							xtype: 'component',
 							cls: 'information-compact med-text',
-							width: 180,
+							width: 130,
 							html: 'Period (mo / yr)'
 						},{
 							xtype: 'component',
@@ -551,25 +606,53 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						minValue: 0,
 						maxValue: 12,
 						step: 1,
-						labelAlign: 'right',
-						labelWidth: 140,
-						width: 240,
+						labelAlign: 'left',
+						labelWidth: 100,
+						width: 250,
 						fieldLabel: 'Grazing Time (h/d)',
 						maxValue: 24
-					},{
+					},
+					{
+						xtype: 'numberfield',
+						step: 1,
+						allowBlank: false,
+						labelAlign: 'left',
+						labelWidth: 100,
+						width: 250,
+						fieldLabel: 'Target % Beef Pasture Residual',
+						bind: '{percResidualOnPasture}',
+						value: 30,
+						maxValue: 50,
+						minValue: 10
+					},
+					{
 						xtype: 'combo',
-						dssID: 'if-grazed',
-						fieldLabel: 'Rotational Frequency',
-						labelWidth: 140,
-						width: 360,
-						labelAlign: 'right',
+						fieldLabel: 'Beef Rotational Frequency',
+						labelAlign: 'left',
+						labelWidth: 100,
+						width: 250,
 						mode: 'remote',
 						triggerAction: 'all',
 						store: 'rotationFreqStore',
 						displayField: 'label',
-						valueField: 'enum',
-						bind: '{beef.rotationFreq}',
-					}]
+						valueField: 'value',
+						bind: '{rotationFreqVal}',
+					},
+					// {
+					// 	xtype: 'combo',
+					// 	dssID: 'if-grazed',
+					// 	fieldLabel: 'Rotational Frequency',
+					// 	labelAlign: 'left',
+					// 	labelWidth: 100,
+					// 	width: 250,
+					// 	mode: 'remote',
+					// 	triggerAction: 'all',
+					// 	store: 'rotationFreqStore',
+					// 	displayField: 'label',
+					// 	valueField: 'enum',
+					// 	bind: '{beef.rotationFreq}',
+					// }
+				]
 				}]
 			}]
 		};
@@ -579,6 +662,8 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 		let heiferContainer = {
 			xtype: 'container',
 			layout: 'fit',
+			width: 300,
+			height: 350,
 			items: [{
 				xtype: 'container',
 				itemId: 'heifer-section',
@@ -592,16 +677,16 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 					margin: '0 32',
 				},{
 					xtype: 'container',
-					layout: DSS.utils.layout('vbox', 'start', 'middle'),
+					layout: DSS.utils.layout('vbox', 'start', 'left'),
 					margin: 8,
 					defaults: {
 						xtype: 'numberfield',
 						minValue: 0,
 						step: 1,
 						allowBlank: false,
-						labelAlign: 'right',
-						labelWidth: 100,
-						width: 200,
+						labelAlign: 'left',
+						labelWidth: 130,
+						width: 270,
 					},
 					items: [
 						{
@@ -611,9 +696,9 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						{
 							xtype: 'combo',
 							fieldLabel: 'Breed Size',
-							labelWidth: 140,
-							width: 360,
-							labelAlign: 'right',
+							//labelWidth: 140,
+							//width: 360,
+							//labelAlign: 'left',
 							mode: 'remote',
 							triggerAction: 'all',
 							store: 'breedSizeStore',
@@ -623,9 +708,9 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						},{
 							xtype: 'combo',
 							fieldLabel: 'Bred or Unbred',
-							labelWidth: 140,
-							width: 360,
-							labelAlign: 'right',
+							//labelWidth: 140,
+							//width: 360,
+							labelAlign: 'left',
 							mode: 'remote',
 							triggerAction: 'all',
 							store: 'bredStore',
@@ -638,9 +723,9 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						},{
 							xtype: 'combo',
 							fieldLabel: 'Target Daily Wieght Gain(lbs/day)',
-							labelWidth: 140,
-							width: 360,
-							labelAlign: 'right',
+							//labelWidth: 140,
+							//width: 360,
+							labelAlign: 'left',
 							mode: 'remote',
 							triggerAction: 'all',
 							store: 'weightGainStore',
@@ -650,13 +735,76 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 						},{
 							fieldLabel: 'Days on Pasture',
 							bind: '{heifers.daysOnPasture}'
-					}]
+						},
+						{
+							xtype: 'numberfield',
+							step: 1,
+							allowBlank: false,
+							labelAlign: 'left',
+							// labelWidth: 100,
+							// width: 250,
+							fieldLabel: 'Target % Heifer Pasture Residual',
+							bind: '{percResidualOnPasture}',
+							value: 30,
+							maxValue: 50,
+							minValue: 10
+						},
+						{
+							xtype: 'combo',
+							fieldLabel: 'Heifer Rotational Frequency',
+							labelAlign: 'left',
+							// labelWidth: 100,
+							// width: 250,
+							mode: 'remote',
+							triggerAction: 'all',
+							store: 'rotationFreqStore',
+							displayField: 'label',
+							valueField: 'value',
+							bind: '{rotationFreqVal}',
+						},
+						// {
+						// 	fieldLabel: 'Target % Pasture Residual',
+						// 	bind: '{heifers.percRisidual}',
+						// 	value: 30,
+        				// 	maxValue: 50,
+       					// 	minValue: 10
+						// }
+					]
 				}]
 			}]
 		};
 		
 		Ext.applyIf(me, {
-			items: [{
+			items: [
+				// {
+				// 	xtype: 'numberfield',
+				// 	step: 1,
+				// 	allowBlank: false,
+				// 	labelAlign: 'left',
+				// 	labelWidth: 100,
+				// 	width: 250,
+				// 	layout: 'fit',
+				// 	fieldLabel: 'Target % Pasture Residual',
+				// 	bind: '{percResidualOnPasture}',
+				// 	value: 30,
+				// 	maxValue: 50,
+				// 	minValue: 10
+				// },
+				// {
+				// 	xtype: 'combo',
+				// 	fieldLabel: 'Pasture Rotational Frequency',
+				// 	labelAlign: 'left',
+				// 	labelWidth: 100,
+				// 	width: 250,
+				// 	layout: 'fit',
+				// 	mode: 'remote',
+				// 	triggerAction: 'all',
+				// 	store: 'rotationFreqStore',
+				// 	displayField: 'label',
+				// 	valueField: 'value',
+				// 	bind: '{rotationFreqVal}',
+				// },
+				{
 				xtype: 'component',
 				padding: 4,
 				cls: 'information med-text',
@@ -681,7 +829,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							container.animate({
 								dynamic: true,
 								to: {
-									height: 500
+									height: 300
 								}
 							});
 						} 
@@ -709,7 +857,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							container.animate({
 								dynamic: true,
 								to: {
-									height: 500
+									height: 550
 								}
 							});
 						} 
@@ -736,7 +884,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							container.animate({
 								dynamic: true,
 								to: {
-									height: 500
+									height: 550
 								}
 							});
 						} 

@@ -88,6 +88,8 @@ function popScenarioArray(obj) {
 		beefGrazeTime: obj[i].properties.beef_graze_time,
 		lacRotateFreq: obj[i].properties.lac_rotate_freq,
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
+		percResidual: obj[i].properties.perc_residual_on_pasture,
+		pastRotationFreq: obj[i].properties.pasture_rot_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
 		heifersOnPasture: obj[i].properties.heifers_on_pasture,
 		heiferBreedSize: obj[i].properties.heifer_breed_size,
@@ -223,10 +225,12 @@ async function runScenarioUpdate(){
 				beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
 				lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
 				dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
+				perc_residual_on_pasture: DSS['viewModel'].scenario.data.percResidualOnPasture,
 				beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
-				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.animalsOnPasture,
+				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.rotationFreqVal,
 				pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
 				crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
+				pasture_rot_freq: DSS['viewModel'].scenario.data.pastRotationFreq,
 				heifers: DSS['viewModel'].scenario.data.heifers.heifers,
 				heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
 				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
@@ -683,6 +687,8 @@ Ext.define('DSS.state.Scenario', {
 				}
 			},
 			data: {
+				percResidualOnPasture: scenarioArray[0].percResidual,
+				pastRotationFreq: scenarioArray[0].pastRotationFreq,
 				dairy: {
 					// counts
 					lactating: scenarioArray[0].lacCows,
