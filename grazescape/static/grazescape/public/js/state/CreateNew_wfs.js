@@ -111,7 +111,7 @@ console.log(highestScenarioIdCNO);
 
 
 //---------------------------------Working Functions-------------------------------
-function wfs_farm_insert(feat,geomType,fType) {  
+function wfs_farm_insert(feat,geomType,fType, farmID=null) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
@@ -127,7 +127,7 @@ function wfs_farm_insert(feat,geomType,fType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    geoServer.insertFarm(str, feat)
+    geoServer.insertFarm(str, feat, farmID)
 //    $.ajax(geoserverURL + '/geoserver/wfs?'
 //	/*'http://localhost:8081/geoserver/wfs?'*/,{
 //        type: 'POST',
@@ -215,7 +215,7 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 			scenario_desp: sdescript
 		})
 		var geomType = 'point'
-		wfs_farm_insert(e.feature, geomType,'farm_2')
+		wfs_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
 		wfs_farm_insert(e.feature, geomType,'scenarios_2')
 		console.log("HI! WFS farm Insert ran!")
 

@@ -168,25 +168,16 @@ class RasterData:
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "-clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                     cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
-        #         geoTransform = ds_clip.GetGeoTransform()
-        #         minx = geoTransform[0]
-        #         maxy = geoTransform[3]
-        #         maxx = minx + geoTransform[1] * ds_clip.RasterXSize
-        #         miny = maxy + geoTransform[5] * ds_clip.RasterYSize
-        #         bounds = [minx, miny, maxx, maxy]
-        #
-        #         band = ds_clip.GetRasterBand(1)
-        #         arr = np.asarray(band.ReadAsArray())
-        #         raster_data_dic[data_name] = arr
-        # self.check_raster_data(raster_data_dic)
-        # self.create_no_data_array(raster_data_dic)
-        # return raster_data_dic, bounds
 
     def get_clipped_rasters(self):
         raster_data_dic = {}
         bounds = 0
+        print("directory path!!!!!!!!!!!!!!!!!!!")
+        print(os.listdir(self.dir_path))
         for file in os.listdir(self.dir_path):
+            print("File interate",file)
             if '-clipped.tif' in file:
+                print("clipppppppppppppppppppped file")
                 data_name = file.split(".")[0]
                 data_name = data_name.split("-")[0]
                 # print("file paths!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -213,13 +204,14 @@ class RasterData:
                 band = ds_clip.GetRasterBand(1)
                 arr = np.asarray(band.ReadAsArray())
                 raster_data_dic[data_name] = arr
+        print("raster data dic line 204", raster_data_dic)
+        print(raster_data_dic)
         self.check_raster_data(raster_data_dic)
         self.create_no_data_array(raster_data_dic)
         return raster_data_dic, bounds
         return raster_data_dic, bounds
 
-    def create_no_data_array(self,raster_data_dic):
-
+    def create_no_data_array(self, raster_data_dic):
         first_entry = [*raster_data_dic.keys()][0]
         size = raster_data_dic[first_entry].shape
         self.no_data_aray = np.zeros(size)
@@ -241,7 +233,9 @@ class RasterData:
                         break
 
     def check_raster_data(self, raster_dic):
+        print(raster_dic)
         raster_dic_key_list = [*raster_dic.keys()]
+        print(raster_dic_key_list)
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
