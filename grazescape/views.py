@@ -306,6 +306,83 @@ def get_model_results(request):
     }
     return JsonResponse([data], safe=False)
 @csrf_protect
+def adjust_field_yields(yield_data):
+    print('INSIDE ADJUST FIELD YIELDS!!!!!!!&&&&&&$$$$$$&&&#&&#&#&#&#&#&#&')
+    #print(yield_data.POST)
+    #print(yield_data.POST.get('cellSums[]'))
+    #print(yield_data.POST.get('yieldTypes[]'))
+    data = {
+        "area": yield_data.POST.get('area'),
+        "value_type": yield_data.POST.getlist('yieldTypes[]'),
+        "f_name": yield_data.POST.get('name'),
+        "scen": yield_data.POST.get('scenName'),
+        "counted_cells": yield_data.POST.get('cellCount'),
+        "sum_cells": yield_data.POST.getlist('cellSums[]'),
+        "farm_id": yield_data.POST.get('farmId'),
+        "scen_id": yield_data.POST.get('scenId'),
+        "field_id": yield_data.POST.get('id'),
+        "crop_ro": yield_data.POST.get('rotationVal1'),
+        "grass_ro": yield_data.POST.get('rotationVal2'),
+        "grass_type": yield_data.POST.get('grassType'),
+        "till": yield_data.POST.get('till'),
+    }
+    data2 = {
+        "area": yield_data.POST.get('area'),
+        "value_type": yield_data.POST.getlist('yieldTypes[]'),
+        "f_name": yield_data.POST.get('name'),
+        "scen": yield_data.POST.get('scenName'),
+        "counted_cells": yield_data.POST.get('cellCount'),
+        "sum_cells": yield_data.POST.getlist('cellSums[]'),
+        "farm_id": yield_data.POST.get('farmId'),
+        "scen_id": yield_data.POST.get('scenId'),
+        "field_id": yield_data.POST.get('id'),
+        "crop_ro": yield_data.POST.get('rotationVal1'),
+        "grass_ro": yield_data.POST.get('rotationVal2'),
+        "grass_type": yield_data.POST.get('grassType'),
+        "till": yield_data.POST.get('till'),
+    }
+    #print(data)
+    #data2 = data
+    if data.get("crop_ro") == 'pt':
+        data2['value_type'] = str(data['value_type'][0])
+        data2['sum_cells'] = str(data['sum_cells'][0])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'cc':
+        data2['value_type'] = str(data['value_type'][0])
+        data2['sum_cells'] = str(data['sum_cells'][0])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'cg':
+        data2['value_type'] = str(data['value_type'][0])
+        data2['sum_cells'] = str(data['sum_cells'][0])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+        data2['value_type'] = str(data['value_type'][1])
+        data2['sum_cells'] = str(data['sum_cells'][1])
+        print(data2)
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'dr':
+        data2['value_type'] = str(data['value_type'][0])
+        data2['sum_cells'] = str(data['sum_cells'][0])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+        data2['value_type'] = str(data['value_type'][1])
+        data2['sum_cells'] = str(data['sum_cells'][1])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+        data2['value_type'] = str(data['value_type'][2])
+        data2['sum_cells'] = str(data['sum_cells'][2])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'cso':
+        data2['value_type'] = str(data['value_type'][0])
+        data2['sum_cells'] = str(data['sum_cells'][0])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+        data2['value_type'] = str(data['value_type'][1])
+        data2['sum_cells'] = str(data['sum_cells'][1])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+        data2['value_type'] = str(data['value_type'][2])
+        data2['sum_cells'] = str(data['sum_cells'][2])
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    else: print('No fields were updated')
+    return JsonResponse({"Adjustements":"finished"})
+
+@csrf_protect
 def get_image(response):
     file_name = response.GET.get('file_name')
     file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files','raster_outputs',file_name)

@@ -1,4 +1,5 @@
 function gatherYieldTableData() {
+    console.log(yieldmodelsDataArray)
     fieldYieldArray = []
 	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
 	console.log(chartObjyieldarray)
@@ -9,6 +10,7 @@ function gatherYieldTableData() {
 			name: chartObjyieldarray[field].label.slice(0,-3),
 			rotationVal1: chartObjyieldarray[field].toolTip[0][0],
             rotationVal2: chartObjyieldarray[field].toolTip[0][1],
+            grassType: chartObjyieldarray[field].toolTip[0][2],
 			dMYieldAc: chartObjyieldarray[field].data[0],
 		})
 	}
@@ -693,23 +695,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         border:0,
                     },
                     items:[
-                        {
-                        xtype: 'button',
-                        cls: 'button-text-pad',
-                        componentCls: 'button-margin',
-                        text: 'Manually Adjust Yields',
-                        handler: async function(self) {
-                            //await getWFSScenario()
-                            console.log(chartObj)
-                            console.log(fieldYieldArray)
-                            //await gatherYieldTableData()
-                            {
-                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
-                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
-                            }
-                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
-                        }
-                    },
                     {
                         xtype: 'radiogroup',
                         id: 'yieldFarmConvert',
@@ -810,6 +795,22 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
+                        xtype: 'button',
+                        cls: 'button-text-pad',
+                        componentCls: 'button-margin',
+                        text: 'Manually Adjust Yields',
+                        handler: async function(self) {
+                            //await getWFSScenario()
+                            console.log(chartObj)
+                            console.log(fieldYieldArray)
+                            //await gatherYieldTableData()
+                            {
+                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
+                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
+                            }
+                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+                        }
+                    },{
                         xtype: 'radiogroup',
                         id: 'yieldFieldConvert',
                         vertical: true,
