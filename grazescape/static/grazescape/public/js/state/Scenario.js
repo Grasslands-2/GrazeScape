@@ -346,8 +346,10 @@ Ext.define('DSS.state.Scenario', {
 					listeners: {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
-								click: function(self) {
+								click: async function(self) {
+									gatherScenarioTableData
 									runScenarioUpdate();
+									geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 								}
 							});
