@@ -1,3 +1,87 @@
+function gatherYieldTableData() {
+    console.log(yieldmodelsDataArray)
+    fieldYieldArray = []
+	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
+	console.log(chartObjyieldarray)
+
+	for(field in chartObjyieldarray){
+		fieldYieldArray.push({
+            id: chartObjyieldarray[field].dbID,
+			name: chartObjyieldarray[field].label.slice(0,-3),
+			rotationVal1: chartObjyieldarray[field].toolTip[0][0],
+            rotationVal2: chartObjyieldarray[field].toolTip[0][1],
+            grassType: chartObjyieldarray[field].toolTip[0][2],
+			dMYieldAc: chartObjyieldarray[field].data[0],
+		})
+	}
+	console.log(fieldYieldArray)
+    // var yielddatasetsarray = [grass_yield_field,corn_yield_field,corn_silage_yield_field,
+    //     soy_yield_field,oat_yield_field,alfalfa_yield_field]
+    var grassdataarray = chartObj.grass_yield_field.chartData.datasets
+    var corndataarray = chartObj.corn_yield_field.chartData.datasets
+    var silagedataarray = chartObj.corn_silage_yield_field.chartData.datasets
+    var soydataarray = chartObj.soy_yield_field.chartData.datasets
+    var oatdataarray = chartObj.oat_yield_field.chartData.datasets
+    var alfalfadataarray = chartObj.alfalfa_yield_field.chartData.datasets
+    for(i in fieldYieldArray){
+        var fieldID = fieldYieldArray[i].id
+        for(g in grassdataarray){
+            console.log('grassarray id: ' + grassdataarray[g].dbID)
+            if (grassdataarray[g].dbID == fieldID){
+                console.log('HIT!');
+                console.log(grassdataarray[g].data[0])
+                fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].data[0]
+            }
+        }
+        for(c in corndataarray){
+            if (corndataarray[c].dbID == fieldID){
+                fieldYieldArray[i].cornGrainBrusdAc = corndataarray[c].data[0]
+            }
+        }
+        for(s in silagedataarray){
+            if (silagedataarray[s].dbID == fieldID){
+                fieldYieldArray[i].cornSilageTonsAc = silagedataarray[s].data[0]
+            }
+        }
+        for(so in soydataarray){
+            if (soydataarray[so].dbID == fieldID){
+                fieldYieldArray[i].soyGrainBrusAc = soydataarray[so].data[0]
+            }
+        }
+        for(o in oatdataarray){
+            if (oatdataarray[o].dbID == fieldID){
+                fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].data[0]
+            }
+        }
+        for(a in alfalfadataarray){
+            if (alfalfadataarray[a].dbID == fieldID){
+                fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].data[0]
+            }
+        }
+        console.log(fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2)
+        rotationValSum = fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2
+        switch(rotationValSum){
+            case 'ptcn': fieldYieldArray[i].rotationDisp = 'Continuous Pasture'
+            break;
+            case 'ptrt': fieldYieldArray[i].rotationDisp = 'Rotational Pasture'
+            break;
+            case 'dl': fieldYieldArray[i].rotationDisp = 'Dry Lot'
+            break;
+            case 'cc': fieldYieldArray[i].rotationDisp = 'Continuous Corn'
+            break;
+            case 'cg': fieldYieldArray[i].rotationDisp = 'Cash Grain'
+            break;
+            case 'dr': fieldYieldArray[i].rotationDisp = 'Silage/Corn/Alfalfa(3x)'
+            break;
+            case 'cso': fieldYieldArray[i].rotationDisp = 'Silage/Soy Beans/Oats'
+            break;
+            default: fieldYieldArray[i].rotationDisp = 'No Rotation'
+        }
+    }
+    console.log(fieldYieldArray)
+}; 
+    
+var fieldYieldArray = [];
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
 //var modelTypes = ['yield']
 //var modelTypes = ['yield,','runoff']
@@ -83,7 +167,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	plain: true,
 //    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
-	runModel: false,
+	runModel: true,
 
 	config: {
         // ...
@@ -250,10 +334,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
-                                    console.log(DSS['viewModel'].scenario.data.heifers.heifers)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
-                                    console.log(chartObj)
 
                                     var heiferFeedData = {
                                         pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
@@ -274,8 +356,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         }
                                     }
                                     console.log(heiferFeedData)
-                                    //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
                                     calcHeiferFeedBreakdown(heiferFeedData)
+                                    gatherYieldTableData()
                                     Ext.getCmp("feedTab").setDisabled(false)      
                                 }
                                 break
@@ -612,7 +694,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         style: 'padding:10px; ',
                         border:0,
                     },
-                    items:[{
+                    items:[
+                    {
                         xtype: 'radiogroup',
                         id: 'yieldFarmConvert',
                         vertical: true,
@@ -635,6 +718,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             displayAlternate("oat_yield_farm", e.id)
                             displayAlternate("alfalfa_yield_farm", e.id)
                             displayAlternate("rotation_yield_farm", e.id)
+                            console.log(chartObj)
                          }},
 
 //
@@ -711,6 +795,22 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
+                        xtype: 'button',
+                        cls: 'button-text-pad',
+                        componentCls: 'button-margin',
+                        text: 'Manually Adjust Yields',
+                        handler: async function(self) {
+                            //await getWFSScenario()
+                            console.log(chartObj)
+                            console.log(fieldYieldArray)
+                            //await gatherYieldTableData()
+                            {
+                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
+                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
+                            }
+                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+                        }
+                    },{
                         xtype: 'radiogroup',
                         id: 'yieldFieldConvert',
                         vertical: true,

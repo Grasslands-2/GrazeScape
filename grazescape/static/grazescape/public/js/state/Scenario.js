@@ -88,6 +88,8 @@ function popScenarioArray(obj) {
 		beefGrazeTime: obj[i].properties.beef_graze_time,
 		lacRotateFreq: obj[i].properties.lac_rotate_freq,
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
+		percResidual: obj[i].properties.perc_residual_on_pasture,
+		pastRotationFreq: obj[i].properties.pasture_rot_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
 		heifersOnPasture: obj[i].properties.heifers_on_pasture,
 		heiferBreedSize: obj[i].properties.heifer_breed_size,
@@ -210,7 +212,6 @@ async function runScenarioUpdate(){
 			scenarioFeature.setProperties({
 				lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
 				dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
-				heifers: DSS['viewModel'].scenario.data.dairy.heifers,
 				youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
 				beef_cows: DSS['viewModel'].scenario.data.beef.cows,
 				stockers: DSS['viewModel'].scenario.data.beef.stockers,
@@ -224,10 +225,13 @@ async function runScenarioUpdate(){
 				beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
 				lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
 				dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
+				perc_residual_on_pasture: DSS['viewModel'].scenario.data.percResidualOnPasture,
 				beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
-				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.animalsOnPasture,
+				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.rotationFreqVal,
 				pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
 				crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
+				pasture_rot_freq: DSS['viewModel'].scenario.data.pastRotationFreq,
+				heifers: DSS['viewModel'].scenario.data.heifers.heifers,
 				heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
 				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
 				heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,
@@ -342,8 +346,10 @@ Ext.define('DSS.state.Scenario', {
 					listeners: {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
-								click: function(self) {
+								click: async function(self) {
+									gatherScenarioTableData
 									runScenarioUpdate();
+									geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 								}
 							});
@@ -683,6 +689,8 @@ Ext.define('DSS.state.Scenario', {
 				}
 			},
 			data: {
+				percResidualOnPasture: scenarioArray[0].percResidual,
+				pastRotationFreq: scenarioArray[0].pastRotationFreq,
 				dairy: {
 					// counts
 					lactating: scenarioArray[0].lacCows,

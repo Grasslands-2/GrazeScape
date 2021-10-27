@@ -145,7 +145,6 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Create New Scenario',
 					handler: function(self) {
-						gatherScenarioTableData()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);

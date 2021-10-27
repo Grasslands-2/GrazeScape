@@ -78,11 +78,7 @@ class InfraTrueLength():
         }
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []
-        # self.addOutput(QgsProcessingOutputFile(
-        #     'NUMBEROFFEATURES',
-        #         self.tr('Number of features processed')
-        # ))
-        # os.makedirs(self.dir_path)
+        
         os.makedirs(self.dir_path)
         self.load_layersIP()
         self.profileTool()
@@ -100,11 +96,13 @@ class InfraTrueLength():
             print("downloading layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             r = requests.get(url)
+            print('requestURL!!!!!!!!!!!!!************$$$$$$$$$$$$$$$$$$$**************')
+            print(r)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
             with open(raster_file_path, "wb") as f:
                 f.write(r.content)
 
-
+                
     def profileTool(self):
         """
         Download data from geoserver

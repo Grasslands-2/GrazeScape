@@ -220,8 +220,10 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 		console.log("HI! WFS farm Insert ran!")
 
 		//DSS.layer.farms_1.getSource().refresh();
-		//DSS.layer.scenarios.getSource().refresh();
+		DSS.layer.scenarios.getSource().refresh();
 		//reSourcescenarios()
+		//geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+		//gatherScenarioTableData()
 		//showNewFarm()
 	})     
 }
