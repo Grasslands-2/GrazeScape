@@ -749,6 +749,7 @@ Ext.define('DSS.state.scenario.AnimalDialog', {
 							maxValue: 50,
 							minValue: 10
 						},
+						// Rework this so that on change the entire 
 						{
 							xtype: 'combo',
 							fieldLabel: 'Heifer Rotational Frequency',
