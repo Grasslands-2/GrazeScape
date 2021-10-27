@@ -440,23 +440,41 @@ Ext.define('DSS.state.Scenario', {
 				// 	xtype: 'button',
 				// 	cls: 'button-text-pad',
 				// 	componentCls: 'button-margin',
-				// 	text: 'Animals',
-				// 	handler: async function(self) {
-				// 		await getWFSScenario()
-						
-				// 		//if (!DSS.dialogs) DSS.dialogs = {};
-				// 		//if (!DSS.dialogs.AnimalDialog) 
-				// 		{
-				// 			DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
-				// 			DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
-				// 		}
+				// 	text: 'Feed Worksheet',
+				// 	handler: function(self) {
+				// 		DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
+				// 		DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);
+				// 		pastAcreage = 0
+				// 		pastAcreage = 0
+				// 		gatherTableData();
 				// 		AppEvents.triggerEvent('hide_field_grid')
 				// 		AppEvents.triggerEvent('hide_infra_grid')
 				// 		AppEvents.triggerEvent('hide_field_shape_mode');
 				// 		AppEvents.triggerEvent('hide_infra_line_mode');
-				// 		DSS.dialogs.AnimalDialog.show().center().setY(0);
+				// 		DSS.dialogs.HeiferScapeDialog.show().center().setY(0);
 				// 	}
 				// },
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Animals',
+					handler: async function(self) {
+						await getWFSScenario()
+						
+						//if (!DSS.dialogs) DSS.dialogs = {};
+						//if (!DSS.dialogs.AnimalDialog) 
+						{
+							DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
+							DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
+						}
+						AppEvents.triggerEvent('hide_field_grid')
+						AppEvents.triggerEvent('hide_infra_grid')
+						AppEvents.triggerEvent('hide_field_shape_mode');
+						AppEvents.triggerEvent('hide_infra_line_mode');
+						DSS.dialogs.AnimalDialog.show().center().setY(0);
+					}
+				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
