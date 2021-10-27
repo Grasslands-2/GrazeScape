@@ -49,7 +49,7 @@ if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     db_user = params[2][1]
     db_pass = params[3][1]
     db_host = params[0][1]
-    db_port = params[4][1]
+    #db_port = params[4][1]
 else:
     raise Exception(
         'Section {0} not found in the {1} file'.format("captcha_google", filename))
