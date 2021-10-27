@@ -94,7 +94,7 @@ function gethighestScenarioIdCNO(){
 	console.log('running gethighestScenarioIDCNO')
 //	getWFSScenarioCNO()
 	geoServer.getWFSScenarioCNO()
-	popscenarioArrayCNO(scenarioObj);
+	//popscenarioArrayCNO(scenarioObj);
 	// for (i in scenarioArrayCNO){
 	// 	if (scenarioArrayCNO[i].scenarioId > highestScenarioIdCNO){
 	// 		highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
@@ -220,7 +220,6 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 		console.log("HI! WFS farm Insert ran!")
 
 		//DSS.layer.farms_1.getSource().refresh();
-		DSS.map.addLayer(DSS.layer.scenarios);
 		DSS.layer.scenarios.getSource().refresh();
 		//reSourcescenarios()
 		//geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
@@ -346,7 +345,6 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							form.findField('address').getSubmitValue(),
 							form.findField('scenario_name').getSubmitValue(),
 							form.findField('scenario_description').getSubmitValue());
-							DSS.map.addLayer(DSS.layer.scenarios);
 							//showNewFarm()
 						}
 			        }
