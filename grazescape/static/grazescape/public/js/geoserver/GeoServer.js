@@ -10,6 +10,7 @@ class GeoServer{
         //this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3ATC_DEM&bbox=-1.01297744624E7%2C5356202.3128%2C-1.01069444624E7%2C5394832.3128&width=453&height=768&srs=EPSG%3A3857&styles=&format=application%2Fopenlayers3'
         //this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3ATC_DEM'
         this.geoUpdate_Url =this.geoScen_Url
+
     }
 //    returns a geojson of the farms
     async setDEMSource(){
@@ -46,7 +47,7 @@ class GeoServer{
         })
     }
     setFarmSource(parameter = ""){
-        this.makeRequest(this.geoFarm_Url + parameter, "source").then(function(geoJson){
+        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
             DSS.layer.farms_1.getSource().clear()
             var format = new ol.format.GeoJSON();
             var myGeoJsonFeatures = format.readFeatures(
@@ -125,8 +126,9 @@ class GeoServer{
             popScenarioArray(scenarioObj);
         })
     }
-    insertFarm(payLoad, feat){
-        this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
+    insertFarm(payLoad, feat, farmID=null){
+        console.log(farmID)
+        this.makeRequest(this.geoUpdate_Url, "insert_farm", payLoad, this, farmID).then(function(returnData){
 //            let geoJson = returnData.geojson
             let currObj = returnData.current
 //            console.log(returnData)
@@ -145,8 +147,12 @@ class GeoServer{
 			DSS.MapState.showInfrasForFarm();
         })
     }
-    wfs_field_insert(payLoad, feat){
-         this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
+    wfs_field_insert(payLoad, feat, fType){
+        let requestType = ""
+        if (fType == "farm_2"){
+            requestType = "insert_farm"
+        }
+         this.makeRequest(this.geoUpdate_Url, requestType, payLoad, this).then(function(returnData){
             DSS.MapState.removeMapInteractions()
             console.log(returnData)
             let geoJson = returnData.geojson
@@ -221,8 +227,9 @@ class GeoServer{
 //            cleanDB()
             currObj.setScenariosSource()
             currObj.setFarmSource()
-            currObj.setFieldSource()
-            currObj.setInfrastructureSource()
+//            currObj.setFieldSource()
+//            currObj.setInfrastructureSource()
+            cleanDB()
          })
     }
     wfs_infra_insert(payLoad, feat){
@@ -358,7 +365,7 @@ class GeoServer{
          })
 
     }
-    makeRequest(url, requestType, payLoad="", currObj = null){
+    makeRequest(url, requestType, payLoad="", currObj = null, featureID = null){
         console.log(url)
         return new Promise(function(resolve) {
             var csrftoken = Cookies.get('csrftoken');
@@ -372,7 +379,8 @@ class GeoServer{
                 'data' : {
                     url:url,
                     request_type:requestType,
-                    pay_load:payLoad
+                    pay_load:payLoad,
+                    feature_id:featureID
                 },
                 success: function(responses, opts) {
                     console.log(responses)
