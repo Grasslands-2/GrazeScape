@@ -9,66 +9,12 @@ var fieldObj = {};
 // keep track of what fields have had values changed
 var fieldChangeList= []
 var fieldUrl =""
-//geoserverURL + '/geoserver/wfs?'+
-//'service=wfs&'+
-//'?version=2.0.0&'+
-//'request=GetFeature&'+
-//'typeName=GrazeScape_Vector:field_2&' +
-//'outputformat=application/json&'+
-//'srsname=EPSG:3857';
-
-
-
-
 
 function getWFSfields(parameter = '') {
     console.log("getting wfs fields")
     geoServer.getWFSfields(parameter)
-//	return $.ajax({
-//		jsonp: false,
-//		type: 'GET',
-//		url: fieldUrl,
-//		async: false,
-//		dataType: 'json',
-//		success:function(response)
-//		{
-//			responseObj = response
-//			fieldObj = response.features
-//			console.log(fieldObj);
-//			fieldArray = [];
-//			console.log(fieldObj[0]);
-//			popFieldsArray(fieldObj);
-//			//console.log("PopFieldsArray should have fired if you are reading this")
-//			//placed data store in call function to make sure it was locally available.
-//			console.log("creating store")
-//			Ext.create('Ext.data.Store', {
-//				storeId: 'fieldStore1',
-//				alternateClassName: 'DSS.FieldStore',
-//				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
-//					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover', 'pastureGrazingRotCont',
-//					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-//					'grazeDairyNonLactating', 'grazeBeefCattle', 'area', 'perimeter'],
-//				data: fieldArray
-//			});
-//			//Setting store to just declared store fieldStore1, and reloading the store to the grid
-//			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
-//			DSS.field_grid.FieldGrid.store.reload();
-//			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//			console.log(response);
-//			//console.log('DSS.field_grid.FieldGrid')
-//			//console.log(DSS.field_grid.FieldGrid);
-//		}
-//	})
+
 }
-// function getRotAcrage(obj){
-// 	for (i in obj)
-// 	if(obj[i].rotationVal == 'pt-cn'|| obj[i].rotationVal == 'pt-rt'){
-// 		pastAcreage = pastAcreage + obj[i].area
-// 	}
-// 	if(obj[i].rotationVal == 'cc'|| obj[i].rotationVal =='cg' || obj[i].rotationVal =='dr' || obj[i].rotationVal =='cso'){
-// 		cropAcreage = cropAcreage + obj[i].area
-// 	}
-// }
 
 function popFieldsArray(obj) {
 	for (i in obj)
@@ -108,19 +54,6 @@ function popFieldsArray(obj) {
 
 //empty array to catch feature objects 
 function gatherTableData() {
-	//redeclaring fieldUrl to only show filtered fields
-//	fieldUrl =
-//	geoserverURL + '/geoserver/wfs?'+
-//	'service=wfs&'+
-//	'?version=2.0.0&'+
-//	'request=GetFeature&'+
-//	'typeName=GrazeScape_Vector:field_2&' +
-//	'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-//	'outputformat=application/json&'+
-//	'srsname=EPSG:3857';
-	//--------------------------------------------
-
-	//getWFSfields();
 	console.log(fieldUrl)
 	console.log("gatherTableData ran");
 	console.log(fieldArray);
@@ -129,9 +62,6 @@ function gatherTableData() {
 	console.log(cropAcreage);
 
 	getWFSfields('&CQL_filter=scenario_id='+DSS.activeScenario);
-//	console.log(fieldUrl)
-//	console.log("gatherTableData ran");
-//	console.log(fieldArray);
 
 };
 
@@ -145,10 +75,6 @@ Ext.create('Ext.data.Store', {
 		value: 'pt-rt',
 		display: 'Rotational Pasture'
 	},
-	// {
-	// 	value: 'ps',
-	// 	display: 'New Pasture'
-	// },
 	{
 		value: 'dl',
 		display: 'Dry Lot'
@@ -943,7 +869,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				//grazeDairyNonLactatingColumn,
 				//grazeBeefCattleColumn,
 				grassSpeciesColumn,
-				rotationalFreqColumn,
+				//rotationalFreqColumn,
 				//interseededCloverColumn,
 				//manurePasturesColumn,
 				grazeDensityColumn,

@@ -1,3 +1,87 @@
+function gatherYieldTableData() {
+    console.log(yieldmodelsDataArray)
+    fieldYieldArray = []
+	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
+	console.log(chartObjyieldarray)
+
+	for(field in chartObjyieldarray){
+		fieldYieldArray.push({
+            id: chartObjyieldarray[field].dbID,
+			name: chartObjyieldarray[field].label.slice(0,-3),
+			rotationVal1: chartObjyieldarray[field].toolTip[0][0],
+            rotationVal2: chartObjyieldarray[field].toolTip[0][1],
+            grassType: chartObjyieldarray[field].toolTip[0][2],
+			dMYieldAc: chartObjyieldarray[field].data[0],
+		})
+	}
+	console.log(fieldYieldArray)
+    // var yielddatasetsarray = [grass_yield_field,corn_yield_field,corn_silage_yield_field,
+    //     soy_yield_field,oat_yield_field,alfalfa_yield_field]
+    var grassdataarray = chartObj.grass_yield_field.chartData.datasets
+    var corndataarray = chartObj.corn_yield_field.chartData.datasets
+    var silagedataarray = chartObj.corn_silage_yield_field.chartData.datasets
+    var soydataarray = chartObj.soy_yield_field.chartData.datasets
+    var oatdataarray = chartObj.oat_yield_field.chartData.datasets
+    var alfalfadataarray = chartObj.alfalfa_yield_field.chartData.datasets
+    for(i in fieldYieldArray){
+        var fieldID = fieldYieldArray[i].id
+        for(g in grassdataarray){
+            console.log('grassarray id: ' + grassdataarray[g].dbID)
+            if (grassdataarray[g].dbID == fieldID){
+                console.log('HIT!');
+                console.log(grassdataarray[g].data[0])
+                fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].data[0]
+            }
+        }
+        for(c in corndataarray){
+            if (corndataarray[c].dbID == fieldID){
+                fieldYieldArray[i].cornGrainBrusdAc = corndataarray[c].data[0]
+            }
+        }
+        for(s in silagedataarray){
+            if (silagedataarray[s].dbID == fieldID){
+                fieldYieldArray[i].cornSilageTonsAc = silagedataarray[s].data[0]
+            }
+        }
+        for(so in soydataarray){
+            if (soydataarray[so].dbID == fieldID){
+                fieldYieldArray[i].soyGrainBrusAc = soydataarray[so].data[0]
+            }
+        }
+        for(o in oatdataarray){
+            if (oatdataarray[o].dbID == fieldID){
+                fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].data[0]
+            }
+        }
+        for(a in alfalfadataarray){
+            if (alfalfadataarray[a].dbID == fieldID){
+                fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].data[0]
+            }
+        }
+        console.log(fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2)
+        rotationValSum = fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2
+        switch(rotationValSum){
+            case 'ptcn': fieldYieldArray[i].rotationDisp = 'Continuous Pasture'
+            break;
+            case 'ptrt': fieldYieldArray[i].rotationDisp = 'Rotational Pasture'
+            break;
+            case 'dl': fieldYieldArray[i].rotationDisp = 'Dry Lot'
+            break;
+            case 'cc': fieldYieldArray[i].rotationDisp = 'Continuous Corn'
+            break;
+            case 'cg': fieldYieldArray[i].rotationDisp = 'Cash Grain'
+            break;
+            case 'dr': fieldYieldArray[i].rotationDisp = 'Silage/Corn/Alfalfa(3x)'
+            break;
+            case 'cso': fieldYieldArray[i].rotationDisp = 'Silage/Soy Beans/Oats'
+            break;
+            default: fieldYieldArray[i].rotationDisp = 'No Rotation'
+        }
+    }
+    console.log(fieldYieldArray)
+}; 
+    
+var fieldYieldArray = [];
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
 //var modelTypes = ['yield']
 //var modelTypes = ['yield,','runoff']
@@ -20,7 +104,8 @@ var chartList = [
     'oat_yield_farm', 'oat_yield_field',
     'alfalfa_yield_farm','alfalfa_yield_field',
     'rotation_yield_farm' , 'rotation_yield_field',
-    'insecticide_farm', 'insecticide_field','feed_breakdown',
+    'insecticide_farm', 'insecticide_field',
+    //'feed_breakdown',
     //'crop_feed_breakdown'
 ]
 var chartColors = [
@@ -83,7 +168,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	plain: true,
 //    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
-	runModel: false,
+	runModel: true,
 
 	config: {
         // ...
@@ -250,33 +335,31 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
-                                    console.log(DSS['viewModel'].scenario.data.heifers.heifers)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
-                                    console.log(chartObj)
 
-                                    var heiferFeedData = {
-                                        pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
-                                        cornYield:(chartObj.corn_yield_farm.sum[scenIndexAS]/chartObj.corn_yield_farm.count[scenIndexAS])*chartObj.corn_yield_farm.area[scenIndexAS],
-                                        cornSilageYield: (chartObj.corn_silage_yield_farm.sum[scenIndexAS]/chartObj.corn_silage_yield_farm.count[scenIndexAS])*chartObj.corn_silage_yield_farm.area[scenIndexAS],
-                                        oatYield: (chartObj.oat_yield_farm.sum[scenIndexAS]/chartObj.oat_yield_farm.count[scenIndexAS])*chartObj.oat_yield_farm.area[scenIndexAS],
-                                        alfalfaYield: (chartObj.alfalfa_yield_farm.sum[scenIndexAS]/chartObj.alfalfa_yield_farm.count[scenIndexAS])*chartObj.alfalfa_yield_farm.area[scenIndexAS],
-                                        totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
-                                        heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
-                                        heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
-                                        heiferDOP: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
-                                        heiferASW: DSS['viewModel'].scenario.data.heifers.asw,
-                                        heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
-                                    }
-                                    for (const prop in heiferFeedData){
-                                        if (heiferFeedData[prop] == undefined || isNaN(heiferFeedData[prop] && typeof(heiferFeedData) !== 'string')){
-                                            heiferFeedData[prop] = 0
-                                        }
-                                    }
-                                    console.log(heiferFeedData)
-                                    //calcHeiferFeedBreakdown(chartObj.grass_yield_farm,chartObj.corn_yield_farm)
-                                    calcHeiferFeedBreakdown(heiferFeedData)
-                                    Ext.getCmp("feedTab").setDisabled(false)      
+                                    // var heiferFeedData = {
+                                    //     pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
+                                    //     cornYield:(chartObj.corn_yield_farm.sum[scenIndexAS]/chartObj.corn_yield_farm.count[scenIndexAS])*chartObj.corn_yield_farm.area[scenIndexAS],
+                                    //     cornSilageYield: (chartObj.corn_silage_yield_farm.sum[scenIndexAS]/chartObj.corn_silage_yield_farm.count[scenIndexAS])*chartObj.corn_silage_yield_farm.area[scenIndexAS],
+                                    //     oatYield: (chartObj.oat_yield_farm.sum[scenIndexAS]/chartObj.oat_yield_farm.count[scenIndexAS])*chartObj.oat_yield_farm.area[scenIndexAS],
+                                    //     alfalfaYield: (chartObj.alfalfa_yield_farm.sum[scenIndexAS]/chartObj.alfalfa_yield_farm.count[scenIndexAS])*chartObj.alfalfa_yield_farm.area[scenIndexAS],
+                                    //     totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
+                                    //     heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
+                                    //     heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
+                                    //     heiferDOP: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+                                    //     heiferASW: DSS['viewModel'].scenario.data.heifers.asw,
+                                    //     heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
+                                    // }
+                                    // for (const prop in heiferFeedData){
+                                    //     if (heiferFeedData[prop] == undefined || isNaN(heiferFeedData[prop] && typeof(heiferFeedData) !== 'string')){
+                                    //         heiferFeedData[prop] = 0
+                                    //     }
+                                    // }
+                                    // console.log(heiferFeedData)
+                                    //calcHeiferFeedBreakdown(heiferFeedData)
+                                    gatherYieldTableData()
+                                    //Ext.getCmp("feedTab").setDisabled(false)      
                                 }
                                 break
                             case 'ploss':
@@ -612,7 +695,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         style: 'padding:10px; ',
                         border:0,
                     },
-                    items:[{
+                    items:[
+                    {
                         xtype: 'radiogroup',
                         id: 'yieldFarmConvert',
                         vertical: true,
@@ -635,6 +719,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             displayAlternate("oat_yield_farm", e.id)
                             displayAlternate("alfalfa_yield_farm", e.id)
                             displayAlternate("rotation_yield_farm", e.id)
+                            console.log(chartObj)
                          }},
 
 //
@@ -711,6 +796,22 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[{
+                        xtype: 'button',
+                        cls: 'button-text-pad',
+                        componentCls: 'button-margin',
+                        text: 'Manually Adjust Yields',
+                        handler: async function(self) {
+                            //await getWFSScenario()
+                            console.log(chartObj)
+                            console.log(fieldYieldArray)
+                            //await gatherYieldTableData()
+                            {
+                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
+                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
+                            }
+                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+                        }
+                    },{
                         xtype: 'radiogroup',
                         id: 'yieldFieldConvert',
                         vertical: true,
@@ -1044,61 +1145,30 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             }
             //TODO update
 
-            var feedoutput = {
-                title: '<i class="fab fa-pagelines"></i> Feed Breakdown<br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=bio_pb >50%</progress>',
-                plain: true,
-                id:"feedTab",
-                disabled:true,
-                tabBar : {
-                    layout: {
-                        pack: 'center',
-                            //background: '#C81820',
-                     }
-                 },
-                xtype: 'tabpanel',
-                style: 'background-color: #377338;',
+//             var feedoutput = {
+//                 title: '<i class="fab fa-pagelines"></i> Feed Breakdown<br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=bio_pb >50%</progress>',
+//                 plain: true,
+//                 id:"feedTab",
+//                 disabled:true,
+//                 tabBar : {
+//                     layout: {
+//                         pack: 'center',
+//                             //background: '#C81820',
+//                      }
+//                  },
+//                 xtype: 'tabpanel',
+//                 style: 'background-color: #377338;',
 
-                defaults: {
-                   border:false,
-                    bodyBorder: false
-                },
-//                scrollable: true,
-//                inner tabs for farm and field scale
-                items:[{
-                    xtype: 'container',
-                    title: '<i class="fas fa-warehouse"></i>  Farm',
-                    border: false,
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
-
-                    style: 'padding:10px; ',
-                    border:0,
-//                    html: "hiiiiiiiiii"
-                },
-                    items:[{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="feed_breakdown" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                        },
-                    ],
-                    listeners:{activate: function() {
-                        if (chartObj["feed_breakdown"].chart !== null){
-                            return
-                        }
-                        //console.log(heifer_feed_breakdown_data)
-                        chartObj.feed_breakdown.chart = create_graph(chartObj.feed_breakdown, 'Heifer Feeding Break Down', document.getElementById('feed_breakdown').getContext('2d'));
-
-                    }}
-
-                },
-//                 { xtype: 'panel',
-//                     title: '<i class="fas fa-seedling"></i></i>  Field',
-//                      border: false,
-//                      id: 'insectFieldTab',
-// //                    disabled: true,
+//                 defaults: {
+//                    border:false,
+//                     bodyBorder: false
+//                 },
+// //                scrollable: true,
+// //                inner tabs for farm and field scale
+//                 items:[{
+//                     xtype: 'container',
+//                     title: '<i class="fas fa-warehouse"></i>  Farm',
+//                     border: false,
 //                     layout: {
 //                         type: 'table',
 //                         // The total column count must be specified here
@@ -1108,30 +1178,24 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 //                     style: 'padding:10px; ',
 //                     border:0,
+// //                    html: "hiiiiiiiiii"
 //                 },
-//                     items:[ {xtype: 'container',
-//                         html: '<div id="container" ><canvas id="insecticide_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                     items:[{
+//                         xtype: 'container',
+//                         html: '<div id="container" ><canvas id="feed_breakdown" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
 //                         },
-// //                    {
-// //                        xtype: 'container',
-// //                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-// //                    },{
-// //                        xtype: 'container',
-// //                    },{
-// //                        xtype: 'container',
-// //                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-// //                    }
 //                     ],
 //                     listeners:{activate: function() {
-//                         if (chartObj["insecticide_field"].chart !== null){
+//                         if (chartObj["feed_breakdown"].chart !== null){
 //                             return
 //                         }
-//                         chartObj.insecticide_field.chart = create_graph(chartObj.insecticide_field, 'Honey Bee Toxicity', document.getElementById('insecticide_field').getContext('2d'));
+//                         //console.log(heifer_feed_breakdown_data)
+//                         chartObj.feed_breakdown.chart = create_graph(chartObj.feed_breakdown, 'Heifer Feeding Break Down', document.getElementById('feed_breakdown').getContext('2d'));
 
 //                     }}
-//                 }
-                ],
-            }    
+
+//                 }],
+//             }    
 
 
 
@@ -1815,7 +1879,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 erosion,
                 nutrients,
                 runoff,
-                feedoutput,
+                //feedoutput,
                 bio,
                 economics,
                 infrastructure,
