@@ -6,9 +6,34 @@ class GeoServer{
         this.geoScen_Url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Ascenarios_2&outputFormat=application%2Fjson'
         this.geoField_Url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afield_2&outputFormat=application%2Fjson'
         this.geoInfra_Url ='/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Ainfrastructure_2&outputFormat=application%2Fjson'
-        this.geoUpdate_Url = this.geoScen_Url
+        this.geoDEM_Url = '/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=InputRasters%3ATC_DEM&width=453&width=453&height=768&srs=EPSG%3A3857&styles=&format=image/png'
+        //this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3ATC_DEM&bbox=-1.01297744624E7%2C5356202.3128%2C-1.01069444624E7%2C5394832.3128&width=453&height=768&srs=EPSG%3A3857&styles=&format=application%2Fopenlayers3'
+        //this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3ATC_DEM'
+        this.geoUpdate_Url =this.geoScen_Url
+
     }
 //    returns a geojson of the farms
+    async setDEMSource(){
+            //DSS.layer.DEM_image.getSource().clear()
+            //var format = new ol.format.GeoJSON()
+            //DSS.layer.DEM_image.unsetSource()
+            var myRasterLayerSource = new ol.source.ImageStatic({
+                	url: "/data_files/raster_layers/elevation/elevation.tif",
+                    //imageExtent: extent
+                	//geoServer.setDEMSource(),
+                	// params: {'FORMAT': 'image/png',
+                	// 'VERSION': '1.1.1',
+                	// 'TRANSPARENT': 'true',
+                 	// "STYLES": '',
+                 	// "LAYERS": 'InputRasters:TC_DEM',
+                 	// //"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
+                 	// "exceptions": 'application/vnd.ogc.se_inimage',
+                	// },
+                	// serverType: 'geoserver'
+                })
+            DSS.layer.DEM_image.setSource(myRasterLayerSource)
+            console.log(DSS.layer.DEM_image.getSource())
+    }
     setScenariosSource(parameter = ""){
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             DSS.layer.scenarios.getSource().clear()
@@ -357,6 +382,7 @@ class GeoServer{
                     feature_id:featureID
                 },
                 success: function(responses, opts) {
+                    console.log(responses)
                     delete $.ajaxSetup().headers
                     resolve({geojson:responses.data, current:currObj})
                 },
@@ -367,4 +393,33 @@ class GeoServer{
             })
         })
     }
+    makeRasterRequest(layer,extents){
+        console.log(layer)
+        return new Promise(function(resolve) {
+            var csrftoken = Cookies.get('csrftoken');
+            console.log('data coming into ajax call')
+            $.ajaxSetup({
+                    headers: { "X-CSRFToken": csrftoken }
+                });
+            $.ajax({    
+            'url' : '/grazescape/manage_raster_visuals',
+            'type' : 'POST',
+            'data' :  {
+                layer:layer,
+                extents:extents
+            },
+            success: function(responses, opts) {
+                console.log('Retrived DEM TIFF!')
+                delete $.ajaxSetup().headers
+                console.log(responses)
+                resolve(responses)
+                //resolve({geoImage:responses.data, current:currObj})
+            },
+                error: function(responses) {
+                    console.log('python tool call error')
+                    console.log(responses)
+                }
+            })
+        }
+    )}
 }
