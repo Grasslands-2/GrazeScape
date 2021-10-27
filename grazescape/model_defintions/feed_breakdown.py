@@ -22,14 +22,10 @@ class HeiferFeedBreakdown():
     asw,wgg):
         self.nutrients = pd.read_csv(r"grazescape\model_defintions\nutrients.csv")
         self.NRC = pd.read_csv(r"grazescape\model_defintions\NRC_2001.csv")
-        # self.nutrients = pd.read_csv(r"C:\Users\zjhas\Documents\GrazeScape\grazescape\model_defintions\nutrients.csv")
-        # self.NRC = pd.read_csv(r"C:\Users\zjhas\Documents\GrazeScape\grazescape\model_defintions\NRC_2001.csv")
-        #self.pasture = pd.read_excel(r"C:\Users\zjhas\Documents\GrazeScape\grazescape\model_defintions\pasture_prediction.xls")
-        #print(type(asw))
-        self.pastYield = float(pastYield)
-        self.cornYield = float(cornYield)/35.714286
-        #35.714286 is the number of bushels that go into an english ton of DM for corn
-        #print(cornSilageYield)
+        self.pastYield = float(pastYield)*0.7
+        #
+        self.cornYield = float(cornYield)/39.3680
+        #39.3680 is the number of bushels that go into an english ton of DM for corn
         self.cornSilageYield = float(cornSilageYield) * 0.35
         print('new corn silage value for DM!!!!!!!!!!!**&###############*******!!!')
         print(self.cornSilageYield)
