@@ -444,7 +444,7 @@ Ext.define('DSS.map.Main', {
 		};
 		geoServer.setFieldSource()
 		geoServer.setFarmSource()
-		geoServer.setInfrastructureSource()
+//		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
 		//geoServer.setDEMSource()
 
@@ -511,6 +511,11 @@ Ext.define('DSS.map.Main', {
 				}
 			}
 		});	
+      //		set sources of the major layers
+//        geoServer.setFieldSource()
+//		geoServer.setFarmSource()
+//		geoServer.setInfrastructureSource()
+//		geoServer.setScenariosSource()
 
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;
