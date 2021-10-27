@@ -67,7 +67,7 @@ class InfraTrueLength():
         self.extents_string_x = ""
         self.extents_string_y = ""
         print('infraextents!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print(infraextent)
+        #print(infraextent)
         if infraextent is not None:
             self.extents_string_x = "&subset=X(" + str(math.floor(float(infraextent[0]))) + "," + str(math.ceil(float(infraextent[2]))) + ")"
             self.extents_string_y = "&subset=Y(" + str(math.floor(float(infraextent[1]))) + "," + str(math.ceil(float(infraextent[3]))) + ")"

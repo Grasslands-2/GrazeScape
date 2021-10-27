@@ -62,6 +62,9 @@ def heiferFeedBreakDown(data):
 
     return JsonResponse({"output":toolName.calcFeed()})
 
+@ensure_csrf_cookie
+@csrf_protect
+@login_required
 def run_InfraTrueLength(data):
     infraextent = data.POST.getlist('extents[]')
     infracords =  data.POST.getlist('cords[]')
