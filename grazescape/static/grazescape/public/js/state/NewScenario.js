@@ -315,21 +315,17 @@ function wfs_scenario_insert(feat,geomType,fType) {
 //        }
 //    }).done();
 }
-async function createNewScenario(sname,sdescript,snewhighID){
+function createNewScenario(sname,sdescript,snewhighID){
 	console.log('in createnewscen')
 	console.log('scenarioArrayNS at start of createnewscen: ');
+	console.log(scenarioArrayNS)
 	console.log('current active scenario #: '+ DSS.activeScenario);
-	await reSourcescenarios()
-	await getHighestScenarioId()
-	await console.log(scenarioArrayNS)
-	//await DSS.layer.scenarios.getSource().refresh();
+	//reSourcescenarios()
+	//DSS.layer.scenarios.getSource().refresh();
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
-		console.log('HI FROM INSIDE SCENARIOS FEATURES LOOP@@@@@!!!!!!!')
 		var newScenarioFeature = f;
-		//console.log(newScenarioFeature)
 		f.values_.geom = f.values_.geometry;
-		console.log('current active scenario #: '+ DSS.activeScenario);
-		console.log(newScenarioFeature.values_.scenario_id)
+//		console.log(newScenarioFeature.values_.scenario_id)
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
