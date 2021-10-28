@@ -358,7 +358,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     // }
                                     // console.log(heiferFeedData)
                                     //calcHeiferFeedBreakdown(heiferFeedData)
-                                    gatherYieldTableData()
+                                    //gatherYieldTableData()
                                     //Ext.getCmp("feedTab").setDisabled(false)      
                                 }
                                 break
@@ -804,7 +804,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             //await getWFSScenario()
                             console.log(chartObj)
                             console.log(fieldYieldArray)
-                            //await gatherYieldTableData()
+                            await gatherYieldTableData()
                             {
                                 DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
                                 DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
