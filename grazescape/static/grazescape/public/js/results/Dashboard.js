@@ -337,28 +337,29 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
 
-                                    var heiferFeedData = {
-                                        pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
-                                        cornYield:(chartObj.corn_yield_farm.sum[scenIndexAS]/chartObj.corn_yield_farm.count[scenIndexAS])*chartObj.corn_yield_farm.area[scenIndexAS],
-                                        cornSilageYield: (chartObj.corn_silage_yield_farm.sum[scenIndexAS]/chartObj.corn_silage_yield_farm.count[scenIndexAS])*chartObj.corn_silage_yield_farm.area[scenIndexAS],
-                                        oatYield: (chartObj.oat_yield_farm.sum[scenIndexAS]/chartObj.oat_yield_farm.count[scenIndexAS])*chartObj.oat_yield_farm.area[scenIndexAS],
-                                        alfalfaYield: (chartObj.alfalfa_yield_farm.sum[scenIndexAS]/chartObj.alfalfa_yield_farm.count[scenIndexAS])*chartObj.alfalfa_yield_farm.area[scenIndexAS],
-                                        totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
-                                        heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
-                                        heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
-                                        heiferDOP: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
-                                        heiferASW: DSS['viewModel'].scenario.data.heifers.asw,
-                                        heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
-                                    }
-                                    for (const prop in heiferFeedData){
-                                        if (heiferFeedData[prop] == undefined || isNaN(heiferFeedData[prop] && typeof(heiferFeedData) !== 'string')){
-                                            heiferFeedData[prop] = 0
-                                        }
-                                    }
-                                    console.log(heiferFeedData)
-                                    calcHeiferFeedBreakdown(heiferFeedData)
-                                    gatherYieldTableData()
-                                    Ext.getCmp("feedTab").setDisabled(false)      
+                                    // var heiferFeedData = {
+                                    //     pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
+                                    //     cornYield:(chartObj.corn_yield_farm.sum[scenIndexAS]/chartObj.corn_yield_farm.count[scenIndexAS])*chartObj.corn_yield_farm.area[scenIndexAS],
+                                    //     cornSilageYield: (chartObj.corn_silage_yield_farm.sum[scenIndexAS]/chartObj.corn_silage_yield_farm.count[scenIndexAS])*chartObj.corn_silage_yield_farm.area[scenIndexAS],
+                                    //     oatYield: (chartObj.oat_yield_farm.sum[scenIndexAS]/chartObj.oat_yield_farm.count[scenIndexAS])*chartObj.oat_yield_farm.area[scenIndexAS],
+                                    //     alfalfaYield: (chartObj.alfalfa_yield_farm.sum[scenIndexAS]/chartObj.alfalfa_yield_farm.count[scenIndexAS])*chartObj.alfalfa_yield_farm.area[scenIndexAS],
+                                    //     totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
+                                    //     heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
+                                    //     heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
+                                    //     heiferDOP: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+                                    //     heiferASW: DSS['viewModel'].scenario.data.heifers.asw,
+                                    //     heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
+                                    // }
+                                    // for (const prop in heiferFeedData){
+                                    //     if (heiferFeedData[prop] == undefined || isNaN(heiferFeedData[prop] && typeof(heiferFeedData) !== 'string')){
+                                    //         heiferFeedData[prop] = 0
+                                    //     }
+                                    // }
+                                    // console.log(heiferFeedData)
+                                    //calcHeiferFeedBreakdown(heiferFeedData)
+                                    //gatherYieldTableData()
+                                    //Ext.getCmp("feedTab").setDisabled(false)      
+
                                 }
                                 break
                             case 'ploss':
@@ -803,7 +804,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             //await getWFSScenario()
                             console.log(chartObj)
                             console.log(fieldYieldArray)
-                            //await gatherYieldTableData()
+                            await gatherYieldTableData()
                             {
                                 DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
                                 DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
