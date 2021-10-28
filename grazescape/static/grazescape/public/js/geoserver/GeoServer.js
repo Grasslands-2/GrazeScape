@@ -375,7 +375,6 @@ class GeoServer{
             $.ajax({
                 'url' : '/grazescape/geoserver_request',
                 'type' : 'POST',
-                'async': true,
                 'data' : {
                     url:url,
                     request_type:requestType,
