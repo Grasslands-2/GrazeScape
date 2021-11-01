@@ -104,7 +104,8 @@ var chartList = [
     'oat_yield_farm', 'oat_yield_field',
     'alfalfa_yield_farm','alfalfa_yield_field',
     'rotation_yield_farm' , 'rotation_yield_field',
-    'insecticide_farm', 'insecticide_field','feed_breakdown',
+    'insecticide_farm', 'insecticide_field',
+    'feed_breakdown',
     //'crop_feed_breakdown'
 ]
 var chartColors = [
@@ -1916,7 +1917,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 erosion,
                 nutrients,
                 runoff,
-                feedoutput,
+                //feedoutput,
                 bio,
                 economics,
                 infrastructure,
