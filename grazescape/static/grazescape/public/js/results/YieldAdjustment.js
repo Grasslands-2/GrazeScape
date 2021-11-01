@@ -236,6 +236,7 @@ Ext.define('DSS.results.YieldAdjustment', {
 			fields:['name','rotationVal','rotationDisp',/*'dMYieldAc'*/'grassYieldTonsAc',
 			'cornGrainBrusdAc','cornSilageTonsAc','soyGrainBrusAc','oatYieldBrusAc',
 			'alfalfaYieldTonsAc'],
+			sorters: ['name'],
 			data: fieldYieldArray
 		});
 		let fieldNameColumn = { 
@@ -259,7 +260,12 @@ Ext.define('DSS.results.YieldAdjustment', {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
 			}, text: 'Grass Yield t/acre', dataIndex: 'grassYieldTonsAc', width: 130,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			renderer: function(value) {
+				if(value = null){
+					editable: false
+				}
+			}
 		}
 		let cornGrain_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {

@@ -189,15 +189,28 @@ Ext.define('DSS.map.LayerMenu', {
 			},{ //-------------------------------------------
 				text: 'Tainter Watershed',
                 checked: true,
-                menu: makeOpacityMenu("watershed", DSS.layer.watershed),
+                menu: makeOpacityMenu("tainterwatershed", DSS.layer.tainterwatershed),
                 listeners: {
                 	afterrender: function(self) {
-                		self.setChecked(DSS.layer.watershed.getVisible());
+                		self.setChecked(DSS.layer.tainterwatershed.getVisible());
                 	}
                 },
                 handler: function(self) {
-                	Ext.util.Cookies.set("watershed:visible", self.checked ? "1" : "0");                	
-                	DSS.layer.watershed.setVisible(self.checked);                    	
+                	Ext.util.Cookies.set("tainterwatershed:visible", self.checked ? "1" : "0");                	
+                	DSS.layer.tainterwatershed.setVisible(self.checked);                    	
+                }
+			},{ //-------------------------------------------
+				text: 'Kickapoo Watershed',
+                checked: true,
+                menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
+                listeners: {
+                	afterrender: function(self) {
+                		self.setChecked(DSS.layer.kickapoowatershed.getVisible());
+                	}
+                },
+                handler: function(self) {
+                	Ext.util.Cookies.set("kickapoowatershed:visible", self.checked ? "1" : "0");                	
+                	DSS.layer.kickapoowatershed.setVisible(self.checked);                    	
                 }
 			},{ //-------------------------------------------
 				text: 'Contour',
