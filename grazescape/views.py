@@ -62,6 +62,9 @@ def heiferFeedBreakDown(data):
 
     return JsonResponse({"output":toolName.calcFeed()})
 
+@ensure_csrf_cookie
+@csrf_protect
+@login_required
 def run_InfraTrueLength(data):
     infraextent = data.POST.getlist('extents[]')
     infracords =  data.POST.getlist('cords[]')
@@ -389,41 +392,65 @@ def adjust_field_yields(yield_data):
     }
     #print(data)
     #data2 = data
-    if data.get("crop_ro") == 'pt':
+    if data.get("crop_ro") == 'pt': #grass
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-    if data.get("crop_ro") == 'cc':
+        data2['value_type'] = 'Rotational Average'
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'cc': #corn
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-    if data.get("crop_ro") == 'cg':
+        data2['value_type'] = 'Rotational Average'
+        data2['sum_cells'] = str(float(data['sum_cells'][0]) * 56 * 0.855 / 2000)
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'cg': #corn, soy
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
+        corn_yield_kgDMha = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
-        print(data2)
+        soy_yield_kgDMha = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-    if data.get("crop_ro") == 'dr':
+        rotation_avg_cg = 0.5 * corn_yield_kgDMha + 0.5 * soy_yield_kgDMha
+        data2['sum_cells'] =str(rotation_avg_cg)
+        data2['value_type'] = 'Rotational Average'
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'dr': #corn, silage, alfalfa
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
+        corn_yield_kgDMha = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
+        silage_yield_kgDMha = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][2])
         data2['sum_cells'] = str(data['sum_cells'][2])
+        alfalfa_yield_kgDMha = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-    if data.get("crop_ro") == 'cso':
+        rotation_avg_dr = 1 / 5 * silage_yield_kgDMha + 1 / 5 * corn_yield_kgDMha + 3 / 5 * alfalfa_yield_kgDMha
+        data2['sum_cells'] =str(rotation_avg_dr)
+        data2['value_type'] = 'Rotational Average'
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+    if data.get("crop_ro") == 'cso': #soy, silage, oats
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
+        soy_yield_kgDMha = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
+        silage_yield_kgDMha = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][2])
         data2['sum_cells'] = str(data['sum_cells'][2])
+        oat_yield_kgDMha = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
+        update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
+        rotation_avg_cso = 1 / 3 * silage_yield_kgDMha + 1 / 3 * soy_yield_kgDMha + 1 / 3 * oat_yield_kgDMha
+        data2['sum_cells'] =str(rotation_avg_cso)
+        data2['value_type'] = 'Rotational Average'
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
     else: print('No fields were updated')
     return JsonResponse({"Adjustements":"finished"})

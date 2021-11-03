@@ -142,7 +142,8 @@ Ext.define('DSS.map.Main', {
 		
 		me._cookieInternalHelper("crop", "1", 0.8);
 		me._cookieInternalHelper("inspector", "1", 0.8);
-		me._cookieInternalHelper("watershed", "1", 0.6);
+		me._cookieInternalHelper("tainterwatershed", "1", 0.6);
+		me._cookieInternalHelper("kickapoowatershed", "1", 0.6);
 		me._cookieInternalHelper("hillshade", "0", 0.5);
 		
 		// Visible code is the # of the base layer that is visible...
@@ -210,9 +211,9 @@ Ext.define('DSS.map.Main', {
 			})
 		})	;	
 		//--------------------------------------------------------------		
-		DSS.layer.watershed = new ol.layer.Vector({
-			visible: DSS.layer['watershed:visible'],
-			opacity: DSS.layer['watershed:opacity'],
+		DSS.layer.tainterwatershed = new ol.layer.Vector({
+			visible: DSS.layer['tainterwatershed:visible'],
+			opacity: DSS.layer['tainterwatershed:opacity'],
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
@@ -226,7 +227,40 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		var extent = [ -10128000, 5358000, -10109000, 5392000];
+		//--------------------------------------------------------------
+		DSS.layer.kickapoowatershed = new ol.layer.Vector({
+			visible: DSS.layer['kickapoowatershed:visible'],
+			opacity: DSS.layer['kickapoowatershed:opacity'],
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/kickapoowatershed.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#7fff1f',
+					width: 4
+				})
+			})
+		});
+		DSS.layer.rullandsCouleewshed = new ol.layer.Vector({
+			visible: DSS.layer['rullandsCouleewshed:visible'],
+			opacity: DSS.layer['rullandsCouleewshed:opacity'],
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/RullandsCouleeWshed.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#7fff1f',
+					width: 4
+				})
+			})
+		});
+		var extent = [ -10168100, 5454227, -10055830, 5318380];
 
 		DSS.layer.hillshade = new ol.layer.Image({
 			visible: DSS.layer['hillshade:visible'],
@@ -528,7 +562,9 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.bingAerial,
 				DSS.layer.bingRoad,
 				DSS.layer.osm,
-				DSS.layer.watershed,             
+				DSS.layer.kickapoowatershed,
+				DSS.layer.rullandsCouleewshed,
+				DSS.layer.tainterwatershed,
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
@@ -541,14 +577,15 @@ Ext.define('DSS.map.Main', {
 
 
 			view: new ol.View({
-				center: [-10118000,5375100],
+				center: [-10112582,5392087],
 				zoom: 12,
-				maxZoom: 19,
+				maxZoom: 18,
 				minZoom: 8,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
 				constrainOnlyCenter: true,
-				extent:[-10132000, 5353000, -10103000, 5397000]
+				//extent:[-10155160, 5323674, -10065237, 5450767]
+				extent:[ -10168100, 5318380, -10055830, 5454227]
 			})
 		});
 
@@ -689,11 +726,11 @@ Ext.define('DSS.map.Main', {
 				[ -9800000,  5100000 ], 
 				[ -10400000, 5100000 ] 
 			],[ // inner - counter-clockwise
-				[ -10128539.23, 5356917.38 ], 
-				[ -10128962.9, 5392788.13 ], 
-				[ -10108301.0, 5393011.78 ], 
-				[ -10107956.73, 5357138.36 ], 
-				[ -10128539.23, 5356917.38 ]
+				[ -10168100, 5454227 ], 
+				[ -10168100, 5318380 ], 
+				[ -10055830, 5318380 ], 
+				[ -10055830, 5454227 ], 
+				[ -10168100, 5454227 ]
 			] 
 		]];
 		

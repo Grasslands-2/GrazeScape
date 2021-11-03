@@ -274,6 +274,7 @@ Ext.create('Ext.data.Store', {
 		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
 		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
         'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp'],
+		sorters: ['name'],
 	data: fieldArray
 });
 
