@@ -142,7 +142,8 @@ Ext.define('DSS.map.Main', {
 		
 		me._cookieInternalHelper("crop", "1", 0.8);
 		me._cookieInternalHelper("inspector", "1", 0.8);
-		me._cookieInternalHelper("watershed", "1", 0.6);
+		me._cookieInternalHelper("tainterwatershed", "1", 0.6);
+		me._cookieInternalHelper("kickapoowatershed", "1", 0.6);
 		me._cookieInternalHelper("hillshade", "0", 0.5);
 		
 		// Visible code is the # of the base layer that is visible...
@@ -210,9 +211,9 @@ Ext.define('DSS.map.Main', {
 			})
 		})	;	
 		//--------------------------------------------------------------		
-		DSS.layer.watershed = new ol.layer.Vector({
-			visible: DSS.layer['watershed:visible'],
-			opacity: DSS.layer['watershed:opacity'],
+		DSS.layer.tainterwatershed = new ol.layer.Vector({
+			visible: DSS.layer['tainterwatershed:visible'],
+			opacity: DSS.layer['tainterwatershed:opacity'],
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
@@ -226,7 +227,40 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		let extent = [ -10128000, 5358000, -10109000, 5392000];
+		//--------------------------------------------------------------
+		DSS.layer.kickapoowatershed = new ol.layer.Vector({
+			visible: DSS.layer['kickapoowatershed:visible'],
+			opacity: DSS.layer['kickapoowatershed:opacity'],
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/kickapoowatershed.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#7fff1f',
+					width: 4
+				})
+			})
+		});
+		DSS.layer.rullandsCouleewshed = new ol.layer.Vector({
+			visible: DSS.layer['rullandsCouleewshed:visible'],
+			opacity: DSS.layer['rullandsCouleewshed:opacity'],
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/RullandsCouleeWshed.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#7fff1f',
+					width: 4
+				})
+			})
+		});
+		var extent = [ -10168100, 5454227, -10055830, 5318380];
 
 		DSS.layer.hillshade = new ol.layer.Image({
 			visible: DSS.layer['hillshade:visible'],
@@ -236,6 +270,28 @@ Ext.define('DSS.map.Main', {
 			source: new ol.source.ImageStatic({
 				url: '/static/grazescape/public/images/hillshade_high.png',
 				imageExtent: extent
+			})
+		})
+		//var elextent = [-10113594.4624000005424023,5375972.3128000004217029,-10113594.4624000005424023,5380622.3128000004217029]
+		//var elextent = [-10116504.4624000005424023,5379442.3128000004217029,-10114754.4624000005424023,5377472.3128000004217029]
+		var elextent = [-10116504,5377472,-10114754,5379442]
+		DSS.layer.DEM_image = new ol.layer.Image({
+			visible: false,
+			opacity: 0.5,
+			//updateWhileAnimating: true,
+			//updateWhileInteracting: true,
+			//zIndex: 0,
+			//imageSmoothing: true,
+			//DSS.layer["elevation:visible"],
+			//updateWhileAnimating: true,
+			//updateWhileInteracting: true,
+			//opacity: DSS.layer['elevation:opacity'],
+			//source: DEMSource
+			source: new ol.source.ImageStatic({
+				//url: '/static/grazescape/public/images/elevation.png',
+				//url: "/static/grazescape/public/images/elevation_CopyRaster.png",
+				url: "/static/grazescape/public/images/elevation_CopyRaster_1.jpg",
+				imageExtent: elextent
 			})
 		})
 		var pointStyle = new ol.style.Style({
@@ -315,27 +371,45 @@ Ext.define('DSS.map.Main', {
 //		});
 
 		//--------------------------------------------------------- 
-		DEMSource = new ol.source.ImageWMS({
-			ratio: 1,
-			url: geoserverURL + '/geoserver/'/*GS_Rasters*/+ '/wms',
-			params: {'FORMAT': 'image/png',
-					 'VERSION': '1.1.1',
-					 'TRANSPARENT': 'true',
-				  "STYLES": '',
-				  "LAYERS": 'InputRasters:TC_DEM',
-				  //"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
-				  "exceptions": 'application/vnd.ogc.se_inimage',
-			},
-			serverType: 'geoserver',
-		})
-		DSS.layer.DEM_image = new ol.layer.Image({
-			visible: false,
-			source: DEMSource
-
-		})
+		
+		// DEMSource = new ol.source.ImageWMS({
+		// 	ratio: 1,
+		// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM'
+		// })
+		
+		// var DEMSource = new ol.source.ImageWMS({
+		// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
+		// 	//'/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=InputRasters%3ATC_DEM&width=453&width=453&height=768&srs=EPSG%3A3857&styles=&format=image/png',
+		// 	//'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
+		// 	//geoServer.setDEMSource(),
+		// 	params: {'FORMAT': 'image/png',
+		// 	'VERSION': '1.1.1',
+		// 	'TRANSPARENT': 'false',
+		//  	"STYLES": '',
+		//  	"LAYERS": 'InputRasters:TC_DEM',
+		//  	//"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
+		//  	"exceptions": 'application/vnd.ogc.se_inimage',
+		// 	},
+		// 	serverType: 'geoserver'
+		// })
+		
+		// DSS.layer.DEM_image = new ol.layer.Image({
+		// 	visible: true,
+		// 	updateWhileAnimating: true,
+		// 	updateWhileInteracting: true,
+		// 	opacity: DSS.layer['elevation:opacity'],
+		// 	//source: DEMSource
+		// 	source: new ol.source.ImageStatic({
+		// 		url: '/static/grazescape/public/images/elevation.png',
+		// 		//url: "/data_files/raster_layers/elevation/elevation",
+		// 		imageExtent: extent
+		// 	})
+		// })
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
+		//var DEMSource = new ol.source.ImageStatic({});
+		
 		//var fields_1Source = new ol.source.Vector({});
 
 		// var fields_1Source = new ol.source.Vector({
@@ -402,11 +476,11 @@ Ext.define('DSS.map.Main', {
 				return infraDefaultStyle
 			}
 		};
-
-//		geoServer.setFieldSource()
+		geoServer.setFieldSource()
 		geoServer.setFarmSource()
 //		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
+		//geoServer.setDEMSource()
 
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
@@ -486,13 +560,15 @@ Ext.define('DSS.map.Main', {
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
 				DSS.layer.bingAerial,
-				DSS.layer.DEM_image,
 				DSS.layer.bingRoad,
 				DSS.layer.osm,
-				DSS.layer.watershed,             
+				DSS.layer.kickapoowatershed,
+				DSS.layer.rullandsCouleewshed,
+				DSS.layer.tainterwatershed,
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
+				DSS.layer.DEM_image,
 				//DSS.layer.fields_1,
 				//DSS.layer.fieldsLabels,
 				//DSS.layer.infrastructure
@@ -501,14 +577,15 @@ Ext.define('DSS.map.Main', {
 
 
 			view: new ol.View({
-				center: [-10118000,5375100],
+				center: [-10112582,5392087],
 				zoom: 12,
-				maxZoom: 19,
+				maxZoom: 18,
 				minZoom: 8,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
 				constrainOnlyCenter: true,
-				extent:[-10132000, 5353000, -10103000, 5397000]
+				//extent:[-10155160, 5323674, -10065237, 5450767]
+				extent:[ -10168100, 5318380, -10055830, 5454227]
 			})
 		});
 
@@ -649,11 +726,11 @@ Ext.define('DSS.map.Main', {
 				[ -9800000,  5100000 ], 
 				[ -10400000, 5100000 ] 
 			],[ // inner - counter-clockwise
-				[ -10128539.23, 5356917.38 ], 
-				[ -10128962.9, 5392788.13 ], 
-				[ -10108301.0, 5393011.78 ], 
-				[ -10107956.73, 5357138.36 ], 
-				[ -10128539.23, 5356917.38 ]
+				[ -10168100, 5454227 ], 
+				[ -10168100, 5318380 ], 
+				[ -10055830, 5318380 ], 
+				[ -10055830, 5454227 ], 
+				[ -10168100, 5454227 ]
 			] 
 		]];
 		

@@ -53,7 +53,8 @@ class InfraTrueLength(QgsProcessingAlgorithm):
         self.extents = infraextent
         self.infra_id = infraId
         self.infracords = infracords
-        geo_server_url = "http://grazescape-dev1.glbrc.org:8080"
+        #geo_server_url = "http://grazescape-dev1.glbrc.org:8080"
+        geo_server_url = settings.GEOSERVER_URL
 
         self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
