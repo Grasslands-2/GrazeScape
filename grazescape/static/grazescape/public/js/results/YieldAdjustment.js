@@ -141,7 +141,7 @@ function userUpdateYields(){
 		}
 		for(o in oatYeildFieldDS){
 			if (oatYeildFieldDS[o].dbID == fieldID){
-				oatYeildFieldDS[o].data[0] = (fieldYieldArray[f].oatYieldBrusAc * chartObj.rotation_yield_field.area[o])
+				oatYeildFieldDS[o].data[0] = fieldYieldArray[f].oatYieldBrusAc
 				oatYeildFarm.data[0] = oatYeildFarm.data[0] + fieldYieldArray[f].oatYieldBrusAc
 				fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].oatYieldBrusAc/62.5)
 			}
@@ -260,12 +260,7 @@ Ext.define('DSS.results.YieldAdjustment', {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', editable: true
 			}, text: 'Grass Yield t/acre', dataIndex: 'grassYieldTonsAc', width: 130,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-			renderer: function(value) {
-				if(value = null){
-					editable: false
-				}
-			}
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		}
 		let cornGrain_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
@@ -376,7 +371,7 @@ Ext.define('DSS.results.YieldAdjustment', {
 						chartObj.oat_yield_field.chart.update()
 						chartObj.alfalfa_yield_field.chart.update()
 						chartObj.rotation_yield_field.chart.update()
-						chartObj.feed_breakdown.chart.update()
+						//chartObj.feed_breakdown.chart.update()
 						this.up('window').close();
 						prepYieldAdjustmentForDB()
 					}

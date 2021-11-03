@@ -244,6 +244,22 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+		DSS.layer.rullandsCouleewshed = new ol.layer.Vector({
+			visible: DSS.layer['rullandsCouleewshed:visible'],
+			opacity: DSS.layer['rullandsCouleewshed:opacity'],
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/RullandsCouleeWshed.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#7fff1f',
+					width: 4
+				})
+			})
+		});
 		var extent = [ -10168100, 5454227, -10055830, 5318380];
 
 		DSS.layer.hillshade = new ol.layer.Image({
@@ -547,6 +563,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.bingRoad,
 				DSS.layer.osm,
 				DSS.layer.kickapoowatershed,
+				DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,

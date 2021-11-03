@@ -24,8 +24,8 @@ class HeiferFeedBreakdown():
         self.NRC = pd.read_csv(r"grazescape\model_defintions\NRC_2001.csv")
         self.pastYield = float(pastYield)*0.7
         #
-        self.cornYield = float(cornYield)/39.3680
-        #39.3680 is the number of bushels that go into an english ton of DM for corn
+        self.cornYield = (float(cornYield) * 56 * (1 - 0.155) / 2000)
+        #42.26 is the number of bushels that go into an english ton of DM for corn
         self.cornSilageYield = float(cornSilageYield) * 0.35
         print('new corn silage value for DM!!!!!!!!!!!**&###############*******!!!')
         print(self.cornSilageYield)

@@ -200,6 +200,19 @@ Ext.define('DSS.map.LayerMenu', {
                 	DSS.layer.tainterwatershed.setVisible(self.checked);                    	
                 }
 			},{ //-------------------------------------------
+				text: 'Rulland Coulee Watershed',
+                checked: true,
+                menu: makeOpacityMenu("rullandsCouleewshed", DSS.layer.rullandsCouleewshed),
+                listeners: {
+                	afterrender: function(self) {
+                		self.setChecked(DSS.layer.rullandsCouleewshed.getVisible());
+                	}
+                },
+                handler: function(self) {
+                	Ext.util.Cookies.set("rullandsCouleewshed:visible", self.checked ? "1" : "0");                	
+                	DSS.layer.rullandsCouleewshed.setVisible(self.checked);                    	
+                }
+			},{ //-------------------------------------------
 				text: 'Kickapoo Watershed',
                 checked: true,
                 menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
