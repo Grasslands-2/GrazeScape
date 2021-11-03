@@ -78,7 +78,10 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	else if(crop=='pt-rt'){
 		cropDisp ='Rotational Pasture'
 		grassDisp='Bluegrass-clover';
-		grassVal='Bluegrass';}
+		grassVal='Bluegrass';
+		rotationFreqVal = '1'
+		rotationFreqdisp = 'Once a day'
+	}
 	else if(crop=='ps'){
 		cropDisp ='New Pasture'}
 	else if(crop=='dl'){
@@ -154,6 +157,8 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
                 pasture_grazing_rot_cont:false,
 				grass_speciesval: grassVal,
 		 		grass_speciesdisp: grassDisp,
+				rotational_freq_val: rotationFreqVal,
+				rotational_freq_disp: rotationFreqdisp,
                 is_dirty:true
             })
         setFeatureAttributes(e.feature)

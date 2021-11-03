@@ -1,6 +1,24 @@
 modelResult = {}
 var modelError = false
 var modelErrorMessages = []
+var yieldmodelsDataArray = []
+function gatherModelDataArray(mdobj) {
+    //yieldmodelsDataArray = []
+    yieldmodelsDataArray.push({
+        area: mdobj.area,
+        cells: mdobj.counted_cells,
+        cropRo: mdobj.crop_ro,
+        fieldName: mdobj.f_name,
+        fieldId: mdobj.field_id,
+        grassRo: mdobj.grass_ro,
+        scenario: mdobj.scen,
+        scenarioId: mdobj.scen_id,
+        units:mdobj.units,
+        till: mdobj.till,
+        altUnits: mdobj.units_alternate,
+        yieldType: mdobj.value_type
+    })
+}
 function populateChartObj(scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
@@ -110,7 +128,6 @@ function build_model_request(f, geometry, modelChoice){
 //        }
 //    }
 
-
 //    runModel = true
     let rotation_split = f["rotation"].split("-")
     crop = rotation_split[0]
@@ -177,7 +194,7 @@ function build_model_request(f, geometry, modelChoice){
     return model_pack
 }
 function format_chart_data(model_data){
-    console.log("Model data")
+    console.log("Model data!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$")
     console.log(model_data)
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
         return
@@ -193,36 +210,45 @@ function format_chart_data(model_data){
         console.log("data is not part of a valid field or scenario")
         return
     }
+    
+    modelTypeString = model_data.value_type +'_'+ model_data.crop_ro
     switch (model_data.model_type) {
         case 'yield':
             switch (model_data.value_type){
             case 'Grass':
                 chartTypeField = chartObj.grass_yield_field
                 chartTypeFarm = chartObj.grass_yield_farm
+                gatherModelDataArray(model_data)
                 break
             case 'Corn Grain':
                 chartTypeField = chartObj.corn_yield_field
                 chartTypeFarm = chartObj.corn_yield_farm
+                gatherModelDataArray(model_data)
                 break
             case 'Corn Silage':
                 chartTypeField = chartObj.corn_silage_yield_field
                 chartTypeFarm = chartObj.corn_silage_yield_farm
+                gatherModelDataArray(model_data)
                 break
             case 'Soy':
                 chartTypeField = chartObj.soy_yield_field
                 chartTypeFarm = chartObj.soy_yield_farm
+                gatherModelDataArray(model_data)
                 break
             case 'Alfalfa':
                 chartTypeField = chartObj.alfalfa_yield_field
                 chartTypeFarm = chartObj.alfalfa_yield_farm
+                gatherModelDataArray(model_data)
                 break
             case 'Oats':
                 chartTypeField = chartObj.oat_yield_field
                 chartTypeFarm = chartObj.oat_yield_farm
+                gatherModelDataArray(model_data)
                 break
             case 'Rotational Average':
                 chartTypeField = chartObj.rotation_yield_field
                 chartTypeFarm = chartObj.rotation_yield_farm
+                gatherModelDataArray(model_data)
                 break
             }
             break;
@@ -378,9 +404,11 @@ function calcHeiferFeedBreakdown(data){
             //updating the scenario table with outputs from heieferscape calcs
             runFeedBreakdownUpdate(responses)
             var demandColorSwitch = false
+            finalDemandOutput = responses.output[3].toFixed(2)
             console.log(responses.output[3].toFixed(2))
-            if(responses.output[3].toFixed(2) < 0){
+            if(finalDemandOutput < 0){
                 demandColorSwitch = true
+                finalDemandOutput = Math.abs(finalDemandOutput)
             }
             console.log("ChartObj!!!!!!!!!!!!!!!!&&&*&**&*(((***************")
             DMI_Demand_obj = {
@@ -405,9 +433,9 @@ function calcHeiferFeedBreakdown(data){
                 backgroundColor: "rgb(238, 119, 51)"
             }
             remainingDemand_obj = {
-                label: 'Remaining Feed Demand',
+                label: demandColorSwitch ? "Surplus Feed" : 'Remaining Feed Demand',
                 hidden: false,
-                data: [responses.output[3].toFixed(2)],
+                data: [finalDemandOutput],
                 minBarLength: 7,
                 backgroundColor: demandColorSwitch ? "rgb(0,204,0)" : "rgb(255,0,0)"
             }
@@ -568,19 +596,19 @@ function create_graph(chart,title,element){
                     footerFont: {weight: 'normal'},
                     callbacks: {
                         label: function(context) {
-                            console.log(context)
+                            //console.log(context)
                             return context.dataset.label + ": " + context.dataset.data[context.dataIndex];
                         },
                         footer: function(context) {
-                            console.log(context)
+                            //console.log(context)
 //                            tooltipItem = tooltipItem[0]
                             var dataset = context[0].dataset
                             if(dataset.toolTip == undefined){
                                 return;
                             }
-                            console.log(dataset)
+                            //console.log(dataset)
                             let tooltipPath = dataset.toolTip[context[0].dataIndex]
-                            console.log(tooltipPath)
+                            //console.log(tooltipPath)
                             // all rotations except pasture
                             if(tooltipPath[0] != "pt"){
                                 return ["Rotation: " + farmAccMapping(tooltipPath[0]),

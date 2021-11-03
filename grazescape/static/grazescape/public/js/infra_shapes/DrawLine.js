@@ -133,7 +133,7 @@ lane_materialInput){
 		}
 		console.log(data)
 		console.log(infraLength);
-		await get_terrian_distance(data)
+		//await get_terrian_distance(data)
 		console.log(infraLength);
 		totalCost = (infraLength * costPerFoot).toFixed(2)
 		console.log(totalCost);
