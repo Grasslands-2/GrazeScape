@@ -69,6 +69,8 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	tillageDisp='';
 	grassDisp='';
 	grassVal='';
+	rotationFreqVal='';
+	rotationFreqdisp ='';
 	//--------------------Setting Display Values------------------
 	if(crop=='pt-cn'){
 		cropDisp ='Continuous Pasture';
