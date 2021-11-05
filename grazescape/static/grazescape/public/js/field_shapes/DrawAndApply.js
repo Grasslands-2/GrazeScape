@@ -69,8 +69,8 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	tillageDisp='';
 	grassDisp='';
 	grassVal='';
-	rotationFreqVal='';
-	rotationFreqdisp='';
+	rotationFreqVal = 1;
+	rotationFreqdisp = 'Once a day';
 	//--------------------Setting Display Values------------------
 	if(crop=='pt-cn'){
 		cropDisp ='Continuous Pasture';
@@ -81,8 +81,8 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 		cropDisp ='Rotational Pasture'
 		grassDisp='Bluegrass-clover';
 		grassVal='Bluegrass';
-		rotationFreqVal = '1'
-		rotationFreqdisp = 'Once a day'
+		rotationFreqVal = 1;
+		rotationFreqdisp = 'Once a day';
 	}
 	else if(crop=='ps'){
 		cropDisp ='New Pasture'}
