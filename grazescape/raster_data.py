@@ -70,7 +70,7 @@ class RasterData:
             "clay": "InputRasters:southWestWI_clay_10m_2",
             "k": "InputRasters:southWestWI_kfact_10m",
             "ksat": "InputRasters:southWestWI_ksat_10m",
-            "om": "	InputRasters:southWestWI_om_10m",
+            "om": "InputRasters:southWestWI_om_10m",
             "cec": "InputRasters:southWestWI_cec_10m",
             "ph": "InputRasters:southWestWI_ph_10m_2",
             "total_depth": "InputRasters:southWestWI_depth_10m",
