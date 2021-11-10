@@ -63,7 +63,7 @@ class RasterData:
 
         self.no_data = -9999
         self.layer_dic = {
-            #"elevation": "InputRasters:TC_DEM",
+            "elevation": "InputRasters:southWestWI_DEM_10m_2",
             "slope": "InputRasters:southWestWI_slopePer_10m_2",
             "sand": "InputRasters:southWestWI_sand10m",
             "silt": "InputRasters:southWestWI_silt_10m",
