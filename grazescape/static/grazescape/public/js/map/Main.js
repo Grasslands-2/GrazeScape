@@ -275,25 +275,14 @@ Ext.define('DSS.map.Main', {
 		//var elextent = [-10113594.4624000005424023,5375972.3128000004217029,-10113594.4624000005424023,5380622.3128000004217029]
 		//var elextent = [-10116504.4624000005424023,5379442.3128000004217029,-10114754.4624000005424023,5377472.3128000004217029]
 		var elextent = [-10116504,5377472,-10114754,5379442]
-		DSS.layer.DEM_image = new ol.layer.Image({
-			visible: false,
-			opacity: 0.5,
-			//updateWhileAnimating: true,
-			//updateWhileInteracting: true,
-			//zIndex: 0,
-			//imageSmoothing: true,
-			//DSS.layer["elevation:visible"],
-			//updateWhileAnimating: true,
-			//updateWhileInteracting: true,
-			//opacity: DSS.layer['elevation:opacity'],
-			//source: DEMSource
-			source: new ol.source.ImageStatic({
-				//url: '/static/grazescape/public/images/elevation.png',
-				//url: "/static/grazescape/public/images/elevation_CopyRaster.png",
-				url: "/static/grazescape/public/images/elevation_CopyRaster_1.jpg",
-				imageExtent: elextent
-			})
-		})
+		// DSS.layer.DEM_image = new ol.layer.Image({
+		// 	visible: false,
+		// 	opacity: 0.5,
+		// 	source: new ol.source.ImageStatic({
+		// 		url: "/static/grazescape/public/images/elevation_CopyRaster_1.jpg",
+		// 		imageExtent: elextent
+		// 	})
+		// })
 		var pointStyle = new ol.style.Style({
 			image: new ol.style.Circle({
 			  radius: 7,
@@ -356,59 +345,28 @@ Ext.define('DSS.map.Main', {
 		DSS.layerSource['fields'] = new ol.source.Vector({
 			format: new ol.format.GeoJSON()
 		}); 
-//		DSS.layer.fields = new ol.layer.Vector({
-//			visible: true,
-//			updateWhileAnimating: true,
-//			updateWhileInteracting: true,
-//			source:fields_1Source,
-//			style: function(feature, resolution) {
-//
-//				if (DSS.fieldStyleFunction) {
-//					return DSS.fieldStyleFunction(feature, resolution);
-//				}
-//				else return defaultFieldStyle;
-//			},
-//		});
-
-		//--------------------------------------------------------- 
-		
-		// DEMSource = new ol.source.ImageWMS({
-		// 	ratio: 1,
-		// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM'
-		// })
-		
-		// var DEMSource = new ol.source.ImageWMS({
-		// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
-		// 	//'/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId=InputRasters%3ATC_DEM&width=453&width=453&height=768&srs=EPSG%3A3857&styles=&format=image/png',
-		// 	//'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/ows?service=WCS&version=2.0.1&request=GetCoverage&CoverageId/InputRasters:TC_DEM',
-		// 	//geoServer.setDEMSource(),
-		// 	params: {'FORMAT': 'image/png',
-		// 	'VERSION': '1.1.1',
-		// 	'TRANSPARENT': 'false',
-		//  	"STYLES": '',
-		//  	"LAYERS": 'InputRasters:TC_DEM',
-		//  	//"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
-		//  	"exceptions": 'application/vnd.ogc.se_inimage',
-		// 	},
-		// 	serverType: 'geoserver'
-		// })
 		
 		// DSS.layer.DEM_image = new ol.layer.Image({
-		// 	visible: true,
-		// 	updateWhileAnimating: true,
-		// 	updateWhileInteracting: true,
-		// 	opacity: DSS.layer['elevation:opacity'],
-		// 	//source: DEMSource
-		// 	source: new ol.source.ImageStatic({
-		// 		url: '/static/grazescape/public/images/elevation.png',
-		// 		//url: "/data_files/raster_layers/elevation/elevation",
-		// 		imageExtent: extent
-		// 	})
+		// 	// visible: true,
+		// 	// updateWhileAnimating: true,
+		// 	// updateWhileInteracting: true,
+		// 	// opacity: DSS.layer['elevation:opacity'],
+		// 	//extent: [ -10168100, 5454227, -10055830, 5318380],
+		// 	source: new ol.source.ImageWMS({
+		// 		url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/wms',
+		// 		params: {'LAYERS': 'InputRasters:TC_DEM' /*, 'TILED': true*/},
+		// 		serverType: 'geoserver',
+		// 		ratio: 1,
+		// 		// Countries have transparency, so do not fade tiles:
+		// 		//transition: 0,
+		// 	}),
 		// })
+		
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
-		//var DEMSource = new ol.source.ImageStatic({});
+		var DEMSource = new ol.source.ImageStatic({});
+		//var DEMSource = new ol.source.ImageWMS({});
 		
 		//var fields_1Source = new ol.source.Vector({});
 
@@ -480,8 +438,50 @@ Ext.define('DSS.map.Main', {
 		geoServer.setFarmSource()
 //		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
-		//geoServer.setDEMSource()
+		geoServer.setDEMSource()
 
+		// DSS.layer.DEM_image = new ol.layer.Tile({
+		// 	visible: false,
+		// 	opacity: 0.5,
+		// 	//updateWhileAnimating: true,
+		// 	//updateWhileInteracting: true,
+		// 	//zIndex: 0,
+		// 	//imageSmoothing: true,
+		// 	//DSS.layer["elevation:visible"],
+		// 	//updateWhileAnimating: true,
+		// 	//updateWhileInteracting: true,
+		// 	//opacity: DSS.layer['elevation:opacity'],
+		// 	source: DEMSource
+		// 	// source: new ol.source.ImageStatic({
+		// 	// 	//url: '/static/grazescape/public/images/elevation.png',
+		// 	// 	//url: "/static/grazescape/public/images/elevation_CopyRaster.png",
+		// 	// 	url: "/static/grazescape/public/images/elevation_CopyRaster_1.jpg",
+		// 	// 	imageExtent: elextent
+		// 	// })
+		// })
+		DSS.layer.DEM_image = new ol.layer.Image({
+			projection: 'EPSG:3857',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			opacity: DSS.layer['elevation:opacity'],
+			extent: [ -10168100, 5454227, -10055830, 5318380],
+			source: DEMSource
+			// new ol.source.TileWMS({
+			// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/wms',
+			// 	params: {'LAYERS': 'InputRasters:TC_DEM', 'TILED': true},
+			// 	serverType: 'geoserver',
+			// 	// Countries have transparency, so do not fade tiles:
+			// 	transition: 0,
+			//}),
+			//source: DEMSource
+			// source: new ol.source.ImageStatic({
+			// 	url: '/static/grazescape/public/images/elevation.png',
+			// 	//url: "/data_files/raster_layers/elevation/elevation",
+			// 	imageExtent: extent
+			// })
+		})
+		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
 			visible: true,

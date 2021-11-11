@@ -5,14 +5,16 @@ function gatherYieldTableData() {
 	console.log(chartObjyieldarray)
 
 	for(field in chartObjyieldarray){
-		fieldYieldArray.push({
-            id: chartObjyieldarray[field].dbID,
-			name: chartObjyieldarray[field].label.slice(0,-3),
-			rotationVal1: chartObjyieldarray[field].toolTip[0][0],
-            rotationVal2: chartObjyieldarray[field].toolTip[0][1],
-            grassType: chartObjyieldarray[field].toolTip[0][2],
-			dMYieldAc: chartObjyieldarray[field].data[0],
-		})
+        if(chartObjyieldarray[field].toolTip[0] !== null){
+            fieldYieldArray.push({
+                id: chartObjyieldarray[field].dbID,
+                name: chartObjyieldarray[field].label.slice(0,-3),
+                rotationVal1: chartObjyieldarray[field].toolTip[0][0],
+                rotationVal2: chartObjyieldarray[field].toolTip[0][1],
+                grassType: chartObjyieldarray[field].toolTip[0][2],
+                dMYieldAc: chartObjyieldarray[field].data[0],
+            })
+        }
 	}
 	console.log(fieldYieldArray)
     // var yielddatasetsarray = [grass_yield_field,corn_yield_field,corn_silage_yield_field,
