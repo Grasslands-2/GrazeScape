@@ -165,13 +165,19 @@ def geoserver_request(request):
         print(result)
     return JsonResponse({"data": result}, safe=False)
 
-def manage_raster_visuals(data):
-    rasterextent = data.POST.getlist('extents[]')
-    layer = data.POST.get('layer')
+def manage_raster_visuals(request):
     print('INside manage raster visuals in views!!!!!!!!!!!!')
-    raster_data = retreiveRaster(layer,rasterextent)
-
-    return JsonResponse({"download":"finished"})
+    #rasterextent = data.POST.getlist('extents[]')
+    request_type = request.POST.get("request_type")
+    pay_load = request.POST.get("pay_load")
+    url = request.POST.get("url")
+    feature_id = request.POST.get("feature_id")
+    print(url)
+    geo = GeoServer(request_type, url)
+    result = geo.makeRasterRequest(pay_load)
+    #raster_data = retreiveRaster(url)
+    return JsonResponse({"data": result}, safe=False)
+    #return JsonResponse({"download":"finished"})
     # request_type = request.POST.get("request_type")
     # pay_load = request.POST.get("pay_load")
     # url = request.POST.get("url")
