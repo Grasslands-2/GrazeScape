@@ -1,3 +1,5 @@
+var layersList = 
+
 function downloadRaster(layer){
 	var extents = DSS.map.getView().calculateExtent(DSS.map.getSize())
 	console.log(extents)
@@ -6,24 +8,61 @@ function downloadRaster(layer){
 	// DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
 	// DSS.layer.DEM_image.setVisible(self.checked);
 	//DSS.layer.DEM_image.getSource().refresh()
-
-
+}
+function newLayerItems(mfieldID){
+	console.log('Hello world!!!')
+	DSS.map.getLayers().forEach(async function (layer){
+		console.log(layer);
+		if(layer.values_.name == 'DSS.layer.ploss_field_'+ mfieldID){
+			varploss_field_layer = layer
+		
+		var menuItem = Ext.ComponentQuery.query('radiogroup')
+		console.log(menuItem)
+		console.log(this)
+		//console.log(me)
+		// menuItem.add({
+		// 	xtype: 'menuitem',
+		// 	//itemID: 'Ploss',
+		// 	text: 'Ploss',
+		// 	disabled: false,
+		// 	style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc',			
+		// 	checked: false,
+		// 	//menu: makeOpacityMenu("hillshade", DSS.layer.hillshade, 30),
+		// 	//listeners: {
+		// 	// afterrender: function(self) {
+		// 	// 	self.setChecked(DSS.layer.hillshade.getVisible());
+		// 	// }
+		// //},
+		// handler: function(self) {
+		// 	Ext.util.Cookies.set('DSS.layer.ploss_field'+mfieldID+':visible', self.checked ? "0" : "1");                	
+		// 	layer.setVisible(self.checked);                    	
+		// }
+		// })
+		}
+		
+	});
+	
+	//Ext.create('DSS.map.OutputMenu').show();
 }
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.LayerMenu', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.menu.Menu',
 	alias: 'widget.map_layer_menu',
-	
+	alternateClassName: 'DSS.LayerMenu',
+	id: 'layersMenu',
+	itemId: 'layersMenu',
 	header: {
 		style: 'background: rgba(200,200,200,0.9)',
 		padding: 2
 	},
+	//closeAction: Ext.getCmp('layersMenu').destroy(),
 	closable: true,
 	plain: true,
 	width: 160,
 	//--------------------------------------------------------------------------
 	initComponent: function() {
+		
 		let me = this;
 		
 		let makeOpacityMenu = function(key, openLayersLayer, minValue) {
@@ -149,14 +188,19 @@ Ext.define('DSS.map.LayerMenu', {
 		tMen = appendTextureMenu(tMen, DSS.layer.fields_1);
 		
 		Ext.applyIf(me, {
+			//Id: 'layersMenu',
+			//itemId: 'layersMenu',
+			//ItemId: 'layermenu',
 			defaults: {
 				xtype: 'menucheckitem',
 				padding: 2,
                 hideOnClick: false,
 			},
+			
 			items: [{ //-------------------------------------------
 				xtype: 'menuitem',
-				text: 'Overlays', disabled: true,
+				text: 'Overlays', 
+				disabled: true,
 				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
 			},{ //-------------------------------------------
 				text: 'Crops <i class="fas fa-seedling accent-text text-drp-50"></i>',
@@ -251,29 +295,44 @@ Ext.define('DSS.map.LayerMenu', {
                 	DSS.layer.hillshade.setVisible(self.checked);                    	
                 }
 			},
-			{ //-------------------------------------------
-				text: 'Elevation',					
-                checked: false,
-                menu: makeOpacityMenu("elevation", DSS.layer.DEM_image, 30),
-                listeners: {
-                	afterrender: function(self) {
-                		self.setChecked(DSS.layer.DEM_image.getVisible());
-                	}
-                },
-                handler: function(self) {
-                	Ext.util.Cookies.set("elevation:visible", self.checked ? "0" : "1"); 
-					//downloadRaster('InputRasters:TC_DEM')
-					DSS.layer.DEM_image.setVisible(self.checked);
+			// { //-------------------------------------------
+			// 	text: 'Grass Yields',					
+            //     checked: false,
+			// 	disabled:true,
+            //     menu: makeOpacityMenu("modelResult", DSS.layer.modelResult, 30),
+            //     listeners: {
+            //     	afterrender: function(self) {
+            //     		self.setChecked(DSS.layer.modelResult.getVisible());
+            //     	}
+            //     },
+            //     handler: function(self) {
+            //     	Ext.util.Cookies.set("modelResult:visible", self.checked ? "1" : "0");                	
+            //     	DSS.layer.modelResult.setVisible(self.checked);                    	
+            //     }
+			// },
+			// { //-------------------------------------------
+			// 	text: 'Elevation',					
+            //     checked: false,
+            //     menu: makeOpacityMenu("elevation", DSS.layer.DEM_image, 30),
+            //     listeners: {
+            //     	afterrender: function(self) {
+            //     		self.setChecked(DSS.layer.DEM_image.getVisible());
+            //     	}
+            //     },
+            //     handler: function(self) {
+            //     	Ext.util.Cookies.set("elevation:visible", self.checked ? "0" : "1"); 
+			// 		//downloadRaster('InputRasters:TC_DEM')
+			// 		DSS.layer.DEM_image.setVisible(self.checked);
 
-					//geoServer.setDEMSource()
-					//DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
-                	//DSS.layer.DEM_image.setVisible(self.checked); 
-					//console.log(DSS.layer.DEM_image)   
-					//console.log(DSS.map.getView().calculateExtent(DSS.map.getSize()))  
-					//geoServer.setDEMSource()
-					//geoServer.setRasterSource('InputRasters:TC_DEM')       	
-                }
-			},
+			// 		//geoServer.setDEMSource()
+			// 		//DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
+            //     	//DSS.layer.DEM_image.setVisible(self.checked); 
+			// 		//console.log(DSS.layer.DEM_image)   
+			// 		//console.log(DSS.map.getView().calculateExtent(DSS.map.getSize()))  
+			// 		//geoServer.setDEMSource()
+			// 		//geoServer.setRasterSource('InputRasters:TC_DEM')       	
+            //     }
+			// },
 			{//-----------------------------------------------------------------
 				xtype: 'menuitem',
 				text: 'Base Layer', disabled: true,
@@ -281,6 +340,7 @@ Ext.define('DSS.map.LayerMenu', {
 			},{
 				xtype: 'radiogroup',
 				columns: 1, 
+				//id: 'menuitemradiogroup',
 				vertical: true,
 				defaults: {
 					padding: '2 0',

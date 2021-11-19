@@ -585,6 +585,7 @@ Ext.define('DSS.state.Scenario', {
 //                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
                             Ext.getCmp("btnRunModels").setText("Rerun Models")
                             Ext.getCmp("dashboardWindow").show().center();
+							//Ext.create('DSS.map.OutputMenu').showAt(10,10);
                         }
                         else{
 //                            close model to destroy it to rerun models
