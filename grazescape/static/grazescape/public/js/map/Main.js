@@ -83,6 +83,7 @@ Ext.define('DSS.map.Main', {
 						click: function(self) {
 							let rect = c.el.dom.getBoundingClientRect();
 							Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							//Ext.getCmp('layersMenu').showAt(rect.left-2, rect.top-2);
 						}
 					});
 				}
@@ -91,6 +92,7 @@ Ext.define('DSS.map.Main', {
 		
 		setTimeout(function() {
 			DSS.LayerButton.showAt(DSS.LayerButton.x,0);
+			//Ext.getCmp('DSS.map.LayerMenu').destroy()
 		}, 100);
 		
 	},
@@ -113,6 +115,8 @@ Ext.define('DSS.map.Main', {
 				y: -32
 			}
 		});
+		//Ext.getCmp('DSS.map.LayerMenu').destroy()
+		console.log('layer menu turned off')
 	},
 
 	
@@ -261,7 +265,18 @@ Ext.define('DSS.map.Main', {
 			})
 		});
 		var extent = [ -10168100, 5454227, -10055830, 5318380];
+		var mrextent = [-10135469.3149,5405765.3492,-10135319.3149,5406075.3492];
 
+		// DSS.layer.modelResult = new ol.layer.Image({
+		// 	visible: DSS.layer['modelResult:visible'],
+		// 	updateWhileAnimating: true,
+		// 	updateWhileInteracting: true,
+		// 	opacity: DSS.layer['modelResult:opacity'],
+		// 	source: new ol.source.ImageStatic({
+		// 		url: '/static/grazescape/public/images/modelresult.png',
+		// 		imageExtent: mrextent
+		// 	})
+		// })
 		DSS.layer.hillshade = new ol.layer.Image({
 			visible: DSS.layer['hillshade:visible'],
 			updateWhileAnimating: true,
@@ -365,7 +380,7 @@ Ext.define('DSS.map.Main', {
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
-		var DEMSource = new ol.source.ImageStatic({});
+		//var DEMSource = new ol.source.ImageStatic({});
 		//var DEMSource = new ol.source.ImageWMS({});
 		
 		//var fields_1Source = new ol.source.Vector({});
@@ -434,11 +449,12 @@ Ext.define('DSS.map.Main', {
 				return infraDefaultStyle
 			}
 		};
+		DEMExtent = [-10177440, 5490396, -10040090, 5310186]
 		geoServer.setFieldSource()
 		geoServer.setFarmSource()
 //		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
-		geoServer.setDEMSource()
+		//geoServer.setDEMSource()
 
 		// DSS.layer.DEM_image = new ol.layer.Tile({
 		// 	visible: false,
@@ -459,14 +475,15 @@ Ext.define('DSS.map.Main', {
 		// 	// 	imageExtent: elextent
 		// 	// })
 		// })
-		DSS.layer.DEM_image = new ol.layer.Image({
-			projection: 'EPSG:3857',
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			opacity: DSS.layer['elevation:opacity'],
-			extent: [ -10168100, 5454227, -10055830, 5318380],
-			source: DEMSource
+		// DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
+		// DSS.layer.DEM_image = new ol.layer.Image({
+		// 	//projection: 'EPSG:3857',
+		// 	visible: DSS.layer['elevation:visible'],
+		// 	updateWhileAnimating: true,
+		// 	updateWhileInteracting: true,
+		// 	opacity: DSS.layer['elevation:opacity'],
+		// 	extent: DEMExtent,
+		// 	source: DEMSource
 			// new ol.source.TileWMS({
 			// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/wms',
 			// 	params: {'LAYERS': 'InputRasters:TC_DEM', 'TILED': true},
@@ -480,7 +497,7 @@ Ext.define('DSS.map.Main', {
 			// 	//url: "/data_files/raster_layers/elevation/elevation",
 			// 	imageExtent: extent
 			// })
-		})
+		//})
 		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
@@ -568,7 +585,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
-				DSS.layer.DEM_image,
+				//DSS.layer.DEM_image,
+				//DSS.layer.modelResult,
 				//DSS.layer.fields_1,
 				//DSS.layer.fieldsLabels,
 				//DSS.layer.infrastructure
@@ -693,6 +711,7 @@ Ext.define('DSS.map.Main', {
 		me.cropRotationOverlay = Ext.create('DSS.map.RotationLayer').instantiate(me.map);
 		me.map.addLayer(DSS.layer.fieldsLabels);
 		me.map.addLayer(DSS.layer.infrastructure);
+		//Ext.create('DSS.map.LayerMenu')
 	},
 	
 	

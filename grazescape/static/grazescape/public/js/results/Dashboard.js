@@ -153,6 +153,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	extend: 'Ext.window.Window',
 
 	alias: 'widget.state_perimeter_dialog',
+    requires: [
+		'DSS.map.LayerMenu',
+        'DSS.map.OutputMenu'
+	],
 	alternateClassName: 'DSS.Dashboard',
     id: "dashboardWindow",
 //	autoDestroy: true,

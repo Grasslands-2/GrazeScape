@@ -287,6 +287,9 @@ def get_model_results(request):
                 palette = []
                 values_legend = []
             else:
+                print("THESE ARE THE GEO BOUNDS FOR THE MODEL RUN PNG!!!!!!!!!!!!!")
+                print(geo_data.bounds)
+                print(result)
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
             # dealing with rain fall data

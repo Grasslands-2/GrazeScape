@@ -7,22 +7,46 @@ class GeoServer{
         this.geoField_Url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afield_2&outputFormat=application%2Fjson'
         this.geoInfra_Url ='/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Ainfrastructure_2&outputFormat=application%2Fjson'
         //this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetCoverage&CoverageId=InputRasters%3ATC_DEM&width=453&width=453&height=768&srs=EPSG%3A3857&styles=&format=image/png'
-        this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3ATC_DEM&bbox=-1.01297744624E7%2C5356202.3128%2C-1.01069444624E7%2C5394832.3128&width=453&height=768&srs=EPSG%3A3857&styles=&format=image%2Fpng'
+        this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3AsouthWestWI_DEM_10m_2&bbox=-1.01774393149E7%2C5310185.3492%2C-1.00400893149E7%2C5490395.3492&width=585&height=768&srs=EPSG%3A3857&styles=&format=image%2Fjpeg'
+        //this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3ATC_DEM&bbox=-1.01297744624E7%2C5356202.3128%2C-1.01069444624E7%2C5394832.3128&width=453&height=768&srs=EPSG%3A3857&styles=&format=image%2Fpng'
         //this.geoDEM_Url = '/geoserver/InputRasters/wms?service=WMS&version=1.1.0&request=GetMap&layers=InputRasters%3ATC_DEM'
         this.geoUpdate_Url =this.geoScen_Url
-
     }
+    DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
 //    returns a geojson of the farms
-    setDEMSource(parameter ='' /*"{'LAYERS': 'InputRasters:TC_DEM', 'TILED': true}"*/){
+    setDEMSource(parameter =''){
+        var ElevExtent = [-10177440, 5490396, -10040090, 5310186]
         this.makeRasterRequest(this.geoDEM_Url + parameter, "source").then(function(geoJson){
             //DSS.layer.scenarios.getSource().clear()
-            console.log(geoJson.geojson)
-            var NewDEMSource = new ol.source.ImageStatic({
-                url:geoJson.geojson
-            });
-            DSS.layer.DEM_image.setSource(NewDEMSource)
+            console.log(geoJson)
+            //DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
+            // var NewDEMSource = new ol.source.ImageStatic({
+            //     url:geoJson.geojson,
+            //     imageExtent: DEMExtent
+            // });
+            // var NewDEMSource = new ol.source.ImageWMS({
+            //     url:geoJson.geojson,
+            //     ratio:1,
+            //     serverType: 'geoserver',
+            //     //imageExtent: DEMExtent
+            // });
+            
+            DSS.layer.DEM_image = new ol.layer.Image({
+                //projection: 'EPSG:3857',
+                //visible: DSS.layer['elevation:visible'],
+                //updateWhileAnimating: true,
+                //updateWhileInteracting: true,
+                //opacity: DSS.layer['elevation:opacity'],
+                //extent: DEMExtent,
+                source: new ol.source.ImageStatic({
+                    url:geoJson.geojson,
+                    imageExtent: ElevExtent
+                })
+            })
+            console.log(DSS.layer.DEM_image)
+            //DSS.layer.DEM_image.setSource(NewDEMSource)
             //DSS.layer.DEM_image.refresh({force:true})
-            //DSS.map.addLayer(DSS.layer.DEM_image)
+            DSS.map.addLayer(DSS.layer.DEM_image)
             // var format = new ol.format.WFS();
             // var myGeoJsonFeatures = format.readFeatures(
             //     geoJson.geojson,
