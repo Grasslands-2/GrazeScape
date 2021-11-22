@@ -290,14 +290,14 @@ Ext.define('DSS.map.Main', {
 		//var elextent = [-10113594.4624000005424023,5375972.3128000004217029,-10113594.4624000005424023,5380622.3128000004217029]
 		//var elextent = [-10116504.4624000005424023,5379442.3128000004217029,-10114754.4624000005424023,5377472.3128000004217029]
 		var elextent = [-10116504,5377472,-10114754,5379442]
-		// DSS.layer.DEM_image = new ol.layer.Image({
-		// 	visible: false,
-		// 	opacity: 0.5,
-		// 	source: new ol.source.ImageStatic({
-		// 		url: "/static/grazescape/public/images/elevation_CopyRaster_1.jpg",
-		// 		imageExtent: elextent
-		// 	})
-		// })
+		DSS.layer.DEM_image = new ol.layer.Tile({
+			//visible: false,
+			//opacity: 0.5,
+			source: new ol.source.GeoTIFF({
+				url: "https://storage.cloud.google.com/grazescaperasterstorage/southWestWI_DEM_10_2.tif",
+				
+			})
+		})
 		var pointStyle = new ol.style.Style({
 			image: new ol.style.Circle({
 			  radius: 7,
@@ -476,28 +476,28 @@ Ext.define('DSS.map.Main', {
 		// 	// })
 		// })
 		// DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
-		// DSS.layer.DEM_image = new ol.layer.Image({
-		// 	//projection: 'EPSG:3857',
-		// 	visible: DSS.layer['elevation:visible'],
-		// 	updateWhileAnimating: true,
-		// 	updateWhileInteracting: true,
-		// 	opacity: DSS.layer['elevation:opacity'],
-		// 	extent: DEMExtent,
-		// 	source: DEMSource
-			// new ol.source.TileWMS({
-			// 	url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/wms',
-			// 	params: {'LAYERS': 'InputRasters:TC_DEM', 'TILED': true},
-			// 	serverType: 'geoserver',
-			// 	// Countries have transparency, so do not fade tiles:
-			// 	transition: 0,
-			//}),
-			//source: DEMSource
-			// source: new ol.source.ImageStatic({
-			// 	url: '/static/grazescape/public/images/elevation.png',
-			// 	//url: "/data_files/raster_layers/elevation/elevation",
-			// 	imageExtent: extent
-			// })
-		//})
+		// DSS.layer.DEM_image = new ol.layer.TileLayer({
+		// // 	//projection: 'EPSG:3857',
+		// // 	visible: DSS.layer['elevation:visible'],
+		// // 	updateWhileAnimating: true,
+		// // 	updateWhileInteracting: true,
+		// // 	opacity: DSS.layer['elevation:opacity'],
+		// // 	extent: DEMExtent,
+		// // 	source: DEMSource
+		// 	// new ol.source.TileWMS({
+		// 	// 	url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_DEM_10_2.tif',
+		// 	// 	params: {'LAYERS': 'InputRasters:TC_DEM', 'TILED': true},
+		// 	// 	serverType: 'geoserver',
+		// 	// 	// Countries have transparency, so do not fade tiles:
+		// 	// 	transition: 0,
+		// 	//}),
+		// 	//source: DEMSource
+		// 	source: new ol.source.GeoTIFF({
+		// 		url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_DEM_10_2.tif',
+		// 		//url: "/data_files/raster_layers/elevation/elevation",
+		// 		//imageExtent: extent
+		// 	})
+		// })
 		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
@@ -585,7 +585,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
-				//DSS.layer.DEM_image,
+				DSS.layer.DEM_image,
 				//DSS.layer.modelResult,
 				//DSS.layer.fields_1,
 				//DSS.layer.fieldsLabels,

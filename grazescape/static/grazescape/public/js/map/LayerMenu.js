@@ -50,8 +50,6 @@ Ext.define('DSS.map.LayerMenu', {
 	extend: 'Ext.menu.Menu',
 	alias: 'widget.map_layer_menu',
 	alternateClassName: 'DSS.LayerMenu',
-	id: 'layersMenu',
-	itemId: 'layersMenu',
 	header: {
 		style: 'background: rgba(200,200,200,0.9)',
 		padding: 2
@@ -188,9 +186,6 @@ Ext.define('DSS.map.LayerMenu', {
 		tMen = appendTextureMenu(tMen, DSS.layer.fields_1);
 		
 		Ext.applyIf(me, {
-			//Id: 'layersMenu',
-			//itemId: 'layersMenu',
-			//ItemId: 'layermenu',
 			defaults: {
 				xtype: 'menucheckitem',
 				padding: 2,
@@ -340,7 +335,6 @@ Ext.define('DSS.map.LayerMenu', {
 			},{
 				xtype: 'radiogroup',
 				columns: 1, 
-				//id: 'menuitemradiogroup',
 				vertical: true,
 				defaults: {
 					padding: '2 0',
