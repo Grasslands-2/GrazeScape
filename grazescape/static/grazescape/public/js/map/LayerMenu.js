@@ -264,19 +264,21 @@ Ext.define('DSS.map.LayerMenu', {
                 	Ext.util.Cookies.set("kickapoowatershed:visible", self.checked ? "1" : "0");                	
                 	DSS.layer.kickapoowatershed.setVisible(self.checked);                    	
                 }
-			},{ //-------------------------------------------
-				text: 'Contour',
-				disabled: true,
-				listeners: {
-                	afterrender: function(self) {
-                		//self.setChecked(DSS.layer.contour.getVisible());
-                	}
-                },
-                handler: function(self) {
-                	Ext.util.Cookies.set("contour:visible", self.checked ? "1" : "0");                	
-                	DSS.layer.contour.setVisible(self.checked);                    	
-                }
-			},{ //-------------------------------------------
+			},
+			// { //-------------------------------------------
+			// 	text: 'Contour',
+			// 	disabled: true,
+			// 	listeners: {
+            //     	afterrender: function(self) {
+            //     		//self.setChecked(DSS.layer.contour.getVisible());
+            //     	}
+            //     },
+            //     handler: function(self) {
+            //     	Ext.util.Cookies.set("contour:visible", self.checked ? "1" : "0");                	
+            //     	DSS.layer.contour.setVisible(self.checked);                    	
+            //     }
+			// },
+			{ //-------------------------------------------
 				text: 'Hillshade',					
                 checked: false,
                 menu: makeOpacityMenu("hillshade", DSS.layer.hillshade, 30),
@@ -286,11 +288,11 @@ Ext.define('DSS.map.LayerMenu', {
                 	}
                 },
                 handler: function(self) {
-                	Ext.util.Cookies.set("hillshade:visible", self.checked ? "0" : "1");                	
+                	Ext.util.Cookies.set("hillshade:visible", self.checked ? "1" : "0");                	
                 	DSS.layer.hillshade.setVisible(self.checked);                    	
                 }
 			},
-			// { //-------------------------------------------
+			{ //-------------------------------------------
 			// 	text: 'Grass Yields',					
             //     checked: false,
 			// 	disabled:true,
@@ -306,28 +308,27 @@ Ext.define('DSS.map.LayerMenu', {
             //     }
 			// },
 			// { //-------------------------------------------
-			// 	text: 'Elevation',					
-            //     checked: false,
-            //     menu: makeOpacityMenu("elevation", DSS.layer.DEM_image, 30),
-            //     listeners: {
-            //     	afterrender: function(self) {
-            //     		self.setChecked(DSS.layer.DEM_image.getVisible());
-            //     	}
-            //     },
-            //     handler: function(self) {
-            //     	Ext.util.Cookies.set("elevation:visible", self.checked ? "0" : "1"); 
-			// 		//downloadRaster('InputRasters:TC_DEM')
-			// 		DSS.layer.DEM_image.setVisible(self.checked);
+				text: 'Elevation',					
+                checked: false,
+                menu: makeOpacityMenu("elevation", DSS.layer.DEM_image, 30),
+                listeners: {
+                	afterrender: function(self) {
+                		self.setChecked(DSS.layer.DEM_image.getVisible());
+                	}
+                },
+                handler: function(self) {
+                	Ext.util.Cookies.set("elevation:visible", self.checked ? "1" : "0"); 
+					DSS.layer.DEM_image.setVisible(self.checked);
 
-			// 		//geoServer.setDEMSource()
-			// 		//DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
-            //     	//DSS.layer.DEM_image.setVisible(self.checked); 
-			// 		//console.log(DSS.layer.DEM_image)   
-			// 		//console.log(DSS.map.getView().calculateExtent(DSS.map.getSize()))  
-			// 		//geoServer.setDEMSource()
-			// 		//geoServer.setRasterSource('InputRasters:TC_DEM')       	
-            //     }
-			// },
+					//geoServer.setDEMSource()
+					//DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
+                	//DSS.layer.DEM_image.setVisible(self.checked); 
+					//console.log(DSS.layer.DEM_image)   
+					//console.log(DSS.map.getView().calculateExtent(DSS.map.getSize()))  
+					//geoServer.setDEMSource()
+					//geoServer.setRasterSource('InputRasters:TC_DEM')       	
+                }
+			},
 			{//-----------------------------------------------------------------
 				xtype: 'menuitem',
 				text: 'Base Layer', disabled: true,

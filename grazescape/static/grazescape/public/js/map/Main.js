@@ -290,12 +290,33 @@ Ext.define('DSS.map.Main', {
 		//var elextent = [-10113594.4624000005424023,5375972.3128000004217029,-10113594.4624000005424023,5380622.3128000004217029]
 		//var elextent = [-10116504.4624000005424023,5379442.3128000004217029,-10114754.4624000005424023,5377472.3128000004217029]
 		var elextent = [-10116504,5377472,-10114754,5379442]
-		DSS.layer.DEM_image = new ol.layer.Tile({
-			//visible: false,
-			//opacity: 0.5,
-			source: new ol.source.GeoTIFF({
-				url: "https://storage.cloud.google.com/grazescaperasterstorage/southWestWI_DEM_10_2.tif",
-				
+		//var DEMExtent = [-10120149.3149, 5378545.3492, -10119939.3149, 5378745.3492]
+		var DEMExtent = [ -10168100, 5318380, -10055830, 5454227];
+		DSS.layer.DEM_image = new ol.layer.Image({
+			updateWhileAnimating: true,
+            updateWhileInteracting: true,
+			//visible: DSS.layer['"elevation:visible'],
+			//updateWhileAnimating: true,
+			//updateWhileInteracting: true,
+			//opacity: DSS.layer['hillshade:opacity'],
+			//visible: true,
+			opacity: 1,
+			extent: DEMExtent,
+			source:
+			// new ol.source.GeoTIFF({
+			// 	sources: {url: "https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10mv2.tif"},
+			// 	//url: '/static/grazescape/public/images/SW_DEM_png_1122_v14.png',
+			// 	convertToRGB: true,
+			// 	//imageExtent: DEMExtent,
+			// 	//projection: 'EPSG:3857',
+			// 	//imageSmoothing: false
+			// })
+			new ol.source.ImageStatic({
+				//url: "https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_png_1122_v14.png",
+				url: '/static/grazescape/public/images/southWestWI_DEM_11_PNG.png',
+				imageExtent: DEMExtent,
+				projection: 'EPSG:3857',
+				imageSmoothing: false
 			})
 		})
 		var pointStyle = new ol.style.Style({
@@ -574,18 +595,20 @@ Ext.define('DSS.map.Main', {
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
+			maxTilesLoading: 50,
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
 				DSS.layer.bingAerial,
 				DSS.layer.bingRoad,
 				DSS.layer.osm,
+				DSS.layer.DEM_image,
 				DSS.layer.kickapoowatershed,
 				DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
 				DSS.layer.hillshade,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
-				DSS.layer.DEM_image,
+				
 				//DSS.layer.modelResult,
 				//DSS.layer.fields_1,
 				//DSS.layer.fieldsLabels,
@@ -601,7 +624,7 @@ Ext.define('DSS.map.Main', {
 				minZoom: 8,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
-				constrainOnlyCenter: true,
+				constrainOnlyCenter: false,
 				//extent:[-10155160, 5323674, -10065237, 5450767]
 				extent:[ -10168100, 5318380, -10055830, 5454227]
 			})
