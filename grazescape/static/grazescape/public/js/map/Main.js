@@ -243,7 +243,7 @@ Ext.define('DSS.map.Main', {
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
-					color: '#7fff1f',
+					color: '#0073ff',
 					width: 4
 				})
 			})
@@ -259,7 +259,7 @@ Ext.define('DSS.map.Main', {
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
-					color: '#7fff1f',
+					color: '#fcba03',
 					width: 4
 				})
 			})
@@ -267,16 +267,6 @@ Ext.define('DSS.map.Main', {
 		var extent = [ -10168100, 5454227, -10055830, 5318380];
 		var mrextent = [-10135469.3149,5405765.3492,-10135319.3149,5406075.3492];
 
-		// DSS.layer.modelResult = new ol.layer.Image({
-		// 	visible: DSS.layer['modelResult:visible'],
-		// 	updateWhileAnimating: true,
-		// 	updateWhileInteracting: true,
-		// 	opacity: DSS.layer['modelResult:opacity'],
-		// 	source: new ol.source.ImageStatic({
-		// 		url: '/static/grazescape/public/images/modelresult.png',
-		// 		imageExtent: mrextent
-		// 	})
-		// })
 		DSS.layer.hillshade = new ol.layer.Image({
 			visible: DSS.layer['hillshade:visible'],
 			updateWhileAnimating: true,
@@ -287,38 +277,247 @@ Ext.define('DSS.map.Main', {
 				imageExtent: extent
 			})
 		})
-		//var elextent = [-10113594.4624000005424023,5375972.3128000004217029,-10113594.4624000005424023,5380622.3128000004217029]
-		//var elextent = [-10116504.4624000005424023,5379442.3128000004217029,-10114754.4624000005424023,5377472.3128000004217029]
-		var elextent = [-10116504,5377472,-10114754,5379442]
-		//var DEMExtent = [-10120149.3149, 5378545.3492, -10119939.3149, 5378745.3492]
-		var DEMExtent = [ -10168100, 5318380, -10055830, 5454227];
-		DSS.layer.DEM_image = new ol.layer.Image({
-			updateWhileAnimating: true,
-            updateWhileInteracting: true,
-			//visible: DSS.layer['"elevation:visible'],
-			//updateWhileAnimating: true,
-			//updateWhileInteracting: true,
-			//opacity: DSS.layer['hillshade:opacity'],
-			//visible: true,
-			opacity: 1,
-			extent: DEMExtent,
+		inputextent0 = [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200]
+		inputextent1 = [ -10111969.314900, 5318375.349200, -10055829.314900, 5386305.349200]
+		inputextent2 = [ -10168109.314900, 5386305.349200, -10111969.314900, 5454235.349200]
+		inputextent3 = [ -10111969.314900, 5386305.349200, -10055829.314900, 5454235.349200]
+		//--------------------DEM-----------------------------
+		DSS.layer.DEM_image0 = new ol.layer.Image({
+			visible: false,
+			opacity: 0.7,
 			source:
-			// new ol.source.GeoTIFF({
-			// 	sources: {url: "https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10mv2.tif"},
-			// 	//url: '/static/grazescape/public/images/SW_DEM_png_1122_v14.png',
-			// 	convertToRGB: true,
-			// 	//imageExtent: DEMExtent,
-			// 	//projection: 'EPSG:3857',
-			// 	//imageSmoothing: false
-			// })
 			new ol.source.ImageStatic({
-				//url: "https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_png_1122_v14.png",
-				url: '/static/grazescape/public/images/southWestWI_DEM_11_PNG.png',
-				imageExtent: DEMExtent,
-				projection: 'EPSG:3857',
-				imageSmoothing: false
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_0.PNG',
+				imageExtent: inputextent0,
+			})
+		}),
+		DSS.layer.DEM_image1 = new ol.layer.Image({
+			visible: false,
+			opacity: 0.7,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_1.PNG',
+				imageExtent: inputextent1,
+			})
+		}),
+		DSS.layer.DEM_image2 = new ol.layer.Image({
+			visible: false,
+			opacity: 0.7,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_2.PNG',
+				imageExtent: inputextent2,
+				
+			})
+		}),
+		DSS.layer.DEM_image3 = new ol.layer.Image({
+			visible: false,
+			opacity: 0.7,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_3.PNG',
+				imageExtent: inputextent3,
+				
 			})
 		})
+		//----------------------------SLOPE----------------------------------------------------
+		DSS.layer.Slope0 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_0.PNG',
+				imageExtent: inputextent0,
+			})
+		}),
+		DSS.layer.Slope1 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_1.PNG',
+				imageExtent: inputextent1,
+			})
+		}),
+		DSS.layer.Slope2 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_2.PNG',
+				imageExtent: inputextent2,
+				
+			})
+		}),
+		DSS.layer.Slope3 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_3.PNG',
+				imageExtent: inputextent3,
+				
+			})
+		})
+		//-------------------------------------------CLAY---------------------------------------------------
+		DSS.layer.Clay0 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_0.PNG',
+				imageExtent: inputextent0,
+			})
+		}),
+		DSS.layer.Clay1 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_1.PNG',
+				imageExtent: inputextent1,
+			})
+		}),
+		DSS.layer.Clay2 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_2.PNG',
+				imageExtent: inputextent2,
+				
+			})
+		}),
+		DSS.layer.Clay3 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_3.PNG',
+				imageExtent: inputextent3,
+				
+			})
+		})
+		//-------------------------------------SILT-------------------------------------------
+		DSS.layer.Silt0 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_0.PNG',
+				imageExtent: inputextent0,
+			})
+		}),
+		DSS.layer.Silt1 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_1.PNG',
+				imageExtent: inputextent1,
+			})
+		}),
+		DSS.layer.Silt2 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_2.PNG',
+				imageExtent: inputextent2,
+				
+			})
+		}),
+		DSS.layer.Silt3 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_3.PNG',
+				imageExtent: inputextent3,
+				
+			})
+		})
+		//-------------------------------------SAND---------------------------------------
+		DSS.layer.Sand0 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
+				imageExtent: inputextent0,
+			})
+		}),
+		DSS.layer.Sand1 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
+				imageExtent: inputextent1,
+			})
+		}),
+		DSS.layer.Sand2 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
+				imageExtent: inputextent2,
+				
+			})
+		}),
+		DSS.layer.Sand3 = new ol.layer.Image({
+			visible: false,
+			
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
+				imageExtent: inputextent3,
+				
+			})
+		})
+		//var DEMExtent = [-10120149.3149, 5378545.3492, -10119939.3149, 5378745.3492]
+		//var DEMExtent = [ -10168100, 5318380, -10055830, 5454227];
+		//var DEMExtent = [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200];
+		// DSS.layer.DEMGroup = new ol.layer.Group({
+		// 	layers:[
+		// 		DSS.layer.DEM_image0 = new ol.layer.Image({
+		// 			source:
+		// 			new ol.source.ImageStatic({
+		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_0.PNG',
+		// 				imageExtent: [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200],
+		// 				projection: 'EPSG:3857',
+						
+		// 			})
+		// 		}),
+		// 		DSS.layer.DEM_image1 = new ol.layer.Image({
+		// 			source:
+		// 			new ol.source.ImageStatic({
+		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_1.PNG',
+		// 				imageExtent: [ -10111969.314900, 5318375.349200, -10055829.314900, 5386305.349200],
+		// 				projection: 'EPSG:3857',
+						
+		// 			})
+		// 		}),
+		// 		DSS.layer.DEM_image2 = new ol.layer.Image({
+		// 			source:
+		// 			new ol.source.ImageStatic({
+		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_2.PNG',
+		// 				imageExtent: [ -10168109.314900, 5386305.349200, -10111969.314900, 5454235.349200],
+		// 				projection: 'EPSG:3857',
+		// 			})
+		// 		}),
+		// 		DSS.layer.DEM_image3 = new ol.layer.Image({
+					
+		// 			source:
+		// 			new ol.source.ImageStatic({
+		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_3.PNG',
+		// 				imageExtent: [ -10111969.314900, 5386305.349200, -10055829.314900, 5454235.349200],
+		// 				projection: 'EPSG:3857',
+		// 			})
+		// 		})
+		// 	]
+		// })
 		var pointStyle = new ol.style.Style({
 			image: new ol.style.Circle({
 			  radius: 7,
@@ -381,22 +580,6 @@ Ext.define('DSS.map.Main', {
 		DSS.layerSource['fields'] = new ol.source.Vector({
 			format: new ol.format.GeoJSON()
 		}); 
-		
-		// DSS.layer.DEM_image = new ol.layer.Image({
-		// 	// visible: true,
-		// 	// updateWhileAnimating: true,
-		// 	// updateWhileInteracting: true,
-		// 	// opacity: DSS.layer['elevation:opacity'],
-		// 	//extent: [ -10168100, 5454227, -10055830, 5318380],
-		// 	source: new ol.source.ImageWMS({
-		// 		url: 'http://geoserver-dev1.glbrc.org:8080/geoserver/InputRasters/wms',
-		// 		params: {'LAYERS': 'InputRasters:TC_DEM' /*, 'TILED': true*/},
-		// 		serverType: 'geoserver',
-		// 		ratio: 1,
-		// 		// Countries have transparency, so do not fade tiles:
-		// 		//transition: 0,
-		// 	}),
-		// })
 		
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
@@ -477,48 +660,7 @@ Ext.define('DSS.map.Main', {
 		geoServer.setScenariosSource()
 		//geoServer.setDEMSource()
 
-		// DSS.layer.DEM_image = new ol.layer.Tile({
-		// 	visible: false,
-		// 	opacity: 0.5,
-		// 	//updateWhileAnimating: true,
-		// 	//updateWhileInteracting: true,
-		// 	//zIndex: 0,
-		// 	//imageSmoothing: true,
-		// 	//DSS.layer["elevation:visible"],
-		// 	//updateWhileAnimating: true,
-		// 	//updateWhileInteracting: true,
-		// 	//opacity: DSS.layer['elevation:opacity'],
-		// 	source: DEMSource
-		// 	// source: new ol.source.ImageStatic({
-		// 	// 	//url: '/static/grazescape/public/images/elevation.png',
-		// 	// 	//url: "/static/grazescape/public/images/elevation_CopyRaster.png",
-		// 	// 	url: "/static/grazescape/public/images/elevation_CopyRaster_1.jpg",
-		// 	// 	imageExtent: elextent
-		// 	// })
-		// })
-		// DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
-		// DSS.layer.DEM_image = new ol.layer.TileLayer({
-		// // 	//projection: 'EPSG:3857',
-		// // 	visible: DSS.layer['elevation:visible'],
-		// // 	updateWhileAnimating: true,
-		// // 	updateWhileInteracting: true,
-		// // 	opacity: DSS.layer['elevation:opacity'],
-		// // 	extent: DEMExtent,
-		// // 	source: DEMSource
-		// 	// new ol.source.TileWMS({
-		// 	// 	url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_DEM_10_2.tif',
-		// 	// 	params: {'LAYERS': 'InputRasters:TC_DEM', 'TILED': true},
-		// 	// 	serverType: 'geoserver',
-		// 	// 	// Countries have transparency, so do not fade tiles:
-		// 	// 	transition: 0,
-		// 	//}),
-		// 	//source: DEMSource
-		// 	source: new ol.source.GeoTIFF({
-		// 		url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_DEM_10_2.tif',
-		// 		//url: "/data_files/raster_layers/elevation/elevation",
-		// 		//imageExtent: extent
-		// 	})
-		// })
+		
 		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
@@ -595,24 +737,35 @@ Ext.define('DSS.map.Main', {
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
-			maxTilesLoading: 50,
+			maxTilesLoading: 100,
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
-				DSS.layer.bingAerial,
-				DSS.layer.bingRoad,
 				DSS.layer.osm,
-				DSS.layer.DEM_image,
+				DSS.layer.DEM_image0,
+				DSS.layer.DEM_image1,
+				DSS.layer.DEM_image2,
+				DSS.layer.DEM_image3,
+				DSS.layer.Slope0,
+				DSS.layer.Slope1,
+				DSS.layer.Slope2,
+				DSS.layer.Slope3,
+				DSS.layer.Clay0,
+				DSS.layer.Clay1,
+				DSS.layer.Clay2,
+				DSS.layer.Clay3,
+				DSS.layer.Silt0,
+				DSS.layer.Silt1,
+				DSS.layer.Silt2,
+				DSS.layer.Silt3,
+				DSS.layer.Sand0,
+				DSS.layer.Sand1,
+				DSS.layer.Sand2,
+				DSS.layer.Sand3,
 				DSS.layer.kickapoowatershed,
 				DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
-				DSS.layer.hillshade,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
-				
-				//DSS.layer.modelResult,
-				//DSS.layer.fields_1,
-				//DSS.layer.fieldsLabels,
-				//DSS.layer.infrastructure
 				],
 				//------------------------------------------------------------------------
 
