@@ -29,6 +29,7 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.state.ApplicationFlow',
         'DSS.map.Main',
 		'DSS.inspector.Main',
+		'DSS.map.LayerMenu',
 
 		'DSS.field_shapes.DrawAndApply',
 		'DSS.field_shapes.Split',
@@ -41,6 +42,7 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.infra_shapes.SplitLine',
 		'DSS.infra_shapes.JoinLine',
 		'DSS.infra_shapes.DeleteLine',
+		
 //		'DSS.state.scenario.PerimeterDialog',
 		//'DSS.field_shapes.ModelRunning',
 

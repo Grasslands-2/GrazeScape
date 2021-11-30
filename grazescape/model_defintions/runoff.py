@@ -14,14 +14,13 @@ class Runoff(ModelBase):
 
     def get_hyro_letter(self, group_num):
         hyro_dic = {
-            1: "C",
+            1: 'A',
+            1.5: 'A/D',
             2: 'B',
-            3: 'D',
-            4: 'A',
-            5: 'C/D',
-            6: 'A',  # no data
-            7: 'A/D',
-            8: 'B/D',
+            2.5: 'B/D',
+            3: "C",
+            3.5: 'C/D',
+            4: 'D',
             -9999: 'A'  # no data
         }
         return hyro_dic[group_num]

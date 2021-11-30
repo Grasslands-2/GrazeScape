@@ -14,9 +14,15 @@ from pyper import R
 class ModelBase:
 
     def __init__(self, request, file_name=None):
+        field_id = request.POST.getlist("field_id")[0]
+        scenario_id = request.POST.getlist("scenario_id")[0]
+        farm_id = request.POST.getlist("farm_id")[0]
+        model_type = request.POST.get('model_parameters[model_type]')
+        f_name = request.POST.get('model_parameters[f_name]')
+        scen = request.POST.get('model_parameters[scen]')
 
         if file_name is None:
-            file_name = str(uuid.uuid4())
+            file_name = model_type + field_id ##+'_'+ str(uuid.uuid1())##
         self.file_name = file_name
         self.model_data_inputs_path = os.path.join(settings.BASE_DIR,
                                                    'grazescape', 'data_files',
@@ -29,10 +35,10 @@ class ModelBase:
             os.makedirs(
                 os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
                              'raster_outputs'))
-        self.raster_image_file_path = os.path.join(settings.BASE_DIR,
-                                                   'grazescape', 'data_files',
-                                                   'raster_outputs',
-                                                   file_name + ".png")
+        self.raster_image_file_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',file_name + ".png")
+                                                #    'grazescape', 'data_files',
+                                                #    'raster_outputs',
+                                                #    file_name + ".png")
         # R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 
         # self.r_file_path = R_PATH

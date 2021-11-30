@@ -41,6 +41,10 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					handler: function() {
 						DSS.ApplicationFlow.instance.showNewOperationPage();
 						DSS.MapState.removeMapInteractions();
+						//DSS.map.addLayer(DSS.layer.DEM_image1);
+						//DSS.map.addLayer(DSS.layer.DEM_image2);
+						//DSS.map.addLayer(DSS.layer.DEM_image3);
+
 						//gethighestFarmIdCNO()
 						//gethighestScenarioIdCNO()
 					}

@@ -13,6 +13,8 @@ class CropYield(ModelBase):
 
     def run_model(self):
         # conversion rate between lb/ac to kg/ha
+        print('CROP YEILD MODEL PARAS!!!!!!')
+        print(self.model_parameters)
         crop_ro = self.model_parameters["crop"]
         return_data = []
         print("crop rotation!!!!!!")
