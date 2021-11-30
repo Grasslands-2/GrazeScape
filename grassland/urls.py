@@ -24,6 +24,7 @@ urlpatterns = [
     path('grazescape/', include('grazescape.urls')),
     path('', include('homepage.urls')),
     path('smartscape/', include('smartscape.urls')),
+    #path('data_files/', include('data_files.urls')),
     path('', include('homepage.urls')),
     path('admin/', admin.site.urls),
     # handles the login and logout requests

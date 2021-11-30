@@ -1,7 +1,27 @@
 modelResult = {}
+var mfieldID = ''
 var modelError = false
 var modelErrorMessages = []
 var yieldmodelsDataArray = []
+// function adderosionlayers(model_type){
+            //     var plextent = model_data.extent
+            //     DSS.layer.ploss_field = new ol.layer.Image({
+            //     visible: true,
+            //     updateWhileAnimating: true,
+            //     updateWhileInteracting: true,
+            //     //opacity: DSS.layer['hillshade:opacity'],
+            //     source: 
+            //         new ol.source.ImageStatic({
+            //         url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
+            //         imageExtent: plextent
+            //         })
+            //     })
+            // DSS.map.addLayer(DSS.layer.ploss_field)
+            // DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id)
+            // DSS.map.getLayers().forEach(function (layer){
+            //     console.log(layer);
+            // });
+            // }
 function gatherModelDataArray(mdobj) {
     //yieldmodelsDataArray = []
     yieldmodelsDataArray.push({
@@ -259,11 +279,35 @@ function format_chart_data(model_data){
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
 
+                var plextent = model_data.extent
+                DSS.layer.ploss_field = new ol.layer.Image({
+                    visible: DSS.layer['DSS.layer.ploss_field'+model_data.field_id+':visible'],
+                    updateWhileAnimating: true,
+                    updateWhileInteracting: true,
+                    //opacity: DSS.layer['hillshade:opacity'],
+                    source: 
+                    new ol.source.ImageStatic({
+                    url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
+                    imageExtent: plextent
+                    })
+                })
+                // DSS.map.addLayer(DSS.layer.ploss_field)
+                // DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id)
+                // varploss_field_layer = {}
+                // var mfieldID = model_data.field_id
+                // newLayerItems(mfieldID)
+                // Ext.create('DSS.map.OutputMenu').showAt(10,10);
+                
             }
             else if (model_data.value_type == 'ero'){
                 chartTypeField = chartObj.soil_loss_field
                 chartTypeFarm = chartObj.soil_loss_farm
             }
+            //here write a function that sets up and displays a layer with the ploss layer as its source
+            //layer needs a somewhat randomized name to make sure other fields dont share it
+            
+            
+            
             break;
         case 'runoff':
             console.log("runoff")
@@ -369,6 +413,7 @@ function format_chart_data(model_data){
             chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
         }
     }
+    //Ext.create('DSS.map.OutputMenu').showAt(10,10);
 }
 function runFeedBreakdownUpdate(outputObj){
     DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
@@ -1576,6 +1621,8 @@ function downloadRasters(fieldIter){
                 // at this point fields wont have any holes so just get the first entry
                 field_coors: geometry.geometry.coordinates[0]
             }
+            console.log("MODEL PARAS!!!!!!!!!!!!!!!")
+            console.log(model_para)
             downloadRastersRequest(model_para).then(function(value){
                 downloadCount = downloadCount + 1
                 console.log(downloadCount)
