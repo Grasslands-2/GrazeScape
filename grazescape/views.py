@@ -165,13 +165,19 @@ def geoserver_request(request):
         print(result)
     return JsonResponse({"data": result}, safe=False)
 
-def manage_raster_visuals(data):
-    rasterextent = data.POST.getlist('extents[]')
-    layer = data.POST.get('layer')
+def manage_raster_visuals(request):
     print('INside manage raster visuals in views!!!!!!!!!!!!')
-    raster_data = retreiveRaster(layer,rasterextent)
-
-    return JsonResponse({"download":"finished"})
+    #rasterextent = data.POST.getlist('extents[]')
+    request_type = request.POST.get("request_type")
+    pay_load = request.POST.get("pay_load")
+    url = request.POST.get("url")
+    feature_id = request.POST.get("feature_id")
+    print(url)
+    geo = GeoServer(request_type, url)
+    result = geo.makeRasterRequest(pay_load)
+    #raster_data = retreiveRaster(url)
+    return JsonResponse({"data": result}, safe=False)
+    #return JsonResponse({"download":"finished"})
     # request_type = request.POST.get("request_type")
     # pay_load = request.POST.get("pay_load")
     # url = request.POST.get("url")
@@ -281,6 +287,9 @@ def get_model_results(request):
                 palette = []
                 values_legend = []
             else:
+                print("THESE ARE THE GEO BOUNDS FOR THE MODEL RUN PNG!!!!!!!!!!!!!")
+                print(geo_data.bounds)
+                print(result)
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
             # dealing with rain fall data
