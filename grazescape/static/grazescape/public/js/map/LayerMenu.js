@@ -214,7 +214,7 @@ Ext.define('DSS.map.LayerMenu', {
 			},{ //-------------------------------------------
 				text: 'Tainter Creek',
                 checked: true,
-                menu: makeOpacityMenu("tainterwatershed", DSS.layer.tainterwatershed),
+                //menu: makeOpacityMenu("tainterwatershed", DSS.layer.tainterwatershed),
                 listeners: {
                 	afterrender: function(self) {
                 		self.setChecked(DSS.layer.tainterwatershed.getVisible());
@@ -227,7 +227,7 @@ Ext.define('DSS.map.LayerMenu', {
 			},{ //-------------------------------------------
 				text: 'Rulland Coulee',
                 checked: true,
-                menu: makeOpacityMenu("rullandsCouleewshed", DSS.layer.rullandsCouleewshed),
+                //menu: makeOpacityMenu("rullandsCouleewshed", DSS.layer.rullandsCouleewshed),
                 listeners: {
                 	afterrender: function(self) {
                 		self.setChecked(DSS.layer.rullandsCouleewshed.getVisible());
@@ -240,7 +240,7 @@ Ext.define('DSS.map.LayerMenu', {
 			},{ //-------------------------------------------
 				text: 'Kickapoo',
                 checked: true,
-                menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
+                //menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
                 listeners: {
                 	afterrender: function(self) {
                 		self.setChecked(DSS.layer.kickapoowatershed.getVisible());
@@ -311,354 +311,443 @@ Ext.define('DSS.map.LayerMenu', {
 			},
 			{
 				xtype: 'button',
+				name:'Elevation',
 				text: 'Elevation',
-				//bind: 'Call {menuGroups.option}',
 					menu: {
-						// bind: {
-						// 	groups: '{menuGroups}'
-						// },
-						items:[
-							{
-								text: 'Northwest',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.DEM_image0.setVisible(false);
-									DSS.layer.DEM_image1.setVisible(false);
-									DSS.layer.DEM_image2.setVisible(checked);
-									DSS.layer.DEM_image3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						defaults:{
+							xtype: 'menucheckitem',
+							hideOnClick: false,
+							checked:false,
+						},
+						items: [{
+							text: 'Northwest',
+							//id:'nwel',
+							listeners:{
+								afterrender: function(self) {
+									self.setChecked(DSS.layer.DEM_image2.getVisible());
+								},
 							},
-							{
-								text: 'Northeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.DEM_image0.setVisible(false);
-									DSS.layer.DEM_image1.setVisible(false);
-									DSS.layer.DEM_image2.setVisible(false);
-									DSS.layer.DEM_image3.setVisible(checked);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							},
-							{
-								text: 'Southwest',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.DEM_image0.setVisible(checked);
-									DSS.layer.DEM_image1.setVisible(false);
-									DSS.layer.DEM_image2.setVisible(false);
-									DSS.layer.DEM_image3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							},{
-								text: 'Southeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.DEM_image0.setVisible(false);
-									DSS.layer.DEM_image1.setVisible(checked);
-									DSS.layer.DEM_image2.setVisible(false);
-									DSS.layer.DEM_image3.setVisible(false);
-									
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							},
-							{
-								text: 'Remove Elevation',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.DEM_image0.setVisible(false);
-									DSS.layer.DEM_image1.setVisible(false);
-									DSS.layer.DEM_image2.setVisible(false);
-									DSS.layer.DEM_image3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+							handler: function(self){
+								DSS.layer.DEM_image2.setVisible(self.checked);
 							}
-						]
-					}
+						},
+						{
+							text: 'Northeast',
+							listeners:{
+								afterrender: function(self) {
+									self.setChecked(DSS.layer.DEM_image3.getVisible());
+								},
+							},
+							handler: function(self){
+								DSS.layer.DEM_image3.setVisible(self.checked);
+							}
+						},
+						{
+							text: 'Southwest',
+							listeners:{
+								afterrender: function(self) {
+									self.setChecked(DSS.layer.DEM_image0.getVisible());
+								},
+							},
+							handler: function(self){
+								DSS.layer.DEM_image0.setVisible(self.checked);
+							}
+						},
+						{
+							text: 'Southeast',
+							listeners:{
+								afterrender: function(self) {
+									self.setChecked(DSS.layer.DEM_image1.getVisible());
+								},
+							},
+							handler: function(self){
+								DSS.layer.DEM_image1.setVisible(self.checked);
+							}
+						},
+						
+					]
+				}
 			},
 			{
 				xtype: 'button',
 				text: 'Slope',
+				name: 'Slope',
 				//bind: 'Call {menuGroups.option}',
-					menu: {
-						// bind: {
-						// 	groups: '{menuGroups}'
-						// },
-						items:[
-							{
-								text: 'Northwest',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Slope0.setVisible(false);
-									DSS.layer.Slope1.setVisible(false);
-									DSS.layer.Slope2.setVisible(checked);
-									DSS.layer.Slope3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+				menu: {
+					defaults:{
+						xtype: 'menucheckitem',
+						hideOnClick: false,
+						checked:false,
+					},
+					items: [{
+						text: 'Northwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Slope2.getVisible());
 							},
-							{
-								text: 'Northeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Slope0.setVisible(false);
-									DSS.layer.Slope1.setVisible(false);
-									DSS.layer.Slope2.setVisible(false);
-									DSS.layer.Slope3.setVisible(checked);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Slope2.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Northeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Slope3.getVisible());
 							},
-							{
-								text: 'Southwest',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Slope0.setVisible(checked);
-									DSS.layer.Slope1.setVisible(false);
-									DSS.layer.Slope2.setVisible(false);
-									DSS.layer.Slope3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							},{
-								text: 'Southeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Slope0.setVisible(false);
-									DSS.layer.Slope1.setVisible(checked);
-									DSS.layer.Slope2.setVisible(false);
-									DSS.layer.Slope3.setVisible(false);
-									
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Slope3.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Slope0.getVisible());
 							},
-							{
-								text: 'Remove Slope',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Slope0.setVisible(false);
-									DSS.layer.Slope1.setVisible(false);
-									DSS.layer.Slope2.setVisible(false);
-									DSS.layer.Slope3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							}
-						]
-					}
+						},
+						handler: function(self){
+							DSS.layer.Slope0.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Slope1.getVisible());
+							},
+						},
+						handler: function(self){
+							DSS.layer.Slope1.setVisible(self.checked);
+						}
+					}]
+				}
 			},
 			{
 				xtype: 'button',
 				text: 'Clay',
+				name: 'Clay',
 				//bind: 'Call {menuGroups.option}',
-					menu: {
-						// bind: {
-						// 	groups: '{menuGroups}'
-						// },
-						items:[
-							{
-								text: 'Northwest',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Clay0.setVisible(false);
-									DSS.layer.Clay1.setVisible(false);
-									DSS.layer.Clay2.setVisible(checked);
-									DSS.layer.Clay3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+				menu: {
+					defaults:{
+						xtype: 'menucheckitem',
+						hideOnClick: false,
+						checked:false,
+					},
+					items: [{
+						text: 'Northwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Clay2.getVisible());
 							},
-							{
-								text: 'Northeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Clay0.setVisible(false);
-									DSS.layer.Clay1.setVisible(false);
-									DSS.layer.Clay2.setVisible(false);
-									DSS.layer.Clay3.setVisible(checked);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Clay2.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Northeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Clay3.getVisible());
 							},
-							{
-								text: 'Southwest',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Clay0.setVisible(checked);
-									DSS.layer.Clay1.setVisible(false);
-									DSS.layer.Clay2.setVisible(false);
-									DSS.layer.Clay3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							},{
-								text: 'Southeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Clay0.setVisible(false);
-									DSS.layer.Clay1.setVisible(checked);
-									DSS.layer.Clay2.setVisible(false);
-									DSS.layer.Clay3.setVisible(false);
-									
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Clay3.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Clay0.getVisible());
 							},
-							{
-								text: 'Remove Clay',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Clay0.setVisible(false);
-									DSS.layer.Clay1.setVisible(false);
-									DSS.layer.Clay2.setVisible(false);
-									DSS.layer.Clay3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							}
-						]
-					}
+						},
+						handler: function(self){
+							DSS.layer.Clay0.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Clay1.getVisible());
+							},
+						},
+						handler: function(self){
+							DSS.layer.Clay1.setVisible(self.checked);
+						}
+					}]
+				}
 			},
 			{
 				xtype: 'button',
 				text: 'Sand',
+				name: 'Sand',
 				//bind: 'Call {menuGroups.option}',
-					menu: {
-						// bind: {
-						// 	groups: '{menuGroups}'
-						// },
-						items:[
-							{
-								text: 'Northwest',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Sand0.setVisible(false);
-									DSS.layer.Sand1.setVisible(false);
-									DSS.layer.Sand2.setVisible(checked);
-									DSS.layer.Sand3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+				menu: {
+					defaults:{
+						xtype: 'menucheckitem',
+						hideOnClick: false,
+						checked:false,
+					},
+					items: [{
+						text: 'Northwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Sand2.getVisible());
 							},
-							{
-								text: 'Northeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Sand0.setVisible(false);
-									DSS.layer.Sand1.setVisible(false);
-									DSS.layer.Sand2.setVisible(false);
-									DSS.layer.Sand3.setVisible(checked);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Sand2.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Northeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Sand3.getVisible());
 							},
-							{
-								text: 'Southwest',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Sand0.setVisible(checked);
-									DSS.layer.Sand1.setVisible(false);
-									DSS.layer.Sand2.setVisible(false);
-									DSS.layer.Sand3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							},{
-								text: 'Southeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Sand0.setVisible(false);
-									DSS.layer.Sand1.setVisible(checked);
-									DSS.layer.Sand2.setVisible(false);
-									DSS.layer.Sand3.setVisible(false);
-									
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Sand3.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Sand0.getVisible());
 							},
-							{
-								text: 'Remove Sand',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Sand0.setVisible(false);
-									DSS.layer.Sand1.setVisible(false);
-									DSS.layer.Sand2.setVisible(false);
-									DSS.layer.Sand3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							}
-						]
-					}
+						},
+						handler: function(self){
+							DSS.layer.Sand0.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Sand1.getVisible());
+							},
+						},
+						handler: function(self){
+							DSS.layer.Sand1.setVisible(self.checked);
+						}
+					}]
+				}
 			},
 			{
 				xtype: 'button',
 				text: 'Silt',
+				name: 'Silt',
 				//bind: 'Call {menuGroups.option}',
-					menu: {
-						// bind: {
-						// 	groups: '{menuGroups}'
-						// },
-						items:[
-							{
-								text: 'Northwest',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Silt0.setVisible(false);
-									DSS.layer.Silt1.setVisible(false);
-									DSS.layer.Silt2.setVisible(checked);
-									DSS.layer.Silt3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+				menu: {
+					defaults:{
+						xtype: 'menucheckitem',
+						hideOnClick: false,
+						checked:false,
+					},
+					items: [{
+						text: 'Northwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Silt2.getVisible());
 							},
-							{
-								text: 'Northeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Silt0.setVisible(false);
-									DSS.layer.Silt1.setVisible(false);
-									DSS.layer.Silt2.setVisible(false);
-									DSS.layer.Silt3.setVisible(checked);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Silt2.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Northeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Silt3.getVisible());
 							},
-							{
-								text: 'Southwest',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Silt0.setVisible(checked);
-									DSS.layer.Silt1.setVisible(false);
-									DSS.layer.Silt2.setVisible(false);
-									DSS.layer.Silt3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							},{
-								text: 'Southeast',
-								//DSS_layer: 'bing-aerial',
-								
-								handler: function(self, checked) {
-									DSS.layer.Silt0.setVisible(false);
-									DSS.layer.Silt1.setVisible(checked);
-									DSS.layer.Silt2.setVisible(false);
-									DSS.layer.Silt3.setVisible(false);
-									
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
+						},
+						handler: function(self){
+							DSS.layer.Silt3.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southwest',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Silt0.getVisible());
 							},
-							{
-								text: 'Remove Silt',
-								//DSS_layer: 'bing-aerial',
-								handler: function(self, checked) {
-									DSS.layer.Silt0.setVisible(false);
-									DSS.layer.Silt1.setVisible(false);
-									DSS.layer.Silt2.setVisible(false);
-									DSS.layer.Silt3.setVisible(false);
-									if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-								}
-							}
-						]
-					}
+						},
+						handler: function(self){
+							DSS.layer.Silt0.setVisible(self.checked);
+						}
+					},
+					{
+						text: 'Southeast',
+						listeners:{
+							afterrender: function(self) {
+								self.setChecked(DSS.layer.Silt1.getVisible());
+							},
+						},
+						handler: function(self){
+							DSS.layer.Silt1.setVisible(self.checked);
+						}
+					}]
+				}
+			},{
+				xtype: 'menuitem',
+				text: 'Overlay Opacity', disabled: false,
+				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px'
+			},{
+				xtype: 'slider',
+				itemId: 'dss-slider',
+				padding: '0 10 8 10',
+				hideEmptyLabel: true,
+				increment: 10,
+				value: 60,
+				minValue: 0, 
+				maxValue: 100,
+				listeners: {
+					focusleave: function(self) {
+						console.log("leave!")
+					},
+					dragstart: function(slider) {
+						
+					},
+					change: function(slider, newValue, thumb, eOpts) {
+						const val = newValue / 100.0;
+						DSS.layer.DEM_image0.setOpacity(val)
+						DSS.layer.DEM_image1.setOpacity(val)
+						DSS.layer.DEM_image2.setOpacity(val)
+						DSS.layer.DEM_image3.setOpacity(val)
+						DSS.layer.Slope0.setOpacity(val)
+						DSS.layer.Slope1.setOpacity(val)
+						DSS.layer.Slope2.setOpacity(val)
+						DSS.layer.Slope3.setOpacity(val)
+						DSS.layer.Clay0.setOpacity(val)
+						DSS.layer.Clay1.setOpacity(val)
+						DSS.layer.Clay2.setOpacity(val)
+						DSS.layer.Clay3.setOpacity(val)
+						DSS.layer.Sand0.setOpacity(val)
+						DSS.layer.Sand1.setOpacity(val)
+						DSS.layer.Sand2.setOpacity(val)
+						DSS.layer.Sand3.setOpacity(val)
+						DSS.layer.Silt0.setOpacity(val)
+						DSS.layer.Silt1.setOpacity(val)
+						DSS.layer.Silt2.setOpacity(val)
+						DSS.layer.Silt3.setOpacity(val)
+						//Ext.util.Cookies.set(key + ":opacity", "" + val);
+					}	                		
+				}
 			},
+			{
+				xtype: 'button',
+				text: 'Remove Overlays',
+				handler: function() {
+					DSS.layer.DEM_image0.setVisible(false);
+					DSS.layer.DEM_image1.setVisible(false);
+					DSS.layer.DEM_image2.setVisible(false);
+					DSS.layer.DEM_image3.setVisible(false);
+					DSS.layer.Slope0.setVisible(false);
+					DSS.layer.Slope1.setVisible(false);
+					DSS.layer.Slope2.setVisible(false);
+					DSS.layer.Slope3.setVisible(false);
+					DSS.layer.Clay0.setVisible(false);
+					DSS.layer.Clay1.setVisible(false);
+					DSS.layer.Clay2.setVisible(false);
+					DSS.layer.Clay3.setVisible(false);
+					DSS.layer.Sand0.setVisible(false);
+					DSS.layer.Sand1.setVisible(false);
+					DSS.layer.Sand2.setVisible(false);
+					DSS.layer.Sand3.setVisible(false);
+					DSS.layer.Silt0.setVisible(false);
+					DSS.layer.Silt1.setVisible(false);
+					DSS.layer.Silt2.setVisible(false);
+					DSS.layer.Silt3.setVisible(false);
+					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
+					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
+				}
+			}
+			//items:[
+						// 	{
+						// 		text: 'Northwest',
+						// 		//DSS_layer: 'bing-aerial',
+						// 		handler: function(self, checked) {
+						// 			DSS.layer.DEM_image0.setVisible(false);
+						// 			DSS.layer.DEM_image1.setVisible(false);
+						// 			DSS.layer.DEM_image2.setVisible(checked);
+						// 			DSS.layer.DEM_image3.setVisible(false);
+						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
+						// 		}
+						// 	},
+						// 	{
+						// 		text: 'Northeast',
+						// 		//DSS_layer: 'bing-aerial',
+								
+						// 		handler: function(self, checked) {
+						// 			DSS.layer.DEM_image0.setVisible(false);
+						// 			DSS.layer.DEM_image1.setVisible(false);
+						// 			DSS.layer.DEM_image2.setVisible(false);
+						// 			DSS.layer.DEM_image3.setVisible(checked);
+						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
+						// 		}
+						// 	},
+						// 	{
+						// 		text: 'Southwest',
+						// 		//DSS_layer: 'bing-aerial',
+								
+						// 		handler: function(self, checked) {
+						// 			DSS.layer.DEM_image0.setVisible(checked);
+						// 			DSS.layer.DEM_image1.setVisible(false);
+						// 			DSS.layer.DEM_image2.setVisible(false);
+						// 			DSS.layer.DEM_image3.setVisible(false);
+						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
+						// 		}
+						// 	},{
+						// 		text: 'Southeast',
+						// 		//DSS_layer: 'bing-aerial',
+								
+						// 		handler: function(self, checked) {
+						// 			DSS.layer.DEM_image0.setVisible(false);
+						// 			DSS.layer.DEM_image1.setVisible(checked);
+						// 			DSS.layer.DEM_image2.setVisible(false);
+						// 			DSS.layer.DEM_image3.setVisible(false);
+									
+						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
+						// 		}
+						// 	},
+						// 	{
+						// 		text: 'Remove Elevation',
+						// 		//DSS_layer: 'bing-aerial',
+						// 		handler: function(self, checked) {
+						// 			DSS.layer.DEM_image0.setVisible(false);
+						// 			DSS.layer.DEM_image1.setVisible(false);
+						// 			DSS.layer.DEM_image2.setVisible(false);
+						// 			DSS.layer.DEM_image3.setVisible(false);
+						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
+						// 		}
+						// 	}
+						// ]
+
 			// {
 			// 	xtype: 'radiogroup',
 			// 	columns: 1, 
