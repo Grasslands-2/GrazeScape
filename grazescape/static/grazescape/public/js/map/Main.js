@@ -147,6 +147,7 @@ Ext.define('DSS.map.Main', {
 		me._cookieInternalHelper("crop", "1", 0.8);
 		me._cookieInternalHelper("inspector", "1", 0.8);
 		me._cookieInternalHelper("tainterwatershed", "1", 0.6);
+		me._cookieInternalHelper("DEM", "0", 0.6);
 		me._cookieInternalHelper("kickapoowatershed", "1", 0.6);
 		me._cookieInternalHelper("hillshade", "0", 0.5);
 		
@@ -284,7 +285,7 @@ Ext.define('DSS.map.Main', {
 		//--------------------DEM-----------------------------
 		DSS.layer.DEM_image0 = new ol.layer.Image({
 			visible: false,
-			opacity: 0.7,
+			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_0.PNG',
@@ -293,7 +294,7 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.DEM_image1 = new ol.layer.Image({
 			visible: false,
-			opacity: 0.7,
+			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_1.PNG',
@@ -302,7 +303,7 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.DEM_image2 = new ol.layer.Image({
 			visible: false,
-			opacity: 0.7,
+			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_2.PNG',
@@ -311,8 +312,9 @@ Ext.define('DSS.map.Main', {
 			})
 		}),
 		DSS.layer.DEM_image3 = new ol.layer.Image({
+			//visible: DSS.layer['DEM:visible'],
 			visible: false,
-			opacity: 0.7,
+			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_3.PNG',

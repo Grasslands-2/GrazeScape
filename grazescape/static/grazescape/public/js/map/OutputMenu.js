@@ -4,13 +4,14 @@ Ext.define('DSS.map.OutputMenu', {
 	extend: 'Ext.menu.Menu',
 	alias: 'widget.map_output_menu',
 	alternateClassName: 'DSS.OutputMenu',
-	id: 'OutputMenu',
+	//id: 'OutputMenu',
 	header: {
 		style: 'background: rgba(200,200,200,0.9)',
 		padding: 2
 	},
 	//closeAction: Ext.getCmp('layersMenu').destroy(),
 	closable: true,
+    floating: true,
 	plain: true,
 	width: 160,
 	//--------------------------------------------------------------------------

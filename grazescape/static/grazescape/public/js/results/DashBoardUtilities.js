@@ -291,12 +291,12 @@ function format_chart_data(model_data){
                     imageExtent: plextent
                     })
                 })
-                DSS.map.addLayer(DSS.layer.ploss_field)
-                DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id)
-                varploss_field_layer = {}
-                var mfieldID = model_data.field_id
-                newLayerItems(mfieldID)
-                Ext.create('DSS.map.OutputMenu').showAt(10,10);
+                // DSS.map.addLayer(DSS.layer.ploss_field)
+                // DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id)
+                // varploss_field_layer = {}
+                // var mfieldID = model_data.field_id
+                // newLayerItems(mfieldID)
+                // Ext.create('DSS.map.OutputMenu').showAt(10,10);
                 
             }
             else if (model_data.value_type == 'ero'){
