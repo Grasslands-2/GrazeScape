@@ -74,7 +74,7 @@ Ext.define('DSS.map.RotationLayer', {
 		// 	}
 		// });	
 
-		map.addLayer(DSS.layer.fields_1);
+		//map.addLayer(DSS.layer.fields_1);
 		return me;
 	},
 

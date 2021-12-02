@@ -150,6 +150,7 @@ Ext.define('DSS.map.Main', {
 		me._cookieInternalHelper("DEM", "0", 0.6);
 		me._cookieInternalHelper("kickapoowatershed", "1", 0.6);
 		me._cookieInternalHelper("hillshade", "0", 0.5);
+		me._cookieInternalHelper("ploss", "0", 1);
 		
 		// Visible code is the # of the base layer that is visible...
 		if (Ext.util.Cookies.get("baselayer:visible") == null) {
@@ -208,7 +209,8 @@ Ext.define('DSS.map.Main', {
 		});		
 		//--------------------------------------------------------------		
 		DSS.layer.osm = new ol.layer.Tile({
-			visible: DSS.layer['baselayer:visible'] == "3" ? true : false,
+			//visible: DSS.layer['baselayer:visible'] == "3" ? true : false,
+			visible: true,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
 				tileSize: 256,
@@ -325,7 +327,6 @@ Ext.define('DSS.map.Main', {
 		//----------------------------SLOPE----------------------------------------------------
 		DSS.layer.Slope0 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_0.PNG',
@@ -334,7 +335,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Slope1 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_1.PNG',
@@ -343,7 +343,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Slope2 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_2.PNG',
@@ -353,7 +352,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Slope3 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_3.PNG',
@@ -364,7 +362,6 @@ Ext.define('DSS.map.Main', {
 		//-------------------------------------------CLAY---------------------------------------------------
 		DSS.layer.Clay0 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_0.PNG',
@@ -373,7 +370,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Clay1 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_1.PNG',
@@ -382,7 +378,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Clay2 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_2.PNG',
@@ -392,7 +387,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Clay3 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_3.PNG',
@@ -403,7 +397,6 @@ Ext.define('DSS.map.Main', {
 		//-------------------------------------SILT-------------------------------------------
 		DSS.layer.Silt0 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_0.PNG',
@@ -412,7 +405,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Silt1 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_1.PNG',
@@ -421,7 +413,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Silt2 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_2.PNG',
@@ -431,7 +422,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Silt3 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_3.PNG',
@@ -442,7 +432,6 @@ Ext.define('DSS.map.Main', {
 		//-------------------------------------SAND---------------------------------------
 		DSS.layer.Sand0 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
@@ -451,7 +440,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Sand1 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
@@ -460,7 +448,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Sand2 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
@@ -470,7 +457,6 @@ Ext.define('DSS.map.Main', {
 		}),
 		DSS.layer.Sand3 = new ol.layer.Image({
 			visible: false,
-			
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
@@ -478,48 +464,18 @@ Ext.define('DSS.map.Main', {
 				
 			})
 		})
-		//var DEMExtent = [-10120149.3149, 5378545.3492, -10119939.3149, 5378745.3492]
-		//var DEMExtent = [ -10168100, 5318380, -10055830, 5454227];
-		//var DEMExtent = [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200];
-		// DSS.layer.DEMGroup = new ol.layer.Group({
-		// 	layers:[
-		// 		DSS.layer.DEM_image0 = new ol.layer.Image({
-		// 			source:
-		// 			new ol.source.ImageStatic({
-		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_0.PNG',
-		// 				imageExtent: [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200],
-		// 				projection: 'EPSG:3857',
-						
-		// 			})
-		// 		}),
-		// 		DSS.layer.DEM_image1 = new ol.layer.Image({
-		// 			source:
-		// 			new ol.source.ImageStatic({
-		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_1.PNG',
-		// 				imageExtent: [ -10111969.314900, 5318375.349200, -10055829.314900, 5386305.349200],
-		// 				projection: 'EPSG:3857',
-						
-		// 			})
-		// 		}),
-		// 		DSS.layer.DEM_image2 = new ol.layer.Image({
-		// 			source:
-		// 			new ol.source.ImageStatic({
-		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_2.PNG',
-		// 				imageExtent: [ -10168109.314900, 5386305.349200, -10111969.314900, 5454235.349200],
-		// 				projection: 'EPSG:3857',
-		// 			})
-		// 		}),
-		// 		DSS.layer.DEM_image3 = new ol.layer.Image({
-					
-		// 			source:
-		// 			new ol.source.ImageStatic({
-		// 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_3.PNG',
-		// 				imageExtent: [ -10111969.314900, 5386305.349200, -10055829.314900, 5454235.349200],
-		// 				projection: 'EPSG:3857',
-		// 			})
-		// 		})
-		// 	]
-		// })
+		DSS.layer.PLossGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
+		DSS.layer.runoffGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
+		DSS.layer.yieldGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
 		var pointStyle = new ol.style.Style({
 			image: new ol.style.Circle({
 			  radius: 7,
@@ -763,6 +719,9 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.Sand1,
 				DSS.layer.Sand2,
 				DSS.layer.Sand3,
+				DSS.layer.runoffGroup,
+				DSS.layer.PLossGroup,
+				DSS.layer.yieldGroup,
 				DSS.layer.kickapoowatershed,
 				DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,

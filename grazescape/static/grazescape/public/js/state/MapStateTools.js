@@ -358,6 +358,9 @@ Ext.define('DSS.state.MapStateTools', {
 						console.log("pin set in activatefarmhandler")
 						console.log(DSS.activeFarm)
 						console.log(DSS.activeScenario)
+						
+						// DSS.layer.fieldsLabels
+						// DSS.map.RotationLayer;
 						let ex = ol.extent;
 						let extent = [pos[0], pos[1], pos[0], pos[1]];
 						//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
@@ -381,10 +384,13 @@ Ext.define('DSS.state.MapStateTools', {
 						//if (DSS.activeScenario == null){
 							//getWFSScenarioSP(DSS.activeFarm)
 							DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
-							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
+							
+							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);
+							//DSS.map.addLayer(DSS.layer.fields_1);	
 							DSS.dialogs.ScenarioPicker.show().center().setY(0);
 							console.log(DSS.dialogs.ScenarioPicker);
 							DSS.map.addLayer(DSS.layer.scenarios);
+							// DSS.map.addLayer(DSS.layer.fields_1);
 							break;
 						//}
 					//}

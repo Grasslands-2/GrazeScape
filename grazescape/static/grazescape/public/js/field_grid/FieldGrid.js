@@ -863,7 +863,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				cropRotationColumn,
 				coverCropColumn,
 				tillageColumn,
-				//onContourColumn,
+				onContourColumn,
 				fertPerc_Column,
 				manuPerc_Column,
 				//grazeDairyLactatingColumn,
