@@ -177,6 +177,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
 	runModel: true,
+    listeners:{
+        "minimize": function (window, opts) {
+            window.collapse();
+            window.setWidth(150);
+            window.alignTo(Ext.getBody(), 'bl-bl')
+        }
+    },
+    tools: [{
+        type: 'restore',
+        handler: function (evt, toolEl, owner, tool) {
+            var window = owner.up('window');
+            window.setWidth(300);
+            window.expand('', false);
+            window.center();
+        }
+    }],
+
 
 	config: {
         // ...
@@ -409,6 +426,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             Ext.getCmp("btnRunModels").setDisabled(false)
                             Ext.getCmp("compareTab").setDisabled(false)
                             Ext.getCmp("compareTabBtn").setDisabled(false)
+                            Ext.ComponentQuery.query('tabpanel[name="outputLayersTab"]')[0].setDisabled(false)
+                            //Ext.getCmp("outputLayersTab").setDisabled(false)
 //                                Ext.getCmp("eroFieldTab").setDisabled(false)
 //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
 //                                Ext.getCmp("nutFieldTab").setDisabled(false)
@@ -1846,6 +1865,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 }}
 
                 },
+
 //                { xtype: 'panel',
 //                    title: '<i class="fas fa-seedling"></i></i>  Field',
 //                    border: false,
@@ -1874,6 +1894,77 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 ],
 
             }
+            var outputLayers =  { 
+            title: 'Output Layers',
+            disabled:true,
+            id:"outputLayersTab",
+            name:"outputLayersTab",
+            plain: true,
+            tabConfig:{
+                    tooltip: "Turn output layers on and off, on the map",
+//                    cls: "myBar"
+                },
+            id: "layersBtn",
+            tabBar : {
+                layout: {
+                    pack: 'center',
+                        background: '#C81820',
+                    }
+                },
+            xtype: 'tabpanel',
+            style: 'background-color: #377338;',
+
+            defaults: {
+                border:false,
+                bodyBorder: false
+            },
+            scrollable: true,
+//                inner tabs for farm and field scale
+            items:[{
+                title: "Model Outputs",
+                xtype: 'panel',
+                width: chart_width,
+                collapsible: true,
+                items:[
+                    {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: 'Output Layers',
+                    defaultType: 'checkboxfield',
+                    items:[{
+                        boxLabel: 'PLoss',
+                        name: 'PLoss',
+                        handler: function(self) {
+                            console.log('ploss clicked')
+                            // Ext.util.Cookies.set('DSS.layer.ploss_field:visible', self.checked ? "0" : "1");                	
+                            //DSS.layer.ploss_field.setVisible(self.checked);
+                            DSS.layer.PLossGroup.setVisible(self.checked);
+                            //DSS.map.addLayerGroup(DSS.layer.PLossGroup)
+                            console.log(DSS.layer.PLossGroup)
+                        }
+                    },
+                    {
+                        boxLabel: 'Runoff',
+                        name: 'Runoff',
+                        handler: function(self) {
+                            console.log('runoff clicked')
+                            DSS.layer.runoffGroup.setVisible(self.checked);
+                            console.log(DSS.layer.runoffGroup)
+                        }
+                    },
+                    // {
+                    //     boxLabel: 'Yield',
+                    //     name: 'Yield',
+                    //     handler: function(self) {
+                    //         console.log('Yield clicked')
+                    //         DSS.layer.yieldGroup.setVisible(self.checked);
+                    //         console.log(DSS.layer.yieldGroup)
+                    //     }
+                    // }
+                ],
+                }],
+                scope: this,
+            }]
+        }    
         var phantom = { title: 'Model Select',
                 plain: true,
                 hidden:true,
@@ -1932,6 +2023,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 economics,
                 infrastructure,
                 compare,
+                outputLayers,
 //                summary,
                 options,
            ]
