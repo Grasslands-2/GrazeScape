@@ -351,6 +351,10 @@ Ext.define('DSS.state.Scenario', {
 									runScenarioUpdate();
 									geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
+									//resetting model result layers
+									DSS.layer.PLossGroup.setVisible(false);
+									DSS.layer.PLossGroup.values_.layers.array_ = [];
+									console.log(DSS.layer.PLossGroup);
 								}
 							});
 						}

@@ -185,6 +185,8 @@ Ext.define('DSS.state.ScenarioPicker', {
 							DSS.ApplicationFlow.instance.showManageOperationPage();
 							scenarioPickerArray = []
 							this.up('window').destroy();
+							DSS.map.addLayer(DSS.layer.fields_1);
+							DSS.layer.infrastructure.setVisible(true);
 						}
 					}
 				}),

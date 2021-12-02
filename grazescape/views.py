@@ -280,6 +280,7 @@ def get_model_results(request):
         area = float(request.POST.getlist("model_parameters[area]")[0])
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", area)
         for result in results:
+            #if result.model_type == "ploss": index 0 file name = erosion, index 1 file name = ploss
             if result.model_type == "insect":
                 sum = result.data[0]
                 avg = sum
