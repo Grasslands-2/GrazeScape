@@ -465,6 +465,7 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 							boxLabel: 'Gravel Over Graded Rock <br>and Geotextile', inputValue: 'ggrg',
 						}]
 					},
+					//Fence Materials!!!!
 					{
 						xtype: 'component',
 						x: 0, y: -6,
@@ -478,10 +479,9 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 						id: 'FMcontents',
 						disabled: true,
 						style: 'padding: 0px; margin: 0px', // fixme: eh...
-						hideEmptyLabel: true,
+						//hideEmptyLabel: true,
 						padding: 15,
 						columns: 1, 
-						//disabled: true,
 						vertical: true,
 						viewModel: {
 							formulas: {
@@ -498,18 +498,25 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 								}
 							}
 						},
-						listeners:{
-							change: function(self) {
-									if(this.inputValue == 'fl'){
-										//this.setDisabled(true);
-										console.log('hi from fence material after render')
-									}
-						},
 						bind: '{fenceMaterialValue}', // formula from viewModel above
 						defaults: {
 							name: "fenceMaterial",
+							listeners: {
+								afterrender: function(self) {
+									if ( self.boxLabelEl) {
+										self.boxLabelEl.setStyle('cursor', 'pointer')
+									}
+								}
 							}
 						},
+						// listeners:{
+						// 	change: function(self) {
+						// 			if(this.inputValue == 'fl'){
+						// 				//this.setDisabled(true);
+						// 				console.log('hi from fence material after render')
+						// 			}
+						// },
+						
 						items: [{
 							boxLabel: 'High Tensile Electric, 1 Strand', inputValue: 'hte1',
 						},{ 
