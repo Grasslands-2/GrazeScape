@@ -345,6 +345,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							form.findField('address').getSubmitValue(),
 							form.findField('scenario_name').getSubmitValue(),
 							form.findField('scenario_description').getSubmitValue());
+							DSS.map.addLayer(DSS.layer.fields_1);
 							//showNewFarm()
 						}
 			        }
