@@ -426,8 +426,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             Ext.getCmp("btnRunModels").setDisabled(false)
                             Ext.getCmp("compareTab").setDisabled(false)
                             Ext.getCmp("compareTabBtn").setDisabled(false)
-                            Ext.ComponentQuery.query('tabpanel[name="outputLayersTab"]')[0].setDisabled(false)
-                            //Ext.getCmp("outputLayersTab").setDisabled(false)
+                            Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                            //Ext.getCmp("mappedResultsTab").setDisabled(false)
 //                                Ext.getCmp("eroFieldTab").setDisabled(false)
 //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
 //                                Ext.getCmp("nutFieldTab").setDisabled(false)
@@ -1895,10 +1895,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
             }
             var outputLayers =  { 
-            title: 'Output Layers',
+            title: 'Mapped Results',
             disabled:true,
-            id:"outputLayersTab",
-            name:"outputLayersTab",
+            id:"mappedResultsTab",
+            name:"mappedResultsTab",
             plain: true,
             tabConfig:{
                     tooltip: "Turn output layers on and off, on the map",
@@ -1928,7 +1928,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 items:[
                     {
                     xtype: 'fieldcontainer',
-                    fieldLabel: 'Output Layers',
+                    fieldLabel: 'Mapped Results',
                     defaultType: 'checkboxfield',
                     items:[{
                         boxLabel: 'PLoss',
@@ -1940,6 +1940,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             DSS.layer.PLossGroup.setVisible(self.checked);
                             //DSS.map.addLayerGroup(DSS.layer.PLossGroup)
                             console.log(DSS.layer.PLossGroup)
+                            //DSS.map.render;
                         }
                     },
                     {
@@ -1949,8 +1950,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             console.log('runoff clicked')
                             DSS.layer.runoffGroup.setVisible(self.checked);
                             console.log(DSS.layer.runoffGroup)
+                            //DSS.map.render;
                         }
                     },
+                    
                     // {
                     //     boxLabel: 'Yield',
                     //     name: 'Yield',
@@ -1961,6 +1964,32 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     //     }
                     // }
                 ],
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					text: 'RED ',
+                    style:{
+                        color: 'red'
+                    }
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					text: 'indicates higher values, '
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					text: 'BLUE ',
+                    style:{
+                        color: 'blue'
+                    }
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					html: 'indicates lower values. \n* CAUTION * P loss estimates are derived from SnapPlus and originally intended to represent field scale P losses; sub-field variability is only shown for illustration purposes'
                 }],
                 scope: this,
             }]

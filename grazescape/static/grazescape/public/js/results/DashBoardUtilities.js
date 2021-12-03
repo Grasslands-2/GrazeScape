@@ -271,7 +271,8 @@ function format_chart_data(model_data){
                 gatherModelDataArray(model_data)
                 break
             }
-            var yeextent = model_data.extent
+            if(model_data.scen_id == DSS.activeScenario){
+                var yeextent = model_data.extent
                 DSS.layer.yield_field = new ol.layer.Image({
                     visible: true,
                     updateWhileAnimating: true,
@@ -285,6 +286,7 @@ function format_chart_data(model_data){
                 var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
                 console.log(runoffGroupLayers);
                 yieldGroupLayers.push(DSS.layer.yield_field);
+            }
             break;
         
         case 'ploss':
@@ -292,21 +294,22 @@ function format_chart_data(model_data){
             if (model_data.value_type == 'ploss'){
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
-
-                var plextent = model_data.extent
-                DSS.layer.ploss_field = new ol.layer.Image({
-                    visible: true,
-                    updateWhileAnimating: true,
-                    updateWhileInteracting: true,
-                    source: new ol.source.ImageStatic({
-                    url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
-                    imageExtent: plextent
+                if(model_data.scen_id == DSS.activeScenario){
+                    var plextent = model_data.extent
+                    DSS.layer.ploss_field = new ol.layer.Image({
+                        visible: true,
+                        updateWhileAnimating: true,
+                        updateWhileInteracting: true,
+                        source: new ol.source.ImageStatic({
+                        url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
+                        imageExtent: plextent
+                        })
                     })
-                })
-                DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
-                var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                console.log(plossGroupLayers);
-                plossGroupLayers.push(DSS.layer.ploss_field);
+                    DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
+                    var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                    console.log(plossGroupLayers);
+                    plossGroupLayers.push(DSS.layer.ploss_field);
+                }
             }
             else if (model_data.value_type == 'ero'){
                 chartTypeField = chartObj.soil_loss_field
@@ -347,20 +350,22 @@ function format_chart_data(model_data){
                 
             return
             }
-            var roextent = model_data.extent
-                DSS.layer.runoff_field = new ol.layer.Image({
-                    visible: true,
-                    updateWhileAnimating: true,
-                    updateWhileInteracting: true,
-                    source: new ol.source.ImageStatic({
-                    url: '/static/grazescape/public/images/runoff'+ model_data.field_id + '.png',
-                    imageExtent: roextent
+            if(model_data.scen_id == DSS.activeScenario){
+                var roextent = model_data.extent
+                    DSS.layer.runoff_field = new ol.layer.Image({
+                        visible: true,
+                        updateWhileAnimating: true,
+                        updateWhileInteracting: true,
+                        source: new ol.source.ImageStatic({
+                        url: '/static/grazescape/public/images/runoff'+ model_data.field_id + '.png',
+                        imageExtent: roextent
+                        })
                     })
-                })
-                DSS.layer.runoff_field.set('name', 'DSS.layer.runoff_field_'+ model_data.field_id);
-                var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
-                console.log(runoffGroupLayers);
-                runoffGroupLayers.push(DSS.layer.runoff_field);
+                    DSS.layer.runoff_field.set('name', 'DSS.layer.runoff_field_'+ model_data.field_id);
+                    var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
+                    console.log(runoffGroupLayers);
+                    runoffGroupLayers.push(DSS.layer.runoff_field);
+                }
                 break
         case 'bio':
             chartTypeField = chartObj.insecticide_field

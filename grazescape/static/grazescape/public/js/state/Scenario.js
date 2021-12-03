@@ -669,7 +669,7 @@ Ext.define('DSS.state.Scenario', {
                 me.initViewModel();
 
             })
-            }, 500);
+            }, 1000);
         },
 	
 
@@ -682,8 +682,8 @@ Ext.define('DSS.state.Scenario', {
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
 //		gatherScenarioTableData()
-		console.log('in animal view model')
-		console.log('this is the farms beef cows: ')
+		//console.log('in animal view model')
+		//console.log('this is the farms beef cows: ')
 		//console.log(scenarioArray[0].beefCows)
 		DSS.viewModel.scenario = new Ext.app.ViewModel({
 			formulas: {
@@ -694,8 +694,8 @@ Ext.define('DSS.state.Scenario', {
 				}
 			},
 			data: {
-				percResidualOnPasture: scenarioArray[0].percResidual,
-				pastRotationFreq: scenarioArray[0].pastRotationFreq,
+				//percResidualOnPasture: scenarioArray[0].percResidual,
+				//pastRotationFreq: scenarioArray[0].pastRotationFreq,
 				dairy: {
 					// counts
 					lactating: scenarioArray[0].lacCows,

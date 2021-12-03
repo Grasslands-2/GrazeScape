@@ -658,7 +658,7 @@ Ext.define('DSS.map.Main', {
 		DSS.layer.fieldsLabels = new ol.layer.Vector({
 			minZoom: 14,
 			title: 'fieldsLabels',
-			visible: true,
+			visible: false,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
@@ -733,8 +733,8 @@ Ext.define('DSS.map.Main', {
 
 			view: new ol.View({
 				center: [-10112582,5392087],
-				zoom: 12,
-				maxZoom: 18,
+				zoom: 24,
+				maxZoom: 30,
 				minZoom: 8,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
