@@ -407,7 +407,7 @@ Ext.define('DSS.state.MapStateTools', {
     zoomToExtent: function(center_, zoom_) {
     	
     	center_ = center_ || [-10118000, 5375100];
-    	zoom_ = zoom_ || 12;
+    	zoom_ = zoom_ || 9.5;
     	DSS.map.getView().animate({
     		center: center_,
 			zoom: zoom_,

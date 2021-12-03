@@ -187,6 +187,7 @@ Ext.define('DSS.state.ScenarioPicker', {
 							this.up('window').destroy();
 							DSS.map.addLayer(DSS.layer.fields_1);
 							DSS.layer.infrastructure.setVisible(true);
+							DSS.layer.fieldsLabels.setVisible(true);
 						}
 					}
 				}),

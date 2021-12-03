@@ -73,6 +73,7 @@ Ext.define('DSS.state.Manage', {
 									DSS.ApplicationFlow.instance.showLandingPage();
 									DSS.map.removeLayer(DSS.layer.fields_1);
 									DSS.layer.infrastructure.setVisible(false);
+									DSS.layer.fieldsLabels.setVisible(false);
 									//DSS.layer.fields_1.getSource().refresh();
 
 									DSS.viewModel.scenario = !DSS['viewModel']
