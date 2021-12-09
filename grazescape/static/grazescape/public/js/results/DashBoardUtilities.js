@@ -42,6 +42,7 @@ function gatherModelDataArray(mdobj) {
 function populateChartObj(scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
+    console.log("INSIDE POPULATE CHARTOBJ!!!!!%%%%&&&&&#######")
     for (chart in chartList){
         chartName = chartList[chart]
         if(chartName.includes('field')){
@@ -112,7 +113,7 @@ function populateChartObj(scenList, fieldList, allField, allScen){
                 node.fieldSum[scen] = []
                 node.areaSum[scen] = []
             }
-            node.chartData.chartDataOri = new Array(scenList.length).fill(0)
+            node.chartData.chartDataOri = new Array(scenList.length).fill(null)
 
         }
 
@@ -214,8 +215,8 @@ function build_model_request(f, geometry, modelChoice){
     return model_pack
 }
 function format_chart_data(model_data){
-    console.log("Model data!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$")
-    console.log(model_data)
+    //console.log("Model data!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$")
+    //console.log(model_data)
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
         return
     }
@@ -284,7 +285,7 @@ function format_chart_data(model_data){
                 })
                 DSS.layer.yield_field.set('name', 'DSS.layer.yield_field_'+ model_data.field_id);
                 var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                console.log(runoffGroupLayers);
+                //console.log(yieldGroupLayers);
                 yieldGroupLayers.push(DSS.layer.yield_field);
             }
             break;
@@ -295,20 +296,24 @@ function format_chart_data(model_data){
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
                 if(model_data.scen_id == DSS.activeScenario){
-                    var plextent = model_data.extent
-                    DSS.layer.ploss_field = new ol.layer.Image({
-                        visible: true,
-                        updateWhileAnimating: true,
-                        updateWhileInteracting: true,
-                        source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
-                        imageExtent: plextent
+                    console.log(model_data.extent)
+                    if(model_data.extent !== undefined){
+                        var plextent = model_data.extent
+                        DSS.layer.ploss_field = new ol.layer.Image({
+                            visible: true,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
+                            imageExtent: plextent
+                            })
                         })
-                    })
-                    DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
-                    var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                    console.log(plossGroupLayers);
-                    plossGroupLayers.push(DSS.layer.ploss_field);
+                        DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
+                        var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                        console.log(plossGroupLayers);
+                        plossGroupLayers.push(DSS.layer.ploss_field);
+                        Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                    }
                 }
             }
             else if (model_data.value_type == 'ero'){
@@ -323,6 +328,7 @@ function format_chart_data(model_data){
             break;
         case 'runoff':
             console.log("runoff")
+            console.log(model_data)
             if (model_data.value_type == 'Curve Number'){
                 chartTypeFarm = chartObj.cn_num_farm
             }
@@ -351,6 +357,7 @@ function format_chart_data(model_data){
             return
             }
             if(model_data.scen_id == DSS.activeScenario){
+                console.log(model_data.extent)
                 var roextent = model_data.extent
                     DSS.layer.runoff_field = new ol.layer.Image({
                         visible: true,
@@ -398,7 +405,7 @@ function format_chart_data(model_data){
         chartTypeField.area[fieldIndex] =  model_data.area
         // creating a backup to pull data from
         chartTypeField.chartData.chartDataOri[fieldIndex][scenIndex] =  chartVal
-        console.log(model_data)
+        //console.log(model_data)
         chartTypeField.chartData.datasets[fieldIndex].toolTip[scenIndex] = [model_data.crop_ro,model_data.grass_ro, model_data.grass_type, model_data.till] ;
 
          if(chartTypeField.chart !== null){
@@ -539,13 +546,16 @@ function get_model_data(data){
     'url' : '/grazescape/get_model_results',
     'type' : 'POST',
     'data' : data,
-        success: function(responses, opts) {
-            console.log(responses)
+        success: async function(responses, opts) {
+            //console.log(responses)
             delete $.ajaxSetup().headers
             if(responses == null){
                 resolve([]);
             }
             for (response in responses){
+                // if(responses[response].sum_cells == null){
+                //     responses[response].sum_cells = 0
+                // }
                 obj = responses[response];
                 if(obj.error || response == null){
                     console.log("model did not run")
@@ -592,6 +602,7 @@ function get_model_data(data){
                 if(responses[response].value_type != "dry lot"){
                     format_chart_data(obj)
                 }
+                //console.log(responses)
             }
             resolve(responses);
         },
@@ -649,6 +660,8 @@ function create_graph(chart,title,element){
 //        return
 //    }
     data = chart.chartData
+    console.log(element)
+    console.log(data)
     let barchart = new Chart(element, {
         type: 'bar',
         data: data,
@@ -1694,6 +1707,7 @@ class ChartDatasetContainer{
         this.farmName = ""
 //        arrow function keeps 'this' of calling function
          retrieveFarmGeoserver().then(returnData =>{
+            console.log("RETRIEVE FARM GEOSERVER DATA@@@$$$$$$$$$$!%%%%%!!!")
             console.log(this)
             this.farmName =  returnData
          })
