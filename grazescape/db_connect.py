@@ -143,17 +143,19 @@ def update_field_dirty(field_id, scenario_id, farm_id):
         cur.close()
         conn.commit()
         conn.close()
-def null_out_yield_results(field_id, scenario_id, farm_id, data):
+#def null_out_yield_results(field_id, scenario_id, farm_id, data):
+def null_out_yield_results(data):
     if data['crop_ro'] == 'pt' and data['value_type'] != 'Grass':
-        data['sum_cells'] = 0
+        data['sum_cells'] = None
     if data['crop_ro'] == 'cc' and data['value_type'] != 'Corn Grain':
-        data['sum_cells'] = 0
+        data['sum_cells'] = None
     if data['crop_ro'] == 'cg' and data['value_type'] != 'Corn Grain' or 'Soy':
-        data['sum_cells'] = 0
+        data['sum_cells'] = None
     if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or'Corn Grain' or 'Alfalfa':
-        data['sum_cells'] =0
+        data['sum_cells'] = None
     if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or'Soy' or 'Oats':
-        data['sum_cells'] = 0
+        data['sum_cells'] = None
+
 def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     """
 
@@ -179,6 +181,8 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     sql_values = ""
     col_name = []
     values = []
+    nullvalue_list = ["grass_yield_tons_per_ac","corn_yield_brus_per_ac","soy_yield_brus_per_ac","alfalfa_yield_tons_per_acre","oat_yield_brus_per_ac"]
+    nullout_text = "UPDATE field_model_results SET "
     update_text = "UPDATE field_model_results SET "
     if insert_field:
         update_text = "INSERT INTO field_model_results("
@@ -300,6 +304,7 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         raise
     finally:
         cur.close()
+        #actual push to db
         conn.commit()
         conn.close()
 
