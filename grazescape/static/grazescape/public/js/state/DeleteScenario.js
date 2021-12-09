@@ -4,6 +4,31 @@ DSS.utils.addStyle('.right-pad { padding-right: 32px }')
 
 //var for holding onto item to be deleted object
 var itemToBeDeleted = {}
+scenarioDeleteArray = [];
+function getWFSScenarioDS() {
+	scenarioDeleteArray = [];
+	geoServer.getWFSScenarioDS('&CQL_filter=farm_id='+DSS.activeFarm)
+}
+
+itemsArrayDS = []
+
+function popItemsArrayDS(obj){
+    Ext.getCmp("scenarioMenuDS").removeAll()
+	for (i in obj){
+		if(obj[i].properties.scenario_id !== DSS.activeScenario)
+		// Ext.ComponentQuery.query('Menu[name=scenarioMenu]')[0].add({
+        //     text:obj[i].properties.scenario_name,
+        //     inputValue:obj[i].properties.scenario_id,
+        //     itemFid: obj[i].id
+        Ext.getCmp("scenarioMenuDS").add({
+            text:obj[i].properties.scenario_name,
+            inputValue:obj[i].properties.scenario_id,
+            itemFid: obj[i].id
+        })
+    }
+	console.log(itemsArrayDS);
+
+}
 
 function wfsDeleteItem(featsArray,layerString){
 	var formatWFS = new ol.format.WFS();
@@ -21,40 +46,6 @@ function wfsDeleteItem(featsArray,layerString){
 	str = s.serializeToString(node);
 	console.log(str);
 	geoServer.wfsDeleteItem(str, featsArray)
-//	$.ajax(geoserverURL + '/geoserver/wfs?'
-///*'http://localhost:8081/geoserver/wfs?'*/,{
-//		type: 'POST',
-//		dataType: 'xml',
-//		processData: false,
-//		contentType: 'text/xml',
-//		data: str,
-//		success: function (data) {
-//			console.log("data deleted successfully!: ");
-//			cleanDB()
-//			console.log(data)
-//			//DSS.layer.farms_1.getSource().refresh();
-//			getWFSScenarioSP(DSS.activeFarm)
-//		},
-//		error: function (xhr, exception) {
-//			var msg = "";
-//			if (xhr.status === 0) {
-//				msg = "Not connect.\n Verify Network." + xhr.responseText;
-//			} else if (xhr.status == 404) {
-//				msg = "Requested page not found. [404]" + xhr.responseText;
-//			} else if (xhr.status == 500) {
-//				msg = "Internal Server Error [500]." +  xhr.responseText;
-//			} else if (exception === "parsererror") {
-//				msg = "Requested JSON parse failed.";
-//			} else if (exception === "timeout") {
-//				msg = "Time out error." + xhr.responseText;
-//			} else if (exception === "abort") {
-//				msg = "Ajax request aborted.";
-//			} else {
-//				msg = "Error:" + xhr.status + " " + xhr.responseText;
-//			}
-//			console.log(msg);
-//		}
-//	}).done();
 }
 function selectDeleteScenario(fgid){
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
@@ -74,7 +65,7 @@ function selectDeleteScenario(fgid){
 			wfsDeleteItem(delArray,'scenarios_2');
 			if(DSS.activeScenario == itemToBeDeleted.values_.scenario_id){
 			    console.log("active scneario!!!!")
-				getWFSScenarioSP()
+				getWFSScenarioDS()
 				DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
 				DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);
 				DSS.dialogs.ScenarioPicker.show().center().setY(0);
@@ -115,9 +106,10 @@ Ext.define('DSS.state.DeleteScenario', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
 	alias: 'widget.state_delete_scenario',
+	id: "scenarioDeleter",
 	
-	autoDestroy: false,
-	closeAction: 'hide',
+	//autoDestroy: false,
+	//closeAction: 'hide',
 	constrain: true,
 	modal: true,
 	width: 832,
@@ -131,8 +123,9 @@ Ext.define('DSS.state.DeleteScenario', {
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
+		
 		let me = this;
-        getWFSScenarioSP()
+        getWFSScenarioDS()
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',
@@ -149,6 +142,7 @@ Ext.define('DSS.state.DeleteScenario', {
 					
 				},{
 					xtype: 'form',
+					name:'scenarioMenuForm',
 					url: 'create_operation',
 					jsonSubmit: true,
 					header: false,
@@ -164,14 +158,14 @@ Ext.define('DSS.state.DeleteScenario', {
 					items:[
 						Ext.create('Ext.menu.Menu', {
 							width: 100,
-                            id: "scenarioMenu",
+                            id: "scenarioMenuDS",
+							name:"scenarioMenuDS",
 							margin: '0 0 10 0',
 							floating: false,  // usually you want this set to True (default)
 							renderTo: Ext.getBody(),  // usually rendered by it's containing component
-							items: itemsArray,
+							items: itemsArrayDS,
 							listeners:{
 								click: function( menu, item, e, eOpts ) {
-                                    this.up('window').destroy();
 									fieldArrayDS = []
 									infraArrayDS = []
 									console.log(item.text);
@@ -179,6 +173,7 @@ Ext.define('DSS.state.DeleteScenario', {
 			 						scenarioToDelete = item.inputValue
 									console.log(scenarioToDelete);
 									selectDeleteScenario(scenarioToDelete)
+									this.up('window').destroy();
 									//selectDeleteFieldInfra(item.inputValue,fieldArrayDS,DSS.layer.fields_1,'field_2')
 									//selectDeleteFieldInfra(item.inputValue,infrastructureSourceDS,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
 									alert('Scenario: ' + item.text + ' Deleted')

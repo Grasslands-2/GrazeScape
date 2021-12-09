@@ -167,6 +167,8 @@ Ext.define('DSS.state.Manage', {
 						//getWFSScenario()
 						reSourceFields()
 						reSourceinfra()
+						//console.log(itemsArray);
+						getWFSScenarioDS()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
