@@ -239,6 +239,7 @@ def get_model_results(request):
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
         if model_type == 'yield':
+            #call row yeilds nulling function here!!!
             crop_ro = request.POST.getlist("model_parameters[crop]")[0]
             if crop_ro == 'pt' or crop_ro == 'ps':
                 model = GrassYield(request)
@@ -324,6 +325,7 @@ def get_model_results(request):
                 "till": model.model_parameters["tillage"]
             }
             #null_out_yield_results(field_id, scenario_id, farm_id, data)
+            #null_out_yield_results(data)
             if db_has_field(field_id, scenario_id, farm_id):
                 update_field_results(field_id, scenario_id, farm_id, data, False)
             else:

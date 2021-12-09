@@ -32,37 +32,6 @@ scenarioPickerArray = [];
 function getWFSScenarioSP() {
 	scenarioPickerArray = [];
 	geoServer.getWFSScenarioSP('&CQL_filter=farm_id='+DSS.activeFarm)
-//	console.log(DSS.activeFarm);
-//	var scenarioUrlSP =
-//	geoserverURL + '/geoserver/wfs?'+
-//	'service=wfs&'+
-//	'?version=2.0.0&'+
-//	'request=GetFeature&'+
-//	'typeName=GrazeScape_Vector:scenarios_2&' +
-//	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
-//	'outputformat=application/json&'+
-//	'srsname=EPSG:3857'
-//    console.log("getting wfs scenarios")
-//	return $.ajax({
-//		jsonp: false,
-//		type: 'GET',
-//		url: scenarioUrlSP,
-//		async: false,
-//		dataType: 'json',
-//		success:function(response)
-//		{
-//			responseObj = response
-//			scenObj = response.features
-//			console.log(responseObj);
-//			farmArray = [];
-//			itemsArray = [];
-//			console.log(scenObj[0]);
-//			popScenarioArraySP(scenObj);
-//			popItemsArray(scenObj);
-//			console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//			console.log(response);
-//		}
-//	})
 }
 
 function popScenarioArraySP(obj) {
@@ -105,17 +74,18 @@ itemsArray = []
 function popItemsArray(obj){
     Ext.getCmp("scenarioMenu").removeAll()
 	for (i in obj){
+		console.log(Ext.getCmp("scenarioMenu"))
+		if(obj[i].properties.scenario_id !== DSS.activeScenario)
+		// Ext.ComponentQuery.query('Menu[name=scenarioMenu]')[0].add({
+        //     text:obj[i].properties.scenario_name,
+        //     inputValue:obj[i].properties.scenario_id,
+        //     itemFid: obj[i].id
         Ext.getCmp("scenarioMenu").add({
             text:obj[i].properties.scenario_name,
             inputValue:obj[i].properties.scenario_id,
             itemFid: obj[i].id
         })
     }
-//	itemsArray.push({
-//		text:obj[i].properties.scenario_name,
-//		inputValue:obj[i].properties.scenario_id,
-//		itemFid: obj[i].id
-//	})
 	console.log(itemsArray);
 
 }

@@ -71,13 +71,18 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	grassVal='';
 	rotationFreqVal = 1;
 	rotationFreqdisp = 'Once a day';
+	grazeDensityVal = '',
+	grazeDensityDisp = ''
 	//--------------------Setting Display Values------------------
 	if(crop=='pt-cn'){
 		cropDisp ='Continuous Pasture';
 		grassDisp='Bluegrass-clover';
 		grassVal='Bluegrass';
 		rotationFreqVal = 1
-		rotationFreqdisp = 'Once a day'
+		rotationFreqdisp = 'Once a day',
+		grazeDensityVal = 'lo',
+		grazeDensityDisp = 'low'
+
 	}
 	else if(crop=='pt-rt'){
 		cropDisp ='Rotational Pasture'
@@ -164,6 +169,8 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 		 		grass_speciesdisp: grassDisp,
 				rotational_freq_val: rotationFreqVal,
 				rotational_freq_disp: rotationFreqdisp,
+				grazingdensityval: grazeDensityVal,
+				grazingdensitydisp: grazeDensityDisp,
                 is_dirty:true
             })
         setFeatureAttributes(e.feature)
