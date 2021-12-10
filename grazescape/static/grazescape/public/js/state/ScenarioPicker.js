@@ -3,7 +3,6 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 //DSS.scenarioName = ''
 //local functions to make sure selected scenario infra and fields only draw
 function showFieldsForScenario() {
-
     geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	console.log(DSS.layer.fields_1.getStyle())
 //	DSS.layer.fields_1.getSource().refresh();
@@ -74,8 +73,8 @@ itemsArray = []
 function popItemsArray(obj){
     Ext.getCmp("scenarioMenu").removeAll()
 	for (i in obj){
-		console.log(Ext.getCmp("scenarioMenu"))
-		if(obj[i].properties.scenario_id !== DSS.activeScenario)
+		//console.log(Ext.getCmp("scenarioMenu"))
+		//if(obj[i].properties.scenario_id !== DSS.activeScenario)
 		// Ext.ComponentQuery.query('Menu[name=scenarioMenu]')[0].add({
         //     text:obj[i].properties.scenario_name,
         //     inputValue:obj[i].properties.scenario_id,
@@ -145,19 +144,25 @@ Ext.define('DSS.state.ScenarioPicker', {
 					items: itemsArray,
 					listeners:{
 						click: function( menu, item, e, eOpts ) {
+							this.up('window').destroy();
 							console.log(item.text);
 							console.log(item.inputValue);
 							DSS.activeScenario = item.inputValue;
 							DSS.scenarioName = item.text;
 //							console.log("Showing ")
-							showFieldsForScenario()
-				 			showInfraForScenario()
+							//showFieldsForScenario()
+				 			//showInfraForScenario()
 							DSS.ApplicationFlow.instance.showManageOperationPage();
 							scenarioPickerArray = []
-							this.up('window').destroy();
-							DSS.map.addLayer(DSS.layer.fields_1);
+							//DSS.layer.fields_1.setVisible(false)
+							//DSS.layer.fields_1.setVisible(true);
+							showFieldsForScenario()
+				 			showInfraForScenario()
 							DSS.layer.infrastructure.setVisible(true);
 							DSS.layer.fieldsLabels.setVisible(true);
+							console.log("SCENARIO PICKER DONE")
+							DSS.layer.fields_1.getSource().refresh();
+            				DSS.layer.fieldsLabels.getSource().refresh();
 						}
 					}
 				}),

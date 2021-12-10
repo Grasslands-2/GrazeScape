@@ -127,60 +127,8 @@ function wfs_farm_insert(feat,geomType,fType, farmID=null) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    geoServer.insertFarm(str, feat, farmID)
-//    $.ajax(geoserverURL + '/geoserver/wfs?'
-//	/*'http://localhost:8081/geoserver/wfs?'*/,{
-//        type: 'POST',
-//        dataType: 'xml',
-//        processData: false,
-//        contentType: 'text/xml',
-//        data: str,
-//		success: function (response) {
-//			console.log("uploaded data successfully!: ");
-//			console.log(response)
-//			// DSS.layer.farms_1.getSource().refresh();
-//			// DSS.layer.scenarios.getSource().refresh();
-//			DSS.MapState.removeMapInteractions()
-//			console.log(highestFarmIdCNO);
-//			DSS.activeFarm = highestFarmIdCNO + 1;
-//			DSS.activeScenario = highestScenarioIdCNO + 1;
-//			DSS.scenarioName = feat.values_.scenario_name;
-//			DSS.farmName = feat.values_.farm_name;
-//			console.log("Current active farm!: " + DSS.activeFarm);
-//			console.log("Current active Scenario!: " + DSS.activeScenario);
-//			DSS.ApplicationFlow.instance.showScenarioPage();
-//			//DSS.ApplicationFlow.instance.showManageOperationPage();
-//			//commented out to go straight to scneario page using showscenariopage
+    geoServer.insertFarm(str, feat, farmID,fType)
 
-//			DSS.layer.farms_1.getSource().refresh();
-//			DSS.layer.scenarios.getSource().refresh();
-//			DSS.MapState.showNewFarm();
-//			DSS.MapState.showFieldsForFarm();
-//			DSS.MapState.showInfrasForFarm();
-//
-//			//reSourcescenarios()
-//
-//		},
-//        error: function (xhr, exception) {
-//            var msg = "";
-//            if (xhr.status === 0) {
-//                msg = "Not connect.\n Verify Network." + xhr.responseText;
-//            } else if (xhr.status == 404) {
-//                msg = "Requested page not found. [404]" + xhr.responseText;
-//            } else if (xhr.status == 500) {
-//                msg = "Internal Server Error [500]." +  xhr.responseText;
-//            } else if (exception === "parsererror") {
-//                msg = "Requested JSON parse failed.";
-//            } else if (exception === "timeout") {
-//                msg = "Time out error." + xhr.responseText;
-//            } else if (exception === "abort") {
-//                msg = "Ajax request aborted.";
-//            } else {
-//                msg = "Error:" + xhr.status + " " + xhr.responseText;
-//            }
-//			console.log(msg);
-//        }
-//    }).done();
 }
 function createFarm(fname,fowner,faddress,sname,sdescript){
 
@@ -206,17 +154,28 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 			farm_name: fname,
 			farm_owner: fowner,
 			farm_addre: faddress,
-			scenario_id: highestScenarioIdCNO + 1,
-			farm_name: fname,
-			farm_owner: fowner,
-			farm_id: highestFarmIdCNO + 1,
-			farm_addre: faddress,
 			scenario_name: sname,
-			scenario_desp: sdescript
+			scenario_desp: sdescript,
+			scenario_id: highestScenarioIdCNO + 1,
+			farm_id: highestFarmIdCNO + 1,
 		})
 		var geomType = 'point'
 		wfs_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
 		wfs_farm_insert(e.feature, geomType,'scenarios_2')
+		// DSS.MapState.removeMapInteractions()
+		// DSS.activeFarm = highestFarmIdCNO + 1;
+		// DSS.activeScenario = highestScenarioIdCNO + 1;
+		// DSS.scenarioName = e.feature.scenario_name;
+		// DSS.farmName = e.feature.farm_name;
+        // gatherScenarioTableData()
+		// DSS.ApplicationFlow.instance.showScenarioPage();
+		// DSS.MapState.showNewFarm();
+		//DSS.layer.fields_1.setVisible(false)
+		//DSS.layer.fields_1.setVisible(true);
+		showFieldsForScenario()
+		//showInfraForScenario()
+		DSS.layer.infrastructure.setVisible(true);
+		DSS.layer.fieldsLabels.setVisible(true);
 		console.log("HI! WFS farm Insert ran!")
 
 		//DSS.layer.farms_1.getSource().refresh();
@@ -345,7 +304,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							form.findField('address').getSubmitValue(),
 							form.findField('scenario_name').getSubmitValue(),
 							form.findField('scenario_description').getSubmitValue());
-							DSS.map.addLayer(DSS.layer.fields_1);
+							//DSS.layer.fields_1.setVisible(true);
 							//showNewFarm()
 						}
 			        }

@@ -266,36 +266,6 @@ function wfs_update(feat,layer) {
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
 //    console.log(str);
     geoServer.updateFieldAtt(str,feat )
-//    $.ajax(geoserverURL + '/geoserver/wfs?'
-//	/*'http://localhost:8081/geoserver/wfs?'*/,{
-//        type: 'POST',
-//        dataType: 'xml',
-//        processData: false,
-//        contentType: 'text/xml',
-//		data: str,
-//		success: function (data) {
-//			console.log("uploaded data successfully!: "+ data);
-//		},
-//        error: function (xhr, exception) {
-//            var msg = "";
-//            if (xhr.status === 0) {
-//                msg = "Not connect.\n Verify Network." + xhr.responseText;
-//            } else if (xhr.status == 404) {
-//                msg = "Requested page not found. [404]" + xhr.responseText;
-//            } else if (xhr.status == 500) {
-//                msg = "Internal Server Error [500]." +  xhr.responseText;
-//            } else if (exception === "parsererror") {
-//                msg = "Requested JSON parse failed.";
-//            } else if (exception === "timeout") {
-//                msg = "Time out error." + xhr.responseText;
-//            } else if (exception === "abort") {
-//                msg = "Ajax request aborted.";
-//            } else {
-//                msg = "Error:" + xhr.status + " " + xhr.responseText;
-//            }
-//			console.log(msg);
-//        }
-//    }).done();
 }
 
 //------------------------------------------------------------------------------
@@ -568,7 +538,6 @@ Ext.define('DSS.state.Scenario', {
 					handler: function(self) {
 //						cleanDB()
 						//DSS.DrawFieldShapes.addModeControl()
-						console.log()
 						if (DSS['viewModel'].scenario.data != null){
                             console.log("updating scenario data")
 						    runScenarioUpdate();

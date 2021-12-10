@@ -201,20 +201,22 @@ Ext.define('DSS.map.LayerMenu', {
 				text: 'Overlays', 
 				disabled: true,
 				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
-			},{ //-------------------------------------------
-				text: 'Fields <i class="fas fa-seedling accent-text text-drp-50"></i>',
-                checked: true,
-                menu: tMen,//makeOpacityMenu("crop", DSS.layer.fields_1),
-                listeners: {
-                	afterrender: function(self) {
-                		self.setChecked(DSS.layer.fields_1.getVisible());
-                	}
-                },
-                handler: function(self) {
-                	Ext.util.Cookies.set("crop:visible", self.checked ? "1" : "0");                	
-                	DSS.layer.fields_1.setVisible(self.checked);                    	
-                }
-			},{ //-------------------------------------------
+			},
+			// { //-------------------------------------------
+			// 	text: 'Fields <i class="fas fa-seedling accent-text text-drp-50"></i>',
+            //     checked: true,
+            //     menu: tMen,//makeOpacityMenu("crop", DSS.layer.fields_1),
+            //     listeners: {
+            //     	afterrender: function(self) {
+            //     		self.setChecked(DSS.layer.fields_1.getVisible());
+            //     	}
+            //     },
+            //     handler: function(self) {
+            //     	Ext.util.Cookies.set("crop:visible", self.checked ? "1" : "0");                	
+            //     	DSS.layer.fields_1.setVisible(self.checked);                    	
+            //     }
+			// },
+			{ //-------------------------------------------
 				xtype: 'menuitem',
 				text: 'Watersheds', 
 				disabled: true,

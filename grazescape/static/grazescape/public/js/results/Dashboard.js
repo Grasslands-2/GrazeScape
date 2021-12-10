@@ -1947,7 +1947,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     fieldLabel: 'Mapped Results',
                     defaultType: 'checkboxfield',
                     items:[{
-                        boxLabel: 'PLoss',
+                        boxLabel: 'Phosphorus Loss',
                         name: 'PLoss',
                         handler: function(self) {
                             console.log('ploss clicked')
