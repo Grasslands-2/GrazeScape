@@ -662,15 +662,16 @@ Ext.define('DSS.map.Main', {
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
-//			source: '',
 			style: function(feature, resolution) {
 				fieldLabel.getText().setText(feature.values_.field_name);
 				return fieldLabel;
 			}
 		})
 		DSS.layer.fields_1 = new ol.layer.Vector({
-			visible: DSS.layer['crop:visible'],
-			opacity: DSS.layer['crop:opacity'],
+			// visible: DSS.layer['crop:visible'],
+			// opacity: DSS.layer['crop:opacity'],
+			visible: false,
+			//opacity: 0.8,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
@@ -727,6 +728,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.tainterwatershed,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
+				DSS.layer.fields_1
 				],
 				//------------------------------------------------------------------------
 

@@ -105,7 +105,7 @@ class GeoServer{
     setFieldSource(parameter = ""){
 //        let url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afield_2&outputFormat=application%2Fjson' + parameter
         return this.makeRequest(this.geoField_Url + parameter, "source").then(function(geoJson){
-            console.log(geoJson)
+            //console.log(geoJson.geojson)
             geoJson = geoJson.geojson
             DSS.layer.fields_1.getSource().clear()
             DSS.layer.fieldsLabels.getSource().clear()
@@ -114,10 +114,11 @@ class GeoServer{
                 geoJson,
                 {featureProjection: 'EPSG:3857'}
             );
+            console.log(myGeoJsonFeatures)
             DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
             DSS.layer.fieldsLabels.getSource().addFeatures(myGeoJsonFeatures)
-//            DSS.layer.fields_1.getSource().refresh();
-//            DSS.layer.fieldsLabels.getSource().refresh();
+            //DSS.layer.fields_1.getSource().refresh();
+            //DSS.layer.fieldsLabels.getSource().refresh();
         })
     }
     //    returns a geojson of the infrastructure
@@ -176,7 +177,7 @@ class GeoServer{
             popScenarioArray(scenarioObj);
         })
     }
-    insertFarm(payLoad, feat, farmID=null){
+    insertFarm(payLoad, feat, farmID=null,fType){
         console.log(farmID)
         this.makeRequest(this.geoUpdate_Url, "insert_farm", payLoad, this, farmID).then(function(returnData){
 //            let geoJson = returnData.geojson
@@ -185,16 +186,15 @@ class GeoServer{
 //            geoJson = JSON.parse(geoJson)
             currObj.setFarmSource()
 			DSS.MapState.removeMapInteractions()
-			DSS.activeFarm = highestFarmIdCNO + 1;
-			DSS.activeScenario = highestScenarioIdCNO + 1;
+            if(fType == 'farm_2'){DSS.activeFarm = highestFarmIdCNO + 1}
+            if(fType == 'scenarios_2'){DSS.activeScenario = highestScenarioIdCNO + 1}
 			DSS.scenarioName = feat.values_.scenario_name;
 			DSS.farmName = feat.values_.farm_name;
             gatherScenarioTableData()
-
 			DSS.ApplicationFlow.instance.showScenarioPage();
 			DSS.MapState.showNewFarm();
 			DSS.MapState.showFieldsForFarm();
-			DSS.MapState.showInfrasForFarm();
+			//DSS.MapState.showInfrasForFarm();
         })
     }
     wfs_field_insert(payLoad, feat, fType){
@@ -210,7 +210,7 @@ class GeoServer{
 //            currObj.setFarmSource()
             currObj.setFieldSource().then(function(){
                 console.log("redraw fields")
-                DSS.MapState.showNewFarm(DSS.activeFarm);
+                //DSS.MapState.showNewFarm(DSS.activeFarm);
                 DSS.MapState.showFieldsForFarm(DSS.activeFarm);
                 DSS.MapState.showInfrasForFarm(DSS.activeFarm);
             })
@@ -308,9 +308,7 @@ class GeoServer{
                 DSS.MapState.showInfrasForFarm(DSS.activeFarm);
             })
 //            currObj.setInfrastructureSource()
-            
          })
-
     }
     wfs_scenario_insert(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
@@ -319,12 +317,9 @@ class GeoServer{
             let currObj = returnData.current
 //            cleanDB()
 //            currObj.setScenariosSource()
-            currObj.setFarmSource()
-            currObj.setFieldSource()
+            //currObj.setFarmSource()
+            //currObj.setFieldSource()
 //            currObj.setInfrastructureSource()
-
-
-			//scenarioNumHold = DSS.activeScenario
 			// current scenario
 
 			console.log("copying features$$$$$$$$$")
@@ -346,16 +341,20 @@ class GeoServer{
          })
          }
     copyScenario(scenName, scenDes, payLoad = ""){
-        this.makeRequest(this.geoScen_Url, "insert", payLoad, this).then(function(returnData){
+        this.makeRequest(this.geoScen_Url, "source"/*"insert"*/, payLoad, this).then(function(returnData){
+            //ALL THIS DOES IS GET A GEOSJSON WIth THE CURRENT SCENS AND GET THE HIGHEST SCENARIOID #
+            //AND POPULATE scenarioArrayNS
             console.log(returnData)
             let geoJson =JSON.parse(returnData.geojson)
             let currObj = returnData.current
             geoJson = geoJson.features
+            console.log(geoJson)
             let maxScenarioId = 0;
             popscenarioArrayNS(geoJson)
             for (let feat in geoJson){
                 if(geoJson[feat].properties.scenario_id>maxScenarioId ){
                     maxScenarioId = geoJson[feat].properties.scenario_id
+                    console.log(maxScenarioId)
                 }
             }
             highestScenarioId = maxScenarioId
@@ -364,16 +363,13 @@ class GeoServer{
             console.log(scenName)
             console.log(scenDes)
 
-            createNewScenario(scenName,
-                scenDes,
-                highestScenarioId +1
-            );
-//            cleanDB()
-//            farmObj = geoJson.features
-////            currObj.setScenariosSource()
-////            currObj.setFarmSource()
-////            currObj.setFieldSource()
-//            currObj.setInfrastructureSource()
+            createNewScenario(scenName,scenDes,highestScenarioId +1);
+            //cleanDB()
+            //farmObj = geoJson.features
+//            currObj.setScenariosSource()
+//            currObj.setFarmSource()
+//            currObj.setFieldSource()
+            //currObj.setInfrastructureSource()
 
         })
 
