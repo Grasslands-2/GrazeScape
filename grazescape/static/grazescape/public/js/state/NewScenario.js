@@ -45,9 +45,9 @@ infraArrayNS = []
 async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitle) {
     console.log("getting wfs fields and infra for new scenario")
 	//layerName.setSource(source);
+	console.log("Scenario being pulled from: " + copyScenarioNum);
 		layerName.getSource().forEachFeature(function(f){
             console.log("current features scenario ID: " + f.values_.scenario_id);
-            console.log("Scenario being pulled from: " + copyScenarioNum);
             if(f.values_.scenario_id == copyScenarioNum){
                 delete f.id_
                 f.geometryName_ = 'geom'
@@ -194,7 +194,9 @@ function createNewScenario(sname,sdescript,snewhighID){
 	console.log('current active scenario #: '+ DSS.activeScenario);
 	//reSourcescenarios()
 	//DSS.layer.scenarios.getSource().refresh();
+	console.log(DSS.layer.scenarios.getSource())
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
+	//DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
 //		console.log(newScenarioFeature.values_.scenario_id)
@@ -202,7 +204,7 @@ function createNewScenario(sname,sdescript,snewhighID){
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
 		//console.log("Active Scenario")
-		console.log(DSS.activeScenario)
+		//console.log(DSS.activeScenario)
 		console.log(newScenarioFeature.values_.scenario_id)
 		if(newScenarioFeature.values_.scenario_id == DSS.activeScenario){
 			for (i in scenarioArrayNS){
@@ -273,7 +275,7 @@ Ext.define('DSS.state.NewScenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-
+		getWFSScenarioSP()
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',
@@ -328,6 +330,7 @@ Ext.define('DSS.state.NewScenario', {
 							console.log('new scenario button pushed')
 							var form = this.up('form').getForm();
 							if (form.isValid()) {
+								//DSS.layer.scenarios.getSource().refresh();
 								farmArray = [];
 								scenarioArrayNS = [];
 								fieldArrayNS = []

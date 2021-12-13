@@ -5,7 +5,7 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 function showFieldsForScenario() {
     geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	console.log(DSS.layer.fields_1.getStyle())
-//	DSS.layer.fields_1.getSource().refresh();
+	DSS.layer.fields_1.getSource().refresh();
 	console.log("showfieldsforfarm ran");
 }
 
