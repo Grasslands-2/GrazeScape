@@ -128,7 +128,6 @@ function wfs_farm_insert(feat,geomType,fType, farmID=null) {
     str = s.serializeToString(node);
     console.log(str);
     geoServer.insertFarm(str, feat, farmID,fType)
-
 }
 function createFarm(fname,fowner,faddress,sname,sdescript){
 
@@ -161,7 +160,7 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 		})
 		var geomType = 'point'
 		wfs_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
-		wfs_farm_insert(e.feature, geomType,'scenarios_2')
+		wfs_farm_insert(e.feature, geomType,'scenarios_2',highestScenarioIdCNO+1)
 		// DSS.MapState.removeMapInteractions()
 		// DSS.activeFarm = highestFarmIdCNO + 1;
 		// DSS.activeScenario = highestScenarioIdCNO + 1;
@@ -172,8 +171,11 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 		// DSS.MapState.showNewFarm();
 		//DSS.layer.fields_1.setVisible(false)
 		//DSS.layer.fields_1.setVisible(true);
-		showFieldsForScenario()
+		//showFieldsForScenario()
 		//showInfraForScenario()
+		//DSS.map.addLayer(DSS.layer.fields_1);
+        //DSS.map.addLayer(DSS.layer.infrastructure);
+		DSS.layer.fields_1.setVisible(true);
 		DSS.layer.infrastructure.setVisible(true);
 		DSS.layer.fieldsLabels.setVisible(true);
 		console.log("HI! WFS farm Insert ran!")

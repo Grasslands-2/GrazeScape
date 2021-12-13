@@ -165,15 +165,18 @@ class GeoServer{
 //            geoJson = JSON.parse(geoJson)
             currObj.setFarmSource()
 			DSS.MapState.removeMapInteractions()
-            if(fType == 'farm_2'){DSS.activeFarm = highestFarmIdCNO + 1}
-            if(fType == 'scenarios_2'){DSS.activeScenario = highestScenarioIdCNO + 1}
-			DSS.scenarioName = feat.values_.scenario_name;
-			DSS.farmName = feat.values_.farm_name;
-            gatherScenarioTableData()
-			DSS.ApplicationFlow.instance.showScenarioPage();
-			DSS.MapState.showNewFarm();
-			DSS.MapState.showFieldsForFarm();
-			//DSS.MapState.showInfrasForFarm();
+            if(fType == 'farm_2'){DSS.activeFarm = highestFarmIdCNO + 1
+                DSS.farmName = feat.values_.farm_name;
+                DSS.MapState.showNewFarm();}
+            if(fType == 'scenarios_2'){DSS.activeScenario = highestScenarioIdCNO + 1
+                DSS.scenarioName = feat.values_.scenario_name;
+                //DSS.map.addLayer(DSS.layer.fields_1);
+                //DSS.map.addLayer(DSS.layer.infrastructure);
+                gatherScenarioTableData();
+                DSS.ApplicationFlow.instance.showScenarioPage();
+                DSS.MapState.showFieldsForFarm();
+                DSS.MapState.showInfrasForFarm();
+            }
         })
     }
     wfs_field_insert(payLoad, feat, fType){

@@ -158,7 +158,7 @@ Ext.define('DSS.state.Manage', {
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						// reSourcescenarios()
+						reSourcescenarios()
 						// DSS.layer.scenarios.getSource().refresh();
 						console.log('This is the scenarioArray: '+ scenarioArray)
 					}
