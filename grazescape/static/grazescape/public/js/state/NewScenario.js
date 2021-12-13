@@ -348,8 +348,8 @@ Ext.define('DSS.state.NewScenario', {
 								//DSS.ApplicationFlow.instance.showManageOperationPage();
 								//DSS.layer.infrastructure.setVisible(true);
 								//DSS.layer.fieldsLabels.setVisible(true);
-								DSS.layer.fields_1.getSource().refresh();
-            					DSS.layer.fieldsLabels.getSource().refresh();
+								//DSS.layer.fields_1.getSource().refresh();
+            					//DSS.layer.fieldsLabels.getSource().refresh();
 								this.up('window').destroy();
 							}
 						}
