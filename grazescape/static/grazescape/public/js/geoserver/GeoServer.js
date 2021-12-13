@@ -56,27 +56,6 @@ class GeoServer{
     //            DSS.layer.scenarios.getSource().refresh();
         })
     }
-    // async setDEMSource(){
-    //         //DSS.layer.DEM_image.getSource().clear()
-    //         //var format = new ol.format.GeoJSON()
-    //         //DSS.layer.DEM_image.unsetSource()
-    //         var myRasterLayerSource = new ol.source.ImageStatic({
-    //             	//url: "/data_files/raster_layers/elevation/elevation.tif",
-    //                 imageExtent: extent,
-    //             	//geoServer.setDEMSource(),
-    //             	params: {'FORMAT': 'image/png',
-    //             	'VERSION': '1.1.1',
-    //             	'TRANSPARENT': 'true',
-    //              	"STYLES": '',
-    //              	"LAYERS": 'InputRasters:TC_DEM',
-    //              	//"LAYERS": 'GS_Rasters:Tainter_DEM_TIF',
-    //              	"exceptions": 'application/vnd.ogc.se_inimage',
-    //             	},
-    //             	serverType: 'geoserver'
-    //             })
-    //         DSS.layer.DEM_image.setSource(myRasterLayerSource)
-    //         console.log(DSS.layer.DEM_image.getSource())
-    // }
     setScenariosSource(parameter = ""){
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             DSS.layer.scenarios.getSource().clear()
@@ -341,7 +320,7 @@ class GeoServer{
          })
          }
     copyScenario(scenName, scenDes, payLoad = ""){
-        this.makeRequest(this.geoScen_Url, "source"/*"insert"*/, payLoad, this).then(function(returnData){
+        this.makeRequest(this.geoScen_Url, "source"/*"insert"*/, payLoad, this).then(async function(returnData){
             //ALL THIS DOES IS GET A GEOSJSON WIth THE CURRENT SCENS AND GET THE HIGHEST SCENARIOID #
             //AND POPULATE scenarioArrayNS
             console.log(returnData)
@@ -350,7 +329,7 @@ class GeoServer{
             geoJson = geoJson.features
             console.log(geoJson)
             let maxScenarioId = 0;
-            popscenarioArrayNS(geoJson)
+            await popscenarioArrayNS(geoJson)
             for (let feat in geoJson){
                 if(geoJson[feat].properties.scenario_id>maxScenarioId ){
                     maxScenarioId = geoJson[feat].properties.scenario_id
@@ -363,7 +342,7 @@ class GeoServer{
             console.log(scenName)
             console.log(scenDes)
 
-            createNewScenario(scenName,scenDes,highestScenarioId +1);
+            await createNewScenario(scenName,scenDes,highestScenarioId +1);
             //cleanDB()
             //farmObj = geoJson.features
 //            currObj.setScenariosSource()
