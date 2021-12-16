@@ -358,7 +358,7 @@ Ext.define('DSS.state.MapStateTools', {
 						console.log("pin set in activatefarmhandler")
 						console.log(DSS.activeFarm)
 						//DSS.map.addLayer(DSS.layer.fields_1);
-						DSS.layer.fields_1.setVisible(true);
+						//DSS.layer.fields_1.setVisible(true);
 						
 						// DSS.layer.fieldsLabels
 						// DSS.map.RotationLayer;

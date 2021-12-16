@@ -320,8 +320,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		
 		//------------------------------------------------------------------------------
 		let fieldNameColumn = { 
-			editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
-			locked: true, draggable: false, 
+			/*editor: 'textfield', */text: 'Field', dataIndex: 'name', width: 120, 
+			locked: true, draggable: false, editable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 
 		};
@@ -847,9 +847,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 		};
         let area_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
-			}, text: 'Area(acre)', dataIndex: 'area', width: 80,
+			xtype: 'numbercolumn', format: '0.0',/*editor: {
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false,
+			},*/ text: 'Area(acre)', dataIndex: 'area', width: 80,editable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		
@@ -858,6 +858,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 
 			columns: [
 				fieldNameColumn,
+				area_Column,
 				soilP_Column,
 				soilOM_Column,
 				cropRotationColumn,
@@ -874,7 +875,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				//interseededCloverColumn,
 				//manurePasturesColumn,
 				grazeDensityColumn,
-				area_Column,
 				//perimeter_Column
 
 			],

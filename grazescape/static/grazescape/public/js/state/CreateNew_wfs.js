@@ -144,7 +144,6 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 	console.log("draw is on");
 	console.log(DSS.draw);
 	DSS.draw.on('drawend', function (e) {
-
 		console.log(e)
 		//DSS.map.getView().fit(e);
 		e.feature.setProperties({
@@ -161,31 +160,12 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 		var geomType = 'point'
 		wfs_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
 		wfs_farm_insert(e.feature, geomType,'scenarios_2',highestScenarioIdCNO+1)
-		// DSS.MapState.removeMapInteractions()
-		// DSS.activeFarm = highestFarmIdCNO + 1;
-		// DSS.activeScenario = highestScenarioIdCNO + 1;
-		// DSS.scenarioName = e.feature.scenario_name;
-		// DSS.farmName = e.feature.farm_name;
-        // gatherScenarioTableData()
-		// DSS.ApplicationFlow.instance.showScenarioPage();
-		// DSS.MapState.showNewFarm();
-		//DSS.layer.fields_1.setVisible(false)
-		//DSS.layer.fields_1.setVisible(true);
-		//showFieldsForScenario()
-		//showInfraForScenario()
-		//DSS.map.addLayer(DSS.layer.fields_1);
-        //DSS.map.addLayer(DSS.layer.infrastructure);
 		DSS.layer.fields_1.setVisible(true);
 		DSS.layer.infrastructure.setVisible(true);
 		DSS.layer.fieldsLabels.setVisible(true);
 		console.log("HI! WFS farm Insert ran!")
-
-		//DSS.layer.farms_1.getSource().refresh();
 		DSS.layer.scenarios.getSource().refresh();
-		//reSourcescenarios()
-		//geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
-		//gatherScenarioTableData()
-		//showNewFarm()
+		DSS.map
 	})     
 }
 

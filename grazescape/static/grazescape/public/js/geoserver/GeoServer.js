@@ -167,8 +167,10 @@ class GeoServer{
 			DSS.MapState.removeMapInteractions()
             if(fType == 'farm_2'){DSS.activeFarm = highestFarmIdCNO + 1
                 DSS.farmName = feat.values_.farm_name;
+                DSS.scenarioName = feat.values_.scenario_name;
                 DSS.MapState.showNewFarm();}
             if(fType == 'scenarios_2'){DSS.activeScenario = highestScenarioIdCNO + 1
+                DSS.farmName = feat.values_.farm_name;
                 DSS.scenarioName = feat.values_.scenario_name;
                 //DSS.map.addLayer(DSS.layer.fields_1);
                 //DSS.map.addLayer(DSS.layer.infrastructure);
@@ -317,6 +319,7 @@ class GeoServer{
 			scenarioArrayNS = []
 
 			DSS.newScenarioID = null
+            DSS.farmName = feat.values_.farm_name;
 			DSS.scenarioName = feat.values_.scenario_name
 			DSS.ApplicationFlow.instance.showManageOperationPage();
 			console.log(DSS.activeScenario);

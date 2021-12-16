@@ -841,23 +841,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[
-                    //     {
-                    //     xtype: 'button',
-                    //     cls: 'button-text-pad',
-                    //     componentCls: 'button-margin',
-                    //     text: 'Manually Adjust Yields',
-                    //     handler: async function(self) {
-                    //         //await getWFSScenario()
-                    //         console.log(chartObj)
-                    //         console.log(fieldYieldArray)
-                    //         await gatherYieldTableData()
-                    //         {
-                    //             DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
-                    //             DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
-                    //         }
-                    //         DSS.dialogs.YieldAdjustment.show().center().setY(0);
-                    //     }
-                    // },
+                        {
+                        xtype: 'button',
+                        cls: 'button-text-pad',
+                        componentCls: 'button-margin',
+                        text: 'Manually Adjust Yields',
+                        handler: async function(self) {
+                            //await getWFSScenario()
+                            console.log(chartObj)
+                            console.log(fieldYieldArray)
+                            await gatherYieldTableData()
+                            {
+                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
+                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
+                            }
+                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+                        }
+                    },
                     {
                         xtype: 'radiogroup',
                         id: 'yieldFieldConvert',

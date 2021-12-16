@@ -148,21 +148,19 @@ Ext.define('DSS.state.ScenarioPicker', {
 							console.log(item.text);
 							console.log(item.inputValue);
 							DSS.activeScenario = item.inputValue;
-							DSS.scenarioName = item.text;
-//							console.log("Showing ")
-							//showFieldsForScenario()
-				 			//showInfraForScenario()
-							DSS.ApplicationFlow.instance.showManageOperationPage();
+							DSS.scenarioName = item.text
+							//DSS.ApplicationFlow.instance.showManageOperationPage();
+							DSS.ApplicationFlow.instance.showScenarioPage();
 							scenarioPickerArray = []
-							//DSS.layer.fields_1.setVisible(false)
-							//DSS.layer.fields_1.setVisible(true);
 							showFieldsForScenario()
 				 			showInfraForScenario()
+							DSS.layer.fields_1.setVisible(true);
+							DSS.layer.fields_1.getSource().refresh();
+							DSS.layer.fieldsLabels.getSource().refresh();
 							DSS.layer.infrastructure.setVisible(true);
 							DSS.layer.fieldsLabels.setVisible(true);
 							console.log("SCENARIO PICKER DONE")
-							DSS.layer.fields_1.getSource().refresh();
-            				DSS.layer.fieldsLabels.getSource().refresh();
+							
 						}
 					}
 				}),

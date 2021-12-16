@@ -37,13 +37,13 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 					getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
 				]
 			},{
-				//FIX ME TO SHOW ALL FIELD TYPES!!!!!
 				xtype: 'radiogroup',
 				itemId: 'contents',
 				style: 'padding: 0px; margin: 0px', // fixme: eh...
 				hideEmptyLabel: true,
 				columns: 2, 
 				vertical: true,
+				allowBlank: false,
 				viewModel: {
 					formulas: {
 						cropValue: {
