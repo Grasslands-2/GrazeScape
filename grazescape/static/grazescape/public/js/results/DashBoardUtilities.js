@@ -1663,6 +1663,7 @@ function downloadRasters(fieldIter){
                 // at this point fields wont have any holes so just get the first entry
                 field_coors: geometry.geometry.coordinates[0]
             }
+
             console.log("MODEL PARAS!!!!!!!!!!!!!!!")
             console.log(model_para)
             downloadRastersRequest(model_para).then(function(value){

@@ -19,9 +19,6 @@ async function prepYieldAdjustmentForDB(){
 					fieldYieldArray[f].till = yieldmodelsDataArray[y].till
 					fieldYieldArray[f].cellSums = []
 					fieldYieldArray[f].yieldTypes = []
-					//fieldYieldArray[f].units = yieldmodelsDataArray[y].units
-					//fieldYieldArray[f].altUnits = yieldmodelsDataArray[y].units_alternate
-					//fieldYieldArray[f].yieldType = yieldmodelsDataArray[y].value_type
 				}
 			}
 		}
@@ -240,13 +237,13 @@ Ext.define('DSS.results.YieldAdjustment', {
 			data: fieldYieldArray
 		});
 		let fieldNameColumn = { 
-			editor: 'textfield', text: 'Fields', dataIndex: 'name', width: 100, 
+			/*editor: 'textfield',*/ text: 'Fields', dataIndex: 'name', width: 100, 
 			locked: true, draggable: false, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 
 		};
 		let cropRotationColumn = {
-			editor: 'textfield',
+			/*editor: 'textfield',*/
 			text: 'Crop Rotation', dataIndex: 'rotationDisp', width: 120, editable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 		};

@@ -292,7 +292,8 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 					style: 'padding: 0px; margin: 0px', // fixme: eh...
 					//hideEmptyLabel: true,
 					padding: 15,
-					columns: 1, 
+					columns: 1,
+					allowBlank: false,
 					vertical: true,
 					viewModel: {
 						formulas: {
