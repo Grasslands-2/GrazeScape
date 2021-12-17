@@ -21,7 +21,7 @@ Ext.define('DSS.map.Main', {
 	style: 'background-color: rgb(75,80,60)',
 	
 	BING_KEY: 'Au_ohpV01b_LnpbMExJmpmUnamgty20v7Cpl1GvNmwzZPOezhtzegaNM0MNaSPoa',
-	OSM_KEY: '8UmAwNixnmOYWs2lqUpR',
+	OSM_KEY: /*'8UmAwNixnmOYWs2lqUpR'*/'fBrGdagAiyuEcYIsxr72',
 	
 	requires: [
 		'DSS.map.DrawAndModify',
@@ -188,7 +188,7 @@ Ext.define('DSS.map.Main', {
 		
 		//---------------------------------------------------------
 		DSS.layer.bingAerial = new ol.layer.Tile({
-			visible: DSS.layer['baselayer:visible'] == "1" ? true : false,
+			visible: false,
 			source: new ol.source.BingMaps({
 				key: me.BING_KEY,
 				imagerySet: 'AerialWithLabels',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey
@@ -199,7 +199,7 @@ Ext.define('DSS.map.Main', {
 		});
 		//---------------------------------------------------------
 		DSS.layer.bingRoad = new ol.layer.Tile({
-			visible: DSS.layer['baselayer:visible'] == "2" ? true : false,
+			visible: false,
 			source: new ol.source.BingMaps({
 				key: me.BING_KEY,
 				imagerySet: 'Road',  
@@ -208,15 +208,44 @@ Ext.define('DSS.map.Main', {
 			})
 		});		
 		//--------------------------------------------------------------		
-		DSS.layer.osm = new ol.layer.Tile({
-			//visible: DSS.layer['baselayer:visible'] == "3" ? true : false,
+		DSS.layer.osm_hybrid = new ol.layer.Tile({
 			visible: true,
+			//visible: true,
 			source: new ol.source.TileJSON({
-				url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
-				tileSize: 256,
+				url: 'https://api.maptiler.com/maps/hybrid/tiles.json?key=' + me.OSM_KEY,
+				tileSize: 400,
 				crossOrigin: 'anonymous'
 			})
-		})	;	
+		})	;
+		//--------------------------------------------------------------	
+		DSS.layer.osm_satelite = new ol.layer.Tile({
+			visible: false,
+			//visible: true,
+			source: new ol.source.TileJSON({
+				url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
+				tileSize: 400,
+				crossOrigin: 'anonymous'
+			})
+		})	;
+		//--------------------------------------------------------------	
+		DSS.layer.osm_streets = new ol.layer.Tile({
+			visible: false,
+			//visible: true,
+			source: new ol.source.TileJSON({
+				url: 'https://api.maptiler.com/maps/streets/tiles.json?key=' + me.OSM_KEY,
+				tileSize: 400,
+				crossOrigin: 'anonymous'
+			})
+		})	;
+		DSS.layer.osm_topo = new ol.layer.Tile({
+			visible: false,
+			//visible: true,
+			source: new ol.source.TileJSON({
+				url: 'https://api.maptiler.com/maps/topo/tiles.json?key=' + me.OSM_KEY,
+				tileSize: 400,
+				crossOrigin: 'anonymous'
+			})
+		})	;
 		//--------------------------------------------------------------		
 		DSS.layer.tainterwatershed = new ol.layer.Vector({
 			visible: DSS.layer['tainterwatershed:visible'],
@@ -662,15 +691,16 @@ Ext.define('DSS.map.Main', {
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
-//			source: '',
 			style: function(feature, resolution) {
 				fieldLabel.getText().setText(feature.values_.field_name);
 				return fieldLabel;
 			}
 		})
 		DSS.layer.fields_1 = new ol.layer.Vector({
-			visible: DSS.layer['crop:visible'],
-			opacity: DSS.layer['crop:opacity'],
+			// visible: DSS.layer['crop:visible'],
+			// opacity: DSS.layer['crop:opacity'],
+			visible: false,
+			//opacity: 0.8,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: fields_1Source,
@@ -698,7 +728,10 @@ Ext.define('DSS.map.Main', {
 			maxTilesLoading: 100,
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
-				DSS.layer.osm,
+				DSS.layer.osm_hybrid,
+				DSS.layer.osm_satelite,
+				DSS.layer.osm_streets,
+				DSS.layer.osm_topo,
 				DSS.layer.DEM_image0,
 				DSS.layer.DEM_image1,
 				DSS.layer.DEM_image2,
@@ -727,13 +760,14 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.tainterwatershed,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
+				DSS.layer.fields_1
 				],
 				//------------------------------------------------------------------------
 
 
 			view: new ol.View({
 				center: [-10112582,5392087],
-				zoom: 24,
+				zoom: 10,
 				maxZoom: 30,
 				minZoom: 8,//10,
 			//	constrainRotation: false,

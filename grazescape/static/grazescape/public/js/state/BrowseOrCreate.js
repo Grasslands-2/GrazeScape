@@ -82,6 +82,11 @@ Ext.define('DSS.state.BrowseOrCreate', {
 //
 //					}
 //				}
+				{
+					xtype: 'component',
+					cls: 'information med-text',
+					html: 'Or Click on one of your an existing operations!'
+				},
 				]
 			}]
 		});

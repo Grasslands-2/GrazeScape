@@ -23,30 +23,9 @@ function newLayerItems(mfieldID){
 		var menuItem = Ext.ComponentQuery.query('radiogroup')
 		console.log(menuItem)
 		console.log(this)
-		//console.log(me)
-		// menuItem.add({
-		// 	xtype: 'menuitem',
-		// 	//itemID: 'Ploss',
-		// 	text: 'Ploss',
-		// 	disabled: false,
-		// 	style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc',			
-		// 	checked: false,
-		// 	//menu: makeOpacityMenu("hillshade", DSS.layer.hillshade, 30),
-		// 	//listeners: {
-		// 	// afterrender: function(self) {
-		// 	// 	self.setChecked(DSS.layer.hillshade.getVisible());
-		// 	// }
-		// //},
-		// handler: function(self) {
-		// 	Ext.util.Cookies.set('DSS.layer.ploss_field'+mfieldID+':visible', self.checked ? "0" : "1");                	
-		// 	layer.setVisible(self.checked);                    	
-		// }
-		// })
 		}
 		
 	});
-	
-	//Ext.create('DSS.map.OutputMenu').show();
 }
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.LayerMenu', {
@@ -196,25 +175,28 @@ Ext.define('DSS.map.LayerMenu', {
 				padding: 2,
                 hideOnClick: false,
 			},
-			items: [{ //-------------------------------------------
-				xtype: 'menuitem',
-				text: 'Overlays', 
-				disabled: true,
-				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
-			},{ //-------------------------------------------
-				text: 'Fields <i class="fas fa-seedling accent-text text-drp-50"></i>',
-                checked: true,
-                menu: tMen,//makeOpacityMenu("crop", DSS.layer.fields_1),
-                listeners: {
-                	afterrender: function(self) {
-                		self.setChecked(DSS.layer.fields_1.getVisible());
-                	}
-                },
-                handler: function(self) {
-                	Ext.util.Cookies.set("crop:visible", self.checked ? "1" : "0");                	
-                	DSS.layer.fields_1.setVisible(self.checked);                    	
-                }
-			},{ //-------------------------------------------
+			items: [
+			// 	{ //-------------------------------------------
+			// 	xtype: 'menuitem',
+			// 	text: 'Overlays', 
+			// 	disabled: true,
+			// 	style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
+			// },
+			// { //-------------------------------------------
+			// 	text: 'Fields <i class="fas fa-seedling accent-text text-drp-50"></i>',
+            //     checked: true,
+            //     menu: tMen,//makeOpacityMenu("crop", DSS.layer.fields_1),
+            //     listeners: {
+            //     	afterrender: function(self) {
+            //     		self.setChecked(DSS.layer.fields_1.getVisible());
+            //     	}
+            //     },
+            //     handler: function(self) {
+            //     	Ext.util.Cookies.set("crop:visible", self.checked ? "1" : "0");                	
+            //     	DSS.layer.fields_1.setVisible(self.checked);                    	
+            //     }
+			// },
+			{ //-------------------------------------------
 				xtype: 'menuitem',
 				text: 'Watersheds', 
 				disabled: true,
@@ -277,58 +259,111 @@ Ext.define('DSS.map.LayerMenu', {
 				xtype: 'menuitem',
 				text: 'Base Layer', disabled: true,
 				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
-			},{ //-------------------------------------------
-				xtype: 'menucheckitem',
-				padding: 2,
-                hideOnClick: false,
-				text: 'Base Map',
-                checked: true,
-                //menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
-                // listeners:{
-				// 	afterrender: function(self) {
-				// 		self.setChecked(DSS.layer.osm.getVisible());
-				// 	},
-				// },
-				handler: function(self){
-					DSS.layer.osm.setVisible(self.checked);             	
-            },
-		},
-			// },{
-			// 	xtype: 'radiogroup',
-			// 	columns: 1, 
-			// 	vertical: true,
-			// 	defaults: {
-			// 		padding: '2 0',
-			// 		group: 'base-layer'
-			// 	},
-			// 	items: [{ 
-			// 		boxLabel: 'Base Layer', 
-	        //         checked: true,
-	        //         text: 'Bing Aerial',
-	        //         DSS_layer: 'bing-aerial',
-	        //         listeners: {
-	        //         	afterrender: function(self) {
-	        //         		self.setValue(DSS.layer.bingAerial.getVisible());
-	        //         	}
-	        //         },
-	        //         handler: function(self, checked) {
-	        //         	DSS.layer.bingAerial.setVisible(checked);
-	        //         	if (checked) Ext.util.Cookies.set("baselayer:visible", "1");	                	
-	        //         }
-			// 	},{
-			// 		boxLabel: 'Open-Street',
-	        //         DSS_layer: 'bing-aerial',
-	        //         listeners: {
-	        //         	afterrender: function(self) {
-	        //         		self.setValue(DSS.layer.osm.getVisible());
-	        //         	}
-	        //         },
-	        //         handler: function(self, checked) {
-	        //         	DSS.layer.osm.setVisible(checked);
-	        //         	if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-	        //         }
-			// 	}]
-			// },
+			},
+		// 	{ //-------------------------------------------
+		// 		xtype: 'menucheckitem',
+		// 		padding: 2,
+        //         hideOnClick: false,
+		// 		text: 'Base Map',
+        //         checked: true,
+        //         //menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
+        //         // listeners:{
+		// 		// 	afterrender: function(self) {
+		// 		// 		self.setChecked(DSS.layer.osm_hybrid.getVisible());
+		// 		// 	},
+		// 		// },
+		// 		handler: function(self){
+		// 			DSS.layer.osm_hybrid.setVisible(self.checked);             	
+        //     },
+		// },
+			{
+				xtype: 'radiogroup',
+				columns: 1, 
+				vertical: true,
+				defaults: {
+					padding: '2 0',
+					group: 'base-layer'
+				},
+				items: [
+				{
+					boxLabel: 'Hybrid',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_hybrid.setVisible(true);
+								DSS.layer.osm_streets.setVisible(false);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);
+							}
+						}
+					}
+				},
+				{
+					boxLabel: 'Streets',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_streets.setVisible(true);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);
+							}
+						}
+					}
+				},
+				{
+					boxLabel: 'Topo',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_topo.setVisible(true);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_streets.setVisible(false);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);
+							}
+						}
+					}
+				},
+				{
+					boxLabel: 'Satelite',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_satelite.setVisible(true);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_streets.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);  
+							}
+						}
+					}
+				},
+				{ 
+					boxLabel: 'No Base Map', 
+	                text: 'Bing Aerial',
+	                DSS_layer: 'bing-aerial',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.bingAerial.setVisible(true);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_streets.setVisible(false);
+							}
+						}
+					}
+				},
+			]
+			},
 			{//-----------------------------------------------------------------
 				xtype: 'menuitem',
 				text: 'Model Inputs', disabled: true,
