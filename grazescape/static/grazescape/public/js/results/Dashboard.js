@@ -1,3 +1,6 @@
+var pLossColorArray = ["#204484","#3e75b2","#90b9e4","#d2f0fa","#fcffd8","#ffdaa0","#eb9159","#d25c34","#a52d18"]
+var pLossValueArray =[0,1.6,3.2,4.8,6.4,8,9.6,11.2,12.8,14.4,16]
+
 function gatherYieldTableData() {
     console.log(yieldmodelsDataArray)
     fieldYieldArray = []
@@ -157,6 +160,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		'DSS.map.LayerMenu',
         'DSS.map.OutputMenu'
 	],
+    name: "dashboardWindow",
 	alternateClassName: 'DSS.Dashboard',
     id: "dashboardWindow",
 //	autoDestroy: true,
@@ -181,7 +185,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         "minimize": function (window, opts) {
             window.collapse();
             window.setWidth(150);
-            window.alignTo(Ext.getBody(), 'bl-bl')
+            window.setHeight(150)
+            //window.alignTo(Ext.getBody(), 'bl-bl')
         }
     },
     tools: [{
@@ -189,8 +194,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         handler: function (evt, toolEl, owner, tool) {
             var window = owner.up('window');
             window.setWidth(300);
-            window.expand('', false);
-            window.center();
+            window.setHeight(300);
+            //window.expand('', false);
+            //window.center();
         }
     }],
 
@@ -1929,12 +1935,18 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
             xtype: 'tabpanel',
             style: 'background-color: #377338;',
-
             defaults: {
                 border:false,
-                bodyBorder: false
+                bodyBorder: false,
             },
             scrollable: true,
+            listeners:{activate: function() {
+                Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+            },
+            deactivate: function() {
+                Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('80%');
+                DSS.MapState.destroyLegend();
+            }},
 //                inner tabs for farm and field scale
             items:[{
                 title: "Model Outputs",
@@ -1951,6 +1963,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         name: 'PLoss',
                         handler: function(self) {
                             console.log('ploss clicked')
+                            DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                            
+                            //Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
                             // Ext.util.Cookies.set('DSS.layer.ploss_field:visible', self.checked ? "0" : "1");                	
                             //DSS.layer.ploss_field.setVisible(self.checked);
                             console.log(DSS.layer.PLossGroup)
@@ -2007,7 +2022,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     xtype: 'label',
 					cls: 'information med-text',
 					html: 'indicates lower values. \n* CAUTION * P loss estimates are derived from SnapPlus and originally intended to represent field scale P losses; sub-field variability is only shown for illustration purposes'
-                }],
+                }
+            ],
                 scope: this,
             }]
         }    
@@ -2056,7 +2072,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             titleRotation:2,
 //            background is apparently an image
             style: 'border-radius: 8px; background-color: #377338;box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
-
+            listeners: {change:function()
+            {
+                console.log('Hi from layers button')
+            }},
+//                inner tabs for farm and field scale
             items: [
                 phantom,
                 summary,

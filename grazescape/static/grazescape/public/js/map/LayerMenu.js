@@ -23,30 +23,9 @@ function newLayerItems(mfieldID){
 		var menuItem = Ext.ComponentQuery.query('radiogroup')
 		console.log(menuItem)
 		console.log(this)
-		//console.log(me)
-		// menuItem.add({
-		// 	xtype: 'menuitem',
-		// 	//itemID: 'Ploss',
-		// 	text: 'Ploss',
-		// 	disabled: false,
-		// 	style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc',			
-		// 	checked: false,
-		// 	//menu: makeOpacityMenu("hillshade", DSS.layer.hillshade, 30),
-		// 	//listeners: {
-		// 	// afterrender: function(self) {
-		// 	// 	self.setChecked(DSS.layer.hillshade.getVisible());
-		// 	// }
-		// //},
-		// handler: function(self) {
-		// 	Ext.util.Cookies.set('DSS.layer.ploss_field'+mfieldID+':visible', self.checked ? "0" : "1");                	
-		// 	layer.setVisible(self.checked);                    	
-		// }
-		// })
 		}
 		
 	});
-	
-	//Ext.create('DSS.map.OutputMenu').show();
 }
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.LayerMenu', {
@@ -308,7 +287,6 @@ Ext.define('DSS.map.LayerMenu', {
 				items: [
 				{
 					boxLabel: 'Hybrid',
-					checked: true,
 					listeners:{change: function(checked)
 						{
 							if(this.checked){
