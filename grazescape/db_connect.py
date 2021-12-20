@@ -144,6 +144,7 @@ def update_field_dirty(field_id, scenario_id, farm_id):
         conn.commit()
         conn.close()
 
+
 def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     """
 

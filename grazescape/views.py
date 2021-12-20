@@ -14,6 +14,7 @@ from django.core.files import File
 from django.conf import settings
 import os
 # Create your views here.
+# from grassland_core.raster_data import RasterData
 from grazescape.raster_data import RasterData
 import json
 from grazescape.model_defintions.grass_yield import GrassYield
@@ -90,7 +91,14 @@ def download_rasters(request):
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
     geo_data = RasterData(request.POST.getlist("extent[]"),
-                          field_coors, field_id, True)
+                          field_coors, field_id)
+    if geo_data.field_already_loaded():
+        geo_data.clean()
+    # if not os.path.exists(self.dir_path):
+    os.makedirs(geo_data.dir_path)
+    # geo_data.load_layers(only_om)
+    geo_data.create_clip(field_coors)
+    geo_data.clip_rasters()
     return JsonResponse({"download":"finished"})
 
 @login_required
@@ -141,7 +149,17 @@ def get_default_om(request):
             field_coors.append(request.POST.getlist(coor))
     print(field_coors)
 
-    geo_data = RasterData(extents, field_coors, field_id, True, True)
+    geo_data = RasterData(extents, field_coors, field_id)
+    if geo_data.field_already_loaded():
+        geo_data.clean()
+    # if not os.path.exists(self.dir_path):
+    os.makedirs(geo_data.dir_path)
+    # only load om
+    geo_data.load_layers(True)
+
+    # geo_data.load_layers(only_om)
+    geo_data.create_clip(field_coors)
+    geo_data.clip_rasters()
 
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
     print(clipped_rasters)
@@ -176,9 +194,10 @@ def get_model_results(request):
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
     try:
-        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, False)
+        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id)
         # geo_data.load_layers()
         # geo_data.create_clip(field_coors)
+        # geo_data.clip_rasters()
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
         if model_type == 'yield':

@@ -1,29 +1,43 @@
 html, body, #root, .App {
   height: 100%;
    overflow-x: hidden;
-   overflow-y: hidden;
 }
-#root{
-height:100%;
-}
-#main{
-height:80%
-}
+
 .header {
   text-align: center;
 
 }
-
+.sidePanelCol{
+    padding:0;
+}
+.side_pannel_style{
+background-image: linear-gradient(#EFF4CF, white);
+      padding-bottom: 40px;
+       overflow: auto;
+   height: 90vh;
+}
+ .active1, .trans1:hover {
+  background-color: green;
+  color: white;
+}
+.form-label {
+    margin-bottom:0px;
+}
+.ol-dragbox {
+        background-color: rgba(255,255,255,0.5);
+        border-color: rgba(255,0,0,1);
+        border: 2px solid #f00
+      }
+/*.ol-attribution{
+    padding-top: 650px;
+}
+*/
 div.image {
    content:url("images/color-flush-Grassland2.0-logo-web.svg");
     width:50%;
 
 }
-.main_container {
-height:100%
 
-
-}
 .header1{
 background-image: linear-gradient(#EFF4CF, white);
       padding-bottom: 40px
@@ -52,3 +66,6 @@ background-image: linear-gradient(#EFF4CF, white);
     padding:20px;
 }
 
+.progress_bar{
+    padding:20px;
+}

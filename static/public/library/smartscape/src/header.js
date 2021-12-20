@@ -13,7 +13,7 @@ import { DoorOpen } from 'react-bootstrap-icons';
 class Header extends React.Component{
     constructor(props){
         super(props)
-        this.user = props.user
+        this.user = props.text
     }
 
     render(){
@@ -23,7 +23,7 @@ class Header extends React.Component{
                 <Navbar.Brand href="#home">
                 <img
                   alt=""
-                  src= {static_global_folder}
+                  src= {static_logo}
                   width="50%"
                   className="d-inline-block align-top"
                 />
@@ -34,7 +34,7 @@ class Header extends React.Component{
                 </Nav>
                 <Nav>
                     <Navbar.Text>
-                        Signed in as:  <u>{this.user}</u>
+                        Signed in as:  <u>{this.props.text}</u>
                     </Navbar.Text>
 
                </Nav>

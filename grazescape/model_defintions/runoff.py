@@ -13,6 +13,7 @@ class Runoff(ModelBase):
         super().__init__(request, file_name)
 
     def get_hyro_letter(self, group_num):
+        # see also raster_data.py in create_no_data_array
         hyro_dic = {
             1: "C",
             2: 'B',
