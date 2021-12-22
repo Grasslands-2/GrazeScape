@@ -1,3 +1,6 @@
+var pLossColorArray = ["#204484","#3e75b2","#90b9e4","#d2f0fa","#fcffd8","#ffdaa0","#eb9159","#d25c34","#a52d18"]
+var pLossValueArray =[0,1.6,3.2,4.8,6.4,8,9.6,11.2,12.8,14.4,16]
+
 function gatherYieldTableData() {
     console.log(yieldmodelsDataArray)
     fieldYieldArray = []
@@ -157,6 +160,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		'DSS.map.LayerMenu',
         'DSS.map.OutputMenu'
 	],
+    name: "dashboardWindow",
 	alternateClassName: 'DSS.Dashboard',
     id: "dashboardWindow",
 //	autoDestroy: true,
@@ -177,6 +181,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
 	runModel: true,
+    listeners:{
+        "minimize": function (window, opts) {
+            window.collapse();
+            window.setWidth(150);
+            window.setHeight(150)
+            //window.alignTo(Ext.getBody(), 'bl-bl')
+        }
+    },
+    tools: [{
+        type: 'restore',
+        handler: function (evt, toolEl, owner, tool) {
+            var window = owner.up('window');
+            window.setWidth(300);
+            window.setHeight(300);
+            //window.expand('', false);
+            //window.center();
+        }
+    }],
+
 
 	config: {
         // ...
@@ -257,12 +280,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         }
         async function createDashBoard(dashboard){
             layerList = []
-            layer.getSource().forEachFeature(function(f) {
+            await layer.getSource().forEachFeature(function(f) {
                 layerList.push(f)
             })
-            let fieldIter = retrieveAllFieldsDataGeoserver()
+            let fieldIter = await retrieveAllFieldsDataGeoserver()
             fieldIter = await fieldIter
-            let download = downloadRasters(fieldIter)
+            let download = await downloadRasters(fieldIter)
             download = await download
             console.log("download done")
             console.log("running model")
@@ -409,6 +432,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             Ext.getCmp("btnRunModels").setDisabled(false)
                             Ext.getCmp("compareTab").setDisabled(false)
                             Ext.getCmp("compareTabBtn").setDisabled(false)
+                            //Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                            //Ext.getCmp("mappedResultsTab").setDisabled(false)
 //                                Ext.getCmp("eroFieldTab").setDisabled(false)
 //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
 //                                Ext.getCmp("nutFieldTab").setDisabled(false)
@@ -740,8 +765,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     {
                         xtype: 'container',
                         html: '<div id="container"><canvas  id="rotation_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-                    {
+                    },{
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="grass_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },{
@@ -762,7 +786,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     ],
                     scope: this,
-                    listeners:{activate: function() {
+                    listeners:{activate: async function() {
                         console.log("activated farm")
                         if(!chartObj.grass_yield_farm.show){document.getElementById('grass_yield_farm').style.display="none"};
                         if(!chartObj.corn_yield_farm.show){document.getElementById('corn_yield_farm').style.display="none"}
@@ -772,9 +796,28 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         if(!chartObj.alfalfa_yield_farm.show){document.getElementById('alfalfa_yield_farm').style.display="none"}
                         if(!chartObj.rotation_yield_farm.show){document.getElementById('rotation_yield_farm').style.display="none"}
 
-                         if (chartObj["grass_yield_farm"].chart !== null){
+                         if (chartObj["rotation_yield_farm"].chart !== null){
                          return
                         }
+                        //------------------------------------
+                        //This bit of code is used to clean up datasets in order to ensure they will chart
+                        var farmYeildChartArray = [chartObj.grass_yield_farm,chartObj.corn_yield_farm,chartObj.corn_silage_yield_farm,
+                            chartObj.soy_yield_farm,chartObj.oat_yield_farm,chartObj.alfalfa_yield_farm,chartObj.rotation_yield_farm]
+                        for (chart in farmYeildChartArray){
+                            console.log(farmYeildChartArray[chart])
+                            if(chart == "grass_yield_farm"||"corn_yield_farm"||"corn_silage_yield_farm"||"soy_yield_farm"||"oat_yield_farm"||"alfalfa_yield_farm"||"rotation_yield_farm")
+                            {
+                                console.log("Yield Chart Hit")
+                                for(i in farmYeildChartArray[chart].chartData.datasets){
+                                    console.log(farmYeildChartArray[chart].chartData.datasets[i].data)
+                                    if(farmYeildChartArray[chart].chartData.datasets[i].data.length > 2){
+                                        farmYeildChartArray[chart].chartData.datasets[i].data = [null,null];
+                                        console.log("found bad chart input")
+                                    }
+                                }
+                            }
+                        }
+                        //--------------------------------------------
                         chartObj.grass_yield_farm.chart = create_graph(chartObj.grass_yield_farm, 'Grass Yield', document.getElementById('grass_yield_farm').getContext('2d'));
                         chartObj.corn_yield_farm.chart = create_graph(chartObj.corn_yield_farm, 'Corn Grain Yield', document.getElementById('corn_yield_farm').getContext('2d'));
                         chartObj.corn_silage_yield_farm.chart = create_graph(chartObj.corn_silage_yield_farm, 'Corn Silage Yield', document.getElementById('corn_silage_yield_farm').getContext('2d'));
@@ -782,9 +825,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         chartObj.oat_yield_farm.chart = create_graph(chartObj.oat_yield_farm, 'Oat Yield', document.getElementById('oat_yield_farm').getContext('2d'));
                         chartObj.alfalfa_yield_farm.chart = create_graph(chartObj.alfalfa_yield_farm, 'Alfalfa Yield', document.getElementById('alfalfa_yield_farm').getContext('2d'));
                         chartObj.rotation_yield_farm.chart = create_graph(chartObj.rotation_yield_farm, 'Total Yield', document.getElementById('rotation_yield_farm').getContext('2d'));
-
-
-                    }}
+                    }
+                }
 
 
                 },{ xtype: 'panel',
@@ -805,23 +847,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:0,
                 },
                     items:[
-                    //     {
-                    //     xtype: 'button',
-                    //     cls: 'button-text-pad',
-                    //     componentCls: 'button-margin',
-                    //     text: 'Manually Adjust Yields',
-                    //     handler: async function(self) {
-                    //         //await getWFSScenario()
-                    //         console.log(chartObj)
-                    //         console.log(fieldYieldArray)
-                    //         await gatherYieldTableData()
-                    //         {
-                    //             DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
-                    //             DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
-                    //         }
-                    //         DSS.dialogs.YieldAdjustment.show().center().setY(0);
-                    //     }
-                    // },
+                        {
+                        xtype: 'button',
+                        cls: 'button-text-pad',
+                        componentCls: 'button-margin',
+                        text: 'Manually Adjust Yields',
+                        handler: async function(self) {
+                            //await getWFSScenario()
+                            console.log(chartObj)
+                            console.log(fieldYieldArray)
+                            await gatherYieldTableData()
+                            {
+                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
+                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
+                            }
+                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+                        }
+                    },
                     {
                         xtype: 'radiogroup',
                         id: 'yieldFieldConvert',
@@ -881,7 +923,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         if(!chartObj.alfalfa_yield_field.show){document.getElementById('alfalfa_yield_field').style.display="none"}
                         if(!chartObj.rotation_yield_field.show){document.getElementById('rotation_yield_field').style.display="none"}
                         if (chartObj["grass_yield_field"].chart !== null){
-
                             return
                         }
                         chartObj.grass_yield_field.chart = create_graph(chartObj.grass_yield_field, 'Grass Yield', document.getElementById('grass_yield_field').getContext('2d'));
@@ -1846,6 +1887,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 }}
 
                 },
+
 //                { xtype: 'panel',
 //                    title: '<i class="fas fa-seedling"></i></i>  Field',
 //                    border: false,
@@ -1874,6 +1916,117 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 ],
 
             }
+            var outputLayers =  { 
+            title: 'Mapped Results',
+            disabled:true,
+            id:"mappedResultsTab",
+            name:"mappedResultsTab",
+            plain: true,
+            tabConfig:{
+                    tooltip: "Turn output layers on and off, on the map",
+//                    cls: "myBar"
+                },
+            id: "layersBtn",
+            tabBar : {
+                layout: {
+                    pack: 'center',
+                        background: '#C81820',
+                    }
+                },
+            xtype: 'tabpanel',
+            style: 'background-color: #377338;',
+            defaults: {
+                border:false,
+                bodyBorder: false,
+            },
+            scrollable: true,
+            listeners:{activate: function() {
+                Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+            },
+            deactivate: function() {
+                Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('80%');
+                DSS.MapState.destroyLegend();
+            }},
+//                inner tabs for farm and field scale
+            items:[{
+                title: "Model Outputs",
+                xtype: 'panel',
+                width: chart_width,
+                collapsible: true,
+                items:[
+                    {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: 'Mapped Results',
+                    defaultType: 'checkboxfield',
+                    items:[{
+                        boxLabel: 'Phosphorus Loss',
+                        name: 'PLoss',
+                        handler: function(self) {
+                            console.log('ploss clicked')
+                            DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                            
+                            //Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                            // Ext.util.Cookies.set('DSS.layer.ploss_field:visible', self.checked ? "0" : "1");                	
+                            //DSS.layer.ploss_field.setVisible(self.checked);
+                            console.log(DSS.layer.PLossGroup)
+                            DSS.layer.PLossGroup.setVisible(self.checked);
+                            //DSS.map.addLayerGroup(DSS.layer.PLossGroup)
+                            
+                            //DSS.map.render;
+                        }
+                    },
+                    // {
+                    //     boxLabel: 'Runoff',
+                    //     name: 'Runoff',
+                    //     handler: function(self) {
+                    //         console.log('runoff clicked')
+                    //         console.log(DSS.layer.runoffGroup)
+                    //         DSS.layer.runoffGroup.setVisible(self.checked);
+                    //         //DSS.map.render;
+                    //     }
+                    // },
+                    
+                    // {
+                    //     boxLabel: 'Yield',
+                    //     name: 'Yield',
+                    //     handler: function(self) {
+                    //         console.log('Yield clicked')
+                    //         DSS.layer.yieldGroup.setVisible(self.checked);
+                    //         console.log(DSS.layer.yieldGroup)
+                    //     }
+                    // }
+                ],
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					text: 'RED ',
+                    style:{
+                        color: 'red'
+                    }
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					text: 'indicates higher values, '
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					text: 'BLUE ',
+                    style:{
+                        color: 'blue'
+                    }
+                },
+                {
+                    xtype: 'label',
+					cls: 'information med-text',
+					html: 'indicates lower values. \n* CAUTION * P loss estimates are derived from SnapPlus and originally intended to represent field scale P losses; sub-field variability is only shown for illustration purposes'
+                }
+            ],
+                scope: this,
+            }]
+        }    
         var phantom = { title: 'Model Select',
                 plain: true,
                 hidden:true,
@@ -1919,7 +2072,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             titleRotation:2,
 //            background is apparently an image
             style: 'border-radius: 8px; background-color: #377338;box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
-
+            listeners: {change:function()
+            {
+                console.log('Hi from layers button')
+            }},
+//                inner tabs for farm and field scale
             items: [
                 phantom,
                 summary,
@@ -1932,6 +2089,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 economics,
                 infrastructure,
                 compare,
+                outputLayers,
 //                summary,
                 options,
            ]

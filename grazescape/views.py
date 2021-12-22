@@ -122,7 +122,8 @@ def index(request):
 def download_rasters(request):
     field_id = request.POST.getlist("field_id")[0]
     field_coors = []
-
+    if db_has_field(field_id):
+        clear_yield_values(field_id)
     for input in request.POST:
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
@@ -165,27 +166,6 @@ def geoserver_request(request):
         print(result)
     return JsonResponse({"data": result}, safe=False)
 
-def manage_raster_visuals(request):
-    print('INside manage raster visuals in views!!!!!!!!!!!!')
-    #rasterextent = data.POST.getlist('extents[]')
-    request_type = request.POST.get("request_type")
-    pay_load = request.POST.get("pay_load")
-    url = request.POST.get("url")
-    feature_id = request.POST.get("feature_id")
-    print(url)
-    geo = GeoServer(request_type, url)
-    result = geo.makeRasterRequest(pay_load)
-    #raster_data = retreiveRaster(url)
-    return JsonResponse({"data": result}, safe=False)
-    #return JsonResponse({"download":"finished"})
-    # request_type = request.POST.get("request_type")
-    # pay_load = request.POST.get("pay_load")
-    # url = request.POST.get("url")
-    # print(url)
-    # geo = GeoServer(request_type, url)
-    # result = geo.makeRasterRequest(pay_load)
-    # return JsonResponse({"data": result}, safe=False)
-
 @login_required
 def get_default_om(request):
     print(request.POST)
@@ -222,7 +202,8 @@ def get_model_results(request):
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
     scen = request.POST.get('model_parameters[scen]')
-    db_has_field(field_id, scenario_id, farm_id)
+    db_has_field(field_id)
+    #db_has_field(field_id, scenario_id, farm_id)
 
     if request.POST.getlist("runModels")[0] == 'false':
         print("not active scenario")
@@ -239,6 +220,7 @@ def get_model_results(request):
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
         if model_type == 'yield':
+            #call row yeilds nulling function here!!!
             crop_ro = request.POST.getlist("model_parameters[crop]")[0]
             if crop_ro == 'pt' or crop_ro == 'ps':
                 model = GrassYield(request)
@@ -280,6 +262,7 @@ def get_model_results(request):
         area = float(request.POST.getlist("model_parameters[area]")[0])
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", area)
         for result in results:
+            #if result.model_type == "ploss": index 0 file name = erosion, index 1 file name = ploss
             if result.model_type == "insect":
                 sum = result.data[0]
                 avg = sum
@@ -323,7 +306,9 @@ def get_model_results(request):
                 "till": model.model_parameters["tillage"]
             }
             #null_out_yield_results(field_id, scenario_id, farm_id, data)
-            if db_has_field(field_id, scenario_id, farm_id):
+            #null_out_yield_results(data)
+            if db_has_field(field_id):
+            # if db_has_field(field_id, scenario_id, farm_id):
                 update_field_results(field_id, scenario_id, farm_id, data, False)
             else:
                 update_field_results(field_id, scenario_id, farm_id, data, True)

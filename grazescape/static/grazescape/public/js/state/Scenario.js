@@ -266,36 +266,6 @@ function wfs_update(feat,layer) {
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
 //    console.log(str);
     geoServer.updateFieldAtt(str,feat )
-//    $.ajax(geoserverURL + '/geoserver/wfs?'
-//	/*'http://localhost:8081/geoserver/wfs?'*/,{
-//        type: 'POST',
-//        dataType: 'xml',
-//        processData: false,
-//        contentType: 'text/xml',
-//		data: str,
-//		success: function (data) {
-//			console.log("uploaded data successfully!: "+ data);
-//		},
-//        error: function (xhr, exception) {
-//            var msg = "";
-//            if (xhr.status === 0) {
-//                msg = "Not connect.\n Verify Network." + xhr.responseText;
-//            } else if (xhr.status == 404) {
-//                msg = "Requested page not found. [404]" + xhr.responseText;
-//            } else if (xhr.status == 500) {
-//                msg = "Internal Server Error [500]." +  xhr.responseText;
-//            } else if (exception === "parsererror") {
-//                msg = "Requested JSON parse failed.";
-//            } else if (exception === "timeout") {
-//                msg = "Time out error." + xhr.responseText;
-//            } else if (exception === "abort") {
-//                msg = "Ajax request aborted.";
-//            } else {
-//                msg = "Error:" + xhr.status + " " + xhr.responseText;
-//            }
-//			console.log(msg);
-//        }
-//    }).done();
 }
 
 //------------------------------------------------------------------------------
@@ -351,6 +321,10 @@ Ext.define('DSS.state.Scenario', {
 									runScenarioUpdate();
 									geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
+									//resetting model result layers
+									DSS.layer.PLossGroup.setVisible(false);
+									DSS.layer.PLossGroup.values_.layers.array_ = [];
+									console.log(DSS.layer.PLossGroup);
 								}
 							});
 						}
@@ -564,7 +538,6 @@ Ext.define('DSS.state.Scenario', {
 					handler: function(self) {
 //						cleanDB()
 						//DSS.DrawFieldShapes.addModeControl()
-						console.log()
 						if (DSS['viewModel'].scenario.data != null){
                             console.log("updating scenario data")
 						    runScenarioUpdate();
@@ -665,7 +638,7 @@ Ext.define('DSS.state.Scenario', {
                 me.initViewModel();
 
             })
-            }, 500);
+            }, 1000);
         },
 	
 
@@ -678,8 +651,8 @@ Ext.define('DSS.state.Scenario', {
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
 //		gatherScenarioTableData()
-		console.log('in animal view model')
-		console.log('this is the farms beef cows: ')
+		//console.log('in animal view model')
+		//console.log('this is the farms beef cows: ')
 		//console.log(scenarioArray[0].beefCows)
 		DSS.viewModel.scenario = new Ext.app.ViewModel({
 			formulas: {
@@ -690,8 +663,8 @@ Ext.define('DSS.state.Scenario', {
 				}
 			},
 			data: {
-				percResidualOnPasture: scenarioArray[0].percResidual,
-				pastRotationFreq: scenarioArray[0].pastRotationFreq,
+				//percResidualOnPasture: scenarioArray[0].percResidual,
+				//pastRotationFreq: scenarioArray[0].pastRotationFreq,
 				dairy: {
 					// counts
 					lactating: scenarioArray[0].lacCows,

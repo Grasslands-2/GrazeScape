@@ -71,6 +71,9 @@ Ext.define('DSS.state.Manage', {
 									reSourcefarms()
 									reSourcescenarios()
 									DSS.ApplicationFlow.instance.showLandingPage();
+									DSS.layer.fields_1.setVisible(false)
+									DSS.layer.infrastructure.setVisible(false);
+									DSS.layer.fieldsLabels.setVisible(false);
 									//DSS.layer.fields_1.getSource().refresh();
 
 									DSS.viewModel.scenario = !DSS['viewModel']
@@ -115,9 +118,16 @@ Ext.define('DSS.state.Manage', {
 					text: 'Manage Loaded Scenario',
 					handler: function(self) {
 						//reSourcescenarios()
-						gatherScenarioTableData()
+						gatherScenarioTableData
+						runScenarioUpdate();
+						geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+						DSS.ApplicationFlow.instance.showManageOperationPage();
+						// showFieldsForScenario()
+				 		// showInfraForScenario()
+						// reSourceFields()
+						// reSourceinfra()
 						//DSS.layer.scenarios.getSource().refresh();
-						AppEvents.triggerEvent('hide_field_shape_mode')
+						//AppEvents.triggerEvent('hide_field_shape_mode')
 						DSS.ApplicationFlow.instance.showScenarioPage();
 						console.log(DSS.activeScenario);
 					}
@@ -130,7 +140,7 @@ Ext.define('DSS.state.Manage', {
 					text: 'Load Different Scenario',
 					handler: function(self) {
 						//itemsArray = [];
-						getWFSScenarioSP()
+						//getWFSScenarioSP()
 //						Ext.getCmp("scenarioMenu").destroy()
 //						Ext.getCmp("scenarioPicker").destroy()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
@@ -149,7 +159,7 @@ Ext.define('DSS.state.Manage', {
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
 						reSourcescenarios()
-						DSS.layer.scenarios.getSource().refresh();
+						// DSS.layer.scenarios.getSource().refresh();
 						console.log('This is the scenarioArray: '+ scenarioArray)
 					}
 				},
@@ -164,6 +174,8 @@ Ext.define('DSS.state.Manage', {
 						//getWFSScenario()
 						reSourceFields()
 						reSourceinfra()
+						//console.log(itemsArray);
+						getWFSScenarioDS()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);

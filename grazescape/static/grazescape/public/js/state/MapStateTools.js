@@ -151,7 +151,7 @@ Ext.define('DSS.state.MapStateTools', {
 
 	//used to limit return of fields to just active farm
     showFieldsForFarm: function(farmId, opacity) {
-
+		console.log(DSS.activeScenario)
     	geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 //		DSS.layer.fields_1.getSource().setUrl(
 //		geoserverURL + '/geoserver/wfs?'+
@@ -357,7 +357,11 @@ Ext.define('DSS.state.MapStateTools', {
 						me.setPinMarker(pos);
 						console.log("pin set in activatefarmhandler")
 						console.log(DSS.activeFarm)
-						console.log(DSS.activeScenario)
+						//DSS.map.addLayer(DSS.layer.fields_1);
+						//DSS.layer.fields_1.setVisible(true);
+						
+						// DSS.layer.fieldsLabels
+						// DSS.map.RotationLayer;
 						let ex = ol.extent;
 						let extent = [pos[0], pos[1], pos[0], pos[1]];
 						//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
@@ -381,10 +385,13 @@ Ext.define('DSS.state.MapStateTools', {
 						//if (DSS.activeScenario == null){
 							//getWFSScenarioSP(DSS.activeFarm)
 							DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
-							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);	
+							
+							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);
+							//DSS.layer.fields_1.setVisible(true);	
 							DSS.dialogs.ScenarioPicker.show().center().setY(0);
 							console.log(DSS.dialogs.ScenarioPicker);
 							DSS.map.addLayer(DSS.layer.scenarios);
+							// DSS.layer.fields_1.setVisible(true);
 							break;
 						//}
 					//}
@@ -401,7 +408,7 @@ Ext.define('DSS.state.MapStateTools', {
     zoomToExtent: function(center_, zoom_) {
     	
     	center_ = center_ || [-10118000, 5375100];
-    	zoom_ = zoom_ || 12;
+    	zoom_ = zoom_ || 9.5;
     	DSS.map.getView().animate({
     		center: center_,
 			zoom: zoom_,
