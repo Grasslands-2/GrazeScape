@@ -32,6 +32,8 @@ dynamicFiles/
 layerData/
 data_files/
 node_modules/
+Watersheds/
+Boundaries/
 
 
 # startup helper
