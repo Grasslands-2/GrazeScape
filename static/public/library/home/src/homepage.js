@@ -200,9 +200,18 @@ const App = (props) => (
 <div id = 'footer'>
     <Container>
     Grassland 2.0 is a collaborative group of farmers, researchers, and public and private sector leaders working to develop pathways for increased farmer profitability, yield stability and nutrient and water efficiency, while improving water quality, soil health, biodiversity, and climate resilience through grassland-based agriculture.
-    <p></p>+
-    The project is based at UW–Madison and the work is supported by the Sustainable Agriculture Systems Coordinated Agricultural Program grant no. 2019-68012-29852 from the USDA National Institute of Food and Agriculture.
-  </Container>
+    <p></p>
+    The University of Wisconsin - Madison respects your privacy and is committed to protecting your privacy through our compliance with <a href="https://drive.google.com/file/d/151_PhFk5h6KrbVz92XHjwPFqXrrv89AY/view" target="_blank">this website privacy policy.</a>
+     <br></br>
+     By using this website and the associated apps, you agree to this privacy policy.
+    <p></p>
+    <a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ"target="_blank">User Manual</a>
+    <p></p>
+    <a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a>
+    <p></p>
+    <a href="https://forms.gle/4jy4acwjTe2mzJLw7" target="_blank">Feedback Form</a>
+    <p></p>*This project is based at UW–Madison and the work is supported by the Sustainable Agriculture Systems Coordinated Agricultural Program grant no. 2019-68012-29852 from the USDA National Institute of Food and Agriculture.
+ </Container>
 
   </div>
 
