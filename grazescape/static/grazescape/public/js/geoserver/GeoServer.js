@@ -279,8 +279,9 @@ class GeoServer{
          })
     }
     deleteField(payLoad, feat){
+        console.log(payLoad)
+        console.log(this.geoUpdate_Url)
         this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
-
             let geoJson = returnData.geojson
             let currObj = returnData.current
 //            cleanDB()
@@ -459,4 +460,39 @@ class GeoServer{
             })
         }
     )}
+    // makegcsDeletionRequest(fieldID){
+    //     console.log(fieldID)
+    //     return new Promise(function(resolve) {
+    //         var csrftoken = Cookies.get('csrftoken');
+    //         console.log('data coming into ajax call')
+    //         $.ajaxSetup({
+    //                 headers: { "X-CSRFToken": csrftoken }
+    //             });
+    //         $.ajax({    
+    //         'url' : '/grazescape/manage_raster_visuals',
+    //         'type' : 'POST',
+    //         'data' :  {
+    //             url:url,
+    //             request_type:requestType,
+    //             pay_load:payLoad,
+    //             feature_id:featureID
+    //             //extents:extents
+    //         },
+    //         success: function(responses, opts) {
+    //             console.log('Retrived DEM TIFF!')
+    //             delete $.ajaxSetup().headers
+    //             //console.log(responses)
+    //             //resolve({png:responses.data, current:currObj})
+    //             console.log(responses)
+    //             delete $.ajaxSetup().headers
+    //             resolve({geojson:responses.data, current:currObj})
+    //             //resolve({geoImage:responses.data, current:currObj})
+    //         },
+    //             error: function(responses) {
+    //                 console.log('python tool call error')
+    //                 console.log(responses)
+    //             }
+    //         })
+    //     }
+    // )}
 }

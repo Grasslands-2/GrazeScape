@@ -472,7 +472,6 @@ Ext.define('DSS.state.Scenario', {
 						    console.log("running update")
 						    fieldChangeList = []
 						    fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
-
 							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
@@ -535,7 +534,16 @@ Ext.define('DSS.state.Scenario', {
 					componentCls: 'button-margin',
 					id: "btnRunModels",
 					text: 'Run Models',
-					handler: function(self) {
+					handler: async function(self) {
+						console.log("running update")
+						fieldChangeList = []
+						fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
+						AppEvents.triggerEvent('hide_field_grid')
+						AppEvents.triggerEvent('hide_infra_grid')
+						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
+						DSS.field_grid.FieldGrid.store.clearData();
+						await runFieldUpdate()
+						await runInfraUpdate()
 //						cleanDB()
 						//DSS.DrawFieldShapes.addModeControl()
 						if (DSS['viewModel'].scenario.data != null){

@@ -182,6 +182,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	title: 'Model Results',
 	runModel: true,
     listeners:{
+        "destroy": function(){
+            DSS.MapState.destroyLegend();
+        },
+        "hide": function(){
+            DSS.MapState.destroyLegend();
+        },
+        "close": function(){
+            DSS.MapState.destroyLegend();
+        },
         "minimize": function (window, opts) {
             window.collapse();
             window.setWidth(150);
@@ -432,7 +441,24 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             Ext.getCmp("btnRunModels").setDisabled(false)
                             Ext.getCmp("compareTab").setDisabled(false)
                             Ext.getCmp("compareTabBtn").setDisabled(false)
-                            //Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                            console.log(f)
+                            if(f.properties.scenario_id == DSS.activeScenario){
+                                var plextent = f.bbox
+                                DSS.layer.ploss_field = new ol.layer.Image({
+                                    visible: true,
+                                    updateWhileAnimating: true,
+                                    updateWhileInteracting: true,
+                                    source: new ol.source.ImageStatic({
+                                    url: '/static/grazescape/public/images/ploss'+ f.properties.gid + '.png',
+                                    imageExtent: plextent
+                                    })
+                                })
+                                DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ f.properties.gid);
+                                var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                                console.log(plossGroupLayers);
+                                plossGroupLayers.push(DSS.layer.ploss_field);
+                                Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                            }
                             //Ext.getCmp("mappedResultsTab").setDisabled(false)
 //                                Ext.getCmp("eroFieldTab").setDisabled(false)
 //                                Ext.getCmp("yieldFieldTab").setDisabled(false)
