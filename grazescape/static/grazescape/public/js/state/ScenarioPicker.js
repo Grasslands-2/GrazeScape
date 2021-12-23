@@ -154,6 +154,7 @@ Ext.define('DSS.state.ScenarioPicker', {
 							scenarioPickerArray = []
 							showFieldsForScenario()
 				 			showInfraForScenario()
+							//reSourcefarms()
 							DSS.layer.fields_1.setVisible(true);
 							DSS.layer.fields_1.getSource().refresh();
 							DSS.layer.fieldsLabels.getSource().refresh();

@@ -68,13 +68,13 @@ lane_materialInput){
 	//---------------Setting Infra Values-----------------------
 	if(infra_typeInput == 'fl') {infra_typeDisp = 'Fencing'
 		if(fence_materialInput == 'hte1') {
-			fence_materialDisp = 'High Tensile Electric, 1 Strand'
+			fence_materialDisp = 'High Tensile Electric, One Strand'
 			costPerFoot = 0.84}
 		else if(fence_materialInput == 'hte'){ 
-			fence_materialDisp = 'Electric - High Tensile'
+			fence_materialDisp = 'High Tensile Electric, Two Strand'
 			costPerFoot = 1.81}
 		else if(fence_materialInput == 'pp'){ 
-			fence_materialDisp = 'Pasture Paddock'
+			fence_materialDisp = 'Moveable polywire'
 			costPerFoot = 0.37}
 		}
 	else if (infra_typeInput == 'wl') {infra_typeDisp = 'Water Line'
@@ -519,11 +519,11 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 						// },
 						
 						items: [{
-							boxLabel: 'High Tensile Electric, 1 Strand', inputValue: 'hte1',
+							boxLabel: 'High Tensile Electric, One Strand', inputValue: 'hte1',
 						},{ 
-							 boxLabel: 'Electric - High Tensile', inputValue: 'hte',
+							 boxLabel: 'High Tensile Electric, Two Strand', inputValue: 'hte',
 						},{ 
-							boxLabel: 'Pasture Paddock', inputValue: 'pp',
+							boxLabel: 'Moveable polywire', inputValue: 'pp',
 						}]
 					},
 				{

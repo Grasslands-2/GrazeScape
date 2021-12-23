@@ -58,7 +58,7 @@ Ext.define('DSS.map.Main', {
 				listeners: {
 					resize: function(self, w, h) {
 						me.map.setSize([w,h]);
-						DSS.MapState.mapResize();
+						//DSS.MapState.mapResize();
 						
 						AppEvents.triggerEvent('map_resize');
 					}
@@ -463,7 +463,7 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_0.PNG',
 				imageExtent: inputextent0,
 			})
 		}),
@@ -479,7 +479,7 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_2.PNG',
 				imageExtent: inputextent2,
 				
 			})
@@ -488,7 +488,7 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_3.PNG',
 				imageExtent: inputextent3,
 				
 			})

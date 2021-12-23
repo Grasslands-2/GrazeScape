@@ -12,5 +12,6 @@ import os
 from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings')
+os.environ.setdefault('GOOGLE_APPLICATION_CREDENTIALS', 'grassland.settings.gcskeyGS.json')
 
 application = get_asgi_application()
