@@ -14,7 +14,7 @@ import uuid
 from django.core.files import File
 from django.conf import settings
 import os
-credential_path = os.path.join(settings.BASE_DIR,'grassland','settings','cals-grazescape-files-63e6-90c0a1725bad.json')
+credential_path = os.path.join(settings.BASE_DIR,'keys','cals-grazescape-files-63e6-4f2fc53201e6.json')
 #"C:\Users\zjhas\Downloads\cals-grazescape-files-63e6-a2c84bb6a695.json"
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
