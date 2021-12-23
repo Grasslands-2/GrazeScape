@@ -78,11 +78,11 @@ Ext.define('DSS.infra_shapes.apply.fenceMaterial', {
 					}
 				},
 				items: [{
-					boxLabel: 'High Tensile Electric, 1 Strand', inputValue: 'hte1',
+					boxLabel: 'High Tensile Electric, One Strand', inputValue: 'hte1',
 				},{ 
-				 	boxLabel: 'Electric - High Tensile', inputValue: 'hte',
+				 	boxLabel: 'High Tensile Electric, Two Strand', inputValue: 'hte',
 				},{ 
-					boxLabel: 'Pasture Paddock', inputValue: 'pp',
+					boxLabel: 'Moveable polywire', inputValue: 'pp',
 				}]
 			}]
 		});
