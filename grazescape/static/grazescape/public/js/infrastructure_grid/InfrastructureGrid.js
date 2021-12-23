@@ -71,15 +71,15 @@ Ext.create('Ext.data.Store', {
 	fields:[ 'display', 'value','cost'],
 	data: [{
 		value: 'hte1',
-		display: 'High Tensile Electric, 1 Strand',
+		display: 'High Tensile Electric, One Strand',
 		cost: 0.84
 	},{ 
 		value: 'hte',
-		display: 'Electric - High Tensile',
+		display: 'High Tensile Electric, Two Strand',
 		cost:1.81
 	},{ 
 		value: 'pp',
-		display: 'Pasture Paddock',
+		display: 'Moveable polywire',
 		cost:0.37
 	}]
 });

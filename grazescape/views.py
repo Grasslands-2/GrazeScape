@@ -5,7 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
-
+import re
+import json
 from django.http import FileResponse
 import traceback
 import uuid
@@ -13,6 +14,10 @@ import uuid
 from django.core.files import File
 from django.conf import settings
 import os
+credential_path = os.path.join(settings.BASE_DIR,'grassland','settings','cals-grazescape-files-63e6-90c0a1725bad.json')
+#"C:\Users\zjhas\Downloads\cals-grazescape-files-63e6-a2c84bb6a695.json"
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 # Create your views here.
 from grazescape.raster_data import RasterData
 from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
@@ -28,6 +33,7 @@ from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
 from grazescape.users import *
+from google.cloud import storage
 import sys
 import time
 import sys
@@ -35,6 +41,75 @@ import shutil
 import math
 
 raster_data = None
+
+def upload_gcs_model_result_blob(field_id):
+    """Uploads a file to the bucket."""
+    # The ID of your GCS bucket
+    #bucket_name = "dev_container_model_results"
+    # The path to your file to upload
+    
+    source_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images','ploss'+field_id+'.png')
+    #"/static/grazescape/public/images/ploss"+field_id+'.png'
+    # The ID of your GCS object
+    destination_blob_name = "ploss"+field_id+'.png'
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket("dev_container_model_results")
+    blob = bucket.blob(destination_blob_name)
+
+    blob.upload_from_filename(source_file_name)
+
+    print(
+        "File {} uploaded to {}.".format(
+            source_file_name, destination_blob_name
+        )
+    )
+
+def download_gcs_model_result_blob(field_id):
+    """Downloads a blob from the bucket."""
+    # The ID of your GCS bucket
+    # bucket_name = "your-bucket-name"
+
+    # The ID of your GCS object
+    # source_blob_name = "storage-object-name"
+
+    # The path to which the file should be downloaded
+    # destination_file_name = "local/path/to/file"
+
+    destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images','ploss'+field_id+'.png')
+
+    storage_client = storage.Client()
+
+    bucket = storage_client.bucket("dev_container_model_results")
+
+    # Construct a client side representation of a blob.
+    # Note `Bucket.blob` differs from `Bucket.get_blob` as it doesn't retrieve
+    # any content from Google Cloud Storage. As we don't need additional data,
+    # using `Bucket.blob` is preferred here.
+    blob = bucket.blob('ploss'+field_id+'.png')
+    try:
+        blob.download_to_filename(destination_file_name)
+        print("GOOGLE CLOUD DOWNLOAD RANNNNNN&&&&&&***********#########")
+    except:
+        print("There was an error")
+        pass
+
+def delete_gcs_model_result_blob(field_id):
+    """Deletes a blob from the bucket."""
+    # bucket_name = "your-bucket-name"
+    # blob_name = "your-object-name"
+
+    storage_client = storage.Client()
+
+    bucket = storage_client.bucket("dev_container_model_results")
+    blob = bucket.blob('ploss'+field_id+'.png')
+    try:
+        blob.delete()
+        print("Blob {} deleted.".format(field_id))
+
+    except:
+        print("There was an error")
+        pass
 
 @csrf_protect
 @login_required
@@ -134,6 +209,7 @@ def download_rasters(request):
 @login_required
 @csrf_protect
 def geoserver_request(request):
+    
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
@@ -141,6 +217,13 @@ def geoserver_request(request):
     print(url)
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
+    if "field_2" in pay_load and request_type == "delete":
+        # print("GEOSERVER PAYLOAD!!!")
+        payloadstr = str(pay_load)
+        #print(payloadstr)
+        resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
+        print(resultdel.group(1))
+        delete_gcs_model_result_blob(resultdel.group(1))
     if request_type == "insert_farm" and feature_id != "":
         print(request.POST)
 
@@ -207,6 +290,7 @@ def get_model_results(request):
 
     if request.POST.getlist("runModels")[0] == 'false':
         print("not active scenario")
+        download_gcs_model_result_blob(field_id)
         return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request), safe=False)
     field_coors = []
     # format field geometry
@@ -275,6 +359,9 @@ def get_model_results(request):
                 print(result)
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
+                if model_type == 'ploss':
+                    print('UPLOADING PLOSS FOR FIELD: '+field_id)
+                    upload_gcs_model_result_blob(field_id)
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
@@ -309,11 +396,16 @@ def get_model_results(request):
             #null_out_yield_results(data)
             if db_has_field(field_id):
             # if db_has_field(field_id, scenario_id, farm_id):
+                # if model_type == 'ploss':
+                #     download_gcs_model_result_blob(field_id)
                 update_field_results(field_id, scenario_id, farm_id, data, False)
             else:
                 update_field_results(field_id, scenario_id, farm_id, data, True)
+                
             update_field_dirty(field_id, scenario_id, farm_id)
+            
             return_data.append(data)
+            
 
         return JsonResponse(return_data, safe=False)
     except KeyError as e:
