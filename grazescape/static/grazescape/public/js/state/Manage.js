@@ -139,10 +139,6 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Load Different Scenario',
 					handler: function(self) {
-						//itemsArray = [];
-						//getWFSScenarioSP()
-//						Ext.getCmp("scenarioMenu").destroy()
-//						Ext.getCmp("scenarioPicker").destroy()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
