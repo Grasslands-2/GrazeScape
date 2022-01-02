@@ -264,7 +264,6 @@ function wfs_update(feat,layer) {
     str = s.serializeToString(node);
 	str=str.replace("feature:"+layer,"Farms:"+layer);
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
-//    console.log(str);
     geoServer.updateFieldAtt(str,feat )
 }
 
@@ -588,7 +587,6 @@ Ext.define('DSS.state.Scenario', {
                                 fields: ['name','dbID'],
                                 data : []
                             });
-                            demResultsLayers =[]
                             Ext.getCmp("dashboardContainer").destroy()
                             Ext.getCmp("dashboardWindow").destroy()
                             let dash = Ext.create('DSS.results.Dashboard', {
@@ -602,19 +600,6 @@ Ext.define('DSS.state.Scenario', {
                         }
 					}
 				},
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	id: "btnRemoveModelResults",
-				// 	disabled:true,
-				// 	text: 'Remove Model Results',
-				// 	handler: function(self) {
-				// 		removeModelResults()
-				// 		// DSS.map.removeLayer(modelResult)
-				// 		// Ext.getCmp("btnRemoveModelResults").setDisabled(true)
-				// 	}
-				// }
 				 {
 				 	xtype: 'button',
 				 	cls: 'button-text-pad',

@@ -66,19 +66,7 @@ def db_has_field(field_id):
     cur.close()
     conn.close()
     return db_result is not None
-# def db_has_field(field_id, scenario_id, farm_id):
-#     cur, conn = get_db_conn()
-#     cur.execute('SELECT * from field_model_results '
-#                 'where field_id = %s and scenario_id = %s and farm_id = %s',
-#                 [field_id, scenario_id, farm_id])
-#     db_result = cur.fetchone()
-#     # close the communication with the PostgreSQL
-
-#     cur.close()
-#     conn.close()
-#     return db_result is not None
-
-
+# This collects all the operations owned by the user once the owner logs in
 def get_user_farms(user_id):
     cur, conn = get_db_conn()
     cur.execute('SELECT farm_id from farm_user '
@@ -86,7 +74,6 @@ def get_user_farms(user_id):
                 [user_id])
     db_result = cur.fetchall()
     # close the communication with the PostgreSQL
-
     cur.close()
     conn.close()
     farm_id = []
@@ -94,8 +81,7 @@ def get_user_farms(user_id):
         print(id[0])
         farm_id.append(id[0])
     return farm_id
-
-
+# updates the users list of farms when they add or delete an operation.
 def update_user_farms(user_id, farm_id):
     cur, conn = get_db_conn()
     try:
@@ -115,8 +101,7 @@ def update_user_farms(user_id, farm_id):
         cur.close()
         conn.commit()
         conn.close()
-
-
+# If a fields attributes have been changed.  This function updates the the fields_2 table
 def update_field_dirty(field_id, scenario_id, farm_id):
     """
 
@@ -154,7 +139,7 @@ def update_field_dirty(field_id, scenario_id, farm_id):
         cur.close()
         conn.commit()
         conn.close()
-#def null_out_yield_results(field_id, scenario_id, farm_id, data):
+    # Not in use
 def null_out_yield_results(data):
     if data['crop_ro'] == 'pt' and data['value_type'] != 'Grass':
         data['sum_cells'] = None
@@ -166,7 +151,7 @@ def null_out_yield_results(data):
         data['sum_cells'] = None
     if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or'Soy' or 'Oats':
         data['sum_cells'] = None
-
+# Nulls out yeild totals before new models are run.  This is to ensure that no old yield data is being held onto
 def clear_yield_values(field_id):
     cur, conn = get_db_conn()
     nullvalue_list = "grass_yield_tons_per_ac = null, corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
@@ -187,6 +172,7 @@ def clear_yield_values(field_id):
         #actual push to db
         conn.commit()
         conn.close()
+#Used to update field model results when models are rerun 
 def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     """
 
@@ -215,42 +201,9 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     nullvalue_list = "grass_yield_tons_per_ac = null, corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
     nullout_text = "UPDATE field_model_results SET "
     update_text = "UPDATE field_model_results SET "
-    # if insert_field == False:
-    #     #make this less dumb in the future
-    #     if data["value_type"] == 'Grass':
-    #         nullvalue_list = "corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
-    #         yield_clear_text = nullout_text + nullvalue_list + " WHERE field_id = "+ field_id + " and scenario_id = "+ scenario_id +" and farm_id = " + farm_id 
-    #         print(yield_clear_text)
-    #     try:
-    #         cur.execute(yield_clear_text)
-    #     # except UniqueViolation as e:
-    #     #     print("field already exists in table")
-    #     #     update_field_results(field_id, scenario_id, farm_id, data, False)
-
-    #     except Exception as e:
-    #         print(e)
-    #         print(type(e).__name__)
-
-    #         error = str(e)
-    #         print(error)
-    #         raise
-    #     finally:
-    #         cur.close()
-    #         #actual push to db
-    #         conn.commit()
-    #         conn.close()
     if insert_field:
         update_text = "INSERT INTO field_model_results("
         sql_values = " VALUES ("
-    # cur.execute("""UPDATE table_name
-    #     SET column1 = value1, column2 = value2, ...
-    #     WHERE condition;
-    # """)
-    #     cur.execute("INSERT INTO field_model_results(field_id, scenario_id)
-    #
-    #     VALUES (%s,%s)",(30,40))
-
-    # use sum of cell here so we can average over the whole farm
     values.append(data["sum_cells"])
     if data["value_type"] == 'Grass':
         col_name.append("grass_yield_tons_per_ac")
@@ -362,8 +315,7 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         #actual push to db
         conn.commit()
         conn.close()
-
-
+#Ran if no models are ran.  This pulls the data from the model results table.
 def get_values_db(field_id, scenario_id, farm_id, request):
     cur, conn = get_db_conn()
     runoff_col = ['event_runoff_0.5_inch', 'event_runoff_1_inch',
@@ -515,8 +467,7 @@ def get_values_db(field_id, scenario_id, farm_id, request):
     cur.close()
     conn.close()
     return return_data
-
-
+# SQl calls for clean data
 def clean_db():
     cur, conn = get_db_conn()
     # delete scenario if farm doesnt exist
@@ -547,12 +498,3 @@ def clean_db():
     # print(result)
     cur.close()
     conn.close()
-# clean_db()
-# cur, conn = get_db_conn()
-# cur.execute('SELECT * from scenarios_2')
-# db_result = cur.fetchall()
-# print(db_result)
-# # close the communication with the PostgreSQL
-#
-# cur.close()
-# conn.close()

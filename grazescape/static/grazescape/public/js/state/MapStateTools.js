@@ -382,8 +382,6 @@ Ext.define('DSS.state.MapStateTools', {
 						//DSS.layer.farms_1.getSource().refresh();
 						
 						//----------launching scenario picker---------------
-						//if (DSS.activeScenario == null){
-							//getWFSScenarioSP(DSS.activeFarm)
 							DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
 							
 							DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);
