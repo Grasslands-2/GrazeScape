@@ -11,6 +11,7 @@ import Image from 'react-bootstrap/Image'
 import Col from 'react-bootstrap/Col'
 import Ratio from 'react-bootstrap/Ratio'
 import Alert from 'react-bootstrap/Alert'
+import Modal from 'react-bootstrap/Modal'
 import './App.css';
 import CSRFToken from './csrf';
 import OLMapFragment from './map.js';
@@ -59,9 +60,17 @@ class AppContainer extends React.Component{
     this.handleTextChange = this.handleTextChange.bind(this);
     this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
     this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
+    this.runModels = this.runModels.bind(this);
     this.handleBoundaryChange = this.handleBoundaryChange.bind(this);
     this.handleAreaSelectionType = this.handleAreaSelectionType.bind(this);
     this.addTrans = this.addTrans.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.renderModal = this.renderModal.bind(this);
+
+    this.modelPloss = React.createRef();
+    this.basePloss = React.createRef();
+
 
     this.state = {
         text: '',
@@ -72,12 +81,45 @@ class AppContainer extends React.Component{
         areaSelectionType:"",
         boundaryRasterId:"",
         coors:[],
+        outputModalShow: false,
+        basePloss: "hello world",
+        modelPloss: "hello world",
+
 //        newTrans:new Transformation("intial",-1,-1)
         };
   }
 
   handleTextChange(newText) {
+
     this.setState({text: newText});
+  }
+  handleCloseModal(){
+    this.setState({outputModalShow: false})
+  }
+  handleOpenModal(){
+      console.log(this.basePloss)
+    this.setState({outputModalShow: true})
+//    this.basePloss.current.value = "hello world"
+  }
+  renderModal(){
+
+    return(
+            <div>
+             <Row xs= '13' >
+
+                <Form.Label >
+                  Base Scenario
+                </Form.Label>
+                <Col xs='6'>
+                    <Form.Control  ref={this.basePloss} plaintext readOnly defaultValue={this.state.basePloss} />
+                </Col>
+            </Row>
+            <Form.Label >
+              Transformation
+            </Form.Label>
+            <Form.Control plaintext readOnly defaultValue={this.state.modelPloss} />
+            </div>
+    )
   }
   handleBoundaryChange(extent, coors){
     this.setState({
@@ -94,7 +136,10 @@ class AppContainer extends React.Component{
     console.log("app container")
     this.setState({newTrans:trans})
   }
-  // load rasters for aoi
+  componentDidMount(){
+    console.log("compoenet mounted")
+  }
+  // load rasters for aoi in background
   loadSelectionRaster(){
      // ajax call with selection criteria
      if (this.state.extent.length == 0){
@@ -129,13 +174,12 @@ class AppContainer extends React.Component{
     });
 
   }
-  // get display raster
-  displaySelectionCriteria(selectionCrit){
+  // get display raster from active transformation
+  displaySelectionCriteria(){
     // ajax call with selection criteria
-    console.log("launching ajax")
     console.log(this.props.activeTrans)
-    console.log(selectionCrit)
-    console.log(this.props.activeTrans.selection.field_coors.length)
+    let transPayload = JSON.parse(JSON.stringify(this.props.activeTrans))
+    console.log(transPayload)
     var csrftoken = Cookies.get('csrftoken');
     $.ajaxSetup({
         headers: { "X-CSRFToken": csrftoken }
@@ -143,41 +187,67 @@ class AppContainer extends React.Component{
     $.ajax({
         url : '/smartscape/get_selection_criteria_raster',
         type : 'POST',
-        data : {
-            selectionCrit:selectionCrit,
+        data : JSON.stringify({
+//            selectionCrit:selectionCrit,
+            selectionCrit:transPayload,
             geometry:{
                 extent:this.props.activeTrans.selection.extent,
                 field_coors:this.props.activeTrans.selection.field_coors,
                 field_coors_len:this.props.activeTrans.selection.field_coors.length
             },
-            folderId: this.state.boundaryRasterId
-        },
+            folderId: this.state.boundaryRasterId,
+            transId: this.props.activeTrans.id
+        }),
         success: (responses, opts) => {
             delete $.ajaxSetup().headers
             console.log(responses)
-            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]
+            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
             console.log(url)
-            this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"]})
-//            let rasterLayerSource =
-//            new Static({
-//                url: location.origin + "/smartscape/get_image?file_name="+responses[0]["url"],
-////                url: "get_image?file_name="+this.props.rasterUrl,
-//                projection: 'EPSG:3857',
-//                imageExtent: responses[0]["extent"]
-////                imageExtent: [-10118831.03520702, 5369618.99185455, -10114083.11978821, 5376543.89851876],
-//        })
-        // setting state here will trigger componentDidUpdate in the map file
-        // thus updating the raser layer source
-//        this.setState({rasterLayer1:rasterLayerSource})
+            this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
         },
 
         failure: function(response, opts) {
         }
     });
+
     // return url to image of raster
     // put image into raster layer
   }
-  loadWatershed(){}
+  runModels(){
+        // ajax call with selection criteria
+        console.log("Running models!!")
+        let transPayload = JSON.parse(JSON.stringify(this.props.listTrans))
+        let lengthTrans = transPayload.length
+        for(let trans in transPayload){
+            transPayload[trans].rank = lengthTrans;
+            lengthTrans--;
+        }
+        console.log(transPayload)
+        // add method to only grab required trans data and get the rank based on list order
+        var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+        $.ajax({
+            url : '/smartscape/get_transformed_land',
+            type : 'POST',
+            data : JSON.stringify({
+                trans: transPayload,
+                folderId: this.state.boundaryRasterId,
+            }),
+            success: (responses, opts) => {
+                delete $.ajaxSetup().headers
+                console.log(responses)
+                this.setState({basePloss:"Phosphorus Loss: " + responses.base.ploss.total + " lb/year; "+ responses.base.ploss.total_per_area + " lb/year/ac"})
+                this.setState({modelPloss:"Phosphorus Loss: " + responses.model.ploss.total + " lb/year; "+ responses.model.ploss.total_per_area + " lb/year/ac"})
+//                this.setState({modelPloss:5555})
+                this.setState({outputModalShow:true})
+            },
+
+            failure: function(response, opts) {
+            }
+        })
+    }
     render(){
         return(
           <div id='main'>
@@ -192,10 +262,14 @@ class AppContainer extends React.Component{
                         handleTextChange={this.handleTextChange}
                         loadSelectionRaster={this.loadSelectionRaster}
                         displaySelectionCriteria={this.displaySelectionCriteria}
+                        runModels={this.runModels}
                         testfun = {this.testfun}
                         handleAreaSelectionType = {this.handleAreaSelectionType }
                         addTrans = {this.addTrans}
                     />
+                        <Button variant="primary" onClick={this.handleOpenModal}>
+        View Results
+      </Button>
                   </Col>
                   <Col xs='9' className = "sidePanelCol">
                     <OLMapFragment
@@ -208,6 +282,23 @@ class AppContainer extends React.Component{
                    </Col>
                 </Row>
             </div>
+
+
+      <Modal size="lg" show={this.state.outputModalShow} onHide={this.handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Transformation Results</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+
+            {this.renderModal()}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={this.handleCloseModal}>
+            Close
+          </Button>
+
+        </Modal.Footer>
+      </Modal>
           </div>
         )
 

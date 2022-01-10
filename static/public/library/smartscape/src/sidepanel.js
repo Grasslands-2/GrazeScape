@@ -14,10 +14,13 @@ import Tab from 'react-bootstrap/Tab'
 import CSRFToken from './csrf';
 import Spinner from 'react-bootstrap/Spinner'
 import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import ListGroup from 'react-bootstrap/ListGroup'
 import { DoorOpen,PlusLg } from 'react-bootstrap-icons';
 import Stack from 'react-bootstrap/Stack'
 import Table from './transformation/transformationTable.js'
+import Modal from 'react-bootstrap/Modal'
+
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
 setVisibilityMapLayer} from '/src/stores/transSlice'
@@ -47,17 +50,31 @@ class SidePanel extends React.Component{
         this.user = props.user
 //        this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
         this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
+        this.runModels = this.runModels.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
         this.tabControl = this.tabControl.bind(this);
         this.addTrans = this.addTrans.bind(this);
+        this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.handleOpenModalBase = this.handleOpenModalBase.bind(this);
+        // selection criteria
         this.slope1 = React.createRef();
         this.slope2 = React.createRef();
+        this.contCorn = React.createRef();
+        this.cashGrain = React.createRef();
+        this.dairy = React.createRef();
+        this.potato = React.createRef();
+        this.cranberry = React.createRef();
+        this.hay = React.createRef();
+        this.pasture = React.createRef();
+        this.grasslandIdle = React.createRef();
+
         this.selectWatershed = React.createRef();
         this.state = {slope:{slope1:null, slope2:null},
             geometry:{extents:[],coords:[]},
 //            newTrans:new Transformation("intial",-1,-1),
             activeTrans:null,
-            selectWatershed:false
+            selectWatershed:false,
+            baseModelShow:false,
         }
     }
     // fires anytime state or props are updated
@@ -70,31 +87,67 @@ class SidePanel extends React.Component{
         // set selection criteria to active scenario
         this.slope1.current.value = this.props.activeTrans.selection.slope1
         this.slope2.current.value = this.props.activeTrans.selection.slope2
+        // land use selection
+        this.contCorn.current.checked = this.props.activeTrans.selection.landCover.contCorn
+        this.cashGrain.current.checked = this.props.activeTrans.selection.landCover.cashGrain
+        this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
+//        this.potato.current.checked = this.props.activeTrans.selection.potato
+//        this.cranberry.current.checked = this.props.activeTrans.selection.cranberry
+//        this.hay.current.checked = this.props.activeTrans.selection.hay
+//        this.pasture.current.checked = this.props.activeTrans.selection.pasture
+//        this.grasslandIdle.current.checked = this.props.activeTrans.selection.grasslandIdle
+
+
     }
+      handleCloseModal(){
+        this.setState({baseModalShow: false})
+      }
+      handleOpenModalBase(){
+        this.setState({baseModalShow: true})
+      }
+
     // triggered by button click and displays selection
     //TODO needs to be updated to work with new redux workflow
     displaySelectionCriteria(){
         console.log(this.state)
         console.log(this.slope1.current.value)
         console.log(this.state)
-        this.setState({slope:{slope1: this.slope1.current.value, slope2: this.slope2.current.value}}, () => {
-          console.log("changing state")
-          console.log(this.state);
-          this.props.displaySelectionCriteria(this.state)
-        });
+        this.props.displaySelectionCriteria()
+//        this.setState({slope:{slope1: this.slope1.current.value, slope2: this.slope2.current.value}}, () => {
+//          console.log("changing state")
+//          console.log(this.state);
+//          this.props.displaySelectionCriteria(this.state)
+//        });
+    }
+    runModels(){
+        this.props.runModels()
     }
     // activates the area selection tool
     handleAreaSelectionType(type, e){
         console.log("selection type", type, e)
 //        this.props.handleAreaSelectionType(type)
-        this.setState({selectWatershed:true})
+        if(type === "watershed"){
+
+            this.setState({selectWatershed:true})
+        }
+        else{
+            this.setState({selectWatershed:false})
+        }
         this.props.updateAreaSelectionType(type)
     }
     // type needs to match the selection name in transformation
     handleSelectionChange(type, e){
-        console.log("Slope1", type, e)
+        console.log("Selection updated", type, e)
         console.log(e.currentTarget.value)
-        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value})
+        console.log(e.currentTarget.checked)
+        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"reg"})
+        console.log(this.props)
+    }
+    handleSelectionChangeLand(type, e){
+        console.log("Selection updated", type, e)
+        console.log(e.currentTarget.value)
+        console.log(e.currentTarget.checked)
+        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"land"})
         console.log(this.props)
     }
     // fires when we switch tab so we can download the work area rasters
@@ -116,7 +169,6 @@ class SidePanel extends React.Component{
     console.log("add new transformation!")
     // example transformation
     // random id from 1 to 100
-    //TODO update this to have only unqiue ids!!!!
     let tempId = uuidv4();
 
     let newTrans = Transformation("test trans",tempId, 5)
@@ -198,6 +250,9 @@ class SidePanel extends React.Component{
 //                            id={`inline-$'radio'-1`}
                             onChange={(e) => this.handleAreaSelectionType("watershed", e)}
                           />
+                            <Button variant="secondary" onClick={(e) => this.handleAreaSelectionType("none", e)}>
+                            Stop Selection
+                          </Button>
                       </Row>
                       {/*
                       <Row>
@@ -260,13 +315,32 @@ class SidePanel extends React.Component{
                   <Accordion.Item eventKey="1">
                     <Accordion.Header>Land Type</Accordion.Header>
                     <Accordion.Body>
-                        <Form.Label>Slope Range</Form.Label>
+                        <Form.Label>Land Type to Select</Form.Label>
+                        <Form>
+                          <Form.Check
+                            ref={this.contCorn} type="switch" label="Continuous Corn"
+                            onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
+                          />
+                          <Form.Check
+                            ref={this.cashGrain} type="switch" label="Cash Grain"
+                            onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
+                          />
+                          <Form.Check
+                            ref={this.dairy} type="switch" label="Dairy Rotation"
+                            onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
+                          />
+
+
+                        </Form>
 
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>
                  <Button onClick={this.displaySelectionCriteria} variant="primary">Display Selection</Button>
-            {/*
+
+                 <Button onClick={this.runModels} variant="primary">Run Transformations</Button>
+                 <Button onClick={this.handleOpenModalBase} variant="primary">Base Parameters</Button>
+                                  {/*
                              <Button onClick={this.displaySelectionCriteria} variant="primary">Clear Selections</Button>
 
             <Button variant="primary" disabled>
@@ -282,6 +356,91 @@ class SidePanel extends React.Component{
               */}
               </Tab>
             </Tabs>
+            <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModal}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Base Model Parameters</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  {/*
+                    transform to: pasture
+                    cover crop
+                    tillage
+                    contour
+                    manure and fertilizier
+                  */}
+                    <Form.Label>Cover Crop</Form.Label>
+                    <Form.Select aria-label="Default select example" value={4}>
+                      <option>Open this select menu</option>
+                      <option value="1">Small Grain</option>
+                      <option value="2">Grazed Cover Direct Seeded</option>
+                      <option value="3">Grazed Cover Interseeded</option>
+                      <option value="4">No Cover</option>
+                    </Form.Select>
+                    <Form.Label>Tillage</Form.Label>
+                    <Form.Select aria-label="Default select example" value={6}>
+                      <option>Open this select menu</option>
+                      <option value="1">Fall Chisel</option>
+                      <option value="2">Fall Moldboard</option>
+                      <option value="3">No Till</option>
+                      <option value="4">Spring Chisel, Disked</option>
+                      <option value="5">Spring Chisel, No Disk</option>
+                      <option value="6">Spring Cultivation</option>
+                      <option value="7">Spring Vertical</option>
+                    </Form.Select>
+                    <Row>
+                      <Form.Label>On Contour</Form.Label>
+                      <Form.Check
+                        inline
+                        label="Yes"
+                        name="group2"
+                        type="radio"
+                        checked={true}
+                      />
+                      <Form.Check
+                        inline
+                        label="No"
+                        name="group2"
+                        type="radio"
+
+                      />
+                      </Row>
+                      {/*
+                    transform to: pasture
+                    cover crop
+                    tillage
+                    contour
+                    manure and fertilizier
+
+                      <Col xs="9">
+                          <Form.Range
+                            value={value}
+                            onChange={e => setValue(e.target.value)}
+                          />
+                        </Col>
+                        <Col xs="3">
+                          <Form.Control value={value}/>
+                          <Form.Control value= {value}/>
+                        </Col>
+                         */}
+                      <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
+                     <Form.Select aria-label="Default select example" value={6}>
+                      <option>Open this select menu</option>
+                        <option value="1">0/	0</option>
+                      <option value="2">0/	100</option>
+                      <option value="3">100/	0</option>
+                      <option value="4">150/	0</option>
+                      <option value="5">200/	0</option>
+                      <option value="6">25/	50</option>
+                      <option value="7">50/	0</option>
+                    </Form.Select>
+
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={this.handleCloseModal}>
+                    Close
+                  </Button>
+                </Modal.Footer>
+            </Modal>
 
             </Container>
         )}

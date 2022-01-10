@@ -1,41 +1,63 @@
+/*
+Redux slice for SmartScape
+Author: Matthew Bayles
+Created: November 2021
+*/
 import { createSlice } from '@reduxjs/toolkit'
 import {Transformation} from '/src/transformation/transformation.js'
 
 export const transSlice = createSlice({
   name: 'activeTrans',
+  // initial state of store
   initialState: {
 //    value: new Transformation("intial11",-1,-1),
+    // active transformation
     activeTrans:Transformation("test trans",-1, -1),
+    // tracks new transformation
     addTrans: null,
+    // transformation to remove
     removeTrans:null,
+    // map selection type
     areaSelectionType: null,
+    // turn of layer be name (only for huc 12 and huc 10)
     layerVisible:{'name':null,visible:null},
+    // update this to update a transformation's display layer
     activeDisplayProps:null,
-    listTrans:[
-//        Transformation("test trans0","0", "0"),
-//        Transformation("test trans1","1", "1"),
-//        Transformation("test trans2","2", "2")
-    ]
+    // list of all transformations
+    listTrans:[]
   },
+  // functions to interact with redux store
   reducers: {
-  // id of active transformation
+    /**
+     * Set active transformation
+     * @param  {Transformation} action.payload The new active transformation
+     */
     setActiveTrans: (state, action) => {
-        console.log("setting active trans state")
-        console.log(action)
-        console.log(action.payload)
         state.activeTrans = action.payload
-        console.log(state.activeTrans)
     },
+    /**
+     * Set active transformation display layer. Triggers an update in map.js
+     * @param  {Transformation} action.payload The new active display.
+     * to change the active layer
+     */
     setActiveTransDisplay(state,action) {
         state.activeDisplayProps = action.payload
     },
+    /**
+     * Add a new transformation
+     * @param  {Transformation} action.payload The new Transformation.
+     * to change the active layer
+     */
     addTrans(state, action){
         state.addTrans = action.payload
         state.listTrans.push(action.payload)
-        console.log("just add new trans")
     },
+    /**
+     * Remove a transformation
+     * @param  {int} action.payload The Transformation id to remove.
+     * to change the active layer
+     */
     removeTrans(state, action){
-        console.log("removing trans")
         let items = state.listTrans
         let removeTransId = action.payload
         for(let trans in items){
@@ -47,7 +69,16 @@ export const transSlice = createSlice({
         }
 //        state.listTrans = items
     },
-    // redefine the trans list after a mutation (only used when adding new layer and we get the layer id's)
+//    getTrans(state, action){
+//        let items = state.listTrans
+//        let transId = action.payload
+//        for(let trans in items){
+//            if(items[trans].id == transId){
+//                return items[trans]
+//            }
+//        }
+//    },
+    // redefine the trans list after a mutation (only used when adding new layer and reordering)
     updateTransList(state,action){
         state.listTrans = action.payload
     },
@@ -56,7 +87,6 @@ export const transSlice = createSlice({
         state.areaSelectionType = action.payload
     },
     // set the visibility of map layers
-    // TODO move map functions to a separate slice
     setVisibilityMapLayer(state,action){
         state.layerVisible = action.payload
     },
@@ -69,8 +99,12 @@ export const transSlice = createSlice({
         for(let trans in items){
             if(items[trans].id == activeTransId){
                 console.log("value added")
-                console.log("value added")
-                items[trans].selection[value.name] = value.value
+                if(action.payload.type === "reg"){
+                    items[trans].selection[value.name] = value.value
+                }
+                else{
+                    items[trans].selection.landCover[value.name] = value.value
+                }
                 // reset active transformation so we get the new values
                 state.activeTrans = items[trans]
 //                state.removeTrans = items[trans]
@@ -82,11 +116,12 @@ export const transSlice = createSlice({
   },
 })
 
-// Action creators are generated for each case reducer function
+// Export functions to be used across app
 export const { setActiveTrans,
                 setActiveTransOL,
                 addTrans,
                 removeTrans,
+//                getTrans,
                 updateTransList,
                 updateAreaSelectionType,
                 updateActiveTransProps,

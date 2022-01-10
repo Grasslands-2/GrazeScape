@@ -12,32 +12,10 @@ import Overlay from 'react-bootstrap/Overlay'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import Container from 'react-bootstrap/Container';
+import Modal from 'react-bootstrap/Modal'
+import Row from 'react-bootstrap/Row'
 
-
-
-// fake data generator
-//https://www.w3schools.com/js/js_arrow_function.asp
-let getItems = count =>
-//    console.log(count)
-//  Array.from({ length: count }, (v, k) => k).map(k => ({
-//    id: `item-${k}`,
-//    content: `Transformation ${k}`,
-//    transformation: new Transformation(`Transformation ${k}`,`${k}`)
-//  }));
-
-  Array.from({ length: count }, (v, k) => k).map(k => (
-     Transformation(`Transformation ${k}`,`${k}`,`${k}`)
-  ));
-//const add_trans = () =>{
-//    console.log("adding new trans")
-//    let newItem = {id:"4", content:"transform 5", transformation:new Transformation('test1',5)}
-//    let items = this.state.items
-//    items.push(newItem)
-//    this.setState({
-//      items
-//    });
-//}
-// a little function to help us with reordering the result
+// reordering the table
 let reorder = (list, startIndex, endIndex) => {
   let result = Array.from(list);
   console.log(result)
@@ -89,9 +67,13 @@ class Table extends Component {
   constructor(props) {
     super(props);
     this.state = {
+        transModalShow:false,
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
+    this.handleOpenModalTrans = this.handleOpenModalTrans.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+
     this.selectTransClick = this.selectTransClick.bind(this);
     this.handleTransNameChange = this.handleTransNameChange.bind(this);
 //    this.addTransformation = this.addTransformation.bind(this);
@@ -112,7 +94,12 @@ class Table extends Component {
 //        this.addTransformation(this.props.newTrans)
 //    }
   }
-
+    handleOpenModalTrans(){
+        this.setState({transModalShow: true})
+      }
+            handleCloseModal(){
+        this.setState({transModalShow: false})
+      }
   onDragEnd(result) {
     // dropped outside the list
     if (!result.destination) {
@@ -174,6 +161,7 @@ class Table extends Component {
   //https://egghead.io/lessons/react-reorder-a-list-with-react-beautiful-dnd
   render() {
     return (
+    <div>
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable droppableId="droppable">
           {(provided, snapshot) => (
@@ -202,7 +190,7 @@ class Table extends Component {
                         <Form.Control placeholder="Enter name" id={item1.id} className={ this.props.activeTrans.id === item1.id && 'active1' } onChange={this.handleTransNameChange} onClick={this.selectTransClick} />
                         <OverlayTrigger key="top" placement="top"
                           overlay={<Tooltip>Set Transformation</Tooltip>}>
-                            <Button size="sm" variant="primary" id={item1.id} onClick={this.selectTransClick}><Sliders/></Button>
+                            <Button size="sm" variant="primary" id={item1.id} onClick={this.handleOpenModalTrans}><Sliders/></Button>
                         </OverlayTrigger>
                         <OverlayTrigger placement="top"
                           overlay={<Tooltip>Delete Selection</Tooltip>}>
@@ -219,6 +207,124 @@ class Table extends Component {
           )}
         </Droppable>
       </DragDropContext>
+                  <Modal size="lg" show={this.state.transModalShow} onHide={this.handleCloseModal}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Transformation Results</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                                      {/*
+                    transform to: pasture
+                    cover crop
+                    tillage
+                    contour
+                    manure and fertilizier
+                  */}
+                  <Row>
+                  <Form.Label>New Land Cover</Form.Label>
+                  <Form.Check
+                    inline
+                    label="Pasture"
+                    name="group1"
+                    type="radio"
+                    checked={true}
+                  />
+                  <Form.Check
+                    inline
+                    label="Pasture Seeding"
+                    name="group1"
+                    type="radio"
+                  />
+                  </Row>
+                    <Form.Label>Cover Crop</Form.Label>
+                    <Form.Select aria-label="Default select example" value={5}>
+                      <option>Open this select menu</option>
+                      <option value="1">Small Grain</option>
+                      <option value="2">Grazed Cover Direct Seeded</option>
+                      <option value="3">Grazed Cover Interseeded</option>
+                      <option value="4">No Cover</option>
+                      <option value="5">NA</option>
+                    </Form.Select>
+                    <Form.Label>Tillage</Form.Label>
+                    <Form.Select aria-label="Default select example" value={8}>
+                      <option>Open this select menu</option>
+                      <option value="1">Fall Chisel</option>
+                      <option value="2">Fall Moldboard</option>
+                      <option value="3">No Till</option>
+                      <option value="4">Spring Chisel, Disked</option>
+                      <option value="5">Spring Chisel, No Disk</option>
+                      <option value="6">Spring Cultivation</option>
+                      <option value="7">Spring Vertical</option>
+                      <option value="8">NA</option>
+                    </Form.Select>
+                    <Form.Label>Pasture Animal Density</Form.Label>
+                    <Form.Select aria-label="Default select example" value={3}>
+                      <option>Open this select menu</option>
+                      <option value="1">High</option>
+                      <option value="2">Low</option>
+                      <option value="3">Rotational</option>
+                    </Form.Select>
+                    <Row>
+                      <Form.Label>On Contour</Form.Label>
+                      <Form.Check
+                        inline
+                        label="Yes"
+                        name="group2"
+                        type="radio"
+                      />
+                      <Form.Check
+                        inline
+                        label="No"
+                        name="group2"
+                        type="radio"
+
+                      />
+                       <Form.Check
+                        inline
+                        label="NA"
+                        name="group2"
+                        type="radio"
+                        checked={true}
+
+
+                      />
+                      </Row>
+                      {/*
+                    transform to: pasture
+                    cover crop
+                    tillage
+                    contour
+                    manure and fertilizier
+
+                      <Col xs="9">
+                          <Form.Range
+                            value={value}
+                            onChange={e => setValue(e.target.value)}
+                          />
+                        </Col>
+                        <Col xs="3">
+                          <Form.Control value={value}/>
+                          <Form.Control value= {value}/>
+                        </Col>
+                         */}
+                      <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
+                     <Form.Select aria-label="Default select example" value={1}>
+                      <option>Open this select menu</option>
+                        <option value="1">0/	0</option>
+                      <option value="2">0/	100</option>
+                      <option value="3">100/	0</option>
+                      <option value="4">150/	0</option>
+                      <option value="5">200/	0</option>
+                      <option value="6">25/	50</option>
+                      <option value="7">50/	0</option>
+                    </Form.Select>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={this.handleCloseModal}>
+                    Close
+                  </Button>
+                </Modal.Footer>
+            </Modal>
+      </div>
     );
   }
 }
