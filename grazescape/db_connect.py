@@ -316,7 +316,7 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         conn.commit()
         conn.close()
 #Ran if no models are ran.  This pulls the data from the model results table.
-def get_values_db(field_id, scenario_id, farm_id, request):
+def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
     cur, conn = get_db_conn()
     runoff_col = ['event_runoff_0.5_inch', 'event_runoff_1_inch',
                   'event_runoff_1.5_inch', 'event_runoff_2_inch',
@@ -460,7 +460,8 @@ def get_values_db(field_id, scenario_id, farm_id, request):
                         "crop_ro": rotation,
                         "grass_ro": grass_rotation,
                         "grass_type": grass_type,
-                        "till": tillage
+                        "till": tillage,
+                        "model_run_timestamp": model_run_timestamp
 
                     }
                     return_data.append(data)
