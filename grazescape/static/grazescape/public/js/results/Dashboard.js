@@ -1,11 +1,16 @@
+//const { stringify } = require("querystring")
+// const path = require('path');
+// const fs = require('fs');
+// ploss scale bar values
 var pLossColorArray = ["#204484","#3e75b2","#90b9e4","#d2f0fa","#fcffd8","#ffdaa0","#eb9159","#d25c34","#a52d18"]
-var pLossValueArray =[0,1.6,3.2,4.8,6.4,8,9.6,11.2,12.8,14.4,16]
+var pLossValueArray =[0,1.5,3,4.5,6,7.5,9.6,11.2,12.8,15]
 
+// unique model time stamp holder
+var modelruntime = ''
+//This function gathers the yield data from the active scnearios fields for the yield adjustment table
 function gatherYieldTableData() {
-    console.log(yieldmodelsDataArray)
     fieldYieldArray = []
 	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
-	console.log(chartObjyieldarray)
 
 	for(field in chartObjyieldarray){
         if(chartObjyieldarray[field].toolTip[0] !== null){
@@ -15,26 +20,22 @@ function gatherYieldTableData() {
                 rotationVal1: chartObjyieldarray[field].toolTip[0][0],
                 rotationVal2: chartObjyieldarray[field].toolTip[0][1],
                 grassType: chartObjyieldarray[field].toolTip[0][2],
-                dMYieldAc: chartObjyieldarray[field].data[0],
+                dMYieldAc: chartObjyieldarray[field].data[0]
             })
         }
 	}
-	console.log(fieldYieldArray)
-    // var yielddatasetsarray = [grass_yield_field,corn_yield_field,corn_silage_yield_field,
-    //     soy_yield_field,oat_yield_field,alfalfa_yield_field]
+    //setting array values for each yield value
     var grassdataarray = chartObj.grass_yield_field.chartData.datasets
     var corndataarray = chartObj.corn_yield_field.chartData.datasets
     var silagedataarray = chartObj.corn_silage_yield_field.chartData.datasets
     var soydataarray = chartObj.soy_yield_field.chartData.datasets
     var oatdataarray = chartObj.oat_yield_field.chartData.datasets
     var alfalfadataarray = chartObj.alfalfa_yield_field.chartData.datasets
+    //Loop through fields and pull yield data from each
     for(i in fieldYieldArray){
         var fieldID = fieldYieldArray[i].id
         for(g in grassdataarray){
-            console.log('grassarray id: ' + grassdataarray[g].dbID)
             if (grassdataarray[g].dbID == fieldID){
-                console.log('HIT!');
-                console.log(grassdataarray[g].data[0])
                 fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].data[0]
             }
         }
@@ -63,7 +64,6 @@ function gatherYieldTableData() {
                 fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].data[0]
             }
         }
-        console.log(fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2)
         rotationValSum = fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2
         switch(rotationValSum){
             case 'ptcn': fieldYieldArray[i].rotationDisp = 'Continuous Pasture'
@@ -88,8 +88,6 @@ function gatherYieldTableData() {
     
 var fieldYieldArray = [];
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
-//var modelTypes = ['yield']
-//var modelTypes = ['yield,','runoff']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -138,23 +136,13 @@ var scenariosStore = Ext.create('Ext.data.Store', {
     fields: ['name','dbID'],
     data : []
 });
-var demResultsLayers =[]
 
-//var testChartData = {
-//    cost_farm_data:{
-//        labels: ['Scenario 1','Scenario 2','Scenario 3'],
-//        datasets: []
-//    },
-//    cost_farm_chart:"chart object"
-//    }
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
 //------------------------------------------------------------------------------
 var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //------------------------------------------------------------------------------
-
 	extend: 'Ext.window.Window',
-
 	alias: 'widget.state_perimeter_dialog',
     requires: [
 		'DSS.map.LayerMenu',
@@ -195,7 +183,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             window.collapse();
             window.setWidth(150);
             window.setHeight(150)
-            //window.alignTo(Ext.getBody(), 'bl-bl')
         }
     },
     tools: [{
@@ -204,8 +191,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             var window = owner.up('window');
             window.setWidth(300);
             window.setHeight(300);
-            //window.expand('', false);
-            //window.center();
         }
     }],
 
@@ -225,10 +210,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                            },
     },
 
-//	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
-
 	//--------------------------------------------------------------------------
 	initComponent: function() {
+
 	    console.log("Opening dialog")
         let chart_height = '25vh'
         let chart_width = '32vw'
@@ -243,15 +227,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		layer = DSS.layer.fields_1
 //
         if (this.runModel) {
+            //assign model run timestamp
+            modelruntime = String(new Date().valueOf())
+			console.log(modelruntime)
+            modelruntimeOrig = modelruntime
             fieldChangeList = fieldChangeList.flat()
             chartDatasetContainer = new ChartDatasetContainer()
-//            scenList = chartDatasetContainer.getScenarioList()
-//            fieldList = chartDatasetContainer.getFieldList()
-//            console.log(fieldList)
-//            populateChartObj(chartObj,scenList,fieldList,chartDatasetContainer.fields, chartDatasetContainer.scenarios)
             compCheckBoxes = compareChartCheckBox()
 //            get progress bars
-
 
 //            need just a slight delay
             setTimeout(() => {
@@ -281,13 +264,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp('mainTab').update()
             }, 10);
             createDashBoard(me)
-
-    //      this layer contains the active fields from the active farm
-//            downloadRasters().then(function(){
-//                console.log("rasters downloaded open dashboard")
-//            })
         }
         async function createDashBoard(dashboard){
+
             layerList = []
             await layer.getSource().forEachFeature(function(f) {
                 layerList.push(f)
@@ -298,8 +277,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             download = await download
             console.log("download done")
             console.log("running model")
-//            layer.getSource().forEachFeature(function(f) {
-            // f
 
             numbFields = fieldIter.length
             totalFields = numbFields * modelTypes.length
@@ -329,46 +306,30 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
 //          while the inactive fields are just retrieving their models results from the db
             for(item in fieldIter){
-//                for(layer in layerList){
-//                    if (layerList[layer].get("gid") == fieldIter[item].gid){
-//                        activeScenario = true
-//                        f = layerList[layer]
-//                        break
-//                    }
-//                    else{
-//                        f = fieldIter[item]
-//                        activeScenario = false
-//                        console.log("not active")
-//                        numbFields = numbFields + 1
-//                    }
-//                }
-
                 f = fieldIter[item]
                 console.log(f)
 
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    model_request = build_model_request(f.properties, f, modelTypes[model])
+                    model_request = build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario)
                     get_model_data(model_request).then(returnData =>{
-//                      no model results with that particular field
-                        if(returnData.length < 1){
-                            return
+                        console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                        console.log(returnData[0])
+                        console.log(f)
+                        console.log(f.properties.is_dirty)
+                        console.log(returnData[0].model_run_timestamp)
+                        if(f.properties.is_dirty == false && returnData[0].model_run_timestamp != modelruntimeOrig){
+                            modelruntime = returnData[0].model_run_timestamp
+                            console.log("MODELRUNTIME CHANGED TO OLD VALUE");
+                            console.log(returnData[0])
+                            console.log(modelruntime);
                         }
+                        //modelruntime = returnData[0].model_run_timestamp
+//                      no model results with that particular field
                         switch (returnData[0].model_type){
                             case 'yield':
                                 yield_pb.value = yield_pb.value + 1
                                 if(yield_pb.value==yield_pb.max){
-//                                    console.log("done with yield")
-//                                    for (chart in chartObj){
-////                                        if(chart.chartObj.show == false && chartObj.includes('compare') !=true ){
-//                                        if(chartObj[chart].show == false){
-//                                            console.log(chart)
-//                                            console.log(document.getElementById(String(chart)))
-////                                            document.getElementById(chart).style.display="none";
-//
-//                                        }
-//                                    }
-//                                    console.log('done hiding charts')
                                     yield_pb.hidden = true
                                     Ext.getCmp("yieldTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
@@ -421,7 +382,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 break
                             case 'runoff':
                                 runoff_pb.value = runoff_pb.value + 1
-//                                    runoff_pb.hidden = runoff_pb.value==runoff_pb.max?true:false
                                 if(runoff_pb.value == runoff_pb.max){
                                     runoff_pb.hidden =true
                                     Ext.getCmp("runoffTab").setDisabled(false)
@@ -429,7 +389,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 break
                             case 'bio':
                                 bio_pb.value = bio_pb.value + 1
-//                                    bio_pb.hidden = bio_pb.value==bio_pb.max?true:false
                                 if(bio_pb.value == bio_pb.max){
                                     bio_pb.hidden = true
                                     Ext.getCmp("bioTab").setDisabled(false)
@@ -442,35 +401,29 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             Ext.getCmp("compareTab").setDisabled(false)
                             Ext.getCmp("compareTabBtn").setDisabled(false)
                             console.log(f)
-                            if(f.properties.scenario_id == DSS.activeScenario){
-                                var plextent = f.bbox
-                                DSS.layer.ploss_field = new ol.layer.Image({
-                                    visible: true,
-                                    updateWhileAnimating: true,
-                                    updateWhileInteracting: true,
-                                    source: new ol.source.ImageStatic({
-                                    url: '/static/grazescape/public/images/ploss'+ f.properties.gid + '.png',
-                                    imageExtent: plextent
-                                    })
-                                })
-                                DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ f.properties.gid);
-                                var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                                console.log(plossGroupLayers);
-                                plossGroupLayers.push(DSS.layer.ploss_field);
-                                Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                            }
-                            //Ext.getCmp("mappedResultsTab").setDisabled(false)
-//                                Ext.getCmp("eroFieldTab").setDisabled(false)
-//                                Ext.getCmp("yieldFieldTab").setDisabled(false)
-//                                Ext.getCmp("nutFieldTab").setDisabled(false)
-//                                Ext.getCmp("insectFieldTab").setDisabled(false)
-
                             if(document.getElementById("modelSpinner") != null){
                               document.getElementById("modelSpinner").style.display = "none";
                             }
                             delete $.ajaxSetup().headers
-
+                            Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
                         }
+                        // if(f.properties.scenario_id == DSS.activeScenario){
+                        //     var plextent = f.bbox
+                        //     DSS.layer.ploss_field = new ol.layer.Image({
+                        //         visible: true,
+                        //         updateWhileAnimating: true,
+                        //         updateWhileInteracting: true,
+                        //         source: new ol.source.ImageStatic({
+                        //         url: '/static/grazescape/public/images/ploss'+ f.properties.gid + '.png',
+                        //         imageExtent: plextent
+                        //         })
+                        //     })
+                        //     DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ f.properties.gid);
+                        //     var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                        //     console.log(plossGroupLayers);
+                        //     plossGroupLayers.push(DSS.layer.ploss_field);
+                            
+                        // }
                         Ext.getCmp('mainTab').update()
                     })
                 }
@@ -781,8 +734,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             displayAlternate("rotation_yield_farm", e.id)
                             console.log(chartObj)
                          }},
-
-//
                     },
 //                    {
 //
@@ -853,8 +804,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         chartObj.rotation_yield_farm.chart = create_graph(chartObj.rotation_yield_farm, 'Total Yield', document.getElementById('rotation_yield_farm').getContext('2d'));
                     }
                 }
-
-
+                //-------------------------Yield Field Tab-------------------------------------
                 },{ xtype: 'panel',
                     title: '<i class="fas fa-seedling"></i></i>  Field',
                     border: false,
@@ -879,7 +829,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         componentCls: 'button-margin',
                         text: 'Manually Adjust Yields',
                         handler: async function(self) {
-                            //await getWFSScenario()
                             console.log(chartObj)
                             console.log(fieldYieldArray)
                             await gatherYieldTableData()
@@ -915,7 +864,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             displayAlternate("rotation_yield_field", e.id)
                          }},
                     },
-
+                    //---------------------------------------------------------------------------------------------------- 
                     {
                         xtype: 'container',
                         html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
@@ -961,15 +910,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 
                     },
-//                        {onShow:function(){
-//                            console.log("Showing yieeeeeeeeeeeeeld")
-//                        }
-//
-//                        },
-                    }
-                }],
-
-            }
+                }
+            }],
+        }
             //TODO update
         var economics = {
 
@@ -1148,12 +1091,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     ],
                         listeners:{activate: function() {
                            if (chartObj["ploss_farm"].chart !== null){
-//                                chartObj["ploss_farm"].chart.destroy()
-//                                chartObj["soil_loss_farm"].chart.destroy()
                                 return
                             }
                             chartObj.ploss_farm.chart = create_graph(chartObj.ploss_farm, 'Phosphorous Loss', document.getElementById('ploss_farm').getContext('2d'));
-//                            chartObj.soil_loss_farm.chart = create_graph(chartObj.soil_loss_farm, 'test units', 'Soil Loss', document.getElementById('soil_loss_farm').getContext('2d'));
                     }}
 
                 },{ xtype: 'panel',
@@ -1272,45 +1212,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                     }}
 
-                },
-//                 { xtype: 'panel',
-//                     title: '<i class="fas fa-seedling"></i></i>  Field',
-//                      border: false,
-//                      id: 'insectFieldTab',
-// //                    disabled: true,
-//                     layout: {
-//                         type: 'table',
-//                         // The total column count must be specified here
-//                         columns: 1
-//                     },
-//                     defaults: {
-
-//                     style: 'padding:10px; ',
-//                     border:0,
-//                 },
-//                     items:[ {xtype: 'container',
-//                         html: '<div id="container" ><canvas id="insecticide_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-//                         },
-// //                    {
-// //                        xtype: 'container',
-// //                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-// //                    },{
-// //                        xtype: 'container',
-// //                    },{
-// //                        xtype: 'container',
-// //                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-// //                    }
-//                     ],
-//                     listeners:{activate: function() {
-//                         if (chartObj["insecticide_field"].chart !== null){
-//                             return
-//                         }
-//                         chartObj.insecticide_field.chart = create_graph(chartObj.insecticide_field, 'Honey Bee Toxicity', document.getElementById('insecticide_field').getContext('2d'));
-
-//                     }}
-//                 }
-                ],
-            }    
+                }],
+            }
 
 
 
@@ -1350,7 +1253,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                     style: 'padding:10px; ',
                     border:0,
-//                    html: "hiiiiiiiiii"
                 },
                     items:[{
                         xtype: 'container',
@@ -1464,36 +1366,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                         chartObj.cn_num_farm.chart = create_graph(chartObj.cn_num_farm, 'Curve Number', document.getElementById('cn_num_farm').getContext('2d'));
                         chartObj.runoff_farm.chart = create_graph_line(chartObj.runoff_farm, 'Runoff', document.getElementById('runoff_farm').getContext('2d'));
-
                     }}
-
                 },
-//                { xtype: 'panel',
-//                    title: '<i class="fas fa-seedling"></i></i>  Field',
-//                     border: false,
-//                    layout: {
-//                        type: 'table',
-//                        // The total column count must be specified here
-//                        columns: 2
-//                    },
-//                    defaults: {
-//
-//                    style: 'padding:10px; ',
-//                    border:0,
-//                },
-//                    items:[{
-//                        xtype: 'container',
-//                        html: '<div id="container" ><canvas id="cost_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    },{
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    }],
-//                }
+
                 ],
 
             }
@@ -1572,7 +1447,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     {
                         title: "Erosion",
                         xtype: 'panel',
-
                         width: chart_width,
                         collapsible: true,
                         items:[{
@@ -1591,7 +1465,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },{
                         title: "Nutrients",
                         xtype: 'panel',
-
                         width: chart_width,
                         collapsible: true,
                         items:[{
@@ -1610,7 +1483,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },{
                         title: "Runoff",
                         xtype: 'panel',
-
                         width: chart_width,
                         collapsible: true,
                         items:[{
@@ -1724,13 +1596,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                             return
                         }
-//                        chartObj.compare_farm.chartData.labels = ['Grass yield', 'Corn Yield', 'Soil Loss', "Phosphorus runof", "3 in Storm Event"]
-//                        chartObj.compare_farm.chartData.datasets[0].data = [1,1,1,1,1]
-//                        chartObj.compare_farm.chartData.datasets[0].fill = true
-//                        chartObj.compare_farm.chartData.datasets[1].data = [1.3,.8,1.1,1.5,2]
-//                        chartObj.compare_farm.chartData.datasets[1].fill = true
-//                        chartObj.compare_farm.chartData.datasets[2].data = [1.6,.9,1.25,1.2,.9]
-//                        chartObj.compare_farm.chartData.datasets[2].fill = true
                         chartObj.compare_farm.chart = create_graph_radar(chartObj.compare_farm, chartObj.compare_farm.title, document.getElementById('compare_farm').getContext('2d'));
 
 
@@ -1913,32 +1778,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 }}
 
                 },
-
-//                { xtype: 'panel',
-//                    title: '<i class="fas fa-seedling"></i></i>  Field',
-//                    border: false,
-//                    layout: {
-//                        type: 'table',
-//                        // The total column count must be specified here
-//                        columns: 2
-//                    },
-//                    defaults: {
-//
-//                    style: 'padding:10px; ',
-//                    border:0,
-//                },
-//                    items:[{
-//
-//                    },{
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-//                    }],
-//                    listeners:{activate: function() {
-//                        }}
-//                }
                 ],
 
             }
@@ -1967,91 +1806,287 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             },
             scrollable: true,
             listeners:{activate: function() {
-                Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                console.log("MAPPED RESULTS ACTIVATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                var layerslengtharray = DSS.layer.PLossGroup.getLayers().getArray().length
+                //Check to see if models were run and thus if there are new pngs to work with.
+                if(layerslengtharray < 1){
+                    console.log("No pngs ")
+                    console.log(modelruntime)
+                    DSS.map.removeLayer(DSS.layer.PLossGroup);
+                    DSS.map.addLayer(DSS.layer.PLossGroup)
+                    var fArray = []
+                    var fExtents = []
+                    DSS.layer.fields_1.getSource().getFeatures().forEach(function(f) {
+                        console.log(f)
+                        fArray.push(f);
+                    })
+                    console.log(fArray);
+                    for(i in fArray){
+                        fExtents = fArray[i].values_.geometry.extent_
+                        for(e in fExtents){
+                            fExtents[e] = fExtents[e].toFixed(4)
+                        }
+                        fExtentsNum = fExtents.map(Number);
+                        var fId = fArray[i].values_.gid
+                        console.log(fExtentsNum)
+                        console.log(fId)
+                        DSS.layer.ploss_field = new ol.layer.Image({
+                            visible: false,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/ploss'+ String(fId) + '_' + modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                            })
+                        })
+                        DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
+                        var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                        if(plossGroupLayers.length == 0){
+                            plossGroupLayers.push(DSS.layer.ploss_field);
+                        }
+                        else{
+                            for(l in plossGroupLayers){
+                                console.log(plossGroupLayers[l].values_.name)
+                                console.log(DSS.layer.ploss_field.values_.name)
+                                if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
+                                    const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
+                                    if(index > -1) {
+                                        plossGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
+                                    }
+                                    plossGroupLayers.push(DSS.layer.ploss_field);
+                                }
+                            }
+                        plossGroupLayers.push(DSS.layer.ploss_field);
+                        }
+                        //--------------------Runoff_---------------------------------------
+                        DSS.layer.runoff_field = new ol.layer.Image({
+                            visible: false,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/runoff'+ String(fId) + '_' + modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                            })
+                        })
+                        DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
+                        var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
+                        if(erosionGroupLayers.length == 0){
+                            erosionGroupLayers.push(DSS.layer.runoff_field);
+                        }
+                        else{
+                            for(l in erosionGroupLayers){
+                                console.log(erosionGroupLayers[l].values_.name)
+                                console.log(DSS.layer.runoff_field.values_.name)
+                                if(erosionGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
+                                    const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                                    if(index > -1) {
+                                        erosionGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
+                                    }
+                                    erosionGroupLayers.push(DSS.layer.runoff_field);
+                                }
+                            }
+                        erosionGroupLayers.push(DSS.layer.runoff_field);
+                        }
+                    //--------------------Yield_---------------------------------------
+                        DSS.layer.yield_field = new ol.layer.Image({
+                            visible: false,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/yield'+ String(fId) + '_' + modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                            })
+                        })
+                        DSS.layer.yield_field.set('name', 'yield'+ String(fId));
+                        var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+                        if(yieldGroupLayers.length == 0){
+                            yieldGroupLayers.push(DSS.layer.yield_field);
+                        }
+                        else{
+                            for(l in yieldGroupLayers){
+                                console.log(yieldGroupLayers[l].values_.name)
+                                console.log(DSS.layer.yield_field.values_.name)
+                                if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
+                                    const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
+                                    if(index > -1) {
+                                        yieldGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
+                                    }
+                                    yieldGroupLayers.push(DSS.layer.yield_field);
+                                }
+                            }
+                        yieldGroupLayers.push(DSS.layer.yield_field);
+                        }
+                    }
+                    //---------------------------------------------------------------------------
+                    DSS.map.removeLayer(DSS.layer.PLossGroup);
+				    DSS.map.addLayer(DSS.layer.PLossGroup)
+                    DSS.layer.PLossGroup.getLayers().forEach(function(layer){
+                        console.log(layer)
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    }) 
+                    DSS.map.removeLayer(DSS.layer.erosionGroup);
+                    DSS.map.addLayer(DSS.layer.erosionGroup)
+                    DSS.layer.erosionGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    DSS.map.removeLayer(DSS.layer.yieldGroup);
+                    DSS.map.addLayer(DSS.layer.yieldGroup)
+                    DSS.layer.yieldGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                }else{
+                    DSS.map.removeLayer(DSS.layer.PLossGroup);
+                    DSS.map.addLayer(DSS.layer.PLossGroup)
+                    DSS.layer.PLossGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    DSS.map.removeLayer(DSS.layer.erosionGroup);
+                    DSS.map.addLayer(DSS.layer.erosionGroup)
+                    DSS.layer.erosionGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    DSS.map.removeLayer(DSS.layer.yieldGroup);
+                    DSS.map.addLayer(DSS.layer.yieldGroup)
+                    DSS.layer.yieldGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                }
             },
             deactivate: function() {
                 Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('80%');
                 DSS.MapState.destroyLegend();
+                DSS.layer.PLossGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    layer.setSource(null)
+                })
+                DSS.layer.erosionGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    layer.setSource(null)
+                })
+                DSS.layer.yieldGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    layer.setSource(null)
+                })
             }},
 //                inner tabs for farm and field scale
-            items:[{
-                title: "Model Outputs",
-                xtype: 'panel',
-                width: chart_width,
-                collapsible: true,
-                items:[
-                    {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: 'Mapped Results',
-                    defaultType: 'checkboxfield',
-                    items:[{
-                        boxLabel: 'Phosphorus Loss',
-                        name: 'PLoss',
-                        handler: function(self) {
-                            console.log('ploss clicked')
-                            DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
-                            
-                            //Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
-                            // Ext.util.Cookies.set('DSS.layer.ploss_field:visible', self.checked ? "0" : "1");                	
-                            //DSS.layer.ploss_field.setVisible(self.checked);
-                            console.log(DSS.layer.PLossGroup)
-                            DSS.layer.PLossGroup.setVisible(self.checked);
-                            //DSS.map.addLayerGroup(DSS.layer.PLossGroup)
-                            
-                            //DSS.map.render;
-                        }
-                    },
-                    // {
-                    //     boxLabel: 'Runoff',
-                    //     name: 'Runoff',
-                    //     handler: function(self) {
-                    //         console.log('runoff clicked')
-                    //         console.log(DSS.layer.runoffGroup)
-                    //         DSS.layer.runoffGroup.setVisible(self.checked);
-                    //         //DSS.map.render;
-                    //     }
-                    // },
-                    
-                    // {
-                    //     boxLabel: 'Yield',
-                    //     name: 'Yield',
-                    //     handler: function(self) {
-                    //         console.log('Yield clicked')
-                    //         DSS.layer.yieldGroup.setVisible(self.checked);
-                    //         console.log(DSS.layer.yieldGroup)
-                    //     }
-                    // }
-                ],
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					text: 'RED ',
-                    style:{
-                        color: 'red'
-                    }
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					text: 'indicates higher values, '
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					text: 'BLUE ',
-                    style:{
-                        color: 'blue'
-                    }
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					html: 'indicates lower values. \n* CAUTION * P loss estimates are derived from SnapPlus and originally intended to represent field scale P losses; sub-field variability is only shown for illustration purposes'
-                }
-            ],
-                scope: this,
-            }]
+            items:[
+            {
+				xtype: 'radiogroup',
+                title: '<i class="fas fa-warehouse"></i>  Farm',
+					columns: 1, 
+					vertical: true,
+					collapsible: true,
+					defaults: {
+						padding: '2 0',
+						group: 'input-layer'
+					},
+					items: [
+						{
+							boxLabel: 'Phosphorus Loss',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log('ploss clicked')
+                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                                        console.log(DSS.layer.PLossGroup)
+                                        DSS.layer.PLossGroup.setVisible(true);
+										}
+									else{
+										DSS.layer.PLossGroup.setVisible(false);
+									}
+								}
+							}
+						},
+                        {
+							boxLabel: 'Erosion',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log('Erosion clicked')
+                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                                        console.log(DSS.layer.PLossGroup)
+                                        DSS.layer.erosionGroup.setVisible(checked);
+										}
+									else{
+										DSS.layer.erosionGroup.setVisible(false);
+									}
+								}
+							}
+						},
+						{
+							boxLabel: 'Yield',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log('Yield clicked')
+                                        //DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                                        console.log(DSS.layer.yieldGroup)
+                                        DSS.layer.yieldGroup.setVisible(checked);
+										}
+									else{
+										DSS.layer.yieldGroup.setVisible(false);
+									}
+								}
+							}
+						},
+						{ 
+							boxLabel: 'No Output Overlay', 
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log(this.checked)
+										DSS.MapState.destroyLegend();
+										DSS.layer.yieldGroup.setVisible(false);
+                                        DSS.layer.erosionGroup.setVisible(false);
+                                        DSS.layer.PLossGroup.setVisible(false);
+									}
+								}
+							}
+						},
+					]
+			},]
+            
         }    
         var phantom = { title: 'Model Select',
                 plain: true,

@@ -10,13 +10,10 @@ import json
 from django.http import FileResponse
 import traceback
 import uuid
-
 from django.core.files import File
 from django.conf import settings
 import os
 credential_path = os.path.join(settings.BASE_DIR,'keys','cals-grazescape-files-63e6-4f2fc53201e6.json')
-#"C:\Users\zjhas\Downloads\cals-grazescape-files-63e6-a2c84bb6a695.json"
-
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 # Create your views here.
 from grazescape.raster_data import RasterData
@@ -39,78 +36,98 @@ import time
 import sys
 import shutil
 import math
+from datetime import datetime
+#time elements
+now =datetime.now()
+dt_string = now.strftime("%d/%m/%Y%H:%M:%S")
 
+#------------------------------------------
 raster_data = None
 
-def upload_gcs_model_result_blob(field_id):
-    """Uploads a file to the bucket."""
-    # The ID of your GCS bucket
-    #bucket_name = "dev_container_model_results"
-    # The path to your file to upload
-    
-    source_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images','ploss'+field_id+'.png')
-    #"/static/grazescape/public/images/ploss"+field_id+'.png'
-    # The ID of your GCS object
-    destination_blob_name = "ploss"+field_id+'.png'
+def remove_old_pngs_from_local(model_type,field_id):
+    images_folder_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
+    for filename in os.listdir(images_folder_path):
+        print(filename)
+        if model_type+field_id in filename:
+            os.remove(os.path.join(images_folder_path,filename))
+            print("Removed :"+ filename)
+        else: 
+            pass
+def remove_old_pngs_gcs_storage_bucket(model_type,field_id):
+    print('hi there')
+    """Lists all the blobs in the bucket."""
+    # bucket_name = "your-bucket-name"
 
+    storage_client = storage.Client()
+    #bucket = storage_client.bucket("dev_container_model_results")
+
+    # Note: Client.list_blobs requires at least package version 1.17.0.
+    blobs = storage_client.list_blobs("dev_container_model_results")
+    for blob in blobs:
+        print(blob.name)
+        if str(model_type+field_id) in blob.name:
+            try:
+                blob.delete()
+                print("Blob" + model_type+field_id+" deleted.")
+            except:
+                print("There was an error")
+                pass
+
+# Uploads model results to GCS bucket
+def upload_gcs_model_result_blob(model_type,field_id,model_run_timestamp):
+    """Uploads a file to the bucket."""
+    source_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',model_type + field_id + '_' + model_run_timestamp + ".png")
+    # The ID of your GCS object
+    destination_blob_name = model_type + field_id + '_' + model_run_timestamp + ".png"
     storage_client = storage.Client()
     bucket = storage_client.bucket("dev_container_model_results")
     blob = bucket.blob(destination_blob_name)
-
-    blob.upload_from_filename(source_file_name)
-
-    print(
-        "File {} uploaded to {}.".format(
-            source_file_name, destination_blob_name
+    try:
+        blob.upload_from_filename(source_file_name)
+        print(
+            "File {} uploaded to {}.".format(
+                source_file_name, destination_blob_name
+            )
         )
-    )
-
-def download_gcs_model_result_blob(field_id):
+    except:
+        print("THERE WAS AN ERROR WHILE UPLOADING "+ destination_blob_name)
+        pass
+# Downloads model results from GCS bucket
+def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp):
     """Downloads a blob from the bucket."""
-    # The ID of your GCS bucket
-    # bucket_name = "your-bucket-name"
-
-    # The ID of your GCS object
-    # source_blob_name = "storage-object-name"
-
-    # The path to which the file should be downloaded
-    # destination_file_name = "local/path/to/file"
-
-    destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images','ploss'+field_id+'.png')
-
+    model_Types = ['yield', 'ploss','runoff']
     storage_client = storage.Client()
-
     bucket = storage_client.bucket("dev_container_model_results")
-
-    # Construct a client side representation of a blob.
-    # Note `Bucket.blob` differs from `Bucket.get_blob` as it doesn't retrieve
-    # any content from Google Cloud Storage. As we don't need additional data,
-    # using `Bucket.blob` is preferred here.
-    blob = bucket.blob('ploss'+field_id+'.png')
-    try:
-        blob.download_to_filename(destination_file_name)
-        print("GOOGLE CLOUD DOWNLOAD RANNNNNN&&&&&&***********#########")
-    except:
-        print("There was an error")
-        pass
-
+    blobs = storage_client.list_blobs("dev_container_model_results")
+    for blob in blobs:
+        for model in model_Types:
+            if str(model+str(field_id)) in blob.name and str(scen) == str(active_scen):
+                print("SCEN ACTIVE SCEN HIT!!!!!!!!")
+                model_run_timestamp = blob.name[-17:-4]
+                print(model_run_timestamp)
+                print(blob.name)
+                destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
+                try:
+                    blob.download_to_filename(destination_file_name)
+                    print("Blob {} downloaded.".format(field_id))
+                except:
+                    print("There was an error")
+                    pass
+# Deletes model results from GCS bucket
 def delete_gcs_model_result_blob(field_id):
-    """Deletes a blob from the bucket."""
-    # bucket_name = "your-bucket-name"
-    # blob_name = "your-object-name"
-
+    model_Types = ['yield', 'ploss','runoff', 'bio']
     storage_client = storage.Client()
-
     bucket = storage_client.bucket("dev_container_model_results")
-    blob = bucket.blob('ploss'+field_id+'.png')
-    try:
-        blob.delete()
-        print("Blob {} deleted.".format(field_id))
-
-    except:
-        print("There was an error")
-        pass
-
+    for model in model_Types:
+        """Deletes a blob from the bucket."""
+        blob = bucket.blob(model+field_id+'.png')
+        try:
+            blob.delete()
+            print("Blob {} deleted.".format(field_id))
+        except:
+            print("There was an error")
+            pass
+# Used to set up heifer feed break down calculations 
 @csrf_protect
 @login_required
 def heiferFeedBreakDown(data):
@@ -129,14 +146,14 @@ def heiferFeedBreakDown(data):
     daysOnPasture = data.POST.get('heiferDOP')
     asw = data.POST.get('heiferASW')
     wgg = data.POST.get('heiferWGG')
-    print('cornsillage in views!!!!!!!!!!1!@@@@@@@@@@############@')
     print(cornSilageYield)
 
     toolName = HeiferFeedBreakdown(pastYield,cornYield,cornSilageYield,alfalfaYield,oatYield,totalheifers,
     breed,bred,daysOnPasture,asw,wgg)
 
     return JsonResponse({"output":toolName.calcFeed()})
-
+#Runs true length for infra.  Uses DEM to get a profile of the traveled path to use to calculate the 
+#distance over the terrian.
 @ensure_csrf_cookie
 @csrf_protect
 @login_required
@@ -147,7 +164,7 @@ def run_InfraTrueLength(data):
     infraLengthXY = data.POST.get('infraLengthXY')
     toolName = InfraTrueLength(infraextent,infracords,infraId,infraLengthXY)
     return JsonResponse({"output":toolName.profileTool()})
-
+#Cleans data 
 @login_required
 def clean_data(request):
     print("cleaning data")
@@ -175,7 +192,6 @@ def clean_data(request):
     # get_users()
     return JsonResponse({"clean":"finished"})
 
-
 @csrf_protect
 @login_required
 def index(request):
@@ -192,6 +208,7 @@ def index(request):
     }
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'index.html', context=context)
+# Downloads raster from Geoserver
 @ensure_csrf_cookie
 @login_required
 def download_rasters(request):
@@ -205,11 +222,10 @@ def download_rasters(request):
     geo_data = RasterData(request.POST.getlist("extent[]"),
                           field_coors, field_id, True)
     return JsonResponse({"download":"finished"})
-
+#Makes post requests to WEI geoserver
 @login_required
 @csrf_protect
 def geoserver_request(request):
-    
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
@@ -218,9 +234,7 @@ def geoserver_request(request):
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
     if "field_2" in pay_load and request_type == "delete":
-        # print("GEOSERVER PAYLOAD!!!")
         payloadstr = str(pay_load)
-        #print(payloadstr)
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
         print(resultdel.group(1))
         delete_gcs_model_result_blob(resultdel.group(1))
@@ -231,24 +245,19 @@ def geoserver_request(request):
     if request_type == "source_farm":
         input_dict = json.loads(result)
         current_user = request.user
-        # print(current_user.id)
-        # print(result)
         print("\n \n")
-        # print(input_dict)
         features = input_dict["features"]
-        # print(features)
         farm_ids = get_user_farms(current_user.id)
         # Filter python objects with list comprehensions
         print(features[0]["properties"])
         output_dict = [x for x in features if x["properties"]['id'] in farm_ids]
-        # output_dict = [x for x in features if x['id'] in farm_ids]
         input_dict["features"] = output_dict
         # Transform python object back into json
         output_json = json.dumps(input_dict)
         result = output_json
         print(result)
     return JsonResponse({"data": result}, safe=False)
-
+#Gets OM from OM raster layer
 @login_required
 def get_default_om(request):
     print(request.POST)
@@ -274,8 +283,7 @@ def get_default_om(request):
             count = count + 1
     print("average om is ", round(sum / count,2))
     return JsonResponse({"om": round(sum / count,2)}, safe=False)
-
-
+#This gets the model results from the model results table
 @login_required
 @csrf_protect
 def get_model_results(request):
@@ -285,22 +293,57 @@ def get_model_results(request):
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
     scen = request.POST.get('model_parameters[scen]')
+    field_scen_id = request.POST.get('model_parameters[f_scen]')
+    model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
+    active_scen = request.POST.get('model_parameters[active_scen]')
     db_has_field(field_id)
-    #db_has_field(field_id, scenario_id, farm_id)
-
+    # print("NEW MODEL RUN")
+    # print(field_id)
+    # print(scen)
+    # print(field_scen_id)
+    # print(scenario_id)
+    # print(active_scen)
     if request.POST.getlist("runModels")[0] == 'false':
         print("not active scenario")
-        download_gcs_model_result_blob(field_id)
-        return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request), safe=False)
+        download_gcs_model_result_blob(field_id,field_scen_id,active_scen,model_run_timestamp)
+        """Downloads a blob from the bucket."""
+        # model_Types = ['yield', 'ploss','runoff']
+        storage_client = storage.Client()
+        # bucket = storage_client.bucket("dev_container_model_results")
+        blobs = storage_client.list_blobs("dev_container_model_results")
+        for blob in blobs:
+            if str(field_scen_id) == str(active_scen) and str(field_id) in blob.name:
+                #namestring = blob.name
+                print("SCEN ACTIVE SCEN HIT!!!!!!!!")
+                # print(field_id)
+                model_run_timestamp = blob.name[-17:-4]
+                #runtimecollect = True
+                print(model_run_timestamp)
+            #print(blob.name)
+            # for model in model_Types:
+            #     if str(model+str(field_id)) in blob.name:
+            #         destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
+            #         blob = bucket.blob(model+field_id+'.png')
+            #         try:
+            #             blob.download_to_filename(destination_file_name)
+            #             print("Blob {} downloaded.".format(field_id))
+            #         except:
+            #             print("There was an error while downloading from GCS")
+            #             pass
+        return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request,model_run_timestamp), safe=False)
     field_coors = []
+    if model_type == 'ploss':
+        remove_old_pngs_from_local('ploss',field_id)
+    if model_type == 'yield':
+        remove_old_pngs_from_local('yield',field_id)
+    if model_type == 'runoff':
+        remove_old_pngs_from_local('runoff',field_id)
     # format field geometry
     for input in request.POST:
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
     try:
         geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, False)
-        # geo_data.load_layers()
-        # geo_data.create_clip(field_coors)
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
         if model_type == 'yield':
@@ -325,8 +368,6 @@ def get_model_results(request):
                 model = CropYield(request)
         elif model_type == 'ploss':
             model = PhosphorousLoss(request)
-        # elif model_type == 'ero':
-        #     model = Erosion(request)
         elif model_type == 'runoff':
             model = Runoff(request)
         elif model_type == 'bio':
@@ -344,9 +385,7 @@ def get_model_results(request):
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.getlist("model_parameters[area]")[0])
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", area)
         for result in results:
-            #if result.model_type == "ploss": index 0 file name = erosion, index 1 file name = ploss
             if result.model_type == "insect":
                 sum = result.data[0]
                 avg = sum
@@ -354,14 +393,22 @@ def get_model_results(request):
                 palette = []
                 values_legend = []
             else:
-                print("THESE ARE THE GEO BOUNDS FOR THE MODEL RUN PNG!!!!!!!!!!!!!")
                 print(geo_data.bounds)
                 print(result)
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
                 if model_type == 'ploss':
                     print('UPLOADING PLOSS FOR FIELD: '+field_id)
-                    upload_gcs_model_result_blob(field_id)
+                    remove_old_pngs_gcs_storage_bucket("ploss",field_id)
+                    upload_gcs_model_result_blob("ploss",field_id,model_run_timestamp)
+                if model_type == 'yield':
+                    print('UPLOADING YIELD FOR FIELD: '+field_id)
+                    remove_old_pngs_gcs_storage_bucket('yield',field_id)
+                    upload_gcs_model_result_blob('yield',field_id,model_run_timestamp)
+                if model_type == 'runoff':
+                    print('UPLOADING RUNOFF FOR FIELD: '+field_id)
+                    remove_old_pngs_gcs_storage_bucket('runoff',field_id)
+                    upload_gcs_model_result_blob('runoff',field_id,model_run_timestamp)
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
@@ -371,7 +418,7 @@ def get_model_results(request):
             data = {
                 "extent": [*bounds],
                 "palette": palette,
-                "url": model.file_name + ".png",
+                "url": model.file_name + '_' + model_run_timestamp + ".png",
                 "values": values_legend,
                 "units": result.default_units,
                 "units_alternate": result.alternate_units,
@@ -390,10 +437,9 @@ def get_model_results(request):
                 "crop_ro": model.model_parameters["crop"],
                 "grass_ro": model.model_parameters["rotation"],
                 "grass_type": model.model_parameters["grass_type"],
-                "till": model.model_parameters["tillage"]
+                "till": model.model_parameters["tillage"],
+                "model_run_timestamp": model_run_timestamp
             }
-            #null_out_yield_results(field_id, scenario_id, farm_id, data)
-            #null_out_yield_results(data)
             if db_has_field(field_id):
             # if db_has_field(field_id, scenario_id, farm_id):
                 # if model_type == 'ploss':
@@ -422,8 +468,6 @@ def get_model_results(request):
         error = str(e) + " while running models for field " + f_name
         print(type(e).__name__)
         traceback.print_exc()
-        # error = "Unexpected error:", sys.exc_info()[0]
-        # error = "Unexpected error"
     print(error)
     data = {
         # overall model type crop, ploss, bio, runoff
@@ -437,15 +481,11 @@ def get_model_results(request):
         "error": error
     }
     return JsonResponse([data], safe=False)
-
-
+#Used to update the model results table when yields are adjusted.
 @login_required
 @csrf_protect
 def adjust_field_yields(yield_data):
     print('INSIDE ADJUST FIELD YIELDS!!!!!!!&&&&&&$$$$$$&&&#&&#&#&#&#&#&#&')
-    #print(yield_data.POST)
-    #print(yield_data.POST.get('cellSums[]'))
-    #print(yield_data.POST.get('yieldTypes[]'))
     data = {
         "area": yield_data.POST.get('area'),
         "value_type": yield_data.POST.getlist('yieldTypes[]'),
@@ -476,8 +516,6 @@ def adjust_field_yields(yield_data):
         "grass_type": yield_data.POST.get('grassType'),
         "till": yield_data.POST.get('till'),
     }
-    #print(data)
-    #data2 = data
     if data.get("crop_ro") == 'pt': #grass
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
