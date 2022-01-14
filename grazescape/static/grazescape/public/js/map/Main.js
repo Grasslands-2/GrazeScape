@@ -40,8 +40,6 @@ Ext.define('DSS.map.Main', {
 			self.instantiateMap()
 		},
 		resize: function(self, w, h) {
-		//	let mapSize = self.down('#ol_map').getSize();
-		//	self.map.setSize([mapSize.width, mapSize.height]);
 		}
 	},
 		
@@ -58,8 +56,6 @@ Ext.define('DSS.map.Main', {
 				listeners: {
 					resize: function(self, w, h) {
 						me.map.setSize([w,h]);
-						//DSS.MapState.mapResize();
-						
 						AppEvents.triggerEvent('map_resize');
 					}
 				}
@@ -83,7 +79,6 @@ Ext.define('DSS.map.Main', {
 						click: function(self) {
 							let rect = c.el.dom.getBoundingClientRect();
 							Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
-							//Ext.getCmp('layersMenu').showAt(rect.left-2, rect.top-2);
 						}
 					});
 				}
@@ -92,7 +87,6 @@ Ext.define('DSS.map.Main', {
 		
 		setTimeout(function() {
 			DSS.LayerButton.showAt(DSS.LayerButton.x,0);
-			//Ext.getCmp('DSS.map.LayerMenu').destroy()
 		}, 100);
 		
 	},
@@ -115,7 +109,6 @@ Ext.define('DSS.map.Main', {
 				y: -32
 			}
 		});
-		//Ext.getCmp('DSS.map.LayerMenu').destroy()
 		console.log('layer menu turned off')
 	},
 
@@ -141,9 +134,7 @@ Ext.define('DSS.map.Main', {
 	
 	//-------------------------------------------------------------------------
 	manageMapLayerCookies: function() {
-	
 		let me = this;
-		
 		me._cookieInternalHelper("crop", "1", 0.8);
 		me._cookieInternalHelper("inspector", "1", 0.8);
 		me._cookieInternalHelper("tainterwatershed", "1", 0.6);
@@ -210,7 +201,6 @@ Ext.define('DSS.map.Main', {
 		//--------------------------------------------------------------		
 		DSS.layer.osm_hybrid = new ol.layer.Tile({
 			visible: true,
-			//visible: true,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/maps/hybrid/tiles.json?key=' + me.OSM_KEY,
 				tileSize: 400,
@@ -220,7 +210,6 @@ Ext.define('DSS.map.Main', {
 		//--------------------------------------------------------------	
 		DSS.layer.osm_satelite = new ol.layer.Tile({
 			visible: false,
-			//visible: true,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
 				tileSize: 400,
@@ -230,7 +219,6 @@ Ext.define('DSS.map.Main', {
 		//--------------------------------------------------------------	
 		DSS.layer.osm_streets = new ol.layer.Tile({
 			visible: false,
-			//visible: true,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/maps/streets/tiles.json?key=' + me.OSM_KEY,
 				tileSize: 400,
@@ -343,7 +331,6 @@ Ext.define('DSS.map.Main', {
 			})
 		}),
 		DSS.layer.DEM_image3 = new ol.layer.Image({
-			//visible: DSS.layer['DEM:visible'],
 			visible: false,
 			opacity: DSS.layer['DEM:opacity'],
 			source:
@@ -497,7 +484,7 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
-		DSS.layer.runoffGroup = new ol.layer.Group({
+		DSS.layer.erosionGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
 		})
@@ -571,24 +558,6 @@ Ext.define('DSS.map.Main', {
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
-		//var DEMSource = new ol.source.ImageStatic({});
-		//var DEMSource = new ol.source.ImageWMS({});
-		
-		//var fields_1Source = new ol.source.Vector({});
-
-		// var fields_1Source = new ol.source.Vector({
-		// 	format: new ol.format.GeoJSON(),
-		// 	url: function(extent) {
-		// 		return geoserverURL + '/geoserver/wfs?'+
-		// 		'service=wfs&'+
-		// 		'?version=2.0.0&'+
-		// 		'request=GetFeature&'+
-		// 		'typeName=GrazeScape_Vector:field_2&' +
-		// 		//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-		// 		'outputformat=application/json&'+
-		// 		'srsname=EPSG:3857';
-		// 	},
-		// });
 		//-------------------------------------Scenario Style------------------------
 		function scenStyle() {
 			if( 1 ==1 ){return scenStyle1}
@@ -713,15 +682,8 @@ Ext.define('DSS.map.Main', {
 				}
 			}
 		});	
-      //		set sources of the major layers
-//        geoServer.setFieldSource()
-//		geoServer.setFarmSource()
-//		geoServer.setInfrastructureSource()
-//		geoServer.setScenariosSource()
-
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;
-
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
@@ -752,7 +714,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.Sand1,
 				DSS.layer.Sand2,
 				DSS.layer.Sand3,
-				DSS.layer.runoffGroup,
+				DSS.layer.erosionGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.yieldGroup,
 				DSS.layer.kickapoowatershed,
@@ -814,49 +776,14 @@ Ext.define('DSS.map.Main', {
 		me.map.on('click', function(e) {
 			//document.getElementById('info').innerHTML = '';
 			let coords = me.map.getEventCoordinate(e.originalEvent);
-
-
-
         var view = me.map.getView();
         var viewResolution = view.getResolution();
-		//const demVal = DSS.layer.DEM_image.getFeatureInfo
+		
 		var value = {};
-		// const demVal = DEMSource.getFeatureInfoUrl(
-		// 	e.coordinate,
-		// 	viewResolution,
-		// 	'EPSG:3857',
-		// 	{'INFO_FORMAT': 'application/json'}
-		//    );
-		//    if(demVal){
-		//  	 fetch(demVal)
-		// // 	  response = fetch(demVal)
-		//  	  //console.log(demVal)
-		// // 	  console.log(response)
-		// // 	  value = response.getElementById("featureInfo").innerHTML;
-		// // 	  console.log(value);
-		// 	//   var value =  	''
-		// 	   .then(response => response.json())
-		// 	   .then((out) => {
-		// 		console.log('Output: ', out.features[0].properties.GRAY_INDEX);
-		// 		value = out.features[0].properties.GRAY_INDEX
-		// 		console.log(value)
-		// }).catch(err => console.error(err));
-		// 	   //.then((html) => console.log(html)
-		// 	// 	value = html;
-		// 	//document.getElementById('info').innerHTML = html;
-		// 	 //  );
-			 
-		// }
-        //var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
+		
         console.log(view)
         console.log(viewResolution)
-		//console.log(demVal.getElementByClass("featureInfo"))
 		
-		//console.log(demVal)
-
-
-
-
         var pixel1 = me.map.getPixelFromCoordinate(coords);
         console.log(pixel1)
 			console.log(e, coords, ol.proj.transform(coords, 'EPSG:3857', 'EPSG:3071'));  

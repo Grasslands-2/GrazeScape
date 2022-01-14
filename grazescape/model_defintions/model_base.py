@@ -15,6 +15,7 @@ class ModelBase:
 
     def __init__(self, request, file_name=None):
         field_id = request.POST.getlist("field_id")[0]
+        model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
         scenario_id = request.POST.getlist("scenario_id")[0]
         farm_id = request.POST.getlist("farm_id")[0]
         model_type = request.POST.get('model_parameters[model_type]')
@@ -22,7 +23,7 @@ class ModelBase:
         scen = request.POST.get('model_parameters[scen]')
 
         if file_name is None:
-            file_name = model_type + field_id ##+'_'+ str(uuid.uuid1())##
+            file_name = model_type + field_id +'_' + model_run_timestamp ##+'_'+ str(uuid.uuid1())##
         self.file_name = file_name
         self.model_data_inputs_path = os.path.join(settings.BASE_DIR,
                                                    'grazescape', 'data_files',
@@ -177,8 +178,10 @@ class ModelBase:
     def run_model(self):
         pass
 
+# creates realtive to the field color ramp.
     def create_color_ramp(self, min_value, max_value, num_cat=9):
         interval_step = (max_value - min_value) / num_cat
+        #interval_step = 1.875
         cate_value = min_value
         cat_list = []
         self.color_ramp_hex = [
