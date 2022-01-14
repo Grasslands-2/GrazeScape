@@ -36,48 +36,97 @@ import time
 import sys
 import shutil
 import math
+from datetime import datetime
+#time elements
+now =datetime.now()
+dt_string = now.strftime("%d/%m/%Y%H:%M:%S")
 
+#------------------------------------------
 raster_data = None
+
+def remove_old_pngs_from_local(model_type,field_id):
+    images_folder_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
+    for filename in os.listdir(images_folder_path):
+        print(filename)
+        if model_type+field_id in filename:
+            os.remove(os.path.join(images_folder_path,filename))
+            print("Removed :"+ filename)
+        else: 
+            pass
+def remove_old_pngs_gcs_storage_bucket(model_type,field_id):
+    print('hi there')
+    """Lists all the blobs in the bucket."""
+    # bucket_name = "your-bucket-name"
+
+    storage_client = storage.Client()
+    #bucket = storage_client.bucket("dev_container_model_results")
+
+    # Note: Client.list_blobs requires at least package version 1.17.0.
+    blobs = storage_client.list_blobs("dev_container_model_results")
+    for blob in blobs:
+        print(blob.name)
+        if str(model_type+field_id) in blob.name:
+            try:
+                blob.delete()
+                print("Blob" + model_type+field_id+" deleted.")
+            except:
+                print("There was an error")
+                pass
+
 # Uploads model results to GCS bucket
-def upload_gcs_model_result_blob(field_id):
+def upload_gcs_model_result_blob(model_type,field_id,model_run_timestamp):
     """Uploads a file to the bucket."""
-    source_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images','ploss'+field_id+'.png')
+    source_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',model_type + field_id + '_' + model_run_timestamp + ".png")
     # The ID of your GCS object
-    destination_blob_name = "ploss"+field_id+'.png'
+    destination_blob_name = model_type + field_id + '_' + model_run_timestamp + ".png"
     storage_client = storage.Client()
     bucket = storage_client.bucket("dev_container_model_results")
     blob = bucket.blob(destination_blob_name)
-    blob.upload_from_filename(source_file_name)
-    print(
-        "File {} uploaded to {}.".format(
-            source_file_name, destination_blob_name
+    try:
+        blob.upload_from_filename(source_file_name)
+        print(
+            "File {} uploaded to {}.".format(
+                source_file_name, destination_blob_name
+            )
         )
-    )
+    except:
+        print("THERE WAS AN ERROR WHILE UPLOADING "+ destination_blob_name)
+        pass
 # Downloads model results from GCS bucket
-def download_gcs_model_result_blob(field_id):
+def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp):
     """Downloads a blob from the bucket."""
-    destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images','ploss'+field_id+'.png')
+    model_Types = ['yield', 'ploss','runoff']
     storage_client = storage.Client()
     bucket = storage_client.bucket("dev_container_model_results")
-    blob = bucket.blob('ploss'+field_id+'.png')
-    try:
-        blob.download_to_filename(destination_file_name)
-        print("Blob {} downloaded.".format(field_id))
-    except:
-        print("There was an error")
-        pass
+    blobs = storage_client.list_blobs("dev_container_model_results")
+    for blob in blobs:
+        for model in model_Types:
+            if str(model+str(field_id)) in blob.name and str(scen) == str(active_scen):
+                print("SCEN ACTIVE SCEN HIT!!!!!!!!")
+                model_run_timestamp = blob.name[-17:-4]
+                print(model_run_timestamp)
+                print(blob.name)
+                destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
+                try:
+                    blob.download_to_filename(destination_file_name)
+                    print("Blob {} downloaded.".format(field_id))
+                except:
+                    print("There was an error")
+                    pass
 # Deletes model results from GCS bucket
 def delete_gcs_model_result_blob(field_id):
-    """Deletes a blob from the bucket."""
+    model_Types = ['yield', 'ploss','runoff', 'bio']
     storage_client = storage.Client()
     bucket = storage_client.bucket("dev_container_model_results")
-    blob = bucket.blob('ploss'+field_id+'.png')
-    try:
-        blob.delete()
-        print("Blob {} deleted.".format(field_id))
-    except:
-        print("There was an error")
-        pass
+    for model in model_Types:
+        """Deletes a blob from the bucket."""
+        blob = bucket.blob(model+field_id+'.png')
+        try:
+            blob.delete()
+            print("Blob {} deleted.".format(field_id))
+        except:
+            print("There was an error")
+            pass
 # Used to set up heifer feed break down calculations 
 @csrf_protect
 @login_required
@@ -244,13 +293,51 @@ def get_model_results(request):
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
     scen = request.POST.get('model_parameters[scen]')
+    field_scen_id = request.POST.get('model_parameters[f_scen]')
+    model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
+    active_scen = request.POST.get('model_parameters[active_scen]')
     db_has_field(field_id)
-
+    # print("NEW MODEL RUN")
+    # print(field_id)
+    # print(scen)
+    # print(field_scen_id)
+    # print(scenario_id)
+    # print(active_scen)
     if request.POST.getlist("runModels")[0] == 'false':
         print("not active scenario")
-        download_gcs_model_result_blob(field_id)
-        return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request), safe=False)
+        download_gcs_model_result_blob(field_id,field_scen_id,active_scen,model_run_timestamp)
+        """Downloads a blob from the bucket."""
+        # model_Types = ['yield', 'ploss','runoff']
+        storage_client = storage.Client()
+        # bucket = storage_client.bucket("dev_container_model_results")
+        blobs = storage_client.list_blobs("dev_container_model_results")
+        for blob in blobs:
+            if str(field_scen_id) == str(active_scen) and str(field_id) in blob.name:
+                #namestring = blob.name
+                print("SCEN ACTIVE SCEN HIT!!!!!!!!")
+                # print(field_id)
+                model_run_timestamp = blob.name[-17:-4]
+                #runtimecollect = True
+                print(model_run_timestamp)
+            #print(blob.name)
+            # for model in model_Types:
+            #     if str(model+str(field_id)) in blob.name:
+            #         destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
+            #         blob = bucket.blob(model+field_id+'.png')
+            #         try:
+            #             blob.download_to_filename(destination_file_name)
+            #             print("Blob {} downloaded.".format(field_id))
+            #         except:
+            #             print("There was an error while downloading from GCS")
+            #             pass
+        return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request,model_run_timestamp), safe=False)
     field_coors = []
+    if model_type == 'ploss':
+        remove_old_pngs_from_local('ploss',field_id)
+    if model_type == 'yield':
+        remove_old_pngs_from_local('yield',field_id)
+    if model_type == 'runoff':
+        remove_old_pngs_from_local('runoff',field_id)
     # format field geometry
     for input in request.POST:
         if "field_coors" in input:
@@ -312,7 +399,16 @@ def get_model_results(request):
                 palette, values_legend = model.get_legend()
                 if model_type == 'ploss':
                     print('UPLOADING PLOSS FOR FIELD: '+field_id)
-                    upload_gcs_model_result_blob(field_id)
+                    remove_old_pngs_gcs_storage_bucket("ploss",field_id)
+                    upload_gcs_model_result_blob("ploss",field_id,model_run_timestamp)
+                if model_type == 'yield':
+                    print('UPLOADING YIELD FOR FIELD: '+field_id)
+                    remove_old_pngs_gcs_storage_bucket('yield',field_id)
+                    upload_gcs_model_result_blob('yield',field_id,model_run_timestamp)
+                if model_type == 'runoff':
+                    print('UPLOADING RUNOFF FOR FIELD: '+field_id)
+                    remove_old_pngs_gcs_storage_bucket('runoff',field_id)
+                    upload_gcs_model_result_blob('runoff',field_id,model_run_timestamp)
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
@@ -322,7 +418,7 @@ def get_model_results(request):
             data = {
                 "extent": [*bounds],
                 "palette": palette,
-                "url": model.file_name + ".png",
+                "url": model.file_name + '_' + model_run_timestamp + ".png",
                 "values": values_legend,
                 "units": result.default_units,
                 "units_alternate": result.alternate_units,
@@ -341,7 +437,8 @@ def get_model_results(request):
                 "crop_ro": model.model_parameters["crop"],
                 "grass_ro": model.model_parameters["rotation"],
                 "grass_type": model.model_parameters["grass_type"],
-                "till": model.model_parameters["tillage"]
+                "till": model.model_parameters["tillage"],
+                "model_run_timestamp": model_run_timestamp
             }
             if db_has_field(field_id):
             # if db_has_field(field_id, scenario_id, farm_id):

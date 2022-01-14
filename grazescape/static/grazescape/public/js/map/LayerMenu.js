@@ -264,116 +264,7 @@ Ext.define('DSS.map.LayerMenu', {
 			// },
 			{//-----------------------------------------------------------------
 				xtype: 'menuitem',
-				text: 'Base Layer', disabled: true,
-				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
-			},
-		// 	{ //-------------------------------------------
-		// 		xtype: 'menucheckitem',
-		// 		padding: 2,
-        //         hideOnClick: false,
-		// 		text: 'Base Map',
-        //         checked: true,
-        //         //menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
-        //         // listeners:{
-		// 		// 	afterrender: function(self) {
-		// 		// 		self.setChecked(DSS.layer.osm_hybrid.getVisible());
-		// 		// 	},
-		// 		// },
-		// 		handler: function(self){
-		// 			DSS.layer.osm_hybrid.setVisible(self.checked);             	
-        //     },
-		// },
-			{
-				xtype: 'radiogroup',
-				columns: 1, 
-				vertical: true,
-				defaults: {
-					padding: '2 0',
-					group: 'base-layer'
-				},
-				items: [
-				{
-					boxLabel: 'Hybrid',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.osm_hybrid.setVisible(true);
-								DSS.layer.osm_streets.setVisible(false);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_satelite.setVisible(false);
-								DSS.layer.bingAerial.setVisible(false);
-							}
-						}
-					}
-				},
-				{
-					boxLabel: 'Streets',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.osm_streets.setVisible(true);
-								DSS.layer.osm_hybrid.setVisible(false);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_satelite.setVisible(false);
-								DSS.layer.bingAerial.setVisible(false);
-							}
-						}
-					}
-				},
-				{
-					boxLabel: 'Topo',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.osm_topo.setVisible(true);
-								DSS.layer.osm_hybrid.setVisible(false);
-								DSS.layer.osm_streets.setVisible(false);
-								DSS.layer.osm_satelite.setVisible(false);
-								DSS.layer.bingAerial.setVisible(false);
-							}
-						}
-					}
-				},
-				{
-					boxLabel: 'Satelite',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.osm_satelite.setVisible(true);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_hybrid.setVisible(false);
-								DSS.layer.osm_streets.setVisible(false);
-								DSS.layer.bingAerial.setVisible(false);  
-							}
-						}
-					}
-				},
-				{ 
-					boxLabel: 'No Base Map', 
-	                text: 'Bing Aerial',
-	                DSS_layer: 'bing-aerial',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.bingAerial.setVisible(true);
-								DSS.layer.osm_satelite.setVisible(false);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_hybrid.setVisible(false);
-								DSS.layer.osm_streets.setVisible(false);
-							}
-						}
-					}
-				},
-			]
-			},
-			{//-----------------------------------------------------------------
-				xtype: 'menuitem',
-				text: 'Model Inputs', disabled: true,
+				text: 'Model Input Overlays', disabled: true,
 				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
 			},
 			{
@@ -643,6 +534,161 @@ Ext.define('DSS.map.LayerMenu', {
 							}
 						},
 					]
+			},
+			{
+				xtype: 'menuitem',
+				text: 'Overlay Opacity', disabled: false,
+				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px'
+			},{
+				xtype: 'slider',
+				itemId: 'dss-slider',
+				padding: '0 10 8 10',
+				hideEmptyLabel: true,
+				increment: 10,
+				value: 60,
+				minValue: 0, 
+				maxValue: 100,
+				listeners: {
+					focusleave: function(self) {
+						console.log("leave!")
+					},
+					dragstart: function(slider) {
+						
+					},
+					change: function(slider, newValue, thumb, eOpts) {
+						const val = newValue / 100.0;
+						DSS.layer.DEM_image0.setOpacity(val)
+						DSS.layer.DEM_image1.setOpacity(val)
+						DSS.layer.DEM_image2.setOpacity(val)
+						DSS.layer.DEM_image3.setOpacity(val)
+						DSS.layer.Slope0.setOpacity(val)
+						DSS.layer.Slope1.setOpacity(val)
+						DSS.layer.Slope2.setOpacity(val)
+						DSS.layer.Slope3.setOpacity(val)
+						DSS.layer.Clay0.setOpacity(val)
+						DSS.layer.Clay1.setOpacity(val)
+						DSS.layer.Clay2.setOpacity(val)
+						DSS.layer.Clay3.setOpacity(val)
+						DSS.layer.Sand0.setOpacity(val)
+						DSS.layer.Sand1.setOpacity(val)
+						DSS.layer.Sand2.setOpacity(val)
+						DSS.layer.Sand3.setOpacity(val)
+						DSS.layer.Silt0.setOpacity(val)
+						DSS.layer.Silt1.setOpacity(val)
+						DSS.layer.Silt2.setOpacity(val)
+						DSS.layer.Silt3.setOpacity(val)
+						//Ext.util.Cookies.set(key + ":opacity", "" + val);
+					}	                		
+				}
+			},
+			{//-----------------------------------------------------------------
+				xtype: 'menuitem',
+				text: 'Base Layers', disabled: true,
+				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
+			},
+		// 	{ //-------------------------------------------
+		// 		xtype: 'menucheckitem',
+		// 		padding: 2,
+        //         hideOnClick: false,
+		// 		text: 'Base Map',
+        //         checked: true,
+        //         //menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
+        //         // listeners:{
+		// 		// 	afterrender: function(self) {
+		// 		// 		self.setChecked(DSS.layer.osm_hybrid.getVisible());
+		// 		// 	},
+		// 		// },
+		// 		handler: function(self){
+		// 			DSS.layer.osm_hybrid.setVisible(self.checked);             	
+        //     },
+		// },
+			{
+				xtype: 'radiogroup',
+				columns: 1, 
+				vertical: true,
+				defaults: {
+					padding: '2 0',
+					group: 'base-layer'
+				},
+				items: [
+				{
+					boxLabel: 'Hybrid',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_hybrid.setVisible(true);
+								DSS.layer.osm_streets.setVisible(false);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);
+							}
+						}
+					}
+				},
+				{
+					boxLabel: 'Streets',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_streets.setVisible(true);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);
+							}
+						}
+					}
+				},
+				{
+					boxLabel: 'Topo',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_topo.setVisible(true);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_streets.setVisible(false);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);
+							}
+						}
+					}
+				},
+				{
+					boxLabel: 'Satelite',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.osm_satelite.setVisible(true);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_streets.setVisible(false);
+								DSS.layer.bingAerial.setVisible(false);  
+							}
+						}
+					}
+				},
+				{ 
+					boxLabel: 'No Base Map', 
+	                text: 'Bing Aerial',
+	                DSS_layer: 'bing-aerial',
+					listeners:{change: function(checked)
+						{
+							if(this.checked){
+								console.log(this.checked)
+								DSS.layer.bingAerial.setVisible(true);
+								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.osm_topo.setVisible(false);
+								DSS.layer.osm_hybrid.setVisible(false);
+								DSS.layer.osm_streets.setVisible(false);
+							}
+						}
+					}
+				},
+			]
 			},
 			// {
 			// 	text: 'Elevation',
@@ -1002,52 +1048,7 @@ Ext.define('DSS.map.LayerMenu', {
 			// 	}
 			// },
 			
-			,{
-				xtype: 'menuitem',
-				text: 'Overlay Opacity', disabled: false,
-				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px'
-			},{
-				xtype: 'slider',
-				itemId: 'dss-slider',
-				padding: '0 10 8 10',
-				hideEmptyLabel: true,
-				increment: 10,
-				value: 60,
-				minValue: 0, 
-				maxValue: 100,
-				listeners: {
-					focusleave: function(self) {
-						console.log("leave!")
-					},
-					dragstart: function(slider) {
-						
-					},
-					change: function(slider, newValue, thumb, eOpts) {
-						const val = newValue / 100.0;
-						DSS.layer.DEM_image0.setOpacity(val)
-						DSS.layer.DEM_image1.setOpacity(val)
-						DSS.layer.DEM_image2.setOpacity(val)
-						DSS.layer.DEM_image3.setOpacity(val)
-						DSS.layer.Slope0.setOpacity(val)
-						DSS.layer.Slope1.setOpacity(val)
-						DSS.layer.Slope2.setOpacity(val)
-						DSS.layer.Slope3.setOpacity(val)
-						DSS.layer.Clay0.setOpacity(val)
-						DSS.layer.Clay1.setOpacity(val)
-						DSS.layer.Clay2.setOpacity(val)
-						DSS.layer.Clay3.setOpacity(val)
-						DSS.layer.Sand0.setOpacity(val)
-						DSS.layer.Sand1.setOpacity(val)
-						DSS.layer.Sand2.setOpacity(val)
-						DSS.layer.Sand3.setOpacity(val)
-						DSS.layer.Silt0.setOpacity(val)
-						DSS.layer.Silt1.setOpacity(val)
-						DSS.layer.Silt2.setOpacity(val)
-						DSS.layer.Silt3.setOpacity(val)
-						//Ext.util.Cookies.set(key + ":opacity", "" + val);
-					}	                		
-				}
-			},
+			
 			// {
 			// 	xtype: 'button',
 			// 	text: 'Remove Overlays',

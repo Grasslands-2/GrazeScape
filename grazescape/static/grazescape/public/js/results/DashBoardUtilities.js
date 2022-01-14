@@ -102,7 +102,7 @@ function populateChartObj(scenList, fieldList, allField, allScen){
     }
 }
 
-function build_model_request(f, geometry, modelChoice){
+function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario){
     let runModel = false
     let split = ""
     console.log(f)
@@ -147,6 +147,9 @@ function build_model_request(f, geometry, modelChoice){
         model_type: modelChoice,
         graze_factor:graze_factor,
         scen: chartDatasetContainer.getScenName(f["scenario_id"]),
+        model_run_timestamp: modelruntime,
+        active_scen: activeScenario,
+        f_scen: f["scenario_id"]
     }
     model_pack = {
         "farm_id": DSS.activeFarm,
@@ -214,24 +217,72 @@ function format_chart_data(model_data){
                 break
             }
             if(model_data.scen_id == DSS.activeScenario){
-                var yeextent = model_data.extent
-                DSS.layer.yield_field = new ol.layer.Image({
-                    visible: true,
-                    updateWhileAnimating: true,
-                    updateWhileInteracting: true,
-                    source: new ol.source.ImageStatic({
-                    url: '/static/grazescape/public/images/yield'+ model_data.field_id + '.png',
-                    imageExtent: yeextent
+                console.log(model_data.extent)
+                if(model_data.extent !== undefined){
+                    var plextent = model_data.extent
+                    DSS.layer.yield_field = new ol.layer.Image({
+                        visible: false,
+                        source: new ol.source.ImageStatic({
+                        url: '/static/grazescape/public/images/yield'+ model_data.field_id + '.png',
+                        imageExtent: plextent
+                        })
                     })
-                })
-                DSS.layer.yield_field.set('name', 'DSS.layer.yield_field_'+ model_data.field_id);
-                var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                yieldGroupLayers.push(DSS.layer.yield_field);
+                    DSS.layer.yield_field.set('name', 'yield'+ model_data.field_id);
+                    var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+                    console.log(yieldGroupLayers);
+                    if(yieldGroupLayers.length == 0){
+                        yieldGroupLayers.push(DSS.layer.yield_field);
+                    }
+                    else{
+                        for(l in yieldGroupLayers){
+                            console.log(yieldGroupLayers[l].values_.name)
+                            console.log(DSS.layer.yield_field.values_.name)
+                            if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
+                                const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
+                                if(index > -1) {
+                                    yieldGroupLayers.splice(index,1);
+                                    console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
+                                }
+                                yieldGroupLayers.push(DSS.layer.yield_field);
+                            }
+                        }
+                    yieldGroupLayers.push(DSS.layer.yield_field);
+                    Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                    }
+                }
             }
             break;
-        
-        case 'ploss':
 
+
+        // case 'ploss':
+        //     if (model_data.value_type == 'ploss'){
+        //         chartTypeField = chartObj.ploss_field
+        //         chartTypeFarm = chartObj.ploss_farm
+        //         if(model_data.scen_id == DSS.activeScenario){
+        //             console.log(model_data.extent)
+        //             if(model_data.extent !== undefined){
+        //                 var plextent = model_data.extent
+        //                 DSS.layer.ploss_field = new ol.layer.Image({
+        //                     visible: true,
+        //                     updateWhileAnimating: true,
+        //                     updateWhileInteracting: true,
+        //                     source: new ol.source.ImageStatic({
+        //                     url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
+        //                     imageExtent: plextent
+        //                     })
+        //                 })
+        //                 DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
+        //                 var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+        //                 console.log(plossGroupLayers);
+        //                 //plossGroupLayers.push(DSS.layer.ploss_field);
+        //                 plossGroupLayers.unshift(DSS.layer.ploss_field)
+        //                 Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+        //             }
+        //         }
+        //     }
+
+
+        case 'ploss':
             if (model_data.value_type == 'ploss'){
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
@@ -240,19 +291,34 @@ function format_chart_data(model_data){
                     if(model_data.extent !== undefined){
                         var plextent = model_data.extent
                         DSS.layer.ploss_field = new ol.layer.Image({
-                            visible: true,
-                            updateWhileAnimating: true,
-                            updateWhileInteracting: true,
+                            visible: false,
                             source: new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
                             imageExtent: plextent
                             })
                         })
-                        DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
+                        DSS.layer.ploss_field.set('name', 'ploss'+ model_data.field_id);
                         var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
                         console.log(plossGroupLayers);
+                        if(plossGroupLayers.length == 0){
+                            plossGroupLayers.push(DSS.layer.ploss_field);
+                        }
+                        else{
+                            for(l in plossGroupLayers){
+                                console.log(plossGroupLayers[l].values_.name)
+                                console.log(DSS.layer.ploss_field.values_.name)
+                                if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
+                                    const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
+                                    if(index > -1) {
+                                        plossGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
+                                    }
+                                    plossGroupLayers.push(DSS.layer.ploss_field);
+                                }
+                            }
                         plossGroupLayers.push(DSS.layer.ploss_field);
                         Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                        }
                     }
                 }
             }
@@ -292,21 +358,39 @@ function format_chart_data(model_data){
             }
             if(model_data.scen_id == DSS.activeScenario){
                 console.log(model_data.extent)
-                var roextent = model_data.extent
+                if(model_data.extent !== undefined){
+                    var plextent = model_data.extent
                     DSS.layer.runoff_field = new ol.layer.Image({
-                        visible: true,
-                        updateWhileAnimating: true,
-                        updateWhileInteracting: true,
+                        visible: false,
                         source: new ol.source.ImageStatic({
                         url: '/static/grazescape/public/images/runoff'+ model_data.field_id + '.png',
-                        imageExtent: roextent
+                        imageExtent: plextent
                         })
                     })
-                    DSS.layer.runoff_field.set('name', 'DSS.layer.runoff_field_'+ model_data.field_id);
-                    var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
-                    console.log(runoffGroupLayers);
-                    runoffGroupLayers.push(DSS.layer.runoff_field);
+                    DSS.layer.runoff_field.set('name', 'runoff'+ model_data.field_id);
+                    var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
+                    console.log(erosionGroupLayers);
+                    if(erosionGroupLayers.length == 0){
+                        erosionGroupLayers.push(DSS.layer.runoff_field);
+                    }
+                    else{
+                        for(l in erosionGroupLayers){
+                            console.log(erosionGroupLayers[l].values_.name)
+                            console.log(DSS.layer.runoff_field.values_.name)
+                            if(erosionGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
+                                const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                                if(index > -1) {
+                                    erosionGroupLayers.splice(index,1);
+                                    console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
+                                }
+                                erosionGroupLayers.push(DSS.layer.runoff_field);
+                            }
+                        }
+                    erosionGroupLayers.push(DSS.layer.runoff_field);
+                    Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                    }
                 }
+            }
                 break
         case 'bio':
             chartTypeField = chartObj.insecticide_field
@@ -1700,6 +1784,7 @@ class ChartDatasetContainer{
     getScenName(scenId){
         for (let scen in this.scenarios){
             if (this.scenarios[scen].dbID== scenId){
+                console.log(this.scenarios)
                 return this.scenarios[scen].name
             }
         }

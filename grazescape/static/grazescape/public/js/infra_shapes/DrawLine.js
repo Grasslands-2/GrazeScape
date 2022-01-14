@@ -1,13 +1,61 @@
 var InfrastructureSource_loc = new ol.source.Vector({
-//	url:geoserverURL + '/geoserver/wfs?'+
-//	'service=wfs&'+
-//	'?version=2.0.0&'+
-//	'request=GetFeature&'+
-//	'typeName=GrazeScape_Vector:infrastructure_2&' +
-//	'outputformat=application/json&'+
-//	'srsname=EPSG:3857',
-//	format: new ol.format.GeoJSON()
 });
+var fenceDrawStyle = new ol.style.Style({
+	stroke: new ol.style.Stroke({
+		color: '#bfac32',
+		width: 4,
+	}),
+	image: new ol.style.Circle({
+		radius: 7,
+		fill: new ol.style.Fill({
+		  color: '#bfac32',
+		}),
+	}),
+})
+var laneDrawStyle = new ol.style.Style({
+	stroke: new ol.style.Stroke({
+		color: '#bd490f',
+		width: 4,
+	}),
+	image: new ol.style.Circle({
+		radius: 7,
+		fill: new ol.style.Fill({
+		  color: '#bd490f',
+		}),
+	}),
+})
+var waterLineDrawStyle = new ol.style.Style({
+	stroke: new ol.style.Stroke({
+		color: '#0072fc',
+		width: 4,
+	}),
+	image: new ol.style.Circle({
+		radius: 7,
+		fill: new ol.style.Fill({
+		  color: '#0072fc',
+		}),
+	}),
+})
+var infraDrawDefaultStyle = new ol.style.Style({
+	stroke: new ol.style.Stroke({
+		color: '#ff0825',
+		width: 4,
+	})
+})
+function infraDrawStyle(infra_typeInput){
+	if(infra_typeInput == 'fl'){
+		return fenceDrawStyle
+	}
+	if(infra_typeInput == 'll'){
+		return laneDrawStyle
+	}
+	if(infra_typeInput == 'wl'){
+		return waterLineDrawStyle
+	}
+	else{
+		return infraDrawDefaultStyle
+	}
+};
 
 function get_terrian_distance(data){
     return new Promise(function(resolve) {
@@ -108,7 +156,8 @@ lane_materialInput){
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
 		type: 'LineString',
-		geometryName: 'geom'
+		geometryName: 'geom',
+		style: infraDrawStyle(infra_typeInput)
 	});
 	DSS.snap = new ol.interaction.Snap({
 		source:DSS.layer.fields_1.getSource()
@@ -218,8 +267,6 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 				}
 			}
 		})
-		
-		
 		me.setViewModel(DSS.viewModel.drawLine);
 		
 		Ext.applyIf(me, {
@@ -536,6 +583,66 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 						//console.log(DSS.infra_shapes.apply.infraType.getValue())
 						var form =  this.up('form').getForm(); 
 						var data = me.viewModel.data;
+						console.log(data.infraType.value)
+						console.log(DSS.draw.style)
+						// if (data.infraType.value == 'wl'){
+						// 	DSS.draw = new ol.interaction.Draw({
+						// 		source: source,
+						// 		type: 'LineString',
+						// 		geometryName: 'geom',
+						// 		style: new ol.style.Style({
+						// 			stroke: new ol.style.Stroke({
+						// 				color: '#0072fc',
+						// 				width: 4,
+						// 			}),
+						// 			image: new ol.style.Circle({
+						// 				radius: 7,
+						// 				fill: new ol.style.Fill({
+						// 				  color: '#0072fc',
+						// 				}),
+						// 			  }),
+						// 		}),
+						// 	});
+						// }
+						// if (data.infraType.value == 'll'){
+						// 	console.log('in water')
+						// 	DSS.draw = new ol.interaction.Draw({
+						// 		source: source,
+						// 		type: 'LineString',
+						// 		geometryName: 'geom',
+						// 		style: new ol.style.Style({
+						// 			stroke: new ol.style.Stroke({
+						// 				color: '#0072fc',
+						// 				width: 4,
+						// 			}),
+						// 			image: new ol.style.Circle({
+						// 				radius: 7,
+						// 				fill: new ol.style.Fill({
+						// 				  color: '#0072fc',
+						// 				}),
+						// 			  }),
+						// 		}),
+						// 	});
+						// }
+						// if (data.infraType.value == 'fl'){
+						// 	DSS.draw = new ol.interaction.Draw({
+						// 		source: source,
+						// 		type: 'LineString',
+						// 		geometryName: 'geom',
+						// 		style: new ol.style.Style({
+						// 			stroke: new ol.style.Stroke({
+						// 				color: '#ff0825',
+						// 				width: 4,
+						// 			}),
+						// 			image: new ol.style.Circle({
+						// 				radius: 7,
+						// 				fill: new ol.style.Fill({
+						// 				  color: '#ff0825',
+						// 				}),
+						// 			  }),
+						// 		}),
+						// 	});
+						// }
 						if(form.isValid()){
 							DSS.map.removeInteraction(DSS.select);
 							//console.log(DSS.activeFarm);

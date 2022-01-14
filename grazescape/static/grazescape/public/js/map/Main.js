@@ -484,7 +484,7 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
-		DSS.layer.runoffGroup = new ol.layer.Group({
+		DSS.layer.erosionGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
 		})
@@ -714,7 +714,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.Sand1,
 				DSS.layer.Sand2,
 				DSS.layer.Sand3,
-				DSS.layer.runoffGroup,
+				DSS.layer.erosionGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.yieldGroup,
 				DSS.layer.kickapoowatershed,

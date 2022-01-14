@@ -1,7 +1,12 @@
+//const { stringify } = require("querystring")
+// const path = require('path');
+// const fs = require('fs');
 // ploss scale bar values
 var pLossColorArray = ["#204484","#3e75b2","#90b9e4","#d2f0fa","#fcffd8","#ffdaa0","#eb9159","#d25c34","#a52d18"]
-var pLossValueArray =[0,1.6,3.2,4.8,6.4,8,9.6,11.2,12.8,14.4,16]
+var pLossValueArray =[0,1.5,3,4.5,6,7.5,9.6,11.2,12.8,15]
 
+// unique model time stamp holder
+var modelruntime = ''
 //This function gathers the yield data from the active scnearios fields for the yield adjustment table
 function gatherYieldTableData() {
     fieldYieldArray = []
@@ -15,7 +20,7 @@ function gatherYieldTableData() {
                 rotationVal1: chartObjyieldarray[field].toolTip[0][0],
                 rotationVal2: chartObjyieldarray[field].toolTip[0][1],
                 grassType: chartObjyieldarray[field].toolTip[0][2],
-                dMYieldAc: chartObjyieldarray[field].data[0],
+                dMYieldAc: chartObjyieldarray[field].data[0]
             })
         }
 	}
@@ -207,6 +212,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 	//--------------------------------------------------------------------------
 	initComponent: function() {
+
 	    console.log("Opening dialog")
         let chart_height = '25vh'
         let chart_width = '32vw'
@@ -221,6 +227,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		layer = DSS.layer.fields_1
 //
         if (this.runModel) {
+            //assign model run timestamp
+            modelruntime = String(new Date().valueOf())
+			console.log(modelruntime)
+            modelruntimeOrig = modelruntime
             fieldChangeList = fieldChangeList.flat()
             chartDatasetContainer = new ChartDatasetContainer()
             compCheckBoxes = compareChartCheckBox()
@@ -256,6 +266,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             createDashBoard(me)
         }
         async function createDashBoard(dashboard){
+
             layerList = []
             await layer.getSource().forEachFeature(function(f) {
                 layerList.push(f)
@@ -300,12 +311,21 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    model_request = build_model_request(f.properties, f, modelTypes[model])
+                    model_request = build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario)
                     get_model_data(model_request).then(returnData =>{
-//                      no model results with that particular field
-                        if(returnData.length < 1){
-                            return
+                        console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                        console.log(returnData[0])
+                        console.log(f)
+                        console.log(f.properties.is_dirty)
+                        console.log(returnData[0].model_run_timestamp)
+                        if(f.properties.is_dirty == false && returnData[0].model_run_timestamp != modelruntimeOrig){
+                            modelruntime = returnData[0].model_run_timestamp
+                            console.log("MODELRUNTIME CHANGED TO OLD VALUE");
+                            console.log(returnData[0])
+                            console.log(modelruntime);
                         }
+                        //modelruntime = returnData[0].model_run_timestamp
+//                      no model results with that particular field
                         switch (returnData[0].model_type){
                             case 'yield':
                                 yield_pb.value = yield_pb.value + 1
@@ -381,30 +401,29 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             Ext.getCmp("compareTab").setDisabled(false)
                             Ext.getCmp("compareTabBtn").setDisabled(false)
                             console.log(f)
-                            if(f.properties.scenario_id == DSS.activeScenario){
-                                var plextent = f.bbox
-                                DSS.layer.ploss_field = new ol.layer.Image({
-                                    visible: true,
-                                    updateWhileAnimating: true,
-                                    updateWhileInteracting: true,
-                                    source: new ol.source.ImageStatic({
-                                    url: '/static/grazescape/public/images/ploss'+ f.properties.gid + '.png',
-                                    imageExtent: plextent
-                                    })
-                                })
-                                DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ f.properties.gid);
-                                var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                                console.log(plossGroupLayers);
-                                plossGroupLayers.push(DSS.layer.ploss_field);
-                                Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                            }
-
                             if(document.getElementById("modelSpinner") != null){
                               document.getElementById("modelSpinner").style.display = "none";
                             }
                             delete $.ajaxSetup().headers
-
+                            Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
                         }
+                        // if(f.properties.scenario_id == DSS.activeScenario){
+                        //     var plextent = f.bbox
+                        //     DSS.layer.ploss_field = new ol.layer.Image({
+                        //         visible: true,
+                        //         updateWhileAnimating: true,
+                        //         updateWhileInteracting: true,
+                        //         source: new ol.source.ImageStatic({
+                        //         url: '/static/grazescape/public/images/ploss'+ f.properties.gid + '.png',
+                        //         imageExtent: plextent
+                        //         })
+                        //     })
+                        //     DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ f.properties.gid);
+                        //     var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                        //     console.log(plossGroupLayers);
+                        //     plossGroupLayers.push(DSS.layer.ploss_field);
+                            
+                        // }
                         Ext.getCmp('mainTab').update()
                     })
                 }
@@ -1787,84 +1806,287 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             },
             scrollable: true,
             listeners:{activate: function() {
-                Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                console.log("MAPPED RESULTS ACTIVATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                var layerslengtharray = DSS.layer.PLossGroup.getLayers().getArray().length
+                //Check to see if models were run and thus if there are new pngs to work with.
+                if(layerslengtharray < 1){
+                    console.log("No pngs ")
+                    console.log(modelruntime)
+                    DSS.map.removeLayer(DSS.layer.PLossGroup);
+                    DSS.map.addLayer(DSS.layer.PLossGroup)
+                    var fArray = []
+                    var fExtents = []
+                    DSS.layer.fields_1.getSource().getFeatures().forEach(function(f) {
+                        console.log(f)
+                        fArray.push(f);
+                    })
+                    console.log(fArray);
+                    for(i in fArray){
+                        fExtents = fArray[i].values_.geometry.extent_
+                        for(e in fExtents){
+                            fExtents[e] = fExtents[e].toFixed(4)
+                        }
+                        fExtentsNum = fExtents.map(Number);
+                        var fId = fArray[i].values_.gid
+                        console.log(fExtentsNum)
+                        console.log(fId)
+                        DSS.layer.ploss_field = new ol.layer.Image({
+                            visible: false,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/ploss'+ String(fId) + '_' + modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                            })
+                        })
+                        DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
+                        var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                        if(plossGroupLayers.length == 0){
+                            plossGroupLayers.push(DSS.layer.ploss_field);
+                        }
+                        else{
+                            for(l in plossGroupLayers){
+                                console.log(plossGroupLayers[l].values_.name)
+                                console.log(DSS.layer.ploss_field.values_.name)
+                                if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
+                                    const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
+                                    if(index > -1) {
+                                        plossGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
+                                    }
+                                    plossGroupLayers.push(DSS.layer.ploss_field);
+                                }
+                            }
+                        plossGroupLayers.push(DSS.layer.ploss_field);
+                        }
+                        //--------------------Runoff_---------------------------------------
+                        DSS.layer.runoff_field = new ol.layer.Image({
+                            visible: false,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/runoff'+ String(fId) + '_' + modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                            })
+                        })
+                        DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
+                        var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
+                        if(erosionGroupLayers.length == 0){
+                            erosionGroupLayers.push(DSS.layer.runoff_field);
+                        }
+                        else{
+                            for(l in erosionGroupLayers){
+                                console.log(erosionGroupLayers[l].values_.name)
+                                console.log(DSS.layer.runoff_field.values_.name)
+                                if(erosionGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
+                                    const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                                    if(index > -1) {
+                                        erosionGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
+                                    }
+                                    erosionGroupLayers.push(DSS.layer.runoff_field);
+                                }
+                            }
+                        erosionGroupLayers.push(DSS.layer.runoff_field);
+                        }
+                    //--------------------Yield_---------------------------------------
+                        DSS.layer.yield_field = new ol.layer.Image({
+                            visible: false,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/yield'+ String(fId) + '_' + modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                            })
+                        })
+                        DSS.layer.yield_field.set('name', 'yield'+ String(fId));
+                        var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+                        if(yieldGroupLayers.length == 0){
+                            yieldGroupLayers.push(DSS.layer.yield_field);
+                        }
+                        else{
+                            for(l in yieldGroupLayers){
+                                console.log(yieldGroupLayers[l].values_.name)
+                                console.log(DSS.layer.yield_field.values_.name)
+                                if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
+                                    const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
+                                    if(index > -1) {
+                                        yieldGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
+                                    }
+                                    yieldGroupLayers.push(DSS.layer.yield_field);
+                                }
+                            }
+                        yieldGroupLayers.push(DSS.layer.yield_field);
+                        }
+                    }
+                    //---------------------------------------------------------------------------
+                    DSS.map.removeLayer(DSS.layer.PLossGroup);
+				    DSS.map.addLayer(DSS.layer.PLossGroup)
+                    DSS.layer.PLossGroup.getLayers().forEach(function(layer){
+                        console.log(layer)
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    }) 
+                    DSS.map.removeLayer(DSS.layer.erosionGroup);
+                    DSS.map.addLayer(DSS.layer.erosionGroup)
+                    DSS.layer.erosionGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    DSS.map.removeLayer(DSS.layer.yieldGroup);
+                    DSS.map.addLayer(DSS.layer.yieldGroup)
+                    DSS.layer.yieldGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                }else{
+                    DSS.map.removeLayer(DSS.layer.PLossGroup);
+                    DSS.map.addLayer(DSS.layer.PLossGroup)
+                    DSS.layer.PLossGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    DSS.map.removeLayer(DSS.layer.erosionGroup);
+                    DSS.map.addLayer(DSS.layer.erosionGroup)
+                    DSS.layer.erosionGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    DSS.map.removeLayer(DSS.layer.yieldGroup);
+                    DSS.map.addLayer(DSS.layer.yieldGroup)
+                    DSS.layer.yieldGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                    })
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                }
             },
             deactivate: function() {
                 Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('80%');
                 DSS.MapState.destroyLegend();
+                DSS.layer.PLossGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    layer.setSource(null)
+                })
+                DSS.layer.erosionGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    layer.setSource(null)
+                })
+                DSS.layer.yieldGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    layer.setSource(null)
+                })
             }},
 //                inner tabs for farm and field scale
-            items:[{
-                title: "Model Outputs",
-                xtype: 'panel',
-                width: chart_width,
-                collapsible: true,
-                items:[
-                    {
-                    xtype: 'fieldcontainer',
-                    fieldLabel: 'Mapped Results',
-                    defaultType: 'checkboxfield',
-                    items:[{
-                        boxLabel: 'Phosphorus Loss',
-                        name: 'PLoss',
-                        handler: function(self) {
-                            console.log('ploss clicked')
-                            DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
-                            console.log(DSS.layer.PLossGroup)
-                            DSS.layer.PLossGroup.setVisible(self.checked);
-                        }
-                    },
-                    // {
-                    //     boxLabel: 'Runoff',
-                    //     name: 'Runoff',
-                    //     handler: function(self) {
-                    //         console.log('runoff clicked')
-                    //         console.log(DSS.layer.runoffGroup)
-                    //         DSS.layer.runoffGroup.setVisible(self.checked);
-                    //         //DSS.map.render;
-                    //     }
-                    // },
-                    
-                    // {
-                    //     boxLabel: 'Yield',
-                    //     name: 'Yield',
-                    //     handler: function(self) {
-                    //         console.log('Yield clicked')
-                    //         DSS.layer.yieldGroup.setVisible(self.checked);
-                    //         console.log(DSS.layer.yieldGroup)
-                    //     }
-                    // }
-                ],
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					text: 'RED ',
-                    style:{
-                        color: 'red'
-                    }
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					text: 'indicates higher values, '
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					text: 'BLUE ',
-                    style:{
-                        color: 'blue'
-                    }
-                },
-                {
-                    xtype: 'label',
-					cls: 'information med-text',
-					html: 'indicates lower values. \n* CAUTION * P loss estimates are derived from SnapPlus and originally intended to represent field scale P losses; sub-field variability is only shown for illustration purposes'
-                }
-            ],
-                scope: this,
-            }]
+            items:[
+            {
+				xtype: 'radiogroup',
+                title: '<i class="fas fa-warehouse"></i>  Farm',
+					columns: 1, 
+					vertical: true,
+					collapsible: true,
+					defaults: {
+						padding: '2 0',
+						group: 'input-layer'
+					},
+					items: [
+						{
+							boxLabel: 'Phosphorus Loss',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log('ploss clicked')
+                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                                        console.log(DSS.layer.PLossGroup)
+                                        DSS.layer.PLossGroup.setVisible(true);
+										}
+									else{
+										DSS.layer.PLossGroup.setVisible(false);
+									}
+								}
+							}
+						},
+                        {
+							boxLabel: 'Erosion',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log('Erosion clicked')
+                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                                        console.log(DSS.layer.PLossGroup)
+                                        DSS.layer.erosionGroup.setVisible(checked);
+										}
+									else{
+										DSS.layer.erosionGroup.setVisible(false);
+									}
+								}
+							}
+						},
+						{
+							boxLabel: 'Yield',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log('Yield clicked')
+                                        //DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                                        console.log(DSS.layer.yieldGroup)
+                                        DSS.layer.yieldGroup.setVisible(checked);
+										}
+									else{
+										DSS.layer.yieldGroup.setVisible(false);
+									}
+								}
+							}
+						},
+						{ 
+							boxLabel: 'No Output Overlay', 
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log(this.checked)
+										DSS.MapState.destroyLegend();
+										DSS.layer.yieldGroup.setVisible(false);
+                                        DSS.layer.erosionGroup.setVisible(false);
+                                        DSS.layer.PLossGroup.setVisible(false);
+									}
+								}
+							}
+						},
+					]
+			},]
+            
         }    
         var phantom = { title: 'Model Select',
                 plain: true,
