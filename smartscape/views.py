@@ -222,6 +222,8 @@ def get_transformed_land(request):
     # print(request.POST)
     # print(request.body)
     request_json = js.loads(request.body)
+    # create a new folder for the model outputs
+    print(request_json)
     trans_id = str(uuid.uuid4())
     folder_id = request_json["folderId"]
 

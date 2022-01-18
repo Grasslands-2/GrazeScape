@@ -24,7 +24,9 @@ export const transSlice = createSlice({
     // update this to update a transformation's display layer
     activeDisplayProps:null,
     // list of all transformations
-    listTrans:[]
+    listTrans:[],
+    // base case transformations holds the initial conditions
+    baseTrans:Transformation("base",-1, -1),
   },
   // functions to interact with redux store
   reducers: {
@@ -99,9 +101,16 @@ export const transSlice = createSlice({
         for(let trans in items){
             if(items[trans].id == activeTransId){
                 console.log("value added")
+                // change selection criteria
                 if(action.payload.type === "reg"){
                     items[trans].selection[value.name] = value.value
                 }
+                // mangement style is being changed
+                else if(action.payload.type === "mang"){
+                    console.log("updating management")
+                    items[trans].management[value.name] = value.value
+                }
+                // land cover is being updated
                 else{
                     items[trans].selection.landCover[value.name] = value.value
                 }
@@ -112,6 +121,25 @@ export const transSlice = createSlice({
                 break
             }
         }
+    },
+     updateActiveBaseProps(state,action){
+        let value = action.payload
+        console.log("value added")
+        let base = state.baseTrans
+        // change selection criteria
+        if(action.payload.type === "reg"){
+            base.selection[value.name] = value.value
+        }
+        // mangement style is being changed
+        else if(action.payload.type === "mang"){
+            console.log("updating management")
+            base.management[value.name] = value.value
+        }
+        // land cover is being updated
+        else{
+            base.selection.landCover[value.name] = value.value
+        }
+        state.baseTrans = base
     }
   },
 })
@@ -127,6 +155,7 @@ export const { setActiveTrans,
                 updateActiveTransProps,
                 setVisibilityMapLayer,
                 setActiveTransDisplay,
+                updateActiveBaseProps,
                  } = transSlice.actions
 
 export default transSlice.reducer

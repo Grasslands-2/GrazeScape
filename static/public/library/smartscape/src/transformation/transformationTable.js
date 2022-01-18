@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { useSelector, useDispatch, connect  } from 'react-redux'
-import{setActiveTrans,updateTransList,removeTrans} from '/src/stores/transSlice'
+import{setActiveTrans,updateTransList,removeTrans,updateActiveTransProps} from '/src/stores/transSlice'
 import ReactDOM from "react-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Button from 'react-bootstrap/Button';
@@ -61,6 +61,7 @@ const mapDispatchToProps = (dispatch) => {
         setActiveTrans: (value)=> dispatch(setActiveTrans(value)),
         updateTransList: (value)=> dispatch(updateTransList(value)),
         removeTrans: (value)=> dispatch(removeTrans(value)),
+        updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
     }
 };
 class Table extends Component {
@@ -73,11 +74,19 @@ class Table extends Component {
     this.onDragEnd = this.onDragEnd.bind(this);
     this.handleOpenModalTrans = this.handleOpenModalTrans.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleSelectionChange = this.handleSelectionChange.bind(this);
 
     this.selectTransClick = this.selectTransClick.bind(this);
     this.handleTransNameChange = this.handleTransNameChange.bind(this);
 //    this.addTransformation = this.addTransformation.bind(this);
     this.removeTransformation = this.removeTransformation.bind(this);
+    this.showModal = this.showModal.bind(this);
+    this.rotationType = React.createRef();
+    this.cover = React.createRef();
+    this.tillage = React.createRef();
+    this.density = React.createRef();
+    this.contour = React.createRef();
+    this.fertilizer = React.createRef();
   }
   componentDidUpdate(prevProps) {
     console.log(prevProps)
@@ -97,9 +106,32 @@ class Table extends Component {
     handleOpenModalTrans(){
         this.setState({transModalShow: true})
       }
-            handleCloseModal(){
+    handleCloseModal(){
         this.setState({transModalShow: false})
       }
+      showModal(){
+        console.log("showing modal")
+        this.cover.current.value = this.props.activeTrans.management.cover
+        this.tillage.current.value = this.props.activeTrans.management.tillage
+        this.density.current.value = this.props.activeTrans.management.density
+        this.contour.current.value = this.props.activeTrans.management.contour
+        this.fertilizer.current.value = this.props.activeTrans.management.fertilizer
+
+      }
+    handleSelectionChange(type, e){
+        console.log("Selection updated", type, e)
+        console.log(e.currentTarget.value)
+        console.log(e.currentTarget.checked)
+        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
+        console.log(this.props)
+    }
+    handleSelectionChangeRadio(type, e){
+        console.log("Selection updated", type, e)
+        console.log(e.currentTarget.value)
+        console.log(e.currentTarget.checked)
+        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"mang"})
+        console.log(this.props)
+    }
   onDragEnd(result) {
     // dropped outside the list
     if (!result.destination) {
@@ -207,7 +239,7 @@ class Table extends Component {
           )}
         </Droppable>
       </DragDropContext>
-                  <Modal size="lg" show={this.state.transModalShow} onHide={this.handleCloseModal}>
+              <Modal size="lg" show={this.state.transModalShow} onHide={this.handleCloseModal} onShow={this.showModal}>
                 <Modal.Header closeButton>
                   <Modal.Title>Transformation Results</Modal.Title>
                 </Modal.Header>
@@ -219,103 +251,59 @@ class Table extends Component {
                     contour
                     manure and fertilizier
                   */}
-                  <Row>
-                  <Form.Label>New Land Cover</Form.Label>
-                  <Form.Check
-                    inline
-                    label="Pasture"
-                    name="group1"
-                    type="radio"
-                    checked={true}
-                  />
-                  <Form.Check
-                    inline
-                    label="Pasture Seeding"
-                    name="group1"
-                    type="radio"
-                  />
-                  </Row>
+
                     <Form.Label>Cover Crop</Form.Label>
-                    <Form.Select aria-label="Default select example" value={5}>
-                      <option>Open this select menu</option>
-                      <option value="1">Small Grain</option>
-                      <option value="2">Grazed Cover Direct Seeded</option>
-                      <option value="3">Grazed Cover Interseeded</option>
-                      <option value="4">No Cover</option>
-                      <option value="5">NA</option>
+                    <Form.Select aria-label="Default select example" ref={this.cover}
+                      onChange={(e) => this.handleSelectionChange("cover", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="cc">Small Grain</option>
+                      <option value="gcds">Grazed Cover Direct Seeded</option>
+                      <option value="gcis">Grazed Cover Interseeded</option>
+                      <option value="nc">No Cover</option>
+                      <option value="na">NA</option>
                     </Form.Select>
                     <Form.Label>Tillage</Form.Label>
-                    <Form.Select aria-label="Default select example" value={8}>
-                      <option>Open this select menu</option>
-                      <option value="1">Fall Chisel</option>
-                      <option value="2">Fall Moldboard</option>
-                      <option value="3">No Till</option>
-                      <option value="4">Spring Chisel, Disked</option>
-                      <option value="5">Spring Chisel, No Disk</option>
-                      <option value="6">Spring Cultivation</option>
-                      <option value="7">Spring Vertical</option>
-                      <option value="8">NA</option>
+                    <Form.Select aria-label="Default select example" ref={this.tillage}
+                    onChange={(e) => this.handleSelectionChange("tillage", e)}>
+
+                      <option value="default">Open this select menu</option>
+                      <option value="fc">Fall Chisel</option>
+                      <option value="fm">Fall Moldboard</option>
+                      <option value="nt">No Till</option>
+                      <option value="sc">Spring Chisel, Disked</option>
+                      <option value="sn">Spring Chisel, No Disk</option>
+                      <option value="su">Spring Cultivation</option>
+                      <option value="sv">Spring Vertical</option>
+                      <option value="na">NA</option>
                     </Form.Select>
                     <Form.Label>Pasture Animal Density</Form.Label>
-                    <Form.Select aria-label="Default select example" value={3}>
-                      <option>Open this select menu</option>
-                      <option value="1">High</option>
-                      <option value="2">Low</option>
-                      <option value="3">Rotational</option>
+                    <Form.Select aria-label="Default select example" ref={this.density}
+                      onChange={(e) => this.handleSelectionChange("density", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="cn_hi">High</option>
+                      <option value="cn_lo">Low</option>
+                      <option value="rt_rt">Rotational</option>
                     </Form.Select>
-                    <Row>
-                      <Form.Label>On Contour</Form.Label>
-                      <Form.Check
-                        inline
-                        label="Yes"
-                        name="group2"
-                        type="radio"
-                      />
-                      <Form.Check
-                        inline
-                        label="No"
-                        name="group2"
-                        type="radio"
+                    <Form.Label>On Contour</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.contour}
+                      onChange={(e) => this.handleSelectionChange("contour", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
+                      <option value="na">N/A</option>
+                    </Form.Select>
+                     <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
+                     <Form.Select aria-label="Default select example" ref={this.fertilizer}
+                      onChange={(e) => this.handleSelectionChange("fertilizer", e)}>
 
-                      />
-                       <Form.Check
-                        inline
-                        label="NA"
-                        name="group2"
-                        type="radio"
-                        checked={true}
-
-
-                      />
-                      </Row>
-                      {/*
-                    transform to: pasture
-                    cover crop
-                    tillage
-                    contour
-                    manure and fertilizier
-
-                      <Col xs="9">
-                          <Form.Range
-                            value={value}
-                            onChange={e => setValue(e.target.value)}
-                          />
-                        </Col>
-                        <Col xs="3">
-                          <Form.Control value={value}/>
-                          <Form.Control value= {value}/>
-                        </Col>
-                         */}
-                      <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
-                     <Form.Select aria-label="Default select example" value={1}>
-                      <option>Open this select menu</option>
-                        <option value="1">0/	0</option>
-                      <option value="2">0/	100</option>
-                      <option value="3">100/	0</option>
-                      <option value="4">150/	0</option>
-                      <option value="5">200/	0</option>
-                      <option value="6">25/	50</option>
-                      <option value="7">50/	0</option>
+                      <option value="default">Open this select menu</option>
+                      <option value="0_0">0/	0</option>
+                      <option value="0_100">0/	100</option>
+                      <option value="100_0">100/	0</option>
+                      <option value="150_0">150/	0</option>
+                      <option value="200_0">200/	0</option>
+                      <option value="25_50">25/	50</option>
+                      <option value="50_0">50/	0</option>
                     </Form.Select>
                 </Modal.Body>
                 <Modal.Footer>

@@ -46,6 +46,7 @@ class RasterDataSmartScape(RasterData):
         self.layer_dic = {
             "slope": "SmartScapeRaster:southWestWI_slopePer_30m",
             "landuse": "SmartScapeRaster:southWestWI_WiscLand_30m",
+            "stream_dist": "SmartScapeRaster:southWestWI_distanceToWaterWays",
 
         }
         self.field_geom_array = field_geom_array

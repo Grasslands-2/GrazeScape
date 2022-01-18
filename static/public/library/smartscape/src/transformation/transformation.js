@@ -25,6 +25,8 @@ function Transformation(name, id, rank){
         selection:{
             slope1:null,
             slope2:null,
+            streamDist1:null,
+            streamDist2:null,
             extent:null,
             field_coors:null,
             landCover:{
@@ -40,16 +42,15 @@ function Transformation(name, id, rank){
         },
         // store the changes to the management practices
         management:{
-            crop:null,
-            rotationType:null,
+//            crop:null,
+            rotationType:"default",
             // only for non grass
-            cover:null,
-            tillage:null,
-            contour:null,
-            manure:null,
-            fertilizer:null,
+            cover:"default",
+            tillage:"default",
+            contour:"default",
+            fertilizer:"default",
             // only for pasture
-            density:null,
+            density:"default",
 
         }
     }

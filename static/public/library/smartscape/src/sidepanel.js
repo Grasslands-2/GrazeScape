@@ -23,7 +23,7 @@ import Modal from 'react-bootstrap/Modal'
 
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
-setVisibilityMapLayer} from '/src/stores/transSlice'
+setVisibilityMapLayer,updateActiveBaseProps} from '/src/stores/transSlice'
 import { useSelector, useDispatch, connect  } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 
@@ -31,7 +31,8 @@ const mapStateToProps = state => {
     console.log("mapping sidepannel")
     return{
     activeTrans: state.transformation.activeTrans,
-    listTrans:state.transformation.listTrans
+    listTrans:state.transformation.listTrans,
+    baseTrans:state.transformation.baseTrans,
 }}
 
 const mapDispatchToProps = (dispatch) => {
@@ -42,6 +43,7 @@ const mapDispatchToProps = (dispatch) => {
         updateAreaSelectionType: (value)=> dispatch(updateAreaSelectionType(value)),
         updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
+        updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
     }
 };
 class SidePanel extends React.Component{
@@ -56,9 +58,12 @@ class SidePanel extends React.Component{
         this.addTrans = this.addTrans.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleOpenModalBase = this.handleOpenModalBase.bind(this);
+        this.showModal = this.showModal.bind(this);
         // selection criteria
         this.slope1 = React.createRef();
         this.slope2 = React.createRef();
+        this.streamDist1 = React.createRef();
+        this.streamDist2 = React.createRef();
         this.contCorn = React.createRef();
         this.cashGrain = React.createRef();
         this.dairy = React.createRef();
@@ -67,6 +72,13 @@ class SidePanel extends React.Component{
         this.hay = React.createRef();
         this.pasture = React.createRef();
         this.grasslandIdle = React.createRef();
+
+        this.rotationType = React.createRef();
+        this.cover = React.createRef();
+        this.tillage = React.createRef();
+        this.density = React.createRef();
+        this.contour = React.createRef();
+        this.fertilizer = React.createRef();
 
         this.selectWatershed = React.createRef();
         this.state = {slope:{slope1:null, slope2:null},
@@ -87,6 +99,8 @@ class SidePanel extends React.Component{
         // set selection criteria to active scenario
         this.slope1.current.value = this.props.activeTrans.selection.slope1
         this.slope2.current.value = this.props.activeTrans.selection.slope2
+        this.streamDist1.current.value = this.props.activeTrans.selection.streamDist1
+        this.streamDist2.current.value = this.props.activeTrans.selection.streamDist2
         // land use selection
         this.contCorn.current.checked = this.props.activeTrans.selection.landCover.contCorn
         this.cashGrain.current.checked = this.props.activeTrans.selection.landCover.cashGrain
@@ -104,6 +118,17 @@ class SidePanel extends React.Component{
       }
       handleOpenModalBase(){
         this.setState({baseModalShow: true})
+      }
+    showModal(){
+        console.log("showing modal")
+        console.log(this.props)
+        this.rotationType.current.value = this.props.baseTrans.management.rotationType
+        this.cover.current.value = this.props.baseTrans.management.cover
+        this.tillage.current.value = this.props.baseTrans.management.tillage
+        this.density.current.value = this.props.baseTrans.management.density
+        this.contour.current.value = this.props.baseTrans.management.contour
+        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
+
       }
 
     // triggered by button click and displays selection
@@ -127,7 +152,6 @@ class SidePanel extends React.Component{
         console.log("selection type", type, e)
 //        this.props.handleAreaSelectionType(type)
         if(type === "watershed"){
-
             this.setState({selectWatershed:true})
         }
         else{
@@ -141,6 +165,10 @@ class SidePanel extends React.Component{
         console.log(e.currentTarget.value)
         console.log(e.currentTarget.checked)
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"reg"})
+        console.log(this.props)
+    }
+    updateActiveBaseProps(type, e){
+        this.props.updateActiveBaseProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
         console.log(this.props)
     }
     handleSelectionChangeLand(type, e){
@@ -306,8 +334,47 @@ class SidePanel extends React.Component{
                   <Accordion.Item eventKey="1">
                     <Accordion.Header>Distance to Stream</Accordion.Header>
                     <Accordion.Body>
-                        <Form.Label>Slope Range</Form.Label>
+                        <InputGroup size="sm" className="mb-3">
+                            <FormControl
+                              ref={this.streamDist1}
+                              placeholder=""
+                              aria-label="Username"
+                              aria-describedby="basic-addon1"
+                              onChange={(e) => this.handleSelectionChange("streamDist1", e)}
+                            />
+                            <InputGroup.Text>m</InputGroup.Text>
+                            <Form.Select aria-label="Default select example">
+                              <option value="<">&lt;</option>
+                              <option value="<=">&#60;&#61;</option>
+                            </Form.Select>
+                            <FormControl
+                              ref={this.streamDist2}
+                              placeholder=""
+                              aria-label="Username"
+                              aria-describedby="basic-addon1"
+                              onChange={(e) => this.handleSelectionChange("streamDist2", e)}
 
+                            />
+                            <InputGroup.Text>m</InputGroup.Text>
+
+                          </InputGroup>
+                            <Form.Label>Units</Form.Label>
+                            <Form>
+                            <Form.Check
+                                inline
+                                label="feet"
+                                name="group1"
+                                type="radio"
+                              />
+                              <Form.Check
+                                inline
+                                label="meters"
+                                name="group1"
+                                type="radio"
+                                checked={true}
+                                onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
+                              />
+                              </Form>
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>
@@ -329,10 +396,7 @@ class SidePanel extends React.Component{
                             ref={this.dairy} type="switch" label="Dairy Rotation"
                             onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
                           />
-
-
                         </Form>
-
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>
@@ -356,84 +420,78 @@ class SidePanel extends React.Component{
               */}
               </Tab>
             </Tabs>
-            <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModal}>
+            <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModal} onShow={this.showModal}>
                 <Modal.Header closeButton>
-                  <Modal.Title>Base Model Parameters</Modal.Title>
+                  <Modal.Title>Transformation Results</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                  {/*
+                                      {/*
                     transform to: pasture
                     cover crop
                     tillage
                     contour
                     manure and fertilizier
                   */}
+                  <Form.Label>New Land Cover</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.rotationType}
+                      onChange={(e) => this.updateActiveBaseProps("rotationType", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="pasture">Pasture</option>
+                      <option value="pastureSeeding">Pasture Seeding</option>
+                    </Form.Select>
                     <Form.Label>Cover Crop</Form.Label>
-                    <Form.Select aria-label="Default select example" value={4}>
-                      <option>Open this select menu</option>
-                      <option value="1">Small Grain</option>
-                      <option value="2">Grazed Cover Direct Seeded</option>
-                      <option value="3">Grazed Cover Interseeded</option>
-                      <option value="4">No Cover</option>
+                    <Form.Select aria-label="Default select example" ref={this.cover}
+                      onChange={(e) => this.updateActiveBaseProps("cover", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="cc">Small Grain</option>
+                      <option value="gcds">Grazed Cover Direct Seeded</option>
+                      <option value="gcis">Grazed Cover Interseeded</option>
+                      <option value="nc">No Cover</option>
+                      <option value="na">NA</option>
                     </Form.Select>
                     <Form.Label>Tillage</Form.Label>
-                    <Form.Select aria-label="Default select example" value={6}>
-                      <option>Open this select menu</option>
-                      <option value="1">Fall Chisel</option>
-                      <option value="2">Fall Moldboard</option>
-                      <option value="3">No Till</option>
-                      <option value="4">Spring Chisel, Disked</option>
-                      <option value="5">Spring Chisel, No Disk</option>
-                      <option value="6">Spring Cultivation</option>
-                      <option value="7">Spring Vertical</option>
+                    <Form.Select aria-label="Default select example" ref={this.tillage}
+                    onChange={(e) => this.updateActiveBaseProps("tillage", e)}>
+
+                      <option value="default">Open this select menu</option>
+                      <option value="fc">Fall Chisel</option>
+                      <option value="fm">Fall Moldboard</option>
+                      <option value="nt">No Till</option>
+                      <option value="sc">Spring Chisel, Disked</option>
+                      <option value="sn">Spring Chisel, No Disk</option>
+                      <option value="su">Spring Cultivation</option>
+                      <option value="sv">Spring Vertical</option>
+                      <option value="na">NA</option>
                     </Form.Select>
-                    <Row>
-                      <Form.Label>On Contour</Form.Label>
-                      <Form.Check
-                        inline
-                        label="Yes"
-                        name="group2"
-                        type="radio"
-                        checked={true}
-                      />
-                      <Form.Check
-                        inline
-                        label="No"
-                        name="group2"
-                        type="radio"
-
-                      />
-                      </Row>
-                      {/*
-                    transform to: pasture
-                    cover crop
-                    tillage
-                    contour
-                    manure and fertilizier
-
-                      <Col xs="9">
-                          <Form.Range
-                            value={value}
-                            onChange={e => setValue(e.target.value)}
-                          />
-                        </Col>
-                        <Col xs="3">
-                          <Form.Control value={value}/>
-                          <Form.Control value= {value}/>
-                        </Col>
-                         */}
-                      <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
-                     <Form.Select aria-label="Default select example" value={6}>
-                      <option>Open this select menu</option>
-                        <option value="1">0/	0</option>
-                      <option value="2">0/	100</option>
-                      <option value="3">100/	0</option>
-                      <option value="4">150/	0</option>
-                      <option value="5">200/	0</option>
-                      <option value="6">25/	50</option>
-                      <option value="7">50/	0</option>
+                    <Form.Label>Pasture Animal Density</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.density}
+                      onChange={(e) => this.updateActiveBaseProps("density", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="cn_hi">High</option>
+                      <option value="cn_lo">Low</option>
+                      <option value="rt_rt">Rotational</option>
                     </Form.Select>
+                    <Form.Label>On Contour</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.contour}
+                      onChange={(e) => this.updateActiveBaseProps("contour", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
+                      <option value="na">N/A</option>
+                    </Form.Select>
+                     <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
+                     <Form.Select aria-label="Default select example" ref={this.fertilizer}
+                      onChange={(e) => this.updateActiveBaseProps("fertilizer", e)}>
 
+                      <option value="default">Open this select menu</option>
+                      <option value="0_0">0/	0</option>
+                      <option value="0_100">0/	100</option>
+                      <option value="100_0">100/	0</option>
+                      <option value="150_0">150/	0</option>
+                      <option value="200_0">200/	0</option>
+                      <option value="25_50">25/	50</option>
+                      <option value="50_0">50/	0</option>
+                    </Form.Select>
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModal}>

@@ -40,7 +40,9 @@ const mapStateToProps = state => {
     console.log("mapping sidepannel")
     return{
         activeTrans: state.transformation.activeTrans,
-        listTrans:state.transformation.listTrans
+        listTrans:state.transformation.listTrans,
+        baseTrans:state.transformation.baseTrans,
+
 }}
 
 const mapDispatchToProps = (dispatch) => {
@@ -233,6 +235,7 @@ class AppContainer extends React.Component{
             type : 'POST',
             data : JSON.stringify({
                 trans: transPayload,
+                base:this.props.baseTrans,
                 folderId: this.state.boundaryRasterId,
             }),
             success: (responses, opts) => {

@@ -100,13 +100,20 @@ class SmartScape:
 
         """
         datanm = self.raster_inputs["slope"]
-        datanm_landuse = self.raster_inputs["landuse"]
+        # create an array with all true values so that anding it with actual data will work
+        datanm.fill(-99)
+        datanm_landuse = datanm
+        datanm_stream = datanm
         rows = self.bounds["y"]
         cols = self.bounds["x"]
         slope1 = self.request_json["selectionCrit"]["selection"]["slope1"]
         slope2 = self.request_json["selectionCrit"]["selection"]["slope2"]
+        stream_dist1 = self.request_json["selectionCrit"]["selection"]["streamDist1"]
+        stream_dist2 = self.request_json["selectionCrit"]["selection"]["streamDist2"]
+        landuse_par = self.request_json["selectionCrit"]["selection"]["landCover"]
         has_slope = False
         has_land = False
+        has_stream = False
         print("creating png")
 
         print(rows, cols)
@@ -126,31 +133,42 @@ class SmartScape:
         # and no data (should just be values outside of subarea)
         # set selected to -99
         if slope1 is not None and slope2 is not None:
+            datanm = self.raster_inputs["slope"]
             datanm = np.where(
                 np.logical_and(datanm > float(slope1), float(slope2) > datanm), -99, datanm
             )
             has_slope = True
+        if stream_dist1 is not None and stream_dist2 is not None:
+            datanm_stream = self.raster_inputs["stream_dist"]
+            datanm_stream = np.where(
+                np.logical_and(datanm_stream > float(stream_dist1), float(stream_dist2) > datanm_stream), -99, datanm_stream
+            )
+            has_stream = True
+            datanm = np.where(np.logical_and(datanm == -99, datanm_stream == -99), -99, self.no_data)
 
-        if self.request_json["selectionCrit"]["selection"]["landCover"]["cashGrain"]:
-            cash_grain = 4
-            datanm_landuse = np.where(
-                np.logical_and(cash_grain == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
-            )
-            has_land = True
-        if self.request_json["selectionCrit"]["selection"]["landCover"]["contCorn"]:
-            cont_corn = 3
-            print("selecting continous corn")
-            datanm_landuse = np.where(
-                np.logical_and(cont_corn == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
-            )
-            has_land = True
+        if landuse_par["cashGrain"] or landuse_par["contCorn"] or landuse_par["dairy"]:
+            datanm_landuse = self.raster_inputs["landuse"]
+            if landuse_par["cashGrain"]:
+                cash_grain = 4
+                datanm_landuse = np.where(
+                    np.logical_and(cash_grain == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
+                )
+                has_land = True
+            if landuse_par["contCorn"]:
+                cont_corn = 3
+                print("selecting continous corn")
+                datanm_landuse = np.where(
+                    np.logical_and(cont_corn == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
+                )
+                has_land = True
 
-        if self.request_json["selectionCrit"]["selection"]["landCover"]["dairy"]:
-            dairy = 5
-            datanm_landuse = np.where(
-                np.logical_and(dairy == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
-            )
-            has_land = True
+            if landuse_par["dairy"]:
+                dairy = 5
+                datanm_landuse = np.where(
+                    np.logical_and(dairy == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
+                )
+                has_land = True
+            datanm = np.where(np.logical_and(datanm == -99, datanm_landuse == -99), -99, self.no_data)
 
         # need to combine the various possible selection arrays into one
         # todo need to look at making this work with multiple inputs
@@ -158,13 +176,15 @@ class SmartScape:
         # datanm = np.where(
         #     np.logical_or(datanm == -99, datanm_landuse == -99), -99, datanm
         # )
-        if has_land and not has_slope:
-            datanm = datanm_landuse
-        elif not has_land and has_slope:
-            datanm_landuse = datanm
-        datanm = np.where(
-            np.logical_and(datanm == -99, datanm_landuse == -99), -99, self.no_data
-        )
+        # if there were no selection criteria applied
+        if not has_land and not has_slope and not has_land:
+            datanm.fill(self.no_data)
+        # elif not has_land and has_slope:
+        #     datanm_landuse = datanm
+        # datanm = np.where(
+        #     np.logical_and(datanm == -99, np.logical_and(datanm_landuse == -99, datanm_stream == -99)), -99, self.no_data
+        # )
+        datanm = np.where(np.logical_and(datanm == -99, datanm_stream == -99), -99, self.no_data)
 
         # copy datanm so we can use it for just the image
         datanm_image = np.copy(datanm)
@@ -173,9 +193,9 @@ class SmartScape:
             np.logical_and(datanm_image == -99, datanm_image == -99), 1, 0
         )
         # set non selected but still in bounds to -88
-        datanm = np.where(
-            np.logical_and(datanm != self.no_data, datanm != -99),
-            -88, datanm)
+        # datanm = np.where(
+        #     np.logical_and(datanm != self.no_data, datanm != -99),
+        #     -88, datanm)
 
         # create empty raster to hold values from above calc
         driver = gdal.GetDriverByName("GTiff")
@@ -220,11 +240,12 @@ class SmartScape:
         #          4: {"id": "field_a6ba8bc6-0c91-4d2d-b2b7-3123b87befd3", "rank": 4}}
         # dir_path = os.path.dirname(os.path.realpath(__file__))
         trans = self.request_json['trans']
+        base = self.request_json['base']
         file_list = []
+        # get each transformation selection output raster
         for tran in trans:
             file = os.path.join(self.data_dir, tran["id"], "selection_output.tif")
-            print("file path of transform")
-            print(file)
+
             file_list.append(file)
         # print(dir_path)
         # create blank raster from all transformations
@@ -416,16 +437,17 @@ class SmartScape:
         print("number of selected cells")
         print(count_selected)
         # each cell is 30 x 30 m (900 sq m) and then convert to acres
-        area_selected = count_selected
+        area_selected = count_selected * 900 * 0.000247105
+        # model_value * conversion from ac to value / 30 sq m
         landuse_arr_sel = np.where(
             np.logical_or(landuse_arr_sel == self.no_data, landuse_arr_sel < 0),
-            0, landuse_arr_sel)
+            0, (landuse_arr_sel * 900/4046.86))
         sum_base = np.sum(landuse_arr_sel)
 
         # model run
         datanm1 = np.where(
             np.logical_or(datanm1 == self.no_data, datanm1 < 0),
-            0, datanm1)
+            0, (datanm1 * 900/4046.86))
         sum_model = np.sum(datanm1)
         return {
             "base":
@@ -433,6 +455,8 @@ class SmartScape:
             "model":{"ploss":{"total":str("%.0f" % sum_model), "total_per_area":str("%.0f" % (sum_model/area_selected)), "units":"Phosphorus Runoff (lb/year)"}}
 
         }
+    def convert_to_units_per_acre(self, value):
+        return
     def get_model_stats(self):
         """
         Get statistics from selected cells and all cells in selected area for baseline and model runs
