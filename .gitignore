@@ -29,6 +29,7 @@ __pycache__/
 *.asc
 *.dss
 *.tif
+*.zip
 dynamicFiles/
 layerData/
 data_files/
