@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from grassland.settings.settings import *
+from pathlib import Path
+import os
+import configparser
+from grassland.settings.local_settings_Files.settings import *
 GEOSERVER_URL = "http://localhost:8081"
 R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 if parser.has_section("captcha_google") and parser.has_section("postgresql"):

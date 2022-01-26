@@ -102,9 +102,10 @@ function populateChartObj(scenList, fieldList, allField, allScen){
     }
 }
 
-function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario){
+function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
     let runModel = false
     let split = ""
+    console.log(DSS.activeRegion)
     console.log(f)
     if(f["is_dirty"] == true){
         runModel = true
@@ -149,7 +150,8 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         scen: chartDatasetContainer.getScenName(f["scenario_id"]),
         model_run_timestamp: modelruntime,
         active_scen: activeScenario,
-        f_scen: f["scenario_id"]
+        f_scen: f["scenario_id"],
+        active_region: DSS.activeRegion
     }
     model_pack = {
         "farm_id": DSS.activeFarm,
@@ -219,6 +221,7 @@ function format_chart_data(model_data){
             if(model_data.scen_id == DSS.activeScenario){
                 console.log(model_data.extent)
                 if(model_data.extent !== undefined){
+                    DSS.yieldBol = false
                     var plextent = model_data.extent
                     DSS.layer.yield_field = new ol.layer.Image({
                         visible: false,
@@ -289,6 +292,7 @@ function format_chart_data(model_data){
                 if(model_data.scen_id == DSS.activeScenario){
                     console.log(model_data.extent)
                     if(model_data.extent !== undefined){
+                        DSS.plossBol = false
                         var plextent = model_data.extent
                         DSS.layer.ploss_field = new ol.layer.Image({
                             visible: false,
@@ -359,6 +363,7 @@ function format_chart_data(model_data){
             if(model_data.scen_id == DSS.activeScenario){
                 console.log(model_data.extent)
                 if(model_data.extent !== undefined){
+                    DSS.erosionBol = false
                     var plextent = model_data.extent
                     DSS.layer.runoff_field = new ol.layer.Image({
                         visible: false,
@@ -1555,7 +1560,8 @@ function downloadRasters(fieldIter){
                 field_id: f["gid"],
                 extent: geometry.bbox,
                 // at this point fields wont have any holes so just get the first entry
-                field_coors: geometry.geometry.coordinates[0]
+                field_coors: geometry.geometry.coordinates[0],
+                active_region: DSS.activeRegion
             }
 
             console.log("MODEL PARAS!!!!!!!!!!!!!!!")

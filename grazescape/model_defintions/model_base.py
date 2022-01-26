@@ -13,7 +13,7 @@ from pyper import R
 
 class ModelBase:
 
-    def __init__(self, request, file_name=None):
+    def __init__(self, request,active_region, file_name=None):
         field_id = request.POST.getlist("field_id")[0]
         model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
         scenario_id = request.POST.getlist("scenario_id")[0]
@@ -21,6 +21,7 @@ class ModelBase:
         model_type = request.POST.get('model_parameters[model_type]')
         f_name = request.POST.get('model_parameters[f_name]')
         scen = request.POST.get('model_parameters[scen]')
+        active_region = request.POST.get('model_parameters[active_region]')
 
         if file_name is None:
             file_name = model_type + field_id +'_' + model_run_timestamp ##+'_'+ str(uuid.uuid1())##
@@ -55,10 +56,16 @@ class ModelBase:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
-
-        self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
+        if active_region == "Clover_Belt":
+            self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
                                             'data_files', 'input_models',
-                                            'tidyModels')
+                                            'CloverBelt_tidyModels')
+        else:
+            self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
+                                                'data_files', 'input_models',
+                                                'tidyModels')
+        
+        #this could be where you point the models towards cloverBelt tidy models versions.
         self.color_ramp_hex = []
         self.data_range = []
         self.bounds = {"x": 0, "y": 0}

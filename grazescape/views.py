@@ -213,6 +213,7 @@ def index(request):
 @login_required
 def download_rasters(request):
     field_id = request.POST.getlist("field_id")[0]
+    active_region = request.POST.getlist("active_region")[0]
     field_coors = []
     if db_has_field(field_id):
         clear_yield_values(field_id)
@@ -220,7 +221,7 @@ def download_rasters(request):
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
     geo_data = RasterData(request.POST.getlist("extent[]"),
-                          field_coors, field_id, True)
+                          field_coors, field_id, active_region, True)
     return JsonResponse({"download":"finished"})
 #Makes post requests to WEI geoserver
 @login_required
@@ -262,6 +263,7 @@ def geoserver_request(request):
 def get_default_om(request):
     print(request.POST)
     field_id = file_name = str(uuid.uuid4())
+    active_region = request.POST.getlist("active_region")[0]
     extents = request.POST.getlist("extents[]")
     print("the extents are ", extents)
     field_coors = []
@@ -270,7 +272,7 @@ def get_default_om(request):
             field_coors.append(request.POST.getlist(coor))
     print(field_coors)
 
-    geo_data = RasterData(extents, field_coors, field_id, True, True)
+    geo_data = RasterData(extents, field_coors, field_id, active_region,True, True)
 
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
     print(clipped_rasters)
@@ -296,13 +298,11 @@ def get_model_results(request):
     field_scen_id = request.POST.get('model_parameters[f_scen]')
     model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
     active_scen = request.POST.get('model_parameters[active_scen]')
+    active_region = request.POST.get('model_parameters[active_region]')
+    print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
+    print(active_region)
+    print(request)
     db_has_field(field_id)
-    # print("NEW MODEL RUN")
-    # print(field_id)
-    # print(scen)
-    # print(field_scen_id)
-    # print(scenario_id)
-    # print(active_scen)
     if request.POST.getlist("runModels")[0] == 'false':
         print("not active scenario")
         download_gcs_model_result_blob(field_id,field_scen_id,active_scen,model_run_timestamp)
@@ -343,7 +343,7 @@ def get_model_results(request):
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
     try:
-        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, False)
+        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, active_region, False)
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
         if model_type == 'yield':
