@@ -231,7 +231,6 @@ class RasterData:
         self.check_raster_data(raster_data_dic)
         self.create_no_data_array(raster_data_dic)
         return raster_data_dic, bounds
-        return raster_data_dic, bounds
 
     def create_no_data_array(self, raster_data_dic):
         first_entry = [*raster_data_dic.keys()][0]
