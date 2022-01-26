@@ -195,8 +195,8 @@ function runFieldUpdate(){
 };
 async function runScenarioUpdate(){
 	aswValue = 0
-	await aswCheck(DSS['viewModel'].scenario.data.heifers.breedSize,
-	DSS['viewModel'].scenario.data.heifers.asw)
+	//await aswCheck(DSS['viewModel'].scenario.data.heifers.breedSize,
+	//DSS['viewModel'].scenario.data.heifers.asw)
 	//reSourcescenarios()
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeature = f;
