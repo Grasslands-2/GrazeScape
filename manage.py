@@ -9,8 +9,8 @@ def main():
     #set DJANGO_SETTINGS_MODULE=grassland.settings.settings_prod
     #set DJANGO_SETTINGS_MODULE=grassland.settings.settings_dev
     #set GOOGLE_APPLICATION_CREDENTIALS=grassland.calsgrazescapefiles63e6b1043d3d1bc0
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
-    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_prod')
+    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_prod')
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_local')
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "\grassland\settings\gcskeyGS.json"
     try:
