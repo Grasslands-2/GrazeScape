@@ -381,6 +381,9 @@ def get_model_results(request):
         model.raster_inputs = clipped_rasters
         # loop here to build a response for all the model types
         results = model.run_model()
+        if model_type == 'ploss':
+            print("PLOSS RESULTS HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*************$$$$$$$")
+            print(results)
         # result will be a OutputDataNode
         return_data = []
         # convert area from sq meters to acres

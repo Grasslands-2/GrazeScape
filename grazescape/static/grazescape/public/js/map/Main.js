@@ -353,7 +353,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_0.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_0.PNG',
 				imageExtent: SWinputextent0,
 			})
 		}),
@@ -362,7 +362,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_1.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_1.PNG',
 				imageExtent: SWinputextent1,
 			})
 		}),
@@ -371,7 +371,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_2.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_2.PNG',
 				imageExtent: SWinputextent2,
 				
 			})
@@ -381,7 +381,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_3.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_3.PNG',
 				imageExtent: SWinputextent3,
 				
 			})
@@ -528,15 +528,6 @@ Ext.define('DSS.map.Main', {
 			})
 		})
 		//-------------------------------Clover Belt DEM-----------------------------------------
-		DSS.layer.CBDEM_image0 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_3.PNG',
-				imageExtent: CBinputextent0,
-			})
-		})
 		DSS.layer.CBDEM_image0 = new ol.layer.Image({
 			visible: false,
 			opacity: DSS.layer['DEM:opacity'],
@@ -858,7 +849,7 @@ Ext.define('DSS.map.Main', {
 		})
 		//----------------------------------------Output Raster Groups-------------------------------------
 		DSS.layer.PLossGroup = new ol.layer.Group({
-			visible: false,
+			visible: true,
 			layers:[]
 		})
 		DSS.layer.erosionGroup = new ol.layer.Group({

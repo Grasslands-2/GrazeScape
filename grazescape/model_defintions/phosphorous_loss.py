@@ -347,4 +347,5 @@ class PhosphorousLoss(ModelBase):
         erosion.set_data(ero)
         pl.set_data(ploss)
         return [erosion, pl]
+        #return [pl, erosion]
 

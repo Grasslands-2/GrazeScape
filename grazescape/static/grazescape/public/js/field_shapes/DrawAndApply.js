@@ -68,17 +68,17 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	//Starter values for dependant variables
 	cropDisp='';
 	tillageDisp='';
-	grassDisp='';
-	grassVal='';
+	grassDisp='Low Yielding';
+	grassVal='Bluegrass-clover';
 	rotationFreqVal = 1;
 	rotationFreqdisp = 'Once a day';
-	grazeDensityVal = '',
-	grazeDensityDisp = ''
+	grazeDensityVal = 'lo',
+	grazeDensityDisp = 'low'
 	//--------------------Setting Display Values------------------
 	if(crop=='pt-cn'){
 		cropDisp ='Continuous Pasture';
-		grassDisp='Bluegrass-clover';
-		grassVal='Bluegrass';
+		grassDisp='Low Yielding';
+		grassVal='Bluegrass-clover';
 		rotationFreqVal = 1
 		rotationFreqdisp = 'Once a day',
 		grazeDensityVal = 'lo',
