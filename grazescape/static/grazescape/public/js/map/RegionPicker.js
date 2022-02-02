@@ -58,7 +58,7 @@ Ext.define('DSS.map.RegionPicker', {
 								console.log(DSS.activeRegion);
 								DSS.map.setView(new ol.View({
 									center: [-10022690, 5616340],
-									zoom: 10,
+									zoom: 9,
 									maxZoom: 30,
 									minZoom: 8,//10,
 								//	constrainRotation: false,
@@ -67,12 +67,20 @@ Ext.define('DSS.map.RegionPicker', {
 									extent:[-10123258, 5529663,-9931236,5682859]
 									//extent:[ -10168100, 5318380, -10055830, 5454227]
 								}))
-								
-								// DSS.map.getView().setCenter([-10022690, 5616340])
-								// DSS.map.getView().calculateExtent([-10123258., 5529663,-9931236,5682859])
 							}
 							else{
 								DSS.activeRegion = "Kickapoo";
+								DSS.map.setView(new ol.View({
+									center: [-10112582,5392087],
+									zoom: 10,
+									maxZoom: 30,
+									minZoom: 8,//10,
+								//	constrainRotation: false,
+								//	rotation: 0.009,
+									constrainOnlyCenter: false,
+									//extent:[-10155160, 5323674, -10065237, 5450767]
+									extent:[ -10168100, 5318380, -10055830, 5454227]
+								}))
 							}
 							console.log("REGION PICKER DONE");
 							

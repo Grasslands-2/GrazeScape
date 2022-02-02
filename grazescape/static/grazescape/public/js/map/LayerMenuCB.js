@@ -1,9 +1,10 @@
 var soilColorArray = ['rgba(0,0,0,1)','rgba(51,51,51,1)','rgba(102,102,102,1)','rgba(153,153,153,1)','rgba(204,204,204,1)','rgba(255,255,255,1)']
-var soilValueArray =[0,20,40,60,80,100]
+var soilValueArray =['0',20,40,60,80,'100']
 //[0,20,40,60,80,100]
 
 var DEMColorArray = ['rgba(0,0,0,1)','rgba(51,51,51,1)','rgba(102,102,102,1)','rgba(153,153,153,1)','rgba(204,204,204,1)','rgba(255,255,255,1)']
-var DEMValueArray =[600,770,940,1110,1280,1450]
+var DEMValueArray =['600',770,940,1110,1280,'1450']
+var slopeValueArray =['0',20,50,80,130,'180+']
 var DEMBool = false
 var SlopeBool = false
 var ClayBool = false
@@ -290,7 +291,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											DEM6Source = DSS.layer.CBDEM_image6.getSource()
 											console.log(DEM0Source.getState())
 											DSS.layer.CBDEM_image0.setVisible(checked)
-											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
+											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray,'Elev ft');
 											DEM0Source.on('imageloadend', function(){
 												DSS.layer.CBDEM_image1.setVisible(checked);
 												DEM1Source.on('imageloadend', function(){
@@ -320,7 +321,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											DSS.layer.CBDEM_image4.setVisible(checked)
 											DSS.layer.CBDEM_image5.setVisible(checked)
 											DSS.layer.CBDEM_image6.setVisible(checked)
-											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
+											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray,'Elev ft');
 										}
 										//console.log(dss.layer.SWDEM_image2.getSource())
 									}else{
@@ -350,7 +351,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											Slope6Source = DSS.layer.CBSlope6.getSource()
 											console.log(Slope0Source.getState())
 											DSS.layer.CBSlope0.setVisible(checked)
-											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
+											DSS.MapState.showContinuousLegend(DEMColorArray, slopeValueArray,'% Slope');
 											Slope0Source.on('imageloadend', function(){
 												DSS.layer.CBSlope1.setVisible(checked);
 												Slope1Source.on('imageloadend', function(){
@@ -380,7 +381,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											DSS.layer.CBSlope4.setVisible(checked)
 											DSS.layer.CBSlope5.setVisible(checked)
 											DSS.layer.CBSlope6.setVisible(checked)
-											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
+											DSS.MapState.showContinuousLegend(DEMColorArray, slopeValueArray,'% Slope');
 										}
 										//console.log(dss.layer.SWSlope2.getSource())
 									}else{
@@ -411,7 +412,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											Clay6Source = DSS.layer.CBClay6.getSource()
 											console.log(Clay0Source.getState())
 											DSS.layer.CBClay0.setVisible(checked)
-											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray);
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
 											Clay0Source.on('imageloadend', function(){
 												DSS.layer.CBClay1.setVisible(checked);
 												Clay1Source.on('imageloadend', function(){
@@ -441,7 +442,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											DSS.layer.CBClay4.setVisible(checked)
 											DSS.layer.CBClay5.setVisible(checked)
 											DSS.layer.CBClay6.setVisible(checked)
-											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray);
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
 										}
 										//console.log(dss.layer.SWClay2.getSource())
 									}else{
@@ -473,7 +474,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											Silt6Source = DSS.layer.CBSilt6.getSource()
 											console.log(Silt0Source.getState())
 											DSS.layer.CBSilt0.setVisible(checked)
-											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray);
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
 											Silt0Source.on('imageloadend', function(){
 												DSS.layer.CBSilt1.setVisible(checked);
 												Silt1Source.on('imageloadend', function(){
@@ -503,7 +504,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											DSS.layer.CBSilt4.setVisible(checked)
 											DSS.layer.CBSilt5.setVisible(checked)
 											DSS.layer.CBSilt6.setVisible(checked)
-											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray);
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
 										}
 										//console.log(dss.layer.SWSilt2.getSource())
 									}else{
@@ -537,7 +538,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											Sand6Source = DSS.layer.CBSand6.getSource()
 											console.log(Sand0Source.getState())
 											DSS.layer.CBSand0.setVisible(checked)
-											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray);
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
 											Sand0Source.on('imageloadend', function(){
 												DSS.layer.CBSand1.setVisible(checked);
 												Sand1Source.on('imageloadend', function(){
@@ -567,7 +568,7 @@ Ext.define('DSS.map.LayerMenuCB', {
 											DSS.layer.CBSand4.setVisible(checked)
 											DSS.layer.CBSand5.setVisible(checked)
 											DSS.layer.CBSand6.setVisible(checked)
-											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray);
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
 										}
 										//console.log(dss.layer.SWSand2.getSource())
 									}else{

@@ -405,8 +405,8 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
     zoomToExtent: function(center_, zoom_) {
     	
-    	center_ = center_ || [-10118000, 5375100];
-    	zoom_ = zoom_ || 9.5;
+    	center_ = center_ || [-10000312.33,5506092.31],//[-10118000, 5375100];
+    	zoom_ = zoom_ || 8,//9.5;
     	DSS.map.getView().animate({
     		center: center_,
 			zoom: zoom_,
@@ -427,7 +427,7 @@ Ext.define('DSS.state.MapStateTools', {
     },
     
     //-------------------------------------------------------------
-    showContinuousLegend: function(paletteArray, valuesArray) {
+    showContinuousLegend: function(paletteArray, valuesArray,arrayLabel) {
 
     	var me = this;
     	
@@ -436,6 +436,7 @@ Ext.define('DSS.state.MapStateTools', {
 		me.DSS_legend = Ext.create('DSS.map.Legend', {
 			DSS_colors: paletteArray,
 			DSS_values: valuesArray,
+			DSS_label: arrayLabel,
 			DSS_keys: false
 		});
 		

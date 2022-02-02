@@ -856,6 +856,10 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
+		DSS.layer.runoffGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
 		DSS.layer.yieldGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
@@ -1124,24 +1128,24 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.swwiBorder,
 				DSS.layer.erosionGroup,
 				DSS.layer.PLossGroup,
+				DSS.layer.runoffGroup,
 				DSS.layer.yieldGroup,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1
 				],
 				//------------------------------------------------------------------------
-
-
 			view: new ol.View({
-				center: [-10112582,5392087],
-				zoom: 10,
+				center: [-10000312.33,5506092.31],
+				//10000312.33 5506092.31 
+				zoom: 6,
 				maxZoom: 30,
-				minZoom: 8,//10,
+				minZoom: 4,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
 				constrainOnlyCenter: false,
 				//extent:[-10155160, 5323674, -10065237, 5450767]
-				extent:[ -10168100, 5318380, -10055830, 5454227]
+				//extent:[ -10168100, 5318380, -10055830, 5454227]
 			})
 		});
 

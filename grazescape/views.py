@@ -400,10 +400,17 @@ def get_model_results(request):
                 print(result)
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
-                if model_type == 'ploss':
+                if result.model_type == 'ero':
+                #model_type == 'ero':
+                    print('UPLOADING ERO FOR FIELD: '+field_id)
+                    remove_old_pngs_gcs_storage_bucket("ero",field_id)
+                    upload_gcs_model_result_blob("ero",field_id,model_run_timestamp)
+                if result.model_type == 'ploss':
                     print('UPLOADING PLOSS FOR FIELD: '+field_id)
                     remove_old_pngs_gcs_storage_bucket("ploss",field_id)
                     upload_gcs_model_result_blob("ploss",field_id,model_run_timestamp)
+                    #If you want to break out yield results by type, you will have to do if statements
+                    #like if result.model_type == 'grass_yeild'/'soy_yield'/ ext ext
                 if model_type == 'yield':
                     print('UPLOADING YIELD FOR FIELD: '+field_id)
                     remove_old_pngs_gcs_storage_bucket('yield',field_id)
