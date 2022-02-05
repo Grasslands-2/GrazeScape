@@ -78,7 +78,7 @@ def get_user_farms(user_id):
     conn.close()
     farm_id = []
     for id in db_result:
-        print(id[0])
+        #print(id[0])
         farm_id.append(id[0])
     return farm_id
 # updates the users list of farms when they add or delete an operation.

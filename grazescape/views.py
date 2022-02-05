@@ -230,8 +230,12 @@ def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
-    feature_id = request.POST.get("feature_id")
-    print(url)
+    #feature_id = request.POST.get("feature_id")
+    feature_id = 9999
+    #farm_2 = False
+    # if "farm_2" in str(url):
+    #     print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        #farm_2 = True
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
     if "field_2" in pay_load and request_type == "delete":
@@ -239,24 +243,49 @@ def geoserver_request(request):
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
         print(resultdel.group(1))
         delete_gcs_model_result_blob(resultdel.group(1))
+    #if request_type == "insert_farm" and feature_id != "" and "farm_2" in url :
+    #if "farm_2" in str(url):
     if request_type == "insert_farm" and feature_id != "":
-        print(request.POST)
+        
+        #print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
+        #if request_type == "insert_farm":
+        print('IN INSERT FARM!!!!!#######################!')
+        #print(str(url))
+    #if "farm_2" in str(url):
+        #print('IN INSERT FARM!!!!!! MAKEREQUEST RESULTS RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(result)
+        
+        resultstr = str(result)
+        if "farm_2" in resultstr:
+            pattern = 'farm_2.(.*?)"/>'
+            feature_id = re.search(pattern,resultstr).group(1)
+            print(feature_id)
+        #feature_id = 9675
 
-        update_user_farms(request.user.id, feature_id)
+        #pull gid from the results text.  Also, find a way to limit the update_user_farms to only farm_2 inserts
+        #currently gettin scenarios_2 as well.  After you get this right you should be able to see new farm
+        #once you have that figured out you can find out how to see your farms when you open the app.
+        #print(request.POST)
+            update_user_farms(request.user.id, feature_id)
+
     if request_type == "source_farm":
+        print("source Farm result!!!!!!!!")
+        print(result)
         input_dict = json.loads(result)
         current_user = request.user
-        print("\n \n")
+        #print("\n \n")
         features = input_dict["features"]
         farm_ids = get_user_farms(current_user.id)
         # Filter python objects with list comprehensions
-        print(features[0]["properties"])
-        output_dict = [x for x in features if x["properties"]['id'] in farm_ids]
+        #print(features[0]["properties"])
+        output_dict = [x for x in features if x["properties"]['gid'] in farm_ids]
         input_dict["features"] = output_dict
         # Transform python object back into json
         output_json = json.dumps(input_dict)
         result = output_json
-        print(result)
+        # print("source Farm result!!!!!!!!")
+        # print(result)
     return JsonResponse({"data": result}, safe=False)
 #Gets OM from OM raster layer
 @login_required

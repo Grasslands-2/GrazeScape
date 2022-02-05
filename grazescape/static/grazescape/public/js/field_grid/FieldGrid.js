@@ -910,21 +910,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		AppEvents.registerListener('show_field_grid', function() {
 			me
 			console.log('hi from grid view')
-			//selectField()
-
-			//Fun with trying to only show fields for active farm FIX ME LATER
-			//console.log(DSS.activeFarm);
-			//fieldArray = fieldArray.filter(i => i.owningFarmid == DSS.activeFarm)
-			//console.log(fieldObj);
-			//onsole.log(fieldArray);
-			//DSS.FieldGrid.store.reload()
-			//DSS.FieldGrid.initComponent
-			//popFieldsArray(fieldObj);
-
-			//Maybe shove entire grid opps into this function?
-			
-
-
 			let height = me.getHeight();
 			if (height == 0) height = me.internalHeight;			
 			

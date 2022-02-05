@@ -83,8 +83,8 @@ Ext.define('DSS.state.Manage', {
 									console.log("back to square 1")
 									DSS.activeScenario = null;
 									DSS.activeFarm = null;
-									console.log(DSS.activeFarm)
-									console.log(DSS.activeScenario)
+									// console.log(DSS.activeFarm)
+									// console.log(DSS.activeScenario)
 								}
 							});
 						}
@@ -120,7 +120,7 @@ Ext.define('DSS.state.Manage', {
 						//reSourcescenarios()
 						gatherScenarioTableData
 						runScenarioUpdate();
-						geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+						geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 						DSS.ApplicationFlow.instance.showManageOperationPage();
 						// showFieldsForScenario()
 				 		// showInfraForScenario()

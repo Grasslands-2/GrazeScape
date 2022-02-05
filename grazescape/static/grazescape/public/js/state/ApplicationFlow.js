@@ -222,9 +222,9 @@ Ext.define('DSS.state.ApplicationFlow', {
 		//DSS.layer.farms_1.setVisible(true);
 		//DSS.layer.scenarios.setVisible(false);
 		
-		DSS.MapState.showNewFarm(DSS.activeFarm);
-		DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-		DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+		DSS.MapState.showNewFarm();
+		DSS.MapState.showFieldsForFarm();
+		DSS.MapState.showInfrasForFarm();
 
 		//var ext = DSS.layer.farms_1.getSource().getFeatures().forEach().getExtent();
 		//console.log(ext)

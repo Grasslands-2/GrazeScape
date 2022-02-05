@@ -413,23 +413,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             delete $.ajaxSetup().headers
                             Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
                         }
-                        // if(f.properties.scenario_id == DSS.activeScenario){
-                        //     var plextent = f.bbox
-                        //     DSS.layer.ploss_field = new ol.layer.Image({
-                        //         visible: true,
-                        //         updateWhileAnimating: true,
-                        //         updateWhileInteracting: true,
-                        //         source: new ol.source.ImageStatic({
-                        //         url: '/static/grazescape/public/images/ploss'+ f.properties.gid + '.png',
-                        //         imageExtent: plextent
-                        //         })
-                        //     })
-                        //     DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ f.properties.gid);
-                        //     var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                        //     console.log(plossGroupLayers);
-                        //     plossGroupLayers.push(DSS.layer.ploss_field);
-                            
-                        // }
                         Ext.getCmp('mainTab').update()
                     })
                 }

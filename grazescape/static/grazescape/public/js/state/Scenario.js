@@ -100,7 +100,7 @@ function popScenarioArray(obj) {
 }
 
 function getWFSScenario() {
-        geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+        geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 
 }
 
@@ -312,7 +312,7 @@ Ext.define('DSS.state.Scenario', {
 								click: async function(self) {
 									gatherScenarioTableData
 									runScenarioUpdate();
-									geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
 									//DSS.layer.PLossGroup.setVisible(false);

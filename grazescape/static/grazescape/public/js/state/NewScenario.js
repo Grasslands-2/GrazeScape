@@ -187,7 +187,7 @@ function wfs_scenario_insert(feat,geomType,fType) {
     console.log(node);
     geoServer.wfs_scenario_insert(str, feat)
 }
-function createNewScenario(sname,sdescript,snewhighID){
+function createNewScenario(sname,sdescript){
 	console.log('in createnewscen')
 	console.log('scenarioArrayNS at start of createnewscen: ');
 	console.log(scenarioArrayNS)
@@ -216,7 +216,8 @@ function createNewScenario(sname,sdescript,snewhighID){
 					newScenarioFeature.setProperties({
 						scenario_name:sname,
 						scenario_desp:sdescript,
-						scenario_id: snewhighID,
+						scenario_id: 9999,
+						//scenario_id: snewhighID,
 						farm_id: DSS.activeFarm,
 						farm_name:DSS.farmName,
 						lac_cows:scenarioArrayNS[i].lacCows,
@@ -336,23 +337,10 @@ Ext.define('DSS.state.NewScenario', {
 								fieldArrayNS = []
 								infraArrayNS = []
 								scenarioNumHold = DSS.activeScenario
-								//runScenarioUpdate();
 								let scenName = form.findField('scenario_name').getSubmitValue()
 								let scenDes = form.findField('scenario_description').getSubmitValue()
-								//gatherScenarioTableData()
-								geoServer.copyScenario(scenName, scenDes)
-								//geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
-								//showFieldsForScenario()
-								//showInfraForScenario()
-								//DSS.layer.fields_1.setVisible(false)
-								//DSS.layer.fields_1.setVisible(true);
-								//console.log(DSS.activeScenario)
-								//geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-								//DSS.ApplicationFlow.instance.showManageOperationPage();
-								//DSS.layer.infrastructure.setVisible(true);
-								//DSS.layer.fieldsLabels.setVisible(true);
-								//DSS.layer.fields_1.getSource().refresh();
-            					//DSS.layer.fieldsLabels.getSource().refresh();
+								//geoServer.copyScenario(scenName, scenDes)
+								createNewScenario(sname,sdescript)
 								this.up('window').destroy();
 							}
 						}

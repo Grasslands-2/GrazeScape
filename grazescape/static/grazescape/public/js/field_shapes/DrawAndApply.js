@@ -139,7 +139,6 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	});
 	DSS.map.addInteraction(DSS.draw);
 	console.log("draw is on");
-	//console.log(DSS.activeFarm);
 	var af = parseInt(DSS.activeFarm,10);
 	var as = DSS.activeScenario;
 	console.log('This is the active scenario#: ');
@@ -330,7 +329,6 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 						var data = me.viewModel.data;
 						if(form.isValid()){
 						DSS.map.removeInteraction(DSS.select);
-						//console.log(DSS.activeFarm);
 
 						createField(data.graze_animals.dairy_lactating,
 							data.graze_animals.dairy_nonlactating,

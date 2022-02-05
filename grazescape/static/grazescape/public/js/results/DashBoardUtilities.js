@@ -256,35 +256,6 @@ function format_chart_data(model_data){
             }
             break;
 
-
-        // case 'ploss':
-        //     if (model_data.value_type == 'ploss'){
-        //         chartTypeField = chartObj.ploss_field
-        //         chartTypeFarm = chartObj.ploss_farm
-        //         if(model_data.scen_id == DSS.activeScenario){
-        //             console.log(model_data.extent)
-        //             if(model_data.extent !== undefined){
-        //                 var plextent = model_data.extent
-        //                 DSS.layer.ploss_field = new ol.layer.Image({
-        //                     visible: true,
-        //                     updateWhileAnimating: true,
-        //                     updateWhileInteracting: true,
-        //                     source: new ol.source.ImageStatic({
-        //                     url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
-        //                     imageExtent: plextent
-        //                     })
-        //                 })
-        //                 DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
-        //                 var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-        //                 console.log(plossGroupLayers);
-        //                 //plossGroupLayers.push(DSS.layer.ploss_field);
-        //                 plossGroupLayers.unshift(DSS.layer.ploss_field)
-        //                 Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-        //             }
-        //         }
-        //     }
-
-
         case 'ploss':
             if (model_data.value_type == 'ploss'){
                 chartTypeField = chartObj.ploss_field
@@ -1220,7 +1191,7 @@ function retrieveScenariosGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
+	'CQL_filter=gid='+DSS.activeFarm+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs scenarios")
@@ -1245,8 +1216,7 @@ function retrieveFieldsGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-//	'CQL_filter=farm_id='+DSS.activeFarm+' AND scenario_id='+DSS.activeScenario +
-	'CQL_filter=farm_id='+DSS.activeFarm +
+	'CQL_filter=gid='+DSS.activeFarm +
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1281,7 +1251,7 @@ function retrieveFarmGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:farm_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1303,7 +1273,7 @@ function retrieveAllFieldsFarmGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1330,7 +1300,7 @@ function retrieveAllFieldsDataGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1409,7 +1379,7 @@ function printSummary(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_model_results&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1494,7 +1464,7 @@ function printSummary(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:infrastructure_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
