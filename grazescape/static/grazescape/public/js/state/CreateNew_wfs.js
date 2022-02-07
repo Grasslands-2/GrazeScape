@@ -85,18 +85,35 @@ function gethighestScenarioIdCNO(){
 
 
 //---------------------------------Working Functions-------------------------------
-function wfs_farm_insert(feat,geomType,fType, farmID=null) {
-//function wfs_farm_insert(feat,geomType,fType,) {
+async function cnf_farm_insert(feat,geomType,fType, farmID=null) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/GrazeScape_Vector'
-		/*'http://geoserver.org/Farms'*/,
-		//Geometry: 'geom',
+        featureNS: 'http://geoserver.org/GrazeScape_Vector',
         featureType: fType,
         srsName: 'EPSG:3857'
     });
     console.log(feat)
-	//console.log(feat.values_.id)
+    node = formatWFS.writeTransaction([feat], null, null, formatGML);
+	console.log(node);
+    s = new XMLSerializer();
+    str = s.serializeToString(node);
+    console.log(str);
+    await geoServer.insertFarm(str, feat,fType)
+	//await cnf_scenario_insert(feat,geomType,'scenarios_2',)
+}
+//you need to make sure that farm gets in and sets an active farm before scenario kicks off.
+
+function cnf_scenario_insert(feat,geomType,fType, farmID=null) {
+    var formatWFS = new ol.format.WFS();
+    var formatGML = new ol.format.GML({
+        featureNS: 'http://geoserver.org/GrazeScape_Vector',
+        featureType: fType,
+        srsName: 'EPSG:3857'
+    });
+	if(fType == 'scenarios_2'){
+		feat.setProperties({farm_id:DSS.activeFarm})
+	}
+    console.log(feat)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log(node);
     s = new XMLSerializer();
@@ -129,14 +146,14 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 			farm_addre: faddress,
 			scenario_name: sname,
 			scenario_desp: sdescript,
-			//scenario_id: highestScenarioIdCNO + 1,
+			//scenario_id: DSS.activeFarm
 			//farm_id: highestFarmIdCNO + 1,
 		})
 		var geomType = 'point'
-		//wfs_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
-		//wfs_farm_insert(e.feature, geomType,'scenarios_2',highestScenarioIdCNO+1)
-		wfs_farm_insert(e.feature, geomType,'farm_2')
-		wfs_farm_insert(e.feature, geomType,'scenarios_2')
+		//cnf_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
+		//cnf_farm_insert(e.feature, geomType,'scenarios_2',highestScenarioIdCNO+1)
+		await cnf_farm_insert(e.feature, geomType,'farm_2')
+		//cnf_farm_insert(e.feature, geomType,'scenarios_2')
 		DSS.layer.fields_1.setVisible(true);
 		DSS.layer.infrastructure.setVisible(true);
 		DSS.layer.fieldsLabels.setVisible(true);

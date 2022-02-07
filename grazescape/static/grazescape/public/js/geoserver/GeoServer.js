@@ -130,31 +130,68 @@ class GeoServer{
             let currObj = returnData.current
             currObj.setFarmSource()
 			DSS.MapState.removeMapInteractions()
-            //This is where you need to get the new farm and scenario GID to assign them as active
-            if(fType == 'farm_2'){
-                var fgid = geojsonString.substring(geojsonString.indexOf('farm_2.') + 7,geojsonString.lastIndexOf('"/>'));
-                var intFgid = parseInt(fgid);
-                console.log(intFgid);
-                // DSS.activeFarm = highestFarmIdCNO + 1
-                DSS.activeFarm = intFgid
-                DSS.farmName = feat.values_.farm_name;
-                DSS.scenarioName = feat.values_.scenario_name;
-                DSS.MapState.showNewFarm(DSS.activeFarm);
-                DSS.ApplicationFlow.instance.showScenarioPage();
-            }
-            if(fType == 'scenarios_2'){
+            var fgid = geojsonString.substring(geojsonString.indexOf('farm_2.') + 7,geojsonString.lastIndexOf('"/>'));
+            var intFgid = parseInt(fgid);
+            console.log(intFgid);
+            // DSS.activeFarm = highestFarmIdCNO + 1
+            DSS.activeFarm = intFgid
+            DSS.farmName = feat.values_.farm_name;
+            DSS.scenarioName = feat.values_.scenario_name;
+            //DSS.ApplicationFlow.instance.showScenarioPage();
+
+            var formatWFS = new ol.format.WFS();
+            var formatGML = new ol.format.GML({
+                featureNS: 'http://geoserver.org/GrazeScape_Vector',
+                featureType: 'scenarios_2',
+                srsName: 'EPSG:3857'
+            });
+            feat.setProperties({farm_id:DSS.activeFarm})
+            console.log(feat)
+
+            node = formatWFS.writeTransaction([feat], null, null, formatGML);
+            console.log(node);
+            s = new XMLSerializer();
+            str = s.serializeToString(node);
+            console.log(str);
+            //geoServer.insertFarm(str, feat,fType)
+            geoServer.makeRequest(geoServer.geoUpdate_Url, "insert_farm", str, this).then(function(){
                 var sgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 12,geojsonString.lastIndexOf('"/>'));
                 var intSgid = parseInt(sgid);
                 console.log(intSgid);
                 DSS.activeScenario = intSgid
-                //DSS.activeScenario = highestScenarioIdCNO + 1
-                // DSS.farmName = feat.values_.farm_name;
-                // DSS.scenarioName = feat.values_.scenario_name;
+                DSS.MapState.showNewFarm(DSS.activeFarm);
                 gatherScenarioTableData();
+                runScenarioUpdate();
                 DSS.ApplicationFlow.instance.showScenarioPage();
                 DSS.MapState.showFieldsForFarm();
                 DSS.MapState.showInfrasForFarm();
-            }
+            })
+
+            //This is where you need to get the new farm and scenario GID to assign them as active
+            // if(fType == 'farm_2'){
+            //     var fgid = geojsonString.substring(geojsonString.indexOf('farm_2.') + 7,geojsonString.lastIndexOf('"/>'));
+            //     var intFgid = parseInt(fgid);
+            //     console.log(intFgid);
+            //     // DSS.activeFarm = highestFarmIdCNO + 1
+            //     DSS.activeFarm = intFgid
+            //     DSS.farmName = feat.values_.farm_name;
+            //     DSS.scenarioName = feat.values_.scenario_name;
+            //     DSS.MapState.showNewFarm(DSS.activeFarm);
+            //     DSS.ApplicationFlow.instance.showScenarioPage();
+            // }
+            // if(fType == 'scenarios_2'){
+            //     var sgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 12,geojsonString.lastIndexOf('"/>'));
+            //     var intSgid = parseInt(sgid);
+            //     console.log(intSgid);
+            //     DSS.activeScenario = intSgid
+            //     //DSS.activeScenario = highestScenarioIdCNO + 1
+            //     // DSS.farmName = feat.values_.farm_name;
+            //     // DSS.scenarioName = feat.values_.scenario_name;
+            //     gatherScenarioTableData();
+            //     DSS.ApplicationFlow.instance.showScenarioPage();
+            //     DSS.MapState.showFieldsForFarm();
+            //     DSS.MapState.showInfrasForFarm();
+            // }
         })
     }
 // used to insert fields into geoserver
