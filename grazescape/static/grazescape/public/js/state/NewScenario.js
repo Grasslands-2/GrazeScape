@@ -35,7 +35,7 @@ function getWFSScenarioNS() {
 		{
 			scenarioObj = response.features
 			console.log(scenarioObj)
-			popscenarioArrayNS(scenarioObj);
+			popscenarioArray(scenarioObj);
 		}
 	})
 }
@@ -51,7 +51,7 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
             if(f.values_.scenario_id == copyScenarioNum){
                 delete f.id_
                 f.geometryName_ = 'geom'
-                f.values_.scenario_id = highestScenarioId + 1;
+                f.values_.scenario_id = DSS.activeScenario;
                 f.values_.geom = f.values_.geometry;
                 delete f.values_.geometry
                 f.values_.is_dirty = true
@@ -79,9 +79,9 @@ function popFarmArray(obj) {
 		name: obj[i].properties.farm_name
 	});
 }
-function popscenarioArrayNS(obj) {
+function popscenarioArray(obj) {
 	for (i in obj) 
-	scenarioArrayNS.push({
+	scenarioArray.push({
 		fid: obj[i].id,
 		gid: obj[i].properties.gid,
 		geom: obj[i].geometry,
@@ -109,7 +109,7 @@ function popscenarioArrayNS(obj) {
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
 	});
-	console.log(scenarioArrayNS)
+	console.log(scenarioArray)
 }
 //populate data array with farm object data from each farm
 //popArray(farmObj);
@@ -134,11 +134,11 @@ function getHighestFarmId(){
 //}
 function getHighestScenarioId(){
 	getWFSScenarioNS();
-	for (i in scenarioArrayNS){
-		console.log(scenarioArrayNS[i].scenarioId)
+	for (i in scenarioArray){
+		console.log(scenarioArray[i].scenarioId)
 		console.log(highestScenarioId)
-		if (scenarioArrayNS[i].scenarioId > highestScenarioId){
-			highestScenarioId = scenarioArrayNS[i].scenarioId
+		if (scenarioArray[i].scenarioId > highestScenarioId){
+			highestScenarioId = scenarioArray[i].scenarioId
 			console.log('hightestScenarioId after getHighestScenario run: ' + highestScenarioId)
 		};
 	};
@@ -189,8 +189,8 @@ function wfs_scenario_insert(feat,geomType,fType) {
 }
 function createNewScenario(sname,sdescript){
 	console.log('in createnewscen')
-	console.log('scenarioArrayNS at start of createnewscen: ');
-	console.log(scenarioArrayNS)
+	console.log('scenarioArray at start of createnewscen: ');
+	console.log(scenarioArray)
 	console.log('current active scenario #: '+ DSS.activeScenario);
 	//reSourcescenarios()
 	//DSS.layer.scenarios.getSource().refresh();
@@ -199,45 +199,48 @@ function createNewScenario(sname,sdescript){
 	//DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
-//		console.log(newScenarioFeature.values_.scenario_id)
+		//console.log(newScenarioFeature)
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
 		//console.log("Active Scenario")
 		//console.log(DSS.activeScenario)
-		console.log(newScenarioFeature.values_.scenario_id)
-		if(newScenarioFeature.values_.scenario_id == DSS.activeScenario){
-			for (i in scenarioArrayNS){
-				console.log("scenarioArrayNS scenario_id: " + scenarioArrayNS[i].scenarioId);
-				if(scenarioArrayNS[i].scenarioId == DSS.activeScenario){
+		//console.log(newScenarioFeature.values_.scenario_id)
+		//console.log(newScenarioFeature.values_.gid)
+		if(newScenarioFeature.values_.gid == DSS.activeScenario){
+			console.log("Hit NEW SCENRIO GID")
+			console.log(newScenarioFeature.values_.gid)
+			for (i in scenarioArray){
+				console.log("scenarioArray gid: " + scenarioArray[i].gid);
+				if(scenarioArray[i].gid == DSS.activeScenario){
 					console.log('ActiveScenario, scenarios feature scenario_id, and scenarioarray scenarioId line up!!!!!!!!!!!!!!!');
 					console.log('Base object for new scenario:')
 					console.log(newScenarioFeature)
 					newScenarioFeature.setProperties({
 						scenario_name:sname,
 						scenario_desp:sdescript,
-						scenario_id: 9999,
+						//scenario_id: 9999,
 						//scenario_id: snewhighID,
 						farm_id: DSS.activeFarm,
 						farm_name:DSS.farmName,
-						lac_cows:scenarioArrayNS[i].lacCows,
-						dry_cows: scenarioArrayNS[i].dryCows,
-						heifers: scenarioArrayNS[i].heifers,
-						youngstock: scenarioArrayNS[i].youngStock,
-						beef_cows: scenarioArrayNS[i].beefCows,
-						stockers: scenarioArrayNS[i].stockers,
-						finishers: scenarioArrayNS[i].finishers,
-						ave_milk_yield: scenarioArrayNS[i].aveMilkYield,
-						ave_daily_gain:scenarioArrayNS[i].aveDailyGain,
-						lac_confined_mos: scenarioArrayNS[i].lacMonthsConfined,
-						dry_confined_mos: scenarioArrayNS[i].dryMonthsConfined,
-						beef_confined_mos: scenarioArrayNS[i].beefMonthsConfined,
-						lac_graze_time: scenarioArrayNS[i].lacGrazeTime,
-						dry_graze_time: scenarioArrayNS[i].dryGrazeTime,
-						beef_graze_time: scenarioArrayNS[i].beefGrazeTime,
-						lac_rotate_freq: scenarioArrayNS[i].lacRotateFreq,
-						dry_rotate_freq: scenarioArrayNS[i].dryRotateFreq,
-						beef_rotate_freq: scenarioArrayNS[i].beefRotateFreq
+						lac_cows:scenarioArray[i].lacCows,
+						dry_cows: scenarioArray[i].dryCows,
+						heifers: scenarioArray[i].heifers,
+						youngstock: scenarioArray[i].youngStock,
+						beef_cows: scenarioArray[i].beefCows,
+						stockers: scenarioArray[i].stockers,
+						finishers: scenarioArray[i].finishers,
+						ave_milk_yield: scenarioArray[i].aveMilkYield,
+						ave_daily_gain:scenarioArray[i].aveDailyGain,
+						lac_confined_mos: scenarioArray[i].lacMonthsConfined,
+						dry_confined_mos: scenarioArray[i].dryMonthsConfined,
+						beef_confined_mos: scenarioArray[i].beefMonthsConfined,
+						lac_graze_time: scenarioArray[i].lacGrazeTime,
+						dry_graze_time: scenarioArray[i].dryGrazeTime,
+						beef_graze_time: scenarioArray[i].beefGrazeTime,
+						lac_rotate_freq: scenarioArray[i].lacRotateFreq,
+						dry_rotate_freq: scenarioArray[i].dryRotateFreq,
+						beef_rotate_freq: scenarioArray[i].beefRotateFreq
 					});
 					console.log('Object to be inserted:');
 					console.log(newScenarioFeature)
@@ -333,14 +336,16 @@ Ext.define('DSS.state.NewScenario', {
 							if (form.isValid()) {
 								//DSS.layer.scenarios.getSource().refresh();
 								farmArray = [];
-								scenarioArrayNS = [];
+								scenarioArrayNS = scenarioArray
+								scenarioArray = [];
 								fieldArrayNS = []
 								infraArrayNS = []
 								scenarioNumHold = DSS.activeScenario
 								let scenName = form.findField('scenario_name').getSubmitValue()
 								let scenDes = form.findField('scenario_description').getSubmitValue()
 								//geoServer.copyScenario(scenName, scenDes)
-								createNewScenario(sname,sdescript)
+								//createNewScenario(sname,sdescript)
+								createNewScenario(scenName,scenDes)
 								this.up('window').destroy();
 							}
 						}

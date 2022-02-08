@@ -36,7 +36,7 @@ function selectOperation(){
 		selectedOperation = f.selected[0];
 		farmArrayDO.push(selectedOperation)
 		console.log(farmArrayDO);
-		farmIDToDelete = selectedOperation.values_.id
+		farmIDToDelete = selectedOperation.values_.gid
 		console.log(farmIDToDelete)
 		//The idea is to capture the farm's id, then select all scenarios,
 		//fields and infrastructure with that farm id and delete them.

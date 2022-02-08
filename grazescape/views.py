@@ -396,9 +396,9 @@ def get_model_results(request):
             else:
                 model = CropYield(request)
         elif model_type == 'ploss':
-            model = PhosphorousLoss(request)
+            model = PhosphorousLoss(request,active_region)
         elif model_type == 'runoff':
-            model = Runoff(request)
+            model = Runoff(request,active_region)
         elif model_type == 'bio':
             model = Insecticide(request)
         else:

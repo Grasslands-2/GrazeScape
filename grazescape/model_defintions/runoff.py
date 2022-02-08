@@ -9,10 +9,10 @@ import math
 
 
 class Runoff(ModelBase):
-    def __init__(self, request, file_name=None):
-        super().__init__(request, file_name)
+    def __init__(self, request,active_region, file_name=None):
+        super().__init__(request, active_region, file_name)
 
-    def get_hyro_letter(self, group_num):
+    def get_hyro_letter(self, active_region, group_num):
         hyro_dic = {
             1: 'A',
             1.5: 'A/D',
@@ -25,7 +25,7 @@ class Runoff(ModelBase):
         }
         return hyro_dic[group_num]
 
-    def run_model(self):
+    def run_model(self,active_region):
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
@@ -43,6 +43,25 @@ class Runoff(ModelBase):
         for index, grp in enumerate(hydgrp):
             hydrp_letter.append(self.get_hyro_letter(grp))
         hydrp_letter = np.array(hydrp_letter)
+
+        ContCornErosion = "cc_erosion_"
+        cornGrainErosion = "cg_erosion_"
+        cornSoyOatErosion = "cso_erosion_"
+        dairyRotationErosion = "dr_erosion_"
+        pastureSeedingErosion = "ps_erosion_"
+        pastureErosion = "pt_erosion_"
+        dryLotErosion = "dl_erosion_"
+
+        ContCornTidyffcn = "cc_ffcn_"
+        cornGrainTidyffcn = "cg_ffcn_"
+        cornSoyOatTidyffcn = "cso_ffcn_"
+        dairyRotationTidyffcn = "dr_ffcn_"
+        pastureSeedingTidyffcn = "ps_ffcn_"
+        pastureTidyffcn = "pt_ffcn_"
+        dryLotTidyffcn = "dl_ffcn_"
+
+        regionRDS = active_region + '.rds'
+
         r.assign("slope", slope)
         r.assign("slope_length", slope_length)
         r.assign("sand", sand)
@@ -52,18 +71,6 @@ class Runoff(ModelBase):
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
         r.assign("hydgrp", hydrp_letter)
-        # r.assign("p_need", 50)
-        # r.assign("dm", 0)
-        # r.assign("p205", 0)
-        # r.assign("manure", 10)
-        # r.assign("fert", 5)
-        # r.assign("crop", "cc")
-        # r.assign("cover", "cc")
-        # r.assign("contour", "0")
-        # r.assign("tillage", "fc")
-        # r.assign("rotational", "NA")
-        # r.assign("density", "NA")
-        # r.assign("initialP", 35)
 
         r.assign("p_need", self.model_parameters["p_need"])
         r.assign("dm", self.model_parameters["dm"])
@@ -79,35 +86,21 @@ class Runoff(ModelBase):
         r.assign("initialP", self.model_parameters["soil_p"])
         r.assign("om", self.model_parameters["om"])
 
-        r.assign("cc_erosion_file",
-                 os.path.join(self.model_file_path, "ContCornErosion.rds"))
-        r.assign("cg_erosion_file",
-                 os.path.join(self.model_file_path, "cornGrainErosion.rds"))
-        r.assign("cso_erosion_file",
-                 os.path.join(self.model_file_path, "cornSoyOatErosion.rds"))
-        r.assign("dr_erosion_file", os.path.join(self.model_file_path,
-                                                 "dairyRotationErosion.rds"))
-        r.assign("ps_erosion_file", os.path.join(self.model_file_path,
-                                                 "pastureSeedingErosion.rds"))
-        r.assign("pt_erosion_file",
-                 os.path.join(self.model_file_path, "pastureErosion.rds"))
-        r.assign("dl_erosion_file", os.path.join(self.model_file_path,
-                                                 "dryLotErosionErosion.rds"))
+        r.assign("cc_erosion_file",os.path.join(self.model_file_path, ContCornErosion + regionRDS))
+        r.assign("cg_erosion_file",os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
+        r.assign("cso_erosion_file",os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
+        r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
+        r.assign("ps_erosion_file", os.path.join(self.model_file_path,pastureSeedingErosion + regionRDS))
+        r.assign("pt_erosion_file",os.path.join(self.model_file_path, pastureErosion + regionRDS))
+        r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
 
-        r.assign("cc_cn_file",
-                 os.path.join(self.model_file_path, "ContCornFFCN.rds"))
-        r.assign("cg_cn_file",
-                 os.path.join(self.model_file_path, "CornGrainFFCN.rds"))
-        r.assign("cso_cn_file",
-                 os.path.join(self.model_file_path, "CornSoyOatFFCN.rds"))
-        r.assign("dr_cn_file", os.path.join(self.model_file_path,
-                                            "drFFCN.rds"))
-        r.assign("ps_cn_file", os.path.join(self.model_file_path,
-                                            "psFFCN.rds"))
-        r.assign("pt_cn_file",
-                 os.path.join(self.model_file_path, "ptFFCN.rds"))
-        r.assign("dl_cn_file", os.path.join(self.model_file_path,
-                                            "dlFFCN.rds"))
+        r.assign("cc_cn_file",os.path.join(self.model_file_path, ContCornTidyffcn + regionRDS))
+        r.assign("cg_cn_file",os.path.join(self.model_file_path, cornGrainTidyffcn + regionRDS))
+        r.assign("cso_cn_file", os.path.join(self.model_file_path, cornSoyOatTidyffcn + regionRDS))
+        r.assign("dr_cn_file", os.path.join(self.model_file_path, dairyRotationTidyffcn + regionRDS))
+        r.assign("ps_cn_file", os.path.join(self.model_file_path, pastureSeedingTidyffcn + regionRDS))
+        r.assign("pt_cn_file",os.path.join(self.model_file_path, pastureTidyffcn + regionRDS))
+        r.assign("dl_cn_file", os.path.join(self.model_file_path, dryLotTidyffcn + regionRDS))
         r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
         #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")

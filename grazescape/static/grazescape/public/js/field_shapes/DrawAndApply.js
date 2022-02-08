@@ -125,7 +125,7 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 
 //-------------------Now for the actual function-----------------
 	var soilPVal = 0
-	if(DSS.activeRegion == "Clover_Belt"){
+	if(DSS.activeRegion == "cloverBeltWI"){
 		console.log("Clover Belt has hit")
 		soilPVal = 40 
 	}else{
@@ -191,7 +191,7 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 function defaultDataByRegion(soilPVal){
 	console.log("defaultDataByRegion")
 	//var soilPVal = 0
-	if(DSS.activeRegion == "Clover_Belt"){
+	if(DSS.activeRegion == "cloverBeltWI"){
 		console.log("Clover Belt has hit")
 		soilPVal = 40
 		return 

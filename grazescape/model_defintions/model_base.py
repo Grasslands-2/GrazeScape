@@ -58,15 +58,20 @@ class ModelBase:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
-        if active_region == "Clover_Belt":
-            self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
-                                            'data_files', 'input_models',
-                                            'CloverBelt_tidyModels')
+        if active_region == "cloverBeltWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'cloverBeltWI')
         else:
-            self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
-                                                'data_files', 'input_models',
-                                                'tidyModels')
-        
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'southWestWI')
+
+        #Local Set up                  
+        # if active_region == "cloverBeltWI":
+        #     self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
+        #                                     'data_files', 'input_models',
+        #                                     'CloverBelt_tidyModels')
+        # else:
+        #     self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
+        #                                         'data_files', 'input_models',
+        #                                         'tidyModels')
         #this could be where you point the models towards cloverBelt tidy models versions.
         self.color_ramp_hex = []
         self.data_range = []

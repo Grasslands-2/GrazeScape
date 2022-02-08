@@ -154,9 +154,11 @@ Ext.define('DSS.state.Manage', {
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						reSourcescenarios()
+						reSourcescenarios();
+						//getWFSScenarioNS();
 						// DSS.layer.scenarios.getSource().refresh();
-						console.log('This is the scenarioArray: '+ scenarioArray)
+						console.log('This is the scenarioArray: ')
+						console.log(scenarioArray)
 					}
 				},
 				//---------------------Delete Scenarios Button-------------

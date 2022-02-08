@@ -63,7 +63,7 @@ class RasterData:
         self.crs = "epsg:3857"
 
         self.no_data = -9999
-        if self.active_region == "Clover_Belt":
+        if self.active_region == "cloverBeltWI":
             self.layer_dic = {
                 "elevation": "InputRasters:cloverBelt_DEM_10m_v2",
                 "slope": "InputRasters:cloverBelt_slope_10m_v2",

@@ -2,7 +2,7 @@
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
 var regionsList = [{text: "Kickapoo Valley"}, {text: "Clover Belt"}]
-DSS.activeRegion = "Kickapoo";
+DSS.activeRegion = "southWestWI";
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.RegionPicker', {
 //------------------------------------------------------------------------------
@@ -54,7 +54,9 @@ Ext.define('DSS.map.RegionPicker', {
 							console.log(DSS.map.getView())
 							if(item.text == "Clover Belt"){
 								console.log('Cloverbelt picked')
-								DSS.activeRegion = "Clover_Belt";
+								//DSS.activeRegion = "cloverBeltWI";
+								DSS.activeRegion = "cloverBeltWI";
+								
 								console.log(DSS.activeRegion);
 								DSS.map.setView(new ol.View({
 									center: [-10022690, 5616340],

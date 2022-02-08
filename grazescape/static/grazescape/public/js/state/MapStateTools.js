@@ -132,20 +132,20 @@ Ext.define('DSS.state.MapStateTools', {
 	showNewFarm: function() {
 		console.log(DSS.activeFarm)
 		//geoServer.setFarmSource('&CQL_filter=gid='+DSS.activeFarm)
-	    geoServer.setFarmSource('&CQL_filter=gid='+String(DSS.activeFarm))
+	    geoServer.setFarmSource('&CQL_filter=gid='+DSS.activeFarm)
 		DSS.layer.farms_1.setOpacity(1);
 	},
 
 	//used to limit return of fields to just active farm
     showFieldsForFarm: function() {
 		console.log(DSS.activeScenario)
-    	geoServer.setFieldSource('&CQL_filter=scenario_id='+String(DSS.activeScenario))
+    	geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 		console.log("showfieldsforfarm ran");
     },
     
     //----------------------------------------
 	showInfrasForFarm: function(farmId, opacity) {
-    	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+String(DSS.activeScenario))
+    	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
     },
 	//-------------------------------------------------------------
 	//shows all fields in db

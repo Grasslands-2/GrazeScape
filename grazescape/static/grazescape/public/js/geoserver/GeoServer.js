@@ -125,12 +125,12 @@ class GeoServer{
     insertFarm(payLoad, feat, fType){
         this.makeRequest(this.geoUpdate_Url, "insert_farm", payLoad, this).then(function(returnData){
             //console.log(returnData.current);
-            var geojsonString = String(returnData.geojson)
-            console.log(geojsonString);
+            var farmGeojsonString = String(returnData.geojson)
+            console.log(farmGeojsonString);
             let currObj = returnData.current
             currObj.setFarmSource()
 			DSS.MapState.removeMapInteractions()
-            var fgid = geojsonString.substring(geojsonString.indexOf('farm_2.') + 7,geojsonString.lastIndexOf('"/>'));
+            var fgid = farmGeojsonString.substring(farmGeojsonString.indexOf('farm_2.') + 7,farmGeojsonString.lastIndexOf('"/>'));
             var intFgid = parseInt(fgid);
             console.log(intFgid);
             // DSS.activeFarm = highestFarmIdCNO + 1
@@ -154,11 +154,13 @@ class GeoServer{
             str = s.serializeToString(node);
             console.log(str);
             //geoServer.insertFarm(str, feat,fType)
-            geoServer.makeRequest(geoServer.geoUpdate_Url, "insert_farm", str, this).then(function(){
-                var sgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 12,geojsonString.lastIndexOf('"/>'));
+            geoServer.makeRequest(geoServer.geoUpdate_Url, "insert_farm", str, this).then(function(returnData){
+                var scenGeojsonString = String(returnData.geojson)
+                var sgid = scenGeojsonString.substring(scenGeojsonString.indexOf('scenarios_2.') + 12,scenGeojsonString.lastIndexOf('"/>'));
+                console.log(intSgid);
                 var intSgid = parseInt(sgid);
                 console.log(intSgid);
-                DSS.activeScenario = intSgid
+                DSS.activeScenario = sgid
                 DSS.MapState.showNewFarm(DSS.activeFarm);
                 gatherScenarioTableData();
                 runScenarioUpdate();
@@ -295,26 +297,26 @@ class GeoServer{
     wfs_scenario_insert(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
             var geojsonString = String(returnData.geojson)
+            var copyScenarioNum = parseInt(DSS.activeScenario)
             console.log(geojsonString);
-			console.log("copying features$$$$$$$$$")
-			getWFSFieldsInfraNS(DSS.activeScenario,fieldArrayNS,DSS.layer.fields_1,'field_2');
-			getWFSFieldsInfraNS(DSS.activeScenario,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
-            var fgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 7,geojsonString.lastIndexOf('"/>'));
+            var fgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 12,geojsonString.lastIndexOf('"/>'));
                 var intFgid = parseInt(fgid);
             console.log(intFgid);
             DSS.activeScenario = intFgid
             //DSS.activeScenario = highestScenarioId + 1
-
 			farmArray = [];
 			scenarioArrayNS = [];
 			DSS.MapState.removeMapInteractions()
 			scenarioArrayNS = []
-
 			DSS.newScenarioID = null
             DSS.farmName = feat.values_.farm_name;
 			DSS.scenarioName = feat.values_.scenario_name
 			DSS.ApplicationFlow.instance.showManageOperationPage();
 			console.log(DSS.activeScenario);
+            console.log(copyScenarioNum);
+            console.log("copying features$$$$$$$$$")
+			getWFSFieldsInfraNS(copyScenarioNum,fieldArrayNS,DSS.layer.fields_1,'field_2');
+			getWFSFieldsInfraNS(copyScenarioNum,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
          })
     }
     //ALL THIS DOES IS GET A GEOSJSON WIth THE CURRENT SCENS AND GET THE HIGHEST SCENARIOID #

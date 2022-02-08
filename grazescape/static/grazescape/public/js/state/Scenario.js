@@ -99,13 +99,13 @@ function popScenarioArray(obj) {
 	console.log(scenarioArray);
 }
 
-function getWFSScenario() {
-        geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+// function getWFSScenario() {
+        
 
-}
+// }
 
 function gatherScenarioTableData() {
-	getWFSScenario();
+	geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 };
 
 

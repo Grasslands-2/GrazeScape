@@ -78,7 +78,7 @@ Ext.define('DSS.map.Main', {
 					c.getEl().on({
 						click: function(self) {
 							let rect = c.el.dom.getBoundingClientRect();
-							if(DSS.activeRegion == "Clover_Belt"){
+							if(DSS.activeRegion == "cloverBeltWI"){
 								Ext.create('DSS.map.LayerMenuCB').showAt(rect.left-2, rect.top-2);
 							}else{
 								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);

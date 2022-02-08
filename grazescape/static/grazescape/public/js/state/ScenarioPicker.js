@@ -61,7 +61,10 @@ function popScenarioArraySP(obj) {
 itemsArray = []
 
 function popItemsArray(obj){
-    Ext.getCmp("scenarioMenu").removeAll()
+	if(Ext.getCmp("scenarioMenu")){
+		Ext.getCmp("scenarioMenu").removeAll()
+	}
+    
 	for (i in obj){
         Ext.getCmp("scenarioMenu").add({
             text:obj[i].properties.scenario_name,

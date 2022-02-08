@@ -585,64 +585,6 @@ Ext.define('DSS.infra_shapes.DrawLine', {
 						var data = me.viewModel.data;
 						console.log(data.infraType.value)
 						console.log(DSS.draw.style)
-						// if (data.infraType.value == 'wl'){
-						// 	DSS.draw = new ol.interaction.Draw({
-						// 		source: source,
-						// 		type: 'LineString',
-						// 		geometryName: 'geom',
-						// 		style: new ol.style.Style({
-						// 			stroke: new ol.style.Stroke({
-						// 				color: '#0072fc',
-						// 				width: 4,
-						// 			}),
-						// 			image: new ol.style.Circle({
-						// 				radius: 7,
-						// 				fill: new ol.style.Fill({
-						// 				  color: '#0072fc',
-						// 				}),
-						// 			  }),
-						// 		}),
-						// 	});
-						// }
-						// if (data.infraType.value == 'll'){
-						// 	console.log('in water')
-						// 	DSS.draw = new ol.interaction.Draw({
-						// 		source: source,
-						// 		type: 'LineString',
-						// 		geometryName: 'geom',
-						// 		style: new ol.style.Style({
-						// 			stroke: new ol.style.Stroke({
-						// 				color: '#0072fc',
-						// 				width: 4,
-						// 			}),
-						// 			image: new ol.style.Circle({
-						// 				radius: 7,
-						// 				fill: new ol.style.Fill({
-						// 				  color: '#0072fc',
-						// 				}),
-						// 			  }),
-						// 		}),
-						// 	});
-						// }
-						// if (data.infraType.value == 'fl'){
-						// 	DSS.draw = new ol.interaction.Draw({
-						// 		source: source,
-						// 		type: 'LineString',
-						// 		geometryName: 'geom',
-						// 		style: new ol.style.Style({
-						// 			stroke: new ol.style.Stroke({
-						// 				color: '#ff0825',
-						// 				width: 4,
-						// 			}),
-						// 			image: new ol.style.Circle({
-						// 				radius: 7,
-						// 				fill: new ol.style.Fill({
-						// 				  color: '#ff0825',
-						// 				}),
-						// 			  }),
-						// 		}),
-						// 	});
-						// }
 						if(form.isValid()){
 							DSS.map.removeInteraction(DSS.select);
 							//console.log(DSS.activeFarm);
