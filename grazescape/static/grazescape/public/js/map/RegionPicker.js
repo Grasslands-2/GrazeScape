@@ -71,7 +71,7 @@ Ext.define('DSS.map.RegionPicker', {
 								}))
 							}
 							else{
-								DSS.activeRegion = "Kickapoo";
+								DSS.activeRegion = "southWestWI";
 								DSS.map.setView(new ol.View({
 									center: [-10112582,5392087],
 									zoom: 10,

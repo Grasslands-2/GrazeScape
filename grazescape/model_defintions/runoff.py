@@ -12,7 +12,7 @@ class Runoff(ModelBase):
     def __init__(self, request,active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
-    def get_hyro_letter(self, active_region, group_num):
+    def get_hyro_letter(self, group_num):
         hyro_dic = {
             1: 'A',
             1.5: 'A/D',

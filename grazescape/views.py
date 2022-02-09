@@ -47,14 +47,14 @@ raster_data = None
 def remove_old_pngs_from_local(model_type,field_id):
     images_folder_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
     for filename in os.listdir(images_folder_path):
-        print(filename)
+        #print(filename)
         if model_type+field_id in filename:
             os.remove(os.path.join(images_folder_path,filename))
-            print("Removed :"+ filename)
+            #print("Removed :"+ filename)
         else: 
             pass
 def remove_old_pngs_gcs_storage_bucket(model_type,field_id):
-    print('hi there')
+    #print('hi there')
     """Lists all the blobs in the bucket."""
     # bucket_name = "your-bucket-name"
 
@@ -64,11 +64,11 @@ def remove_old_pngs_gcs_storage_bucket(model_type,field_id):
     # Note: Client.list_blobs requires at least package version 1.17.0.
     blobs = storage_client.list_blobs("dev_container_model_results")
     for blob in blobs:
-        print(blob.name)
+        #print(blob.name)
         if str(model_type+field_id) in blob.name:
             try:
                 blob.delete()
-                print("Blob" + model_type+field_id+" deleted.")
+                #print("Blob" + model_type+field_id+" deleted.")
             except:
                 print("There was an error")
                 pass
@@ -84,11 +84,7 @@ def upload_gcs_model_result_blob(model_type,field_id,model_run_timestamp):
     blob = bucket.blob(destination_blob_name)
     try:
         blob.upload_from_filename(source_file_name)
-        print(
-            "File {} uploaded to {}.".format(
-                source_file_name, destination_blob_name
-            )
-        )
+        #print( "File {} uploaded to {}.".format(source_file_name, destination_blob_name))
     except:
         print("THERE WAS AN ERROR WHILE UPLOADING "+ destination_blob_name)
         pass
@@ -102,14 +98,14 @@ def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp
     for blob in blobs:
         for model in model_Types:
             if str(model+str(field_id)) in blob.name and str(scen) == str(active_scen):
-                print("SCEN ACTIVE SCEN HIT!!!!!!!!")
+                #print("SCEN ACTIVE SCEN HIT!!!!!!!!")
                 model_run_timestamp = blob.name[-17:-4]
-                print(model_run_timestamp)
-                print(blob.name)
+                #print(model_run_timestamp)
+                #print(blob.name)
                 destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
                 try:
                     blob.download_to_filename(destination_file_name)
-                    print("Blob {} downloaded.".format(field_id))
+                    #print("Blob {} downloaded.".format(field_id))
                 except:
                     print("There was an error")
                     pass
@@ -123,9 +119,9 @@ def delete_gcs_model_result_blob(field_id):
         blob = bucket.blob(model+field_id+'.png')
         try:
             blob.delete()
-            print("Blob {} deleted.".format(field_id))
+            #print("Blob {} deleted.".format(field_id))
         except:
-            print("There was an error")
+            Sprint("There was an error")
             pass
 # Used to set up heifer feed break down calculations 
 @csrf_protect
@@ -347,7 +343,7 @@ def get_model_results(request):
                 # print(field_id)
                 model_run_timestamp = blob.name[-17:-4]
                 #runtimecollect = True
-                print(model_run_timestamp)
+                #sprint(model_run_timestamp)
             #print(blob.name)
             # for model in model_Types:
             #     if str(model+str(field_id)) in blob.name:
@@ -409,11 +405,10 @@ def get_model_results(request):
 
         model.raster_inputs = clipped_rasters
         # loop here to build a response for all the model types
-        results = model.run_model()
-        if model_type == 'ploss':
-            print("PLOSS RESULTS HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*************$$$$$$$")
-            print(results)
-        # result will be a OutputDataNode
+        if model_type == 'runoff' or model_type == 'ploss':
+            results = model.run_model(active_region)
+        else:
+            results = model.run_model()
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.getlist("model_parameters[area]")[0])

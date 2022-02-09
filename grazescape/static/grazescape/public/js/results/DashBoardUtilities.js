@@ -473,7 +473,7 @@ function format_chart_data(model_data){
 function runFeedBreakdownUpdate(outputObj){
     DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeatureDU = f;
-		if(DSS.activeScenario === scenarioFeatureDU.values_.scenario_id){
+		if(DSS.activeScenario === scenarioFeatureDU.values_.gid){
 			console.log(scenarioArray[i]);
 			scenarioFeatureDU.setProperties({
                 heifer_dmi_demand_per_season: outputObj.output[0].toFixed(2),
@@ -1191,7 +1191,7 @@ function retrieveScenariosGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:scenarios_2&' +
-	'CQL_filter=gid='+DSS.activeFarm+'&'+
+	'CQL_filter=farm_id='+DSS.activeFarm+'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     console.log("getting wfs scenarios")
@@ -1201,7 +1201,7 @@ function retrieveScenariosGeoserver(){
         let responses =JSON.parse(returnData.geojson)
         for(response in responses.features){
             let scen = responses.features[response].properties.scenario_name
-            let scenID = responses.features[response].properties.scenario_id
+            let scenID = responses.features[response].properties.gid
             scenList.push(scen)
             scenIdList.push(scenID)
         }
@@ -1216,7 +1216,7 @@ function retrieveFieldsGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=gid='+DSS.activeFarm +
+	'CQL_filter=farm_id='+DSS.activeFarm +
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1300,7 +1300,7 @@ function retrieveAllFieldsDataGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=gid='+DSS.activeFarm+
+	'CQL_filter=farm_id='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';

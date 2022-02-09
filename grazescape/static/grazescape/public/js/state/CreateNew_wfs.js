@@ -41,8 +41,8 @@ function popfarmArrayCNO(obj) {
 	};
 	console.log('popfarmArrayCNO Completed')
 }
-function popscenarioArrayCNO(obj) {
-	console.log('running popscenarioArrayCNO')
+function popScenarioArrayCNO(obj) {
+	console.log('running popScenarioArrayCNO')
 	for (i in obj){ 
 //		console.log(obj[i].properties.scenario_id)
 		scenarioArrayCNO.push({
@@ -57,7 +57,7 @@ function popscenarioArrayCNO(obj) {
 			highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
 		};
 	};
-	console.log('popscenarioArrayCNO Completed')
+	console.log('popScenarioArrayCNO Completed')
 }
 //populate data array with farm object data from each farm
 //popArray(farmObj);

@@ -88,7 +88,7 @@ class GeoServer{
     getWFSScenarioCNO(){
         this.makeRequest(this.geoScen_Url, "source").then(function(geoJson){
             geoJson = JSON.parse(geoJson.geojson)
-            popscenarioArrayCNO(geoJson.features);
+            popScenarioArrayCNO(geoJson.features);
         })
     }
 //  Gets data for scenarios and populates the scenarios array. used in Scenario Picker
@@ -297,17 +297,15 @@ class GeoServer{
     wfs_scenario_insert(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "insert", payLoad, this).then(function(returnData){
             var geojsonString = String(returnData.geojson)
+            //This var holds onto the old activeScenario number, so that it can be referenced for copying over fields and infra
             var copyScenarioNum = parseInt(DSS.activeScenario)
             console.log(geojsonString);
             var fgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 12,geojsonString.lastIndexOf('"/>'));
                 var intFgid = parseInt(fgid);
             console.log(intFgid);
             DSS.activeScenario = intFgid
-            //DSS.activeScenario = highestScenarioId + 1
 			farmArray = [];
-			scenarioArrayNS = [];
 			DSS.MapState.removeMapInteractions()
-			scenarioArrayNS = []
 			DSS.newScenarioID = null
             DSS.farmName = feat.values_.farm_name;
 			DSS.scenarioName = feat.values_.scenario_name
@@ -327,7 +325,7 @@ class GeoServer{
             let currObj = returnData.current
             geoJson = geoJson.features
             let maxScenarioId = 0;
-            await popscenarioArrayNS(geoJson)
+            await popScenarioArrayNS(geoJson)
             for (let feat in geoJson){
                 if(geoJson[feat].properties.scenario_id>maxScenarioId ){
                     maxScenarioId = geoJson[feat].properties.scenario_id

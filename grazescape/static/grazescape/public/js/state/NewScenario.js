@@ -35,7 +35,7 @@ function getWFSScenarioNS() {
 		{
 			scenarioObj = response.features
 			console.log(scenarioObj)
-			popscenarioArray(scenarioObj);
+			popScenarioArray(scenarioObj);
 		}
 	})
 }
@@ -79,38 +79,38 @@ function popFarmArray(obj) {
 		name: obj[i].properties.farm_name
 	});
 }
-function popscenarioArray(obj) {
-	for (i in obj) 
-	scenarioArray.push({
-		fid: obj[i].id,
-		gid: obj[i].properties.gid,
-		geom: obj[i].geometry,
-		scenarioId:obj[i].properties.scenario_id,
-		scenarioName:obj[i].properties.scenario_name,
-		scenarioDesp:obj[i].properties.scenario_desp,
-		farmId: obj[i].properties.farm_id,
-		farmName: obj[i].properties.farm_name,
-		lacCows: obj[i].properties.lac_cows,
-		dryCows: obj[i].properties.dry_cows,
-		heifers: obj[i].properties.heifers,
-		youngStock: obj[i].properties.youngstock,
-		beefCows: obj[i].properties.beef_cows,
-		stockers: obj[i].properties.stockers,
-		finishers: obj[i].properties.finishers,
-		aveMilkYield: obj[i].properties.ave_milk_yield,
-		aveDailyGain: obj[i].properties.ave_daily_gain,
-		lacMonthsConfined: obj[i].properties.lac_confined_mos,
-		dryMonthsConfined: obj[i].properties.dry_confined_mos,
-		beefMonthsConfined: obj[i].properties.beef_confined_mos,
-		lacGrazeTime: obj[i].properties.lac_graze_time,
-		dryGrazeTime: obj[i].properties.dry_graze_time,
-		beefGrazeTime: obj[i].properties.beef_graze_time,
-		lacRotateFreq: obj[i].properties.lac_rotate_freq,
-		dryRotateFreq: obj[i].properties.dry_rotate_freq,
-		beefRotateFreq: obj[i].properties.beef_rotate_freq,
-	});
-	console.log(scenarioArray)
-}
+// function popScenarioArray(obj) {
+// 	for (i in obj) 
+// 	scenarioArray.push({
+// 		fid: obj[i].id,
+// 		gid: obj[i].properties.gid,
+// 		geom: obj[i].geometry,
+// 		scenarioId:obj[i].properties.scenario_id,
+// 		scenarioName:obj[i].properties.scenario_name,
+// 		scenarioDesp:obj[i].properties.scenario_desp,
+// 		farmId: obj[i].properties.farm_id,
+// 		farmName: obj[i].properties.farm_name,
+// 		lacCows: obj[i].properties.lac_cows,
+// 		dryCows: obj[i].properties.dry_cows,
+// 		heifers: obj[i].properties.heifers,
+// 		youngStock: obj[i].properties.youngstock,
+// 		beefCows: obj[i].properties.beef_cows,
+// 		stockers: obj[i].properties.stockers,
+// 		finishers: obj[i].properties.finishers,
+// 		aveMilkYield: obj[i].properties.ave_milk_yield,
+// 		aveDailyGain: obj[i].properties.ave_daily_gain,
+// 		lacMonthsConfined: obj[i].properties.lac_confined_mos,
+// 		dryMonthsConfined: obj[i].properties.dry_confined_mos,
+// 		beefMonthsConfined: obj[i].properties.beef_confined_mos,
+// 		lacGrazeTime: obj[i].properties.lac_graze_time,
+// 		dryGrazeTime: obj[i].properties.dry_graze_time,
+// 		beefGrazeTime: obj[i].properties.beef_graze_time,
+// 		lacRotateFreq: obj[i].properties.lac_rotate_freq,
+// 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
+// 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
+// 	});
+// 	console.log(scenarioArray)
+// }
 //populate data array with farm object data from each farm
 //popArray(farmObj);
 //var to hold onto largest id value of current farms before another is added
@@ -337,7 +337,7 @@ Ext.define('DSS.state.NewScenario', {
 								//DSS.layer.scenarios.getSource().refresh();
 								farmArray = [];
 								scenarioArrayNS = scenarioArray
-								scenarioArray = [];
+								//scenarioArray = [];
 								fieldArrayNS = []
 								infraArrayNS = []
 								scenarioNumHold = DSS.activeScenario

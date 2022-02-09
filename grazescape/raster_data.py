@@ -125,7 +125,7 @@ class RasterData:
         """
         return os.path.exists(self.dir_path)
 
-    def load_layers(self,active_region, only_om=False):
+    def load_layers(self, only_om):
         """
         Download data from geoserver
         Returns
