@@ -99,13 +99,13 @@ function popScenarioArray(obj) {
 	console.log(scenarioArray);
 }
 
-function getWFSScenario() {
-        geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+// function getWFSScenario() {
+        
 
-}
+// }
 
 function gatherScenarioTableData() {
-	getWFSScenario();
+	geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 };
 
 
@@ -312,10 +312,10 @@ Ext.define('DSS.state.Scenario', {
 								click: async function(self) {
 									gatherScenarioTableData
 									runScenarioUpdate();
-									geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
-									DSS.layer.PLossGroup.setVisible(false);
+									//DSS.layer.PLossGroup.setVisible(false);
 									DSS.layer.erosionGroup.setVisible(false);
 									DSS.layer.yieldGroup.setVisible(false);
 									DSS.layer.PLossGroup.values_.layers.array_ = [];
@@ -535,7 +535,7 @@ Ext.define('DSS.state.Scenario', {
 							gatherTableData();
 							console.log("Field Array was empty. Running gatherTableData")
 						}
-						DSS.layer.PLossGroup.setVisible(false);
+						//DSS.layer.PLossGroup.setVisible(false);
 						DSS.layer.erosionGroup.setVisible(false);
 						DSS.layer.yieldGroup.setVisible(false);
 						DSS.layer.PLossGroup.values_.layers.array_ = [];

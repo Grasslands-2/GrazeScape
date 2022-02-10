@@ -22,7 +22,7 @@
     "sass": "^1.41.0",
     "sass-loader": "^12.1.0",
     "svg-url-loader": "^7.1.1",
-    "webpack": "^5.52.1",
+    "webpack": "^5.55.1",
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {

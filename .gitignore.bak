@@ -1,0 +1,42 @@
+## .gitignore
+
+# system files
+*.DS_Store
+*.swp
+*.idea
+*.pyc
+
+# secrets
+.env
+.env_prod
+certs/
+conf/production.conf
+docker-compose.yml
+docker-compose_prod.yml
+nginx/.htpasswd
+
+# app files
+conf/evolutions/
+logs/
+project/project/
+project/target/
+target/
+__pycache__/
+.idea/
+
+# large/data files
+*.asc
+*.dss
+*.tif
+dynamicFiles/
+layerData/
+data_files/
+node_modules/
+
+
+# startup helper
+graze
+# database info and keys
+*.ini
+Watersheds/
+Boundaries/

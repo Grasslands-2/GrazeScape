@@ -10,30 +10,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 import configparser
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-print(BASE_DIR)
-#GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-parser = configparser.ConfigParser()
-GOOGLE_RECAPTCHA_SECRET_KEY = ""
-filename = os.path.join(BASE_DIR, 'grassland', 'settings', 'app_secret.ini')
-
-parser.read(filename)
-# get section, default to postgresql
-db = {}
-params = ""
-db_name = ""
-db_user = ""
-db_pass = ""
-db_host = ""
-db_port = ""
+from grassland.settings.settings import *
+GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
+R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     params = parser.items("captcha_google")
     GOOGLE_RECAPTCHA_SECRET_KEY = params[0][1]
@@ -42,7 +21,7 @@ if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     db_user = params[2][1]
     db_pass = params[3][1]
     db_host = params[0][1]
-    #db_port = params[4][1]
+    # db_port = params[4][1]
 else:
     raise Exception(
         'Section {0} not found in the {1} file'.format("captcha_google", filename))
@@ -51,10 +30,23 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
-#GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
-GEOSERVER_URL = "http://geoserver:8080"
+
+"""production server is "http://grazescape:8080"
+http://geoserver:8080 is used for the development instance of geoserver. 
+Kevin ususally sets these when making new containers, depending on the container"""
+#GEOSERVER_URL = "http://grazescape:8080"
+#GEOSERVER_URL = "http://geoserver:8080"
+GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
+
+#container R path.
+#R_PATH = "/opt/conda/envs/gscape/bin/R"
+#local R path.
 R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+#container model path
+#MODEL_PATH = /tmp/GrazeScape/grazescape/data_files/input_models
+MODEL_PATH = "C://Users/zjhas/Documents/GrazeScape/grazescape/data_files/input_models"
+#new container R path
+#R_PATH = "/opt/conda/envs/gscape/bin/R"
 ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_ALLOW_ALL = True
 
@@ -140,7 +132,7 @@ DATABASES = {
         'USER': db_user,
         'PASSWORD': db_pass,
         'HOST': db_host,
-        'PORT': db_port
+        # 'PORT': db_port
     }
 }
 
@@ -192,3 +184,4 @@ print(STATICFILES_DIRS)
 # TEMPLATE_DIRS = (
 #                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
 # )
+

@@ -36,7 +36,7 @@ function selectOperation(){
 		selectedOperation = f.selected[0];
 		farmArrayDO.push(selectedOperation)
 		console.log(farmArrayDO);
-		farmIDToDelete = selectedOperation.values_.id
+		farmIDToDelete = selectedOperation.values_.gid
 		console.log(farmIDToDelete)
 		//The idea is to capture the farm's id, then select all scenarios,
 		//fields and infrastructure with that farm id and delete them.
@@ -61,42 +61,6 @@ function deleteOperation(feat,featLayer){
 		console.log(str);
 
 		geoServer.deleteOperation(str, feat)
-//		$.ajax(geoserverURL + '/geoserver/wfs?'
-//	/*'http://localhost:8081/geoserver/wfs?'*/,{
-//			type: 'POST',
-//			dataType: 'xml',
-//			processData: false,
-//			contentType: 'text/xml',
-//			data: str,
-//			success: function (data) {
-//				console.log("data deleted successfully!: "+ data);
-//				cleanDB()
-//				DSS.layer.farms_1.getSource().refresh();
-//				DSS.layer.fields_1.getSource().refresh();
-//				DSS.layer.infrastructure.getSource().refresh();
-//				DSS.layer.scenarios.getSource().refresh();
-//
-//			},
-//			error: function (xhr, exception) {
-//				var msg = "";
-//				if (xhr.status === 0) {
-//					msg = "Not connect.\n Verify Network." + xhr.responseText;
-//				} else if (xhr.status == 404) {
-//					msg = "Requested page not found. [404]" + xhr.responseText;
-//				} else if (xhr.status == 500) {
-//					msg = "Internal Server Error [500]." +  xhr.responseText;
-//				} else if (exception === "parsererror") {
-//					msg = "Requested JSON parse failed.";
-//				} else if (exception === "timeout") {
-//					msg = "Time out error." + xhr.responseText;
-//				} else if (exception === "abort") {
-//					msg = "Ajax request aborted.";
-//				} else {
-//					msg = "Error:" + xhr.status + " " + xhr.responseText;
-//				}
-//				console.log(msg);
-//			}
-//		}).done();
 
 }
 function resetArraysDO(){

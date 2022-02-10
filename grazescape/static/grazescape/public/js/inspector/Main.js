@@ -218,7 +218,6 @@ Ext.define('DSS.inspector.Main', {
 			"farm_id": DSS.activeFarm,
 			"scenario_id": DSS.activeScenario,
 			"model_parameters":extents
-
 		};
 
 		var csrftoken = Cookies.get('csrftoken');

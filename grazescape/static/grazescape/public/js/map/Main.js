@@ -78,7 +78,7 @@ Ext.define('DSS.map.Main', {
 					c.getEl().on({
 						click: function(self) {
 							let rect = c.el.dom.getBoundingClientRect();
-							if(DSS.activeRegion == "Clover_Belt"){
+							if(DSS.activeRegion == "cloverBeltWI"){
 								Ext.create('DSS.map.LayerMenuCB').showAt(rect.left-2, rect.top-2);
 							}else{
 								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
@@ -353,7 +353,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_0.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_0.PNG',
 				imageExtent: SWinputextent0,
 			})
 		}),
@@ -362,7 +362,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_1.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_1.PNG',
 				imageExtent: SWinputextent1,
 			})
 		}),
@@ -371,7 +371,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_2.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_2.PNG',
 				imageExtent: SWinputextent2,
 				
 			})
@@ -381,7 +381,7 @@ Ext.define('DSS.map.Main', {
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_3.PNG',
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_3.PNG',
 				imageExtent: SWinputextent3,
 				
 			})
@@ -528,15 +528,6 @@ Ext.define('DSS.map.Main', {
 			})
 		})
 		//-------------------------------Clover Belt DEM-----------------------------------------
-		DSS.layer.CBDEM_image0 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_SWDEM_PNG_1122_3.PNG',
-				imageExtent: CBinputextent0,
-			})
-		})
 		DSS.layer.CBDEM_image0 = new ol.layer.Image({
 			visible: false,
 			opacity: DSS.layer['DEM:opacity'],
@@ -858,10 +849,14 @@ Ext.define('DSS.map.Main', {
 		})
 		//----------------------------------------Output Raster Groups-------------------------------------
 		DSS.layer.PLossGroup = new ol.layer.Group({
-			visible: false,
+			visible: true,
 			layers:[]
 		})
 		DSS.layer.erosionGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
+		DSS.layer.runoffGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
 		})
@@ -1133,24 +1128,24 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.swwiBorder,
 				DSS.layer.erosionGroup,
 				DSS.layer.PLossGroup,
+				DSS.layer.runoffGroup,
 				DSS.layer.yieldGroup,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1
 				],
 				//------------------------------------------------------------------------
-
-
 			view: new ol.View({
-				center: [-10112582,5392087],
-				zoom: 10,
+				center: [-10000312.33,5506092.31],
+				//10000312.33 5506092.31 
+				zoom: 6,
 				maxZoom: 30,
-				minZoom: 8,//10,
+				minZoom: 4,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
 				constrainOnlyCenter: false,
 				//extent:[-10155160, 5323674, -10065237, 5450767]
-				extent:[ -10168100, 5318380, -10055830, 5454227]
+				//extent:[ -10168100, 5318380, -10055830, 5454227]
 			})
 		});
 

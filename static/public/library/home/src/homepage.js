@@ -25,10 +25,14 @@ var homeState={
     'showApps':false,
     'showError':false
 }
+/**
+ * Set state of the homepage depending on if user is logged in, not logged in, or is registering
+ * @param  {[type]} arg1 [description]
+ * @param  {[type]} arg2 [description]
+ * @return {[type]}      [description]
+ */
 function manageSignIn(){
-    console.log("mangagin")
-//    homeState.showApps = true
-    console.log(user_info)
+    // user info comes from the Django controller, which manages the sign in
     if(user_info.is_logged_in == "True"){
         homeState.showSign = false
         homeState.showReg = false
@@ -42,7 +46,6 @@ function manageSignIn(){
     if(user_info.error != ""){
         homeState.showError = true
         error_message = user_info.error
-
     }
 }
 function Username(props){
@@ -184,10 +187,10 @@ const App = (props) => (
                   <a href="/grazescape"><Image  className = "shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
                         </Row>
 
-                        {/*<Row>
+                        {<Row>
 
                   <a href="/smartscape"><Image className = "shadow-lg app_click image" fluid src="static/public/library/images/dss_logo.png" rounded /></a>
-                        </Row>*/}
+                        </Row>}
              </Col>
              <Col xs='3'>
             </Col>

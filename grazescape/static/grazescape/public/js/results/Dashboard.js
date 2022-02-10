@@ -2,10 +2,14 @@
 // const path = require('path');
 // const fs = require('fs');
 // ploss scale bar values
+function timeout(){
+    console.log('timeout')
+}
 var pLossColorArray = ["#204484","#3e75b2","#90b9e4","#d2f0fa","#fcffd8","#ffdaa0","#eb9159","#d25c34","#a52d18"]
-var pLossValueArray =[0,1.5,3,4.5,6,7.5,9.6,11.2,12.8,15]
+var pLossValueArray =['0',1.5,3,4.5,6,7.5,9.6,11.2,12.8,'15+']
 DSS.plossBol = false
-DSS.erosionBol = false
+DSS.eroBol = false
+DSS.runoffBol = false
 DSS.yieldBol = false
 // unique model time stamp holder
 var modelruntime = ''
@@ -409,23 +413,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             delete $.ajaxSetup().headers
                             Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
                         }
-                        // if(f.properties.scenario_id == DSS.activeScenario){
-                        //     var plextent = f.bbox
-                        //     DSS.layer.ploss_field = new ol.layer.Image({
-                        //         visible: true,
-                        //         updateWhileAnimating: true,
-                        //         updateWhileInteracting: true,
-                        //         source: new ol.source.ImageStatic({
-                        //         url: '/static/grazescape/public/images/ploss'+ f.properties.gid + '.png',
-                        //         imageExtent: plextent
-                        //         })
-                        //     })
-                        //     DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ f.properties.gid);
-                        //     var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                        //     console.log(plossGroupLayers);
-                        //     plossGroupLayers.push(DSS.layer.ploss_field);
-                            
-                        // }
                         Ext.getCmp('mainTab').update()
                     })
                 }
@@ -1660,7 +1647,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 }]
             }
         var options = {
-
                 title: '<i class="fas fa-globe"></i>  Options',
                 plain: true,
                 tabConfig:{
@@ -1819,7 +1805,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     var fArray = []
                     var fExtents = []
                     DSS.layer.fields_1.getSource().getFeatures().forEach(function(f) {
-                        console.log(f)
                         fArray.push(f);
                     })
                     console.log(fArray);
@@ -1832,9 +1817,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         var fId = fArray[i].values_.gid
                         console.log(fExtentsNum)
                         console.log(fId)
+                        //-------------------------------------Ploss--------------------------------------
                         DSS.layer.ploss_field = new ol.layer.Image({
-                            visible: false,
-                            opacity: 0,
+                            visible: true,
+                            opacity: 1,
                             updateWhileAnimating: true,
                             updateWhileInteracting: true,
                             source: new ol.source.ImageStatic({
@@ -1843,6 +1829,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             })
                         })
                         DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
+                        DSS.layer.ploss_field.getSource().refresh();
+                        DSS.layer.ploss_field.getSource().changed();
+                        DSS.map.addLayer(DSS.layer.ploss_field)
                         var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
                         if(plossGroupLayers.length == 0){
                             plossGroupLayers.push(DSS.layer.ploss_field);
@@ -1862,35 +1851,66 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             }
                         plossGroupLayers.push(DSS.layer.ploss_field);
                         }
+                        DSS.map.removeLayer(DSS.layer.ploss_field)
+                        //--------------------Erosion_---------------------------------------
+                        DSS.layer.erosion_field = new ol.layer.Image({
+                            visible: false,
+                            updateWhileAnimating: true,
+                            updateWhileInteracting: true,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                            })
+                        })
+                        DSS.layer.erosion_field.set('name', 'ero'+ String(fId));
+                        var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
+                        if(erosionGroupLayers.length == 0){
+                            erosionGroupLayers.push(DSS.layer.erosion_field);
+                        }
+                        else{
+                            for(l in erosionGroupLayers){
+                                console.log(erosionGroupLayers[l].values_.name)
+                                console.log(DSS.layer.erosion_field.values_.name)
+                                if(erosionGroupLayers[l].values_.name == DSS.layer.erosion_field.values_.name){
+                                    const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                                    if(index > -1) {
+                                        erosionGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.erosion_field.values_.name)
+                                    }
+                                    erosionGroupLayers.push(DSS.layer.erosion_field);
+                                }
+                            }
+                        erosionGroupLayers.push(DSS.layer.erosion_field);
+                        }
                         //--------------------Runoff_---------------------------------------
                         DSS.layer.runoff_field = new ol.layer.Image({
                             visible: false,
                             updateWhileAnimating: true,
                             updateWhileInteracting: true,
                             source: new ol.source.ImageStatic({
-                            url: '/static/grazescape/public/images/runoff'+ String(fId) + '_' + modelruntime + '.png',
+                            url: '/static/grazescape/public/images/Curve Number'+ String(fId) + '_' + modelruntime + '.png',
                             imageExtent: fExtentsNum
                             })
                         })
                         DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
-                        var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
-                        if(erosionGroupLayers.length == 0){
-                            erosionGroupLayers.push(DSS.layer.runoff_field);
+                        var runoffGroupLayers =DSS.layer.runoffGroup.getLayers().getArray();
+                        if(runoffGroupLayers.length == 0){
+                            runoffGroupLayers.push(DSS.layer.runoff_field);
                         }
                         else{
-                            for(l in erosionGroupLayers){
-                                console.log(erosionGroupLayers[l].values_.name)
+                            for(l in runoffGroupLayers){
+                                console.log(runoffGroupLayers[l].values_.name)
                                 console.log(DSS.layer.runoff_field.values_.name)
-                                if(erosionGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
-                                    const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                                if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
+                                    const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
                                     if(index > -1) {
-                                        erosionGroupLayers.splice(index,1);
+                                        runoffGroupLayers.splice(index,1);
                                         console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
                                     }
-                                    erosionGroupLayers.push(DSS.layer.runoff_field);
+                                    runoffGroupLayers.push(DSS.layer.runoff_field);
                                 }
                             }
-                        erosionGroupLayers.push(DSS.layer.runoff_field);
+                        runoffGroupLayers.push(DSS.layer.runoff_field);
                         }
                     //--------------------Yield_---------------------------------------
                         DSS.layer.yield_field = new ol.layer.Image({
@@ -1898,11 +1918,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             updateWhileAnimating: true,
                             updateWhileInteracting: true,
                             source: new ol.source.ImageStatic({
-                            url: '/static/grazescape/public/images/yield'+ String(fId) + '_' + modelruntime + '.png',
+                            url: '/static/grazescape/public/images/Rotational Average'+ String(fId) + '_' + modelruntime + '.png',
                             imageExtent: fExtentsNum
                             })
                         })
-                        DSS.layer.yield_field.set('name', 'yield'+ String(fId));
+                        DSS.layer.yield_field.set('name', 'Rotational Average'+ String(fId));
                         var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
                         if(yieldGroupLayers.length == 0){
                             yieldGroupLayers.push(DSS.layer.yield_field);
@@ -1928,7 +1948,21 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 				    DSS.map.addLayer(DSS.layer.PLossGroup)
                     //DSS.layer.PLossGroup.setVisible(true)
                     DSS.layer.PLossGroup.getLayers().forEach(function(layer){
-                        //layer.setVisible(true)
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                        layer.getSource().refresh();
+                        layer.getSource().changed();
+                        layer.setVisible(false)
+                    })
+                    DSS.map.removeLayer(DSS.layer.erosionGroup);
+                    DSS.map.addLayer(DSS.layer.erosionGroup)
+                    DSS.layer.erosionGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
                         layer.setSource(new ol.source.ImageStatic({
@@ -1961,13 +1995,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }))
                         layer.getSource().changed();
                     })
-                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('40%')
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('60%')
                 }else{
                     console.log("PNGs present")
+                    //Since PNGs are present in the layer groups, this series of functions edits the layer's urls with the latest
+                    //modelruntime value to make sure the latest model run is being shown to the user.
                     DSS.map.removeLayer(DSS.layer.PLossGroup);
                     DSS.map.addLayer(DSS.layer.PLossGroup)
                     DSS.layer.PLossGroup.getLayers().forEach(function(layer){
-                        layer.setVisible(true)
                         console.log(layer)
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
@@ -1989,6 +2025,18 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }))
                         layer.getSource().changed();
                     })
+                    DSS.map.removeLayer(DSS.layer.runoffGroup);
+                    DSS.map.addLayer(DSS.layer.runoffGroup)
+                    DSS.layer.runoffGroup.getLayers().forEach(function(layer){
+                        layer.setVisible(true)
+                        var extents = layer.values_.source.imageExtent_
+                        //Use this form when you have unique model run ids.
+                        layer.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                            imageExtent: extents
+                        }))
+                        layer.getSource().changed();
+                    })
                     DSS.map.removeLayer(DSS.layer.yieldGroup);
                     DSS.map.addLayer(DSS.layer.yieldGroup)
                     DSS.layer.yieldGroup.getLayers().forEach(function(layer){
@@ -2001,11 +2049,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }))
                         layer.getSource().changed();
                     })
-                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('30%')
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('40%')
+                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('60%')
                 }
             },
+            //--------------------------------------DEACTIVATED-----------------------------------
             deactivate: function() {
                 Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('80%');
+                Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('90%')
                 DSS.MapState.destroyLegend();
                 DSS.layer.PLossGroup.getLayers().forEach(function(layer){
                     layer.setVisible(false)
@@ -2015,10 +2066,18 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     layer.setVisible(false)
                     //layer.setSource(null)
                 })
+                DSS.layer.runoffGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    //layer.setSource(null)
+                })
                 DSS.layer.yieldGroup.getLayers().forEach(function(layer){
                     layer.setVisible(false)
                     //layer.setSource(null)
                 })
+                DSS.layer.yieldGroup.setVisible(false);
+                DSS.layer.erosionGroup.setVisible(false);
+                DSS.layer.runoffGroup.setVisible(false);
+                DSS.layer.PLossGroup.setVisible(false);
             }},
 //                inner tabs for farm and field scale
             items:[
@@ -2036,31 +2095,26 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 						{
 							boxLabel: 'Phosphorus Loss',
 							listeners:{change: async function()
-                                //you will have to look into .on functions for the group layer to get
-                                //the layers to show up when the radio buttions are clicked.
 								{
 									if(this.checked){
-										console.log('Erosion clicked')
-                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
-                                        DSS.layer.PLossGroup.setVisible(true);
-                                        DSS.layer.PLossGroup.setVisible(false);
+										console.log('Ploss clicked')
+                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray,'lbs/acre');
                                         await DSS.layer.PLossGroup.getLayers().forEach(function(layer){
-                                            layer.setVisible(true)
-                                            layer.getSource().on('imageloadend', function(){
-                                                layer.setOpacity(1);
-                                                yourLayer.getSource().changed();
-                                                //DSS.map.render()
-                                            })
+                                            layer.setVisible(true);
+                                            layer.getSource().changed();
                                             layer.getSource().refresh();
-                                        })
+                                            //layer.setVisible(true);
+                                        });
                                         DSS.layer.PLossGroup.setVisible(true);
+                                        //To FORCE a redraw of the map
+                                        DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
+                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
+                                        //setTimeout(DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1),500)
+                                        
 									}
 									else{
 										DSS.layer.PLossGroup.setVisible(false);
 									}
-                                    // var center = DSS.map.getView().getCenter();
-                                    // DSS.map.getView().setCenter([center[0] + 5, center[1] +  + 5]);
-                                    // DSS.map.updateSize()
 								}
 							}
 						},
@@ -2070,7 +2124,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 								{
 									if(this.checked){
 										console.log('Erosion clicked')
-                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray,'tons/acre');
                                         DSS.layer.erosionGroup.setVisible(true);
                                         DSS.layer.erosionGroup.setVisible(false);
                                         await DSS.layer.erosionGroup.getLayers().forEach(function(layer){
@@ -2078,6 +2132,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                             layer.getSource().refresh();
                                         })
                                         DSS.layer.erosionGroup.setVisible(true);
+                                        //To FORCE a redraw of the map
+                                        DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
+                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
 									}
 									else{
 										DSS.layer.erosionGroup.setVisible(false);
@@ -2085,6 +2142,32 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 								}
 							}
 						},
+                        // {
+						// 	boxLabel: 'Runoff',
+						// 	listeners:{change: async function(checked)
+						// 		{
+						// 			if(this.checked){
+						// 				console.log('Runoff clicked')
+                        //                 //DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
+                        //                 DSS.MapState.destroyLegend();
+                        //                 console.log(DSS.layer.yieldGroup)
+                        //                 DSS.layer.runoffGroup.setVisible(true);
+                        //                 DSS.layer.runoffGroup.setVisible(false);
+                        //                 await DSS.layer.runoffGroup.getLayers().forEach(function(layer){
+                        //                     layer.getSource().changed();
+                        //                     layer.getSource().refresh();
+                        //                 })
+                        //                 DSS.layer.runoffGroup.setVisible(true);
+                        //                 //To FORCE a redraw of the map
+                        //                 DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
+                        //                 setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
+						// 			}
+						// 			else{
+						// 				DSS.layer.runoffGroup.setVisible(false);
+						// 			}
+						// 		}
+						// 	}
+						// },
 						{
 							boxLabel: 'Yield',
 							listeners:{change: async function(checked)
@@ -2101,6 +2184,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                             layer.getSource().refresh();
                                         })
                                         DSS.layer.yieldGroup.setVisible(true);
+                                        //To FORCE a redraw of the map
+                                        DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
+                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
 									}
 									else{
 										DSS.layer.yieldGroup.setVisible(false);
@@ -2108,20 +2194,51 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 								}
 							}
 						},
-						{ 
+						{
 							boxLabel: 'No Output Overlay', 
 							listeners:{change: function(checked)
 								{
 									if(this.checked){
-										console.log(this.checked)
 										DSS.MapState.destroyLegend();
 										DSS.layer.yieldGroup.setVisible(false);
                                         DSS.layer.erosionGroup.setVisible(false);
+                                        DSS.layer.runoffGroup.setVisible(false);
                                         DSS.layer.PLossGroup.setVisible(false);
 									}
 								}
 							}
 						},
+                        {
+                            xtype: 'label',
+                            cls: 'information med-text',
+                            html: 'Yield only shows where each field has the best and worst production.  '
+                        },
+                        {
+                            xtype: 'label',
+                            cls: 'information med-text',
+                            text: 'RED ',
+                            style:{
+                                color: 'red'
+                            }
+                        },
+                        {
+                            xtype: 'label',
+                            cls: 'information med-text',
+                            text: 'indicates higher yeilds, '
+                        },
+                        {
+                            xtype: 'label',
+                            cls: 'information med-text',
+                            text: 'BLUE ',
+                            style:{
+                                color: 'blue'
+                            }
+                        },
+                        {
+                            xtype: 'label',
+                            cls: 'information med-text',
+                            html: 'indicates lower yields.' //\n* CAUTION * P loss estimates are derived from SnapPlus and originally intended to represent field scale P losses; sub-field variability is only shown for illustration purposes'
+                        } 
 					]
 			},]
             
@@ -2178,7 +2295,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                inner tabs for farm and field scale
             items: [
                 phantom,
-                summary,
+                //summary,
                 yield,
                 erosion,
                 nutrients,
@@ -2189,7 +2306,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 infrastructure,
                 compare,
                 outputLayers,
-//                summary,
+                summary,
                 options,
            ]
         })

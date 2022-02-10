@@ -130,75 +130,27 @@ Ext.define('DSS.state.MapStateTools', {
     // Opacity defaults to opacity for showFields()
     //-------------------------------------------------------------
 	showNewFarm: function() {
-	    geoServer.setFarmSource('&CQL_filter=id='+DSS.activeFarm)
-//		DSS.layer.farms_1.getSource().setUrl(
-//		geoserverURL + '/geoserver/wfs?'+
-//		'service=wfs&'+
-//		'?version=2.0.0&'+
-//		'request=GetFeature&'+
-//		'typeName=GrazeScape_Vector:farm_2&'+
-//		'CQL_filter=id='+DSS.activeFarm+'&'+
-//		'outputformat=application/json&'+
-//		'srsname=EPSG:3857'
-//		);
+		console.log(DSS.activeFarm)
+		//geoServer.setFarmSource('&CQL_filter=gid='+DSS.activeFarm)
+	    geoServer.setFarmSource('&CQL_filter=gid='+DSS.activeFarm)
 		DSS.layer.farms_1.setOpacity(1);
-//		console.log(DSS.layer.farms_1.getStyle())
-//		console.log(DSS.layer.farms_1.getSource())
-//		DSS.layer.farms_1.getSource().refresh();
-//		console.log(DSS.activeFarm)
-//		console.log("show new farm ran");
 	},
 
 	//used to limit return of fields to just active farm
-    showFieldsForFarm: function(farmId, opacity) {
+    showFieldsForFarm: function() {
 		console.log(DSS.activeScenario)
     	geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-//		DSS.layer.fields_1.getSource().setUrl(
-//		geoserverURL + '/geoserver/wfs?'+
-//		'service=wfs&'+
-//		'?version=2.0.0&'+
-//		'request=GetFeature&'+
-//		'typeName=GrazeScape_Vector:field_2&'+
-//		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-//		'outputformat=application/json&'+
-//		'srsname=EPSG:3857'
-//		);
-//		console.log(DSS.layer.fields_1.getStyle())
-//		DSS.layer.fields_1.getSource().refresh();
 		console.log("showfieldsforfarm ran");
     },
     
     //----------------------------------------
 	showInfrasForFarm: function(farmId, opacity) {
     	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-//		DSS.layer.infrastructure.getSource().setUrl(
-//		geoserverURL + '/geoserver/wfs?'+
-//		'service=wfs&'+
-//		'?version=2.0.0&'+
-//		'request=GetFeature&'+
-//		'typeName=GrazeScape_Vector:infrastructure_2&'+
-//		'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-//		'outputformat=application/json&'+
-//		'srsname=EPSG:3857');
-//		console.log(DSS.layer.infrastructure.getStyle())
-//		DSS.layer.infrastructure.getSource().refresh();
-//		console.log("showInfrasforfarm ran");
     },
 	//-------------------------------------------------------------
 	//shows all fields in db
 	showAllFields: function(opacity) {
-
         geoServer.setFieldSource()
-//		DSS.layer.fields_1.getSource().setUrl(
-//		geoserverURL + '/geoserver/wfs?'+
-//		'service=wfs&'+
-//		'?version=2.0.0&'+
-//		'request=GetFeature&'+
-//		'typeName=GrazeScape_Vector:field_2&' +
-//		'outputformat=application/json&'+
-//		'srsname=EPSG:3857');
-//		DSS.layer.fields_1.getSource().refresh();
-
 		console.log("showAllFields ran");
 	},
 
@@ -349,9 +301,8 @@ Ext.define('DSS.state.MapStateTools', {
 				if (g && g.getType() === "Point") {
 					//if (DSS.activeFarm == null){
 //					    cleanDB()
-						DSS.activeFarm = f.get("id");
+						DSS.activeFarm = f.get("gid");
 						DSS.farmName = f.get("farm_name")
-						//DSS.activeScenario = f.get("scenario");
 						
 						let pos = g.getFirstCoordinate()
 						me.setPinMarker(pos);
@@ -405,8 +356,8 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
     zoomToExtent: function(center_, zoom_) {
     	
-    	center_ = center_ || [-10118000, 5375100];
-    	zoom_ = zoom_ || 9.5;
+    	center_ = center_ || [-10000312.33,5506092.31],//[-10118000, 5375100];
+    	zoom_ = zoom_ || 8,//9.5;
     	DSS.map.getView().animate({
     		center: center_,
 			zoom: zoom_,
@@ -427,7 +378,7 @@ Ext.define('DSS.state.MapStateTools', {
     },
     
     //-------------------------------------------------------------
-    showContinuousLegend: function(paletteArray, valuesArray) {
+    showContinuousLegend: function(paletteArray, valuesArray,arrayLabel) {
 
     	var me = this;
     	
@@ -436,6 +387,7 @@ Ext.define('DSS.state.MapStateTools', {
 		me.DSS_legend = Ext.create('DSS.map.Legend', {
 			DSS_colors: paletteArray,
 			DSS_values: valuesArray,
+			DSS_label: arrayLabel,
 			DSS_keys: false
 		});
 		

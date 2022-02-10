@@ -10,7 +10,7 @@ class GrassYield(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
         self.model_name = "tidyPastureALLWI.rds"
-        self.model_file_path = os.path.join(self.model_file_path,
+        self.model_file_path = os.path.join(settings.MODEL_PATH,
                                             self.model_name)
         self.grass_type = self.model_parameters['grass_type']
         #self.active_region = self.model_parameters['active_region']
@@ -89,4 +89,4 @@ class GrassYield(ModelBase):
         # rotation_avg.set_data(pred * 2000 * float(self.model_parameters["graze_factor"]))
         rotation_avg.set_data(pred)
         # Remove the three dummy references9
-        return [grass_yield,rotation_avg]
+        return [grass_yield, rotation_avg]

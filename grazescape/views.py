@@ -16,6 +16,7 @@ import os
 credential_path = os.path.join(settings.BASE_DIR,'keys','cals-grazescape-files-63e6-4f2fc53201e6.json')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 # Create your views here.
+# from grassland_core.raster_data import RasterData
 from grazescape.raster_data import RasterData
 from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
 from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown
@@ -47,14 +48,14 @@ raster_data = None
 def remove_old_pngs_from_local(model_type,field_id):
     images_folder_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
     for filename in os.listdir(images_folder_path):
-        print(filename)
+        #print(filename)
         if model_type+field_id in filename:
             os.remove(os.path.join(images_folder_path,filename))
-            print("Removed :"+ filename)
+            #print("Removed :"+ filename)
         else: 
             pass
 def remove_old_pngs_gcs_storage_bucket(model_type,field_id):
-    print('hi there')
+    #print('hi there')
     """Lists all the blobs in the bucket."""
     # bucket_name = "your-bucket-name"
 
@@ -64,11 +65,11 @@ def remove_old_pngs_gcs_storage_bucket(model_type,field_id):
     # Note: Client.list_blobs requires at least package version 1.17.0.
     blobs = storage_client.list_blobs("dev_container_model_results")
     for blob in blobs:
-        print(blob.name)
+        #print(blob.name)
         if str(model_type+field_id) in blob.name:
             try:
                 blob.delete()
-                print("Blob" + model_type+field_id+" deleted.")
+                #print("Blob" + model_type+field_id+" deleted.")
             except:
                 print("There was an error")
                 pass
@@ -84,11 +85,7 @@ def upload_gcs_model_result_blob(model_type,field_id,model_run_timestamp):
     blob = bucket.blob(destination_blob_name)
     try:
         blob.upload_from_filename(source_file_name)
-        print(
-            "File {} uploaded to {}.".format(
-                source_file_name, destination_blob_name
-            )
-        )
+        #print( "File {} uploaded to {}.".format(source_file_name, destination_blob_name))
     except:
         print("THERE WAS AN ERROR WHILE UPLOADING "+ destination_blob_name)
         pass
@@ -102,14 +99,14 @@ def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp
     for blob in blobs:
         for model in model_Types:
             if str(model+str(field_id)) in blob.name and str(scen) == str(active_scen):
-                print("SCEN ACTIVE SCEN HIT!!!!!!!!")
+                #print("SCEN ACTIVE SCEN HIT!!!!!!!!")
                 model_run_timestamp = blob.name[-17:-4]
-                print(model_run_timestamp)
-                print(blob.name)
+                #print(model_run_timestamp)
+                #print(blob.name)
                 destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
                 try:
                     blob.download_to_filename(destination_file_name)
-                    print("Blob {} downloaded.".format(field_id))
+                    #print("Blob {} downloaded.".format(field_id))
                 except:
                     print("There was an error")
                     pass
@@ -123,7 +120,7 @@ def delete_gcs_model_result_blob(field_id):
         blob = bucket.blob(model+field_id+'.png')
         try:
             blob.delete()
-            print("Blob {} deleted.".format(field_id))
+            #print("Blob {} deleted.".format(field_id))
         except:
             print("There was an error")
             pass
@@ -230,8 +227,12 @@ def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
-    feature_id = request.POST.get("feature_id")
-    print(url)
+    #feature_id = request.POST.get("feature_id")
+    feature_id = 9999
+    #farm_2 = False
+    # if "farm_2" in str(url):
+    #     print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        #farm_2 = True
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
     if "field_2" in pay_load and request_type == "delete":
@@ -239,24 +240,49 @@ def geoserver_request(request):
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
         print(resultdel.group(1))
         delete_gcs_model_result_blob(resultdel.group(1))
+    #if request_type == "insert_farm" and feature_id != "" and "farm_2" in url :
+    #if "farm_2" in str(url):
     if request_type == "insert_farm" and feature_id != "":
-        print(request.POST)
+        
+        #print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
+        #if request_type == "insert_farm":
+        print('IN INSERT FARM!!!!!#######################!')
+        #print(str(url))
+    #if "farm_2" in str(url):
+        #print('IN INSERT FARM!!!!!! MAKEREQUEST RESULTS RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(result)
+        
+        resultstr = str(result)
+        if "farm_2" in resultstr:
+            pattern = 'farm_2.(.*?)"/>'
+            feature_id = re.search(pattern,resultstr).group(1)
+            print(feature_id)
+        #feature_id = 9675
 
-        update_user_farms(request.user.id, feature_id)
+        #pull gid from the results text.  Also, find a way to limit the update_user_farms to only farm_2 inserts
+        #currently gettin scenarios_2 as well.  After you get this right you should be able to see new farm
+        #once you have that figured out you can find out how to see your farms when you open the app.
+        #print(request.POST)
+            update_user_farms(request.user.id, feature_id)
+
     if request_type == "source_farm":
+        print("source Farm result!!!!!!!!")
+        print(result)
         input_dict = json.loads(result)
         current_user = request.user
-        print("\n \n")
+        #print("\n \n")
         features = input_dict["features"]
         farm_ids = get_user_farms(current_user.id)
         # Filter python objects with list comprehensions
-        print(features[0]["properties"])
-        output_dict = [x for x in features if x["properties"]['id'] in farm_ids]
+        #print(features[0]["properties"])
+        output_dict = [x for x in features if x["properties"]['gid'] in farm_ids]
         input_dict["features"] = output_dict
         # Transform python object back into json
         output_json = json.dumps(input_dict)
         result = output_json
-        print(result)
+        # print("source Farm result!!!!!!!!")
+        # print(result)
     return JsonResponse({"data": result}, safe=False)
 #Gets OM from OM raster layer
 @login_required
@@ -318,7 +344,7 @@ def get_model_results(request):
                 # print(field_id)
                 model_run_timestamp = blob.name[-17:-4]
                 #runtimecollect = True
-                print(model_run_timestamp)
+                #sprint(model_run_timestamp)
             #print(blob.name)
             # for model in model_Types:
             #     if str(model+str(field_id)) in blob.name:
@@ -367,9 +393,9 @@ def get_model_results(request):
             else:
                 model = CropYield(request)
         elif model_type == 'ploss':
-            model = PhosphorousLoss(request)
+            model = PhosphorousLoss(request,active_region)
         elif model_type == 'runoff':
-            model = Runoff(request)
+            model = Runoff(request,active_region)
         elif model_type == 'bio':
             model = Insecticide(request)
         else:
@@ -380,8 +406,10 @@ def get_model_results(request):
 
         model.raster_inputs = clipped_rasters
         # loop here to build a response for all the model types
-        results = model.run_model()
-        # result will be a OutputDataNode
+        if model_type == 'runoff' or model_type == 'ploss':
+            results = model.run_model(active_region)
+        else:
+            results = model.run_model()
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.getlist("model_parameters[area]")[0])
@@ -397,18 +425,30 @@ def get_model_results(request):
                 print(result)
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
-                if model_type == 'ploss':
+                if result.model_type == 'ero':
+                #model_type == 'ero':
+                    print('UPLOADING ERO FOR FIELD: '+field_id)
+                    remove_old_pngs_gcs_storage_bucket("ero",field_id)
+                    upload_gcs_model_result_blob("ero",field_id,model_run_timestamp)
+                if result.model_type == 'ploss':
                     print('UPLOADING PLOSS FOR FIELD: '+field_id)
                     remove_old_pngs_gcs_storage_bucket("ploss",field_id)
                     upload_gcs_model_result_blob("ploss",field_id,model_run_timestamp)
+                    #If you want to break out yield results by type, you will have to do if statements
+                    #like if result.model_type == 'grass_yeild'/'soy_yield'/ ext ext
                 if model_type == 'yield':
                     print('UPLOADING YIELD FOR FIELD: '+field_id)
-                    remove_old_pngs_gcs_storage_bucket('yield',field_id)
-                    upload_gcs_model_result_blob('yield',field_id,model_run_timestamp)
+                    #yield_types = ['Rotational Average','Corn Grain','Soy','Grass','Corn Silage','Alfalfa','Oats']
+                    # for y in yield_types:
+                    #     print(y)
+                    #     remove_old_pngs_gcs_storage_bucket(y,field_id)
+                    #     upload_gcs_model_result_blob(y,field_id,model_run_timestamp)
+                    remove_old_pngs_gcs_storage_bucket('Rotational Average',field_id)
+                    upload_gcs_model_result_blob('Rotational Average',field_id,model_run_timestamp)
                 if model_type == 'runoff':
                     print('UPLOADING RUNOFF FOR FIELD: '+field_id)
-                    remove_old_pngs_gcs_storage_bucket('runoff',field_id)
-                    upload_gcs_model_result_blob('runoff',field_id,model_run_timestamp)
+                    remove_old_pngs_gcs_storage_bucket('Curve Number',field_id)
+                    upload_gcs_model_result_blob('Curve Number',field_id,model_run_timestamp)
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)

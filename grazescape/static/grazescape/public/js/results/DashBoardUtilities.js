@@ -226,11 +226,11 @@ function format_chart_data(model_data){
                     DSS.layer.yield_field = new ol.layer.Image({
                         visible: false,
                         source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/yield'+ model_data.field_id + '.png',
+                        url: '/static/grazescape/public/images/Rotational Average'+ model_data.field_id + '.png',
                         imageExtent: plextent
                         })
                     })
-                    DSS.layer.yield_field.set('name', 'yield'+ model_data.field_id);
+                    DSS.layer.yield_field.set('name', 'Rotational Average'+ model_data.field_id);
                     var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
                     console.log(yieldGroupLayers);
                     if(yieldGroupLayers.length == 0){
@@ -255,35 +255,6 @@ function format_chart_data(model_data){
                 }
             }
             break;
-
-
-        // case 'ploss':
-        //     if (model_data.value_type == 'ploss'){
-        //         chartTypeField = chartObj.ploss_field
-        //         chartTypeFarm = chartObj.ploss_farm
-        //         if(model_data.scen_id == DSS.activeScenario){
-        //             console.log(model_data.extent)
-        //             if(model_data.extent !== undefined){
-        //                 var plextent = model_data.extent
-        //                 DSS.layer.ploss_field = new ol.layer.Image({
-        //                     visible: true,
-        //                     updateWhileAnimating: true,
-        //                     updateWhileInteracting: true,
-        //                     source: new ol.source.ImageStatic({
-        //                     url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
-        //                     imageExtent: plextent
-        //                     })
-        //                 })
-        //                 DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
-        //                 var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-        //                 console.log(plossGroupLayers);
-        //                 //plossGroupLayers.push(DSS.layer.ploss_field);
-        //                 plossGroupLayers.unshift(DSS.layer.ploss_field)
-        //                 Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-        //             }
-        //         }
-        //     }
-
 
         case 'ploss':
             if (model_data.value_type == 'ploss'){
@@ -329,6 +300,42 @@ function format_chart_data(model_data){
             else if (model_data.value_type == 'ero'){
                 chartTypeField = chartObj.soil_loss_field
                 chartTypeFarm = chartObj.soil_loss_farm
+                if(model_data.scen_id == DSS.activeScenario){
+                    console.log(model_data.extent)
+                    if(model_data.extent !== undefined){
+                        DSS.eroBol = false
+                        var plextent = model_data.extent
+                        DSS.layer.ero_field = new ol.layer.Image({
+                            visible: false,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/ero'+ model_data.field_id + '.png',
+                            imageExtent: plextent
+                            })
+                        })
+                        DSS.layer.ero_field.set('name', 'ero'+ model_data.field_id);
+                        var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
+                        console.log(erosionGroupLayers);
+                        if(erosionGroupLayers.length == 0){
+                            erosionGroupLayers.push(DSS.layer.ero_field);
+                        }
+                        else{
+                            for(l in erosionGroupLayers){
+                                console.log(erosionGroupLayers[l].values_.name)
+                                console.log(DSS.layer.ero_field.values_.name)
+                                if(erosionGroupLayers[l].values_.name == DSS.layer.ero_field.values_.name){
+                                    const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                                    if(index > -1) {
+                                        erosionGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.ero_field.values_.name)
+                                    }
+                                    erosionGroupLayers.push(DSS.layer.ero_field);
+                                }
+                            }
+                        erosionGroupLayers.push(DSS.layer.ero_field);
+                        Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                        }
+                    }
+                }
             }
             break;
         case 'runoff':
@@ -363,35 +370,35 @@ function format_chart_data(model_data){
             if(model_data.scen_id == DSS.activeScenario){
                 console.log(model_data.extent)
                 if(model_data.extent !== undefined){
-                    DSS.erosionBol = false
+                    DSS.runoffBol = false
                     var plextent = model_data.extent
                     DSS.layer.runoff_field = new ol.layer.Image({
                         visible: false,
                         source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/runoff'+ model_data.field_id + '.png',
+                        url: '/static/grazescape/public/images/Curve Number'+ model_data.field_id + '.png',
                         imageExtent: plextent
                         })
                     })
-                    DSS.layer.runoff_field.set('name', 'runoff'+ model_data.field_id);
-                    var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
-                    console.log(erosionGroupLayers);
-                    if(erosionGroupLayers.length == 0){
-                        erosionGroupLayers.push(DSS.layer.runoff_field);
+                    DSS.layer.runoff_field.set('name', 'Curve Number'+ model_data.field_id);
+                    var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
+                    console.log(runoffGroupLayers);
+                    if(runoffGroupLayers.length == 0){
+                        runoffGroupLayers.push(DSS.layer.runoff_field);
                     }
                     else{
-                        for(l in erosionGroupLayers){
-                            console.log(erosionGroupLayers[l].values_.name)
+                        for(l in runoffGroupLayers){
+                            console.log(runoffGroupLayers[l].values_.name)
                             console.log(DSS.layer.runoff_field.values_.name)
-                            if(erosionGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
-                                const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                            if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
+                                const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
                                 if(index > -1) {
-                                    erosionGroupLayers.splice(index,1);
+                                    runoffGroupLayers.splice(index,1);
                                     console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
                                 }
-                                erosionGroupLayers.push(DSS.layer.runoff_field);
+                                runoffGroupLayers.push(DSS.layer.runoff_field);
                             }
                         }
-                    erosionGroupLayers.push(DSS.layer.runoff_field);
+                    runoffGroupLayers.push(DSS.layer.runoff_field);
                     Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
                     }
                 }
@@ -466,7 +473,7 @@ function format_chart_data(model_data){
 function runFeedBreakdownUpdate(outputObj){
     DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeatureDU = f;
-		if(DSS.activeScenario === scenarioFeatureDU.values_.scenario_id){
+		if(DSS.activeScenario === scenarioFeatureDU.values_.gid){
 			console.log(scenarioArray[i]);
 			scenarioFeatureDU.setProperties({
                 heifer_dmi_demand_per_season: outputObj.output[0].toFixed(2),
@@ -1194,7 +1201,7 @@ function retrieveScenariosGeoserver(){
         let responses =JSON.parse(returnData.geojson)
         for(response in responses.features){
             let scen = responses.features[response].properties.scenario_name
-            let scenID = responses.features[response].properties.scenario_id
+            let scenID = responses.features[response].properties.gid
             scenList.push(scen)
             scenIdList.push(scenID)
         }
@@ -1209,7 +1216,6 @@ function retrieveFieldsGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-//	'CQL_filter=farm_id='+DSS.activeFarm+' AND scenario_id='+DSS.activeScenario +
 	'CQL_filter=farm_id='+DSS.activeFarm +
 	'&'+
 	'outputformat=application/json&'+
@@ -1245,7 +1251,7 @@ function retrieveFarmGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:farm_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1267,7 +1273,7 @@ function retrieveAllFieldsFarmGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1294,7 +1300,7 @@ function retrieveAllFieldsDataGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=farm_id='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1373,7 +1379,7 @@ function printSummary(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_model_results&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1458,7 +1464,7 @@ function printSummary(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:infrastructure_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';

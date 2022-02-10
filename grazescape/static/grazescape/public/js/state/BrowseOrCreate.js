@@ -9,7 +9,7 @@ Ext.define('DSS.state.BrowseOrCreate', {
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
 	cls: 'section',
 
-	DSS_singleText: '"Start by creating a new operation"',
+	DSS_singleText: '"Start by creating a new operation."',
 					
 	//--------------------------------------------------------------------------
 	initComponent: function() {
@@ -41,13 +41,12 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					handler: function() {
 						DSS.ApplicationFlow.instance.showNewOperationPage();
 						DSS.MapState.removeMapInteractions();
-						//DSS.map.addLayer(DSS.layer.DEM_image1);
-						//DSS.map.addLayer(DSS.layer.DEM_image2);
-						//DSS.map.addLayer(DSS.layer.DEM_image3);
-
-						//gethighestFarmIdCNO()
-						//gethighestScenarioIdCNO()
 					}
+				},
+				{
+					xtype: 'component',
+					cls: 'information med-text',
+					html: 'Delete one of your current operations.'
 				},
 				{
 					xtype: 'button',
@@ -58,6 +57,23 @@ Ext.define('DSS.state.BrowseOrCreate', {
 						DSS.ApplicationFlow.instance.showDeleteOperationPage();
 						DSS.MapState.removeMapInteractions();
 						selectOperation();
+					}
+				},
+				{
+					xtype: 'component',
+					cls: 'information med-text',
+					html: 'Choose a different region to work in.'
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Choose Region',
+					handler: function() {
+						//Region Picker 
+						DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
+						DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
+						DSS.dialogs.RegionPicker.show().center().setY(0);
 					}
 				},
 //				{
