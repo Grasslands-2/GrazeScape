@@ -16,6 +16,7 @@ import os
 credential_path = os.path.join(settings.BASE_DIR,'keys','cals-grazescape-files-63e6-4f2fc53201e6.json')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 # Create your views here.
+# from grassland_core.raster_data import RasterData
 from grazescape.raster_data import RasterData
 from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
 from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown

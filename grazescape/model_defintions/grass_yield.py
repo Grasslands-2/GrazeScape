@@ -89,4 +89,4 @@ class GrassYield(ModelBase):
         # rotation_avg.set_data(pred * 2000 * float(self.model_parameters["graze_factor"]))
         rotation_avg.set_data(pred)
         # Remove the three dummy references9
-        return [grass_yield,rotation_avg]
+        return [grass_yield, rotation_avg]

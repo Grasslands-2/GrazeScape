@@ -10,30 +10,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 import configparser
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-print(BASE_DIR)
-#GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-parser = configparser.ConfigParser()
-GOOGLE_RECAPTCHA_SECRET_KEY = ""
-filename = os.path.join(BASE_DIR, 'grassland', 'settings', 'app_secret.ini')
-
-parser.read(filename)
-# get section, default to postgresql
-db = {}
-params = ""
-db_name = ""
-db_user = ""
-db_pass = ""
-db_host = ""
-db_port = ""
+from grassland.settings.settings import *
+GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
+R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     params = parser.items("captcha_google")
     GOOGLE_RECAPTCHA_SECRET_KEY = params[0][1]
@@ -42,7 +21,7 @@ if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     db_user = params[2][1]
     db_pass = params[3][1]
     db_host = params[0][1]
-    #db_port = params[4][1]
+    # db_port = params[4][1]
 else:
     raise Exception(
         'Section {0} not found in the {1} file'.format("captcha_google", filename))
@@ -152,55 +131,6 @@ DATABASES = {
         'USER': db_user,
         'PASSWORD': db_pass,
         'HOST': db_host,
-        'PORT': db_port
+        # 'PORT': db_port
     }
 }
-
-# Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.1/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'America/Chicago'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-STATIC_URL = '/static/'
-LOGIN_URL = '/'
-# STATIC_ROOT = 'static'
-# STATIC_URL = '/static/'
-#
-STATICFILES_DIRS = (
-                os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles"
-)
-print(STATICFILES_DIRS)
-# TEMPLATE_DIRS = (
-#                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
-# )

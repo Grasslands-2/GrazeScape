@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 import configparser
-from grassland.settings.local_settings_Files.settings import *
-GEOSERVER_URL = "http://localhost:8081"
-R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+from grassland.settings.settings import *
+GEOSERVER_URL = "http://localhost:8080"
+R_PATH = "C://Program Files/R/R-4.1.2/bin/x64/R.exe"
 if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     params = parser.items("captcha_google")
     GOOGLE_RECAPTCHA_SECRET_KEY = params[0][1]

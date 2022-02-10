@@ -38,9 +38,12 @@ node_modules/
 Watersheds/
 Boundaries/
 
+settings_local.py
 
 # startup helper
 graze
 # database info and keys
 *.ini
-
+cals-grazescape-files-63e6-4f2fc53201e6.json
+Watersheds/
+Boundaries/

@@ -20,11 +20,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { HashRouter } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert'
-import App from './homepage'
-ReactDOM.render(
-<>
+import AppContainer from './appcontainer'
+import store from './stores/store'
 
-<App />
-</>,
-  document.getElementById("root")
-);
+import { Provider } from 'react-redux'
+
+ReactDOM.render(<Provider store={store}> <AppContainer name="test" /> </Provider>, document.getElementById("root"));
