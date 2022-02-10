@@ -43,7 +43,6 @@ class ModelBase:
 
         # self.r_file_path = R_PATH
         self.r_file_path = settings.R_PATH
-        print(settings.R_PATH)
         # self.r_file_path = "/opt/conda/envs/gscape/bin/R"
 
 #for Zach local
@@ -62,7 +61,9 @@ class ModelBase:
         self.data_range = []
         self.bounds = {"x": 0, "y": 0}
         self.no_data = -9999
-        self.model_parameters = self.parse_model_parameters(request)
+        if not is_smartscape:
+            print("this shouldnt print with smartscape")
+            self.model_parameters = self.parse_model_parameters(request)
         self.raster_inputs = {}
 
     def parse_model_parameters(self, request):
@@ -268,8 +269,6 @@ class ModelBase:
         if model.model_type == 'Runoff':
             sum, count = self.sum_count(data, no_data_array)
             return 0, sum, float(count)
-
-
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
@@ -309,6 +308,9 @@ class OutputDataNode:
 
     def set_data(self, data):
         self.data.append(data)
+
     def get_model_type(self):
         return self.model_type
 
+    def set_data_smart(self, data):
+        self.data = data

@@ -1,18 +1,12 @@
 from osgeo import gdal
 from osgeo import gdalconst as gc
-import matplotlib.pyplot as plt
 import requests
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
-import io
 import os
-import uuid
 from django.conf import settings
 import math
-import time
-import sys
 import shutil
 
 """
@@ -23,8 +17,7 @@ Created by Matthew Bayles 2021
 
 class RasterData:
 
-    def __init__(self, extents, field_geom_array, field_id, first_time,
-                 only_om=False):
+    def __init__(self, extents, field_geom_array, field_id):
         """
 
         Parameters
@@ -38,12 +31,6 @@ class RasterData:
 
         geo_server_url = settings.GEOSERVER_URL
 
-        # geo_server_url = "http://geoserver-dev1.glbrc.org:8080"
-        # temporary for when we start getting the dev server booted up
-        # geo_server_url = "https://geoserver:8443"
-
-        #self.geoserver_url = "http://localhost:8081/geoserver/ows?service=WCS&version=2.0.1&" \
-        #                      "request=GetCoverage&CoverageId="
         self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
                              "request=GetCoverage&CoverageId="
 
@@ -55,13 +42,14 @@ class RasterData:
 
         self.extents_string_x = ""
         self.extents_string_y = ""
-        print(extents)
         if extents is not None:
             self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
             self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
         self.crs = "epsg:3857"
 
         self.no_data = -9999
+        # print("smartscape is ", is_smartscape)
+        # if not is_smartscape:
         self.layer_dic = {
             "elevation": "InputRasters:southWestWI_DEM_10m_2",
             "slope": "InputRasters:southWestWI_slopePer_10m_2",
@@ -84,15 +72,15 @@ class RasterData:
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []
-        if first_time:
-            # delete raster data if it already exists
-            if self.field_already_loaded():
-                self.clean()
-            # if not os.path.exists(self.dir_path):
-            os.makedirs(self.dir_path)
-            self.load_layers(only_om)
-            self.create_clip(field_geom_array)
-            self.clip_rasters()
+        # if first_time:
+        #     # delete raster data if it already exists
+        #     if self.field_already_loaded():
+        #         self.clean()
+        #     # if not os.path.exists(self.dir_path):
+        #     os.makedirs(self.dir_path)
+        #     self.load_layers(only_om)
+        #     self.create_clip(field_geom_array)
+        #     self.clip_rasters()
 
     def field_already_loaded(self):
         """
@@ -121,8 +109,11 @@ class RasterData:
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             r = requests.get(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
+            print("done downloading")
+            print("raster_file_path", raster_file_path)
             with open(raster_file_path, "wb") as f:
                 f.write(r.content)
+            print("done writing")
 
     def create_clip(self, field_geom_array):
         """
@@ -168,50 +159,34 @@ class RasterData:
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "-clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                     cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
+        print("done clipping")
 
     def get_clipped_rasters(self):
         raster_data_dic = {}
         bounds = 0
-        print("directory path!!!!!!!!!!!!!!!!!!!")
-        print(os.listdir(self.dir_path))
         for file in os.listdir(self.dir_path):
-            print("File interate",file)
             if '-clipped.tif' in file:
-                print("clipppppppppppppppppppped file")
                 data_name = file.split(".")[0]
                 data_name = data_name.split("-")[0]
                 # print("file paths!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                print(data_name)
                 # print(os.path.join(self.dir_path, file))
                 # ds_clip = gdal.Open(os.path.join(self.dir_path, data_name + "_clipped.tif"))
                 ds_clip = gdal.Open(os.path.join(self.dir_path, file))
-                # band = image.GetRasterBand(1)
-                # arr1 = np.asarray(band.ReadAsArray())
-
-                # set all output rasters to have float 32 data type
-                # this allows for the use of -9999 as no data value
-                # print("clipping raster ", data_name)
-                # ds_clip = gdal.Warp(os.path.join(self.dir_path, file + "_clipped.tif"), image,
-                #                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
-                #                     cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
                 geoTransform = ds_clip.GetGeoTransform()
                 minx = geoTransform[0]
                 maxy = geoTransform[3]
                 maxx = minx + geoTransform[1] * ds_clip.RasterXSize
                 miny = maxy + geoTransform[5] * ds_clip.RasterYSize
                 bounds = [minx, miny, maxx, maxy]
-
                 band = ds_clip.GetRasterBand(1)
                 arr = np.asarray(band.ReadAsArray())
                 raster_data_dic[data_name] = arr
-        print("raster data dic line 204", raster_data_dic)
-        print(raster_data_dic)
         self.check_raster_data(raster_data_dic)
         self.create_no_data_array(raster_data_dic)
         return raster_data_dic, bounds
-        return raster_data_dic, bounds
 
     def create_no_data_array(self, raster_data_dic):
+        print("creating no data array")
         first_entry = [*raster_data_dic.keys()][0]
         size = raster_data_dic[first_entry].shape
         self.no_data_aray = np.zeros(size)
@@ -225,17 +200,17 @@ class RasterData:
                         raster_data_dic[val][y][x] = 0.5
                     elif val == "slope" and raster_val > 65:
                         raster_data_dic[val][y][x] = 65
+                    # two nodata values for curve number see get_hyro_letter in runoff.py
                     elif val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
                         self.no_data_aray[y][x] = 1
                         break
                     elif raster_data_dic[val][y][x] == self.no_data:
                         self.no_data_aray[y][x] = 1
                         break
+        print("done creating no data")
 
     def check_raster_data(self, raster_dic):
-        print(raster_dic)
         raster_dic_key_list = [*raster_dic.keys()]
-        print(raster_dic_key_list)
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
