@@ -90,18 +90,18 @@ class RasterData:
                 "soy": "InputRasters:southWestWIsoy_10m2",
                 "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
             }
-        # self.layer_dic = {"corn_yield": "InputRasters:awc"}
+         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []
-        # if first_time:
-        #     # delete raster data if it already exists
-        #     if self.field_already_loaded():
-        #         self.clean()
-        #     # if not os.path.exists(self.dir_path):
-        #     os.makedirs(self.dir_path)
-        #     self.load_layers(only_om)
-        #     self.create_clip(field_geom_array)
-        #     self.clip_rasters()
+        if first_time:
+            # delete raster data if it already exists
+            if self.field_already_loaded():
+                self.clean()
+            # if not os.path.exists(self.dir_path):
+            os.makedirs(self.dir_path)
+            self.load_layers(only_om)
+            self.create_clip(field_geom_array)
+            self.clip_rasters()
 
     def field_already_loaded(self):
         """
