@@ -121,7 +121,7 @@ def delete_gcs_model_result_blob(field_id):
             blob.delete()
             #print("Blob {} deleted.".format(field_id))
         except:
-            Sprint("There was an error")
+            print("There was an error")
             pass
 # Used to set up heifer feed break down calculations 
 @csrf_protect
@@ -437,12 +437,17 @@ def get_model_results(request):
                     #like if result.model_type == 'grass_yeild'/'soy_yield'/ ext ext
                 if model_type == 'yield':
                     print('UPLOADING YIELD FOR FIELD: '+field_id)
-                    remove_old_pngs_gcs_storage_bucket('yield',field_id)
-                    upload_gcs_model_result_blob('yield',field_id,model_run_timestamp)
+                    #yield_types = ['Rotational Average','Corn Grain','Soy','Grass','Corn Silage','Alfalfa','Oats']
+                    # for y in yield_types:
+                    #     print(y)
+                    #     remove_old_pngs_gcs_storage_bucket(y,field_id)
+                    #     upload_gcs_model_result_blob(y,field_id,model_run_timestamp)
+                    remove_old_pngs_gcs_storage_bucket('Rotational Average',field_id)
+                    upload_gcs_model_result_blob('Rotational Average',field_id,model_run_timestamp)
                 if model_type == 'runoff':
                     print('UPLOADING RUNOFF FOR FIELD: '+field_id)
-                    remove_old_pngs_gcs_storage_bucket('runoff',field_id)
-                    upload_gcs_model_result_blob('runoff',field_id,model_run_timestamp)
+                    remove_old_pngs_gcs_storage_bucket('Curve Number',field_id)
+                    upload_gcs_model_result_blob('Curve Number',field_id,model_run_timestamp)
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)

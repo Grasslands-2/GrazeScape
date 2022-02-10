@@ -165,8 +165,14 @@ class GeoServer{
                 gatherScenarioTableData();
                 runScenarioUpdate();
                 DSS.ApplicationFlow.instance.showScenarioPage();
-                DSS.MapState.showFieldsForFarm();
-                DSS.MapState.showInfrasForFarm();
+                showInfraForScenario()
+                showFieldsForScenario()
+                // DSS.MapState.showFieldsForFarm();
+                // DSS.MapState.showInfrasForFarm();
+                // DSS.layer.fields_1.setVisible(true);
+		        // DSS.layer.infrastructure.setVisible(true);
+		        // DSS.layer.fieldsLabels.setVisible(true);
+		        //console.log("HI! WFS farm Insert ran!")
             })
 
             //This is where you need to get the new farm and scenario GID to assign them as active

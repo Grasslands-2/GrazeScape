@@ -6,6 +6,8 @@ function showFieldsForScenario() {
     geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	console.log(DSS.layer.fields_1.getStyle())
 	DSS.layer.fields_1.getSource().refresh();
+	DSS.layer.fields_1.setVisible(true);
+	DSS.layer.fieldsLabels.setVisible(true);
 	console.log("showfieldsforfarm ran");
 }
 
@@ -14,6 +16,7 @@ function showInfraForScenario() {
 	console.log(DSS.layer.infrastructure.getStyle())
 	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 	DSS.layer.infrastructure.getSource().refresh();
+	DSS.layer.infrastructure.setVisible(true);
 	console.log("showInfrasforfarm ran");
 }
 //-------------------------------------------------------

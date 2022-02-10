@@ -173,12 +173,10 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.layer.farms_1.setVisible(true);
 		DSS.layer.farms_1.setOpacity(1);
 		DSS.layer.markers.setVisible(false);
-		
-		DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 
-							
+		//Region Picker 
+		DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
 		DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
 		DSS.dialogs.RegionPicker.show().center().setY(0);
-		// console.log(DSS.dialogs.RegionPicker);
 	},
 	
 	//----------------------------------------------------------------------------------

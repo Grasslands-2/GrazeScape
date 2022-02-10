@@ -103,24 +103,24 @@ async function cnf_farm_insert(feat,geomType,fType, farmID=null) {
 }
 //you need to make sure that farm gets in and sets an active farm before scenario kicks off.
 
-function cnf_scenario_insert(feat,geomType,fType, farmID=null) {
-    var formatWFS = new ol.format.WFS();
-    var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/GrazeScape_Vector',
-        featureType: fType,
-        srsName: 'EPSG:3857'
-    });
-	if(fType == 'scenarios_2'){
-		feat.setProperties({farm_id:DSS.activeFarm})
-	}
-    console.log(feat)
-    node = formatWFS.writeTransaction([feat], null, null, formatGML);
-	console.log(node);
-    s = new XMLSerializer();
-    str = s.serializeToString(node);
-    console.log(str);
-    geoServer.insertFarm(str, feat,fType)
-}
+// function cnf_scenario_insert(feat,geomType,fType, farmID=null) {
+//     var formatWFS = new ol.format.WFS();
+//     var formatGML = new ol.format.GML({
+//         featureNS: 'http://geoserver.org/GrazeScape_Vector',
+//         featureType: fType,
+//         srsName: 'EPSG:3857'
+//     });
+// 	if(fType == 'scenarios_2'){
+// 		feat.setProperties({farm_id:DSS.activeFarm})
+// 	}
+//     console.log(feat)
+//     node = formatWFS.writeTransaction([feat], null, null, formatGML);
+// 	console.log(node);
+//     s = new XMLSerializer();
+//     str = s.serializeToString(node);
+//     console.log(str);
+//     geoServer.insertFarm(str, feat,fType)
+// }
 function createFarm(fname,fowner,faddress,sname,sdescript){
 
 	let me = this;
@@ -150,16 +150,13 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 			//farm_id: highestFarmIdCNO + 1,
 		})
 		var geomType = 'point'
-		//cnf_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
-		//cnf_farm_insert(e.feature, geomType,'scenarios_2',highestScenarioIdCNO+1)
 		await cnf_farm_insert(e.feature, geomType,'farm_2')
 		//cnf_farm_insert(e.feature, geomType,'scenarios_2')
-		DSS.layer.fields_1.setVisible(true);
-		DSS.layer.infrastructure.setVisible(true);
-		DSS.layer.fieldsLabels.setVisible(true);
-		console.log("HI! WFS farm Insert ran!")
-		DSS.layer.scenarios.getSource().refresh();
-		//DSS.map
+		// DSS.layer.fields_1.setVisible(true);
+		// DSS.layer.infrastructure.setVisible(true);
+		// DSS.layer.fieldsLabels.setVisible(true);
+		// console.log("HI! WFS farm Insert ran!")
+		//DSS.layer.scenarios.getSource().refresh();
 	})     
 }
 
