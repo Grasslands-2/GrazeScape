@@ -9,20 +9,8 @@ var scenarioObj = {};
 var farmUrl = 
 
 function showNewFarm() {
-//	DSS.layer.farms_1.getSource().setUrl(
-//	geoserverURL + '/geoserver/wfs?'+
-//	'service=wfs&'+
-//	'?version=2.0.0&'+
-//	'request=GetFeature&'+
-//	'typeName=GrazeScape_Vector:farm_2&'+
-//	//'CQL_filter=id='+DSS.activeFarm+'&'+
-//	'outputformat=application/json&'+
-//	'srsname=EPSG:3857'
-//	);
     geoServer.setFarmSource()
 	DSS.layer.farms_1.setOpacity(1);
-	console.log(DSS.layer.farms_1.getStyle())
-	console.log(DSS.layer.farms_1.getSource())
 	DSS.layer.farms_1.getSource().refresh();
 	console.log(DSS.activeFarm)
 	console.log("show new farm ran");
@@ -53,8 +41,8 @@ function popfarmArrayCNO(obj) {
 	};
 	console.log('popfarmArrayCNO Completed')
 }
-function popscenarioArrayCNO(obj) {
-	console.log('running popscenarioArrayCNO')
+function popScenarioArrayCNO(obj) {
+	console.log('running popScenarioArrayCNO')
 	for (i in obj){ 
 //		console.log(obj[i].properties.scenario_id)
 		scenarioArrayCNO.push({
@@ -69,7 +57,7 @@ function popscenarioArrayCNO(obj) {
 			highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
 		};
 	};
-	console.log('popscenarioArrayCNO Completed')
+	console.log('popScenarioArrayCNO Completed')
 }
 //populate data array with farm object data from each farm
 //popArray(farmObj);
@@ -80,55 +68,59 @@ highestScenarioIdCNO = 0;
 
 function gethighestFarmIdCNO(){
 	console.log('running gethighestFarmIDCNO')
-//	getWFSFarmCNO()
 	geoServer.getWFSFarmCNO()
-	//popfarmArrayCNO(farmObj);
-	// for (i in farmArrayCNO){
-	// 	if (farmArrayCNO[i].id > highestFarmIdCNO){
-	// 		highestFarmIdCNO = farmArrayCNO[i].id
-	// 		console.log(highestFarmIdCNO);
-	// 	};
-	// };
+	
 }
 function gethighestScenarioIdCNO(){
 	console.log('running gethighestScenarioIDCNO')
-//	getWFSScenarioCNO()
 	geoServer.getWFSScenarioCNO()
-	//popscenarioArrayCNO(scenarioObj);
-	// for (i in scenarioArrayCNO){
-	// 	if (scenarioArrayCNO[i].scenarioId > highestScenarioIdCNO){
-	// 		highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
-	// 		console.log(highestScenarioIdCNO);
-	// 	};
-	// };
+	
 }
-gethighestFarmIdCNO()
-gethighestScenarioIdCNO()
+//gethighestFarmIdCNO()
+//gethighestScenarioIdCNO()
 
 //highestFarmIdCNO = 0
-console.log(highestFarmIdCNO);
-console.log(highestScenarioIdCNO);
+// console.log(highestFarmIdCNO);
+// console.log(highestScenarioIdCNO);
 
 
 //---------------------------------Working Functions-------------------------------
-function wfs_farm_insert(feat,geomType,fType, farmID=null) {
+async function cnf_farm_insert(feat,geomType,fType, farmID=null) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/GrazeScape_Vector'
-		/*'http://geoserver.org/Farms'*/,
-		//Geometry: 'geom',
+        featureNS: 'http://geoserver.org/GrazeScape_Vector',
         featureType: fType,
         srsName: 'EPSG:3857'
     });
     console.log(feat)
-	//console.log(feat.values_.id)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
 	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
     console.log(str);
-    geoServer.insertFarm(str, feat, farmID,fType)
+    await geoServer.insertFarm(str, feat,fType)
+	//await cnf_scenario_insert(feat,geomType,'scenarios_2',)
 }
+//you need to make sure that farm gets in and sets an active farm before scenario kicks off.
+
+// function cnf_scenario_insert(feat,geomType,fType, farmID=null) {
+//     var formatWFS = new ol.format.WFS();
+//     var formatGML = new ol.format.GML({
+//         featureNS: 'http://geoserver.org/GrazeScape_Vector',
+//         featureType: fType,
+//         srsName: 'EPSG:3857'
+//     });
+// 	if(fType == 'scenarios_2'){
+// 		feat.setProperties({farm_id:DSS.activeFarm})
+// 	}
+//     console.log(feat)
+//     node = formatWFS.writeTransaction([feat], null, null, formatGML);
+// 	console.log(node);
+//     s = new XMLSerializer();
+//     str = s.serializeToString(node);
+//     console.log(str);
+//     geoServer.insertFarm(str, feat,fType)
+// }
 function createFarm(fname,fowner,faddress,sname,sdescript){
 
 	let me = this;
@@ -143,29 +135,28 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 	DSS.map.addInteraction(DSS.draw);
 	console.log("draw is on");
 	console.log(DSS.draw);
-	DSS.draw.on('drawend', function (e) {
+	DSS.draw.on('drawend', async function (e) {
 		console.log(e)
 		//DSS.map.getView().fit(e);
 		e.feature.setProperties({
 			//plugs in highestFarmIdCNO and gives it an id +1 to make sure its unique
-			id: highestFarmIdCNO + 1,
+			//id: highestFarmIdCNO + 1,
 			farm_name: fname,
 			farm_owner: fowner,
 			farm_addre: faddress,
 			scenario_name: sname,
 			scenario_desp: sdescript,
-			scenario_id: highestScenarioIdCNO + 1,
-			farm_id: highestFarmIdCNO + 1,
+			//scenario_id: DSS.activeFarm
+			//farm_id: highestFarmIdCNO + 1,
 		})
 		var geomType = 'point'
-		wfs_farm_insert(e.feature, geomType,'farm_2', highestFarmIdCNO + 1)
-		wfs_farm_insert(e.feature, geomType,'scenarios_2',highestScenarioIdCNO+1)
-		DSS.layer.fields_1.setVisible(true);
-		DSS.layer.infrastructure.setVisible(true);
-		DSS.layer.fieldsLabels.setVisible(true);
-		console.log("HI! WFS farm Insert ran!")
-		DSS.layer.scenarios.getSource().refresh();
-		DSS.map
+		await cnf_farm_insert(e.feature, geomType,'farm_2')
+		//cnf_farm_insert(e.feature, geomType,'scenarios_2')
+		// DSS.layer.fields_1.setVisible(true);
+		// DSS.layer.infrastructure.setVisible(true);
+		// DSS.layer.fieldsLabels.setVisible(true);
+		// console.log("HI! WFS farm Insert ran!")
+		//DSS.layer.scenarios.getSource().refresh();
 	})     
 }
 
@@ -279,8 +270,8 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							// DSS.MapState.removeMapInteractions()
 							// DSS.mapClickFunction = undefined;
 							// DSS.mouseMoveFunction = undefined;
-							gethighestFarmIdCNO();
-							gethighestScenarioIdCNO();
+							//gethighestFarmIdCNO();
+							//gethighestScenarioIdCNO();
 							createFarm(form.findField('operation').getSubmitValue(),
 							form.findField('owner').getSubmitValue(),
 							form.findField('address').getSubmitValue(),

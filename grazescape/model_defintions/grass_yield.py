@@ -9,10 +9,11 @@ import os
 class GrassYield(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
-        self.model_name = "Grass_pred_noAWC.rds"
-        self.model_file_path = os.path.join(self.model_file_path,
+        self.model_name = "tidyPastureALLWI.rds"
+        self.model_file_path = os.path.join(settings.MODEL_PATH,
                                             self.model_name)
         self.grass_type = self.model_parameters['grass_type']
+        #self.active_region = self.model_parameters['active_region']
         # self.units = "Dry Mass tons/ac"
 
     def run_model(self):
@@ -40,7 +41,8 @@ class GrassYield(ModelBase):
         ksat = self.raster_inputs["ksat"].flatten()
         cec = self.raster_inputs["cec"].flatten()
         ph = self.raster_inputs["ph"].flatten()
-        # om = self.raster_inputs["om"].flatten()
+        om = self.raster_inputs["om"].flatten()
+        awc = self.raster_inputs["awc"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
 
         r.assign("slope", slope)
@@ -48,22 +50,25 @@ class GrassYield(ModelBase):
         r.assign("sand", sand)
         r.assign("silt", silt)
         r.assign("clay", clay)
-        # r.assign("om", om)
+        r.assign("om", om)
         r.assign("ksat", ksat)
         r.assign("cec", cec)
         r.assign("ph", ph)
+        r.assign("awc", awc)
         r.assign("total_depth", total_depth)
         print("assigning om")
-        r.assign("om", self.model_parameters["om"])
+        r.assign("om", float(self.model_parameters["om"]))
         print("assigning om done")
 
         print(r("library(randomForest)"))
         print(r("library(dplyr)"))
+        print(r("library(tidymodels)"))
+        print(r("library(tidyverse)"))
         print(r("savedRF <- readRDS('" + self.model_file_path + "')"))
         print(r(
             "new_dat <- data.frame(slope=slope, elev=elevation, sand=sand, "
             "silt=silt,   clay=clay,     om=om,   ksat=ksat,    cec=cec,     "
-            "ph=ph,  total.depth=total_depth )"))
+            "ph=ph,  awc=awc,   total.depth=total_depth )"))
         print(r(
             'cropname <- factor(c("Bluegrass-clover", "Orchardgrass-clover",'
             '"Timothy-clover"))'))

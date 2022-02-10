@@ -35,7 +35,7 @@ function getWFSScenarioNS() {
 		{
 			scenarioObj = response.features
 			console.log(scenarioObj)
-			popscenarioArrayNS(scenarioObj);
+			popScenarioArray(scenarioObj);
 		}
 	})
 }
@@ -51,7 +51,7 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
             if(f.values_.scenario_id == copyScenarioNum){
                 delete f.id_
                 f.geometryName_ = 'geom'
-                f.values_.scenario_id = highestScenarioId + 1;
+                f.values_.scenario_id = DSS.activeScenario;
                 f.values_.geom = f.values_.geometry;
                 delete f.values_.geometry
                 f.values_.is_dirty = true
@@ -79,38 +79,38 @@ function popFarmArray(obj) {
 		name: obj[i].properties.farm_name
 	});
 }
-function popscenarioArrayNS(obj) {
-	for (i in obj) 
-	scenarioArrayNS.push({
-		fid: obj[i].id,
-		gid: obj[i].properties.gid,
-		geom: obj[i].geometry,
-		scenarioId:obj[i].properties.scenario_id,
-		scenarioName:obj[i].properties.scenario_name,
-		scenarioDesp:obj[i].properties.scenario_desp,
-		farmId: obj[i].properties.farm_id,
-		farmName: obj[i].properties.farm_name,
-		lacCows: obj[i].properties.lac_cows,
-		dryCows: obj[i].properties.dry_cows,
-		heifers: obj[i].properties.heifers,
-		youngStock: obj[i].properties.youngstock,
-		beefCows: obj[i].properties.beef_cows,
-		stockers: obj[i].properties.stockers,
-		finishers: obj[i].properties.finishers,
-		aveMilkYield: obj[i].properties.ave_milk_yield,
-		aveDailyGain: obj[i].properties.ave_daily_gain,
-		lacMonthsConfined: obj[i].properties.lac_confined_mos,
-		dryMonthsConfined: obj[i].properties.dry_confined_mos,
-		beefMonthsConfined: obj[i].properties.beef_confined_mos,
-		lacGrazeTime: obj[i].properties.lac_graze_time,
-		dryGrazeTime: obj[i].properties.dry_graze_time,
-		beefGrazeTime: obj[i].properties.beef_graze_time,
-		lacRotateFreq: obj[i].properties.lac_rotate_freq,
-		dryRotateFreq: obj[i].properties.dry_rotate_freq,
-		beefRotateFreq: obj[i].properties.beef_rotate_freq,
-	});
-	console.log(scenarioArrayNS)
-}
+// function popScenarioArray(obj) {
+// 	for (i in obj) 
+// 	scenarioArray.push({
+// 		fid: obj[i].id,
+// 		gid: obj[i].properties.gid,
+// 		geom: obj[i].geometry,
+// 		scenarioId:obj[i].properties.scenario_id,
+// 		scenarioName:obj[i].properties.scenario_name,
+// 		scenarioDesp:obj[i].properties.scenario_desp,
+// 		farmId: obj[i].properties.farm_id,
+// 		farmName: obj[i].properties.farm_name,
+// 		lacCows: obj[i].properties.lac_cows,
+// 		dryCows: obj[i].properties.dry_cows,
+// 		heifers: obj[i].properties.heifers,
+// 		youngStock: obj[i].properties.youngstock,
+// 		beefCows: obj[i].properties.beef_cows,
+// 		stockers: obj[i].properties.stockers,
+// 		finishers: obj[i].properties.finishers,
+// 		aveMilkYield: obj[i].properties.ave_milk_yield,
+// 		aveDailyGain: obj[i].properties.ave_daily_gain,
+// 		lacMonthsConfined: obj[i].properties.lac_confined_mos,
+// 		dryMonthsConfined: obj[i].properties.dry_confined_mos,
+// 		beefMonthsConfined: obj[i].properties.beef_confined_mos,
+// 		lacGrazeTime: obj[i].properties.lac_graze_time,
+// 		dryGrazeTime: obj[i].properties.dry_graze_time,
+// 		beefGrazeTime: obj[i].properties.beef_graze_time,
+// 		lacRotateFreq: obj[i].properties.lac_rotate_freq,
+// 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
+// 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
+// 	});
+// 	console.log(scenarioArray)
+// }
 //populate data array with farm object data from each farm
 //popArray(farmObj);
 //var to hold onto largest id value of current farms before another is added
@@ -134,11 +134,11 @@ function getHighestFarmId(){
 //}
 function getHighestScenarioId(){
 	getWFSScenarioNS();
-	for (i in scenarioArrayNS){
-		console.log(scenarioArrayNS[i].scenarioId)
+	for (i in scenarioArray){
+		console.log(scenarioArray[i].scenarioId)
 		console.log(highestScenarioId)
-		if (scenarioArrayNS[i].scenarioId > highestScenarioId){
-			highestScenarioId = scenarioArrayNS[i].scenarioId
+		if (scenarioArray[i].scenarioId > highestScenarioId){
+			highestScenarioId = scenarioArray[i].scenarioId
 			console.log('hightestScenarioId after getHighestScenario run: ' + highestScenarioId)
 		};
 	};
@@ -187,10 +187,10 @@ function wfs_scenario_insert(feat,geomType,fType) {
     console.log(node);
     geoServer.wfs_scenario_insert(str, feat)
 }
-function createNewScenario(sname,sdescript,snewhighID){
+function createNewScenario(sname,sdescript){
 	console.log('in createnewscen')
-	console.log('scenarioArrayNS at start of createnewscen: ');
-	console.log(scenarioArrayNS)
+	console.log('scenarioArray at start of createnewscen: ');
+	console.log(scenarioArray)
 	console.log('current active scenario #: '+ DSS.activeScenario);
 	//reSourcescenarios()
 	//DSS.layer.scenarios.getSource().refresh();
@@ -199,44 +199,48 @@ function createNewScenario(sname,sdescript,snewhighID){
 	//DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
-//		console.log(newScenarioFeature.values_.scenario_id)
+		//console.log(newScenarioFeature)
 		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
 		//scenario values are hardcoded in below.
 		//this isnt the most efficient way to work this, but it works.  revisit later
 		//console.log("Active Scenario")
 		//console.log(DSS.activeScenario)
-		console.log(newScenarioFeature.values_.scenario_id)
-		if(newScenarioFeature.values_.scenario_id == DSS.activeScenario){
-			for (i in scenarioArrayNS){
-				console.log("scenarioArrayNS scenario_id: " + scenarioArrayNS[i].scenarioId);
-				if(scenarioArrayNS[i].scenarioId == DSS.activeScenario){
+		//console.log(newScenarioFeature.values_.scenario_id)
+		//console.log(newScenarioFeature.values_.gid)
+		if(newScenarioFeature.values_.gid == DSS.activeScenario){
+			console.log("Hit NEW SCENRIO GID")
+			console.log(newScenarioFeature.values_.gid)
+			for (i in scenarioArray){
+				console.log("scenarioArray gid: " + scenarioArray[i].gid);
+				if(scenarioArray[i].gid == DSS.activeScenario){
 					console.log('ActiveScenario, scenarios feature scenario_id, and scenarioarray scenarioId line up!!!!!!!!!!!!!!!');
 					console.log('Base object for new scenario:')
 					console.log(newScenarioFeature)
 					newScenarioFeature.setProperties({
 						scenario_name:sname,
 						scenario_desp:sdescript,
-						scenario_id: snewhighID,
+						//scenario_id: 9999,
+						//scenario_id: snewhighID,
 						farm_id: DSS.activeFarm,
 						farm_name:DSS.farmName,
-						lac_cows:scenarioArrayNS[i].lacCows,
-						dry_cows: scenarioArrayNS[i].dryCows,
-						heifers: scenarioArrayNS[i].heifers,
-						youngstock: scenarioArrayNS[i].youngStock,
-						beef_cows: scenarioArrayNS[i].beefCows,
-						stockers: scenarioArrayNS[i].stockers,
-						finishers: scenarioArrayNS[i].finishers,
-						ave_milk_yield: scenarioArrayNS[i].aveMilkYield,
-						ave_daily_gain:scenarioArrayNS[i].aveDailyGain,
-						lac_confined_mos: scenarioArrayNS[i].lacMonthsConfined,
-						dry_confined_mos: scenarioArrayNS[i].dryMonthsConfined,
-						beef_confined_mos: scenarioArrayNS[i].beefMonthsConfined,
-						lac_graze_time: scenarioArrayNS[i].lacGrazeTime,
-						dry_graze_time: scenarioArrayNS[i].dryGrazeTime,
-						beef_graze_time: scenarioArrayNS[i].beefGrazeTime,
-						lac_rotate_freq: scenarioArrayNS[i].lacRotateFreq,
-						dry_rotate_freq: scenarioArrayNS[i].dryRotateFreq,
-						beef_rotate_freq: scenarioArrayNS[i].beefRotateFreq
+						lac_cows:scenarioArray[i].lacCows,
+						dry_cows: scenarioArray[i].dryCows,
+						heifers: scenarioArray[i].heifers,
+						youngstock: scenarioArray[i].youngStock,
+						beef_cows: scenarioArray[i].beefCows,
+						stockers: scenarioArray[i].stockers,
+						finishers: scenarioArray[i].finishers,
+						ave_milk_yield: scenarioArray[i].aveMilkYield,
+						ave_daily_gain:scenarioArray[i].aveDailyGain,
+						lac_confined_mos: scenarioArray[i].lacMonthsConfined,
+						dry_confined_mos: scenarioArray[i].dryMonthsConfined,
+						beef_confined_mos: scenarioArray[i].beefMonthsConfined,
+						lac_graze_time: scenarioArray[i].lacGrazeTime,
+						dry_graze_time: scenarioArray[i].dryGrazeTime,
+						beef_graze_time: scenarioArray[i].beefGrazeTime,
+						lac_rotate_freq: scenarioArray[i].lacRotateFreq,
+						dry_rotate_freq: scenarioArray[i].dryRotateFreq,
+						beef_rotate_freq: scenarioArray[i].beefRotateFreq
 					});
 					console.log('Object to be inserted:');
 					console.log(newScenarioFeature)
@@ -332,27 +336,16 @@ Ext.define('DSS.state.NewScenario', {
 							if (form.isValid()) {
 								//DSS.layer.scenarios.getSource().refresh();
 								farmArray = [];
-								scenarioArrayNS = [];
+								scenarioArrayNS = scenarioArray
+								//scenarioArray = [];
 								fieldArrayNS = []
 								infraArrayNS = []
 								scenarioNumHold = DSS.activeScenario
-								//runScenarioUpdate();
 								let scenName = form.findField('scenario_name').getSubmitValue()
 								let scenDes = form.findField('scenario_description').getSubmitValue()
-								//gatherScenarioTableData()
-								geoServer.copyScenario(scenName, scenDes)
-								//geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
-								//showFieldsForScenario()
-								//showInfraForScenario()
-								//DSS.layer.fields_1.setVisible(false)
-								//DSS.layer.fields_1.setVisible(true);
-								//console.log(DSS.activeScenario)
-								//geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-								//DSS.ApplicationFlow.instance.showManageOperationPage();
-								//DSS.layer.infrastructure.setVisible(true);
-								//DSS.layer.fieldsLabels.setVisible(true);
-								//DSS.layer.fields_1.getSource().refresh();
-            					//DSS.layer.fieldsLabels.getSource().refresh();
+								//geoServer.copyScenario(scenName, scenDes)
+								//createNewScenario(sname,sdescript)
+								createNewScenario(scenName,scenDes)
 								this.up('window').destroy();
 							}
 						}

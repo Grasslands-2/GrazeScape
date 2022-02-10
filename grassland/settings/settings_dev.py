@@ -26,6 +26,104 @@ else:
     raise Exception(
         'Section {0} not found in the {1} file'.format("captcha_google", filename))
 
+SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+"""production server is "http://grazescape:8080"
+http://geoserver:8080 is used for the development instance of geoserver. 
+Kevin ususally sets these when making new containers, depending on the container"""
+#GEOSERVER_URL = "http://grazescape:8080"
+#GEOSERVER_URL = "http://geoserver:8080"
+GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
+
+#container R path.
+#R_PATH = "/opt/conda/envs/gscape/bin/R"
+#local R path.
+R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+#container model path
+#MODEL_PATH = /tmp/GrazeScape/grazescape/data_files/input_models
+MODEL_PATH = "C://Users/zjhas/Documents/GrazeScape/grazescape/data_files/input_models"
+#new container R path
+#R_PATH = "/opt/conda/envs/gscape/bin/R"
+ALLOWED_HOSTS = ['*']
+# CORS_ORIGIN_ALLOW_ALL = True
+
+
+# Application definition
+
+INSTALLED_APPS = [
+    'homepage',
+    'corsheaders',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.gis',
+    'grazescape',
+    'smartscape',
+
+]
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    # Manages sessions across requests
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Associates users with requests using sessions.
+]
+
+
+ROOT_URLCONF = 'grassland.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'grassland.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+#
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#         'NAME': 'GrazeScape',
+#         'USER': 'postgres',
+#         'PASSWORD': 'admin',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',

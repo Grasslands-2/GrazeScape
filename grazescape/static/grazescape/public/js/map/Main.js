@@ -40,8 +40,6 @@ Ext.define('DSS.map.Main', {
 			self.instantiateMap()
 		},
 		resize: function(self, w, h) {
-		//	let mapSize = self.down('#ol_map').getSize();
-		//	self.map.setSize([mapSize.width, mapSize.height]);
 		}
 	},
 		
@@ -58,8 +56,6 @@ Ext.define('DSS.map.Main', {
 				listeners: {
 					resize: function(self, w, h) {
 						me.map.setSize([w,h]);
-						DSS.MapState.mapResize();
-						
 						AppEvents.triggerEvent('map_resize');
 					}
 				}
@@ -82,8 +78,11 @@ Ext.define('DSS.map.Main', {
 					c.getEl().on({
 						click: function(self) {
 							let rect = c.el.dom.getBoundingClientRect();
-							Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
-							//Ext.getCmp('layersMenu').showAt(rect.left-2, rect.top-2);
+							if(DSS.activeRegion == "cloverBeltWI"){
+								Ext.create('DSS.map.LayerMenuCB').showAt(rect.left-2, rect.top-2);
+							}else{
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
 						}
 					});
 				}
@@ -92,7 +91,6 @@ Ext.define('DSS.map.Main', {
 		
 		setTimeout(function() {
 			DSS.LayerButton.showAt(DSS.LayerButton.x,0);
-			//Ext.getCmp('DSS.map.LayerMenu').destroy()
 		}, 100);
 		
 	},
@@ -115,7 +113,6 @@ Ext.define('DSS.map.Main', {
 				y: -32
 			}
 		});
-		//Ext.getCmp('DSS.map.LayerMenu').destroy()
 		console.log('layer menu turned off')
 	},
 
@@ -141,9 +138,7 @@ Ext.define('DSS.map.Main', {
 	
 	//-------------------------------------------------------------------------
 	manageMapLayerCookies: function() {
-	
 		let me = this;
-		
 		me._cookieInternalHelper("crop", "1", 0.8);
 		me._cookieInternalHelper("inspector", "1", 0.8);
 		me._cookieInternalHelper("tainterwatershed", "1", 0.6);
@@ -210,7 +205,6 @@ Ext.define('DSS.map.Main', {
 		//--------------------------------------------------------------		
 		DSS.layer.osm_hybrid = new ol.layer.Tile({
 			visible: true,
-			//visible: true,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/maps/hybrid/tiles.json?key=' + me.OSM_KEY,
 				tileSize: 400,
@@ -220,7 +214,6 @@ Ext.define('DSS.map.Main', {
 		//--------------------------------------------------------------	
 		DSS.layer.osm_satelite = new ol.layer.Tile({
 			visible: false,
-			//visible: true,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
 				tileSize: 400,
@@ -230,7 +223,6 @@ Ext.define('DSS.map.Main', {
 		//--------------------------------------------------------------	
 		DSS.layer.osm_streets = new ol.layer.Tile({
 			visible: false,
-			//visible: true,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/maps/streets/tiles.json?key=' + me.OSM_KEY,
 				tileSize: 400,
@@ -246,6 +238,38 @@ Ext.define('DSS.map.Main', {
 				crossOrigin: 'anonymous'
 			})
 		})	;
+		//--------------------------------------------------------------		
+		DSS.layer.cloverBeltBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/Clover_Belt_Border.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#FF0000',
+					width: 4
+				})
+			})
+		});
+		//--------------------------------------------------------------		
+		DSS.layer.swwiBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/SW_WI_Border.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#FF0000',
+					width: 4
+				})
+			})
+		});
 		//--------------------------------------------------------------		
 		DSS.layer.tainterwatershed = new ol.layer.Vector({
 			visible: DSS.layer['tainterwatershed:visible'],
@@ -309,191 +333,526 @@ Ext.define('DSS.map.Main', {
 				imageExtent: extent
 			})
 		})
-		inputextent0 = [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200]
-		inputextent1 = [ -10111969.314900, 5318375.349200, -10055829.314900, 5386305.349200]
-		inputextent2 = [ -10168109.314900, 5386305.349200, -10111969.314900, 5454235.349200]
-		inputextent3 = [ -10111969.314900, 5386305.349200, -10055829.314900, 5454235.349200]
+		// Left, Bottom, Right, Top
+		SWinputextent0 = [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200]
+		SWinputextent1 = [ -10111969.314900, 5318375.349200, -10055829.314900, 5386305.349200]
+		SWinputextent2 = [ -10168109.314900, 5386305.349200, -10111969.314900, 5454235.349200]
+		SWinputextent3 = [ -10111969.314900, 5386305.349200, -10055829.314900, 5454235.349200]
+		CBinputextent0 = [ -10121877.038627, 5624880.297527, -10071577.038627, 5682010.297527]
+
+		CBinputextent1 = [ -9986457.038627, 5569960.297527, -9932247.038627, 5641430.297527]
+		CBinputextent2 = [ -10022377.038627, 5570390.297527, -9986437.038627, 5641140.297527]
+		CBinputextent3 = [ -10121877.038627, 5530940.297527, -10053077.038627, 5570930.297527]
+		CBinputextent4 = [ -10121877.038627, 5570600.297527, -10071517.038627, 5624960.297527]
+		CBinputextent5 = [ -10071587.038627, 5570670.297527, -10021207.038627, 5624890.297527]
+		CBinputextent6 = [ -10071667.038627, 5624810.297527, -10022107.038627, 5682010.297527]
+
 		//--------------------DEM-----------------------------
-		DSS.layer.DEM_image0 = new ol.layer.Image({
+		DSS.layer.SWDEM_image0 = new ol.layer.Image({
 			visible: false,
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_0.PNG',
-				imageExtent: inputextent0,
+				imageExtent: SWinputextent0,
 			})
 		}),
-		DSS.layer.DEM_image1 = new ol.layer.Image({
+		DSS.layer.SWDEM_image1 = new ol.layer.Image({
 			visible: false,
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_1.PNG',
-				imageExtent: inputextent1,
+				imageExtent: SWinputextent1,
 			})
 		}),
-		DSS.layer.DEM_image2 = new ol.layer.Image({
+		DSS.layer.SWDEM_image2 = new ol.layer.Image({
 			visible: false,
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_2.PNG',
-				imageExtent: inputextent2,
+				imageExtent: SWinputextent2,
 				
 			})
 		}),
-		DSS.layer.DEM_image3 = new ol.layer.Image({
-			//visible: DSS.layer['DEM:visible'],
+		DSS.layer.SWDEM_image3 = new ol.layer.Image({
 			visible: false,
 			opacity: DSS.layer['DEM:opacity'],
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/SW_DEM_PNG_1122_3.PNG',
-				imageExtent: inputextent3,
+				imageExtent: SWinputextent3,
 				
 			})
 		})
 		//----------------------------SLOPE----------------------------------------------------
-		DSS.layer.Slope0 = new ol.layer.Image({
+		DSS.layer.SWSlope0 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_0.PNG',
-				imageExtent: inputextent0,
+				imageExtent: SWinputextent0,
 			})
 		}),
-		DSS.layer.Slope1 = new ol.layer.Image({
+		DSS.layer.SWSlope1 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_1.PNG',
-				imageExtent: inputextent1,
+				imageExtent: SWinputextent1,
 			})
 		}),
-		DSS.layer.Slope2 = new ol.layer.Image({
+		DSS.layer.SWSlope2 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_2.PNG',
-				imageExtent: inputextent2,
+				imageExtent: SWinputextent2,
 				
 			})
 		}),
-		DSS.layer.Slope3 = new ol.layer.Image({
+		DSS.layer.SWSlope3 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_slopePer_10m_3.PNG',
-				imageExtent: inputextent3,
+				imageExtent: SWinputextent3,
 				
 			})
 		})
+		
 		//-------------------------------------------CLAY---------------------------------------------------
-		DSS.layer.Clay0 = new ol.layer.Image({
+		DSS.layer.SWClay0 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_0.PNG',
-				imageExtent: inputextent0,
+				imageExtent: SWinputextent0,
 			})
 		}),
-		DSS.layer.Clay1 = new ol.layer.Image({
+		DSS.layer.SWClay1 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_1.PNG',
-				imageExtent: inputextent1,
+				imageExtent: SWinputextent1,
 			})
 		}),
-		DSS.layer.Clay2 = new ol.layer.Image({
+		DSS.layer.SWClay2 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_2.PNG',
-				imageExtent: inputextent2,
+				imageExtent: SWinputextent2,
 				
 			})
 		}),
-		DSS.layer.Clay3 = new ol.layer.Image({
+		DSS.layer.SWClay3 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_clay_10m_3.PNG',
-				imageExtent: inputextent3,
+				imageExtent: SWinputextent3,
 				
 			})
 		})
 		//-------------------------------------SILT-------------------------------------------
-		DSS.layer.Silt0 = new ol.layer.Image({
+		DSS.layer.SWSilt0 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_0.PNG',
-				imageExtent: inputextent0,
+				imageExtent: SWinputextent0,
 			})
 		}),
-		DSS.layer.Silt1 = new ol.layer.Image({
+		DSS.layer.SWSilt1 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_1.PNG',
-				imageExtent: inputextent1,
+				imageExtent: SWinputextent1,
 			})
 		}),
-		DSS.layer.Silt2 = new ol.layer.Image({
+		DSS.layer.SWSilt2 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_2.PNG',
-				imageExtent: inputextent2,
+				imageExtent: SWinputextent2,
 				
 			})
 		}),
-		DSS.layer.Silt3 = new ol.layer.Image({
+		DSS.layer.SWSilt3 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_silt_10m_3.PNG',
-				imageExtent: inputextent3,
+				imageExtent: SWinputextent3,
 				
 			})
 		})
 		//-------------------------------------SAND---------------------------------------
-		DSS.layer.Sand0 = new ol.layer.Image({
+		DSS.layer.SWSand0 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
-				imageExtent: inputextent0,
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_0.PNG',
+				imageExtent: SWinputextent0,
 			})
 		}),
-		DSS.layer.Sand1 = new ol.layer.Image({
+		DSS.layer.SWSand1 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
-				imageExtent: inputextent1,
+				imageExtent: SWinputextent1,
 			})
 		}),
-		DSS.layer.Sand2 = new ol.layer.Image({
+		DSS.layer.SWSand2 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
-				imageExtent: inputextent2,
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_2.PNG',
+				imageExtent: SWinputextent2,
 				
 			})
 		}),
-		DSS.layer.Sand3 = new ol.layer.Image({
+		DSS.layer.SWSand3 = new ol.layer.Image({
 			visible: false,
 			source:
 			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_1.PNG',
-				imageExtent: inputextent3,
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_3.PNG',
+				imageExtent: SWinputextent3,
 				
 			})
 		})
+		//-------------------------------Clover Belt DEM-----------------------------------------
+		DSS.layer.CBDEM_image0 = new ol.layer.Image({
+			visible: false,
+			opacity: DSS.layer['DEM:opacity'],
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_DEM_10m_0.png',
+				imageExtent: CBinputextent0,
+			})
+		})
+		DSS.layer.CBDEM_image1 = new ol.layer.Image({
+			visible: false,
+			opacity: DSS.layer['DEM:opacity'],
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_DEM_10m_1.png',
+				imageExtent: CBinputextent1,
+			})
+		})
+		DSS.layer.CBDEM_image2 = new ol.layer.Image({
+			visible: false,
+			opacity: DSS.layer['DEM:opacity'],
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_DEM_10m_2.png',
+				imageExtent: CBinputextent2,
+			})
+		})
+		DSS.layer.CBDEM_image3 = new ol.layer.Image({
+			visible: false,
+			opacity: DSS.layer['DEM:opacity'],
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_DEM_10m_3.png',
+				imageExtent: CBinputextent3,
+			})
+		})
+		DSS.layer.CBDEM_image4 = new ol.layer.Image({
+			visible: false,
+			opacity: DSS.layer['DEM:opacity'],
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_DEM_10m_4.png',
+				imageExtent: CBinputextent4,
+			})
+		})
+		DSS.layer.CBDEM_image5 = new ol.layer.Image({
+			visible: false,
+			opacity: DSS.layer['DEM:opacity'],
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_DEM_10m_clip_5.PNG',
+				imageExtent: CBinputextent5,
+			})
+		})
+		DSS.layer.CBDEM_image6 = new ol.layer.Image({
+			visible: false,
+			opacity: DSS.layer['DEM:opacity'],
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_DEM_10m_clip_6.PNG',
+				imageExtent: CBinputextent6,
+			})
+		})
+		//-------------------------------Clover Belt Slope--------------------------------------------------
+		DSS.layer.CBSlope0 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_slope10m_0.png',
+				imageExtent: CBinputextent0,
+				
+			})
+		})
+		DSS.layer.CBSlope1 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_slope10m_1.png',
+				imageExtent: CBinputextent1,
+				
+			})
+		})
+		DSS.layer.CBSlope2 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_slope10m_2.png',
+				imageExtent: CBinputextent2,
+				
+			})
+		})
+		DSS.layer.CBSlope3 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_slope10m_3.png',
+				imageExtent: CBinputextent3,
+				
+			})
+		})
+		DSS.layer.CBSlope4 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_slope10m_4.png',
+				imageExtent: CBinputextent4,
+				
+			})
+		})
+		DSS.layer.CBSlope5 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_slope10m_5.png',
+				imageExtent: CBinputextent5,
+				
+			})
+		})
+		DSS.layer.CBSlope6 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_slope10m_6.png',
+				imageExtent: CBinputextent6,
+				
+			})
+		})
+		//-------------------------------Clover Belt Clay--------------------------------------------------
+		DSS.layer.CBClay0 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_clay_10m_0.png',
+				imageExtent: CBinputextent0,
+				
+			})
+		})
+		DSS.layer.CBClay1 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_clay_10m_1.png',
+				imageExtent: CBinputextent1,
+				
+			})
+		})
+		DSS.layer.CBClay2 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_clay_10m_2.png',
+				imageExtent: CBinputextent2,
+				
+			})
+		})
+		DSS.layer.CBClay3 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_clay_10m_3.png',
+				imageExtent: CBinputextent3,
+				
+			})
+		})
+		DSS.layer.CBClay4 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_clay_10m_4.png',
+				imageExtent: CBinputextent4,
+				
+			})
+		})
+		DSS.layer.CBClay5 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_clay_10m_5.png',
+				imageExtent: CBinputextent5,
+				
+			})
+		})
+		DSS.layer.CBClay6 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_clay_10m_6.png',
+				imageExtent: CBinputextent6,
+				
+			})
+		})
+		//-------------------------------Clover Belt Sand--------------------------------------------------
+		DSS.layer.CBSand0 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_sand_10m_0.png',
+				imageExtent: CBinputextent0,
+				
+			})
+		})
+		DSS.layer.CBSand1 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_sand_10m_1.png',
+				imageExtent: CBinputextent1,
+				
+			})
+		})
+		DSS.layer.CBSand2 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_sand_10m_2.png',
+				imageExtent: CBinputextent2,
+				
+			})
+		})
+		DSS.layer.CBSand3 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_sand_10m_3.png',
+				imageExtent: CBinputextent3,
+				
+			})
+		})
+		DSS.layer.CBSand4 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_sand_10m_4.png',
+				imageExtent: CBinputextent4,
+				
+			})
+		})
+		DSS.layer.CBSand5 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_sand_10m_5.png',
+				imageExtent: CBinputextent5,
+				
+			})
+		})
+		DSS.layer.CBSand6 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_sand_10m_6.png',
+				imageExtent: CBinputextent6,
+				
+			})
+		})
+		//-------------------------------Clover Belt Silt--------------------------------------------------
+		DSS.layer.CBSilt0 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_silt_10m_0.png',
+				imageExtent: CBinputextent0,
+				
+			})
+		})
+		DSS.layer.CBSilt1 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_silt_10m_1.png',
+				imageExtent: CBinputextent1,
+				
+			})
+		})
+		DSS.layer.CBSilt2 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_silt_10m_2.png',
+				imageExtent: CBinputextent2,
+				
+			})
+		})
+		DSS.layer.CBSilt3 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_silt_10m_3.png',
+				imageExtent: CBinputextent3,
+				
+			})
+		})
+		DSS.layer.CBSilt4 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_silt_10m_4.png',
+				imageExtent: CBinputextent4,
+				
+			})
+		})
+		DSS.layer.CBSilt5 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_silt_10m_5.png',
+				imageExtent: CBinputextent5,
+				
+			})
+		})
+		DSS.layer.CBSilt6 = new ol.layer.Image({
+			visible: false,
+			source:
+			new ol.source.ImageStatic({
+				url: 'https://storage.googleapis.com/grazescaperasterstorage/cloverBelt_silt_10m_6.png',
+				imageExtent: CBinputextent6,
+				
+			})
+		})
+		//----------------------------------------Output Raster Groups-------------------------------------
 		DSS.layer.PLossGroup = new ol.layer.Group({
+			visible: true,
+			layers:[]
+		})
+		DSS.layer.erosionGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
 		})
@@ -571,24 +930,6 @@ Ext.define('DSS.map.Main', {
 		var scenario_1SourceMain = new ol.source.Vector({});
 		var infrastructure_Source = new ol.source.Vector({});
 		var farms_1Source = new ol.source.Vector({});
-		//var DEMSource = new ol.source.ImageStatic({});
-		//var DEMSource = new ol.source.ImageWMS({});
-		
-		//var fields_1Source = new ol.source.Vector({});
-
-		// var fields_1Source = new ol.source.Vector({
-		// 	format: new ol.format.GeoJSON(),
-		// 	url: function(extent) {
-		// 		return geoserverURL + '/geoserver/wfs?'+
-		// 		'service=wfs&'+
-		// 		'?version=2.0.0&'+
-		// 		'request=GetFeature&'+
-		// 		'typeName=GrazeScape_Vector:field_2&' +
-		// 		//'CQL_filter=scenario_id='+DSS.activeScenario+'&'+
-		// 		'outputformat=application/json&'+
-		// 		'srsname=EPSG:3857';
-		// 	},
-		// });
 		//-------------------------------------Scenario Style------------------------
 		function scenStyle() {
 			if( 1 ==1 ){return scenStyle1}
@@ -713,15 +1054,8 @@ Ext.define('DSS.map.Main', {
 				}
 			}
 		});	
-      //		set sources of the major layers
-//        geoServer.setFieldSource()
-//		geoServer.setFarmSource()
-//		geoServer.setInfrastructureSource()
-//		geoServer.setScenariosSource()
-
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;
-
 
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
@@ -732,49 +1066,86 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.osm_satelite,
 				DSS.layer.osm_streets,
 				DSS.layer.osm_topo,
-				DSS.layer.DEM_image0,
-				DSS.layer.DEM_image1,
-				DSS.layer.DEM_image2,
-				DSS.layer.DEM_image3,
-				DSS.layer.Slope0,
-				DSS.layer.Slope1,
-				DSS.layer.Slope2,
-				DSS.layer.Slope3,
-				DSS.layer.Clay0,
-				DSS.layer.Clay1,
-				DSS.layer.Clay2,
-				DSS.layer.Clay3,
-				DSS.layer.Silt0,
-				DSS.layer.Silt1,
-				DSS.layer.Silt2,
-				DSS.layer.Silt3,
-				DSS.layer.Sand0,
-				DSS.layer.Sand1,
-				DSS.layer.Sand2,
-				DSS.layer.Sand3,
-				DSS.layer.runoffGroup,
-				DSS.layer.PLossGroup,
-				DSS.layer.yieldGroup,
+				DSS.layer.CBDEM_image0,
+				DSS.layer.CBDEM_image1,
+				DSS.layer.CBDEM_image2,
+				DSS.layer.CBDEM_image3,
+				DSS.layer.CBDEM_image4,
+				DSS.layer.CBDEM_image5,
+				DSS.layer.CBDEM_image6,
+				DSS.layer.CBSlope0,
+				DSS.layer.CBSlope1,
+				DSS.layer.CBSlope2,
+				DSS.layer.CBSlope3,
+				DSS.layer.CBSlope4,
+				DSS.layer.CBSlope5,
+				DSS.layer.CBSlope6,
+				DSS.layer.CBClay0,
+				DSS.layer.CBClay1,
+				DSS.layer.CBClay2,
+				DSS.layer.CBClay3,
+				DSS.layer.CBClay4,
+				DSS.layer.CBClay5,
+				DSS.layer.CBClay6,
+				DSS.layer.CBSilt0,
+				DSS.layer.CBSilt1,
+				DSS.layer.CBSilt2,
+				DSS.layer.CBSilt3,
+				DSS.layer.CBSilt4,
+				DSS.layer.CBSilt5,
+				DSS.layer.CBSilt6,
+				DSS.layer.CBSand0,
+				DSS.layer.CBSand1,
+				DSS.layer.CBSand2,
+				DSS.layer.CBSand3,
+				DSS.layer.CBSand4,
+				DSS.layer.CBSand5,
+				DSS.layer.CBSand6,
+				DSS.layer.SWDEM_image0,
+				DSS.layer.SWDEM_image1,
+				DSS.layer.SWDEM_image2,
+				DSS.layer.SWDEM_image3,
+				DSS.layer.SWSlope0,
+				DSS.layer.SWSlope1,
+				DSS.layer.SWSlope2,
+				DSS.layer.SWSlope3,
+				DSS.layer.SWClay0,
+				DSS.layer.SWClay1,
+				DSS.layer.SWClay2,
+				DSS.layer.SWClay3,
+				DSS.layer.SWSilt0,
+				DSS.layer.SWSilt1,
+				DSS.layer.SWSilt2,
+				DSS.layer.SWSilt3,
+				DSS.layer.SWSand0,
+				DSS.layer.SWSand1,
+				DSS.layer.SWSand2,
+				DSS.layer.SWSand3,
+				DSS.layer.cloverBeltBorder,
 				DSS.layer.kickapoowatershed,
 				DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
+				DSS.layer.swwiBorder,
+				DSS.layer.erosionGroup,
+				DSS.layer.PLossGroup,
+				DSS.layer.runoffGroup,
+				DSS.layer.yieldGroup,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
 				DSS.layer.fields_1
 				],
 				//------------------------------------------------------------------------
-
-
 			view: new ol.View({
-				center: [-10112582,5392087],
-				zoom: 10,
+				center: [-10000312.33,5506092.31],
+				//10000312.33 5506092.31 
+				zoom: 6,
 				maxZoom: 30,
-				minZoom: 8,//10,
+				minZoom: 4,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
 				constrainOnlyCenter: false,
 				//extent:[-10155160, 5323674, -10065237, 5450767]
-				extent:[ -10168100, 5318380, -10055830, 5454227]
+				//extent:[ -10168100, 5318380, -10055830, 5454227]
 			})
 		});
 
@@ -814,49 +1185,14 @@ Ext.define('DSS.map.Main', {
 		me.map.on('click', function(e) {
 			//document.getElementById('info').innerHTML = '';
 			let coords = me.map.getEventCoordinate(e.originalEvent);
-
-
-
         var view = me.map.getView();
         var viewResolution = view.getResolution();
-		//const demVal = DSS.layer.DEM_image.getFeatureInfo
+		
 		var value = {};
-		// const demVal = DEMSource.getFeatureInfoUrl(
-		// 	e.coordinate,
-		// 	viewResolution,
-		// 	'EPSG:3857',
-		// 	{'INFO_FORMAT': 'application/json'}
-		//    );
-		//    if(demVal){
-		//  	 fetch(demVal)
-		// // 	  response = fetch(demVal)
-		//  	  //console.log(demVal)
-		// // 	  console.log(response)
-		// // 	  value = response.getElementById("featureInfo").innerHTML;
-		// // 	  console.log(value);
-		// 	//   var value =  	''
-		// 	   .then(response => response.json())
-		// 	   .then((out) => {
-		// 		console.log('Output: ', out.features[0].properties.GRAY_INDEX);
-		// 		value = out.features[0].properties.GRAY_INDEX
-		// 		console.log(value)
-		// }).catch(err => console.error(err));
-		// 	   //.then((html) => console.log(html)
-		// 	// 	value = html;
-		// 	//document.getElementById('info').innerHTML = html;
-		// 	 //  );
-			 
-		// }
-        //var source = DSS.layer.untiled.get('visible') ? DSS.layer.untiled.getSource() : tiled.getSource();
+		
         console.log(view)
         console.log(viewResolution)
-		//console.log(demVal.getElementByClass("featureInfo"))
 		
-		//console.log(demVal)
-
-
-
-
         var pixel1 = me.map.getPixelFromCoordinate(coords);
         console.log(pixel1)
 			console.log(e, coords, ol.proj.transform(coords, 'EPSG:3857', 'EPSG:3071'));  
@@ -875,7 +1211,7 @@ Ext.define('DSS.map.Main', {
 		me.boxModelTool = Ext.create('DSS.map.BoxModel').instantiate(me.map);
 		
 		me.addMarkerLayer(me.map);
-		me.addWorkAreaMask(me.map);
+		//me.addWorkAreaMask(me.map);
 		me.addSelectionTools(me.map);
 		//me.map.addLayer(DSS.layer.fields_1);
 		

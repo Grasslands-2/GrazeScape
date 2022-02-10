@@ -121,14 +121,14 @@ Ext.create('Ext.data.Store', {
 	fields:[ 'display', 'value'],
 	data: [{
 		value: 'Bluegrass-clover',
-		display: 'Bluegrass'
-	},{ 
-		value: 'Orchardgrass-clover',
-		display: 'Orchardgrass'
+		display: 'Low Yielding'
 	},{ 
 		value: 'Timothy-clover',
-		display: 'Timothy'
-	}]
+		display: 'Medium Yielding'
+	},{ 
+		value: 'Orchardgrass-clover',
+		display: 'High Yielding'
+	},]
 });
 Ext.create('Ext.data.Store', {
 	storeId: 'tillageList',
@@ -715,7 +715,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let grassSpeciesColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 200, 
+			text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 165, tooltip: '<b>Low Yielding:</b> Italian ryegrass, Kentucky bluegrass, Quackgrass, Meadow fescue (older varieties)\n<b>Medium Yielding:</b> Meadow fescue (newer varieties), Smooth bromegrass, Timothy, Perennial ryegrass\n<b>High Yielding:</b> Orchardgrass, Reed canary grass, Tall fescue, Festulolium, Hybrid and Meadow bromegrass',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt' || rec.get('rotationVal') == 'ps') {
@@ -910,21 +910,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		AppEvents.registerListener('show_field_grid', function() {
 			me
 			console.log('hi from grid view')
-			//selectField()
-
-			//Fun with trying to only show fields for active farm FIX ME LATER
-			//console.log(DSS.activeFarm);
-			//fieldArray = fieldArray.filter(i => i.owningFarmid == DSS.activeFarm)
-			//console.log(fieldObj);
-			//onsole.log(fieldArray);
-			//DSS.FieldGrid.store.reload()
-			//DSS.FieldGrid.initComponent
-			//popFieldsArray(fieldObj);
-
-			//Maybe shove entire grid opps into this function?
-			
-
-
 			let height = me.getHeight();
 			if (height == 0) height = me.internalHeight;			
 			

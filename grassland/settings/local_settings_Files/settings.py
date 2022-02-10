@@ -27,7 +27,8 @@ print(BASE_DIR)
 # SECURITY WARNING: keep the secret key used in production secret!
 parser = configparser.ConfigParser()
 GOOGLE_RECAPTCHA_SECRET_KEY = ""
-filename = os.path.join(BASE_DIR, 'settings', 'app_secret.ini')
+filename = os.path.join(BASE_DIR, 'grassland', 'settings', 'app_secret.ini')
+
 
 parser.read(filename)
 # get section, default to postgresql

@@ -83,8 +83,8 @@ Ext.define('DSS.state.Manage', {
 									console.log("back to square 1")
 									DSS.activeScenario = null;
 									DSS.activeFarm = null;
-									console.log(DSS.activeFarm)
-									console.log(DSS.activeScenario)
+									// console.log(DSS.activeFarm)
+									// console.log(DSS.activeScenario)
 								}
 							});
 						}
@@ -120,7 +120,7 @@ Ext.define('DSS.state.Manage', {
 						//reSourcescenarios()
 						gatherScenarioTableData
 						runScenarioUpdate();
-						geoServer.getWFSScenario('&CQL_filter=scenario_id='+DSS.activeScenario)
+						geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 						DSS.ApplicationFlow.instance.showManageOperationPage();
 						// showFieldsForScenario()
 				 		// showInfraForScenario()
@@ -139,10 +139,6 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Load Different Scenario',
 					handler: function(self) {
-						//itemsArray = [];
-						//getWFSScenarioSP()
-//						Ext.getCmp("scenarioMenu").destroy()
-//						Ext.getCmp("scenarioPicker").destroy()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
@@ -158,9 +154,11 @@ Ext.define('DSS.state.Manage', {
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						reSourcescenarios()
+						reSourcescenarios();
+						//getWFSScenarioNS();
 						// DSS.layer.scenarios.getSource().refresh();
-						console.log('This is the scenarioArray: '+ scenarioArray)
+						console.log('This is the scenarioArray: ')
+						console.log(scenarioArray)
 					}
 				},
 				//---------------------Delete Scenarios Button-------------

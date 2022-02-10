@@ -34,7 +34,8 @@ function setFeatureAttributes(feature,af,as){
     console.log(feature.getGeometry().getCoordinates()[0])
     data = {
         'extents':feature.getGeometry().getExtent(),
-        'coordinates':feature.getGeometry().getCoordinates()[0]
+        'coordinates':feature.getGeometry().getCoordinates()[0],
+		active_region: DSS.activeRegion
     }
     var csrftoken = Cookies.get('csrftoken');
     $.ajaxSetup({
@@ -67,17 +68,17 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	//Starter values for dependant variables
 	cropDisp='';
 	tillageDisp='';
-	grassDisp='';
-	grassVal='';
+	grassDisp='Low Yielding';
+	grassVal='Bluegrass-clover';
 	rotationFreqVal = 1;
 	rotationFreqdisp = 'Once a day';
-	grazeDensityVal = '',
-	grazeDensityDisp = ''
+	grazeDensityVal = 'lo',
+	grazeDensityDisp = 'low'
 	//--------------------Setting Display Values------------------
 	if(crop=='pt-cn'){
 		cropDisp ='Continuous Pasture';
-		grassDisp='Bluegrass-clover';
-		grassVal='Bluegrass';
+		grassDisp='Low Yielding';
+		grassVal='Bluegrass-clover';
 		rotationFreqVal = 1
 		rotationFreqdisp = 'Once a day',
 		grazeDensityVal = 'lo',
@@ -123,7 +124,14 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 		tillageDisp = 'Fall Moldboard Plow'}
 
 //-------------------Now for the actual function-----------------
-
+	var soilPVal = 0
+	if(DSS.activeRegion == "cloverBeltWI"){
+		console.log("Clover Belt has hit")
+		soilPVal = 40 
+	}else{
+		console.log("Else has hit")
+		soilPVal = 35
+	}
 	DSS.draw = new ol.interaction.Draw({
 		source: source,
 		type: 'MultiPolygon',
@@ -131,7 +139,6 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	});
 	DSS.map.addInteraction(DSS.draw);
 	console.log("draw is on");
-	//console.log(DSS.activeFarm);
 	var af = parseInt(DSS.activeFarm,10);
 	var as = DSS.activeScenario;
 	console.log('This is the active scenario#: ');
@@ -146,7 +153,7 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
                 farm_id: af,
                 scenario_id: as,
                 field_name: field_nameInput,
-                soil_p: soil_pInput,
+                soil_p: soilPVal,//soil_pInput,
                 rotation: crop,
                 rotation_disp: cropDisp,
                 graze_beef_cattle: beef,
@@ -180,6 +187,21 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 
 
 }
+//------------------select defaults by region--------------
+function defaultDataByRegion(soilPVal){
+	console.log("defaultDataByRegion")
+	//var soilPVal = 0
+	if(DSS.activeRegion == "cloverBeltWI"){
+		console.log("Clover Belt has hit")
+		soilPVal = 40
+		return 
+	}else{
+		console.log("Else has hit")
+		soilPVal = 35
+	}
+	//return soilPVal
+}
+
 //------------------working variables--------------------
 var type = "Polygon";
 var source = fields_1Source_loc
@@ -213,6 +235,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 
 		if (!DSS['viewModel']) DSS['viewModel'] = {}
 		DSS.viewModel.drawAndApply = new Ext.app.ViewModel({
+			
 			formulas: {
 				tillageValue: { 
 					bind: '{tillage.value}',
@@ -306,7 +329,6 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 						var data = me.viewModel.data;
 						if(form.isValid()){
 						DSS.map.removeInteraction(DSS.select);
-						//console.log(DSS.activeFarm);
 
 						createField(data.graze_animals.dairy_lactating,
 							data.graze_animals.dairy_nonlactating,

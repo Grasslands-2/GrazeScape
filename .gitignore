@@ -7,6 +7,7 @@
 *.pyc
 
 # secrets
+keys/
 .env
 .env_prod
 certs/
@@ -23,11 +24,13 @@ project/target/
 target/
 __pycache__/
 .idea/
+settings_dev.py
 
 # large/data files
 *.asc
 *.dss
 *.tif
+*.zip
 dynamicFiles/
 layerData/
 data_files/

@@ -17,7 +17,8 @@ Created by Matthew Bayles 2021
 
 class RasterData:
 
-    def __init__(self, extents, field_geom_array, field_id):
+    def __init__(self, extents, field_geom_array, field_id, active_region, first_time,
+                 only_om=False):
         """
 
         Parameters
@@ -28,6 +29,7 @@ class RasterData:
         # self.data_layer = data_layer
         self.extents = extents
         self.field_id = field_id
+        self.active_region = active_region
 
         geo_server_url = settings.GEOSERVER_URL
 
@@ -48,39 +50,58 @@ class RasterData:
         self.crs = "epsg:3857"
 
         self.no_data = -9999
-        # print("smartscape is ", is_smartscape)
-        # if not is_smartscape:
-        self.layer_dic = {
-            "elevation": "InputRasters:southWestWI_DEM_10m_2",
-            "slope": "InputRasters:southWestWI_slopePer_10m_2",
-            "sand": "InputRasters:southWestWI_sand10m",
-            "silt": "InputRasters:southWestWI_silt_10m",
-            "clay": "InputRasters:southWestWI_clay_10m_2",
-            "k": "InputRasters:southWestWI_kfact_10m",
-            "ksat": "InputRasters:southWestWI_ksat_10m",
-            "om": "InputRasters:southWestWI_om_10m",
-            "cec": "InputRasters:southWestWI_cec_10m",
-            "ph": "InputRasters:southWestWI_ph_10m_2",
-            "total_depth": "InputRasters:southWestWI_depth_10m",
-            "slope_length": "InputRasters:southWestWI_slopelen_10m",
-            "awc": "InputRasters:southWestWI_awc_10m",
-            "ls": "InputRasters:southWestWI_LS_10m_2",
-            "corn": "InputRasters:southWestWIcorn_10m2",
-            "soy": "InputRasters:southWestWIsoy_10m2",
-            "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
-        }
-        # self.layer_dic = {"corn_yield": "InputRasters:awc"}
+        if self.active_region == "cloverBeltWI":
+            self.layer_dic = {
+                "elevation": "InputRasters:cloverBelt_DEM_10m_v2",
+                "slope": "InputRasters:cloverBelt_slope_10m_v2",
+                "sand": "InputRasters:cloverBelt_sand_10m_v2",
+                "silt": "InputRasters:cloverBelt_silt_10m_v2",
+                "clay": "InputRasters:cloverBelt_clay_10m_v2",
+                "k": "InputRasters:cloverBelt_kfact_10m_v2",
+                "ksat": "InputRasters:cloverBelt_ksat_10m_v2",
+                "om": "InputRasters:cloverBelt_om_10m_v2",
+                "cec": "InputRasters:cloverBelt_cec_10m_v2",
+                "ph": "InputRasters:cloverBelt_ph_10m_v2",
+                "total_depth": "InputRasters:cloverBelt_depth_10m_v2",
+                "slope_length": "InputRasters:cloverBelt_slopelen_10m_v2",
+                "awc": "InputRasters:cloverBelt_awc_10m_v2",
+                "ls": "InputRasters:cloverBelt_LS_10m_v2",
+                "corn": "InputRasters:cloverBelt_corn_10m_v2",
+                "soy": "InputRasters:cloverBelt_soy_10m_v2",
+                "hydgrp":"InputRasters:cloverBelt_hydgrp_10m_v2",
+            }
+        else:
+            self.layer_dic = {
+                "elevation": "InputRasters:southWestWI_DEM_10m_2",
+                "slope": "InputRasters:southWestWI_slopePer_10m_2",
+                "sand": "InputRasters:southWestWI_sand10m",
+                "silt": "InputRasters:southWestWI_silt_10m",
+                "clay": "InputRasters:southWestWI_clay_10m_2",
+                "k": "InputRasters:southWestWI_kfact_10m",
+                "ksat": "InputRasters:southWestWI_ksat_10m",
+                "om": "InputRasters:southWestWI_om_10m",
+                "cec": "InputRasters:southWestWI_cec_10m",
+                "ph": "InputRasters:southWestWI_ph_10m_2",
+                "total_depth": "InputRasters:southWestWI_depth_10m",
+                "slope_length": "InputRasters:southWestWI_slopelen_10m",
+                "awc": "InputRasters:southWestWI_awc_10m",
+                "ls": "InputRasters:southWestWI_LS_10m_2",
+                "corn": "InputRasters:southWestWIcorn_10m2",
+                "soy": "InputRasters:southWestWIsoy_10m2",
+                "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
+            }
+         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []
-        # if first_time:
-        #     # delete raster data if it already exists
-        #     if self.field_already_loaded():
-        #         self.clean()
-        #     # if not os.path.exists(self.dir_path):
-        #     os.makedirs(self.dir_path)
-        #     self.load_layers(only_om)
-        #     self.create_clip(field_geom_array)
-        #     self.clip_rasters()
+        if first_time:
+            # delete raster data if it already exists
+            if self.field_already_loaded():
+                self.clean()
+            # if not os.path.exists(self.dir_path):
+            os.makedirs(self.dir_path)
+            self.load_layers(only_om)
+            self.create_clip(field_geom_array)
+            self.clip_rasters()
 
     def field_already_loaded(self):
         """
@@ -91,7 +112,7 @@ class RasterData:
         """
         return os.path.exists(self.dir_path)
 
-    def load_layers(self, only_om=False):
+    def load_layers(self, only_om):
         """
         Download data from geoserver
         Returns
@@ -207,7 +228,10 @@ class RasterData:
                     elif raster_data_dic[val][y][x] == self.no_data:
                         self.no_data_aray[y][x] = 1
                         break
-        print("done creating no data")
+                    #For later once you have models working in Clover_belt
+                    elif self.active_region == 'cloverBeltWI' and val == 'om' and raster_val > 20:
+                        self.no_data_aray[y][x] = 1
+                        break
 
     def check_raster_data(self, raster_dic):
         raster_dic_key_list = [*raster_dic.keys()]

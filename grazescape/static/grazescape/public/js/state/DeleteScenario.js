@@ -15,14 +15,14 @@ itemsArrayDS = []
 function popItemsArrayDS(obj){
     Ext.getCmp("scenarioMenuDS").removeAll()
 	for (i in obj){
-		if(obj[i].properties.scenario_id !== DSS.activeScenario)
+		if(obj[i].properties.gid !== DSS.activeScenario)
 		// Ext.ComponentQuery.query('Menu[name=scenarioMenu]')[0].add({
         //     text:obj[i].properties.scenario_name,
         //     inputValue:obj[i].properties.scenario_id,
         //     itemFid: obj[i].id
         Ext.getCmp("scenarioMenuDS").add({
             text:obj[i].properties.scenario_name,
-            inputValue:obj[i].properties.scenario_id,
+            inputValue:obj[i].properties.gid,
             itemFid: obj[i].id
         })
     }
@@ -50,7 +50,7 @@ function wfsDeleteItem(featsArray,layerString){
 function selectDeleteScenario(fgid){
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var delScenarioFeature = f;
-		if (delScenarioFeature.values_.scenario_id == fgid){
+		if (delScenarioFeature.values_.gid == fgid){
 		    console.log(fgid)
 			itemToBeDeleted = delScenarioFeature;
 			console.log("scenario selected for termination:")

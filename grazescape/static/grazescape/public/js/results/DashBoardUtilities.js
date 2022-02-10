@@ -3,27 +3,8 @@ var mfieldID = ''
 var modelError = false
 var modelErrorMessages = []
 var yieldmodelsDataArray = []
-// function adderosionlayers(model_type){
-            //     var plextent = model_data.extent
-            //     DSS.layer.ploss_field = new ol.layer.Image({
-            //     visible: true,
-            //     updateWhileAnimating: true,
-            //     updateWhileInteracting: true,
-            //     //opacity: DSS.layer['hillshade:opacity'],
-            //     source: 
-            //         new ol.source.ImageStatic({
-            //         url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
-            //         imageExtent: plextent
-            //         })
-            //     })
-            // DSS.map.addLayer(DSS.layer.ploss_field)
-            // DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id)
-            // DSS.map.getLayers().forEach(function (layer){
-            //     console.log(layer);
-            // });
-            // }
+//gathers data for each model run. called in model type switch statments
 function gatherModelDataArray(mdobj) {
-    //yieldmodelsDataArray = []
     yieldmodelsDataArray.push({
         area: mdobj.area,
         cells: mdobj.counted_cells,
@@ -42,7 +23,6 @@ function gatherModelDataArray(mdobj) {
 function populateChartObj(scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
-    console.log("INSIDE POPULATE CHARTOBJ!!!!!%%%%&&&&&#######")
     for (chart in chartList){
         chartName = chartList[chart]
         if(chartName.includes('field')){
@@ -52,7 +32,6 @@ function populateChartObj(scenList, fieldList, allField, allScen){
                 datasets: [],
                 chartDataOri:[],
                 chartDataLabelsOri:[],
-//                toolTip:[]
             }
             for (let field in fieldList){
                 data1 = {
@@ -70,7 +49,6 @@ function populateChartObj(scenList, fieldList, allField, allScen){
                 node.chartData.chartDataLabelsOri = scenList
 
                 node.chartData.chartDataOri.push([])
-//                node.chartData.toolTip.push([])
             }
         }
         else {
@@ -124,32 +102,16 @@ function populateChartObj(scenList, fieldList, allField, allScen){
     }
 }
 
-function build_model_request(f, geometry, modelChoice){
+function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
     let runModel = false
     let split = ""
+    console.log(DSS.activeRegion)
     console.log(f)
     if(f["is_dirty"] == true){
         runModel = true
     }
     console.log(runModel)
-//    if(f["scenario_id"] == DSS.activeScenario){
-//        runModel = true
-//    }
-//    if(changedScenarios.includes(f["scenario_id"])){
-//        runModel = true
-//    }
-//    else {
-//        for (field in fieldChangeList){
-//            split = fieldChangeList[field].id.split(".")[1]
-//            if(split != "undefined"&& split == f["gid"]){
-//                console.log('field has been changed, running models')
-//                runModel = true
-//                break
-//            }
-//        }
-//    }
 
-//    runModel = true
     let rotation_split = f["rotation"].split("-")
     crop = rotation_split[0]
     rotation = rotation_split.length > 1 ?rotation_split[1]:null
@@ -186,6 +148,10 @@ function build_model_request(f, geometry, modelChoice){
         model_type: modelChoice,
         graze_factor:graze_factor,
         scen: chartDatasetContainer.getScenName(f["scenario_id"]),
+        model_run_timestamp: modelruntime,
+        active_scen: activeScenario,
+        f_scen: f["scenario_id"],
+        active_region: DSS.activeRegion
     }
     model_pack = {
         "farm_id": DSS.activeFarm,
@@ -194,29 +160,9 @@ function build_model_request(f, geometry, modelChoice){
         "runModels": runModel,
         "model_parameters":model_para
     }
-
-//    getting model results from db
-//    else{
-//        model_para = {
-//            f_name: f["field_name"],
-//            model_type: modelChoice,
-//            scen: chartDatasetContainer.getScenName(f["scenario_id"]),
-//        }
-//        model_pack = {
-//            "farm_id": DSS.activeFarm,
-//            field_id: f["gid"],
-//            "scenario_id": f["scenario_id"],
-//            "isActiveScen": f["scenario_id"] == DSS.activeScenario,
-//            "model_parameters":model_para
-//        }
-//
-//    }
-    console.log(model_pack)
     return model_pack
 }
 function format_chart_data(model_data){
-    //console.log("Model data!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$")
-    //console.log(model_data)
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
         return
     }
@@ -231,7 +177,7 @@ function format_chart_data(model_data){
         console.log("data is not part of a valid field or scenario")
         return
     }
-    
+    //setting up each model run
     modelTypeString = model_data.value_type +'_'+ model_data.crop_ro
     switch (model_data.model_type) {
         case 'yield':
@@ -273,58 +219,124 @@ function format_chart_data(model_data){
                 break
             }
             if(model_data.scen_id == DSS.activeScenario){
-                var yeextent = model_data.extent
-                DSS.layer.yield_field = new ol.layer.Image({
-                    visible: true,
-                    updateWhileAnimating: true,
-                    updateWhileInteracting: true,
-                    source: new ol.source.ImageStatic({
-                    url: '/static/grazescape/public/images/yield'+ model_data.field_id + '.png',
-                    imageExtent: yeextent
+                console.log(model_data.extent)
+                if(model_data.extent !== undefined){
+                    DSS.yieldBol = false
+                    var plextent = model_data.extent
+                    DSS.layer.yield_field = new ol.layer.Image({
+                        visible: false,
+                        source: new ol.source.ImageStatic({
+                        url: '/static/grazescape/public/images/Rotational Average'+ model_data.field_id + '.png',
+                        imageExtent: plextent
+                        })
                     })
-                })
-                DSS.layer.yield_field.set('name', 'DSS.layer.yield_field_'+ model_data.field_id);
-                var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                //console.log(yieldGroupLayers);
-                yieldGroupLayers.push(DSS.layer.yield_field);
+                    DSS.layer.yield_field.set('name', 'Rotational Average'+ model_data.field_id);
+                    var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+                    console.log(yieldGroupLayers);
+                    if(yieldGroupLayers.length == 0){
+                        yieldGroupLayers.push(DSS.layer.yield_field);
+                    }
+                    else{
+                        for(l in yieldGroupLayers){
+                            console.log(yieldGroupLayers[l].values_.name)
+                            console.log(DSS.layer.yield_field.values_.name)
+                            if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
+                                const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
+                                if(index > -1) {
+                                    yieldGroupLayers.splice(index,1);
+                                    console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
+                                }
+                                yieldGroupLayers.push(DSS.layer.yield_field);
+                            }
+                        }
+                    yieldGroupLayers.push(DSS.layer.yield_field);
+                    Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                    }
+                }
             }
             break;
-        
-        case 'ploss':
 
+        case 'ploss':
             if (model_data.value_type == 'ploss'){
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
                 if(model_data.scen_id == DSS.activeScenario){
                     console.log(model_data.extent)
                     if(model_data.extent !== undefined){
+                        DSS.plossBol = false
                         var plextent = model_data.extent
                         DSS.layer.ploss_field = new ol.layer.Image({
-                            visible: true,
-                            updateWhileAnimating: true,
-                            updateWhileInteracting: true,
+                            visible: false,
                             source: new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/ploss'+ model_data.field_id + '.png',
                             imageExtent: plextent
                             })
                         })
-                        DSS.layer.ploss_field.set('name', 'DSS.layer.ploss_field_'+ model_data.field_id);
+                        DSS.layer.ploss_field.set('name', 'ploss'+ model_data.field_id);
                         var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
                         console.log(plossGroupLayers);
+                        if(plossGroupLayers.length == 0){
+                            plossGroupLayers.push(DSS.layer.ploss_field);
+                        }
+                        else{
+                            for(l in plossGroupLayers){
+                                console.log(plossGroupLayers[l].values_.name)
+                                console.log(DSS.layer.ploss_field.values_.name)
+                                if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
+                                    const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
+                                    if(index > -1) {
+                                        plossGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
+                                    }
+                                    plossGroupLayers.push(DSS.layer.ploss_field);
+                                }
+                            }
                         plossGroupLayers.push(DSS.layer.ploss_field);
                         Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                        }
                     }
                 }
             }
             else if (model_data.value_type == 'ero'){
                 chartTypeField = chartObj.soil_loss_field
                 chartTypeFarm = chartObj.soil_loss_farm
+                if(model_data.scen_id == DSS.activeScenario){
+                    console.log(model_data.extent)
+                    if(model_data.extent !== undefined){
+                        DSS.eroBol = false
+                        var plextent = model_data.extent
+                        DSS.layer.ero_field = new ol.layer.Image({
+                            visible: false,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/ero'+ model_data.field_id + '.png',
+                            imageExtent: plextent
+                            })
+                        })
+                        DSS.layer.ero_field.set('name', 'ero'+ model_data.field_id);
+                        var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
+                        console.log(erosionGroupLayers);
+                        if(erosionGroupLayers.length == 0){
+                            erosionGroupLayers.push(DSS.layer.ero_field);
+                        }
+                        else{
+                            for(l in erosionGroupLayers){
+                                console.log(erosionGroupLayers[l].values_.name)
+                                console.log(DSS.layer.ero_field.values_.name)
+                                if(erosionGroupLayers[l].values_.name == DSS.layer.ero_field.values_.name){
+                                    const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                                    if(index > -1) {
+                                        erosionGroupLayers.splice(index,1);
+                                        console.log("SPLICED :" + DSS.layer.ero_field.values_.name)
+                                    }
+                                    erosionGroupLayers.push(DSS.layer.ero_field);
+                                }
+                            }
+                        erosionGroupLayers.push(DSS.layer.ero_field);
+                        Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                        }
+                    }
+                }
             }
-            //here write a function that sets up and displays a layer with the ploss layer as its source
-            //layer needs a somewhat randomized name to make sure other fields dont share it
-            
-            
-            
             break;
         case 'runoff':
             console.log("runoff")
@@ -352,27 +364,45 @@ function format_chart_data(model_data){
                     chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
                     chartTypeFarm.chart.update()
                 }
-//                chartTypeFarm.chartData.toolTip[scenIndex] = model_data.crop_ro;
                 
             return
             }
             if(model_data.scen_id == DSS.activeScenario){
                 console.log(model_data.extent)
-                var roextent = model_data.extent
+                if(model_data.extent !== undefined){
+                    DSS.runoffBol = false
+                    var plextent = model_data.extent
                     DSS.layer.runoff_field = new ol.layer.Image({
-                        visible: true,
-                        updateWhileAnimating: true,
-                        updateWhileInteracting: true,
+                        visible: false,
                         source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/runoff'+ model_data.field_id + '.png',
-                        imageExtent: roextent
+                        url: '/static/grazescape/public/images/Curve Number'+ model_data.field_id + '.png',
+                        imageExtent: plextent
                         })
                     })
-                    DSS.layer.runoff_field.set('name', 'DSS.layer.runoff_field_'+ model_data.field_id);
+                    DSS.layer.runoff_field.set('name', 'Curve Number'+ model_data.field_id);
                     var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
                     console.log(runoffGroupLayers);
+                    if(runoffGroupLayers.length == 0){
+                        runoffGroupLayers.push(DSS.layer.runoff_field);
+                    }
+                    else{
+                        for(l in runoffGroupLayers){
+                            console.log(runoffGroupLayers[l].values_.name)
+                            console.log(DSS.layer.runoff_field.values_.name)
+                            if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
+                                const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
+                                if(index > -1) {
+                                    runoffGroupLayers.splice(index,1);
+                                    console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
+                                }
+                                runoffGroupLayers.push(DSS.layer.runoff_field);
+                            }
+                        }
                     runoffGroupLayers.push(DSS.layer.runoff_field);
+                    Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                    }
                 }
+            }
                 break
         case 'bio':
             chartTypeField = chartObj.insecticide_field
@@ -390,22 +420,16 @@ function format_chart_data(model_data){
         chartTypeField.units_alternate = model_data.units_alternate
         let chartVal = null
         if(model_data.sum_cells != null){
-//            console.log("sum not null")
             chartVal = +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
             chartTypeField.show = true
 
         }
         else{
-//            console.log(model_data.sum_cells)
-//            console.log(chartVal)
             chartVal = null
-//            console.log(chartVal)
         }
         chartTypeField.chartData.datasets[fieldIndex].data[scenIndex] =  chartVal
         chartTypeField.area[fieldIndex] =  model_data.area
-        // creating a backup to pull data from
         chartTypeField.chartData.chartDataOri[fieldIndex][scenIndex] =  chartVal
-        //console.log(model_data)
         chartTypeField.chartData.datasets[fieldIndex].toolTip[scenIndex] = [model_data.crop_ro,model_data.grass_ro, model_data.grass_type, model_data.till] ;
 
          if(chartTypeField.chart !== null){
@@ -436,26 +460,20 @@ function format_chart_data(model_data){
         chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
         chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
 
-
-//        chartTypeFarm.chartData.toolTip[scenIndex] = model_data.crop_ro;
-
         chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex),null]
-        // creating a backup to pull data from
         chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex),null]
 
         if(chartTypeFarm.chart !== null){
             chartTypeFarm.chart.update()
-            //    set units on graph directly so it displays
             chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
         }
     }
-    //Ext.create('DSS.map.OutputMenu').showAt(10,10);
 }
+//Updates feed break down when that is not commented out
 function runFeedBreakdownUpdate(outputObj){
     DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var scenarioFeatureDU = f;
-		if(DSS.activeScenario === scenarioFeatureDU.values_.scenario_id){
-			//console.log(scenarioArray[i].scenarioName);
+		if(DSS.activeScenario === scenarioFeatureDU.values_.gid){
 			console.log(scenarioArray[i]);
 			scenarioFeatureDU.setProperties({
                 heifer_dmi_demand_per_season: outputObj.output[0].toFixed(2),
@@ -467,6 +485,7 @@ function runFeedBreakdownUpdate(outputObj){
         }
     })
 }
+//calcs heifer feed requirements based on heiferscape calcs
 function calcHeiferFeedBreakdown(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -536,6 +555,7 @@ function calcHeiferFeedBreakdown(data){
 		}
 	})}
 )}
+// calls to the python to run get_model_results function which either collects data from the model results table, or runs the models on the fields, if they are dirty/new
 function get_model_data(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -547,15 +567,11 @@ function get_model_data(data){
     'type' : 'POST',
     'data' : data,
         success: async function(responses, opts) {
-            //console.log(responses)
             delete $.ajaxSetup().headers
             if(responses == null){
                 resolve([]);
             }
             for (response in responses){
-                // if(responses[response].sum_cells == null){
-                //     responses[response].sum_cells = 0
-                // }
                 obj = responses[response];
                 if(obj.error || response == null){
                     console.log("model did not run")
@@ -568,41 +584,9 @@ function get_model_data(data){
                     continue
                 }
                 let e = obj.extent;
-//              not doing the dem for beta launch
-//                console.log("@@@@@@@@@@@@@@@@")
-//                console.log(responses[response].value_type)
-//                only display erosion on the map
-//                if (responses[response].value_type == 'ero'&&responses[response].scen_id==DSS.activeScenario){
-//                    console.log("There is erosion")
-//                    pt1 = [e[0],e[3]]
-//                    pt2 = [e[2],e[3]]
-//                    pt3 = [e[2],e[1]]
-//                    pt4 = [e[0],e[1]]
-//
-//                    let p = new ol.geom.Polygon([
-//                        [pt1, pt2, pt3, pt4, pt1]
-//                    ]);
-//                    modelResult = new ol.layer.Image({
-//                        updateWhileAnimating: true,
-//                        updateWhileInteracting: true,
-//                        source: new ol.source.ImageStatic({
-//                            imageSmoothing: false,
-//                            projection: 'EPSG:3857',
-//                            // Something is required here or there will be an exception whilst trying to draw this layer
-//                            imageExtent: [
-//                                44240,328120,
-//                                448350,335420
-//                            ],
-//                        })
-//                    });
-//                    validateImageOL(obj, modelResult);
-//
-//                }
-
                 if(responses[response].value_type != "dry lot"){
                     format_chart_data(obj)
                 }
-                //console.log(responses)
             }
             resolve(responses);
         },
@@ -612,14 +596,8 @@ function get_model_data(data){
         }
     });
     })
-
 	}
-function removeModelResults(){
-        console.log(modelResult)
-        console.log(DSS.map.getLayers())
-        DSS.map.removeLayer(modelResult)
-		//Ext.getCmp("btnRemoveModelResults").setDisabled(true)
-    }
+//validates images?  Not sure, Havent worked with 
 function validateImageOL(json, layer, tryCount) {
     var me = this;
     tryCount = (typeof tryCount !== 'undefined') ? tryCount : 0;
@@ -654,11 +632,9 @@ function validateImageOL(json, layer, tryCount) {
  * @inputString {String} title - The title of the chart
  * @inputString {String} inputString - The input acronym
  */
+// Creates graphs for each model result for the dashboard
 function create_graph(chart,title,element){
     units = chart.units
-//    if (units == "" || units == null){
-//        return
-//    }
     data = chart.chartData
     console.log(element)
     console.log(data)
@@ -672,7 +648,6 @@ function create_graph(chart,title,element){
               mode:"nearest"
               },
 //            maintainAspectRatio: false,
-
             plugins:{
                 title:
                 {
@@ -683,19 +658,14 @@ function create_graph(chart,title,element){
                     footerFont: {weight: 'normal'},
                     callbacks: {
                         label: function(context) {
-                            //console.log(context)
                             return context.dataset.label + ": " + context.dataset.data[context.dataIndex];
                         },
                         footer: function(context) {
-                            //console.log(context)
-//                            tooltipItem = tooltipItem[0]
                             var dataset = context[0].dataset
                             if(dataset.toolTip == undefined){
                                 return;
                             }
-                            //console.log(dataset)
                             let tooltipPath = dataset.toolTip[context[0].dataIndex]
-                            //console.log(tooltipPath)
                             // all rotations except pasture
                             if(tooltipPath[0] != "pt"){
                                 return ["Rotation: " + farmAccMapping(tooltipPath[0]),
@@ -750,6 +720,7 @@ function create_graph(chart,title,element){
  * Take an acronym from crop rotation or tillage and convert it to its orginal form
  * @inputString {String} inputString - The input acronym
  */
+//Sets up labeling for chart bars.
 function farmAccMapping(inputString){
     let mapping = {
      'nt':'No-Till',
@@ -769,6 +740,7 @@ function farmAccMapping(inputString){
      }
      return mapping[inputString]
 }
+//used to create line graph for runoff graph
 function create_graph_line(chart,title,element){
     units = chart.units
     data = chart.chartData
@@ -822,6 +794,7 @@ function create_graph_line(chart,title,element){
     });
     return barchart
 }
+//Used to create radar graph
 function create_graph_radar(chart,title,element){
     data = chart.chartData
     let barchart = new Chart(element, {
@@ -884,18 +857,12 @@ function create_graph_radar(chart,title,element){
     });
     return barchart
 }
-
 // name of the chart and the name of the field or scenario
 function hideData(chartName, datasetName,dbID){
     let activeTab = Ext.getCmp("mainTab").getActiveTab()
     let mainTabLength = Ext.getCmp("mainTab").items.length
     Ext.getCmp("mainTab").setActiveTab(mainTabLength - 1)
     Ext.getCmp("mainTab").setActiveTab(activeTab)
-
-    console.log("Check box clicked!!!!!!!!!!!!!!!!!1")
-    console.log(chartName)
-    console.log(datasetName)
-    console.log(dbID)
     let chartType = null
     hide = true
     // turn off fields
@@ -923,7 +890,6 @@ function hideData(chartName, datasetName,dbID){
     }
     // turn off scen / farm
     else{
-        console.log('farm')
         chartType = 'farm'
 //        turn on checkbox if it is off
         if(hiddenData.scens.includes(dbID)){
@@ -1003,22 +969,17 @@ function displayAlternate(chartName, btnId){
     chartData = chartObj[chartName]
 //    btnObject = Ext.getCmp(btnId)
     divideArea = true
-
-
 //    switch back to yield by area
     if(chartData.useAlternate){
 //        btnObject.setText('Average Yield')
         chartData.chart.options.scales.y.title.text = chartData.units;
-
         chartData.useAlternate = false
         divideArea = true
 //        conv = 1/area
-
     }
     else{
 //        btnObject.setText('Average Yield / Area')
         chartData.chart.options.scales.y.title.text= chartData.units_alternate;
-
         chartData.useAlternate = true
 //        conv = area
         divideArea = false
@@ -1104,7 +1065,6 @@ function compareChartCheckBox(){
             checkBoxReturn[group].push(checkBox)
         }
     }
-    console.log(checkBoxReturn)
     return checkBoxReturn
 }
 function populateRadarChart(){
@@ -1117,7 +1077,6 @@ function populateRadarChart(){
     for (data in datasets){
         datasets[data].data = []
     }
-//    console.log(baseScen)
     if(baseScen == null || baseScen == undefined){
         return
     }
@@ -1132,16 +1091,12 @@ function populateRadarChart(){
     let checkRunoff = Ext.getCmp('checkRunoff').getChecked()
     let checkInsecticide = Ext.getCmp('checkInsecticide').getChecked()
     checkBoxArr = []
-
-//    console.log(checkYield)
 //  combine all the checkbox section into one array
     checkBoxArr = checkYield.concat(checkErosion,checkNutrients,checkRunoff,checkInsecticide)
     checkBoxArr.concat(checkYield)
     if(checkBoxArr.length<0){
         return
     }
-//    console.log(checkBoxArr)
-//    console.log(checkBoxArr.length)
 //    set base scenario to have value of 1
 //    for(val in checkBoxArr.length){
     chartObj.compare_farm.chartData.chartDataOri = []
@@ -1170,7 +1125,6 @@ function populateRadarChart(){
             scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[5]
         }
         else if(name.indexOf("5 in storm")>0){
-            console.log("5 in storm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             scenBaseVal = chartObj[type].chartData.datasets[baseIndex].data[9]
         }
 
@@ -1218,28 +1172,20 @@ function populateRadarChart(){
         }
         i++
     }
-
-//    let checkInfrastructur = Ext.getCmp('checkInfrastructur').getChecked()
-//    console.log(baseScen, scenIndex,checkBoxCounter )
     //    check each checkbox group for checked boxes (max 8)
     datasets = chartObj.compare_farm.chartData.datasets
     console.log(datasets)
 //    set backcolor of chart datasets to be translucent
     for (data in datasets){
         datasets[data].backgroundColor = chartDatasetContainer.getColorScen(datasets[data].dbID).trans
-
     }
      if(chartObj.compare_farm.chart !== null){
         chartObj.compare_farm.chart.options.plugins.title.text = chartObj.compare_farm.title
         chartObj.compare_farm.chart.update()
-
      }
-
 }
 // Retrieves all scenarios associated with active farm
 function retrieveScenariosGeoserver(){
-
-//    DSS.activeFarm = 1
 	let fieldUrl1 = '/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
@@ -1255,24 +1201,21 @@ function retrieveScenariosGeoserver(){
         let responses =JSON.parse(returnData.geojson)
         for(response in responses.features){
             let scen = responses.features[response].properties.scenario_name
-            let scenID = responses.features[response].properties.scenario_id
+            let scenID = responses.features[response].properties.gid
             scenList.push(scen)
             scenIdList.push(scenID)
         }
         return {scenList, scenIdList}
     })
 }
+// collects fields data for the ChartDatasetContainer class
 function retrieveFieldsGeoserver(){
-//    DSS.activeScenario = 40
-//    DSS.activeFarm = 1
-
     let fieldUrl1 =
 	'/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-//	'CQL_filter=farm_id='+DSS.activeFarm+' AND scenario_id='+DSS.activeScenario +
 	'CQL_filter=farm_id='+DSS.activeFarm +
 	'&'+
 	'outputformat=application/json&'+
@@ -1300,6 +1243,7 @@ function retrieveFieldsGeoserver(){
 
 
 }
+// collects farm data for the ChartDatasetContainer class
 function retrieveFarmGeoserver(){
     let fieldUrl1 =
 	'/geoserver/wfs?'+
@@ -1307,7 +1251,7 @@ function retrieveFarmGeoserver(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:farm_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1322,16 +1266,14 @@ function retrieveFarmGeoserver(){
         return farmName
     })
 }
+// collects fields data for the ChartDatasetContainer class
 function retrieveAllFieldsFarmGeoserver(){
-// DSS.activeScenario = 40
-//    DSS.activeFarm = 1
-
     let fieldUrl1 ='/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1352,16 +1294,13 @@ function retrieveAllFieldsFarmGeoserver(){
 }
 // get all the data for each field in active farm
 function retrieveAllFieldsDataGeoserver(){
-// DSS.activeScenario = 40
-//    DSS.activeFarm = 1
-
     let fieldUrl1 =
 	'/geoserver/wfs?'+
 	'service=wfs&'+
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_2&' +
-	'CQL_filter=id='+DSS.activeFarm+
+	'CQL_filter=farm_id='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1380,6 +1319,7 @@ function retrieveAllFieldsDataGeoserver(){
 
     })
 }
+//runs the print summary in the dashboard
 function printSummary(){
     var pdf = new jsPDF();
     let activeTab = Ext.getCmp("mainTab").getActiveTab()
@@ -1439,7 +1379,7 @@ function printSummary(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:field_model_results&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
@@ -1448,21 +1388,10 @@ function printSummary(){
     let fieldIdList = []
      geoServer.makeRequest(fieldUrl_results,"","", geoServer).then(function(returnData){
         let responses =JSON.parse(returnData.geojson)
-
-//        })
-//	$.ajax({
-//		jsonp: false,
-//		type: 'GET',
-//		url: fieldUrl_results,
-//		async: false,
-//		dataType: 'json',
-//		success:function(responses){
             let csvMain = []
 
 		    let csvHeader = Object.keys(responses.features[0].properties)
 		    let csvText = ""
-
-//		    csvMain.push(csvHeader)
 		    let index = csvHeader.indexOf("cell_count");
             if (index > -1) csvHeader.splice(index, 1);
             index = csvHeader.indexOf("farm_id");
@@ -1473,29 +1402,21 @@ function printSummary(){
 		        csvText = csvText + csvHeader[head] + ","
 		    }
             csvText = csvText + "\n"
-
             for(response of Object.keys(responses.features)){
-//                console.log(response)
                 let field_att_list = []
                 console.log("################################")
                 for(col of Object.keys(responses.features[response].properties)){
                     let cell_count = responses.features[response].properties["cell_count"]
                     if(col == "cell_count" || col == "farm_id"){
-//                            field_att_list.push("place holder")
-//                            csvText = csvText + responses.features[response].properties[col] + ","
-//                            csvText = csvText + responses.features[response].properties[col] + ","
-
                             continue
                         }
                     else if(col== "field_id" ){
                         field_att_list.push(chartDatasetContainer.getFieldName(responses.features[response].properties[col]))
-//                        field_att_list.push("Test field 1")
                         csvText = csvText + chartDatasetContainer.allFields[responses.features[response].properties[col]] + ","
 
                     }
                     else if(col== "scenario_id" ){
                         field_att_list.push(chartDatasetContainer.getScenName(responses.features[response].properties[col]))
-//                        field_att_list.push("Test field 1")
                         csvText = csvText + chartDatasetContainer.getScenName(responses.features[response].properties[col]) + ","
 
                     }
@@ -1543,21 +1464,13 @@ function printSummary(){
 	'?version=2.0.0&'+
 	'request=GetFeature&'+
 	'typeName=GrazeScape_Vector:infrastructure_2&' +
-	'CQL_filter=farm_id='+DSS.activeFarm+
+	'CQL_filter=gid='+DSS.activeFarm+
 	'&'+
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
 	     geoServer.makeRequest(fieldUrl2,"","", geoServer).then(function(returnData){
         let responses =JSON.parse(returnData.geojson)
-//    $.ajax({
-//		jsonp: false,
-//		type: 'GET',
-//		url: fieldUrl2,
-//		async: false,
-//		dataType: 'json',
-//		success:function(responses){
             let csvMain = []
-            console.log(responses)
 //            no infrastructure
             if(responses.features[0] == undefined){
                 return
@@ -1565,23 +1478,18 @@ function printSummary(){
 		    let csvHeader = Object.keys(responses.features[0].properties)
 		    let csvText = ""
 
-//		    csvMain.push(csvHeader)
 		    let index = csvHeader.indexOf("gid");
             if (index > -1) csvHeader.splice(index, 1);
             index = csvHeader.indexOf("id");
             if (index > -1) csvHeader.splice(index, 1);
             index = csvHeader.indexOf("farm_id");
             if (index > -1) csvHeader.splice(index, 1);
-
-//            index = csvHeader.indexOf("scenario_id");
-//            if (index > -1) csvHeader.splice(index, 1);
             for (head in csvHeader){
 		        csvText = csvText + csvHeader[head] + ","
 		    }
             csvText = csvText + "\n"
 
             for(response of Object.keys(responses.features)){
-//                console.log(response)
                 let field_att_list = []
                 console.log("################################")
                 for(col of Object.keys(responses.features[response].properties)){
@@ -1632,18 +1540,15 @@ function printSummary(){
                     window.URL.revokeObjectURL(url);
                 }, 0);
             }
-
-//		}
 	})
 }
+//Download rasters for model runs
 function downloadRasters(fieldIter){
     return new Promise(function(resolve) {
         console.log(fieldIter)
         layer = DSS.layer.fields_1
         let downloadCount = 0
         let numFields = fieldIter.length
-
-//        layer.getSource().forEachFeature(function(f) {
         for(item in fieldIter){
             f = fieldIter[item].properties
             if(f["is_dirty"] == false){
@@ -1661,7 +1566,8 @@ function downloadRasters(fieldIter){
                 field_id: f["gid"],
                 extent: geometry.bbox,
                 // at this point fields wont have any holes so just get the first entry
-                field_coors: geometry.geometry.coordinates[0]
+                field_coors: geometry.geometry.coordinates[0],
+                active_region: DSS.activeRegion
             }
 
             console.log("MODEL PARAS!!!!!!!!!!!!!!!")
@@ -1679,6 +1585,7 @@ function downloadRasters(fieldIter){
         }
     })
 }
+//Sends request to python to download rasters from Geoserver
 function downloadRastersRequest(data){
     return new Promise(function(resolve) {
         var csrftoken = Cookies.get('csrftoken');
@@ -1708,8 +1615,6 @@ class ChartDatasetContainer{
         this.farmName = ""
 //        arrow function keeps 'this' of calling function
          retrieveFarmGeoserver().then(returnData =>{
-            console.log("RETRIEVE FARM GEOSERVER DATA@@@$$$$$$$$$$!%%%%%!!!")
-            console.log(this)
             this.farmName =  returnData
          })
         this.farmID = DSS.activeFarm
@@ -1891,6 +1796,7 @@ class ChartDatasetContainer{
     getScenName(scenId){
         for (let scen in this.scenarios){
             if (this.scenarios[scen].dbID== scenId){
+                console.log(this.scenarios)
                 return this.scenarios[scen].name
             }
         }

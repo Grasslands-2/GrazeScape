@@ -149,6 +149,7 @@ Ext.define('DSS.infra_shapes.DeleteLine', {
 	},
 	
     //-------------------------------------------------------------
+	//No longer in use
     clickdeleteInfraHandler: function(owner) {
     	
     	DSS.mapClickFunction = function(evt) {

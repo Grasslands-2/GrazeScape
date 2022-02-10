@@ -15,9 +15,24 @@ from grassland.settings.settings import *
 DEBUG = True
 # GEOSERVER_URL = "https://geoserver:8443/geoserver/"
 # production server is "http://grazescape:8080"
+# http://geoserver:8080 is used for the development instance of geoserver. 
+# Kevin ususally sets these when making new containers, depending on the container
 #GEOSERVER_URL = "http://grazescape:8080"
-GEOSERVER_URL = "http://geoserver:8080"
+#GEOSERVER_URL = "http://geoserver:8080"
+
+#container R path.
 R_PATH = "/opt/conda/envs/gscape/bin/R"
+MODEL_PATH = "/tmp/GrazeScape/grazescape/data_files/input_models"
+
+#local R path.
+#R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+
+ALLOWED_HOSTS = ['*']
+parser = configparser.ConfigParser()
+GOOGLE_RECAPTCHA_SECRET_KEY = ""
+filename = os.path.join(BASE_DIR, 'grassland', 'settings', 'app_secret.ini')
+
+parser.read(filename)
 # get section, default to postgresql
 db = {}
 params = ""

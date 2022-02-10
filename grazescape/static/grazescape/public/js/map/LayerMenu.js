@@ -1,17 +1,22 @@
 var soilColorArray = ['rgba(0,0,0,1)','rgba(51,51,51,1)','rgba(102,102,102,1)','rgba(153,153,153,1)','rgba(204,204,204,1)','rgba(255,255,255,1)']
-var soilValueArray =[0,20,40,60,80,100]
+var soilValueArray =['0',20,40,60,80,'100']
+//[0,20,40,60,80,100]
 
 var DEMColorArray = ['rgba(0,0,0,1)','rgba(51,51,51,1)','rgba(102,102,102,1)','rgba(153,153,153,1)','rgba(204,204,204,1)','rgba(255,255,255,1)']
-var DEMValueArray =[600,770,940,1110,1280,1450]
+var DEMValueArray =['600',770,940,1110,1280,'1450']
+var slopeValueArray =['0',20,50,80,130,'180+']
+var DEMBool = false
+var SlopeBool = false
+var ClayBool = false
+var SiltBool = false
+var SandBool = false
+
 
 function downloadRaster(layer){
 	var extents = DSS.map.getView().calculateExtent(DSS.map.getSize())
 	console.log(extents)
 	geoServer.makeRasterRequest(layer,extents)
 	console.log('Ran DEM pull from frontend')
-	// DSS.layer.DEM_image.setSource('/data_files/raster_layers/elevation/elevation.tif')
-	// DSS.layer.DEM_image.setVisible(self.checked);
-	//DSS.layer.DEM_image.getSource().refresh()
 }
 function newLayerItems(mfieldID){
 	console.log('Hello world!!!')
@@ -257,25 +262,327 @@ Ext.define('DSS.map.LayerMenu', {
 			// },
 			{//-----------------------------------------------------------------
 				xtype: 'menuitem',
-				text: 'Base Layer', disabled: true,
+				text: 'Model Input Overlays', disabled: true,
 				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
 			},
-		// 	{ //-------------------------------------------
-		// 		xtype: 'menucheckitem',
-		// 		padding: 2,
-        //         hideOnClick: false,
-		// 		text: 'Base Map',
-        //         checked: true,
-        //         //menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
-        //         // listeners:{
-		// 		// 	afterrender: function(self) {
-		// 		// 		self.setChecked(DSS.layer.osm_hybrid.getVisible());
-		// 		// 	},
-		// 		// },
-		// 		handler: function(self){
-		// 			DSS.layer.osm_hybrid.setVisible(self.checked);             	
-        //     },
-		// },
+			{
+				xtype: 'radiogroup',
+					columns: 1, 
+					vertical: true,
+					collapsible: true,
+					defaults: {
+						padding: '2 0',
+						group: 'input-layer'
+					},
+					items: [
+						{
+							boxLabel: 'Elevation',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										if(DEMBool == false){
+											DSS.MapState.destroyLegend();
+											DEM0Source = DSS.layer.SWDEM_image0.getSource()
+											DEM1Source = DSS.layer.SWDEM_image1.getSource()
+											DEM2Source = DSS.layer.SWDEM_image2.getSource()
+											DEM3Source = DSS.layer.SWDEM_image3.getSource()
+											console.log(DEM2Source.getState())
+											DSS.layer.SWDEM_image2.setVisible(checked)
+											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray,'Elev ft');
+											DEM2Source.on('imageloadend', function(){
+												DSS.layer.SWDEM_image3.setVisible(checked);
+												DEM3Source.on('imageloadend', function(){
+													DSS.layer.SWDEM_image0.setVisible(checked);
+													DEM0Source.on('imageloadend', function(){
+														DSS.layer.SWDEM_image1.setVisible(checked);
+													})
+												})
+											})
+											DEMBool = true
+										}else{
+											console.log('second time')
+											DSS.MapState.destroyLegend();
+											DSS.layer.SWDEM_image2.setVisible(checked)
+											DSS.layer.SWDEM_image3.setVisible(checked)
+											DSS.layer.SWDEM_image0.setVisible(checked)
+											DSS.layer.SWDEM_image1.setVisible(checked)
+											DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray,'Elev ft');
+										}
+										//console.log(dss.layer.SWDEM_image2.getSource())
+									}else{
+										DSS.layer.SWDEM_image2.setVisible(false)
+										DSS.layer.SWDEM_image3.setVisible(false)
+										DSS.layer.SWDEM_image0.setVisible(false)
+										DSS.layer.SWDEM_image1.setVisible(false)
+									}
+								}
+							}
+						},{
+							boxLabel: 'Slope',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										if(SlopeBool == false){
+											DSS.MapState.destroyLegend();
+											Slope0Source = DSS.layer.SWSlope0.getSource()
+											Slope1Source = DSS.layer.SWSlope1.getSource()
+											Slope2Source = DSS.layer.SWSlope2.getSource()
+											Slope3Source = DSS.layer.SWSlope3.getSource()
+											console.log(Slope2Source.getState())
+											DSS.layer.SWSlope2.setVisible(checked)
+											DSS.MapState.showContinuousLegend(DEMColorArray, slopeValueArray,'% Slope');
+											Slope2Source.on('imageloadend', function(){
+												console.log('HI FROM Slope IMAGE 2')
+												DSS.layer.SWSlope3.setVisible(checked);
+												Slope3Source.on('imageloadend', function(){
+													DSS.layer.SWSlope0.setVisible(checked);
+													Slope0Source.on('imageloadend', function(){
+														DSS.layer.SWSlope1.setVisible(checked);
+													})
+												})
+											})
+											SlopeBool = true
+										}else{
+											console.log('second time')
+											DSS.MapState.destroyLegend();
+											DSS.layer.SWSlope2.setVisible(checked)
+											DSS.layer.SWSlope3.setVisible(checked)
+											DSS.layer.SWSlope0.setVisible(checked)
+											DSS.layer.SWSlope1.setVisible(checked)
+											DSS.MapState.showContinuousLegend(DEMColorArray, slopeValueArray,'% Slope');
+										}
+										//console.log(dss.layer.SWSlope_image2.getSource())
+									}else{
+										DSS.layer.SWSlope2.setVisible(false)
+										DSS.layer.SWSlope3.setVisible(false)
+										DSS.layer.SWSlope0.setVisible(false)
+										DSS.layer.SWSlope1.setVisible(false)
+									}
+								}
+							}
+						},
+						{
+							boxLabel: 'Clay',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										if(ClayBool == false){
+											DSS.MapState.destroyLegend();
+											Clay0Source = DSS.layer.SWClay0.getSource()
+											Clay1Source = DSS.layer.SWClay1.getSource()
+											Clay2Source = DSS.layer.SWClay2.getSource()
+											Clay3Source = DSS.layer.SWClay3.getSource()
+											console.log(Clay2Source.getState())
+											DSS.layer.SWClay2.setVisible(checked)
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
+											Clay2Source.on('imageloadend', function(){
+												console.log('HI FROM Clay IMAGE 2')
+												DSS.layer.SWClay3.setVisible(checked);
+												Clay3Source.on('imageloadend', function(){
+													DSS.layer.SWClay0.setVisible(checked);
+													Clay0Source.on('imageloadend', function(){
+														DSS.layer.SWClay1.setVisible(checked);
+													})
+												})
+											})
+											ClayBool = true
+										}else{
+											console.log('second time')
+											DSS.MapState.destroyLegend();
+											DSS.layer.SWClay2.setVisible(checked)
+											DSS.layer.SWClay3.setVisible(checked)
+											DSS.layer.SWClay0.setVisible(checked)
+											DSS.layer.SWClay1.setVisible(checked)
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
+										}
+										//console.log(dss.layer.SWClay_image2.getSource())
+									}else{
+										DSS.layer.SWClay2.setVisible(false)
+										DSS.layer.SWClay3.setVisible(false)
+										DSS.layer.SWClay0.setVisible(false)
+										DSS.layer.SWClay1.setVisible(false)
+									}
+								}
+							}
+						},
+						{
+							boxLabel: 'Silt',
+							//DSS_layer: 'bing-aerial',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										if(SiltBool == false){
+											DSS.MapState.destroyLegend();
+											Silt0Source = DSS.layer.SWSilt0.getSource()
+											Silt1Source = DSS.layer.SWSilt1.getSource()
+											Silt2Source = DSS.layer.SWSilt2.getSource()
+											Silt3Source = DSS.layer.SWSilt3.getSource()
+											console.log(Silt2Source.getState())
+											DSS.layer.SWSilt2.setVisible(checked)
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
+											Silt2Source.on('imageloadend', function(){
+												console.log('HI FROM Silt IMAGE 2')
+												DSS.layer.SWSilt3.setVisible(checked);
+												Silt3Source.on('imageloadend', function(){
+													DSS.layer.SWSilt0.setVisible(checked);
+													Silt0Source.on('imageloadend', function(){
+														DSS.layer.SWSilt1.setVisible(checked);
+													})
+												})
+											})
+											SiltBool = true
+										}else{
+											console.log('second time')
+											DSS.MapState.destroyLegend();
+											DSS.layer.SWSilt2.setVisible(checked)
+											DSS.layer.SWSilt3.setVisible(checked)
+											DSS.layer.SWSilt0.setVisible(checked)
+											DSS.layer.SWSilt1.setVisible(checked)
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
+										}
+										//console.log(dss.layer.SWSilt_image2.getSource())
+									}else{
+										DSS.layer.SWSilt2.setVisible(false)
+										DSS.layer.SWSilt3.setVisible(false)
+										DSS.layer.SWSilt0.setVisible(false)
+										DSS.layer.SWSilt1.setVisible(false)
+									}
+								}
+							}
+						},
+						{
+							boxLabel: 'Sand',
+							//DSS_layer: 'bing-aerial',
+							listeners:{change: function(checked)
+								{
+									console.log(checked);
+									if(this.checked){
+									console.log(SandBool)
+										if(SandBool == false){
+											DSS.MapState.destroyLegend();
+											Sand0Source = DSS.layer.SWSand0.getSource()
+											Sand1Source = DSS.layer.SWSand1.getSource()
+											Sand2Source = DSS.layer.SWSand2.getSource()
+											Sand3Source = DSS.layer.SWSand3.getSource()
+											console.log(Sand2Source.getState())
+											DSS.layer.SWSand2.setVisible(checked)
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
+											Sand2Source.on('imageloadend', function(){
+												console.log('HI FROM Sand IMAGE 2')
+												DSS.layer.SWSand3.setVisible(checked);
+												Sand3Source.on('imageloadend', function(){
+													DSS.layer.SWSand0.setVisible(checked);
+													Sand0Source.on('imageloadend', function(){
+														DSS.layer.SWSand1.setVisible(checked);
+														SandBool = true
+													})
+												})
+											})
+											SandBool = true
+										}else{
+											console.log('second time')
+											DSS.MapState.destroyLegend();
+											DSS.layer.SWSand2.setVisible(checked)
+											DSS.layer.SWSand3.setVisible(checked)
+											DSS.layer.SWSand0.setVisible(checked)
+											DSS.layer.SWSand1.setVisible(checked)
+											DSS.MapState.showContinuousLegend(soilColorArray,soilValueArray,'Soil %');
+										}
+										//console.log(dss.layer.SWSand_image2.getSource())
+									}else{
+										DSS.layer.SWSand2.setVisible(false)
+										DSS.layer.SWSand3.setVisible(false)
+										DSS.layer.SWSand0.setVisible(false)
+										DSS.layer.SWSand1.setVisible(false)
+									}
+								}
+							}
+						},{ 
+							boxLabel: 'No Input Overlay', 
+							text: 'No Overlay',
+							DSS_layer: 'bing-aerial',
+							listeners:{change: function(checked)
+								{
+									if(this.checked){
+										console.log(this.checked)
+										DSS.MapState.destroyLegend();
+										DSS.layer.SWDEM_image0.setVisible(false);
+										DSS.layer.SWDEM_image1.setVisible(false);
+										DSS.layer.SWDEM_image2.setVisible(false);
+										DSS.layer.SWDEM_image3.setVisible(false);
+										DSS.layer.SWSlope0.setVisible(false);
+										DSS.layer.SWSlope1.setVisible(false);
+										DSS.layer.SWSlope2.setVisible(false);
+										DSS.layer.SWSlope3.setVisible(false);
+										DSS.layer.SWClay0.setVisible(false);
+										DSS.layer.SWClay1.setVisible(false);
+										DSS.layer.SWClay2.setVisible(false);
+										DSS.layer.SWClay3.setVisible(false);
+										DSS.layer.SWSand0.setVisible(false);
+										DSS.layer.SWSand1.setVisible(false);
+										DSS.layer.SWSand2.setVisible(false);
+										DSS.layer.SWSand3.setVisible(false);
+										DSS.layer.SWSilt0.setVisible(false);
+										DSS.layer.SWSilt1.setVisible(false);
+										DSS.layer.SWSilt2.setVisible(false);
+										DSS.layer.SWSilt3.setVisible(false);
+									}
+								}
+							}
+						},
+					]
+			},
+			{
+				xtype: 'menuitem',
+				text: 'Overlay Opacity', disabled: false,
+				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px'
+			},{
+				xtype: 'slider',
+				itemId: 'dss-slider',
+				padding: '0 10 8 10',
+				hideEmptyLabel: true,
+				increment: 10,
+				value: 60,
+				minValue: 0, 
+				maxValue: 100,
+				listeners: {
+					focusleave: function(self) {
+						console.log("leave!")
+					},
+					dragstart: function(slider) {
+						
+					},
+					change: function(slider, newValue, thumb, eOpts) {
+						const val = newValue / 100.0;
+						DSS.layer.SWDEM_image0.setOpacity(val)
+						DSS.layer.SWDEM_image1.setOpacity(val)
+						DSS.layer.SWDEM_image2.setOpacity(val)
+						DSS.layer.SWDEM_image3.setOpacity(val)
+						DSS.layer.SWSlope0.setOpacity(val)
+						DSS.layer.SWSlope1.setOpacity(val)
+						DSS.layer.SWSlope2.setOpacity(val)
+						DSS.layer.SWSlope3.setOpacity(val)
+						DSS.layer.SWClay0.setOpacity(val)
+						DSS.layer.SWClay1.setOpacity(val)
+						DSS.layer.SWClay2.setOpacity(val)
+						DSS.layer.SWClay3.setOpacity(val)
+						DSS.layer.SWSand0.setOpacity(val)
+						DSS.layer.SWSand1.setOpacity(val)
+						DSS.layer.SWSand2.setOpacity(val)
+						DSS.layer.SWSand3.setOpacity(val)
+						DSS.layer.SWSilt0.setOpacity(val)
+						DSS.layer.SWSilt1.setOpacity(val)
+						DSS.layer.SWSilt2.setOpacity(val)
+						DSS.layer.SWSilt3.setOpacity(val)
+						//Ext.util.Cookies.set(key + ":opacity", "" + val);
+					}	                		
+				}
+			},
+			{//-----------------------------------------------------------------
+				xtype: 'menuitem',
+				text: 'Base Layers', disabled: true,
+				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
+			},
 			{
 				xtype: 'radiogroup',
 				columns: 1, 
@@ -364,556 +671,6 @@ Ext.define('DSS.map.LayerMenu', {
 				},
 			]
 			},
-			{//-----------------------------------------------------------------
-				xtype: 'menuitem',
-				text: 'Model Inputs', disabled: true,
-				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
-			},
-			{
-				xtype: 'button',
-				name:'Elevation',
-				text: 'Elevation',
-					menu: {
-						defaults:{
-							xtype: 'menucheckitem',
-							hideOnClick: false,
-							checked:false,
-						},
-						items: [{
-							text: 'Northwest',
-							//id:'nwel',
-							listeners:{
-								afterrender: function(self) {
-									self.setChecked(DSS.layer.DEM_image2.getVisible());
-								},
-							},
-							handler: function(self){
-								DSS.layer.DEM_image2.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
-							}
-						},
-						{
-							text: 'Northeast',
-							listeners:{
-								afterrender: function(self) {
-									self.setChecked(DSS.layer.DEM_image3.getVisible());
-								},
-							},
-							handler: function(self){
-								DSS.layer.DEM_image3.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
-							}
-						},
-						{
-							text: 'Southwest',
-							listeners:{
-								afterrender: function(self) {
-									self.setChecked(DSS.layer.DEM_image0.getVisible());
-								},
-							},
-							handler: function(self){
-								DSS.layer.DEM_image0.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
-							}
-						},
-						{
-							text: 'Southeast',
-							listeners:{
-								afterrender: function(self) {
-									self.setChecked(DSS.layer.DEM_image1.getVisible());
-								},
-							},
-							handler: function(self){
-								DSS.layer.DEM_image1.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(DEMColorArray, DEMValueArray);
-							}
-						},
-						
-					]
-				}
-			},
-			{
-				xtype: 'button',
-				text: 'Slope',
-				name: 'Slope',
-				//bind: 'Call {menuGroups.option}',
-				menu: {
-					defaults:{
-						xtype: 'menucheckitem',
-						hideOnClick: false,
-						checked:false,
-					},
-					items: [{
-						text: 'Northwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Slope2.getVisible());
-							},
-						},
-						handler: function(self){
-							DSS.layer.Slope2.setVisible(self.checked);
-						}
-					},
-					{
-						text: 'Northeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Slope3.getVisible());
-							},
-						},
-						handler: function(self){
-							DSS.layer.Slope3.setVisible(self.checked);
-						}
-					},
-					{
-						text: 'Southwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Slope0.getVisible());
-							},
-						},
-						handler: function(self){
-							DSS.layer.Slope0.setVisible(self.checked);
-						}
-					},
-					{
-						text: 'Southeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Slope1.getVisible());
-							},
-						},
-						handler: function(self){
-							DSS.layer.Slope1.setVisible(self.checked);
-						}
-					}]
-				}
-			},
-			{
-				xtype: 'button',
-				text: 'Clay',
-				name: 'Clay',
-				//bind: 'Call {menuGroups.option}',
-				menu: {
-					defaults:{
-						xtype: 'menucheckitem',
-						hideOnClick: false,
-						checked:false,
-					},
-					items: [{
-						text: 'Northwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Clay2.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Clay2.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Northeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Clay3.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Clay3.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Southwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Clay0.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Clay0.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Southeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Clay1.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Clay1.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					}]
-				}
-			},
-			{
-				xtype: 'button',
-				text: 'Sand',
-				name: 'Sand',
-				//bind: 'Call {menuGroups.option}',
-				menu: {
-					defaults:{
-						xtype: 'menucheckitem',
-						hideOnClick: false,
-						checked:false,
-					},
-					items: [{
-						text: 'Northwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Sand2.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Sand2.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Northeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Sand3.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Sand3.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Southwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Sand0.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Sand0.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Southeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Sand1.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Sand1.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					}]
-				}
-			},
-			{
-				xtype: 'button',
-				text: 'Silt',
-				name: 'Silt',
-				//bind: 'Call {menuGroups.option}',
-				menu: {
-					defaults:{
-						xtype: 'menucheckitem',
-						hideOnClick: false,
-						checked:false,
-					},
-					items: [{
-						text: 'Northwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Silt2.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Silt2.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Northeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Silt3.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Silt3.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Southwest',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Silt0.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Silt0.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					},
-					{
-						text: 'Southeast',
-						listeners:{
-							afterrender: function(self) {
-								self.setChecked(DSS.layer.Silt1.getVisible());
-								
-							},
-						},
-						handler: function(self){
-							DSS.layer.Silt1.setVisible(self.checked);
-								DSS.MapState.showContinuousLegend(soilColorArray, soilValueArray);
-						}
-					}]
-				}
-			},{
-				xtype: 'menuitem',
-				text: 'Overlay Opacity', disabled: false,
-				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px'
-			},{
-				xtype: 'slider',
-				itemId: 'dss-slider',
-				padding: '0 10 8 10',
-				hideEmptyLabel: true,
-				increment: 10,
-				value: 60,
-				minValue: 0, 
-				maxValue: 100,
-				listeners: {
-					focusleave: function(self) {
-						console.log("leave!")
-					},
-					dragstart: function(slider) {
-						
-					},
-					change: function(slider, newValue, thumb, eOpts) {
-						const val = newValue / 100.0;
-						DSS.layer.DEM_image0.setOpacity(val)
-						DSS.layer.DEM_image1.setOpacity(val)
-						DSS.layer.DEM_image2.setOpacity(val)
-						DSS.layer.DEM_image3.setOpacity(val)
-						DSS.layer.Slope0.setOpacity(val)
-						DSS.layer.Slope1.setOpacity(val)
-						DSS.layer.Slope2.setOpacity(val)
-						DSS.layer.Slope3.setOpacity(val)
-						DSS.layer.Clay0.setOpacity(val)
-						DSS.layer.Clay1.setOpacity(val)
-						DSS.layer.Clay2.setOpacity(val)
-						DSS.layer.Clay3.setOpacity(val)
-						DSS.layer.Sand0.setOpacity(val)
-						DSS.layer.Sand1.setOpacity(val)
-						DSS.layer.Sand2.setOpacity(val)
-						DSS.layer.Sand3.setOpacity(val)
-						DSS.layer.Silt0.setOpacity(val)
-						DSS.layer.Silt1.setOpacity(val)
-						DSS.layer.Silt2.setOpacity(val)
-						DSS.layer.Silt3.setOpacity(val)
-						//Ext.util.Cookies.set(key + ":opacity", "" + val);
-					}	                		
-				}
-			},
-			{
-				xtype: 'button',
-				text: 'Remove Overlays',
-				handler: function() {
-					DSS.MapState.destroyLegend();
-					DSS.layer.DEM_image0.setVisible(false);
-					DSS.layer.DEM_image1.setVisible(false);
-					DSS.layer.DEM_image2.setVisible(false);
-					DSS.layer.DEM_image3.setVisible(false);
-					DSS.layer.Slope0.setVisible(false);
-					DSS.layer.Slope1.setVisible(false);
-					DSS.layer.Slope2.setVisible(false);
-					DSS.layer.Slope3.setVisible(false);
-					DSS.layer.Clay0.setVisible(false);
-					DSS.layer.Clay1.setVisible(false);
-					DSS.layer.Clay2.setVisible(false);
-					DSS.layer.Clay3.setVisible(false);
-					DSS.layer.Sand0.setVisible(false);
-					DSS.layer.Sand1.setVisible(false);
-					DSS.layer.Sand2.setVisible(false);
-					DSS.layer.Sand3.setVisible(false);
-					DSS.layer.Silt0.setVisible(false);
-					DSS.layer.Silt1.setVisible(false);
-					DSS.layer.Silt2.setVisible(false);
-					DSS.layer.Silt3.setVisible(false);
-					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Elevation]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Slope]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Clay]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Sand]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Northwest]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Northeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Southeast]').setChecked(false)
-					Ext.ComponentQuery.query('button[name=Silt]')[0].down('menucheckitem[text=Southwest]').setChecked(false)
-				}
-			}
-			//items:[
-						// 	{
-						// 		text: 'Northwest',
-						// 		//DSS_layer: 'bing-aerial',
-						// 		handler: function(self, checked) {
-						// 			DSS.layer.DEM_image0.setVisible(false);
-						// 			DSS.layer.DEM_image1.setVisible(false);
-						// 			DSS.layer.DEM_image2.setVisible(checked);
-						// 			DSS.layer.DEM_image3.setVisible(false);
-						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-						// 		}
-						// 	},
-						// 	{
-						// 		text: 'Northeast',
-						// 		//DSS_layer: 'bing-aerial',
-								
-						// 		handler: function(self, checked) {
-						// 			DSS.layer.DEM_image0.setVisible(false);
-						// 			DSS.layer.DEM_image1.setVisible(false);
-						// 			DSS.layer.DEM_image2.setVisible(false);
-						// 			DSS.layer.DEM_image3.setVisible(checked);
-						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-						// 		}
-						// 	},
-						// 	{
-						// 		text: 'Southwest',
-						// 		//DSS_layer: 'bing-aerial',
-								
-						// 		handler: function(self, checked) {
-						// 			DSS.layer.DEM_image0.setVisible(checked);
-						// 			DSS.layer.DEM_image1.setVisible(false);
-						// 			DSS.layer.DEM_image2.setVisible(false);
-						// 			DSS.layer.DEM_image3.setVisible(false);
-						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-						// 		}
-						// 	},{
-						// 		text: 'Southeast',
-						// 		//DSS_layer: 'bing-aerial',
-								
-						// 		handler: function(self, checked) {
-						// 			DSS.layer.DEM_image0.setVisible(false);
-						// 			DSS.layer.DEM_image1.setVisible(checked);
-						// 			DSS.layer.DEM_image2.setVisible(false);
-						// 			DSS.layer.DEM_image3.setVisible(false);
-									
-						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-						// 		}
-						// 	},
-						// 	{
-						// 		text: 'Remove Elevation',
-						// 		//DSS_layer: 'bing-aerial',
-						// 		handler: function(self, checked) {
-						// 			DSS.layer.DEM_image0.setVisible(false);
-						// 			DSS.layer.DEM_image1.setVisible(false);
-						// 			DSS.layer.DEM_image2.setVisible(false);
-						// 			DSS.layer.DEM_image3.setVisible(false);
-						// 			if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-						// 		}
-						// 	}
-						// ]
-
-			// {
-			// 	xtype: 'radiogroup',
-			// 	columns: 1, 
-			// 	vertical: true,
-			// 	collapsible: true,
-			// 	defaults: {
-			// 		padding: '2 0',
-			// 		group: 'input-layer'
-			// 	},
-			// 	items: [{
-			// 		boxLabel: 'Elevation1',
-	        //         //DSS_layer: 'bing-aerial',
-	        //         listeners: {
-	        //         	afterrender: function(self) {
-	        //         		self.setValue(DSS.layer.DEM_image0.getVisible());
-	        //         	}
-	        //         },
-	        //         handler: function(self, checked) {
-	        //         	DSS.layer.DEM_image0.setVisible(checked);
-	        //         	if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-	        //         }
-			// 	},{
-			// 		boxLabel: 'Elevation2',
-	        //         //DSS_layer: 'bing-aerial',
-	        //         listeners: {
-	        //         	afterrender: function(self) {
-	        //         		self.setValue(DSS.layer.DEM_image1.getVisible());
-	        //         	}
-	        //         },
-	        //         handler: function(self, checked) {
-	        //         	DSS.layer.DEM_image1.setVisible(checked);
-	        //         	if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-	        //         }
-			// 	},
-			// 	{
-			// 		boxLabel: 'Elevation3',
-	        //         //DSS_layer: 'bing-aerial',
-	        //         listeners: {
-	        //         	afterrender: function(self) {
-	        //         		self.setValue(DSS.layer.DEM_image2.getVisible());
-	        //         	}
-	        //         },
-	        //         handler: function(self, checked) {
-	        //         	DSS.layer.DEM_image2.setVisible(checked);
-	        //         	if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-	        //         }
-			// 	},
-			// 	{
-			// 		boxLabel: 'Elevation4',
-	        //         //DSS_layer: 'bing-aerial',
-	        //         listeners: {
-	        //         	afterrender: function(self) {
-	        //         		self.setValue(DSS.layer.DEM_image3.getVisible());
-	        //         	}
-	        //         },
-	        //         handler: function(self, checked) {
-	        //         	DSS.layer.DEM_image3.setVisible(checked);
-	        //         	if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-	        //         }
-			// 	},
-			// 	{
-			// 		boxLabel: 'Elevation1',
-	        //         //DSS_layer: 'bing-aerial',
-	        //         listeners: {
-	        //         	afterrender: function(self) {
-	        //         		self.setValue(DSS.layer.DEM_image0.getVisible());
-	        //         	}
-	        //         },
-	        //         handler: function(self, checked) {
-	        //         	DSS.layer.DEM_image0.setVisible(false);
-			// 			DSS.layer.DEM_image1.setVisible(false);
-			// 			DSS.layer.DEM_image2.setVisible(false);
-			// 			DSS.layer.DEM_image3.setVisible(false);
-	        //         	if (checked) Ext.util.Cookies.set("baselayer:visible", "3");	                	
-	        //         }
-			// 	}]
-			// }
 		]
 		});
 		

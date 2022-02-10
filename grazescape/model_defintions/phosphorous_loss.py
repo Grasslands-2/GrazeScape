@@ -5,10 +5,10 @@ from pyper import *
 import numpy as np
 
 class PhosphorousLoss(ModelBase):
-    def __init__(self, request, file_name=None):
-        super().__init__(request, file_name)
+    def __init__(self, request, active_region, file_name=None):
+        super().__init__(request,active_region, file_name)
 
-    def run_model(self):
+    def run_model(self,active_region):
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
@@ -22,15 +22,25 @@ class PhosphorousLoss(ModelBase):
         total_depth = self.raster_inputs["total_depth"].flatten()
         ls = self.raster_inputs["ls"].flatten()
 
-        # slope = pd.DataFrame([[5,10]])
-        # slope_length = pd.DataFrame([5, 10])
-        # sand = pd.DataFrame([5, 10])
-        # silt = pd.DataFrame([5, 10])
-        # clay = pd.DataFrame([5, 10])
-        # k = pd.DataFrame([5, 10])
-        # om = pd.DataFrame([5, 10])
-        # total_depth = pd.DataFrame([5, 10])
-        # ls = pd.DataFrame([5, 10])
+        ContCornErosion = "cc_erosion_"
+        cornGrainErosion = "cg_erosion_"
+        cornSoyOatErosion = "cso_erosion_"
+        dairyRotationErosion = "dr_erosion_"
+        pastureSeedingErosion = "ps_erosion_"
+        pastureErosion = "pt_erosion_"
+        dryLotErosion = "dl_erosion_"
+
+        ContCornTidyploss = "cc_ploss_"
+        cornGrainTidyploss = "cg_ploss_"
+        cornSoyOatTidyploss = "cso_ploss_"
+        dairyRotationTidyploss = "dr_ploss_"
+        pastureSeedingTidyploss = "ps_ploss_"
+        pastureTidyploss = "pt_ploss_"
+        dryLotTidyploss = "dl_ploss_"
+
+        regionRDS = active_region + '.rds'
+
+
 
         r.assign("slope", slope)
         r.assign("slope_length", slope_length)
@@ -41,19 +51,6 @@ class PhosphorousLoss(ModelBase):
         # r.assign("om", om)
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
-
-        # r.assign("p_need", 50)
-        # r.assign("dm", 0)
-        # r.assign("p205", 0)
-        # r.assign("manure", 10)
-        # r.assign("fert", 5)
-        # r.assign("crop", "cc")
-        # r.assign("cover", "cc")
-        # r.assign("contour", "0")
-        # r.assign("tillage", "fc")
-        # r.assign("rotational", "NA")
-        # r.assign("density", "NA")
-        # r.assign("initialP", 35)
 
         r.assign("p_need", self.model_parameters["p_need"])
         r.assign("dm", self.model_parameters["dm"])
@@ -72,21 +69,21 @@ class PhosphorousLoss(ModelBase):
         # r.assign("om", 2.56)
 
 
-        r.assign("cc_erosion_file", os.path.join(self.model_file_path,"ContCornErosion.rds"))
-        r.assign("cg_erosion_file", os.path.join(self.model_file_path,"cornGrainErosion.rds"))
-        r.assign("cso_erosion_file", os.path.join(self.model_file_path,"cornSoyOatErosion.rds"))
-        r.assign("dr_erosion_file", os.path.join(self.model_file_path,"dairyRotationErosion.rds"))
-        r.assign("ps_erosion_file", os.path.join(self.model_file_path,"pastureSeedingErosion.rds"))
-        r.assign("pt_erosion_file", os.path.join(self.model_file_path,"pastureErosion.rds"))
-        r.assign("dl_erosion_file", os.path.join(self.model_file_path,"dryLotErosionErosion.rds"))
+        r.assign("cc_erosion_file", os.path.join(self.model_file_path,ContCornErosion + regionRDS))
+        r.assign("cg_erosion_file", os.path.join(self.model_file_path,cornGrainErosion + regionRDS))
+        r.assign("cso_erosion_file", os.path.join(self.model_file_path,cornSoyOatErosion + regionRDS))
+        r.assign("dr_erosion_file", os.path.join(self.model_file_path,dairyRotationErosion + regionRDS))
+        r.assign("ps_erosion_file", os.path.join(self.model_file_path,pastureSeedingErosion + regionRDS))
+        r.assign("pt_erosion_file", os.path.join(self.model_file_path,pastureErosion + regionRDS))
+        r.assign("dl_erosion_file", os.path.join(self.model_file_path,dryLotErosion + regionRDS))
 
-        r.assign("cc_pi_file", os.path.join(self.model_file_path,"ContCornTidyPI.rds"))
-        r.assign("cg_pi_file", os.path.join(self.model_file_path,"CornGrain_tidyPI.rds"))
-        r.assign("cso_pi_file", os.path.join(self.model_file_path,"CSO_tidyPI.rds"))
-        r.assign("dr_pi_file", os.path.join(self.model_file_path,"dairyRot_tidyPI.rds"))
-        r.assign("ps_pi_file", os.path.join(self.model_file_path,"pastureSeedingTidyPI.rds"))
-        r.assign("pt_pi_file", os.path.join(self.model_file_path,"PasturePI.rds"))
-        r.assign("dl_pi_file", os.path.join(self.model_file_path,"DryLot_tidyPI.rds"))
+        r.assign("cc_pi_file", os.path.join(self.model_file_path,ContCornTidyploss + regionRDS))
+        r.assign("cg_pi_file", os.path.join(self.model_file_path,cornGrainTidyploss + regionRDS))
+        r.assign("cso_pi_file", os.path.join(self.model_file_path,cornSoyOatTidyploss + regionRDS))
+        r.assign("dr_pi_file", os.path.join(self.model_file_path,dairyRotationTidyploss + regionRDS))
+        r.assign("ps_pi_file", os.path.join(self.model_file_path,pastureSeedingTidyploss + regionRDS))
+        r.assign("pt_pi_file", os.path.join(self.model_file_path,pastureTidyploss + regionRDS))
+        r.assign("dl_pi_file", os.path.join(self.model_file_path,dryLotTidyploss + regionRDS))
 
         r(f"""
         #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
@@ -347,4 +344,5 @@ class PhosphorousLoss(ModelBase):
         erosion.set_data(ero)
         pl.set_data(ploss)
         return [erosion, pl]
+        #return [pl, erosion]
 

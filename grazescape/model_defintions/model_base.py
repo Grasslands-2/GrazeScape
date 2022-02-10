@@ -13,17 +13,21 @@ from pyper import R
 
 class ModelBase:
 
-    def __init__(self, request, file_name=None):
+    def __init__(self, request,active_region, file_name=None):
         field_id = request.POST.getlist("field_id")[0]
+        model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
         scenario_id = request.POST.getlist("scenario_id")[0]
         farm_id = request.POST.getlist("farm_id")[0]
         model_type = request.POST.get('model_parameters[model_type]')
         f_name = request.POST.get('model_parameters[f_name]')
         scen = request.POST.get('model_parameters[scen]')
+        active_region = request.POST.get('model_parameters[active_region]')
 
         if file_name is None:
-            file_name = model_type + field_id ##+'_'+ str(uuid.uuid1())##
+            file_name = model_type + field_id +'_' + model_run_timestamp ##+'_'+ str(uuid.uuid1())##
         self.file_name = file_name
+        self.field_id = field_id
+        self.model_run_timestamp = model_run_timestamp
         self.model_data_inputs_path = os.path.join(settings.BASE_DIR,
                                                    'grazescape', 'data_files',
                                                    'raster_outputs',
@@ -53,17 +57,26 @@ class ModelBase:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
+        if active_region == "cloverBeltWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'cloverBeltWI')
+        else:
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'southWestWI')
 
-        self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
-                                            'data_files', 'input_models',
-                                            'tidyModels')
+        #Local Set up                  
+        # if active_region == "cloverBeltWI":
+        #     self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
+        #                                     'data_files', 'input_models',
+        #                                     'CloverBelt_tidyModels')
+        # else:
+        #     self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
+        #                                         'data_files', 'input_models',
+        #                                         'tidyModels')
+        #this could be where you point the models towards cloverBelt tidy models versions.
         self.color_ramp_hex = []
         self.data_range = []
         self.bounds = {"x": 0, "y": 0}
         self.no_data = -9999
-        if not is_smartscape:
-            print("this shouldnt print with smartscape")
-            self.model_parameters = self.parse_model_parameters(request)
+        self.model_parameters = self.parse_model_parameters(request)
         self.raster_inputs = {}
 
     def parse_model_parameters(self, request):
@@ -178,8 +191,18 @@ class ModelBase:
     def run_model(self):
         pass
 
-    def create_color_ramp(self, min_value, max_value, num_cat=9):
+# creates realtive to the field color ramp.
+# Tomorrow morning you will find a way to set up conditionals for each model type
+# to make sure they show on a fixed scale, and not a relative to themselves scale
+    def create_color_ramp(self, min_value, max_value, result, num_cat=9):
+        if result.model_type == "ero" or result.model_type == "ploss":
+            min_value = 0
+            max_value = 15
+        else:
+            min_value = min_value
+            max_value = max_value
         interval_step = (max_value - min_value) / num_cat
+        #interval_step = 1.875
         cate_value = min_value
         cat_list = []
         self.color_ramp_hex = [
@@ -262,17 +285,19 @@ class ModelBase:
         sum_val = [float(round(elem, 2)) for elem in sum_val]
         return sum_val, valid_count
 
-    def get_model_png(self, model, bounds, no_data_array):
-        data = model.data
+    def get_model_png(self, result, bounds, no_data_array):
+        file_name = result.model_type + self.field_id + '_' + self.model_run_timestamp
+        raster_image_file_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',file_name + ".png")
+        data = result.data
         rows = bounds["y"]
         cols = bounds["x"]
-        if model.model_type == 'Runoff':
+        if result.model_type == 'Runoff':
             sum, count = self.sum_count(data, no_data_array)
             return 0, sum, float(count)
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
-        color_ramp = self.create_color_ramp(min_v, max_v)
+        color_ramp = self.create_color_ramp(min_v, max_v,result)
         for y in range(0, rows):
             for x in range(0, cols):
                 color = self.calculate_color(color_ramp, datanm[y][x])
@@ -285,7 +310,7 @@ class ModelBase:
         three_d = three_d.astype(np.uint8)
         im = Image.fromarray(three_d)
         im.convert('RGBA')
-        im.save(self.raster_image_file_path)
+        im.save(raster_image_file_path)
         return float(mean), float(sum), float(count)
 
     def get_legend(self):
