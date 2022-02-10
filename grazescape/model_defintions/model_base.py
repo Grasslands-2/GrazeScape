@@ -58,9 +58,9 @@ class ModelBase:
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
         if active_region == "cloverBeltWI":
-            self.model_file_path = os.path.join(settings.MODEL_PATH,'cloverBeltWI')
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','cloverBeltWI')
         else:
-            self.model_file_path = os.path.join(settings.MODEL_PATH,'southWestWI')
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','southWestWI')
 
         #Local Set up                  
         # if active_region == "cloverBeltWI":
