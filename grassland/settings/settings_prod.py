@@ -26,8 +26,10 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 DEBUG = True
 # GEOSERVER_URL = "https://geoserver:8443/geoserver/"
 # production server is "http://grazescape:8080"
+
 # http://geoserver:8080 is used for the development instance of geoserver. 
 # Kevin ususally sets these when making new containers, depending on the container
+GEOSERVER_URL = "http://geoserver:8080"
 #GEOSERVER_URL = "http://grazescape:8080"
 #GEOSERVER_URL = "http://geoserver:8080"
 
