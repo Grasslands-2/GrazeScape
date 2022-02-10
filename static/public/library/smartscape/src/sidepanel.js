@@ -122,10 +122,10 @@ class SidePanel extends React.Component{
     showModal(){
         console.log("showing modal")
         console.log(this.props)
-        this.rotationType.current.value = this.props.baseTrans.management.rotationType
+//        this.rotationType.current.value = this.props.baseTrans.management.rotationType
         this.cover.current.value = this.props.baseTrans.management.cover
         this.tillage.current.value = this.props.baseTrans.management.tillage
-        this.density.current.value = this.props.baseTrans.management.density
+//        this.density.current.value = this.props.baseTrans.management.density
         this.contour.current.value = this.props.baseTrans.management.contour
         this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
 
@@ -263,9 +263,32 @@ class SidePanel extends React.Component{
                 />
               </Stack>
               <Form.Label>Selection Criteria</Form.Label>
+               <Accordion>
+                  <Accordion.Item eventKey="1">
+                    <Accordion.Header>Land Type</Accordion.Header>
+                    <Accordion.Body>
+                        <Form.Label>Land Type to Select</Form.Label>
+                        <Form>
+                          <Form.Check
+                            ref={this.contCorn} type="switch" label="Continuous Corn"
+                            onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
+                          />
+                          <Form.Check
+                            ref={this.cashGrain} type="switch" label="Cash Grain"
+                            onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
+                          />
+                          <Form.Check
+                            ref={this.dairy} type="switch" label="Dairy Rotation"
+                            onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
+                          />
+                        </Form>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                </Accordion>
                 <Accordion>
                   <Accordion.Item eventKey="0">
                     <Accordion.Header>Sub Area</Accordion.Header>
+
                     <Accordion.Body>
                       <Row>
                            <Form.Check
@@ -378,28 +401,7 @@ class SidePanel extends React.Component{
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>
-                <Accordion>
-                  <Accordion.Item eventKey="1">
-                    <Accordion.Header>Land Type</Accordion.Header>
-                    <Accordion.Body>
-                        <Form.Label>Land Type to Select</Form.Label>
-                        <Form>
-                          <Form.Check
-                            ref={this.contCorn} type="switch" label="Continuous Corn"
-                            onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
-                          />
-                          <Form.Check
-                            ref={this.cashGrain} type="switch" label="Cash Grain"
-                            onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
-                          />
-                          <Form.Check
-                            ref={this.dairy} type="switch" label="Dairy Rotation"
-                            onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
-                          />
-                        </Form>
-                        </Accordion.Body>
-                    </Accordion.Item>
-                </Accordion>
+
                  <Button onClick={this.displaySelectionCriteria} variant="primary">Display Selection</Button>
 
                  <Button onClick={this.runModels} variant="primary">Run Transformations</Button>
@@ -432,13 +434,7 @@ class SidePanel extends React.Component{
                     contour
                     manure and fertilizier
                   */}
-                  <Form.Label>New Land Cover</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.rotationType}
-                      onChange={(e) => this.updateActiveBaseProps("rotationType", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="pasture">Pasture</option>
-                      <option value="pastureSeeding">Pasture Seeding</option>
-                    </Form.Select>
+
                     <Form.Label>Cover Crop</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.cover}
                       onChange={(e) => this.updateActiveBaseProps("cover", e)}>
@@ -463,14 +459,7 @@ class SidePanel extends React.Component{
                       <option value="sv">Spring Vertical</option>
                       <option value="na">NA</option>
                     </Form.Select>
-                    <Form.Label>Pasture Animal Density</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.density}
-                      onChange={(e) => this.updateActiveBaseProps("density", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="cn_hi">High</option>
-                      <option value="cn_lo">Low</option>
-                      <option value="rt_rt">Rotational</option>
-                    </Form.Select>
+
                     <Form.Label>On Contour</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.contour}
                       onChange={(e) => this.updateActiveBaseProps("contour", e)}>

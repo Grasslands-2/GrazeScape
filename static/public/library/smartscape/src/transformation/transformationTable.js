@@ -111,10 +111,11 @@ class Table extends Component {
       }
       showModal(){
         console.log("showing modal")
-        this.cover.current.value = this.props.activeTrans.management.cover
-        this.tillage.current.value = this.props.activeTrans.management.tillage
+        this.rotationType.current.value = this.props.activeTrans.management.rotationType
+//        this.cover.current.value = this.props.activeTrans.management.cover
+//        this.tillage.current.value = this.props.activeTrans.management.tillage
         this.density.current.value = this.props.activeTrans.management.density
-        this.contour.current.value = this.props.activeTrans.management.contour
+//        this.contour.current.value = this.props.activeTrans.management.contour
         this.fertilizer.current.value = this.props.activeTrans.management.fertilizer
 
       }
@@ -251,7 +252,35 @@ class Table extends Component {
                     contour
                     manure and fertilizier
                   */}
+                  <Form.Label>New Land Cover</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.rotationType}
+                      onChange={(e) => this.handleSelectionChange("rotationType", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="pt">Pasture</option>
+                      {/*<option value="ps">Pasture Seeding</option>*/}
+                    </Form.Select>
+                    <Form.Label>Pasture Animal Density</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.density}
+                      onChange={(e) => this.handleSelectionChange("density", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="cn_hi">High</option>
+                      <option value="cn_lo">Low</option>
+                      <option value="rt_rt">Rotational</option>
+                    </Form.Select>
+                    <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
+                     <Form.Select aria-label="Default select example" ref={this.fertilizer}
+                      onChange={(e) => this.handleSelectionChange("fertilizer", e)}>
 
+                      <option value="default">Open this select menu</option>
+                      <option value="0_0">0/	0</option>
+                      <option value="0_100">0/	100</option>
+                      <option value="100_0">100/	0</option>
+                      <option value="150_0">150/	0</option>
+                      <option value="200_0">200/	0</option>
+                      <option value="25_50">25/	50</option>
+                      <option value="50_0">50/	0</option>
+                    </Form.Select>
+                    {/*
                     <Form.Label>Cover Crop</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.cover}
                       onChange={(e) => this.handleSelectionChange("cover", e)}>
@@ -276,14 +305,8 @@ class Table extends Component {
                       <option value="sv">Spring Vertical</option>
                       <option value="na">NA</option>
                     </Form.Select>
-                    <Form.Label>Pasture Animal Density</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.density}
-                      onChange={(e) => this.handleSelectionChange("density", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="cn_hi">High</option>
-                      <option value="cn_lo">Low</option>
-                      <option value="rt_rt">Rotational</option>
-                    </Form.Select>
+
+
                     <Form.Label>On Contour</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.contour}
                       onChange={(e) => this.handleSelectionChange("contour", e)}>
@@ -292,19 +315,8 @@ class Table extends Component {
                       <option value="1">Yes</option>
                       <option value="na">N/A</option>
                     </Form.Select>
-                     <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
-                     <Form.Select aria-label="Default select example" ref={this.fertilizer}
-                      onChange={(e) => this.handleSelectionChange("fertilizer", e)}>
 
-                      <option value="default">Open this select menu</option>
-                      <option value="0_0">0/	0</option>
-                      <option value="0_100">0/	100</option>
-                      <option value="100_0">100/	0</option>
-                      <option value="150_0">150/	0</option>
-                      <option value="200_0">200/	0</option>
-                      <option value="25_50">25/	50</option>
-                      <option value="50_0">50/	0</option>
-                    </Form.Select>
+                    */}
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModal}>

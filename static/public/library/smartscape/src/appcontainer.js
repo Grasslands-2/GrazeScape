@@ -17,6 +17,34 @@ import CSRFToken from './csrf';
 import OLMapFragment from './map.js';
 import Header from './header.js';
 import SidePanel from './sidepanel.js';
+import { Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+} from 'chart.js';
+import { Radar } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+);
 //import Transformation from './transformation/transformation.js'
 
 import {
@@ -33,7 +61,7 @@ import ImageLayer from "ol/layer/Image";
 import Static from "ol/source/ImageStatic";
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
-setVisibilityMapLayer,setActiveTransDisplay} from '/src/stores/transSlice'
+setVisibilityMapLayer,setActiveTransDisplay, updateActiveBaseProps} from '/src/stores/transSlice'
 import { useSelector, useDispatch, connect  } from 'react-redux'
 
 const mapStateToProps = state => {
@@ -54,6 +82,8 @@ const mapDispatchToProps = (dispatch) => {
         updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
         setActiveTransDisplay: (type)=> dispatch(setActiveTransDisplay(type)),
+        updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
+
     }
 };
 class AppContainer extends React.Component{
@@ -72,6 +102,11 @@ class AppContainer extends React.Component{
 
     this.modelPloss = React.createRef();
     this.basePloss = React.createRef();
+//    set base line parameters to default values
+    this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+    this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+    this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
+    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"25_50", "type":"mang"})
 
 
     this.state = {
@@ -86,6 +121,9 @@ class AppContainer extends React.Component{
         outputModalShow: false,
         basePloss: "hello world",
         modelPloss: "hello world",
+        baseEro: "hello world",
+        modelEro: "hello world",
+        modelOutputs: {},
 
 //        newTrans:new Transformation("intial",-1,-1)
         };
@@ -99,11 +137,102 @@ class AppContainer extends React.Component{
     this.setState({outputModalShow: false})
   }
   handleOpenModal(){
-      console.log(this.basePloss)
+    console.log(this.basePloss)
     this.setState({outputModalShow: true})
 //    this.basePloss.current.value = "hello world"
   }
   renderModal(){
+    var labels = ['Yield', 'Erosion', 'Phosphours Lose', 'Curve Number', 'Runoff', 'Honey Bee Toxicity']
+    console.log(this.state.modelOutputs)
+    var data = {
+  labels: labels,
+  datasets: [
+    {
+      label: 'Base',
+      data: [1,1,1,1,1,1],
+      backgroundColor: 'rgba(238, 119, 51,.2)',
+      borderColor: 'rgba(238, 119, 51,1)',
+      borderWidth: 1,
+    },
+            {
+      label: 'Transformation',
+      data: [],
+      backgroundColor: 'rgba(0, 119, 187,.2)',
+      borderColor: 'rgba(0, 119, 187,1)',
+      borderWidth: 1,
+    },
+  ],
+};
+    var data_bar = {
+      labels: labels,
+      datasets: [{
+        axis: 'y',
+        label: 'My First Dataset',
+        data: [65, 59, 80, 81, 56, 55, 40],
+        fill: false,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(255, 205, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(201, 203, 207, 0.2)'
+        ],
+        borderColor: [
+          'rgb(255, 99, 132)',
+          'rgb(255, 159, 64)',
+          'rgb(255, 205, 86)',
+          'rgb(75, 192, 192)',
+          'rgb(54, 162, 235)',
+          'rgb(153, 102, 255)',
+          'rgb(201, 203, 207)'
+        ],
+        borderWidth: 1
+      }]
+    };
+    var options_bar = {
+          indexAxis: 'y',
+          elements: {
+            bar: {
+              borderWidth: 2,
+            },
+          },
+          responsive: true,
+
+        };
+
+    if (this.state.modelOutputs.hasOwnProperty("base")){
+        var data = {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Base',
+              data: [1,1,1,1,1,1
+
+              ],
+              backgroundColor: 'rgba(238, 119, 51,.2)',
+              borderColor: 'rgba(238, 119, 51,1)',
+              borderWidth: 1,
+            },
+                    {
+              label: 'Transformation',
+              data: [
+                  this.state.modelOutputs.model.yield.total_per_area/this.state.modelOutputs.base.yield.total_per_area,
+                  this.state.modelOutputs.model.ero.total_per_area/this.state.modelOutputs.base.ero.total_per_area,
+                  this.state.modelOutputs.model.ploss.total_per_area/this.state.modelOutputs.base.ploss.total_per_area,
+                  this.state.modelOutputs.model.cn.total_per_area/this.state.modelOutputs.base.cn.total_per_area,
+                  this.state.modelOutputs.model.runoff.total_per_area/this.state.modelOutputs.base.runoff.total_per_area,
+                  this.state.modelOutputs.model.insect.total_per_area/this.state.modelOutputs.base.insect.total_per_area,
+              ],
+              backgroundColor: 'rgba(0, 119, 187,.2)',
+              borderColor: 'rgba(0, 119, 187,1)',
+              borderWidth: 1,
+            },
+          ],
+    };
+
+    }
 
     return(
             <div>
@@ -114,12 +243,16 @@ class AppContainer extends React.Component{
                 </Form.Label>
                 <Col xs='6'>
                     <Form.Control  ref={this.basePloss} plaintext readOnly defaultValue={this.state.basePloss} />
+                    <Form.Control plaintext readOnly defaultValue={this.state.baseEro} />
                 </Col>
             </Row>
             <Form.Label >
               Transformation
             </Form.Label>
             <Form.Control plaintext readOnly defaultValue={this.state.modelPloss} />
+            <Form.Control plaintext readOnly defaultValue={this.state.modelEro} />
+            <Radar data={data}/>;
+            <Bar options = {options_bar} data={data_bar}/>
             </div>
     )
   }
@@ -220,11 +353,13 @@ class AppContainer extends React.Component{
         console.log("Running models!!")
         let transPayload = JSON.parse(JSON.stringify(this.props.listTrans))
         let lengthTrans = transPayload.length
+//        give the transformations the correct ranking
         for(let trans in transPayload){
             transPayload[trans].rank = lengthTrans;
             lengthTrans--;
         }
         console.log(transPayload)
+        console.log(this.props.baseTrans)
         // add method to only grab required trans data and get the rank based on list order
         var csrftoken = Cookies.get('csrftoken');
         $.ajaxSetup({
@@ -237,14 +372,18 @@ class AppContainer extends React.Component{
                 trans: transPayload,
                 base:this.props.baseTrans,
                 folderId: this.state.boundaryRasterId,
+                region: "southWestWI"
             }),
             success: (responses, opts) => {
                 delete $.ajaxSetup().headers
                 console.log(responses)
                 this.setState({basePloss:"Phosphorus Loss: " + responses.base.ploss.total + " lb/year; "+ responses.base.ploss.total_per_area + " lb/year/ac"})
                 this.setState({modelPloss:"Phosphorus Loss: " + responses.model.ploss.total + " lb/year; "+ responses.model.ploss.total_per_area + " lb/year/ac"})
+                this.setState({baseEro:"Erosion: " + responses.base.ero.total + " tons/year; "+ responses.base.ero.total_per_area + " tons/year/ac"})
+                this.setState({modelEro:"Erosion: " + responses.model.ero.total + " tons/year; "+ responses.model.ero.total_per_area + " tons/year/ac"})
 //                this.setState({modelPloss:5555})
                 this.setState({outputModalShow:true})
+                this.setState({modelOutputs:responses})
             },
 
             failure: function(response, opts) {
