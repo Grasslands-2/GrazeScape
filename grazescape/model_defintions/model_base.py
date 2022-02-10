@@ -76,9 +76,7 @@ class ModelBase:
         self.data_range = []
         self.bounds = {"x": 0, "y": 0}
         self.no_data = -9999
-        # if not is_smartscape:
-        #     print("this shouldnt print with smartscape")
-        #     self.model_parameters = self.parse_model_parameters(request)
+        self.model_parameters = self.parse_model_parameters(request)
         self.raster_inputs = {}
 
     def parse_model_parameters(self, request):
