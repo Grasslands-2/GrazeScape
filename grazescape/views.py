@@ -92,7 +92,7 @@ def upload_gcs_model_result_blob(model_type,field_id,model_run_timestamp):
 # Downloads model results from GCS bucket
 def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp):
     """Downloads a blob from the bucket."""
-    model_Types = ['yield', 'ploss','runoff']
+    model_Types = ['Rotational Average', 'ploss','ero']
     storage_client = storage.Client()
     bucket = storage_client.bucket("dev_container_model_results")
     blobs = storage_client.list_blobs("dev_container_model_results")
