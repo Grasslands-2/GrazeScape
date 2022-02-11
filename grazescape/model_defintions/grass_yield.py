@@ -10,8 +10,9 @@ class GrassYield(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
         self.model_name = "tidyPastureALLWI.rds"
-        self.model_file_path = os.path.join(settings.MODEL_PATH,
-                                            self.model_name)
+       # self.model_file_path = os.path.join(settings.MODEL_PATH,
+        #                                     self.model_name)
+        self.model_file_path = os.path.join(self.model_file_path,self.model_name)
         self.grass_type = self.model_parameters['grass_type']
         #self.active_region = self.model_parameters['active_region']
         # self.units = "Dry Mass tons/ac"
