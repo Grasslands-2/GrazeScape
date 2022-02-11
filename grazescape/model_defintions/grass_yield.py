@@ -12,7 +12,7 @@ class GrassYield(ModelBase):
         self.model_name = "tidyPastureALLWI.rds"
        # self.model_file_path = os.path.join(settings.MODEL_PATH,
         #                                     self.model_name)
-        self.model_file_path = os.path.join(self.model_file_path,"GrazeScape",self.model_name)
+        self.model_file_path = os.path.join(settings.MODEL_PATH,"GrazeScape",self.model_name)
         self.grass_type = self.model_parameters['grass_type']
         #self.active_region = self.model_parameters['active_region']
         # self.units = "Dry Mass tons/ac"
