@@ -116,7 +116,7 @@ class SmartScape:
         has_stream = False
         print("creating png")
 
-        # print(rows, cols)
+        print(rows, cols)
         # create empty 2d array for the png
         three_d = np.empty([rows, cols, 4])
         # create array to display red for selected cells
@@ -277,12 +277,12 @@ class SmartScape:
                             region
                 base_layer_dic[name + "_" + model] = "SmartScapeRaster:" + file_name
         # download corn and soy rasters for yield
-        corn = "corn_Yield_" + region
-        soy = "soy_Yield_" + region
+        corn = region + "_corn_30m"
+        soy = region + "_soy_30m"
         base_layer_dic["corn_yield"] = "SmartScapeRaster:" + corn
         base_layer_dic["soy_yield"] = "SmartScapeRaster:" + soy
         base_layer_dic["landuse"] = "SmartScapeRaster:" + region + "_WiscLand_30m"
-        # base_layer_dic["slope"] = "SmartScapeRaster:" + region + "_slopePer_30m"
+        base_layer_dic["slope"] = "SmartScapeRaster:" + region + "_slopePer_30m"
         base_layer_dic["hyd_letter"] = "SmartScapeRaster:" + region + "_hydgrp_30m"
 
         # create list of layers to download for each trans
@@ -293,14 +293,14 @@ class SmartScape:
             #       for right now we are only supporting transforming to pasture or pasture seedling
             #       yield
             #       medium_GrassYield_southWestWI.tif
-            yield_name = "pasture_Yield_medium_" + region
+            yield_name = "medium_GrassYield_" + region
             ero_name = "pasture_Erosion_" + tran["management"]["density"] + "_" + \
                        tran["management"]["fertilizer"] + "_" + region
             ploss_name = "pasture_PI_" + tran["management"]["density"] + "_" + \
                          tran["management"]["fertilizer"] + "_" + region
             cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
                       tran["management"]["fertilizer"] + "_" + region
-            # cn_adjustment = tran["management"]["rotationType"] + "_" + tran["management"]["density"]
+            cn_adjustment = tran["management"]["rotationType"] + "_" + tran["management"]["density"]
             insect = {"cc": 0.51,
                       "cg": 0.51,
                       "dr": 0.12,
@@ -314,10 +314,10 @@ class SmartScape:
             layer_dic[tran["rank"]]["ero"] = ero_name
             layer_dic[tran["rank"]]["ploss"] = ploss_name
             layer_dic[tran["rank"]]["cn"] = cn_name
-            # layer_dic[tran["rank"]]["cn_adjustments"] = cn_adjustment
+            layer_dic[tran["rank"]]["cn_adjustments"] = cn_adjustment
 
-        # print(layer_dic)
-        # print(base_layer_dic)
+        print(layer_dic)
+        print(base_layer_dic)
         # create blank raster that has extents from all transformations
         ds_clip = gdal.Warp(
             # os.path.join(dir_path, "test-joined.tif"), ["slope-clipped.tif", "landuse-clipped.tif"],
@@ -437,7 +437,6 @@ class SmartScape:
                 url = geoserver_url + "SmartScapeRaster:" + layer_dic[layer][
                     model] + extents_string_x + extents_string_y
                 r = requests.get(url)
-                # print(url)
                 raster_file_path = os.path.join(dir_path, layer_dic[layer][model] + ".tif")
                 with open(raster_file_path, "wb") as f:
                     f.write(r.content)
@@ -461,10 +460,11 @@ class SmartScape:
             "cn": np.copy(arr),
             "runoff": np.copy(arr),
         }
-        # slope_image = gdal.Open(os.path.join(dir_path, "slope.tif"))
-        # slope_arr = slope_image.GetRasterBand(1).ReadAsArray()
+        slope_image = gdal.Open(os.path.join(dir_path, "slope.tif"))
+        slope_arr = slope_image.GetRasterBand(1).ReadAsArray()
         hyd_letter_image = gdal.Open(os.path.join(dir_path, "hyd_letter.tif"))
         hyd_letter_arr = hyd_letter_image.GetRasterBand(1).ReadAsArray()
+        get_cn_adjusted_vector = np.vectorize(self.get_cn_adjusted)
         get_runoff_vectorized = np.vectorize(self.calc_runoff)
         print("running transformation models")
         for layer in layer_dic:
@@ -479,10 +479,11 @@ class SmartScape:
                 # data_yield = np.where(data_yield == layer, model_arr, data_yield)
                 # if hierarchy matches the trans rank replace that value witht the model value
                 if model == "cn":
-                    cn_final = np.where(model_data[model] == layer, model_arr, model_data[model])
-                    # cn_final = np.where(model_data[model] == layer, cn_inter, model_data[model])
+                    cn_inter = np.where(model_data[model] == layer, model_arr, model_data[model])
+                    cn_adj = get_cn_adjusted_vector(hyd_letter_arr, layer_dic[layer]["cn_adjustments"])
+                    cn_final = np.where(model_data[model] == layer, cn_inter + cn_adj, model_data[model])
 
-                    model_data["runoff"] = get_runoff_vectorized(cn_final)
+                    model_data["runoff"] = get_runoff_vectorized(cn_final, slope_arr)
                     model_data[model] = cn_final
                 else:
                     model_data[model] = np.where(model_data[model] == layer, model_arr, model_data[model])
@@ -536,29 +537,29 @@ class SmartScape:
         #             print("runoff")
         base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
-        # cn_id = "cc" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
-        # cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
-        # cn_final = np.where(base_data["cn"] == 3, cn_inter + cn_adj, base_data["cn"])
-        base_data["runoff"] = get_runoff_vectorized(cn_final)
+        cn_inter = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
+        cn_id = "cc" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
+        cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
+        cn_final = np.where(base_data["cn"] == 3, cn_inter + cn_adj, base_data["cn"])
+        base_data["runoff"] = get_runoff_vectorized(cn_final, slope_arr)
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
-        # cn_id = "cg" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
-        # cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
-        # cn_final = np.where(base_data["cn"] == 4, cn_inter + cn_adj, base_data["cn"])
-        base_data["runoff"] = get_runoff_vectorized(cn_final)
+        cn_inter = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
+        cn_id = "cg" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
+        cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
+        cn_final = np.where(base_data["cn"] == 4, cn_inter + cn_adj, base_data["cn"])
+        base_data["runoff"] = get_runoff_vectorized(cn_final, slope_arr)
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 5, base_arr, base_data["cn"])
-        # cn_id = "dr" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
-        # cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
-        # cn_final = np.where(base_data["cn"] == 5, cn_inter + cn_adj, base_data["cn"])
-        base_data["runoff"] = get_runoff_vectorized(cn_final)
+        cn_inter = np.where(base_data["cn"] == 5, base_arr, base_data["cn"])
+        cn_id = "dr" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
+        cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
+        cn_final = np.where(base_data["cn"] == 5, cn_inter + cn_adj, base_data["cn"])
+        base_data["runoff"] = get_runoff_vectorized(cn_final, slope_arr)
         base_data["cn"] = cn_final
 
         base_cn = np.where(
@@ -794,16 +795,16 @@ class SmartScape:
         """
         return 1
 
-    def calc_runoff(self, cn):
+    def calc_runoff(self, cn, slope):
 
-        # CNMC3 = min(cn * math.exp(0.00673 * (100 - cn)), 99)
-        # if slope > 0.05:
-        #     CNfinal = min((CNMC3 - cn) / 3 * (
-        #             1 - 2 * math.exp(-13.86 * slope)) + cn, 99)
-        # else:
-        #     CNfinal = cn
-        #
-        stor = 1000 / cn - 10
+        CNMC3 = min(cn * math.exp(0.00673 * (100 - cn)), 99)
+        if slope > 0.05:
+            CNfinal = min((CNMC3 - cn) / 3 * (
+                    1 - 2 * math.exp(-13.86 * slope)) + cn, 99)
+        else:
+            CNfinal = cn
+
+        stor = 1000 / CNfinal - 10
         rain = [.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
         event = []
         for i in rain:
@@ -815,4 +816,89 @@ class SmartScape:
             # CNout(i, 2) = runoff;
         return event[5]
 
+    def get_cn_adjusted(self, hydrp_letter, soil_para):
+        # function only used if crop is on a contour
+        adj_dic = {"cc_cc_nt": {"A": 0, "B": 0, "C": -1, "D": -1},
+                   "cc_cc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_cc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_nc_fc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_nc_fm": {"A": -2, "B": -3, "C": -3, "D": -3},
+                   "cc_nc_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_nc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_nc_sv": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_nc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_gcis_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_gcis_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_gcis_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_gcds_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_gcds_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cc_gcds_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_cc_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_cc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_cc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_nc_fc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_nc_fm": {"A": -2, "B": -3, "C": -3, "D": -3},
+                   "cg_nc_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_nc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_nc_sv": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_nc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_gcis_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_gcis_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_gcis_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_gcds_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_gcds_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cg_gcds_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_cc_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_cc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_cc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_nc_fc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_nc_fm": {"A": -2, "B": -3, "C": -3, "D": -3},
+                   "cso_nc_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_nc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_nc_sv": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_nc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_gcis_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_gcis_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_gcis_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_gcds_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_gcds_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "cso_gcds_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_cc_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_cc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_cc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_nc_fc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_nc_fm": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_nc_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_nc_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_nc_sv": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_nc_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_gcis_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_gcis_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_gcis_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_gcds_nt": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_gcds_sc": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "dr_gcds_su": {"A": 0, "B": -1, "C": -1, "D": -1},
+                   "ps_nc_fc": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "ps_nc_fm": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "ps_nc_nt": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "ps_nc_sc": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "ps_nc_sm": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "ps_nc_su": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "pt_cn_hi": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "pt_cn_lw": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "pt_rt_rt": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "dl_lo": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   "dl_hi": {"A": 0, "B": 0, "C": 0, "D": 0},
+                   }
+        hyro_dic = {
+            1: 'A',
+            1.5: 'A/D',
+            2: 'B',
+            2.5: 'B/D',
+            3: "C",
+            3.5: 'C/D',
+            4: 'D',
+            -9999: 'A'  # no data
+        }
 
+        return adj_dic[soil_para][hyro_dic[hydrp_letter][0]]

@@ -95,16 +95,19 @@ export const transSlice = createSlice({
     // update selection criteria for active trans
     updateActiveTransProps(state,action){
         let value = action.payload
+        console.log(value)
         let items = state.listTrans
         let activeTransId = state.activeTrans.id
         for(let trans in items){
             if(items[trans].id == activeTransId){
+                console.log("value added")
                 // change selection criteria
                 if(action.payload.type === "reg"){
                     items[trans].selection[value.name] = value.value
                 }
                 // mangement style is being changed
                 else if(action.payload.type === "mang"){
+                    console.log("updating management")
                     items[trans].management[value.name] = value.value
                 }
                 // land cover is being updated
@@ -121,6 +124,7 @@ export const transSlice = createSlice({
     },
      updateActiveBaseProps(state,action){
         let value = action.payload
+        console.log("value added")
         let base = state.baseTrans
         // change selection criteria
         if(action.payload.type === "reg"){
@@ -128,6 +132,7 @@ export const transSlice = createSlice({
         }
         // mangement style is being changed
         else if(action.payload.type === "mang"){
+            console.log("updating management")
             base.management[value.name] = value.value
         }
         // land cover is being updated
