@@ -62,6 +62,7 @@ import Static from "ol/source/ImageStatic";
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
 setVisibilityMapLayer,setActiveTransDisplay, updateActiveBaseProps} from '/src/stores/transSlice'
+import{setActiveRegion} from '/src/stores/mainSlice'
 import { useSelector, useDispatch, connect  } from 'react-redux'
 
 const mapStateToProps = state => {
@@ -70,6 +71,7 @@ const mapStateToProps = state => {
         activeTrans: state.transformation.activeTrans,
         listTrans:state.transformation.listTrans,
         baseTrans:state.transformation.baseTrans,
+        region:state.main.region,
 
 }}
 
@@ -83,6 +85,7 @@ const mapDispatchToProps = (dispatch) => {
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
         setActiveTransDisplay: (type)=> dispatch(setActiveTransDisplay(type)),
         updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
+        setActiveRegion: (type)=> dispatch(setActiveRegion(type)),
 
     }
 };
@@ -128,6 +131,10 @@ class AppContainer extends React.Component{
 //        newTrans:new Transformation("intial",-1,-1)
         };
   }
+componentDidUpdate(prevProps) {
+    console.log(prevProps)
+    console.log(this.props)
+}
 
   handleTextChange(newText) {
 
@@ -273,6 +280,7 @@ class AppContainer extends React.Component{
   }
   componentDidMount(){
     console.log("compoenet mounted")
+    this.props.setActiveRegion("testing region set")
   }
   // load rasters for aoi in background
   loadSelectionRaster(){
@@ -302,6 +310,7 @@ class AppContainer extends React.Component{
             console.log(response);
             this.setState({boundaryRasterId:response.folder_id})
             console.log(this.state)
+            alert("Raster loaded")
         },
 
         failure: function(response, opts) {
