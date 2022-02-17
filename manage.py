@@ -10,13 +10,18 @@ def main():
     #set DJANGO_SETTINGS_MODULE=grassland.settings.settings_dev
     #set GOOGLE_APPLICATION_CREDENTIALS=grassland.calsgrazescapefiles63e6b1043d3d1bc0
 
+
     """Below are the possiblities for Django settings modules.  Dev is used locally,
     prod will be used for production.  When setting up a push to one of the containers,
     make sure you set the settings module to Production.  
     With in settings_prod.py make sure you are pointing the app towards the right Geoserver
     instance.  geosever:8080 for the development container grazescape:8080 for production"""
     
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
+    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
+
+    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_prod')
+
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_local')
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_prod')
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "\grassland\settings\gcskeyGS.json"

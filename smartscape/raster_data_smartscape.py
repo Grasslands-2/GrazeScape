@@ -9,6 +9,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Polygon
 import os
+import math
 from django.conf import settings
 from grazescape.raster_data import RasterData
 from osgeo import gdal
@@ -49,6 +50,18 @@ class RasterDataSmartScape:
         self.dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
                                      'data_files', 'raster_inputs',
                                      self.file_name)
+        geo_server_url = settings.GEOSERVER_URL
+
+        self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
+                                              "request=GetCoverage&CoverageId="
+        self.extents_string_x = ""
+        self.extents_string_y = ""
+        if extents is not None:
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+        self.crs = "epsg:3857"
+        self.field_id = field_id
+        self.no_data = -9999
         self.layer_dic = {
             "slope": "SmartScapeRaster:southWestWI_slopePer_30m",
             "landuse": "SmartScapeRaster:southWestWI_WiscLand_30m",
@@ -73,10 +86,18 @@ class RasterDataSmartScape:
         self.crs = "epsg:3857"
 
         self.no_data = -9999
+
         if not os.path.exists(self.dir_path):
             os.makedirs(self.dir_path)
+    def check_raster_data(self, raster_dic):
+        raster_dic_key_list = [*raster_dic.keys()]
+        raster_shape = raster_dic[raster_dic_key_list[0]].shape
+        for raster in raster_dic_key_list:
+            if raster_shape != raster_dic[raster].shape:
+                raise ValueError(raster +
+                                 " dimensions do not match other rasters")
 
-
+        self.bounds["y"], self.bounds["x"] = raster_shape
 
     def create_clip(self):
         """
