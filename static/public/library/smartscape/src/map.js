@@ -40,6 +40,7 @@ import {
     RegularShape as RegularShapeStyle,
     Stroke as StrokeStyle
 } from 'ol/style'
+import {getVectorContext} from 'ol/render';
 
 import { 
     Projection,
@@ -61,7 +62,7 @@ import {extend, createEmpty} from 'ol/extent';
 
 import { useSelector, useDispatch, connect  } from 'react-redux'
 import{setActiveTrans,setActiveTransOL, updateTransList,updateAreaSelectionType,
-updateActiveTransProps} from '/src/stores/transSlice'
+updateActiveTransProps,setVisibilityMapLayer} from '/src/stores/transSlice'
 import configureStore from './stores/store'
 // map values from redux store to local props
 const mapStateToProps = state => {
@@ -81,6 +82,8 @@ const mapDispatchToProps = (dispatch) => {
         setActiveTrans: (value)=> dispatch(setActiveTrans(value)),
         setActiveTransOL: (value)=> dispatch(setActiveTransOL(value)),
         updateTransList: (value)=> dispatch(updateTransList(value)),
+        setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
+
 //        getTrans: (value)=> dispatch(getTrans(value)),
         updateAreaSelectionType: (value)=> dispatch(updateAreaSelectionType(value)),
         updateActiveTransProps: (value)=> dispatch(updateActiveTransProps(value)),
@@ -102,122 +105,7 @@ class OLMapFragment extends React.Component {
         // binding function to class so they share scope
         this.updateAreaSelectionType = this.updateAreaSelectionType.bind(this)
         this.addLayer = this.addLayer.bind(this)
-        // create basae style for layers
-        const styles = [new Style({
-            stroke: new Stroke({
-              color: 'blue',
-              width: 3,
-            }),
-            fill: new Fill({
-              color: 'rgba(0, 0, 255, 0.0)',
-            }),
-          })]
-          this.stylesBoundary = [new Style({
-            stroke: new Stroke({
-              color: 'red',
-              width: 5,
-            }),
-            fill: new Fill({
-              color: 'rgba(0, 0, 255, 0.0)',
-            }),
-          })]
-          this.stylesBoundaryTrans = [new Style({
-            stroke: new Stroke({
-              color: '#25AFC6',
-              width: 5,
-            }),
-            fill: new Fill({
-              color: 'rgba(0, 0, 255, 0.0)',
-            }),
-          })]
-          //todo move bing api key
-        this.bing_key = 'Anug_v1v0dwJiJPxdyrRWz0BBv_p2sm5XA72OW-ypA064_JoUViwpDXZl3v7KZC1'
-        // layer to hold the users aoi selection
-        this.boundaryLayerAOI = new VectorLayer({
-          name: "aoi",
-          source: new VectorSource({
-            projection: 'EPSG:3857',
-            }),
-            style:this.stylesBoundary,
-        });
-        // layer to hold huc 10 watersheds
-         this.huc10 = new VectorLayer({
-            name:'huc10',
-            renderMode: 'image',
-          source:new VectorSource({
-//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_json.geojson',
-              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3857',
-            }),
-            style: styles,
-        });
-        // layer to hold huc 10 watersheds
-         this.huc12 = new VectorLayer({
-            name: 'huc12',
-            renderMode: 'image',
-          source:new VectorSource({
-//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_json.geojson',
-              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_trim.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3857',
-            }),
-            style: styles,
-            visible: false,
-        });
-       // show borders of our three work areas
-        this.southCentral = new VectorLayer({
 
-            renderMode: 'image',
-          source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/Boundaries/southCentralWI.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3857',
-            }),
-            style: this.stylesBoundary,
-        });
-        this.southWest = new VectorLayer({
-            renderMode: 'image',
-          source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/Boundaries/southWestWI.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3857',
-            }),
-            style: this.stylesBoundary,
-        });
-        this.cloverBelt = new VectorLayer({
-            renderMode: 'image',
-          source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/Boundaries/cloverBelt.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3857',
-            }),
-            style: this.stylesBoundary,
-        });
-        // base map
-        this.layers = [
-            new TileLayer({
-               source: new BingMaps({
-                key: this.bing_key,
-                imagerySet: 'AerialWithLabelsOnDemand',
-                // use maxZoom 19 to see stretched tiles instead of the BingMaps
-                // "no photos at this zoom level" tiles
-                // maxZoom: 19
-              }),
-            }),
-
-            this.cloverBelt,
-            this.southCentral,
-            this.southWest,
-            this.boundaryLayerAOI,
-              this.huc10,
-            this.huc12,
-//            this.waterSheds1,
-//            this.huc10Layer,
-//            this.waterSheds,
-
-
-        ]
         this.state = {isDrawing:false,activeTransLayer:null}
     }
     // updates when props have been changed
@@ -370,6 +258,34 @@ class OLMapFragment extends React.Component {
         };
         return null
     }
+    setActiveRegion(region){
+
+//        let region = "southWestWI_HUC_10.geojson"
+//        let region = "cloverBeltWI_HUC_10.geojson"
+        let region_10 = region + "_HUC_10.geojson"
+        let url = location.origin + "/smartscape/get_image?file_name="+region_10+ "&time="+Date.now()
+        let source = new VectorSource({
+              url: url,
+//              url: "http://geoserver-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            })
+        this.huc10.setSource(source)
+        let region_12 = region + "_HUC_12.geojson"
+        url = location.origin + "/smartscape/get_image?file_name="+region_12+ "&time="+Date.now()
+        source = new VectorSource({
+              url: url,
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            })
+        this.huc12.setSource(source)
+
+        this.map.removeInteraction(this.select)
+        this.selectedFeatures.clear()
+        this.map.render()
+        this.map.addInteraction(this.select);
+
+    }
     // allows user to draw selection polygon
     // tied to button click right now so it checks state
 //    drawBoundary(){
@@ -397,6 +313,132 @@ class OLMapFragment extends React.Component {
         const attribution = new Attribution({
           collapsible: false,
         });
+                // create basae style for layers
+        const styles = [new Style({
+            stroke: new Stroke({
+              color: 'blue',
+              width: 3,
+            }),
+            fill: new Fill({
+              color: 'rgba(0, 0, 255, 0.0)',
+            }),
+          })]
+          this.stylesBoundary = [new Style({
+            stroke: new Stroke({
+              color: 'red',
+              width: 5,
+            }),
+            fill: new Fill({
+              color: 'rgba(0, 0, 255, 0.0)',
+            }),
+          })]
+          this.stylesBoundaryTrans = [new Style({
+            stroke: new Stroke({
+              color: '#25AFC6',
+              width: 5,
+            }),
+            fill: new Fill({
+              color: 'rgba(0, 0, 255, 0.0)',
+            }),
+          })]
+          //todo move bing api key
+        this.bing_key = 'Anug_v1v0dwJiJPxdyrRWz0BBv_p2sm5XA72OW-ypA064_JoUViwpDXZl3v7KZC1'
+        // layer to hold the users aoi selection
+        this.boundaryLayerAOI = new VectorLayer({
+          name: "aoi",
+          source: new VectorSource({
+            projection: 'EPSG:3857',
+            }),
+            style:this.stylesBoundary,
+        });
+        // layer to hold huc 10 watersheds
+         this.huc10 = new VectorLayer({
+            name:'huc10',
+            renderMode: 'image',
+//          source:new VectorSource({
+//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
+////              url: "http://geoserver-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
+//              format: new GeoJSON(),
+//               projection: 'EPSG:3857',
+//            }),
+            style: styles,
+        });
+        // layer to hold huc 10 watersheds
+         this.huc12 = new VectorLayer({
+            name: 'huc12',
+            renderMode: 'image',
+          source:new VectorSource({
+//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_json.geojson',
+              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_trim.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            }),
+            style: styles,
+            visible: false,
+        });
+       // show borders of our three work areas
+        this.southCentral = new VectorLayer({
+          renderMode: 'image',
+          name: "southCentral",
+          source:new VectorSource({
+              url: static_global_folder + 'smartscape/gis/Boundaries/southCentralWI.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
+        this.southWest = new VectorLayer({
+            renderMode: 'image',
+            name: "southWest",
+          source:new VectorSource({
+              url: static_global_folder + 'smartscape/gis/Boundaries/southWestWI.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
+        this.cloverBelt = new VectorLayer({
+            renderMode: 'image',
+            name: "cloverBelt",
+          source:new VectorSource({
+              url: static_global_folder + 'smartscape/gis/Boundaries/cloverBelt.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
+        // base map
+        this.layers = [
+            new TileLayer({
+               source: new BingMaps({
+                key: this.bing_key,
+                imagerySet: 'AerialWithLabelsOnDemand',
+                // use maxZoom 19 to see stretched tiles instead of the BingMaps
+                // "no photos at this zoom level" tiles
+                // maxZoom: 19
+              }),
+            }),
+
+            this.cloverBelt,
+//            this.southCentral,
+            this.southWest,
+            this.boundaryLayerAOI,
+              this.huc10,
+            this.huc12,
+//            this.waterSheds1,
+//            this.huc10Layer,
+//            this.waterSheds,
+
+
+        ]
+//        huc10.on('postrender', function (e) {
+//          const vectorContext = getVectorContext(e);
+//          e.context.globalCompositeOperation = 'destination-in';
+//          southWest.getSource().forEachFeature(function (feature) {
+//            vectorContext.drawFeature(feature);
+//          });
+//          e.context.globalCompositeOperation = 'source-over';
+//        });
         // Create an Openlayer Map instance
         this.map = new Map({
             //  Display the map in the div with the id of map
@@ -416,8 +458,9 @@ class OLMapFragment extends React.Component {
                 projection: 'EPSG:3857',
 //                center: [0, 0],
 //                zoom: 2,
-                center: [-10118000,5375100],
-				zoom: 10,
+//                centered at the learning hubs
+                center: [-10008338,5525100],
+				zoom: 8,
 				maxZoom: 19,
 				minZoom: 3,//10,
 			//	constrainRotation: false,
@@ -437,28 +480,43 @@ class OLMapFragment extends React.Component {
         // get selected features from map
         this.selectedFeatures = this.select.getFeatures();
         this.selectedFeatures.on(['remove'], (f)=> {
-
+            console.log("remove selected feature")
         })
         // get selected features and add them to active trans
         this.selectedFeatures.on(['add'], (f)=> {
-
+            let region = ""
+            console.log(f.target.item(0))
+            console.log(f.target)
+//          selecting by county
+            if(f.target.item(0).get("NAME") != undefined){
+                console.log("selecting a county!!!!!")
+                if(f.target.item(0).get("NAME") == "La Crosse"){
+                    region = "southWestWI"
+                }
+                else if (f.target.item(0).get("NAME") == "Clark"){
+                    region = "cloverBeltWI"
+                }
+                this.setActiveRegion(region)
+                return
+            }
+            console.log("adding feature")
             let aoiExtents = createEmpty();
             let aoiCoors = []
             // get active trans boundary layer
             let layer = this.getActiveBounLay()
-            // setting the aoi boundary
+            // setting the aoi boundary because we don't have any trans yet
             if (layer == null){
                 layer = this.boundaryLayerAOI
             }
+
+            layer.getSource().clear()
 
             layer.getSource().addFeature(f.target.item(0))
             layer.getSource().getFeatures().forEach((lyr)=>{
                 aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                 aoiCoors.push(lyr.getGeometry().getCoordinates())
-
             })
 
-//            layer.getSource().clear()
 //            this.selectedFeatures.forEach(function (lyr) {
 //            this.selectedFeatures.forEach((lyr)=> {
 
@@ -481,6 +539,7 @@ class OLMapFragment extends React.Component {
                 this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
             }
+            console.log("done with add selection")
           });
 
 
@@ -528,6 +587,7 @@ class OLMapFragment extends React.Component {
 //
 //
 //        });
+this.map.addInteraction(this.select);
     }
     render(){
         const style = {
