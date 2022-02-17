@@ -9,7 +9,6 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Polygon
 import os
-import math
 from django.conf import settings
 from grazescape.raster_data import RasterData
 from osgeo import gdal
@@ -46,35 +45,61 @@ class RasterDataSmartScape:
             The id of the folder to store the rasters
         """
         self.file_name = field_id
-        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
-                                     'data_files', 'raster_inputs',
-                                     self.file_name)
+
         self.dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
                                      'data_files', 'raster_inputs',
                                      self.file_name)
-        geo_server_url = settings.GEOSERVER_URL
-
-        self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
-                                              "request=GetCoverage&CoverageId="
-        self.extents_string_x = ""
-        self.extents_string_y = ""
-        if extents is not None:
-            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
-            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
-        self.crs = "epsg:3857"
-        self.field_id = field_id
-        self.no_data = -9999
         self.layer_dic = {
             "slope": "SmartScapeRaster:southWestWI_slopePer_30m",
             "landuse": "SmartScapeRaster:southWestWI_WiscLand_30m",
             "stream_dist": "SmartScapeRaster:southWestWI_distanceToWaterWays",
 
         }
-        self.field_geom_array = field_geom_array
-        self.bounds = {"x": 0, "y": 0}
+        self.extents = extents
+        self.field_id = field_id
+        geo_server_url = settings.GEOSERVER_URL
 
+        self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
+                             "request=GetCoverage&CoverageId="
+        self.field_geom_array = field_geom_array
+        self.extents_string_x = ""
+        self.extents_string_y = ""
+        self.bounds = {"x": 0, "y": 0}
+        self.no_data_aray = []
+
+        if extents is not None:
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+        self.crs = "epsg:3857"
+
+        self.no_data = -9999
         if not os.path.exists(self.dir_path):
             os.makedirs(self.dir_path)
+
+
+
+    def create_clip(self):
+        """
+        Create a shapefile to clip the raster with.
+        Parameters
+        ----------
+        field_geom_array : list of list of lists of doubles
+            coordinates of the clip to be created; each outer list indicates a new polygon to create.
+        """
+        poly_list = []
+        field_geom_array = self.field_geom_array
+        # create polygon for each selection
+        for poly in field_geom_array:
+            geom_array_float = []
+            # for coor in poly:
+            #     geom_array_float.append([float(coor[0]), float(coor[1])])
+            poly_list.append(Polygon(poly))
+        df = pd.DataFrame({'geometry': poly_list})
+        crs = {'init': self.crs}
+        polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
+        print(polygon)
+        polygon.to_file(filename=os.path.join(self.dir_path, self.file_name +".shp"), driver="ESRI Shapefile")
+
     def check_raster_data(self, raster_dic):
         raster_dic_key_list = [*raster_dic.keys()]
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
@@ -84,6 +109,29 @@ class RasterDataSmartScape:
                                  " dimensions do not match other rasters")
 
         self.bounds["y"], self.bounds["x"] = raster_shape
+
+    def load_layers(self):
+        """
+        Download data from geoserver
+        Returns
+        -------
+
+        """
+        # layer_list = requests.get("http://localhost:8081/geoserver/rest/
+        # layers.json")
+
+        for layer in self.layer_dic:
+
+            print("downloading layer ", layer)
+            url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
+            print(url)
+            r = requests.get(url)
+            raster_file_path = os.path.join(self.dir_path, layer + ".tif")
+            print("done downloading")
+            print("raster_file_path", raster_file_path)
+            with open(raster_file_path, "wb") as f:
+                f.write(r.content)
+            print("done writing")
 
     def clip_rasters(self):
         """
@@ -107,8 +155,9 @@ class RasterDataSmartScape:
                 # print("clipping raster ", data_name)
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "-clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
-                                    cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
+                                    cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
         print("done clipping")
+
     def get_clipped_rasters(self):
         raster_data_dic = {}
         bounds = 0
@@ -131,45 +180,3 @@ class RasterDataSmartScape:
                 raster_data_dic[data_name] = arr
         self.check_raster_data(raster_data_dic)
         return raster_data_dic, bounds
-    def load_layers(self):
-        """
-        Download data from geoserver
-        Returns
-        -------
-
-        """
-        # layer_list = requests.get("http://localhost:8081/geoserver/rest/
-        # layers.json")
-
-        for layer in self.layer_dic:
-            print("downloading layer ", layer)
-            url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
-            r = requests.get(url)
-            raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            print("done downloading")
-            print("raster_file_path", raster_file_path)
-            with open(raster_file_path, "wb") as f:
-                f.write(r.content)
-            print("done writing")
-
-    def create_clip(self):
-        """
-        Create a shapefile to clip the raster with.
-        Parameters
-        ----------
-        field_geom_array : list of list of lists of doubles
-            coordinates of the clip to be created; each outer list indicates a new polygon to create.
-        """
-        poly_list = []
-        field_geom_array = self.field_geom_array
-        # create polygon for each selection
-        for poly in field_geom_array:
-            geom_array_float = []
-            # for coor in poly:
-            #     geom_array_float.append([float(coor[0]), float(coor[1])])
-            poly_list.append(Polygon(poly))
-        df = pd.DataFrame({'geometry': poly_list})
-        crs = {'init': self.crs}
-        polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
-        print(polygon)
-        polygon.to_file(filename=os.path.join(self.dir_path, self.file_name +".shp"), driver="ESRI Shapefile")

@@ -16,6 +16,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import FileResponse
 from django.views.decorators.csrf import csrf_protect
 import time
+import requests
 import json as js
 
 
@@ -38,8 +39,19 @@ def index(request):
     context = {
         "user_info": {"user_name": user_name}
     }
-    # Render the HTML template index.html with the data in the context variable
+    dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
+                            'data_files', 'raster_inputs')
+    file_names = ["southWestWI_HUC_10", "cloverBeltWI_HUC_10", "cloverBeltWI_HUC_12", "southWestWI_HUC_12"]
+    for name in file_names:
+        print("downloading", name)
+        url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A"+name+"&outputFormat=application%2Fjson"
+        r = requests.get(url)
+        raster_file_path = os.path.join(dir_path, name + ".geojson")
+        with open(raster_file_path, "wb") as f:
+            f.write(r.content)
+
     return render(request, 'smartscape_home.html', context=context)
+
 
 
 @login_required
@@ -288,7 +300,7 @@ def get_image(response):
                              'raster_inputs', file_name)
     print(file_path)
     img = open(file_path, 'rb')
-    # FileResponse take care of closing file
+    # FileResponse takes care of closing file
     response = FileResponse(img)
 
     return response
