@@ -215,7 +215,14 @@ class SidePanel extends React.Component{
               <Row>
                      <h4>Select a work area</h4>
                    <InputGroup size="sm" className="mb-3">
-                 <h6> Please select a learning hub and then select one HUC 10 watershed </h6>
+                   <Form.Check
+                    inline
+                    label="Select Watersheds"
+                    name="group1"
+                    type='radio'
+                    id={`inline-$'radio'-1`}
+                    onChange={(e) => this.handleAreaSelectionType("watershed", e)}
+                  />
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
               </Row>
