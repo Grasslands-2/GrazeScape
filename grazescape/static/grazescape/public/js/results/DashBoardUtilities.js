@@ -566,6 +566,7 @@ function get_model_data(data){
     'url' : '/grazescape/get_model_results',
     'type' : 'POST',
     'data' : data,
+    'timeout':0,
         success: async function(responses, opts) {
             delete $.ajaxSetup().headers
             if(responses == null){
