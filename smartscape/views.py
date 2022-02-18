@@ -41,6 +41,8 @@ def index(request):
     }
     dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
                             'data_files', 'raster_inputs')
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
     file_names = ["southWestWI_HUC_10", "cloverBeltWI_HUC_10", "cloverBeltWI_HUC_12", "southWestWI_HUC_12"]
     for name in file_names:
         print("downloading", name)
