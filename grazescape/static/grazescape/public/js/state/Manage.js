@@ -10,6 +10,7 @@ function reSourceinfra() {
 }
 function reSourcefarms() {
     geoServer.setFarmSource()
+	console.log("setFarmSource in Manage.js within reSourceFarms")
 	console.log("reSource Infra ran");
 }
 function reSourcescenarios() {
