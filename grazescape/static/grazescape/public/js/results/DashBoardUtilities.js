@@ -4,7 +4,7 @@ var modelError = false
 var modelErrorMessages = []
 var yieldmodelsDataArray = []
 //gathers data for each model run. called in model type switch statments
-function gatherModelDataArray(mdobj) {
+function gatherArrayForYieldAdjustment(mdobj) {
     yieldmodelsDataArray.push({
         area: mdobj.area,
         cells: mdobj.counted_cells,
@@ -185,37 +185,51 @@ function format_chart_data(model_data){
             case 'Grass':
                 chartTypeField = chartObj.grass_yield_field
                 chartTypeFarm = chartObj.grass_yield_farm
-                gatherModelDataArray(model_data)
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             case 'Corn Grain':
                 chartTypeField = chartObj.corn_yield_field
                 chartTypeFarm = chartObj.corn_yield_farm
-                gatherModelDataArray(model_data)
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             case 'Corn Silage':
                 chartTypeField = chartObj.corn_silage_yield_field
                 chartTypeFarm = chartObj.corn_silage_yield_farm
-                gatherModelDataArray(model_data)
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             case 'Soy':
                 chartTypeField = chartObj.soy_yield_field
                 chartTypeFarm = chartObj.soy_yield_farm
-                gatherModelDataArray(model_data)
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             case 'Alfalfa':
                 chartTypeField = chartObj.alfalfa_yield_field
                 chartTypeFarm = chartObj.alfalfa_yield_farm
-                gatherModelDataArray(model_data)
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             case 'Oats':
                 chartTypeField = chartObj.oat_yield_field
                 chartTypeFarm = chartObj.oat_yield_farm
-                gatherModelDataArray(model_data)
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             case 'Rotational Average':
                 chartTypeField = chartObj.rotation_yield_field
                 chartTypeFarm = chartObj.rotation_yield_farm
-                gatherModelDataArray(model_data)
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             }
             if(model_data.scen_id == DSS.activeScenario){
@@ -238,8 +252,8 @@ function format_chart_data(model_data){
                     }
                     else{
                         for(l in yieldGroupLayers){
-                            console.log(yieldGroupLayers[l].values_.name)
-                            console.log(DSS.layer.yield_field.values_.name)
+                            //console.log(yieldGroupLayers[l].values_.name)
+                            //console.log(DSS.layer.yield_field.values_.name)
                             if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
                                 const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
                                 if(index > -1) {
@@ -428,6 +442,13 @@ function format_chart_data(model_data){
             chartVal = null
         }
         chartTypeField.chartData.datasets[fieldIndex].data[scenIndex] =  chartVal
+        chartTypeField.chartData.datasets[fieldIndex].scenDbID = model_data.scen_id
+        //Tomorrow Morning.  add the modal_data values in toolTip into this level of the datasets objects.  Then you can refrence them to build ajdust yields table
+        chartTypeField.chartData.datasets[fieldIndex].cropRo = model_data.crop_ro
+        chartTypeField.chartData.datasets[fieldIndex].fieldData = chartVal
+        chartTypeField.chartData.datasets[fieldIndex].grassRo = model_data.grass_ro
+        chartTypeField.chartData.datasets[fieldIndex].grassType = model_data.grass_type
+        chartTypeField.chartData.datasets[fieldIndex].fieldTill = model_data.till
         chartTypeField.area[fieldIndex] =  model_data.area
         chartTypeField.chartData.chartDataOri[fieldIndex][scenIndex] =  chartVal
         chartTypeField.chartData.datasets[fieldIndex].toolTip[scenIndex] = [model_data.crop_ro,model_data.grass_ro, model_data.grass_type, model_data.till] ;
@@ -436,7 +457,6 @@ function format_chart_data(model_data){
             chartTypeField.chart.update()
             chartTypeField.chart.options.scales.y.title.text= chartTypeField.units;
         }
-
     }
 //      farm level
     //initialize sum and count if they havent been already
@@ -566,6 +586,7 @@ function get_model_data(data){
     'url' : '/grazescape/get_model_results',
     'type' : 'POST',
     'data' : data,
+    'timeout':0,
         success: async function(responses, opts) {
             delete $.ajaxSetup().headers
             if(responses == null){
@@ -585,6 +606,7 @@ function get_model_data(data){
                 }
                 let e = obj.extent;
                 if(responses[response].value_type != "dry lot"){
+                    //console.log(obj)
                     format_chart_data(obj)
                 }
             }
@@ -593,7 +615,8 @@ function get_model_data(data){
 
         failure: function(response, opts) {
             me.stopWorkerAnimation();
-        }
+        },
+        //timeout:50
     });
     })
 	}
@@ -634,6 +657,7 @@ function validateImageOL(json, layer, tryCount) {
  */
 // Creates graphs for each model result for the dashboard
 function create_graph(chart,title,element){
+
     units = chart.units
     data = chart.chartData
     console.log(element)
@@ -644,6 +668,7 @@ function create_graph(chart,title,element){
         options: {
             responsive: true,
             skipNull:true,
+            maxBarThickness: 150,
             interaction:{
               mode:"nearest"
               },

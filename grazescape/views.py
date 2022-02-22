@@ -101,8 +101,8 @@ def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp
             if str(model+str(field_id)) in blob.name and str(scen) == str(active_scen):
                 #print("SCEN ACTIVE SCEN HIT!!!!!!!!")
                 model_run_timestamp = blob.name[-17:-4]
-                #print(model_run_timestamp)
-                #print(blob.name)
+                print(model_run_timestamp)
+                print(blob.name)
                 destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
                 try:
                     blob.download_to_filename(destination_file_name)
@@ -112,7 +112,7 @@ def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp
                     pass
 # Deletes model results from GCS bucket
 def delete_gcs_model_result_blob(field_id):
-    model_Types = ['yield', 'ploss','runoff', 'bio']
+    model_Types = ['Rotational Average', 'ploss','ero']
     storage_client = storage.Client()
     bucket = storage_client.bucket("dev_container_model_results")
     for model in model_Types:
@@ -229,12 +229,22 @@ def geoserver_request(request):
     url = request.POST.get("url")
     #feature_id = request.POST.get("feature_id")
     feature_id = 9999
+    current_user = request.user
+    farm_ids = get_user_farms(current_user.id)
     #farm_2 = False
     # if "farm_2" in str(url):
     #     print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         #farm_2 = True
     geo = GeoServer(request_type, url)
     result = geo.makeRequest(pay_load)
+    #LIMIT RETURN TO FRONT END TO ONLY FEATUERES OWNED BY USER
+    if request_type == "source":
+        input_dict = json.loads(result)
+        features = input_dict["features"]
+        output_dict = [x for x in features if x["properties"]['farm_id'] in farm_ids]
+        input_dict["features"] = output_dict
+        output_json = json.dumps(input_dict)
+        result = output_json
     if "field_2" in pay_load and request_type == "delete":
         payloadstr = str(pay_load)
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
@@ -270,12 +280,14 @@ def geoserver_request(request):
         print("source Farm result!!!!!!!!")
         print(result)
         input_dict = json.loads(result)
-        current_user = request.user
+        #current_user = request.user
         #print("\n \n")
         features = input_dict["features"]
-        farm_ids = get_user_farms(current_user.id)
+        #farm_ids = get_user_farms(current_user.id)
         # Filter python objects with list comprehensions
         #print(features[0]["properties"])
+        print("FARM_IDS FROM SOURCE_FARM!!!!!!")
+        print(farm_ids)
         output_dict = [x for x in features if x["properties"]['gid'] in farm_ids]
         input_dict["features"] = output_dict
         # Transform python object back into json
@@ -344,7 +356,7 @@ def get_model_results(request):
                 # print(field_id)
                 model_run_timestamp = blob.name[-17:-4]
                 #runtimecollect = True
-                #sprint(model_run_timestamp)
+                print("this is the Model Runtime for the downloaded pngs: " + model_run_timestamp)
             #print(blob.name)
             # for model in model_Types:
             #     if str(model+str(field_id)) in blob.name:
@@ -361,9 +373,9 @@ def get_model_results(request):
     if model_type == 'ploss':
         remove_old_pngs_from_local('ploss',field_id)
     if model_type == 'yield':
-        remove_old_pngs_from_local('yield',field_id)
+        remove_old_pngs_from_local('Rotational Average',field_id)
     if model_type == 'runoff':
-        remove_old_pngs_from_local('runoff',field_id)
+        remove_old_pngs_from_local('ero',field_id)
     # format field geometry
     for input in request.POST:
         if "field_coors" in input:
@@ -483,7 +495,7 @@ def get_model_results(request):
             if db_has_field(field_id):
             # if db_has_field(field_id, scenario_id, farm_id):
                 # if model_type == 'ploss':
-                #     download_gcs_model_result_blob(field_id)
+                #download_gcs_model_result_blob(field_id)
                 update_field_results(field_id, scenario_id, farm_id, data, False)
             else:
                 update_field_results(field_id, scenario_id, farm_id, data, True)
