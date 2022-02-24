@@ -69,3 +69,8 @@ background-image: linear-gradient(#EFF4CF, white);
 .progress_bar{
     padding:20px;
 }
+
+.modal-90w{
+    width: 60vw;
+    max-width: 60vw;
+}
