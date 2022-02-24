@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_protect
 import time
 import requests
 import json as js
-
+import threading
 
 @login_required
 def index(request):
@@ -47,14 +47,23 @@ def index(request):
     for name in file_names:
         print("downloading", name)
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A"+name+"&outputFormat=application%2Fjson"
-        r = requests.get(url)
         raster_file_path = os.path.join(dir_path, name + ".geojson")
-        with open(raster_file_path, "wb") as f:
-            f.write(r.content)
-
+        createNewDownloadThread(url, raster_file_path)
+        # r = requests.get(url)
+        # with open(raster_file_path, "wb") as f:
+        #     f.write(r.content)
     return render(request, 'smartscape_home.html', context=context)
 
+def createNewDownloadThread(link, filelocation):
+    download_thread = threading.Thread(target=download, args=(link, filelocation))
+    download_thread.start()
 
+def download(link, filelocation):
+    r = requests.get(link, stream=True)
+    with open(filelocation, 'wb') as f:
+        for chunk in r.iter_content(1024):
+            if chunk:
+                f.write(chunk)
 
 @login_required
 def get_selection_raster(request):
@@ -195,7 +204,7 @@ def get_selection_criteria_raster(request):
     data = {
         "extent": extents,
         "url": os.path.join(model.file_name, "selection.png"),
-        "transId":trans_id
+        "transId": trans_id
     }
     return_data.append(data)
     return JsonResponse(return_data, safe=False)

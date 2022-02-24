@@ -21,6 +21,10 @@ import sys
 from django.conf import settings
 import math
 import shutil
+import threading
+import time
+import multiprocessing
+import concurrent.futures
 
 
 class SmartScape:
@@ -58,39 +62,19 @@ class SmartScape:
                                                    'smartscape', 'data_files',
                                                    'raster_inputs',
                                                    self.file_name, "selection.png")
-
         self.bounds = {"x": 0, "y": 0}
         self.raster_inputs = {}
         self.no_data = -9999
         self.data_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs')
         self.in_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                                    'raster_inputs', self.file_name)
+
         if not os.path.exists(self.in_dir):
             os.makedirs(self.in_dir)
         self.geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                                        'raster_inputs', geo_folder)
         self.request_json = request_json
-
-    def parse(self, selection, datanm, slope1, slope2):
-        """
-        Parse transformation parameters
-
-        Parameters
-        ----------
-        selection : dict
-            Dictionary of transformation parameters
-        datanm : numpy array
-            array of values to transform on, such as slope and land type
-        slope1 : temp
-        slope2 : temp
-
-        Returns
-        -------
-        boolean
-            returns a boolean for each comparison
-
-        """
-        return datanm > float(slope1), float(slope2) > datanm, datanm != self.no_data
+        self.threads = []
 
     def get_model_png(self):
         """
@@ -99,8 +83,9 @@ class SmartScape:
         ----------
 
         """
-        datanm = self.raster_inputs["slope"]
+        datanm_slope = self.raster_inputs["slope"]
         # create an array with all true values so that and-ing it with actual data will work
+        datanm = np.copy(datanm_slope)
         datanm.fill(-99)
         datanm_landuse = datanm
         datanm_stream = datanm
@@ -124,7 +109,7 @@ class SmartScape:
         # three_d[0:rows, 0:cols] = [37, 175, 198, 255]
         # three_d[0:rows, 0:cols] = [238, 119, 51, 255]
         # black
-        three_d[0:rows, 0:cols] = [0, 0, 0, 255]
+        three_d[0:rows, 0:cols] = [162, 6, 157, 255]
         # selection parameters: 1 if passes 0 otherwise
         print("about to start selecting by slope")
         # https://gis.stackexchange.com/questions/163007/raster-reclassify-using-python-gdal-and-numpy
@@ -137,7 +122,10 @@ class SmartScape:
         # and no data (should just be values outside of subarea)
         # set selected to -99
         if slope1 is not None and slope2 is not None:
+            print("selecting by slope")
+            print(float(slope1), float(slope2))
             datanm = self.raster_inputs["slope"]
+            print(self.raster_inputs["slope"])
             datanm = np.where(
                 np.logical_and(datanm > float(slope1), float(slope2) > datanm), -99, datanm
             )
@@ -187,7 +175,7 @@ class SmartScape:
         if not has_land and not has_slope and not has_land and not has_stream:
             datanm.fill(self.no_data)
 
-        datanm = np.where(np.logical_and(datanm == -99, datanm_stream == -99), -99, self.no_data)
+        # datanm = np.where(np.logical_and(datanm == -99, datanm_stream == -99), -99, self.no_data)
 
         # copy datanm so we can use it for just the image
         datanm_image = np.copy(datanm)
@@ -220,7 +208,7 @@ class SmartScape:
 
         # add dimensions to data array so we can convert it to a RGBA image
         datanm_image = np.expand_dims(datanm_image, axis=2)
-        print("done selecting by select")
+        print("done with selection")
         datanm_image = datanm_image * three_d
         datanm_image = datanm_image.astype(np.uint8)
         im = Image.fromarray(datanm_image)
@@ -228,6 +216,25 @@ class SmartScape:
         # saving the final output
         # as a PNG file
         im.save(self.raster_image_file_path)
+
+    def download(self, link, filelocation):
+        r = requests.get(link, stream=True)
+        with open(filelocation, 'wb') as f:
+            for chunk in r.iter_content(1024):
+                if chunk:
+                    f.write(chunk)
+
+    def createNewDownloadThread(self, link, filelocation):
+        download_thread = threading.Thread(target=self.download, args=(link, filelocation))
+        download_thread.start()
+        self.threads.append(download_thread)
+    # def createNewRunoffThread(self, type):
+    #     download_thread = threading.Thread(target=self.download, args=(link, filelocation))
+    #     download_thread.start()
+    #     self.threads.append(download_thread)
+    def joinThreads(self):
+        for thread in self.threads:
+            thread.join()
 
     def create_model_agr(self):
         """
@@ -237,29 +244,15 @@ class SmartScape:
         """
         m_to_acre = 0.000247105
         print("starting model aggregation")
-        # # data from client
-        # trans = {5: {"id": "field_4bdb7c8a-6e49-416e-a9de-d82de164e0da", "rank": 5},
-        #          6: {"id": "field_077161f4-04b3-4306-8c83-3d60a3611c73", "rank": 6},
-        #          4: {"id": "field_a6ba8bc6-0c91-4d2d-b2b7-3123b87befd3", "rank": 4}}
-        # dir_path = os.path.dirname(os.path.realpath(__file__))
         trans = self.request_json['trans']
         base_scen = self.request_json['base']
+        # region = self.request_json['base']
         region = "southWestWI"
         dir_path = self.in_dir
 
         file_list = []
         # get each transformation selection output raster
-        layer_dic = {
-            # "cont_pi_nc_su_25_50_1": "SmartScapeRaster:contCorn_PI_nc_su_1_25_50_southWestWI",
-            # "cont_er_nc_su_25_50_1": "SmartScapeRaster:contCorn_Erosion_nc_su_1_25_50_southWestWI",
-            # "corn_pi_nc_su_25_50_1": "	SmartScapeRaster:cornGrain_PI_nc_su_1_25_50_southWestWI",
-            # "corn_er_nc_su_25_50_1": "	SmartScapeRaster:cornGrain_Erosion_nc_su_1_25_50_southWestWI",
-            # "dairy_pi_nc_su_25_50_1": "SmartScapeRaster:dairyRotation_PI_nc_su_1_25_50_southWestWI",
-            # "dairy_er_nc_su_25_50_1": "SmartScapeRaster:dairyRotation_Erosion_nc_su_1_25_50_southWestWI",
-            # "landuse": "SmartScapeRaster:southWestWI_WiscLand_30m",
-            # "pasture_pi_rt_rt_0_0": "SmartScapeRaster:pasture_PI_rt_rt_0_0_southWestWI",
-            # "pasture_er_rt_rt_0_0": "SmartScapeRaster:pasture_Erosion_rt_rt_0_0_southWestWI",
-        }
+        layer_dic = {}
         base_layer_dic = {}
 
         # download layers for base case
@@ -314,13 +307,9 @@ class SmartScape:
             layer_dic[tran["rank"]]["ero"] = ero_name
             layer_dic[tran["rank"]]["ploss"] = ploss_name
             layer_dic[tran["rank"]]["cn"] = cn_name
-            # layer_dic[tran["rank"]]["cn_adjustments"] = cn_adjustment
 
-        # print(layer_dic)
-        # print(base_layer_dic)
         # create blank raster that has extents from all transformations
         ds_clip = gdal.Warp(
-            # os.path.join(dir_path, "test-joined.tif"), ["slope-clipped.tif", "landuse-clipped.tif"],
             # last raster ovrrides it
             os.path.join(dir_path, "temp_extents.tif"), file_list,
             dstNodata=-9999,
@@ -429,28 +418,29 @@ class SmartScape:
         image = None
         geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
                                          "request=GetCoverage&CoverageId="
-
         # download raster model outputs
         for layer in layer_dic:
             for model in layer_dic[layer]:
                 print("downloading layer ", model)
                 url = geoserver_url + "SmartScapeRaster:" + layer_dic[layer][
                     model] + extents_string_x + extents_string_y
-                r = requests.get(url)
                 # print(url)
                 raster_file_path = os.path.join(dir_path, layer_dic[layer][model] + ".tif")
-                with open(raster_file_path, "wb") as f:
-                    f.write(r.content)
+                self.createNewDownloadThread(url, raster_file_path)
+                # r = requests.get(url)
+                # with open(raster_file_path, "wb") as f:
+                #     f.write(r.content)
         for layer in base_layer_dic:
             print("downloading layer ", layer)
             url = geoserver_url + base_layer_dic[layer] + extents_string_x + extents_string_y
-            r = requests.get(url)
             raster_file_path = os.path.join(dir_path, layer + ".tif")
-            with open(raster_file_path, "wb") as f:
-                f.write(r.content)
+            self.createNewDownloadThread(url, raster_file_path)
+            # r = requests.get(url)
+            # with open(raster_file_path, "wb") as f:
+            #     f.write(r.content)
+        self.joinThreads()
         print("done writing")
         # open model results raster
-
         model_list = ["yield", "ero", "ploss", "cn"]
         # {1:{"yield":"filename", "ero": "filename:}}
         # dic to hold outputs from the models
@@ -526,38 +516,21 @@ class SmartScape:
             "runoff": np.copy(landuse_arr_sel),
             "insect": np.copy(landuse_arr_sel),
         }
-        # base run
-        # for model in model_names_base:
-        #     for name in base_names:
-        #         print(name + "_" + model)
-        #         # base_image = gdal.Open(os.path.join(dir_path, "contCorn_PI.tif"))
-
-        #         if model == "CN":
-        #             print("runoff")
         base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
-        # cn_id = "cc" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
-        # cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
-        # cn_final = np.where(base_data["cn"] == 3, cn_inter + cn_adj, base_data["cn"])
         base_data["runoff"] = get_runoff_vectorized(cn_final)
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
-        # cn_id = "cg" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
-        # cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
-        # cn_final = np.where(base_data["cn"] == 4, cn_inter + cn_adj, base_data["cn"])
         base_data["runoff"] = get_runoff_vectorized(cn_final)
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 5, base_arr, base_data["cn"])
-        # cn_id = "dr" + "_" + base_scen["management"]["cover"] + "_" + base_scen["management"]["tillage"]
-        # cn_adj = get_cn_adjusted_vector(hyd_letter_arr, cn_id)
-        # cn_final = np.where(base_data["cn"] == 5, cn_inter + cn_adj, base_data["cn"])
         base_data["runoff"] = get_runoff_vectorized(cn_final)
         base_data["cn"] = cn_final
 
@@ -779,6 +752,7 @@ class SmartScape:
                     "units": ""
                 },
             },
+            "land_stats":{"area":str("%.1f" %area_selected)}
 
         }
 

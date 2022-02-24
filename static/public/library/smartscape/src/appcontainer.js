@@ -12,6 +12,9 @@ import Col from 'react-bootstrap/Col'
 import Ratio from 'react-bootstrap/Ratio'
 import Alert from 'react-bootstrap/Alert'
 import Modal from 'react-bootstrap/Modal'
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tab'
+import Table from 'react-bootstrap/Table'
 import './App.css';
 import CSRFToken from './csrf';
 import OLMapFragment from './map.js';
@@ -149,27 +152,47 @@ componentDidUpdate(prevProps) {
 //    this.basePloss.current.value = "hello world"
   }
   renderModal(){
-    var labels = ['Yield', 'Erosion', 'Phosphours Lose', 'Curve Number', 'Runoff', 'Honey Bee Toxicity']
+    var labels = ['Yield', 'Erosion',
+        'Phosphours Lose', 'Runoff',
+        'Honey Bee Toxicity', 'Curve Number'
+    ]
     console.log(this.state.modelOutputs)
+    let model = {
+        "yield":null, "yield_total":null, "yield_per_diff":null,
+        "ero":null, "ero_total":null,"ero_per_diff":null,
+        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "cn":null,"cn_per_diff":null,
+        "runoff":null,"runoff_per_diff":null,
+        "insect":null,"insect_per_diff":null,
+    }
+    let base = {
+        "yield":null, "yield_total":null, "yield_per_diff":null,
+        "ero":null, "ero_total":null,"ero_per_diff":null,
+        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "cn":null,"cn_per_diff":null,
+        "runoff":null,"runoff_per_diff":null,
+        "insect":null,"insect_per_diff":null,
+    }
+    let area = 0
     var data = {
-  labels: labels,
-  datasets: [
-    {
-      label: 'Base',
-      data: [1,1,1,1,1,1],
-      backgroundColor: 'rgba(238, 119, 51,.2)',
-      borderColor: 'rgba(238, 119, 51,1)',
-      borderWidth: 1,
-    },
-            {
-      label: 'Transformation',
-      data: [],
-      backgroundColor: 'rgba(0, 119, 187,.2)',
-      borderColor: 'rgba(0, 119, 187,1)',
-      borderWidth: 1,
-    },
-  ],
-};
+      labels: labels,
+      datasets: [
+        {
+          label: 'Base',
+          data: [1,1,1,1,1,1],
+          backgroundColor: 'rgba(238, 119, 51,.2)',
+          borderColor: 'rgba(238, 119, 51,1)',
+          borderWidth: 1,
+        },
+                {
+          label: 'Transformation',
+          data: [2,2,2,2,2,2],
+          backgroundColor: 'rgba(0, 119, 187,.2)',
+          borderColor: 'rgba(0, 119, 187,1)',
+          borderWidth: 1,
+        },
+      ],
+    };
     var data_bar = {
       labels: labels,
       datasets: [{
@@ -208,16 +231,15 @@ componentDidUpdate(prevProps) {
           responsive: true,
 
         };
-
+//    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
+        area = this.state.modelOutputs.land_stats.area
         var data = {
           labels: labels,
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1
-
-              ],
+              data: [1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -228,38 +250,187 @@ componentDidUpdate(prevProps) {
                   this.state.modelOutputs.model.yield.total_per_area/this.state.modelOutputs.base.yield.total_per_area,
                   this.state.modelOutputs.model.ero.total_per_area/this.state.modelOutputs.base.ero.total_per_area,
                   this.state.modelOutputs.model.ploss.total_per_area/this.state.modelOutputs.base.ploss.total_per_area,
-                  this.state.modelOutputs.model.cn.total_per_area/this.state.modelOutputs.base.cn.total_per_area,
                   this.state.modelOutputs.model.runoff.total_per_area/this.state.modelOutputs.base.runoff.total_per_area,
                   this.state.modelOutputs.model.insect.total_per_area/this.state.modelOutputs.base.insect.total_per_area,
+                  this.state.modelOutputs.model.cn.total_per_area/this.state.modelOutputs.base.cn.total_per_area,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
               borderWidth: 1,
             },
           ],
-    };
+        };
+
+        model.yield = this.state.modelOutputs.model.yield.total_per_area
+        model.yield_total = this.state.modelOutputs.model.yield.total
+        model.ero = this.state.modelOutputs.model.ero.total_per_area
+        model.ero_total = this.state.modelOutputs.model.ero.total
+        model.ploss = this.state.modelOutputs.model.ploss.total_per_area
+        model.ploss_total = this.state.modelOutputs.model.ploss.total
+
+        model.cn = this.state.modelOutputs.model.cn.total_per_area
+        model.runoff = this.state.modelOutputs.model.runoff.total_per_area
+        model.insect = this.state.modelOutputs.model.insect.total_per_area
+
+        base.yield = this.state.modelOutputs.base.yield.total_per_area
+        base.yield_total = this.state.modelOutputs.base.yield.total
+        base.ero = this.state.modelOutputs.base.ero.total_per_area
+        base.ero_total = this.state.modelOutputs.base.ero.total
+        base.ploss = this.state.modelOutputs.base.ploss.total_per_area
+        base.ploss_total = this.state.modelOutputs.base.ploss.total
+
+        base.cn = this.state.modelOutputs.base.cn.total_per_area
+        base.runoff = this.state.modelOutputs.base.runoff.total_per_area
+        base.insect = this.state.modelOutputs.base.insect.total_per_area
+
+        let models = ["yield","ero","ploss","cn","insect","runoff"]
+        let v1, v2 = 0
+        let model_name = ""
+        for (let m in models) {
+            model_name = models[m]
+            v1 = parseFloat(model[model_name])
+            v2 = parseFloat(base[model_name])
+            console.log(v1, v2)
+            console.log(((v1 + v2)/2))
+            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
+            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+        }
+
+        var data_bar ={ labels: labels,
+          datasets: [{
+            axis: 'y',
+            label: 'Percent Difference Between Base and Transformation',
+            data: [
+                model.yield_per_diff,
+                model.ero_per_diff,
+                model.ploss_per_diff,
+                model.runoff_per_diff,
+                model.insect_per_diff,
+                model.cn_per_diff,
+
+            ],
+            fill: false,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(201, 203, 207, 0.2)'
+            ],
+            borderColor: [
+              'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)',
+              'rgb(75, 192, 192)',
+              'rgb(54, 162, 235)',
+              'rgb(153, 102, 255)',
+              'rgb(201, 203, 207)'
+            ],
+            borderWidth: 1
+          }]
+        };
+
 
     }
 
     return(
             <div>
-             <Row xs= '13' >
+            <div> Total area Transformed: {area} acres</div>
+            <Tabs defaultActiveKey="chart" id="uncontrolled-tab-example" className="mb-3">
+              <Tab eventKey="chart" title="Chart">
+                <Radar data={data}/>
+                <Bar options = {options_bar} data={data_bar}/>
+            </Tab>
+              <Tab eventKey="tabular" title="Tabular">
+                <Table striped bordered hover size="sm" responsive>
+                  <thead>
+                    <tr>
+                      <th>Variable</th>
+                      <th>Base (Per Acre)</th>
+                      <th>Transformation (Per Acre)</th>
+                      <th>Units</th>
+                      <th>Base</th>
+                      <th>Transformation</th>
+                      <th>Units</th>
+                      <th>% Difference</th>
+                      <th>Help</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Yield</td>
+                      <td>{base.yield}</td>
+                      <td>{model.yield}</td>
+                      <td>tons-Dry Matter/year</td>
+                      <td>{base.yield_total}</td>
+                      <td>{model.yield_total}</td>
+                      <td>tons-Dry Matter/year</td>
+                      <td>{model.yield_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Erosion</td>
+                      <td>{base.ero}</td>
+                      <td>{model.ero}</td>
+                      <td>tons/year</td>
+                      <td>{base.ero_total}</td>
+                      <td>{model.ero_total}</td>
+                      <td>tons/year</td>
+                      <td>{model.ero_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Phosphorus Loss</td>
+                      <td>{base.ploss}</td>
+                      <td>{model.ploss}</td>
+                      <td>lb/year</td>
+                      <td>{base.ploss_total}</td>
+                      <td>{model.ploss_total}</td>
+                      <td>lb/year</td>
+                      <td>{model.ploss_per_diff}</td>
+                      <td></td>
+                    </tr>
+                   <tr>
+                      <td>Runoff</td>
+                      <td>{base.runoff}</td>
+                      <td>{model.runoff}</td>
+                      <td>in</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td>{model.runoff_per_diff}</td>
+                      <td></td>
+                   </tr>
+                   <tr>
+                      <td>Honey Bee Toxicity</td>
+                      <td>{base.insect}</td>
+                      <td>{model.insect}</td>
+                      <td>Insecticide Index</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td>{model.insect_per_diff}</td>
+                      <td></td>
+                   </tr>
+                   <tr>
+                      <td>Curve Number</td>
+                      <td>{base.cn}</td>
+                      <td>{model.cn}</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td>{model.cn_per_diff}</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </Table>
+              </Tab>
 
-                <Form.Label >
-                  Base Scenario
-                </Form.Label>
-                <Col xs='6'>
-                    <Form.Control  ref={this.basePloss} plaintext readOnly defaultValue={this.state.basePloss} />
-                    <Form.Control plaintext readOnly defaultValue={this.state.baseEro} />
-                </Col>
-            </Row>
-            <Form.Label >
-              Transformation
-            </Form.Label>
-            <Form.Control plaintext readOnly defaultValue={this.state.modelPloss} />
-            <Form.Control plaintext readOnly defaultValue={this.state.modelEro} />
-            <Radar data={data}/>;
-            <Bar options = {options_bar} data={data_bar}/>
+            </Tabs>
             </div>
     )
   }
@@ -419,8 +590,8 @@ componentDidUpdate(prevProps) {
                         addTrans = {this.addTrans}
                     />
                         <Button variant="primary" onClick={this.handleOpenModal}>
-        View Results
-      </Button>
+                View Results
+              </Button>
                   </Col>
                   <Col xs='9' className = "sidePanelCol">
                     <OLMapFragment
@@ -435,22 +606,22 @@ componentDidUpdate(prevProps) {
             </div>
 
 
-      <Modal size="lg" show={this.state.outputModalShow} onHide={this.handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Transformation Results</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+          <Modal show={this.state.outputModalShow} onHide={this.handleCloseModal} dialogClassName="modal-90w">
+            <Modal.Header closeButton>
+              <Modal.Title>Transformation Results</Modal.Title>
+            </Modal.Header>
+            <Modal.Body dialogClassName="modal-90w">
 
-            {this.renderModal()}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={this.handleCloseModal}>
-            Close
-          </Button>
+                {this.renderModal()}
+            </Modal.Body >
+            <Modal.Footer>
+              <Button variant="secondary" onClick={this.handleCloseModal}>
+                Close
+              </Button>
 
-        </Modal.Footer>
-      </Modal>
-          </div>
+            </Modal.Footer>
+          </Modal>
+      </div>
         )
 
 
