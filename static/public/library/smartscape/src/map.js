@@ -369,12 +369,13 @@ class OLMapFragment extends React.Component {
             renderMode: 'image',
           source:new VectorSource({
 //              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_json.geojson',
-              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_trim.geojson',
+//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_trim.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
             style: styles,
             visible: false,
+//            operation: olSourceRasterOperationCropInner
         });
        // show borders of our three work areas
         this.southCentral = new VectorLayer({
@@ -486,10 +487,15 @@ class OLMapFragment extends React.Component {
         this.selectedFeatures.on(['add'], (f)=> {
             let region = ""
             console.log(f.target.item(0))
-            console.log(f.target)
+            console.log(f.target.item(0).getGeometry())
+            console.log(f.target.item(0).getGeometry().getExtent())
 //          selecting by county
             if(f.target.item(0).get("NAME") != undefined){
                 console.log("selecting a county!!!!!")
+                var extent = f.target.item(0).getGeometry().getExtent()
+                console.log(extent)
+                this.map.getView().fit(extent,{"duration":500});
+
                 if(f.target.item(0).get("NAME") == "La Crosse"){
                     region = "southWestWI"
                 }
@@ -497,6 +503,7 @@ class OLMapFragment extends React.Component {
                     region = "cloverBeltWI"
                 }
                 this.setActiveRegion(region)
+
                 return
             }
             console.log("adding feature")

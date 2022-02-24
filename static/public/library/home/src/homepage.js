@@ -70,7 +70,7 @@ const App = (props) => (
     </div>*/}
 <Navbar bg="light" variant="light">
     <Container>
-      <Navbar.Brand href="#home">
+      <Navbar.Brand className="justify-content-left " href="https://grasslandag.org/" target="_blank">
         <img
           alt=""
           src="static/public/library/images/color-flush-Grassland2.0-logo-web.svg"
@@ -79,7 +79,6 @@ const App = (props) => (
         />{' '}
       </Navbar.Brand>
       <Nav className="justify-content-center ">
-          <Nav.Link href="https://grasslandag.org/" target="_blank">Grassland 2.0</Nav.Link>
           <Nav.Link href="https://github.com/Grasslands-2" target="_blank">Source Code</Nav.Link>
           {/*<Nav.Link href="#pricing">Pricing</Nav.Link>*/}
 
@@ -182,15 +181,13 @@ const App = (props) => (
             <Col xs='3'>
             </Col>
             <Col xs='6'>
-                <Row>
                 <h5 className="header">Please select an app to begin</h5>
+                <Row className="appSelect">
                   <a href="/grazescape"><Image  className = "shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
-                        </Row>
-
-                        {<Row>
-
+                </Row>
+                <Row className="appSelect">
                   <a href="/smartscape"><Image className = "shadow-lg app_click image" fluid src="static/public/library/images/dss_logo.png" rounded /></a>
-                        </Row>}
+                </Row>
              </Col>
              <Col xs='3'>
             </Col>

@@ -20,6 +20,7 @@ from shapely.geometry import Polygon
 import os
 from django.conf import settings
 import math
+import threading
 import shutil
 
 class RasterDataSmartScape:
@@ -76,7 +77,7 @@ class RasterDataSmartScape:
         if not os.path.exists(self.dir_path):
             os.makedirs(self.dir_path)
 
-
+        self.threads = []
 
     def create_clip(self):
         """
@@ -125,13 +126,32 @@ class RasterDataSmartScape:
             print("downloading layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
-            r = requests.get(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
             print("done downloading")
             print("raster_file_path", raster_file_path)
-            with open(raster_file_path, "wb") as f:
-                f.write(r.content)
+            self.createNewDownloadThread(url, raster_file_path)
+
+            # r = requests.get(url)
+            # with open(raster_file_path, "wb") as f:
+            #     f.write(r.content)
             print("done writing")
+        self.joinThreads()
+
+    def createNewDownloadThread(self, link, filelocation):
+        download_thread = threading.Thread(target=self.download, args=(link, filelocation))
+        download_thread.start()
+        self.threads.append(download_thread)
+
+    def download(self, link, filelocation):
+        r = requests.get(link, stream=True)
+        with open(filelocation, 'wb') as f:
+            for chunk in r.iter_content(1024):
+                if chunk:
+                    f.write(chunk)
+
+    def joinThreads(self):
+        for thread in self.threads:
+            thread.join()
 
     def clip_rasters(self):
         """
