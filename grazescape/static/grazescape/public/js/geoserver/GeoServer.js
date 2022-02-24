@@ -27,6 +27,7 @@ class GeoServer{
     setFarmSource(parameter = ""){
         console.log("IN SET FARM!!!")
         this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
+            console.log(geoJson)
             DSS.layer.farms_1.getSource().clear()
             var format = new ol.format.GeoJSON();
            
@@ -66,7 +67,7 @@ class GeoServer{
         this.makeRequest(this.geoInfra_Url + parameter, "source").then(function(geoJson){
             DSS.layer.infrastructure.getSource().clear()
             geoJson = geoJson.geojson
-                        console.log(geoJson)
+                        //console.log(geoJson)
 
             var format = new ol.format.GeoJSON();
             var myGeoJsonFeatures = format.readFeatures(
@@ -373,7 +374,7 @@ class GeoServer{
     //Function that hits geoserver with ajax request.
     makeRequest(url, requestType, payLoad="", currObj = null, featureID = null){
         //console.log("MAKEREQUEST")
-        console.log(url)
+        //console.log(url)
         return new Promise(function(resolve) {
             var csrftoken = Cookies.get('csrftoken');
             $.ajaxSetup({

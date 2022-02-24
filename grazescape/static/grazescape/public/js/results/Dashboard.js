@@ -17,16 +17,17 @@ var modelruntime = ''
 function gatherYieldTableData() {
     fieldYieldArray = []
 	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
-
 	for(field in chartObjyieldarray){
-        if(chartObjyieldarray[field].toolTip[0] !== null){
+        console.log(field)
+        //if(chartObjyieldarray[field].toolTip[0] !== null){
+        if(chartObjyieldarray[field].scenDbID == DSS.activeScenario){
             fieldYieldArray.push({
                 id: chartObjyieldarray[field].dbID,
-                name: chartObjyieldarray[field].label.slice(0,-3),
-                rotationVal1: chartObjyieldarray[field].toolTip[0][0],
-                rotationVal2: chartObjyieldarray[field].toolTip[0][1],
-                grassType: chartObjyieldarray[field].toolTip[0][2],
-                dMYieldAc: chartObjyieldarray[field].data[0]
+                name: chartObjyieldarray[field].label,
+                rotationVal1: chartObjyieldarray[field].cropRo,
+                rotationVal2: chartObjyieldarray[field].grassRo,
+                grassType: chartObjyieldarray[field].grassType,
+                dMYieldAc: chartObjyieldarray[field].fieldData
             })
         }
 	}
@@ -42,32 +43,32 @@ function gatherYieldTableData() {
         var fieldID = fieldYieldArray[i].id
         for(g in grassdataarray){
             if (grassdataarray[g].dbID == fieldID){
-                fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].data[0]
+                fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].fieldData
             }
         }
         for(c in corndataarray){
             if (corndataarray[c].dbID == fieldID){
-                fieldYieldArray[i].cornGrainBrusdAc = corndataarray[c].data[0]
+                fieldYieldArray[i].cornGrainBrusdAc = corndataarray[c].fieldData
             }
         }
         for(s in silagedataarray){
             if (silagedataarray[s].dbID == fieldID){
-                fieldYieldArray[i].cornSilageTonsAc = silagedataarray[s].data[0]
+                fieldYieldArray[i].cornSilageTonsAc = silagedataarray[s].fieldData
             }
         }
         for(so in soydataarray){
             if (soydataarray[so].dbID == fieldID){
-                fieldYieldArray[i].soyGrainBrusAc = soydataarray[so].data[0]
+                fieldYieldArray[i].soyGrainBrusAc = soydataarray[so].fieldData
             }
         }
         for(o in oatdataarray){
             if (oatdataarray[o].dbID == fieldID){
-                fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].data[0]
+                fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].fieldData
             }
         }
         for(a in alfalfadataarray){
             if (alfalfadataarray[a].dbID == fieldID){
-                fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].data[0]
+                fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].fieldData
             }
         }
         rotationValSum = fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2
@@ -324,10 +325,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         console.log(f)
                         console.log(f.properties.is_dirty)
                         console.log(returnData[0].model_run_timestamp)
-                        if(f.properties.is_dirty == false && returnData[0].model_run_timestamp != modelruntimeOrig){
+                        if(f.properties.is_dirty == false && returnData[0].model_type == 'ploss' && returnData[0].model_run_timestamp != modelruntimeOrig){
                             modelruntime = returnData[0].model_run_timestamp
                             console.log("MODELRUNTIME CHANGED TO OLD VALUE");
-                            console.log(returnData[0])
+                            //console.log(returnData[0])
                             console.log(modelruntime);
                         }
                         //modelruntime = returnData[0].model_run_timestamp
@@ -821,10 +822,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             console.log(chartObj)
                             console.log(fieldYieldArray)
                             await gatherYieldTableData()
-                            {
-                                DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
-                                DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
-                            }
+                            
+                            Ext.destroy('DSS.results.YieldAdjustment'); 
+                            DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment'); 
+                            DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);		
+                            
                             DSS.dialogs.YieldAdjustment.show().center().setY(0);
                         }
                     },
@@ -1808,6 +1810,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         fArray.push(f);
                     })
                     console.log(fArray);
+                    //You need to find out whats in the image files, so you can get the proper model run number
+
                     for(i in fArray){
                         fExtents = fArray[i].values_.geometry.extent_
                         for(e in fExtents){
@@ -2224,7 +2228,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         {
                             xtype: 'label',
                             cls: 'information med-text',
-                            text: 'indicates higher yeilds, '
+                            text: 'indicates higher yields, '
                         },
                         {
                             xtype: 'label',

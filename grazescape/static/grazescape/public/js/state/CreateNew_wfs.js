@@ -10,6 +10,7 @@ var farmUrl =
 
 function showNewFarm() {
     geoServer.setFarmSource()
+	console.log("setFarmSource in CreateNew_wfs within showNewFarm")
 	DSS.layer.farms_1.setOpacity(1);
 	DSS.layer.farms_1.getSource().refresh();
 	console.log(DSS.activeFarm)
