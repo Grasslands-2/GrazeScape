@@ -310,8 +310,8 @@ Ext.define('DSS.state.Scenario', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: async function(self) {
-									gatherScenarioTableData
-									runScenarioUpdate();
+									await gatherScenarioTableData
+									await runScenarioUpdate();
 									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
@@ -639,7 +639,7 @@ Ext.define('DSS.state.Scenario', {
                 me.initViewModel();
 
             })
-            }, 1000);
+            }, 1500);
         },
 	
 

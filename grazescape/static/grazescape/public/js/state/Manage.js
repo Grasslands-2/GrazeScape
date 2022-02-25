@@ -112,39 +112,27 @@ Ext.define('DSS.state.Manage', {
 					html: 'Scenario: ' + DSS.scenarioName,
 				},
 				//--------------------Manage current scenario--------------
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Manage Loaded Scenario',
-					handler: function(self) {
-						//reSourcescenarios()
-						gatherScenarioTableData
-						runScenarioUpdate();
-						geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
-						DSS.ApplicationFlow.instance.showManageOperationPage();
-						// showFieldsForScenario()
-				 		// showInfraForScenario()
-						// reSourceFields()
-						// reSourceinfra()
-						//DSS.layer.scenarios.getSource().refresh();
-						//AppEvents.triggerEvent('hide_field_shape_mode')
-						DSS.ApplicationFlow.instance.showScenarioPage();
-						console.log(DSS.activeScenario);
-					}
-				},
-				//------------------------Load Scenario Button-------------
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Load Different Scenario',
-					handler: function(self) {
-						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
-						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-					}
-				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'Manage Loaded Scenario',
+				// 	handler: function(self) {
+				// 		//reSourcescenarios()
+				// 		gatherScenarioTableData
+				// 		runScenarioUpdate();
+				// 		geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+				// 		DSS.ApplicationFlow.instance.showManageOperationPage();
+				// 		// showFieldsForScenario()
+				//  		// showInfraForScenario()
+				// 		// reSourceFields()
+				// 		// reSourceinfra()
+				// 		//DSS.layer.scenarios.getSource().refresh();
+				// 		//AppEvents.triggerEvent('hide_field_shape_mode')
+				// 		DSS.ApplicationFlow.instance.showScenarioPage();
+				// 		console.log(DSS.activeScenario);
+				// 	}
+				// },
 				//---------------------Create New Scenario Button-----------
 				{
 					xtype: 'button',
@@ -160,6 +148,19 @@ Ext.define('DSS.state.Manage', {
 						// DSS.layer.scenarios.getSource().refresh();
 						console.log('This is the scenarioArray: ')
 						console.log(scenarioArray)
+						//DSS.ApplicationFlow.instance.showScenarioPage();
+					}
+				},
+				//------------------------Load Scenario Button-------------
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Load Different Scenario',
+					handler: function(self) {
+						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
+						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+						DSS.dialogs.ScenarioPicker.show().center().setY(0);
 					}
 				},
 				//---------------------Delete Scenarios Button-------------
