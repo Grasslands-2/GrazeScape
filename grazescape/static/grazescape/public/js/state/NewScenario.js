@@ -192,9 +192,32 @@ function createNewScenario(sname,sdescript){
 	console.log('scenarioArray at start of createnewscen: ');
 	console.log(scenarioArray)
 	console.log('current active scenario #: '+ DSS.activeScenario);
+	if (typeof DSS.activeScenario == 'undefined' || DSS.activeScenario == null){
+		console.log("in active scenario undefined if");
+		//set up the active farm geom to be the geom for this new scenario
+		DSS.layer.farms_1.getSource().getFeatures().forEach(function(f) {
+			var newScenarioFeature = f;
+			f.values_.geom = f.values_.geometry;
+			if(newScenarioFeature.values_.gid == DSS.activeFarm){
+				console.log("found actuve farm object!");
+				newScenarioFeature.setProperties({
+					scenario_name:sname,
+					scenario_desp:sdescript,
+					//scenario_id: 9999,
+					//scenario_id: snewhighID,
+					farm_id: DSS.activeFarm,
+					farm_name:DSS.farmName,
+				})
+				var geomType = 'point'
+				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')
+				console.log("HI! WFS new scenario Insert ran with a brand new farm!!")
+			}else{}
+		})
+		
+	}
 	//reSourcescenarios()
 	//DSS.layer.scenarios.getSource().refresh();
-	console.log(DSS.layer.scenarios.getSource())
+	//console.log(DSS.layer.scenarios.getSource())
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 	//DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
@@ -345,7 +368,8 @@ Ext.define('DSS.state.NewScenario', {
 								let scenDes = form.findField('scenario_description').getSubmitValue()
 								//geoServer.copyScenario(scenName, scenDes)
 								//createNewScenario(sname,sdescript)
-								createNewScenario(scenName,scenDes)
+								await createNewScenario(scenName,scenDes)
+								//await DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
 							}
 						}
