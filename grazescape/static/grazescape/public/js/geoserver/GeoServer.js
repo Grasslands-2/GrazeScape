@@ -137,70 +137,47 @@ class GeoServer{
             // DSS.activeFarm = highestFarmIdCNO + 1
             DSS.activeFarm = intFgid
             DSS.farmName = feat.values_.farm_name;
-            DSS.scenarioName = feat.values_.scenario_name;
+            DSS.scenarioName = ''//feat.values_.scenario_name;
+            DSS.ApplicationFlow.instance.showManageOperationPage();
             //DSS.ApplicationFlow.instance.showScenarioPage();
 
-            var formatWFS = new ol.format.WFS();
-            var formatGML = new ol.format.GML({
-                featureNS: 'http://geoserver.org/GrazeScape_Vector',
-                featureType: 'scenarios_2',
-                srsName: 'EPSG:3857'
-            });
-            feat.setProperties({farm_id:DSS.activeFarm})
-            console.log(feat)
+            // var formatWFS = new ol.format.WFS();
+            // var formatGML = new ol.format.GML({
+            //     featureNS: 'http://geoserver.org/GrazeScape_Vector',
+            //     featureType: 'scenarios_2',
+            //     srsName: 'EPSG:3857'
+            // });
+            // feat.setProperties({farm_id:DSS.activeFarm})
+            // console.log(feat)
 
-            node = formatWFS.writeTransaction([feat], null, null, formatGML);
-            console.log(node);
-            s = new XMLSerializer();
-            str = s.serializeToString(node);
-            console.log(str);
-            //geoServer.insertFarm(str, feat,fType)
-            geoServer.makeRequest(geoServer.geoUpdate_Url, "insert_farm", str, this).then(function(returnData){
-                var scenGeojsonString = String(returnData.geojson)
-                var sgid = scenGeojsonString.substring(scenGeojsonString.indexOf('scenarios_2.') + 12,scenGeojsonString.lastIndexOf('"/>'));
-                console.log(intSgid);
-                var intSgid = parseInt(sgid);
-                console.log(intSgid);
-                DSS.activeScenario = sgid
-                DSS.MapState.showNewFarm(DSS.activeFarm);
-                gatherScenarioTableData();
-                runScenarioUpdate();
-                DSS.ApplicationFlow.instance.showScenarioPage();
-                showInfraForScenario()
-                showFieldsForScenario()
-                // DSS.MapState.showFieldsForFarm();
-                // DSS.MapState.showInfrasForFarm();
-                // DSS.layer.fields_1.setVisible(true);
-		        // DSS.layer.infrastructure.setVisible(true);
-		        // DSS.layer.fieldsLabels.setVisible(true);
-		        //console.log("HI! WFS farm Insert ran!")
-            })
-
-            //This is where you need to get the new farm and scenario GID to assign them as active
-            // if(fType == 'farm_2'){
-            //     var fgid = geojsonString.substring(geojsonString.indexOf('farm_2.') + 7,geojsonString.lastIndexOf('"/>'));
-            //     var intFgid = parseInt(fgid);
-            //     console.log(intFgid);
-            //     // DSS.activeFarm = highestFarmIdCNO + 1
-            //     DSS.activeFarm = intFgid
-            //     DSS.farmName = feat.values_.farm_name;
-            //     DSS.scenarioName = feat.values_.scenario_name;
-            //     DSS.MapState.showNewFarm(DSS.activeFarm);
-            //     DSS.ApplicationFlow.instance.showScenarioPage();
-            // }
-            // if(fType == 'scenarios_2'){
-            //     var sgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 12,geojsonString.lastIndexOf('"/>'));
+            // node = formatWFS.writeTransaction([feat], null, null, formatGML);
+            // console.log(node);
+            // s = new XMLSerializer();
+            // str = s.serializeToString(node);
+            // console.log(str);
+            // //geoServer.insertFarm(str, feat,fType)
+            // geoServer.makeRequest(geoServer.geoUpdate_Url, "insert_farm", str, this).then(function(returnData){
+            //     var scenGeojsonString = String(returnData.geojson)
+            //     var sgid = scenGeojsonString.substring(scenGeojsonString.indexOf('scenarios_2.') + 12,scenGeojsonString.lastIndexOf('"/>'));
+            //     console.log(intSgid);
             //     var intSgid = parseInt(sgid);
             //     console.log(intSgid);
-            //     DSS.activeScenario = intSgid
-            //     //DSS.activeScenario = highestScenarioIdCNO + 1
-            //     // DSS.farmName = feat.values_.farm_name;
-            //     // DSS.scenarioName = feat.values_.scenario_name;
+            //     DSS.activeScenario = sgid
+            //     DSS.MapState.showNewFarm(DSS.activeFarm);
             //     gatherScenarioTableData();
+            //     runScenarioUpdate();
             //     DSS.ApplicationFlow.instance.showScenarioPage();
-            //     DSS.MapState.showFieldsForFarm();
-            //     DSS.MapState.showInfrasForFarm();
-            // }
+            //     showInfraForScenario()
+            //     showFieldsForScenario()
+            //     // DSS.MapState.showFieldsForFarm();
+            //     // DSS.MapState.showInfrasForFarm();
+            //     // DSS.layer.fields_1.setVisible(true);
+		    //     // DSS.layer.infrastructure.setVisible(true);
+		    //     // DSS.layer.fieldsLabels.setVisible(true);
+		    //     //console.log("HI! WFS farm Insert ran!")
+            // })
+
+           
         })
     }
 // used to insert fields into geoserver
@@ -316,12 +293,13 @@ class GeoServer{
 			DSS.newScenarioID = null
             DSS.farmName = feat.values_.farm_name;
 			DSS.scenarioName = feat.values_.scenario_name
-			DSS.ApplicationFlow.instance.showManageOperationPage();
+			//DSS.ApplicationFlow.instance.showManageOperationPage();
 			console.log(DSS.activeScenario);
             console.log(copyScenarioNum);
             console.log("copying features$$$$$$$$$")
 			getWFSFieldsInfraNS(copyScenarioNum,fieldArrayNS,DSS.layer.fields_1,'field_2');
 			getWFSFieldsInfraNS(copyScenarioNum,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
+            DSS.ApplicationFlow.instance.showScenarioPage();
          })
     }
     //ALL THIS DOES IS GET A GEOSJSON WIth THE CURRENT SCENS AND GET THE HIGHEST SCENARIOID #

@@ -2112,7 +2112,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         DSS.layer.PLossGroup.setVisible(true);
                                         //To FORCE a redraw of the map
                                         DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
-                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
+                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 75);
                                         //setTimeout(DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1),500)
                                         
 									}
@@ -2138,7 +2138,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         DSS.layer.erosionGroup.setVisible(true);
                                         //To FORCE a redraw of the map
                                         DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
-                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
+                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 75);
 									}
 									else{
 										DSS.layer.erosionGroup.setVisible(false);
@@ -2164,7 +2164,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         //                 DSS.layer.runoffGroup.setVisible(true);
                         //                 //To FORCE a redraw of the map
                         //                 DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
-                        //                 setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
+                        //                 setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 75);
 						// 			}
 						// 			else{
 						// 				DSS.layer.runoffGroup.setVisible(false);
@@ -2190,7 +2190,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                         DSS.layer.yieldGroup.setVisible(true);
                                         //To FORCE a redraw of the map
                                         DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
-                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 50);
+                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 75);
 									}
 									else{
 										DSS.layer.yieldGroup.setVisible(false);

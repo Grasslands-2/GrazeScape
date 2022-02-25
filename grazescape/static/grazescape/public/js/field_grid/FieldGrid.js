@@ -525,7 +525,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let manuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 100, step: 5
+				xtype:'numberfield', maxValue: 200, step: 5
 			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};

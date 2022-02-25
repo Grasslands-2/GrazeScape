@@ -145,8 +145,8 @@ function createFarm(fname,fowner,faddress,sname,sdescript){
 			farm_name: fname,
 			farm_owner: fowner,
 			farm_addre: faddress,
-			scenario_name: sname,
-			scenario_desp: sdescript,
+			// scenario_name: sname,
+			// scenario_desp: sdescript,
 			//scenario_id: DSS.activeFarm
 			//farm_id: highestFarmIdCNO + 1,
 		})
@@ -247,19 +247,21 @@ Ext.define('DSS.state.CreateNew_wfs', {
                     allowBlank: false,
 					margin: '12 0',
 					padding: 4,
-            	},{
-					fieldLabel: 'Scenario Name',
-					name: 'scenario_name',
-                    allowBlank: false,
-					margin: '12 0',
-					padding: 4,
-            	},{
-					fieldLabel: 'Scenario Description',
-					name: 'scenario_description',
-                    allowBlank: false,
-					margin: '12 0',
-					padding: 4,
-            	},{
+            	},
+				// {
+				// 	fieldLabel: 'Scenario Name',
+				// 	name: 'scenario_name',
+                //     allowBlank: false,
+				// 	margin: '12 0',
+				// 	padding: 4,
+            	// },{
+				// 	fieldLabel: 'Scenario Description',
+				// 	name: 'scenario_description',
+                //     allowBlank: false,
+				// 	margin: '12 0',
+				// 	padding: 4,
+            	// },
+				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
@@ -275,9 +277,9 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							//gethighestScenarioIdCNO();
 							createFarm(form.findField('operation').getSubmitValue(),
 							form.findField('owner').getSubmitValue(),
-							form.findField('address').getSubmitValue(),
-							form.findField('scenario_name').getSubmitValue(),
-							form.findField('scenario_description').getSubmitValue());
+							form.findField('address').getSubmitValue());
+							// form.findField('scenario_name').getSubmitValue(),
+							// form.findField('scenario_description').getSubmitValue());
 							//DSS.layer.fields_1.setVisible(true);
 							//showNewFarm()
 						}
