@@ -1,11 +1,11 @@
 
 function reSourceFields() {
 
-    geoServer.setFieldSource()
+    geoServer.setFieldSource('&CQL_filter=farm_id='+DSS.activeFarm)
 	console.log("reSource Fields ran");
 }
 function reSourceinfra() {
-    geoServer.setInfrastructureSource()
+    geoServer.setInfrastructureSource('&CQL_filter=far,_id='+DSS.activeFarm)
 	console.log("reSource Infra ran");
 }
 function reSourcefarms() {

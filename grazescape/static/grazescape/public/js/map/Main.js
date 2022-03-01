@@ -982,6 +982,7 @@ Ext.define('DSS.map.Main', {
 			}
 		};
 		DEMExtent = [-10177440, 5490396, -10040090, 5310186]
+		console.log("setFieldSource in Main")
 		geoServer.setFieldSource()
 		geoServer.setFarmSource()
 		console.log("setFarmSource in Main.js")

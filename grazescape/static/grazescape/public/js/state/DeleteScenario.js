@@ -48,8 +48,10 @@ function wfsDeleteItem(featsArray,layerString){
 	geoServer.wfsDeleteItem(str, featsArray)
 }
 function selectDeleteScenario(fgid){
+	console.log("in selectDeleteScenario")
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 		var delScenarioFeature = f;
+		console.log(delScenarioFeature.values_.gid);
 		if (delScenarioFeature.values_.gid == fgid){
 		    console.log(fgid)
 			itemToBeDeleted = delScenarioFeature;
@@ -81,10 +83,10 @@ async function selectDeleteFieldInfra(fgid,featArray,layerName,layerString){
 	//reSourceFeatures(layerName,layerString,fgid)
 	layerName.getSource().getFeatures().forEach(function(f) {
 		var delFieldInfraFeature = f;
+		console.log(delFieldInfraFeature)
 		console.log('this is fgid')
 		console.log(fgid)
-		console.log(delFieldInfraFeature);
-		console.log("from " + layerName + " loop through: " + delFieldInfraFeature.values_.scenario_id);
+		console.log("from " + layerName + " loop through: " + delFieldInfraFeature.values_.gid);
 		if (delFieldInfraFeature.values_.scenario_id == fgid){
 			//itemToBeDeleted = delFieldInfraFeature;
 			//console.log("feature selected for termination: ")
@@ -165,7 +167,7 @@ Ext.define('DSS.state.DeleteScenario', {
 							renderTo: Ext.getBody(),  // usually rendered by it's containing component
 							items: itemsArrayDS,
 							listeners:{
-								click: function( menu, item, e, eOpts ) {
+								click: async function( menu, item, e, eOpts ) {
 									fieldArrayDS = []
 									infraArrayDS = []
 									console.log(item.text);
@@ -177,7 +179,8 @@ Ext.define('DSS.state.DeleteScenario', {
 									//selectDeleteFieldInfra(item.inputValue,fieldArrayDS,DSS.layer.fields_1,'field_2')
 									//selectDeleteFieldInfra(item.inputValue,infrastructureSourceDS,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
 									alert('Scenario: ' + item.text + ' Deleted')
-
+									geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+									geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 								}
 							}
 						}),

@@ -313,6 +313,7 @@ Ext.define('DSS.state.Scenario', {
 									await gatherScenarioTableData
 									await runScenarioUpdate();
 									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+									//geoServer.getWFSScenario()
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
 									//DSS.layer.PLossGroup.setVisible(false);
@@ -630,7 +631,7 @@ Ext.define('DSS.state.Scenario', {
 		DSS.MapState.disableFieldDraw();
 		DSS.draw.setActive(false);
 		DSS.modify.setActive(false);
-		DSS.fieldStyleFunction = undefined;	DSS.layer.fields_1.changed();
+		//DSS.fieldStyleFunction = undefined;	DSS.layer.fields_1.changed();
 //        having trouble getting the promise to work. Just using a timeout for now
         setTimeout(() => {
             console.log("calling model setup")

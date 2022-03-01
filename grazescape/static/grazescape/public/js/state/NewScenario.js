@@ -65,7 +65,7 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
 		})
 		console.log('featArrayNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 		console.log(featArray);
-		await wfs_new_scenario_features_copy(featArray,layerTitle)
+		wfs_new_scenario_features_copy(featArray,layerTitle)
 
 }
 
@@ -214,22 +214,11 @@ function createNewScenario(sname,sdescript){
 			}else{}
 		})
 		
-	}
-	//reSourcescenarios()
-	//DSS.layer.scenarios.getSource().refresh();
-	//console.log(DSS.layer.scenarios.getSource())
+	}else{
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
 	//DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
-		//console.log(newScenarioFeature)
-		//DSS.layer.scenarios.getSource().forEachFeature does always run through all features, so whatever it gets is used as a template.
-		//scenario values are hardcoded in below.
-		//this isnt the most efficient way to work this, but it works.  revisit later
-		//console.log("Active Scenario")
-		//console.log(DSS.activeScenario)
-		//console.log(newScenarioFeature.values_.scenario_id)
-		//console.log(newScenarioFeature.values_.gid)
 		if(newScenarioFeature.values_.gid == DSS.activeScenario){
 			console.log("Hit NEW SCENRIO GID")
 			console.log(newScenarioFeature.values_.gid)
@@ -274,7 +263,7 @@ function createNewScenario(sname,sdescript){
 				}else{}
 			}
 		}else{}
-	})
+	})}
 }
 
 //------------------working variables--------------------
@@ -369,6 +358,14 @@ Ext.define('DSS.state.NewScenario', {
 								//geoServer.copyScenario(scenName, scenDes)
 								//createNewScenario(sname,sdescript)
 								await createNewScenario(scenName,scenDes)
+								//showFieldsForScenario()
+				 				//showInfraForScenario()
+								//reSourcefarms()
+								// DSS.layer.fields_1.setVisible(true);
+								// DSS.layer.fields_1.getSource().refresh();
+								// DSS.layer.fieldsLabels.getSource().refresh();
+								// DSS.layer.infrastructure.setVisible(true);
+								// DSS.layer.fieldsLabels.setVisible(true);
 								//await DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
 							}
