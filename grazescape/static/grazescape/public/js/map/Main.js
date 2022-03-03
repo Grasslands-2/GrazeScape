@@ -11,6 +11,13 @@ let canvas = document.createElement('canvas');
 let context = canvas.getContext('2d');
 //var hatchPattern = new Image();
 
+var fields_1Source = new ol.source.Vector({
+	format: new ol.format.GeoJSON(),
+	// url: function(extent) {
+	// 	return geoserverURL + geoServer.geoField_Url
+	// },
+});
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
@@ -986,7 +993,7 @@ Ext.define('DSS.map.Main', {
 		geoServer.setFieldSource()
 		geoServer.setFarmSource()
 		console.log("setFarmSource in Main.js")
-//		geoServer.setInfrastructureSource()
+		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
 		//geoServer.setDEMSource()
 
@@ -994,7 +1001,7 @@ Ext.define('DSS.map.Main', {
 		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
-			visible: true,
+			visible: false,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: infrastructure_Source,

@@ -4,7 +4,7 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 //local functions to make sure selected scenario infra and fields only draw
 async function showFieldsForScenarioSP() {
 	console.log("setFieldSource in ScenarioPicker")
-    geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+    geoServer.setFieldSource('&CQL_filter=farm_id='+DSS.activeFarm)
 	//console.log(DSS.layer.fields_1.getStyle())
 	//DSS.layer.fields_1.getSource().refresh();
 	//await DSS.layer.fields_1.setVisible(true);
@@ -68,16 +68,24 @@ itemsArray = []
 function popItemsArray(obj){
 	if(Ext.getCmp("scenarioMenu")){
 		Ext.getCmp("scenarioMenu").removeAll()
+		for (i in obj){
+			Ext.getCmp("scenarioMenu").add({
+				text:obj[i].properties.scenario_name,
+				//inputValue:obj[i].properties.scenario_id,
+				inputValue:obj[i].properties.gid,
+				itemFid: obj[i].id
+			})
+		}
 	}
     
-	for (i in obj){
-        Ext.getCmp("scenarioMenu").add({
-            text:obj[i].properties.scenario_name,
-			//inputValue:obj[i].properties.scenario_id,
-            inputValue:obj[i].properties.gid,
-            itemFid: obj[i].id
-        })
-    }
+	// for (i in obj){
+    //     Ext.getCmp("scenarioMenu").add({
+    //         text:obj[i].properties.scenario_name,
+	// 		//inputValue:obj[i].properties.scenario_id,
+    //         inputValue:obj[i].properties.gid,
+    //         itemFid: obj[i].id
+    //     })
+    // }
 	console.log(itemsArray);
 
 }
@@ -144,16 +152,23 @@ Ext.define('DSS.state.ScenarioPicker', {
 							DSS.scenarioName = item.text
 							//showFieldsForScenarioSP()
 				 			//showInfraForScenarioSP()
+							DSS.ApplicationFlow.instance.showScenarioPage();
+							scenarioPickerArray = []
 							DSS.MapState.showFieldsForScenario();
                				DSS.MapState.showInfraForScenario();
-							DSS.ApplicationFlow.instance.showScenarioPage();
+							
 							//reSourcefarms()
-							//DSS.layer.fields_1.setVisible(true);
+							DSS.layer.fields_1.setVisible(true);
+							DSS.layer.fields_1.getSource().refresh();
+							DSS.layer.fieldsLabels.getSource().refresh();
+							DSS.layer.infrastructure.setVisible(true);
+							DSS.layer.fieldsLabels.setVisible(true);
 							// DSS.layer.fields_1.getSource().refresh();
 							//DSS.layer.fieldsLabels.getSource().refresh();
-							//DSS.layer.infrastructure.setVisible(true);
-							//DSS.layer.fieldsLabels.setVisible(true);
-							scenarioPickerArray = []
+							// DSS.layer.infrastructure.setVisible(true);
+							// DSS.layer.fields_1.setVisible(true);
+							// DSS.layer.fieldsLabels.setVisible(true);
+							
 							console.log("SCENARIO PICKER DONE")
 						}
 					}

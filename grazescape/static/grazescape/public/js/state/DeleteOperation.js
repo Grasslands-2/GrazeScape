@@ -69,27 +69,34 @@ function resetArraysDO(){
 	fieldArrayDO = [];
 	infraArrayDO = [];
 	farmIDToDelete = 0;
+	geoServer.setScenariosSource()
+	geoServer.setFarmSource()
+	cleanDB()
+	DSS.map.render;
 	console.log("DO reset arrays complete!!!!!!!!")
 }
 
 async function deleteOpFeatures(){
 	DSS.layer.scenarios.getSource().forEachFeature(function(s) {
-		console.log(s)
+		//console.log(s)
 		if(s.values_.farm_id == farmIDToDelete){
 			scenArrayDO.push(s)
 		}
 	})
-	DSS.layer.fields_1.getSource().getFeatures().forEach(function(f) {
+	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+		//console.log(f)
 		if(f.values_.farm_id == farmIDToDelete){
 			fieldArrayDO.push(f)
 		}
 	})
-	DSS.layer.infrastructure.getSource().getFeatures().forEach(function(i) {
+	DSS.layer.infrastructure.getSource().forEachFeature(function(i) {
+		console.log(i)
 		if(i.values_.farm_id == farmIDToDelete){
 			infraArrayDO.push(i)
 		}
 	})
 	console.log(scenArrayDO)
+	console.log(fieldArrayDO)
 	console.log(infraArrayDO)
 	//delArrays = [infraArrayDO,fieldArrayDO,scenArrrayDO]
 	await deleteOperation(farmArrayDO,'farm_2');
@@ -165,7 +172,7 @@ Ext.define('DSS.state.DeleteOperation', {
 						if (selectedOperation != {}) {
 							//deleteOperation(selectedOperation,'farm_2');
 							deleteOpFeatures()
-							DSS.map.render;
+							//DSS.map.render;
 						}
 						else {
 							console.log("no farm selected")

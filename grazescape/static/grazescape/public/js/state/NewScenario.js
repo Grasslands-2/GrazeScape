@@ -46,27 +46,30 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
     console.log("getting wfs fields and infra for new scenario")
 	//layerName.setSource(source);
 	console.log("Scenario being pulled from: " + copyScenarioNum);
-		layerName.getSource().forEachFeature(function(f){
-            console.log("current features scenario ID: " + f.values_.scenario_id);
+		await layerName.getSource().getFeatures().forEach(async function(f){
+            //console.log("current features scenario ID: " + f.values_.scenario_id);
             if(f.values_.scenario_id == copyScenarioNum){
-                delete f.id_
+				console.log("current features scenario ID: " + f.values_.scenario_id);
+                //delete f.id_
                 f.geometryName_ = 'geom'
                 f.values_.scenario_id = DSS.activeScenario;
                 f.values_.geom = f.values_.geometry;
-                delete f.values_.geometry
+                //delete f.values_.geometry
                 f.values_.is_dirty = true
-                console.log(f);
-                featArray.push(f);
+                //console.log(f);
+                //featArray.push(f);
+				wfs_new_scenario_features_copy([f],layerTitle)
             }
 		//-----------------------------------
 		//Figured out that the geom was being taken from geometry in values_!!!!!!
 		//We can use this to copy exact geometry, thus creating exact copies of feautres
 		
 		})
-		console.log('featArrayNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-		console.log(featArray);
-		wfs_new_scenario_features_copy(featArray,layerTitle)
-
+		// console.log('featArrayNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+		// console.log(featArray);
+		// if(featArray.length > 0){
+		// 	await wfs_new_scenario_features_copy(featArray,layerTitle)
+		// }
 }
 
 //empty array to catch feature objects 
@@ -147,7 +150,7 @@ function getHighestScenarioId(){
 
 
 //---------------------------------Working Functions-------------------------------
-function wfs_new_scenario_features_copy(featsArray,fType) {
+async function wfs_new_scenario_features_copy(featsArray,fType,geomType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector',
@@ -156,6 +159,7 @@ function wfs_new_scenario_features_copy(featsArray,fType) {
         srsName: 'EPSG:3857'
     });
     console.log(featsArray)
+	console.log(fType)
 	//console.log(feat.values_.id)
 	//keep in mind formatWFS.writeTransaction needs feat in an [].  
 	//feat in this case is actually an array so it works out.
@@ -165,7 +169,7 @@ function wfs_new_scenario_features_copy(featsArray,fType) {
     s = new XMLSerializer();
     str = s.serializeToString(node);
 
-    geoServer.wfs_new_scenario_features_copy(str, featsArray)
+    await geoServer.wfs_new_scenario_features_copy(str, featsArray)
 
 }
 
@@ -355,18 +359,10 @@ Ext.define('DSS.state.NewScenario', {
 								scenarioNumHold = DSS.activeScenario
 								let scenName = form.findField('scenario_name').getSubmitValue()
 								let scenDes = form.findField('scenario_description').getSubmitValue()
-								//geoServer.copyScenario(scenName, scenDes)
-								//createNewScenario(sname,sdescript)
+								//createNewScenario kicks off process to copy scenario data, and associated fields and infra
 								await createNewScenario(scenName,scenDes)
-								//showFieldsForScenario()
-				 				//showInfraForScenario()
-								//reSourcefarms()
-								// DSS.layer.fields_1.setVisible(true);
-								// DSS.layer.fields_1.getSource().refresh();
-								// DSS.layer.fieldsLabels.getSource().refresh();
-								// DSS.layer.infrastructure.setVisible(true);
-								// DSS.layer.fieldsLabels.setVisible(true);
-								//await DSS.ApplicationFlow.instance.showScenarioPage();
+								//This is used to make sure								
+								//geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
 								this.up('window').destroy();
 							}
 						}

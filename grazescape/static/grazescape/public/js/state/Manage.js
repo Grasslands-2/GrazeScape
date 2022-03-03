@@ -1,6 +1,5 @@
 
 function reSourceFields() {
-
     geoServer.setFieldSource('&CQL_filter=farm_id='+DSS.activeFarm)
 	console.log("reSource Fields ran");
 }
@@ -14,7 +13,7 @@ function reSourcefarms() {
 	console.log("reSource Infra ran");
 }
 function reSourcescenarios() {
-    geoServer.setScenariosSource()
+    geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
 	console.log("reSource scenarios ran");
 }
 //------------------------------------------------------------------------------
@@ -144,6 +143,7 @@ Ext.define('DSS.state.Manage', {
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
 						reSourcescenarios();
+						reSourceFields()
 						//getWFSScenarioNS();
 						// DSS.layer.scenarios.getSource().refresh();
 						console.log('This is the scenarioArray: ')
@@ -158,6 +158,7 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Load Different Scenario',
 					handler: function(self) {
+						reSourcescenarios()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
@@ -170,7 +171,7 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Delete Scenario',
 					handler: function(self) {
-
+						reSourcescenarios()
 						//getWFSScenario()
 						reSourceFields()
 						reSourceinfra()

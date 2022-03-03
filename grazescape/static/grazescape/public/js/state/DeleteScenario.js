@@ -179,6 +179,7 @@ Ext.define('DSS.state.DeleteScenario', {
 									//selectDeleteFieldInfra(item.inputValue,fieldArrayDS,DSS.layer.fields_1,'field_2')
 									//selectDeleteFieldInfra(item.inputValue,infrastructureSourceDS,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
 									alert('Scenario: ' + item.text + ' Deleted')
+									geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
 									geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 									geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 								}
