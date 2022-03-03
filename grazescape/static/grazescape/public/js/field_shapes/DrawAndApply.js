@@ -3,8 +3,7 @@ var fields_1Source_loc = ""
 function wfs_field_insert(feat,geomType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
-        featureNS: 'http://geoserver.org/GrazeScape_Vector'
-		/*'http://geoserver.org/Farms'*/,
+        featureNS: 'http://geoserver.org/GrazeScape_Vector',
 		Geometry: 'geom',
         featureType: 'field_2',
         srsName: 'EPSG:3857'
