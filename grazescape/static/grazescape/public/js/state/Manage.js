@@ -156,7 +156,7 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Load Different Scenario',
+					text: 'Edit a Scenario',
 					handler: function(self) {
 						reSourcescenarios()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
@@ -169,7 +169,7 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Delete Scenario',
+					text: 'Delete a Scenario',
 					handler: function(self) {
 						reSourcescenarios()
 						//getWFSScenario()

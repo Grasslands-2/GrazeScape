@@ -57,8 +57,8 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
                 //delete f.values_.geometry
                 f.values_.is_dirty = true
                 //console.log(f);
-                //featArray.push(f);
-				wfs_new_scenario_features_copy([f],layerTitle)
+                featArray.push(f);
+				//wfs_new_scenario_features_copy([f],layerTitle)
             }
 		//-----------------------------------
 		//Figured out that the geom was being taken from geometry in values_!!!!!!
@@ -150,7 +150,7 @@ function getHighestScenarioId(){
 
 
 //---------------------------------Working Functions-------------------------------
-async function wfs_new_scenario_features_copy(featsArray,fType,geomType) {
+async function wfs_new_scenario_features_copy(featsArray,fType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector',

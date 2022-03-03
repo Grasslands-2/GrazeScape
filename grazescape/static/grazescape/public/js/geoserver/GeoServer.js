@@ -303,7 +303,8 @@ class GeoServer{
             console.log(copyScenarioNum);
             console.log(fieldArrayNS);
             console.log("copying features$$$$$$$$$")
-			getWFSFieldsInfraNS(copyScenarioNum,fieldArrayNS,DSS.layer.fields_1,'field_2');
+			await getWFSFieldsInfraNS(copyScenarioNum,fieldArrayNS,DSS.layer.fields_1,'field_2');
+            wfs_new_scenario_features_copy(fieldArrayNS,'field_2')
 			//getWFSFieldsInfraNS(copyScenarioNum,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
             console.log("DONE WITH NEW SCENARIO COPY AND INSERT!!!!!!!!")
             //DSS.ApplicationFlow.instance.showScenarioPage();
