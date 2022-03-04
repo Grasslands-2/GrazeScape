@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/index.js',  // path to our input file
+  entry: ["regenerator-runtime/runtime.js", './src/index.js'],  // path to our input file
   module: {
     rules: [
       {
