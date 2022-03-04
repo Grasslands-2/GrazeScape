@@ -294,7 +294,8 @@ componentDidUpdate(prevProps) {
             console.log(((v1 + v2)/2))
             console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
             console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
         }
 
         var data_bar ={ labels: labels,

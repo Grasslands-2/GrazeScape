@@ -55,6 +55,7 @@ class SidePanel extends React.Component{
         this.runModels = this.runModels.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
         this.tabControl = this.tabControl.bind(this);
+        this.subAreaSelection = this.subAreaSelection.bind(this);
         this.addTrans = this.addTrans.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleOpenModalBase = this.handleOpenModalBase.bind(this);
@@ -87,6 +88,7 @@ class SidePanel extends React.Component{
             activeTrans:null,
             selectWatershed:false,
             baseModelShow:false,
+            showHuc12:false
         }
     }
     // fires anytime state or props are updated
@@ -181,17 +183,34 @@ class SidePanel extends React.Component{
     // fires when we switch tab so we can download the work area rasters
   tabControl(e){
     console.log(e)
-    if(e !== "aoi"){
+    if(e == "selection"){
         // get bounds of current selection method and start downloading
         this.props.loadSelectionRaster()
         // turn off huc 10
-        this.props.setVisibilityMapLayer({'name':'huc10', 'visible':false})
-        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':true})
+        this.props.setVisibilityMapLayer([{'name':'huc10', 'visible':false},{'name':'southWest', 'visible':false}])
+//        this.props.setVisibilityMapLayer()
+//        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':true})
+    }
+    else if (e == "aoi"){
+        this.props.setVisibilityMapLayer([{'name':'huc10', 'visible':true}])
+//        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':false})
+    }
+    else{}
+  }
+  subAreaSelection(e){
+    console.log(this.state.showHuc12)
+    // show huc 12 if the subwatershed accordion is open
+    // otherwise hide huc 12
+    if (!this.state.showHuc12){
+        this.props.setVisibilityMapLayer([{'name':'huc12', 'visible':true}])
+        this.setState({showHuc12:true})
     }
     else{
-        this.props.setVisibilityMapLayer({'name':'huc10', 'visible':true})
-        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':false})
+        this.props.setVisibilityMapLayer([{'name':'huc12', 'visible':false}])
+        this.setState({showHuc12:false})
     }
+    console.log("sub area selection")
+    console.log(e)
   }
   addTrans(){
     console.log("add new transformation!")
@@ -200,6 +219,7 @@ class SidePanel extends React.Component{
     let tempId = uuidv4();
 
     let newTrans = Transformation("test trans",tempId, 5)
+    this.props.setActiveTrans(newTrans)
     this.props.addTrans(newTrans)
 //    this.props.setActiveTrans(newTrans)
   }
@@ -210,195 +230,162 @@ class SidePanel extends React.Component{
             <Container className='progress_bar'>
               <ProgressBar variant="success" now={40} label='Progress'/>
             </Container>
-              <Tabs defaultActiveKey="aoi" id="uncontrolled-tab-example" className="mb-3" onSelect={(e) => this.tabControl(e)}>
-              <Tab eventKey="aoi" title="Area of Interest">
+              <Accordion  defaultActiveKey="aoi" id="uncontrolled-tab-example" className="mb-3" onSelect={(e) => this.tabControl(e)}>
+              <Accordion.Item eventKey="aoi" title="Area of Interest">
+                  <Accordion.Header>Create Work Area</Accordion.Header>
+
+              <Accordion.Body>
               <Row>
-                     <h4>Select a work area</h4>
+                     <h4>Select a work area<sup>*</sup></h4>
                    <InputGroup size="sm" className="mb-3">
-                 <h6> Please select a learning hub and then select one HUC 10 watershed </h6>
+                 <h6> Please select a learning hub and then select at least one HUC 10 watershed </h6>
+                 <h6> Hold shift to select multiple watersheds </h6>
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
               </Row>
-              {/*
-              <Row>
-                  <Form.Check
-                    inline
-                    label="Draw Polygon"
-                    name="group1"
-                    type='radio'
-                    id={`inline-$'radio'-2`}
-                    onChange={(e) => this.handleAreaSelectionType("polygon", e)}
+              </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="selection" title="Selection" disabled>
+                  <Accordion.Header>Create Transformations</Accordion.Header>
 
-                  />
-              </Row>
-
-              <Row>
-                  <Form.Check
-                    inline
-    //                disabled
-                    label="Draw Box"
-                    name="group1"
-                    type='radio'
-                    id={`inline-$'radio'-3`}
-                    onChange={(e) => this.handleAreaSelectionType("box", e)}
-
-                  />
-              </Row>
-              */}
-              </Tab>
-              <Tab eventKey="selection" title="Selection">
-              <h4>Build Scenario</h4>
-              <h6>Land Transformations</h6>
-              <Stack gap={3}>
-
-              <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
-                <Table
-                />
-              </Stack>
-              <Form.Label>Selection Criteria</Form.Label>
-               <Accordion>
-                  <Accordion.Item eventKey="1">
-                    <Accordion.Header>Land Type</Accordion.Header>
-                    <Accordion.Body>
-                        <Form.Label>Land Type to Select</Form.Label>
-                        <Form>
-                          <Form.Check
-                            ref={this.contCorn} type="switch" label="Continuous Corn"
-                            onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
-                          />
-                          <Form.Check
-                            ref={this.cashGrain} type="switch" label="Cash Grain"
-                            onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
-                          />
-                          <Form.Check
-                            ref={this.dairy} type="switch" label="Dairy Rotation"
-                            onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
-                          />
-                        </Form>
-                        </Accordion.Body>
-                    </Accordion.Item>
-                </Accordion>
-                <Accordion>
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>Sub Area</Accordion.Header>
-
-                    <Accordion.Body>
-                      <Row>
-                           <Form.Check
-                            inline
-                            label="Select Watersheds"
-                            ref={this.selectWatershed}
-                            checked={this.state.selectWatershed}
-                            name="group2"
-                            type='radio'
-//                            id={`inline-$'radio'-1`}
-                            onChange={(e) => this.handleAreaSelectionType("watershed", e)}
-                          />
-                            <Button variant="secondary" onClick={(e) => this.handleAreaSelectionType("none", e)}>
-                            Stop Selection
-                          </Button>
-                      </Row>
-                      {/*
-                      <Row>
-                          <Form.Check
-                            inline
-                            label="Draw Polygon"
-                            name="group1"
-                            type='radio'
-                            id={`inline-$'radio'-2`}
-                            onChange={(e) => this.handleAreaSelectionType("polygon", e)}
-
-                          />
-                      </Row>
-                      */}
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
-                <Accordion>
-                  <Accordion.Item eventKey="1">
-                    <Accordion.Header>Slope</Accordion.Header>
-                    <Accordion.Body>
-                        <Form.Label>Slope Range</Form.Label>
-                          <InputGroup size="sm" className="mb-3">
-                            <FormControl
-                              ref={this.slope1}
-                              placeholder=""
-                              aria-label="Username"
-                              aria-describedby="basic-addon1"
-                              onChange={(e) => this.handleSelectionChange("slope1", e)}
-
-                            />
-                            <InputGroup.Text>%</InputGroup.Text>
-                            <Form.Select aria-label="Default select example">
-                              <option value="<">&lt;</option>
-                              <option value="<=">&#60;&#61;</option>
-                            </Form.Select>
-                            <FormControl
-                              ref={this.slope2}
-                              placeholder=""
-                              aria-label="Username"
-                              aria-describedby="basic-addon1"
-                              onChange={(e) => this.handleSelectionChange("slope2", e)}
-
-                            />
-                            <InputGroup.Text>%</InputGroup.Text>
-                          </InputGroup>
-                        </Accordion.Body>
-                    </Accordion.Item>
-                </Accordion>
-                <Accordion>
-                  <Accordion.Item eventKey="1">
-                    <Accordion.Header>Distance to Stream</Accordion.Header>
-                    <Accordion.Body>
-                        <InputGroup size="sm" className="mb-3">
-                            <FormControl
-                              ref={this.streamDist1}
-                              placeholder=""
-                              aria-label="Username"
-                              aria-describedby="basic-addon1"
-                              onChange={(e) => this.handleSelectionChange("streamDist1", e)}
-                            />
-                            <InputGroup.Text>m</InputGroup.Text>
-                            <Form.Select aria-label="Default select example">
-                              <option value="<">&lt;</option>
-                              <option value="<=">&#60;&#61;</option>
-                            </Form.Select>
-                            <FormControl
-                              ref={this.streamDist2}
-                              placeholder=""
-                              aria-label="Username"
-                              aria-describedby="basic-addon1"
-                              onChange={(e) => this.handleSelectionChange("streamDist2", e)}
-
-                            />
-                            <InputGroup.Text>m</InputGroup.Text>
-
-                          </InputGroup>
-                            <Form.Label>Units</Form.Label>
+              <Accordion.Body>
+                  <h4>Build Scenario</h4>
+                  <h6>Land Transformations</h6>
+                  <Stack gap={3}>
+                  <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
+                    <Table
+                    />
+                  </Stack>
+                  <Form.Label>Selection Criteria</Form.Label>
+                   <Accordion id="uncontrolled-tab-example1" >
+                      <Accordion.Item eventKey="1">
+                        <Accordion.Header>Land Type</Accordion.Header>
+                        <Accordion.Body>
+                            <Form.Label>Land Type to Select</Form.Label>
                             <Form>
-                            <Form.Check
-                                inline
-                                label="feet"
-                                name="group1"
-                                type="radio"
-                              />
                               <Form.Check
-                                inline
-                                label="meters"
-                                name="group1"
-                                type="radio"
-                                checked={true}
+                                ref={this.contCorn} type="switch" label="Continuous Corn"
                                 onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
                               />
-                              </Form>
+                              <Form.Check
+                                ref={this.cashGrain} type="switch" label="Cash Grain"
+                                onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
+                              />
+                              <Form.Check
+                                ref={this.dairy} type="switch" label="Dairy Rotation"
+                                onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
+                              />
+                            </Form>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
+                    <Accordion onSelect={(e) => this.subAreaSelection(e)}>
+                      <Accordion.Item eventKey="2">
+                        <Accordion.Header>Sub Area</Accordion.Header>
+                        <Accordion.Body>
+                          <Row>
+                               <Form.Check
+                                inline
+                                label="Select Sub Watersheds"
+                                ref={this.selectWatershed}
+                                checked={this.state.selectWatershed}
+                                name="group2"
+                                type='radio'
+                                onChange={(e) => this.handleAreaSelectionType("watershed", e)}
+                              />
+                                <Button variant="secondary" onClick={(e) => this.handleAreaSelectionType("none", e)}>
+                                Stop Selection
+                              </Button>
+                               <h6> Hold shift to select multiple watersheds </h6>
+
+                          </Row>
                         </Accordion.Body>
-                    </Accordion.Item>
-                </Accordion>
+                      </Accordion.Item>
+                    </Accordion>
+                    <Accordion>
+                      <Accordion.Item eventKey="3">
+                        <Accordion.Header>Slope</Accordion.Header>
+                        <Accordion.Body>
+                            <Form.Label>Slope Range</Form.Label>
+                              <InputGroup size="sm" className="mb-3">
+                                <FormControl
+                                  ref={this.slope1}
+                                  placeholder=""
+                                  aria-label="Username"
+                                  aria-describedby="basic-addon1"
+                                  onChange={(e) => this.handleSelectionChange("slope1", e)}
 
-                 <Button onClick={this.displaySelectionCriteria} variant="primary">Display Selection</Button>
+                                />
+                                <InputGroup.Text>%</InputGroup.Text>
+                                <Form.Select aria-label="Default select example">
+                                  <option value="<">&lt;</option>
+                                  <option value="<=">&#60;&#61;</option>
+                                </Form.Select>
+                                <FormControl
+                                  ref={this.slope2}
+                                  placeholder=""
+                                  aria-label="Username"
+                                  aria-describedby="basic-addon1"
+                                  onChange={(e) => this.handleSelectionChange("slope2", e)}
 
-                 <Button onClick={this.runModels} variant="primary">Run Transformations</Button>
-                 <Button onClick={this.handleOpenModalBase} variant="primary">Base Parameters</Button>
+                                />
+                                <InputGroup.Text>%</InputGroup.Text>
+                              </InputGroup>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
+                    <Accordion>
+                      <Accordion.Item eventKey="4">
+                        <Accordion.Header>Distance to Stream</Accordion.Header>
+                        <Accordion.Body>
+                            <InputGroup size="sm" className="mb-3">
+                                <FormControl
+                                  ref={this.streamDist1}
+                                  placeholder=""
+                                  aria-label="Username"
+                                  aria-describedby="basic-addon1"
+                                  onChange={(e) => this.handleSelectionChange("streamDist1", e)}
+                                />
+                                <InputGroup.Text>m</InputGroup.Text>
+                                <Form.Select aria-label="Default select example">
+                                  <option value="<">&lt;</option>
+                                  <option value="<=">&#60;&#61;</option>
+                                </Form.Select>
+                                <FormControl
+                                  ref={this.streamDist2}
+                                  placeholder=""
+                                  aria-label="Username"
+                                  aria-describedby="basic-addon1"
+                                  onChange={(e) => this.handleSelectionChange("streamDist2", e)}
+
+                                />
+                                <InputGroup.Text>m</InputGroup.Text>
+
+                              </InputGroup>
+                                <Form.Label>Units</Form.Label>
+                                <Form>
+                                <Form.Check
+                                    inline
+                                    label="feet"
+                                    name="group1"
+                                    type="radio"
+                                  />
+                                  <Form.Check
+                                    inline
+                                    label="meters"
+                                    name="group1"
+                                    type="radio"
+                                    checked={true}
+                                    onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
+                                  />
+                                  </Form>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
+
+                     <Button onClick={this.displaySelectionCriteria} variant="primary">Display Selection</Button>
+                     <Button onClick={this.runModels} variant="primary">Run Transformations</Button>
+                     <Button onClick={this.handleOpenModalBase} variant="primary">Base Parameters</Button>
                                   {/*
                              <Button onClick={this.displaySelectionCriteria} variant="primary">Clear Selections</Button>
 
@@ -413,8 +400,9 @@ class SidePanel extends React.Component{
                 Loading...
               </Button>
               */}
-              </Tab>
-            </Tabs>
+              </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModal} onShow={this.showModal}>
                 <Modal.Header closeButton>
                   <Modal.Title>Transformation Results</Modal.Title>
