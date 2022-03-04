@@ -304,25 +304,13 @@ class GeoServer{
             console.log(fieldArrayNS);
             console.log("copying features$$$$$$$$$")
 			await getWFSFieldsInfraNS(copyScenarioNum,fieldArrayNS,DSS.layer.fields_1,'field_2');
-            wfs_new_scenario_features_copy(fieldArrayNS,'field_2')
-			//getWFSFieldsInfraNS(copyScenarioNum,infraArrayNS,DSS.layer.infrastructure,'infrastructure_2')
+            await wfs_new_scenario_features_copy(fieldArrayNS,'field_2')
             console.log("DONE WITH NEW SCENARIO COPY AND INSERT!!!!!!!!")
-            //DSS.ApplicationFlow.instance.showScenarioPage();
-            //DSS.ApplicationFlow.instance.showScenarioPage();
-            //gatherScenarioTableData();
-            //runScenarioUpdate();
-            // showInfraForScenario()
-            // showFieldsForScenario()
-            //DSS.ApplicationFlow.instance.showScenarioPage();
-            // geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-            // DSS.layer.fields_1.getSource().refresh();
-	        // DSS.layer.fields_1.setVisible(true);
-	        // DSS.layer.fieldsLabels.setVisible(true);
-            // geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-	        // DSS.layer.infrastructure.getSource().refresh();
-	        // DSS.layer.infrastructure.setVisible(true);
-            // geoServer.setScenariosSource()
-            //DSS.layer.scenarios.getSource().refresh();
+            DSS.MapState.showFieldsForScenario();
+            DSS.MapState.showInfraForScenario();
+            //Placed here to change the window to manage the new scenario once everything is ready to go.
+            DSS.ApplicationFlow.instance.showScenarioPage();
+
          })
     }
     //ALL THIS DOES IS GET A GEOSJSON WIth THE CURRENT SCENS AND GET THE HIGHEST SCENARIOID #

@@ -363,6 +363,7 @@ Ext.define('DSS.state.NewScenario', {
 								await createNewScenario(scenName,scenDes)
 								//This is used to make sure								
 								//geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
+								//DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
 							}
 						}

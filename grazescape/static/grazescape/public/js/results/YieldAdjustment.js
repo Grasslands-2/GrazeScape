@@ -130,12 +130,12 @@ function userUpdateYields(){
 						cornYeildFieldDS[c].fieldData = fieldYieldArray[f].cornGrainBrusdAc
 						cornYeildFarm.data[0] = cornYeildFarm.data[0] + (fieldYieldArray[f].cornGrainBrusdAc * chartObj.rotation_yield_field.area[c])
 						//console.log(cornYeildFarm.data[0])
-						if(fieldYieldArray[f].rotationVal1 == "cc"){
-							fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].cornGrainBrusdAc* 56 * (1 - 0.155) / 2000
+						// if(fieldYieldArray[f].rotationVal1 == "cc"){
+						// 	fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].cornGrainBrusdAc* 56 * (1 - 0.155) / 2000
 								
-								//39.3680
-								)
-						}
+						// 		//39.3680
+						// 		)
+						// }
 						//console.log(fieldYieldArray[f].dMYieldAc)
 					}
 				}
@@ -172,22 +172,28 @@ function userUpdateYields(){
 						//fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + fieldYieldArray[f].alfalfaYieldTonsAc
 					}
 				}
+				if(fieldYieldArray[f].rotationVal1 == "cc"){
+					var cornGrainDM = fieldYieldArray[f].cornGrainBrusdAc* 56 * (1 - 0.155) / 2000
+					fieldYieldArray[f].dMYieldAc = cornGrainDM
+				}
 				if(fieldYieldArray[f].rotationVal1 == "cg"){
 					var cornGrainDM = fieldYieldArray[f].cornGrainBrusdAc* 56 * (1 - 0.155) / 2000
 					var soyDM = fieldYieldArray[f].soyGrainBrusAc* 60 * 0.792 * 0.9008 / 2000
 					fieldYieldArray[f].dMYieldAc = (cornGrainDM+soyDM)/2
 				}
 				if(fieldYieldArray[f].rotationVal1 == "dr"){
-					var silageDM = fieldYieldArray[f].cornSilageTonsAc
-					var cornGrainDM = fieldYieldArray[f].cornGrainBrusdAc* 56 * (1 - 0.155) / 2000
-					var alfalfaDM = fieldYieldArray[f].alfalfaYieldTonsAc
-					fieldYieldArray[f].dMYieldAc = ((alfalfaDM * 3) + silageDM + cornGrainDM)/5
+					var silageDM = fieldYieldArray[f].cornSilageTonsAc * 2000 * (
+						1 - 0.65) /2000
+					var cornGrainDM = (fieldYieldArray[f].cornGrainBrusdAc* 56 * (1 - 0.155) / 2000)
+					var alfalfaDM = fieldYieldArray[f].alfalfaYieldTonsAc * 2000 * (1 - 0.13) / 2000
+					fieldYieldArray[f].dMYieldAc = 3/5*alfalfaDM + 1/5*silageDM + 1/5*cornGrainDM
 				}
 				if(fieldYieldArray[f].rotationVal1 == "cso"){
-					var silageDM = fieldYieldArray[f].cornSilageTonsAc
-					var soyDM = fieldYieldArray[f].soyGrainBrusAc* 60 * 0.792 * 0.9008 / 2000
-					var oatsDM = fieldYieldArray[f].oatYieldBrusAc * 32 * (1 - 0.14) / 2000
-					fieldYieldArray[f].dMYieldAc = (silageDM+soyDM+oatsDM)/3
+					var silageDM = fieldYieldArray[f].cornSilageTonsAc * 2000 * (
+						1 - 0.65) /2000
+					var soyDM = (fieldYieldArray[f].soyGrainBrusAc* 60 * 0.792 * 0.9008 / 2000)
+					var oatsDM = (fieldYieldArray[f].oatYieldBrusAc * 32 * (1 - 0.14) / 2000)
+					fieldYieldArray[f].dMYieldAc = 1/3*silageDM+1/3*soyDM+1/3*oatsDM
 				}
 
 				//rotations field yeilds still off after manual adjustment.

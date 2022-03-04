@@ -18,7 +18,7 @@ function gatherYieldTableData() {
     fieldYieldArray = []
 	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
 	for(field in chartObjyieldarray){
-        console.log(field)
+        console.log(chartObjyieldarray[field])
         //if(chartObjyieldarray[field].toolTip[0] !== null){
         if(chartObjyieldarray[field].scenDbID == DSS.activeScenario){
             fieldYieldArray.push({
@@ -71,12 +71,14 @@ function gatherYieldTableData() {
                 fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].fieldData
             }
         }
-        rotationValSum = fieldYieldArray[i].rotationVal1 + fieldYieldArray[i].rotationVal2
+        rotationValSum = fieldYieldArray[i].rotationVal1// + fieldYieldArray[i].rotationVal2
         switch(rotationValSum){
-            case 'ptcn': fieldYieldArray[i].rotationDisp = 'Continuous Pasture'
+            case 'pt': 
+            if(fieldYieldArray[i].rotationVal2 == 'cn'){fieldYieldArray[i].rotationDisp = 'Continuous Pasture'}
+            if(fieldYieldArray[i].rotationVal2 == 'rt'){fieldYieldArray[i].rotationDisp = 'Rotational Pasture'}
             break;
-            case 'ptrt': fieldYieldArray[i].rotationDisp = 'Rotational Pasture'
-            break;
+            // case 'ptrt': fieldYieldArray[i].rotationDisp = 'Rotational Pasture'
+            // break;
             case 'dl': fieldYieldArray[i].rotationDisp = 'Dry Lot'
             break;
             case 'cc': fieldYieldArray[i].rotationDisp = 'Continuous Corn'
