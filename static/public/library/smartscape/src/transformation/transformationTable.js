@@ -14,6 +14,7 @@ import Tooltip from 'react-bootstrap/Tooltip'
 import Container from 'react-bootstrap/Container';
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
+import 'regenerator-runtime/runtime'
 
 // reordering the table
 let reorder = (list, startIndex, endIndex) => {
@@ -103,7 +104,10 @@ class Table extends Component {
 //        this.addTransformation(this.props.newTrans)
 //    }
   }
-    handleOpenModalTrans(){
+    async handleOpenModalTrans(e){
+        console.log("handling opening modal!!!!")
+        console.log(e)
+        await this.selectTransClick(e)
         this.setState({transModalShow: true})
       }
     handleCloseModal(){
@@ -112,26 +116,17 @@ class Table extends Component {
       showModal(){
         console.log("showing modal")
         this.rotationType.current.value = this.props.activeTrans.management.rotationType
-//        this.cover.current.value = this.props.activeTrans.management.cover
-//        this.tillage.current.value = this.props.activeTrans.management.tillage
         this.density.current.value = this.props.activeTrans.management.density
-//        this.contour.current.value = this.props.activeTrans.management.contour
         this.fertilizer.current.value = this.props.activeTrans.management.fertilizer
+    //        this.cover.current.value = this.props.activeTrans.management.cover
+    //        this.tillage.current.value = this.props.activeTrans.management.tillage
+    //        this.contour.current.value = this.props.activeTrans.management.contour
 
       }
     handleSelectionChange(type, e){
-        console.log("Selection updated", type, e)
-        console.log(e.currentTarget.value)
-        console.log(e.currentTarget.checked)
-        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
-        console.log(this.props)
-    }
+        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})    }
     handleSelectionChangeRadio(type, e){
-        console.log("Selection updated", type, e)
-        console.log(e.currentTarget.value)
-        console.log(e.currentTarget.checked)
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"mang"})
-        console.log(this.props)
     }
   onDragEnd(result) {
     // dropped outside the list
@@ -141,8 +136,6 @@ class Table extends Component {
     console.log(result)
     // deep copy seems to be the only one to make this work
     let list = JSON.parse(JSON.stringify(this.props.listTrans))
-//    const list = this.state.items
-//    list[0].boundaryLayerID = 99
     let items = reorder(
       list,
       result.source.index,
@@ -152,23 +145,18 @@ class Table extends Component {
   }
 
   selectTransClick(e){
-    console.log("I'm clicked")
-    console.log(this.state)
-    console.log(this.props)
-    let removeTransId = e.currentTarget.id
-    console.log(this.state.items)
-    let items = this.props.listTrans
-    for(let trans in items){
-        console.log(items[trans])
-        if(items[trans].id == removeTransId){
-            console.log("setting active trans")
-            console.log(items)
-            this.props.setActiveTrans(items[trans])
-            // pull in the selection parameters from current trans
-            console.log(this.props.activeTrans)
-            return
+    return new Promise((resolve) => {
+        let removeTransId = e.currentTarget.id
+        let items = this.props.listTrans
+        for(let trans in items){
+            if(items[trans].id == removeTransId){
+                this.props.setActiveTrans(items[trans])
+                // pull in the selection parameters from current trans
+                console.log(this.props.activeTrans)
+                   resolve();
+            }
         }
-    }
+    });
   }
   handleTransNameChange(e){
     console.log(e.currentTarget)
