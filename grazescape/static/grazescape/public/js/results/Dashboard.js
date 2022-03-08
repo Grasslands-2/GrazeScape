@@ -2,6 +2,30 @@
 // const path = require('path');
 // const fs = require('fs');
 // ploss scale bar values
+function get_results_image(data){
+    return new Promise(function(resolve) {
+    var csrftoken = Cookies.get('csrftoken');
+	console.log('data coming into ajax call')
+	console.log(data)
+    $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+    $.ajax({
+    'url' : '/grazescape/get_results_image',
+    'type' : 'POST',
+    'data' : data,
+    success: function(responses) {
+		console.log(responses)
+		resolve([])
+	},
+	error: function(responses) {
+		console.log('python tool call error')
+		console.log(responses)
+	}
+	})
+	})
+}
+
 function timeout(){
     console.log('timeout')
 }
@@ -178,17 +202,50 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
 	runModel: true,
+    scope: this,
+    // tbar: [
+    //     {
+    //         text: 'Close',
+    //         handler: function () { this.up('window').close(); }
+    //     }
+    // ],
     listeners:{
-        "destroy": function(){
+        
+        hide: function(){
+            console.log("hide")
             DSS.MapState.destroyLegend();
+            DSS.layer.yieldGroup.setVisible(false);
+            DSS.layer.erosionGroup.setVisible(false);
+            DSS.layer.runoffGroup.setVisible(false);
+            DSS.layer.PLossGroup.setVisible(false);
         },
-        "hide": function(){
+
+        close: function(thisWindow){
+            console.log("close")
             DSS.MapState.destroyLegend();
+            DSS.layer.yieldGroup.setVisible(false);
+            DSS.layer.erosionGroup.setVisible(false);
+            DSS.layer.runoffGroup.setVisible(false);
+            DSS.layer.PLossGroup.setVisible(false);
         },
-        "close": function(){
+        closeaction: function(thisWindow){
+            console.log("closeAction")
             DSS.MapState.destroyLegend();
+            DSS.layer.yieldGroup.setVisible(false);
+            DSS.layer.erosionGroup.setVisible(false);
+            DSS.layer.runoffGroup.setVisible(false);
+            DSS.layer.PLossGroup.setVisible(false);
         },
-        "minimize": function (window, opts) {
+        beforeclose: function(thisWindow){
+            console.log("beforeclose")
+            DSS.MapState.destroyLegend();
+            DSS.layer.yieldGroup.setVisible(false);
+            DSS.layer.erosionGroup.setVisible(false);
+            DSS.layer.runoffGroup.setVisible(false);
+            DSS.layer.PLossGroup.setVisible(false);
+        },
+        minimize: function (window, opts) {
+            console.log("minimize")
             window.collapse();
             window.setWidth(150);
             window.setHeight(150)
@@ -197,11 +254,46 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
     tools: [{
         type: 'restore',
         handler: function (evt, toolEl, owner, tool) {
+            console.log("restore")
             var window = owner.up('window');
             window.setWidth(300);
             window.setHeight(300);
         }
-    }],
+     },
+    //  {
+    //     type: 'close',
+    //     handler: function (evt, toolEl, owner, tool) {
+    //         console.log("close")
+    //         DSS.MapState.destroyLegend();
+    //         DSS.layer.yieldGroup.setVisible(false);
+    //         DSS.layer.erosionGroup.setVisible(false);
+    //         DSS.layer.runoffGroup.setVisible(false);
+    //         DSS.layer.PLossGroup.setVisible(false);
+    //     }
+    // },
+    // {
+    //     type: 'beforeclose',
+    //     handler: function (evt, toolEl, owner, tool) {
+    //         console.log("beforeclose")
+    //         DSS.MapState.destroyLegend();
+    //         DSS.layer.yieldGroup.setVisible(false);
+    //         DSS.layer.erosionGroup.setVisible(false);
+    //         DSS.layer.runoffGroup.setVisible(false);
+    //         DSS.layer.PLossGroup.setVisible(false);
+    //     }
+    // },
+    // {
+    //     type: "remove",
+    //     handler: function (evt, toolEl, owner, tool) {
+    //         console.log("remove")
+    //         DSS.MapState.destroyLegend();
+    //         DSS.layer.yieldGroup.setVisible(false);
+    //         DSS.layer.erosionGroup.setVisible(false);
+    //         DSS.layer.runoffGroup.setVisible(false);
+    //         DSS.layer.PLossGroup.setVisible(false);
+    //     }
+    // },
+],
 
 
 	config: {
@@ -234,6 +326,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 		let me = this;
 		layer = DSS.layer.fields_1
+        
 //
         if (this.runModel) {
             //assign model run timestamp
@@ -333,7 +426,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             //console.log(returnData[0])
                             console.log(modelruntime);
                         }
-                        //modelruntime = returnData[0].model_run_timestamp
+                        modelruntime = returnData[0].model_run_timestamp
 //                      no model results with that particular field
                         switch (returnData[0].model_type){
                             case 'yield':
@@ -1817,7 +1910,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     for(i in fArray){
                         fExtents = fArray[i].values_.geometry.extent_
                         for(e in fExtents){
-                            fExtents[e] = fExtents[e].toFixed(4)
+                            console.log(fExtents[e])
+                            console.log(typeof fExtents[e])
+                            fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
                         }
                         fExtentsNum = fExtents.map(Number);
                         var fId = fArray[i].values_.gid
@@ -1829,11 +1924,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             opacity: 1,
                             updateWhileAnimating: true,
                             updateWhileInteracting: true,
-                            source: new ol.source.ImageStatic({
-                            url: '/static/grazescape/public/images/ploss'+ String(fId) + '_' + modelruntime + '.png',
-                            imageExtent: fExtentsNum
-                            })
+                            //source: new ol.source.ImageStatic({
+                            //url:'/static/grazescape/public/images/ploss'+ String(fId) + '_' + modelruntime + '.png',
+                            //url: get_results_image({file_name: 'ploss'+ String(fId) + '_' + modelruntime + '.png'}),// '/static/grazescape/public/images/ploss'+ String(fId) + '_' + modelruntime + '.png',
+                            //imageExtent: fExtentsNum
+                            //})
                         })
+                        DSS.layer.ploss_field.setSource(new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/ploss'+ String(fId) + '_'+ modelruntime + '.png',
+                            imageExtent: fExtentsNum
+                        }))
                         DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
                         DSS.layer.ploss_field.getSource().refresh();
                         DSS.layer.ploss_field.getSource().changed();
@@ -1971,6 +2071,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         layer.setVisible(true)
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
+                        //layer.getSource().clear()
                         layer.setSource(new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
                             imageExtent: extents
@@ -1983,6 +2084,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         layer.setVisible(true)
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
+                        //layer.getSource().clear()
                         layer.setSource(new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
                             imageExtent: extents
@@ -1995,6 +2097,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         layer.setVisible(true)
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
+                        //layer.getSource().clear()
                         layer.setSource(new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
                             imageExtent: extents
@@ -2011,8 +2114,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     DSS.map.addLayer(DSS.layer.PLossGroup)
                     DSS.layer.PLossGroup.getLayers().forEach(function(layer){
                         console.log(layer)
+
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
+                        //layer.getSource().clear()
                         layer.setSource(new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
                             imageExtent: extents
@@ -2025,6 +2130,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         layer.setVisible(true)
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
+                        //layer.getSource().clear()
                         layer.setSource(new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
                             imageExtent: extents
@@ -2037,6 +2143,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         layer.setVisible(true)
                         var extents = layer.values_.source.imageExtent_
                         //Use this form when you have unique model run ids.
+                        //layer.getSource().clear()
                         layer.setSource(new ol.source.ImageStatic({
                             url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
                             imageExtent: extents
