@@ -143,6 +143,7 @@ function runFieldUpdate(){
     }
     console.log(changedFieldsList)
 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+		console.log(f)
 		var feildFeature = f;
 		console.log("from fields_1 loop through: " + feildFeature.id_);
 		for (i in fieldArray){

@@ -1135,13 +1135,13 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
 				DSS.layer.swwiBorder,
+				DSS.layer.scenarios,
+				DSS.layer.farms_1,
+				DSS.layer.fields_1,
 				DSS.layer.erosionGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.runoffGroup,
-				DSS.layer.yieldGroup,
-				DSS.layer.scenarios,
-				DSS.layer.farms_1,
-				DSS.layer.fields_1
+				DSS.layer.yieldGroup
 				],
 				//------------------------------------------------------------------------
 			view: new ol.View({
