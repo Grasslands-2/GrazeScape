@@ -185,9 +185,9 @@ const App = (props) => (
                 <Row className="appSelect">
                   <a href="/grazescape"><Image  className = "shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
                 </Row>
-                <Row className="appSelect">
+                {/*<Row className="appSelect">
                   <a href="/smartscape"><Image className = "shadow-lg app_click image" fluid src="static/public/library/images/dss_logo.png" rounded /></a>
-                </Row>
+                </Row>*/}
              </Col>
              <Col xs='3'>
             </Col>
