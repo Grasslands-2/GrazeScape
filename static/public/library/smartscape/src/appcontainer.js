@@ -67,6 +67,7 @@ import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
 setVisibilityMapLayer,setActiveTransDisplay, updateActiveBaseProps} from '/src/stores/transSlice'
 import{setActiveRegion} from '/src/stores/mainSlice'
 import { useSelector, useDispatch, connect  } from 'react-redux'
+import { v4 as uuidv4 } from 'uuid';
 
 const mapStateToProps = state => {
     console.log("mapping sidepannel")
@@ -342,16 +343,28 @@ componentDidUpdate(prevProps) {
             <div> Total area Transformed: {area} acres</div>
             <Tabs defaultActiveKey="chart" id="uncontrolled-tab-example" className="mb-3">
               <Tab eventKey="chart" title="Chart">
-                <Radar data={data}/>
-                <Bar options = {options_bar} data={data_bar}/>
+               <Row className = 'row-height'>
+                <Col  className='sidePanelCol'>
+                    <Radar data={data}/>
+                </Col>
+                <Col  className='sidePanelCol'>
+                    <Bar options = {options_bar} data={data_bar}/>
+                </Col>
+                </Row>
             </Tab>
               <Tab eventKey="tabular" title="Tabular">
                 <Table striped bordered hover size="sm" responsive>
                   <thead>
-                    <tr>
+                  <tr style={{textAlign:"center"}}>
+                      <th></th>
+                      <th colSpan={3}>Per Acre</th>
+                      <th colSpan={3}>Total</th>
+                      <th colSpan={2}></th>
+                    </tr>
+                    <tr style={{textAlign:"center"}}>
                       <th>Variable</th>
-                      <th>Base (Per Acre)</th>
-                      <th>Transformation (Per Acre)</th>
+                      <th>Base</th>
+                      <th>Transformation</th>
                       <th>Units</th>
                       <th>Base</th>
                       <th>Transformation</th>
@@ -365,10 +378,10 @@ componentDidUpdate(prevProps) {
                       <td>Yield</td>
                       <td>{base.yield}</td>
                       <td>{model.yield}</td>
-                      <td>tons-Dry Matter/year</td>
+                      <td>Tons-Dry Matter/year</td>
                       <td>{base.yield_total}</td>
                       <td>{model.yield_total}</td>
-                      <td>tons-Dry Matter/year</td>
+                      <td>Tons-Dry Matter/year</td>
                       <td>{model.yield_per_diff}</td>
                       <td></td>
                     </tr>
@@ -376,10 +389,10 @@ componentDidUpdate(prevProps) {
                       <td>Erosion</td>
                       <td>{base.ero}</td>
                       <td>{model.ero}</td>
-                      <td>tons/year</td>
+                      <td>Tons/Year</td>
                       <td>{base.ero_total}</td>
                       <td>{model.ero_total}</td>
-                      <td>tons/year</td>
+                      <td>Tons/Year</td>
                       <td>{model.ero_per_diff}</td>
                       <td></td>
                     </tr>
@@ -387,10 +400,10 @@ componentDidUpdate(prevProps) {
                       <td>Phosphorus Loss</td>
                       <td>{base.ploss}</td>
                       <td>{model.ploss}</td>
-                      <td>lb/year</td>
+                      <td>LB/Year</td>
                       <td>{base.ploss_total}</td>
                       <td>{model.ploss_total}</td>
-                      <td>lb/year</td>
+                      <td>LB/Year</td>
                       <td>{model.ploss_per_diff}</td>
                       <td></td>
                     </tr>
@@ -398,7 +411,7 @@ componentDidUpdate(prevProps) {
                       <td>Runoff</td>
                       <td>{base.runoff}</td>
                       <td>{model.runoff}</td>
-                      <td>in</td>
+                      <td>IN</td>
                       <td>NA</td>
                       <td>NA</td>
                       <td>NA</td>
@@ -457,6 +470,12 @@ componentDidUpdate(prevProps) {
   // load rasters for aoi in background
   loadSelectionRaster(){
      // ajax call with selection criteria
+    let tempId = uuidv4();
+
+    let newTrans = Transformation("test trans",tempId, 5)
+    this.props.setActiveTrans(newTrans)
+    this.props.addTrans(newTrans)
+
      if (this.state.extent.length == 0){
         return
      }

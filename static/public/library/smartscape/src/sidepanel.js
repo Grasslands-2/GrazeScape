@@ -20,10 +20,13 @@ import { DoorOpen,PlusLg } from 'react-bootstrap-icons';
 import Stack from 'react-bootstrap/Stack'
 import Table from './transformation/transformationTable.js'
 import Modal from 'react-bootstrap/Modal'
+import RangeSlider from 'react-bootstrap-range-slider';
 
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
 setVisibilityMapLayer,updateActiveBaseProps} from '/src/stores/transSlice'
+import{setVisibilityAOIAcc, setVisibilityTransAcc} from '/src/stores/mainSlice'
+
 import { useSelector, useDispatch, connect  } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 
@@ -33,6 +36,9 @@ const mapStateToProps = state => {
     activeTrans: state.transformation.activeTrans,
     listTrans:state.transformation.listTrans,
     baseTrans:state.transformation.baseTrans,
+    region:state.main.region,
+    hideAOIAcc:state.main.hideAOIAcc,
+    hideTransAcc:state.main.hideTransAcc,
 }}
 
 const mapDispatchToProps = (dispatch) => {
@@ -44,6 +50,8 @@ const mapDispatchToProps = (dispatch) => {
         updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
         updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
+        setVisibilityAOIAcc: (type)=> dispatch(setVisibilityAOIAcc(type)),
+        setVisibilityTransAcc: (type)=> dispatch(setVisibilityTransAcc(type)),
     }
 };
 class SidePanel extends React.Component{
@@ -88,7 +96,8 @@ class SidePanel extends React.Component{
             activeTrans:null,
             selectWatershed:false,
             baseModelShow:false,
-            showHuc12:false
+            showHuc12:false,
+            transVisible:false,
         }
     }
     // fires anytime state or props are updated
@@ -198,6 +207,7 @@ class SidePanel extends React.Component{
     else{}
   }
   subAreaSelection(e){
+
     console.log(this.state.showHuc12)
     // show huc 12 if the subwatershed accordion is open
     // otherwise hide huc 12
@@ -231,54 +241,46 @@ class SidePanel extends React.Component{
               <ProgressBar variant="success" now={40} label='Progress'/>
             </Container>
               <Accordion  defaultActiveKey="aoi" id="uncontrolled-tab-example" className="mb-3" onSelect={(e) => this.tabControl(e)}>
-              <Accordion.Item eventKey="aoi" title="Area of Interest">
-                  <Accordion.Header>Create Work Area</Accordion.Header>
-
+              <Accordion.Item eventKey="aoi" title="Area of Interest" hidden={this.props.hideAOIAcc}>
+                  <Accordion.Header>Select Work Area</Accordion.Header>
               <Accordion.Body>
               <Row>
-                     <h4>Select a work area<sup>*</sup></h4>
-                   <InputGroup size="sm" className="mb-3">
-                 <h6> Please select a learning hub and then select at least one HUC 10 watershed </h6>
+                  <h4>Select a work area<sup>*</sup></h4>
+                 <InputGroup size="sm" className="mb-3">
+                 <h6> Please select a geion and then select at least one large watershed </h6>
                  <h6> Hold shift to select multiple watersheds </h6>
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
               </Row>
               </Accordion.Body>
               </Accordion.Item>
-              <Accordion.Item eventKey="selection" title="Selection" disabled>
-                  <Accordion.Header>Create Transformations</Accordion.Header>
+              {/*<Accordion.Item eventKey="selection" title="Selection" hidden={this.props.hideTransAcc}>*/}
+              <Accordion.Item eventKey="selection" title="Selection" >
+                  <Accordion.Header>Build Scenario</Accordion.Header>
 
               <Accordion.Body>
-                  <h4>Build Scenario</h4>
-                  <h6>Land Transformations</h6>
-                  <Stack gap={3}>
-                  <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
-                    <Table
-                    />
-                  </Stack>
-                  <Form.Label>Selection Criteria</Form.Label>
-                   <Accordion id="uncontrolled-tab-example1" >
-                      <Accordion.Item eventKey="1">
-                        <Accordion.Header>Land Type</Accordion.Header>
-                        <Accordion.Body>
-                            <Form.Label>Land Type to Select</Form.Label>
-                            <Form>
-                              <Form.Check
-                                ref={this.contCorn} type="switch" label="Continuous Corn"
-                                onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
-                              />
-                              <Form.Check
-                                ref={this.cashGrain} type="switch" label="Cash Grain"
-                                onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
-                              />
-                              <Form.Check
-                                ref={this.dairy} type="switch" label="Dairy Rotation"
-                                onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
-                              />
-                            </Form>
-                            </Accordion.Body>
-                        </Accordion.Item>
-                    </Accordion>
+
+                <div className = "criteriaSections">
+                <Form.Label>1) Select at least one Land Type</Form.Label>
+                    <Form >
+                      <Form.Check
+                        ref={this.contCorn} type="switch" label="Continuous Corn"
+                        onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
+                      />
+                      <Form.Check
+                        ref={this.cashGrain} type="switch" label="Cash Grain"
+                        onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
+                      />
+                      <Form.Check
+                        ref={this.dairy} type="switch" label="Dairy Rotation"
+                        onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
+                      />
+                    </Form>
+
+                </div>
+
+                <div className = "criteriaSections">
+                    <Form.Label>2) Optional Selection Options</Form.Label>
                     <Accordion onSelect={(e) => this.subAreaSelection(e)}>
                       <Accordion.Item eventKey="2">
                         <Accordion.Header>Sub Area</Accordion.Header>
@@ -316,6 +318,9 @@ class SidePanel extends React.Component{
                                   onChange={(e) => this.handleSelectionChange("slope1", e)}
 
                                 />
+                                <RangeSlider
+                                  value={55}
+                                />
                                 <InputGroup.Text>%</InputGroup.Text>
                                 <Form.Select aria-label="Default select example">
                                   <option value="<">&lt;</option>
@@ -335,6 +340,7 @@ class SidePanel extends React.Component{
                         </Accordion.Item>
                     </Accordion>
                     <Accordion>
+
                       <Accordion.Item eventKey="4">
                         <Accordion.Header>Distance to Stream</Accordion.Header>
                         <Accordion.Body>
@@ -364,28 +370,33 @@ class SidePanel extends React.Component{
                               </InputGroup>
                                 <Form.Label>Units</Form.Label>
                                 <Form>
-                                <Form.Check
-                                    inline
-                                    label="feet"
-                                    name="group1"
-                                    type="radio"
+                                <Form.Check inline label="feet" name="group1" type="radio"
                                   />
-                                  <Form.Check
-                                    inline
-                                    label="meters"
-                                    name="group1"
-                                    type="radio"
-                                    checked={true}
+                                  <Form.Check inline label="meters" name="group1" type="radio" checked={true}
                                     onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
                                   />
                                   </Form>
                             </Accordion.Body>
                         </Accordion.Item>
                     </Accordion>
+                    </div>
+                                    <div className = "criteriaSections">
 
+                <Form.Label>3) Manage Your Land Transformations</Form.Label>
+
+                    <Table/>
+                                      <Stack gap={3}>
+                  <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
+                     <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
                      <Button onClick={this.displaySelectionCriteria} variant="primary">Display Selection</Button>
-                     <Button onClick={this.runModels} variant="primary">Run Transformations</Button>
-                     <Button onClick={this.handleOpenModalBase} variant="primary">Base Parameters</Button>
+                     </Stack>
+                      </div>
+                      <Form.Label>4) Assess Your Scenario</Form.Label>
+
+                     <Stack gap={3}>
+                     <Button onClick={this.runModels} variant="success">Assess Scenario</Button>
+                     </Stack>
+
                                   {/*
                              <Button onClick={this.displaySelectionCriteria} variant="primary">Clear Selections</Button>
 
@@ -460,7 +471,7 @@ class SidePanel extends React.Component{
                       <option value="150_0">150/	0</option>
                       <option value="200_0">200/	0</option>
                       <option value="25_50">25/	50</option>
-                      <option value="50_0">50/	0</option>
+                      <option value="50_50">50/	50</option>
                     </Form.Select>
                 </Modal.Body>
                 <Modal.Footer>

@@ -634,7 +634,7 @@ def adjust_field_yields(yield_data):
 @csrf_protect
 def get_image(response):
     file_name = response.GET.get('file_name')
-    file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files','raster_outputs',file_name)
+    file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs', file_name)
 
     img = open(file_path, 'rb')
 
