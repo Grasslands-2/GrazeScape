@@ -76,7 +76,7 @@ function resetArraysDO(){
 	console.log("DO reset arrays complete!!!!!!!!")
 }
 
-async function deleteOpFeatures(){
+async function gatherdeleteFeatures(){
 	DSS.layer.scenarios.getSource().forEachFeature(function(s) {
 		//console.log(s)
 		if(s.values_.farm_id == farmIDToDelete){
@@ -98,6 +98,30 @@ async function deleteOpFeatures(){
 	console.log(scenArrayDO)
 	console.log(fieldArrayDO)
 	console.log(infraArrayDO)
+}
+
+async function deleteOpFeatures(){
+	// DSS.layer.scenarios.getSource().forEachFeature(function(s) {
+	// 	//console.log(s)
+	// 	if(s.values_.farm_id == farmIDToDelete){
+	// 		scenArrayDO.push(s)
+	// 	}
+	// })
+	// DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+	// 	//console.log(f)
+	// 	if(f.values_.farm_id == farmIDToDelete){
+	// 		fieldArrayDO.push(f)
+	// 	}
+	// })
+	// DSS.layer.infrastructure.getSource().forEachFeature(function(i) {
+	// 	console.log(i)
+	// 	if(i.values_.farm_id == farmIDToDelete){
+	// 		infraArrayDO.push(i)
+	// 	}
+	// })
+	// console.log(scenArrayDO)
+	// console.log(fieldArrayDO)
+	// console.log(infraArrayDO)
 	//delArrays = [infraArrayDO,fieldArrayDO,scenArrrayDO]
 	await deleteOperation(farmArrayDO,'farm_2');
 	await deleteOperation(scenArrayDO,'scenarios_2');
@@ -166,13 +190,15 @@ Ext.define('DSS.state.DeleteOperation', {
 					componentCls: 'button-margin',
 					text: 'delete button',
 					formBind: true,
-					handler: function() {
+					handler: async function() {
 						//var data = me.viewModel.data;
 						console.log("Delete Button");
 						if (selectedOperation != {}) {
 							//deleteOperation(selectedOperation,'farm_2');
-							deleteOpFeatures()
-							//DSS.map.render;
+							await gatherdeleteFeatures()
+							await deleteOpFeatures()
+							geoServer.setFarmSource()
+
 						}
 						else {
 							console.log("no farm selected")

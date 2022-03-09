@@ -143,6 +143,7 @@ function runFieldUpdate(){
     }
     console.log(changedFieldsList)
 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+		console.log(f)
 		var feildFeature = f;
 		console.log("from fields_1 loop through: " + feildFeature.id_);
 		for (i in fieldArray){
@@ -598,6 +599,15 @@ Ext.define('DSS.state.Scenario', {
                             });
                             Ext.getCmp("dashboardContainer").destroy()
                             Ext.getCmp("dashboardWindow").destroy()
+							DSS.MapState.destroyLegend();
+							DSS.layer.yieldGroup.setVisible(false);
+							DSS.layer.erosionGroup.setVisible(false);
+							DSS.layer.runoffGroup.setVisible(false);
+							DSS.layer.PLossGroup.setVisible(false);
+							DSS.layer.PLossGroup.values_.layers.array_ = [];
+							DSS.layer.erosionGroup.values_.layers.array_ = [];
+							DSS.layer.yieldGroup.values_.layers.array_ = [];
+							DSS.layer.runoffGroup.values_.layers.array_ = [];
                             let dash = Ext.create('DSS.results.Dashboard', {
 //                                numberOfLines: 20,
 
@@ -618,8 +628,16 @@ Ext.define('DSS.state.Scenario', {
 				 	disabled:true,
 //				 	disabled: false,
 				 	handler: function(self) {
-		                 Ext.getCmp("dashboardWindow").show()
-
+		                Ext.getCmp("dashboardWindow").show()
+						// DSS.MapState.destroyLegend();
+            			// DSS.layer.yieldGroup.setVisible(false);
+						// DSS.layer.erosionGroup.setVisible(false);
+						// DSS.layer.runoffGroup.setVisible(false);
+						// DSS.layer.PLossGroup.setVisible(false);
+						// DSS.layer.PLossGroup.values_.layers.array_ = [];
+						// DSS.layer.erosionGroup.values_.layers.array_ = [];
+						// DSS.layer.yieldGroup.values_.layers.array_ = [];
+						// DSS.layer.runoffGroup.values_.layers.array_ = [];
 				 	}
 				 }
 				]
