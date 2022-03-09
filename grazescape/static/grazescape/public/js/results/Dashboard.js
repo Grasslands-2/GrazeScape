@@ -1936,7 +1936,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         console.log(fId)
                         //-------------------------------------Ploss--------------------------------------
                         DSS.layer.ploss_field = new ol.layer.Image({
-                            visible: true,
+                            visible: false,
                             opacity: 1,
                             updateWhileAnimating: true,
                             updateWhileInteracting: true,
@@ -2461,6 +2461,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 DSS.layer.erosionGroup.setVisible(false);
                 DSS.layer.runoffGroup.setVisible(false);
                 DSS.layer.PLossGroup.setVisible(false);
+                DSS.layer.PLossGroup.values_.layers.array_ = [];
+				DSS.layer.erosionGroup.values_.layers.array_ = [];
+				DSS.layer.yieldGroup.values_.layers.array_ = [];
+				DSS.layer.runoffGroup.values_.layers.array_ = [];
             }},
 //                inner tabs for farm and field scale
             items:[
