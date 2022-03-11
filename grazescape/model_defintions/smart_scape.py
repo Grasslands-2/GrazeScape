@@ -455,11 +455,12 @@ class SmartScape:
         # slope_arr = slope_image.GetRasterBand(1).ReadAsArray()
         hyd_letter_image = gdal.Open(os.path.join(dir_path, "hyd_letter.tif"))
         hyd_letter_arr = hyd_letter_image.GetRasterBand(1).ReadAsArray()
-        get_runoff_vectorized = np.vectorize(self.calc_runoff)
+        # get_runoff_vectorized = np.vectorize(self.calc_runoff)
         print("running transformation models")
         for layer in layer_dic:
             # yield
             for model in model_list:
+                print("running model ", model)
                 model_trans_filepath = os.path.join(dir_path, layer_dic[layer][model] + ".tif")
                 model_image = gdal.Open(model_trans_filepath)
                 model_band = model_image.GetRasterBand(1)
@@ -472,7 +473,7 @@ class SmartScape:
                     cn_final = np.where(model_data[model] == layer, model_arr, model_data[model])
                     # cn_final = np.where(model_data[model] == layer, cn_inter, model_data[model])
 
-                    model_data["runoff"] = get_runoff_vectorized(cn_final)
+                    model_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
                     model_data[model] = cn_final
                 else:
                     model_data[model] = np.where(model_data[model] == layer, model_arr, model_data[model])
@@ -519,19 +520,19 @@ class SmartScape:
         base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
-        base_data["runoff"] = get_runoff_vectorized(cn_final)
+        base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
-        base_data["runoff"] = get_runoff_vectorized(cn_final)
+        base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 5, base_arr, base_data["cn"])
-        base_data["runoff"] = get_runoff_vectorized(cn_final)
+        base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
         base_data["cn"] = cn_final
 
         base_cn = np.where(
@@ -768,7 +769,7 @@ class SmartScape:
         """
         return 1
 
-    def calc_runoff(self, cn):
+    def get_runoff_vectorized(self, cn, rain):
 
         # CNMC3 = min(cn * math.exp(0.00673 * (100 - cn)), 99)
         # if slope > 0.05:
@@ -777,16 +778,21 @@ class SmartScape:
         # else:
         #     CNfinal = cn
         #
-        stor = 1000 / cn - 10
-        rain = [.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
-        event = []
-        for i in rain:
-            if i > 0.2 * stor:
-                runoff = math.pow(i - 0.2 * stor, 2) / (i + 0.8 * stor)
-            else:
-                runoff = 0
-            event.append(round(runoff, 2))
-            # CNout(i, 2) = runoff;
-        return event[5]
+        stor = (1000 / cn) - 10
+        # rain = [.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
+        # for now we are just going to use 3 in of runoff
+        # rain = [3]
+        # event = []
+        # for i in rain:
+        #     if i > 0.2 * stor:
+        #         runoff = math.pow(i - 0.2 * stor, 2) / (i + 0.8 * stor)
+        #     else:
+        #         runoff = 0
+        #     event.append(round(runoff, 2))
+        # return event[0]
+        event = np.where(rain > 0.2 * stor,
+                         np.power(rain - 0.2 * stor, 2) / (rain + 0.8 * stor),
+                         0)
 
+        return event
 
