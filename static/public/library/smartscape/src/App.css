@@ -71,6 +71,12 @@ background-image: linear-gradient(#EFF4CF, white);
 }
 
 .modal-90w{
-    width: 60vw;
-    max-width: 60vw;
+    width: 80vw;
+    max-width: 80vw;
+}
+.criteriaSections {
+    border-bottom:3px solid black;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
 }

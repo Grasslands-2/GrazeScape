@@ -64,6 +64,8 @@ import { useSelector, useDispatch, connect  } from 'react-redux'
 import{setActiveTrans,setActiveTransOL, updateTransList,updateAreaSelectionType,
 updateActiveTransProps,setVisibilityMapLayer} from '/src/stores/transSlice'
 import configureStore from './stores/store'
+import{setVisibilityAOIAcc, setVisibilityTransAcc} from '/src/stores/mainSlice'
+
 // map values from redux store to local props
 const mapStateToProps = state => {
     return{
@@ -83,6 +85,7 @@ const mapDispatchToProps = (dispatch) => {
         setActiveTransOL: (value)=> dispatch(setActiveTransOL(value)),
         updateTransList: (value)=> dispatch(updateTransList(value)),
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
+        setVisibilityTransAcc: (type)=> dispatch(setVisibilityTransAcc(type)),
 
 //        getTrans: (value)=> dispatch(getTrans(value)),
         updateAreaSelectionType: (value)=> dispatch(updateAreaSelectionType(value)),
@@ -343,10 +346,10 @@ class OLMapFragment extends React.Component {
         const attribution = new Attribution({
           collapsible: false,
         });
-                // create basae style for layers
+        // create basae style for layers (using Paul Tol Color Scheme)
         const styles = [new Style({
             stroke: new Stroke({
-              color: 'blue',
+              color: '#BBBBBB',
               width: 3,
             }),
             fill: new Fill({
@@ -355,7 +358,8 @@ class OLMapFragment extends React.Component {
           })]
           this.stylesBoundary = [new Style({
             stroke: new Stroke({
-              color: 'red',
+//              color: 'red',
+              color: '#66CCEE',
               width: 3,
             }),
             fill: new Fill({
@@ -364,7 +368,7 @@ class OLMapFragment extends React.Component {
           })]
           this.stylesBoundaryTrans = [new Style({
             stroke: new Stroke({
-              color: '#25AFC6',
+              color: '#66CCEE',
               width: 3,
             }),
             fill: new Fill({
@@ -381,6 +385,14 @@ class OLMapFragment extends React.Component {
             projection: 'EPSG:3857',
             }),
             style:this.stylesBoundary,
+        });
+         this.subSelectHuc12 = new VectorLayer({
+          name: "subHuc12",
+          zIndex: 100,
+          source: new VectorSource({
+            projection: 'EPSG:3857',
+            }),
+            style: styles,
         });
         // layer to hold huc 10 watersheds
          this.huc10 = new VectorLayer({
@@ -456,6 +468,7 @@ class OLMapFragment extends React.Component {
             this.southWest,
             this.huc10,
             this.huc12,
+            this.subSelectHuc12,
             this.boundaryLayerAOI,
 //            this.waterSheds1,
 //            this.huc10Layer,
@@ -567,6 +580,7 @@ class OLMapFragment extends React.Component {
             let layer = this.getActiveBounLay()
             // setting the aoi boundary because we don't have any trans yet
             if (layer == null){
+               this.props.setVisibilityTransAcc(false)
                 layer = this.boundaryLayerAOI
             }
             layer.getSource().clear()
