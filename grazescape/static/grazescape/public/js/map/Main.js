@@ -11,6 +11,13 @@ let canvas = document.createElement('canvas');
 let context = canvas.getContext('2d');
 //var hatchPattern = new Image();
 
+var fields_1Source = new ol.source.Vector({
+	format: new ol.format.GeoJSON(),
+	// url: function(extent) {
+	// 	return geoserverURL + geoServer.geoField_Url
+	// },
+});
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
@@ -982,10 +989,11 @@ Ext.define('DSS.map.Main', {
 			}
 		};
 		DEMExtent = [-10177440, 5490396, -10040090, 5310186]
+		console.log("setFieldSource in Main")
 		geoServer.setFieldSource()
 		geoServer.setFarmSource()
 		console.log("setFarmSource in Main.js")
-//		geoServer.setInfrastructureSource()
+		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
 		//geoServer.setDEMSource()
 
@@ -993,7 +1001,7 @@ Ext.define('DSS.map.Main', {
 		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
 			title: 'infrastructure',
-			visible: true,
+			visible: false,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: infrastructure_Source,
@@ -1127,13 +1135,13 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
 				DSS.layer.swwiBorder,
+				DSS.layer.scenarios,
+				DSS.layer.farms_1,
+				DSS.layer.fields_1,
 				DSS.layer.erosionGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.runoffGroup,
-				DSS.layer.yieldGroup,
-				DSS.layer.scenarios,
-				DSS.layer.farms_1,
-				DSS.layer.fields_1
+				DSS.layer.yieldGroup
 				],
 				//------------------------------------------------------------------------
 			view: new ol.View({

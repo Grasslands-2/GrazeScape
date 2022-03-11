@@ -39,6 +39,7 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					componentCls: 'button-margin',
 					text: 'Create New',
 					handler: function() {
+						geoServer.setScenariosSource()
 						DSS.ApplicationFlow.instance.showNewOperationPage();
 						DSS.MapState.removeMapInteractions();
 					}
@@ -54,6 +55,11 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					componentCls: 'button-margin',
 					text: 'Delete Operation',
 					handler: function() {
+						//Make sure all the features are on the table.
+						geoServer.setFieldSource()
+						geoServer.setFarmSource()
+						geoServer.setInfrastructureSource()
+						geoServer.setScenariosSource()
 						DSS.ApplicationFlow.instance.showDeleteOperationPage();
 						DSS.MapState.removeMapInteractions();
 						selectOperation();

@@ -148,7 +148,7 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         model_type: modelChoice,
         graze_factor:graze_factor,
         scen: chartDatasetContainer.getScenName(f["scenario_id"]),
-        model_run_timestamp: modelruntime,
+        model_run_timestamp: modelruntimeOrig,
         active_scen: activeScenario,
         f_scen: f["scenario_id"],
         active_region: DSS.activeRegion
@@ -247,25 +247,25 @@ function format_chart_data(model_data){
                     DSS.layer.yield_field.set('name', 'Rotational Average'+ model_data.field_id);
                     var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
                     console.log(yieldGroupLayers);
-                    if(yieldGroupLayers.length == 0){
-                        yieldGroupLayers.push(DSS.layer.yield_field);
-                    }
-                    else{
-                        for(l in yieldGroupLayers){
-                            //console.log(yieldGroupLayers[l].values_.name)
-                            //console.log(DSS.layer.yield_field.values_.name)
-                            if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
-                                const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
-                                if(index > -1) {
-                                    yieldGroupLayers.splice(index,1);
-                                    console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
-                                }
-                                yieldGroupLayers.push(DSS.layer.yield_field);
-                            }
-                        }
-                    yieldGroupLayers.push(DSS.layer.yield_field);
-                    Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                    }
+                    // if(yieldGroupLayers.length == 0){
+                    //     yieldGroupLayers.push(DSS.layer.yield_field);
+                    // }
+                    // else{
+                    //     for(l in yieldGroupLayers){
+                    //         //console.log(yieldGroupLayers[l].values_.name)
+                    //         //console.log(DSS.layer.yield_field.values_.name)
+                    //         if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
+                    //             const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
+                    //             if(index > -1) {
+                    //                 yieldGroupLayers.splice(index,1);
+                    //                 console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
+                    //             }
+                    //             yieldGroupLayers.push(DSS.layer.yield_field);
+                    //         }
+                    //     }
+                    // yieldGroupLayers.push(DSS.layer.yield_field);
+                    // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                    // }
                 }
             }
             break;
@@ -289,25 +289,25 @@ function format_chart_data(model_data){
                         DSS.layer.ploss_field.set('name', 'ploss'+ model_data.field_id);
                         var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
                         console.log(plossGroupLayers);
-                        if(plossGroupLayers.length == 0){
-                            plossGroupLayers.push(DSS.layer.ploss_field);
-                        }
-                        else{
-                            for(l in plossGroupLayers){
-                                console.log(plossGroupLayers[l].values_.name)
-                                console.log(DSS.layer.ploss_field.values_.name)
-                                if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
-                                    const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
-                                    if(index > -1) {
-                                        plossGroupLayers.splice(index,1);
-                                        console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
-                                    }
-                                    plossGroupLayers.push(DSS.layer.ploss_field);
-                                }
-                            }
-                        plossGroupLayers.push(DSS.layer.ploss_field);
-                        Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                        }
+                        // if(plossGroupLayers.length == 0){
+                        //     plossGroupLayers.push(DSS.layer.ploss_field);
+                        // }
+                        // else{
+                        //     for(l in plossGroupLayers){
+                        //         console.log(plossGroupLayers[l].values_.name)
+                        //         console.log(DSS.layer.ploss_field.values_.name)
+                        //         if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
+                        //             const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
+                        //             if(index > -1) {
+                        //                 plossGroupLayers.splice(index,1);
+                        //                 console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
+                        //             }
+                        //             plossGroupLayers.push(DSS.layer.ploss_field);
+                        //         }
+                        //     }
+                        // plossGroupLayers.push(DSS.layer.ploss_field);
+                        // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                        // }
                     }
                 }
             }
@@ -329,25 +329,25 @@ function format_chart_data(model_data){
                         DSS.layer.ero_field.set('name', 'ero'+ model_data.field_id);
                         var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
                         console.log(erosionGroupLayers);
-                        if(erosionGroupLayers.length == 0){
-                            erosionGroupLayers.push(DSS.layer.ero_field);
-                        }
-                        else{
-                            for(l in erosionGroupLayers){
-                                console.log(erosionGroupLayers[l].values_.name)
-                                console.log(DSS.layer.ero_field.values_.name)
-                                if(erosionGroupLayers[l].values_.name == DSS.layer.ero_field.values_.name){
-                                    const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
-                                    if(index > -1) {
-                                        erosionGroupLayers.splice(index,1);
-                                        console.log("SPLICED :" + DSS.layer.ero_field.values_.name)
-                                    }
-                                    erosionGroupLayers.push(DSS.layer.ero_field);
-                                }
-                            }
-                        erosionGroupLayers.push(DSS.layer.ero_field);
-                        Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                        }
+                        // if(erosionGroupLayers.length == 0){
+                        //     erosionGroupLayers.push(DSS.layer.ero_field);
+                        // }
+                        // else{
+                        //     for(l in erosionGroupLayers){
+                        //         console.log(erosionGroupLayers[l].values_.name)
+                        //         console.log(DSS.layer.ero_field.values_.name)
+                        //         if(erosionGroupLayers[l].values_.name == DSS.layer.ero_field.values_.name){
+                        //             const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
+                        //             if(index > -1) {
+                        //                 erosionGroupLayers.splice(index,1);
+                        //                 console.log("SPLICED :" + DSS.layer.ero_field.values_.name)
+                        //             }
+                        //             erosionGroupLayers.push(DSS.layer.ero_field);
+                        //         }
+                        //     }
+                        // erosionGroupLayers.push(DSS.layer.ero_field);
+                        // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                        // }
                     }
                 }
             }
@@ -396,25 +396,25 @@ function format_chart_data(model_data){
                     DSS.layer.runoff_field.set('name', 'Curve Number'+ model_data.field_id);
                     var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
                     console.log(runoffGroupLayers);
-                    if(runoffGroupLayers.length == 0){
-                        runoffGroupLayers.push(DSS.layer.runoff_field);
-                    }
-                    else{
-                        for(l in runoffGroupLayers){
-                            console.log(runoffGroupLayers[l].values_.name)
-                            console.log(DSS.layer.runoff_field.values_.name)
-                            if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
-                                const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
-                                if(index > -1) {
-                                    runoffGroupLayers.splice(index,1);
-                                    console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
-                                }
-                                runoffGroupLayers.push(DSS.layer.runoff_field);
-                            }
-                        }
-                    runoffGroupLayers.push(DSS.layer.runoff_field);
-                    Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                    }
+                    // if(runoffGroupLayers.length == 0){
+                    //     runoffGroupLayers.push(DSS.layer.runoff_field);
+                    // }
+                    // else{
+                    //     for(l in runoffGroupLayers){
+                    //         console.log(runoffGroupLayers[l].values_.name)
+                    //         console.log(DSS.layer.runoff_field.values_.name)
+                    //         if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
+                    //             const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
+                    //             if(index > -1) {
+                    //                 runoffGroupLayers.splice(index,1);
+                    //                 console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
+                    //             }
+                    //             runoffGroupLayers.push(DSS.layer.runoff_field);
+                    //         }
+                    //     }
+                    // runoffGroupLayers.push(DSS.layer.runoff_field);
+                    // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
+                    // }
                 }
             }
                 break
