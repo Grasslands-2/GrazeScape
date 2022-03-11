@@ -39,7 +39,7 @@ http://geoserver:8080 is used for the development instance of geoserver.
 Kevin ususally sets these when making new containers, depending on the container"""
 #GEOSERVER_URL = "http://grazescape:8080"
 #GEOSERVER_URL = "http://geoserver:8080"
-GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
+GEOSERVER_URL = "http://localhost:8081"
 
 #container R path.
 #R_PATH = "/opt/conda/envs/gscape/bin/R"
@@ -52,6 +52,8 @@ MODEL_PATH = "C://Users/zjhas/Documents/GrazeScape/grazescape/data_files/input_m
 #R_PATH = "/opt/conda/envs/gscape/bin/R"
 ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_ALLOW_ALL = True
+
+GCS_BUCKET_NAME = "dev_container_model_results"
 
 
 # Application definition
