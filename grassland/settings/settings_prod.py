@@ -16,8 +16,8 @@ DEBUG = True
 # GEOSERVER_URL = "https://geoserver:8443/geoserver/"
 # production server is "http://grazescape:8080"
 
-#GEOSERVER_URL = "http://geoserver:8080"
-GEOSERVER_URL = "http://grazescape:8080"
+GEOSERVER_URL = "http://geoserver:8080"
+#GEOSERVER_URL = "http://grazescape:8080"
 #GEOSERVER_URL = "http://geoserver:8080"
 
 #container R path.
