@@ -11,7 +11,8 @@ export const mainSlice = createSlice({
   initialState: {
     region:null,
     hideAOIAcc:false,
-    hideTransAcc:true
+    hideTransAcc:true,
+    aoiFolderId:null
   },
   // functions to interact with redux store
   reducers: {
@@ -36,6 +37,9 @@ export const mainSlice = createSlice({
     setVisibilityTransAcc: (state, action) => {
         state.hideTransAcc = action.payload
     },
+    setAoiFolderId: (state, action) => {
+        state.aoiFolderId = action.payload
+    },
   },
 })
 
@@ -43,6 +47,7 @@ export const mainSlice = createSlice({
 export const {setActiveRegion,
                 setVisibilityAOIAcc,
                 setVisibilityTransAcc,
+                setAoiFolderId,
                  } = mainSlice.actions
 
 export default mainSlice.reducer

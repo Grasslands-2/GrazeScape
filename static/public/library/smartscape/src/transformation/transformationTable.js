@@ -65,7 +65,7 @@ const mapDispatchToProps = (dispatch) => {
         updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
     }
 };
-class Table extends Component {
+class TransformationTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -209,7 +209,7 @@ class Table extends Component {
                     <div >
                     <InputGroup  size="sm" draggable="true">
                         {/*<Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}><ThreeDotsVertical/></Form.Label>*/}
-                        <OverlayTrigger key="top" placement="top"
+                        <OverlayTrigger key="top1" placement="top"
                             overlay={<Tooltip>Land Transformation Priority</Tooltip>}>
                             <Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}>&nbsp;&nbsp;{index +1}&nbsp;&nbsp;</Form.Label>
                         </OverlayTrigger>
@@ -326,4 +326,4 @@ class Table extends Component {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Table)
+)(TransformationTable)
