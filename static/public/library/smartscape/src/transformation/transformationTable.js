@@ -65,7 +65,7 @@ const mapDispatchToProps = (dispatch) => {
         updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
     }
 };
-class Table extends Component {
+class TransformationTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -107,6 +107,7 @@ class Table extends Component {
     async handleOpenModalTrans(e){
         console.log("handling opening modal!!!!")
         console.log(e)
+        // the modal will only open after the active trans has been set
         await this.selectTransClick(e)
         this.setState({transModalShow: true})
       }
@@ -207,8 +208,12 @@ class Table extends Component {
                     >
                     <div >
                     <InputGroup  size="sm" draggable="true">
-                        <Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}><ThreeDotsVertical/></Form.Label>
-                        <Form.Control placeholder="Enter name" id={item1.id} className={ this.props.activeTrans.id === item1.id && 'active1' } onChange={this.handleTransNameChange} onClick={this.selectTransClick} />
+                        {/*<Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}><ThreeDotsVertical/></Form.Label>*/}
+                        <OverlayTrigger key="top1" placement="top"
+                            overlay={<Tooltip>Land Transformation Priority</Tooltip>}>
+                            <Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}>&nbsp;&nbsp;{index +1}&nbsp;&nbsp;</Form.Label>
+                        </OverlayTrigger>
+                        <Form.Control placeholder="Selection Name" id={item1.id} className={ this.props.activeTrans.id === item1.id && 'active1' } onChange={this.handleTransNameChange} onClick={this.selectTransClick} />
                         <OverlayTrigger key="top" placement="top"
                           overlay={<Tooltip>Set Transformation</Tooltip>}>
                             <Button size="sm" variant="primary" id={item1.id} onClick={this.handleOpenModalTrans}><Sliders/></Button>
@@ -321,4 +326,4 @@ class Table extends Component {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Table)
+)(TransformationTable)
