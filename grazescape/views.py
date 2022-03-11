@@ -60,12 +60,9 @@ def remove_old_pngs_gcs_storage_bucket(model_type,field_id):
     # bucket_name = "your-bucket-name"
 
     storage_client = storage.Client()
-    #bucket = storage_client.bucket(settings.GCS_BUCKET_NAME)
-    #bucket = storage_client.bucket("prod_container_model_results")
 
     # Note: Client.list_blobs requires at least package version 1.17.0.
     blobs = storage_client.list_blobs(settings.GCS_BUCKET_NAME)
-    #blobs = storage_client.list_blobs("prod_container_model_results")
     for blob in blobs:
         #print(blob.name)
         if str(model_type+field_id) in blob.name:
@@ -84,7 +81,6 @@ def upload_gcs_model_result_blob(model_type,field_id,model_run_timestamp):
     destination_blob_name = model_type + field_id + '_' + model_run_timestamp + ".png"
     storage_client = storage.Client()
     bucket = storage_client.bucket(settings.GCS_BUCKET_NAME)
-    #bucket = storage_client.bucket("prod_container_model_results")
     blob = bucket.blob(destination_blob_name)
     try:
         blob.upload_from_filename(source_file_name)
@@ -98,9 +94,7 @@ def download_gcs_model_result_blob(field_id,scen,active_scen,model_run_timestamp
     model_Types = ['Rotational Average', 'ploss','ero']
     storage_client = storage.Client()
     bucket = storage_client.bucket(settings.GCS_BUCKET_NAME)
-    #bucket = storage_client.bucket("prod_container_model_results")
     blobs = storage_client.list_blobs(settings.GCS_BUCKET_NAME)
-    #blobs = storage_client.list_blobs("prod_container_model_results")
     for blob in blobs:
         for model in model_Types:
             if str(model+str(field_id)) in blob.name and str(scen) == str(active_scen):
@@ -120,7 +114,6 @@ def delete_gcs_model_result_blob(field_id):
     model_Types = ['Rotational Average', 'ploss','ero']
     storage_client = storage.Client()
     bucket = storage_client.bucket(settings.GCS_BUCKET_NAME)
-    #bucket = storage_client.bucket("prod_container_model_results")
     for model in model_Types:
         """Deletes a blob from the bucket."""
         blob = bucket.blob(model+field_id+'.png')
@@ -353,10 +346,7 @@ def get_model_results(request):
         """Downloads a blob from the bucket."""
         # model_Types = ['yield', 'ploss','runoff']
         storage_client = storage.Client()
-        # bucket = storage_client.bucket(settings.GCS_BUCKET_NAME)
-        # bucket = storage_client.bucket("prod_container_model_results")
         blobs = storage_client.list_blobs(settings.GCS_BUCKET_NAME)
-        #blobs = storage_client.list_blobs("prod_container_model_results")
         for blob in blobs:
             if str(field_scen_id) == str(active_scen) and str(field_id) in blob.name:
                 #namestring = blob.name
