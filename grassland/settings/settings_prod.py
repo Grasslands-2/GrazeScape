@@ -22,10 +22,14 @@ GEOSERVER_URL = "http://geoserver:8080"
 
 #container R path.
 R_PATH = "/opt/conda/envs/gscape/bin/R"
+#Model path for production and development containers
 MODEL_PATH = "/tmp/GrazeScape/grazescape/data_files/input_models"
 
 #local R path.
 #R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+
+#GCS Production Bucket Name
+GCS_BUCKET_NAME = "prod_container_model_results"
 
 ALLOWED_HOSTS = ['*']
 parser = configparser.ConfigParser()
