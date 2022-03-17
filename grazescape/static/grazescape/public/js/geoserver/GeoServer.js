@@ -275,12 +275,17 @@ class GeoServer{
             let geoJson = returnData.geojson
             let currObj = returnData.current
             console.log("deleteField")
-            currObj.setFieldSource().then(function(){
-                console.log("redraw fields")
-                DSS.MapState.showNewFarm(DSS.activeFarm);
-                DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-                DSS.MapState.showInfrasForFarm(DSS.activeFarm);
-            })
+            //console.log(currObj)
+            //currObj.setFieldSource().then(function(){
+            console.log("redraw fields")
+            DSS.MapState.showFieldsForScenario();
+            DSS.MapState.showInfraForScenario();
+            // setFieldSource().then(function(){
+            //     console.log("redraw fields")
+            //     DSS.MapState.showNewFarm(DSS.activeFarm);
+            //     DSS.MapState.showFieldsForFarm(DSS.activeFarm);
+            //     DSS.MapState.showInfrasForFarm(DSS.activeFarm);
+            // })
          })
     }
     //inserts new scenario based on current active scenario 

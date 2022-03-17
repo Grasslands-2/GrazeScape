@@ -5,6 +5,7 @@ var scenarioObj = {};
 var pastAcreage = 0
 var cropAcreage = 0
 var modelruncounter = 0
+var inputFieldObj = {}
 
 function aswCheck(breedSizeData,aswValueInput){
 	console.log(breedSizeData)
@@ -275,7 +276,9 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.state.scenario.AnimalDialog',
 		'DSS.state.scenario.PerimeterDialog',
 		'DSS.state.operation.InfraShapeMode',
-		'DSS.state.operation.FieldShapeMode'
+		'DSS.state.operation.FieldShapeMode',
+		'DSS.field_shapes.FieldApplyPanel',
+		'DSS.field_shapes.Delete'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -349,60 +352,257 @@ Ext.define('DSS.state.Scenario', {
 				},{//------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',
-					html: 'Edit Fields and Infrastructure'
+					html: 'Draw or Delete Fields<br>and Infrastructure'
 				},
 				{
 					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Field Shapes',
-//					allowDepress:
-					toggleGroup: 'manage-operation',
-					toggleHandler: function(self, pressed) {
-						if (pressed) {
-							AppEvents.triggerEvent('show_field_shape_mode')
-							DSS.MapState.removeMapInteractions()
-							AppEvents.triggerEvent('hide_field_grid')
-							AppEvents.triggerEvent('hide_infra_grid')
-						}
-						else {
-							AppEvents.triggerEvent('hide_field_shape_mode');
-							AppEvents.triggerEvent('hide_infra_line_mode');
-							// use DSS.Inspector.addModeControl() to turn the mode
-							// back to inspector
-							DSS.Inspector.addModeControl()
-							//----------------------------------
-							DSS.MapState.removeMapInteractions()
-						}
-					//	DSS.ApplicationFlow.instance.showNewOperationPage();
-					}
+					name:'Fields',
+					text: 'Fields',
+					allowDepress: false,
+						menu: {
+							defaults:{
+							xtype: 'button',
+							hideOnClick: true,
+						},
+						items: [{
+							text: 'Place a Field',
+							//id:'nwel',
+							listeners:{
+								afterrender: function(self) {
+									//self.setChecked(DSS.layer.DEM_image2.getVisible());
+								},
+							},
+							handler: function(self){
+								self.setActiveCounter(0)
+								self.setActive(false)
+								var af = parseInt(DSS.activeFarm,10);
+								var as = DSS.activeScenario;
+								console.log('This is the active scenario#: ');
+								//AppEvents.triggerEvent('show_field_shape_mode')
+								//DSS.MapState.removeMapInteractions()
+								AppEvents.triggerEvent('hide_field_grid')
+								AppEvents.triggerEvent('hide_infra_grid')
+								DSS.MapState.removeMapInteractions();
+								//DSS.DrawFieldShapes.addModeControl(me);	
+								//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
+								DSS.mapClickFunction = undefined;
+								DSS.mouseMoveFunction = undefined;
+								DSS.draw = new ol.interaction.Draw({
+									source: source,
+									type: 'MultiPolygon',
+									geometryName: 'geom'
+								});
+								alert("Field Draw Mode On.")
+								DSS.map.addInteraction(DSS.draw);
+								console.log("draw is on");
+								console.log(self)
+								
+								DSS.draw.on('drawend', function (e) {
+									fieldArea = e.feature.values_.geom.getArea();
+									console.log(fieldArea);
+									
+									DSS.MapState.removeMapInteractions()
+									DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 				
+									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
+									DSS.dialogs.FieldApplyPanel.show().center().setY(0);
+									inputFieldObj = e
+								})     
+							}
+						},
+						{
+							text: 'Delete a Field',
+							listeners:{
+								afterrender: function(self) {
+									//self.setChecked(DSS.layer.DEM_image3.getVisible());
+								},
+							},
+							handler: function(self){
+								self.setActiveCounter(0)
+								console.log('delete mode on')
+								selectFieldDelete()
+								//DSS.DeleteFieldShapes.addModeControl(me)
+								//this.up('menu').close()  
+							}
+						},
+						// {
+						// 	text: 'Open Field Table',
+						// 	listeners:{
+						// 		afterrender: function(self) {
+						// 			//self.setChecked(DSS.layer.DEM_image3.getVisible());
+						// 		},
+						// 	},
+						// 	handler: function(self){
+						// 		this.up('menu').close()  
+						// 	}
+						// }
+					]
 				},
+				addModeControl: function() {
+					let me = this;
+					let c = DSS_viewport.down('#DSS-mode-controls');
+					
+					if (!c.items.has(me)) {
+						Ext.suspendLayouts();
+							c.removeAll(false);
+							c.add(me);
+						Ext.resumeLayouts(true);
+					}
+				}
+				},
+
+
+				// {
+				// 	xtype: 'button',
+				// 	name:'Infrastructure',
+				// 	text: 'Infrastructure',
+				// 	allowDepress: false,
+				// 		menu: {
+				// 			defaults:{
+				// 			xtype: 'button',
+				// 			hideOnClick: true,
+				// 		},
+				// 		items: [{
+				// 			text: 'Place Infrastructure',
+				// 			//id:'nwel',
+				// 			listeners:{
+				// 				afterrender: function(self) {
+				// 					//self.setChecked(DSS.layer.DEM_image2.getVisible());
+				// 				},
+				// 			},
+				// 			handler: function(self){
+				// 				self.setActiveCounter(0)
+				// 				self.setActive(false)
+				// 				console.log('This is the active scenario#: ');
+				// 				//AppEvents.triggerEvent('show_field_shape_mode')
+				// 				//DSS.MapState.removeMapInteractions()
+				// 				AppEvents.triggerEvent('hide_field_grid')
+				// 				AppEvents.triggerEvent('hide_infra_grid')
+				// 				DSS.MapState.removeMapInteractions();
+				// 				//DSS.DrawFieldShapes.addModeControl(me);	
+				// 				//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
+				// 				DSS.mapClickFunction = undefined;
+				// 				DSS.mouseMoveFunction = undefined;
+				// 				DSS.draw = new ol.interaction.Draw({
+				// 					source: source,
+				// 					type: 'LineString',
+				// 					geometryName: 'geom',
+				// 					style: infraDrawStyle(infra_typeInput)
+				// 				});
+				// 				alert("Infrastructure Draw Mode On.")
+				// 				DSS.map.addInteraction(DSS.draw);
+				// 				console.log("draw is on");
+				// 				console.log(self)
+								
+				// 				DSS.draw.on('drawend', function (e) {
+				// 					infraLength = e.feature.values_.geom.getLength() * 3.28084;
+				// 					console.log(infraLength);
+									
+				// 					DSS.MapState.removeMapInteractions()
+				// 					DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 				
+				// 					//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
+				// 					DSS.dialogs.InfraApplyPanel.show().center().setY(0);
+				// 					inputInfraObj = e
+				// 				})     
+				// 			}
+				// 		},
+				// 		{
+				// 			text: 'Delete Infrastructure',
+				// 			listeners:{
+				// 				afterrender: function(self) {
+				// 					//self.setChecked(DSS.layer.DEM_image3.getVisible());
+				// 				},
+				// 			},
+				// 			handler: function(self){
+				// 				self.setActiveCounter(0)
+				// 				console.log('delete mode on')
+				// 				selectFieldDelete()
+				// 				//DSS.DeleteFieldShapes.addModeControl(me)
+				// 				//this.up('menu').close()  
+				// 			}
+				// 		},
+				// 		// {
+				// 		// 	text: 'Open Field Table',
+				// 		// 	listeners:{
+				// 		// 		afterrender: function(self) {
+				// 		// 			//self.setChecked(DSS.layer.DEM_image3.getVisible());
+				// 		// 		},
+				// 		// 	},
+				// 		// 	handler: function(self){
+				// 		// 		this.up('menu').close()  
+				// 		// 	}
+				// 		// }
+				// 	]
+				// },
+				// addModeControl: function() {
+				// 	let me = this;
+				// 	let c = DSS_viewport.down('#DSS-mode-controls');
+					
+				// 	if (!c.items.has(me)) {
+				// 		Ext.suspendLayouts();
+				// 			c.removeAll(false);
+				// 			c.add(me);
+				// 		Ext.resumeLayouts(true);
+				// 	}
+				// }
+				// },
+
+
+
+
+// 				{
+// 					xtype: 'button',
+// 					cls: 'button-text-pad',
+// 					componentCls: 'button-margin',
+// 					text: 'Field Shapes',
+// //					allowDepress:
+// 					toggleGroup: 'manage-operation',
+// 					toggleHandler: function(self, pressed) {
+// 						if (pressed) {
+// 							AppEvents.triggerEvent('show_field_shape_mode')
+// 							DSS.MapState.removeMapInteractions()
+// 							AppEvents.triggerEvent('hide_field_grid')
+// 							AppEvents.triggerEvent('hide_infra_grid')
+// 						}
+// 						else {
+// 							AppEvents.triggerEvent('hide_field_shape_mode');
+// 							AppEvents.triggerEvent('hide_infra_line_mode');
+// 							// use DSS.Inspector.addModeControl() to turn the mode
+// 							// back to inspector
+// 							DSS.Inspector.addModeControl()
+// 							//----------------------------------
+// 							DSS.MapState.removeMapInteractions()
+// 						}
+// 					//	DSS.ApplicationFlow.instance.showNewOperationPage();
+// 					}
+// 				},
 				//-----------------------------------------------------
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Infrastructure Lines',
-//					allowDepress:
-					toggleGroup: 'manage-operation',
-					toggleHandler: function(self, pressed) {
-						if (pressed) {
-							AppEvents.triggerEvent('show_infra_line_mode')
-							DSS.MapState.removeMapInteractions()
-							AppEvents.triggerEvent('hide_field_grid')
-							AppEvents.triggerEvent('hide_infra_grid')
-						}
-						else {
-							AppEvents.triggerEvent('hide_field_shape_mode');
-							AppEvents.triggerEvent('hide_infra_line_mode');
-							// use DSS.Inspector.addModeControl() to turn the mode
-							// back to inspector
-							DSS.Inspector.addModeControl()
-							//----------------------------------
-							DSS.MapState.removeMapInteractions()
-						}
-					}
-				},
+// 				
+
+//{
+// 					xtype: 'button',
+// 					cls: 'button-text-pad',
+// 					componentCls: 'button-margin',
+// 					text: 'Infrastructure Lines',
+// //					allowDepress:
+// 					toggleGroup: 'manage-operation',
+// 					toggleHandler: function(self, pressed) {
+// 						if (pressed) {
+// 							AppEvents.triggerEvent('show_infra_line_mode')
+// 							DSS.MapState.removeMapInteractions()
+// 							AppEvents.triggerEvent('hide_field_grid')
+// 							AppEvents.triggerEvent('hide_infra_grid')
+// 						}
+// 						else {
+// 							AppEvents.triggerEvent('hide_field_shape_mode');
+// 							AppEvents.triggerEvent('hide_infra_line_mode');
+// 							// use DSS.Inspector.addModeControl() to turn the mode
+// 							// back to inspector
+// 							DSS.Inspector.addModeControl()
+// 							//----------------------------------
+// 							DSS.MapState.removeMapInteractions()
+// 						}
+// 					}
+// 				},
 				{//------------------------------------------
 					xtype: 'component',
 					cls: 'information med-text',
@@ -503,20 +703,20 @@ Ext.define('DSS.state.Scenario', {
 					}
 				},
 				//------------------------------------------
-				,{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					toggleGroup: 'create-scenario',
-					allowDepress: false,
-					text: 'Save Edits',
-					handler: function() {
-						//DSS.layer.scenarios.getSource().refresh();
-						runScenarioUpdate();
-						runFieldUpdate();
-						runInfraUpdate();	
-					},
-				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	toggleGroup: 'create-scenario',
+				// 	allowDepress: false,
+				// 	text: 'Save Edits',
+				// 	handler: function() {
+				// 		//DSS.layer.scenarios.getSource().refresh();
+				// 		runScenarioUpdate();
+				// 		runFieldUpdate();
+				// 		runInfraUpdate();	
+				// 	},
+				// },
 						
 				{//------------------------------------------
 					xtype: 'component',

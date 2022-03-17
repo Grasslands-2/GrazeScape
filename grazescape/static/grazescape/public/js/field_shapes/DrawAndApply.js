@@ -131,16 +131,16 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 		console.log("Else has hit")
 		soilPVal = 35
 	}
-	DSS.draw = new ol.interaction.Draw({
-		source: source,
-		type: 'MultiPolygon',
-		geometryName: 'geom'
-	});
-	DSS.map.addInteraction(DSS.draw);
-	console.log("draw is on");
-	var af = parseInt(DSS.activeFarm,10);
-	var as = DSS.activeScenario;
-	console.log('This is the active scenario#: ');
+	// DSS.draw = new ol.interaction.Draw({
+	// 	source: source,
+	// 	type: 'MultiPolygon',
+	// 	geometryName: 'geom'
+	// });
+	// DSS.map.addInteraction(DSS.draw);
+	// console.log("draw is on");
+	// var af = parseInt(DSS.activeFarm,10);
+	// var as = DSS.activeScenario;
+	// console.log('This is the active scenario#: ');
 
 	DSS.draw.on('drawend', function (e,) {
 		fieldArea = e.feature.values_.geom.getArea();
@@ -183,8 +183,6 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 		addFieldAcreage(e.feature)
 		alert('Field Added!')
 	})     
-
-
 }
 //------------------select defaults by region--------------
 function defaultDataByRegion(soilPVal){
