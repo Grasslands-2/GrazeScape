@@ -9,7 +9,8 @@ import os
 class GrassYield(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
-        self.model_name = "tidyPastureALLWI.rds"
+        self.model_name = "tidyPastureALLWInoCec.rds"
+        #self.model_name = "tidyPastureALLWI.rds"
         # self.model_file_path = os.path.join(settings.MODEL_PATH,
         #                                     self.model_name)
         self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape',self.model_name)
@@ -41,7 +42,7 @@ class GrassYield(ModelBase):
         silt = self.raster_inputs["silt"].flatten()
         clay = self.raster_inputs["clay"].flatten()
         ksat = self.raster_inputs["ksat"].flatten()
-        cec = self.raster_inputs["cec"].flatten()
+        #cec = self.raster_inputs["cec"].flatten()
         ph = self.raster_inputs["ph"].flatten()
         om = self.raster_inputs["om"].flatten()
         awc = self.raster_inputs["awc"].flatten()
@@ -54,7 +55,7 @@ class GrassYield(ModelBase):
         r.assign("clay", clay)
         r.assign("om", om)
         r.assign("ksat", ksat)
-        r.assign("cec", cec)
+        #r.assign("cec", cec)
         r.assign("ph", ph)
         r.assign("awc", awc)
         r.assign("total_depth", total_depth)
@@ -69,7 +70,7 @@ class GrassYield(ModelBase):
         print(r("savedRF <- readRDS('" + self.model_file_path + "')"))
         print(r(
             "new_dat <- data.frame(slope=slope, elev=elevation, sand=sand, "
-            "silt=silt,   clay=clay,     om=om,   ksat=ksat,    cec=cec,     "
+            "silt=silt,   clay=clay,     om=om,   ksat=ksat,    " #cec=cec,     
             "ph=ph,  awc=awc,   total.depth=total_depth )"))
         print(r(
             'cropname <- factor(c("Bluegrass-clover", "Orchardgrass-clover",'

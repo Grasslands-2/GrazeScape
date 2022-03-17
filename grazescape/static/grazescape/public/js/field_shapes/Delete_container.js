@@ -1,5 +1,5 @@
 var selectedField = {}
-function selectFieldDelete(){
+function selectField_old(){
 	DSS.select = new ol.interaction.Select({
 		features: new ol.Collection(),
 			toggleCondition: ol.events.condition.never,
@@ -17,24 +17,10 @@ function selectFieldDelete(){
 	DSS.map.addInteraction(DSS.select);
 	console.log("select is on")
 	DSS.select.on('select', function(f) {
-		setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
 		console.log('select on happened');
 		selectedField = f.selected[0];
 		console.log(selectedField);
-		//DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 				
-		//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
-		//DSS.dialogs.FieldApplyPanel.show().center().setY(0);
-		if(confirm('Are you sure you want to delete field '+selectedField.values_.field_name + '?')) {
-			console.log("DELETED!")
-			deleteField(selectedField)
-			alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
-			DSS.MapState.removeMapInteractions()
-		  } else {
-			console.log("NOT DELETED!")
-			DSS.MapState.removeMapInteractions()
-		  }
-		
-	})
+	});
 }
 function deleteField(feat){
 
@@ -58,21 +44,17 @@ function deleteField(feat){
 }
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.field_shapes.Delete', {
+Ext.define('DSS.field_shapes.Delete_container', {
 //------------------------------------------------------------------------------
-	extend: 'Ext.window.Window',
-	alias: 'widget.field_delete',
-    alternateClassName: 'DSS.DeleteFieldShapes',
-    constrain: false,
-	modal: true,
-	width: 500,
-	resizable: true,
-	bodyPadding: 8,
-	//singleton: true,	
+	extend: 'Ext.Container',
+	alias: 'widget.field_delete_container',
+    alternateClassName: 'DSS.DeleteContainerFieldShapes',
+    singleton: true,	
+	
     autoDestroy: false,
+    
     scrollable: 'y',
-	titleAlign: 'center',
-	title: 'Choose your new Fields Name and Crop Rotation',
+
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
@@ -134,7 +116,7 @@ Ext.define('DSS.field_shapes.Delete', {
 		let me = this;
 		let c = DSS_viewport.down('#DSS-mode-controls');
 		console.log('delete mode on')
-		selectFieldDelete()
+		selectField()
 		
 		
 		if (!c.items.has(me)) {

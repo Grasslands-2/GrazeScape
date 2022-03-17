@@ -20,9 +20,9 @@ def main():
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
 
 
-    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_local_code_dev_server')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_local_code_dev_server')
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_local_code_local_server')
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
+    #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_dev')
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grassland.settings.settings_prod')
 
 

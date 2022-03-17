@@ -348,7 +348,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				    console.log("total cost updated")
 				}
 				}
-			}, text: 'Total<br>Cost', dataIndex: 'totalCost', width: 80, 
+			}, text: 'Total<br>Cost', dataIndex: 'totalCost', width: 80, formatter: 'usMoney',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
