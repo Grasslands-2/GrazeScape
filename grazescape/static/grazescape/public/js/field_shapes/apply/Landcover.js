@@ -30,7 +30,7 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 					xtype: 'component',
 					x: 0, y: -6,
 					width: '100%',
-					height: 50,
+					//height: 500,
 					cls: 'information accent-text bold',
 					html: "Set Crop / Landcover",
 				},
@@ -40,7 +40,7 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 				xtype: 'radiogroup',
 				itemId: 'contents',
 				style: 'padding: 0px; margin: 0px', // fixme: eh...
-				hideEmptyLabel: true,
+				hideEmptyLabel: false,
 				columns: 2, 
 				vertical: true,
 				allowBlank: false,
