@@ -103,6 +103,27 @@ export function getOptionsBarPercent(){
             },
           },
           responsive: true,
+          scales: {
+            x: {
+               grid: {
+//                color: 'rgba(0,255,0,0.1)',
+                    color: function(context) {
+                        if (context.tick && context.tick.value == 0) {
+                          return '#000000'
+                        }
+                       return 'rgb(201, 203, 207)'
+                    },
+                    lineWidth: function(context){
+                        if (context.tick && context.tick.value == 0) {
+                          return 2
+                        }
+                       return 1
+                    }
+                }
+              }
+            }
+
+
 
 
     };

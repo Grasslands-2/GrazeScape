@@ -48,6 +48,8 @@ const mapStateToProps = state => {
         listTrans:state.transformation.listTrans,
         baseTrans:state.transformation.baseTrans,
         region:state.main.region,
+        extents:state.main.aoiExtents,
+        aoiFolderId:state.main.aoiFolderId,
 
 }}
 
@@ -70,13 +72,8 @@ class AppContainer extends React.Component{
   constructor(props) {
     super(props);
     this.handleTextChange = this.handleTextChange.bind(this);
-    this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
-    this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
-    this.handleBoundaryChange = this.handleBoundaryChange.bind(this);
     this.handleAreaSelectionType = this.handleAreaSelectionType.bind(this);
     this.addTrans = this.addTrans.bind(this);
-
-
     this.modelPloss = React.createRef();
     this.basePloss = React.createRef();
 //    set base line parameters to default values
@@ -91,7 +88,6 @@ class AppContainer extends React.Component{
         rasterUrl: "",
         rasterExtents: "",
         rasterLayer1:this.rasterLayer1,
-        extent:[],
         areaSelectionType:"",
         boundaryRasterId:"",
         coors:[],
@@ -115,14 +111,6 @@ componentDidUpdate(prevProps) {
     this.setState({text: newText});
   }
 
-
-  handleBoundaryChange(extent, coors){
-    this.setState({
-        extent:extent,
-        coors:coors
-    })
-    console.log("boundary changed",this.state)
-  }
   handleAreaSelectionType(type){
     console.log("app", type)
     this.setState({areaSelectionType:type})
@@ -133,90 +121,9 @@ componentDidUpdate(prevProps) {
   }
   componentDidMount(){
     console.log("compoenet mounted")
-    this.props.setActiveRegion("testing region set")
-  }
-  // load rasters for aoi in background
-  loadSelectionRaster(){
-     // ajax call with selection criteria
-    let tempId = uuidv4();
-
-    let newTrans = Transformation("test trans",tempId, 5)
-    this.props.setActiveTrans(newTrans)
-    this.props.addTrans(newTrans)
-
-     if (this.state.extent.length == 0){
-        return
-     }
-    console.log("launching ajax")
-    console.log(this.state)
-    var csrftoken = Cookies.get('csrftoken');
-    $.ajaxSetup({
-        headers: { "X-CSRFToken": csrftoken }
-    });
-    $.ajax({
-        url : '/smartscape/get_selection_raster',
-        type : 'POST',
-        data : {
-            geometry:{
-                // this is the aoi extent; saved to appcontainer local storage
-                extent:this.state.extent,
-//                field_coors:this.state.coors
-            }
-        },
-        success: (response, opts) => {
-            delete $.ajaxSetup().headers
-            console.log("raster loaded");
-            console.log(response);
-            this.setState({boundaryRasterId:response.folder_id})
-            this.props.setAoiFolderId(response.folder_id)
-            console.log(this.state)
-            alert("Raster loaded")
-        },
-
-        failure: function(response, opts) {
-        }
-    });
 
   }
-  // get display raster from active transformation
-  displaySelectionCriteria(){
-    // ajax call with selection criteria
-    console.log(this.props.activeTrans)
-    let transPayload = JSON.parse(JSON.stringify(this.props.activeTrans))
-    console.log(transPayload)
-    var csrftoken = Cookies.get('csrftoken');
-    $.ajaxSetup({
-        headers: { "X-CSRFToken": csrftoken }
-    });
-    $.ajax({
-        url : '/smartscape/get_selection_criteria_raster',
-        type : 'POST',
-        data : JSON.stringify({
-//            selectionCrit:selectionCrit,
-            selectionCrit:transPayload,
-            geometry:{
-                extent:this.props.activeTrans.selection.extent,
-                field_coors:this.props.activeTrans.selection.field_coors,
-                field_coors_len:this.props.activeTrans.selection.field_coors.length
-            },
-            folderId: this.state.boundaryRasterId,
-            transId: this.props.activeTrans.id
-        }),
-        success: (responses, opts) => {
-            delete $.ajaxSetup().headers
-            console.log(responses)
-            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
-            console.log(url)
-            this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
-        },
 
-        failure: function(response, opts) {
-        }
-    });
-
-    // return url to image of raster
-    // put image into raster layer
-  }
 
     render(){
         return(
@@ -243,15 +150,11 @@ componentDidUpdate(prevProps) {
                         rasterUrl={this.state.rasterUrl}
                         rasterExtents = {this.state.rasterExtents}
                         rasterLayer1 = {this.state.rasterLayer1}
-                        handleBoundaryChange={this.handleBoundaryChange}
                         areaSelectionType = {this.state.areaSelectionType}
                     />
                    </Col>
                 </Row>
             </div>
-
-
-
       </div>
         )
 
