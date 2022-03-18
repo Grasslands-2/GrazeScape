@@ -36,9 +36,9 @@ layerData/
 data_files/
 node_modules/
 Watersheds/
-Boundaries/
 
 settings_local.py
+local_settings.py
 settings_local_code_dev_server.py
 settings_local_code_local_server.py
 

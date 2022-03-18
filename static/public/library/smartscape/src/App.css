@@ -80,3 +80,33 @@ background-image: linear-gradient(#EFF4CF, white);
     padding-bottom: 15px;
     margin-bottom: 20px;
 }
+.ol-zoomslider {
+    top: calc(85% - 200px) !important;
+    left: auto !important;
+    right: 15px;
+    height: 200px;
+}
+
+.ol-zoom {
+    top: calc(85% - 224px)!important;
+    right: 15px;
+    left: auto !important;
+
+}
+.ol-zoom-in{
+margin-bottom: 200px !important;
+}
+.ol-attribution{
+right: 15px !important;
+}
+
+.table-cell-left{
+    border-left-color: #1b2d4a !important;
+    border-left-width: thick !important;
+}
+
+.table-cell-right{
+    background-color:powderblue !important;
+    border-color: red !important;
+    border-bottom-width: thick !important;
+}

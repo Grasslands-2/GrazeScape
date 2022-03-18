@@ -12,7 +12,7 @@ export const transSlice = createSlice({
   initialState: {
 //    value: new Transformation("intial11",-1,-1),
     // active transformation
-    activeTrans:Transformation("test trans",-1, -1),
+    activeTrans:Transformation(" ",-1, -1),
     // tracks new transformation
     addTrans: null,
     // transformation to remove
@@ -106,6 +106,9 @@ export const transSlice = createSlice({
                 // mangement style is being changed
                 else if(action.payload.type === "mang"){
                     items[trans].management[value.name] = value.value
+                }
+                else if(action.payload.type === "base"){
+                    items[trans][value.name] = value.value
                 }
                 // land cover is being updated
                 else{

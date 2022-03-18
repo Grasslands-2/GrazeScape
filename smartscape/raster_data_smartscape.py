@@ -33,7 +33,7 @@ class RasterDataSmartScape:
     layer_dic : str
         dict of local layer names and their names on geoserver
     """
-    def __init__(self, extents, field_geom_array, field_id):
+    def __init__(self, extents, field_geom_array, field_id, region):
         """
         Constructor.
         Parameters
@@ -51,9 +51,9 @@ class RasterDataSmartScape:
                                      'data_files', 'raster_inputs',
                                      self.file_name)
         self.layer_dic = {
-            "slope": "SmartScapeRaster:southWestWI_slopePer_30m",
-            "landuse": "SmartScapeRaster:southWestWI_WiscLand_30m",
-            "stream_dist": "SmartScapeRaster:southWestWI_distanceToWaterWays",
+            "slope": "SmartScapeRaster:" + region + "_slopePer_30m",
+            "landuse": "SmartScapeRaster:" + region + "_WiscLand_30m",
+            "stream_dist": "SmartScapeRaster:" + region + "_distanceToWaterWays",
 
         }
         self.extents = extents
