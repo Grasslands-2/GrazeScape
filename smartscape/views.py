@@ -9,10 +9,9 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from smartscape.raster_data_smartscape import RasterDataSmartScape
-from grazescape.model_defintions.smart_scape import SmartScape
+from smartscape.smart_scape import SmartScape
 from grazescape.db_connect import *
 import traceback
-from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import FileResponse
 from django.views.decorators.csrf import csrf_protect
 import time
@@ -85,15 +84,18 @@ def get_selection_raster(request):
     start = time.time()
     print(" ", time.time()-start)
     print(request.POST)
-
+    request_json = js.loads(request.body)
+    print(request_json)
     folder_id = str(uuid.uuid4())
-    extents = request.POST.getlist("geometry[extent][]")
+    extents = request_json["geometry"]["extent"]
+    region = request_json["region"]
 
     print(extents)
     try:
         geo_data = RasterDataSmartScape(
                 extents, None,
-                folder_id)
+                folder_id,
+                region)
         print("Downloading ", time.time() - start)
         geo_data.load_layers()
         print("Layer loaded ", time.time() - start)
@@ -159,6 +161,7 @@ def get_selection_criteria_raster(request):
     # slope2 = request_json["selectionCrit"]["selection"]["slope2"]
 
     field_coors = request_json["geometry"]["field_coors"]
+    region = request_json["region"]
     field_coors_formatted = []
 
     for val in field_coors:
@@ -177,7 +180,7 @@ def get_selection_criteria_raster(request):
     #     field_coors.append(sub_field_coors)
     print("Printing field coordinates")
     # try:
-    geo_data = RasterDataSmartScape(extents, field_coors_formatted, folder_id)
+    geo_data = RasterDataSmartScape(extents, field_coors_formatted, folder_id, region)
     print("Create clipping boundary ", time.time() - start)
 
     geo_data.create_clip()

@@ -12,10 +12,20 @@ export const mainSlice = createSlice({
     region:null,
     hideAOIAcc:false,
     hideTransAcc:true,
-    aoiFolderId:null
+    aoiFolderId:null,
+    aoiExtents:null,
+    aoiCoors:null,
   },
   // functions to interact with redux store
   reducers: {
+        /**
+     * Set active region
+     * @param  {Transformation} action.payload The new active transformation
+     */
+    setAoiExtentsCoors: (state, action) => {
+        state.aoiExtents = action.payload["extents"]
+        state.aoiCoors = action.payload["coors"]
+    },
     /**
      * Set active region
      * @param  {Transformation} action.payload The new active transformation
@@ -48,6 +58,7 @@ export const {setActiveRegion,
                 setVisibilityAOIAcc,
                 setVisibilityTransAcc,
                 setAoiFolderId,
+                setAoiExtentsCoors,
                  } = mainSlice.actions
 
 export default mainSlice.reducer

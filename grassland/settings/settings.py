@@ -16,10 +16,7 @@ import configparser
 from grassland.settings import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-print(BASE_DIR)
-#GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal301'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -27,7 +24,7 @@ print(BASE_DIR)
 # SECURITY WARNING: keep the secret key used in production secret!
 parser = configparser.ConfigParser()
 GOOGLE_RECAPTCHA_SECRET_KEY = ""
-filename = os.path.join(BASE_DIR, 'grassland','settings', 'app_secret.ini')
+filename = os.path.join(BASE_DIR, 'grassland', 'settings', 'app_secret.ini')
 
 parser.read(filename)
 # get section, default to postgresql
@@ -44,12 +41,10 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-# GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080"
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_ALLOW_ALL = True
-
 
 # Application definition
 
@@ -102,31 +97,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'grassland.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-#
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-#         'NAME': 'GrazeScape',
-#         'USER': 'postgres',
-#         'PASSWORD': 'admin',
-#         'HOST': 'localhost',
-#         'PORT': '5432'
-#     }
-# }
-
-
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -165,13 +135,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 LOGIN_URL = '/'
-# STATIC_ROOT = 'static'
-# STATIC_URL = '/static/'
-#
+
 STATICFILES_DIRS = (
                 os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles"
 )
-print(STATICFILES_DIRS)
-# TEMPLATE_DIRS = (
-#                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
-# )

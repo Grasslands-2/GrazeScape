@@ -39,6 +39,7 @@ Watersheds/
 Boundaries/
 
 settings_local.py
+local_settings.py
 
 # startup helper
 graze

@@ -25,6 +25,7 @@
     "bootstrap": "^5.1.3",
     "chart.js": "^3.7.0",
     "css-loader": "^6.5.1",
+    "jsts": "^2.8.1",
     "ol": "^6.9.0",
     "react-beautiful-dnd": "^13.1.0",
     "react-bootstrap": "^2.0.4",

@@ -26,7 +26,7 @@ import time
 import multiprocessing
 import concurrent.futures
 
-
+Ft_To_Meters = 0.3048
 class SmartScape:
     """
     Child of ModelBase that is specific for running SmartScape.
@@ -95,11 +95,16 @@ class SmartScape:
         slope2 = self.request_json["selectionCrit"]["selection"]["slope2"]
         stream_dist1 = self.request_json["selectionCrit"]["selection"]["streamDist1"]
         stream_dist2 = self.request_json["selectionCrit"]["selection"]["streamDist2"]
+        use_ft = self.request_json["selectionCrit"]["selection"]["useFt"]
         landuse_par = self.request_json["selectionCrit"]["selection"]["landCover"]
         has_slope = False
         has_land = False
         has_stream = False
         print("creating png")
+
+        if use_ft:
+            stream_dist1 = float(stream_dist1) * Ft_To_Meters
+            stream_dist2 = float(stream_dist2) * Ft_To_Meters
 
         # print(rows, cols)
         # create empty 2d array for the png
@@ -247,7 +252,7 @@ class SmartScape:
         trans = self.request_json['trans']
         base_scen = self.request_json['base']
         # region = self.request_json['base']
-        region = "southWestWI"
+        region = self.request_json['region']
         dir_path = self.in_dir
 
         file_list = []
@@ -400,6 +405,8 @@ class SmartScape:
         # arr will be the base array that all model calcs pull from. All valid values have the hierarch of the
         # transformation
         arr = band.ReadAsArray()
+        # calc area
+
         geoTransform = image.GetGeoTransform()
         minx = geoTransform[0]
         maxy = geoTransform[3]
@@ -451,6 +458,19 @@ class SmartScape:
             "cn": np.copy(arr),
             "runoff": np.copy(arr),
         }
+        area = np.copy(arr)
+        count_selected = np.count_nonzero(area > -88)
+        print("number of selected cells")
+        print(count_selected)
+        # each cell is 30 x 30 m (900 sq m) and then convert to acres
+        area_selected = count_selected * 900 * 0.000247105
+        unique, counts = np.unique(area, return_counts=True)
+        area_dict = {}
+        print(unique)
+        print(counts)
+        for index, val in enumerate(unique):
+            area_dict["{:,.0f}".format(val)] = "{:,.0f}".format(counts[index] * 900 * 0.000247105)
+
         # slope_image = gdal.Open(os.path.join(dir_path, "slope.tif"))
         # slope_arr = slope_image.GetRasterBand(1).ReadAsArray()
         hyd_letter_image = gdal.Open(os.path.join(dir_path, "hyd_letter.tif"))
@@ -582,11 +602,7 @@ class SmartScape:
         # outdata.GetRasterBand(1).WriteArray(landuse_arr_sel)
         # outdata.GetRasterBand(1).SetNoDataValue(-9999)
         # base case
-        count_selected = np.count_nonzero(landuse_arr_sel > -88)
-        print("number of selected cells")
-        print(count_selected)
-        # each cell is 30 x 30 m (900 sq m) and then convert to acres
-        area_selected = count_selected * 900 * 0.000247105
+
         # model_value * conversion from ac to value / 30 sq m
         landuse_arr_sel = np.where(
             np.logical_or(landuse_arr_sel == self.no_data, landuse_arr_sel < 0),
@@ -624,11 +640,7 @@ class SmartScape:
         # outdata.GetRasterBand(1).SetNoDataValue(-9999)
 
         # base case
-        count_selected = np.count_nonzero(landuse_ero > -88)
-        print("number of selected cells")
-        print(count_selected)
-        # each cell is 30 x 30 m (900 sq m) and then convert to acres
-        area_selected = count_selected * 900 * 0.000247105
+
         # model_value * conversion from ac to value / 30 sq m
         landuse_ero = np.where(
             np.logical_or(landuse_ero == self.no_data, landuse_ero < 0),
@@ -684,7 +696,7 @@ class SmartScape:
             np.logical_or(model_data["runoff"] == self.no_data, model_data["runoff"] < 0),
             0, (model_data["runoff"] * 900 / 4046.86))
         sum_model_runoff = np.sum(model)
-
+        print("Some of the runoff", sum_model_runoff)
         # datanm_ero = np.where(
         #     np.logical_or(datanm_ero == self.no_data, datanm_ero < 0),
         #     0, (datanm_ero * 900 / 4046.86))
@@ -693,67 +705,70 @@ class SmartScape:
         # sum_model_ero = 0
         return {
             "base": {
-                "ploss": {"total": str("%.1f" % sum_base),
+                "ploss": {"total": "{:,.0f}".format(sum_base),
                           "total_per_area": str("%.1f" % (sum_base / area_selected)),
                           "units": "Phosphorus Runoff (lb/year)"
                           },
-                "ero": {"total": str("%.1f" % sum_base_ero),
+                "ero": {"total": "{:,.0f}".format(sum_base_ero),
                         "total_per_area": str("%.1f" % (sum_base_ero / area_selected)),
                         "units": "Erosion (tons/year)"
                         },
-                "yield": {"total": str("%.1f" % sum_base_yield),
+                "yield": {"total": "{:,.0f}".format(sum_base_yield),
                           "total_per_area": str("%.1f" % (sum_base_yield / area_selected)),
                           "units": "Yield (tons-Dry Matter/year)"
                           },
                 "cn": {
-                    "total": str("%.1f" % sum_base_cn),
-                    "total_per_area": str("%.1f" % (sum_base_cn / area_selected)),
+                    "total": "{:,.0f}".format(sum_base_cn),
+                    "total_per_area": str("%.0f" % (sum_base_cn / area_selected)),
                     "units": "Curve Number"
                 },
                 "insect": {
-                    "total": str("%.1f" % sum_base_insect),
+                    "total": "{:,.0f}".format(sum_base_insect),
                     "total_per_area": str("%.1f" % (sum_base_insect / area_selected)),
                     "units": ""
                 },
                 "runoff": {
-                    "total": str("%.1f" % sum_base_runoff),
+                    "total": "{:,.0f}".format(sum_base_runoff/12),
                     "total_per_area": str("%.1f" % (sum_base_runoff / area_selected)),
                     "units": ""
                 },
             },
             "model": {
                 "ploss": {
-                    "total": str("%.1f" % sum_model_ploss),
+                    "total": "{:,.0f}".format(sum_model_ploss),
                     "total_per_area": str("%.1f" % (sum_model_ploss / area_selected)),
                     "units": "Phosphorus Runoff (lb/year)"
                 },
                 "ero": {
-                    "total": str("%.1f" % sum_model_ero),
+                    "total": "{:,.0f}".format(sum_model_ero),
                     "total_per_area": str("%.1f" % (sum_model_ero / area_selected)),
                     "units": "Erosion (tons/year)"
                 },
                 "yield": {
-                    "total": str("%.1f" % sum_model_yield),
+                    "total": "{:,.0f}".format(sum_model_yield),
                     "total_per_area": str("%.1f" % (sum_model_yield / area_selected)),
                     "units": "Yield (tons-Dry Matter/year)"
                 },
                 "cn": {
-                    "total": str("%.1f" % sum_model_cn),
-                    "total_per_area": str("%.1f" % (sum_model_cn / area_selected)),
+                    "total": "{:,.0f}".format(sum_model_cn),
+                    "total_per_area": str("%.0f" % (sum_model_cn / area_selected)),
                     "units": "Curve Number"
                 },
                 "insect": {
-                    "total": str("%.1f" % 0),
+                    "total": "{:,.0f}".format(0),
                     "total_per_area": str("%.1f" % (0 / area_selected)),
                     "units": ""
                 },
                 "runoff": {
-                    "total": str("%.1f" % sum_model_runoff),
+                    "total": "{:,.0f}".format(sum_model_runoff/12),
                     "total_per_area": str("%.1f" % (sum_model_runoff / area_selected)),
                     "units": ""
                 },
             },
-            "land_stats":{"area":str("%.1f" %area_selected)}
+            "land_stats": {
+                "area": "{:,.0f}".format(area_selected),
+                "area_trans": area_dict
+            }
 
         }
 
