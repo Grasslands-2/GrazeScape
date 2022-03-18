@@ -24,7 +24,6 @@ project/target/
 target/
 __pycache__/
 .idea/
-settings_dev.py
 
 # large/data files
 *.asc
