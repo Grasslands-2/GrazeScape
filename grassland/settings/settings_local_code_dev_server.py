@@ -31,7 +31,6 @@ DEBUG = True
 
 GEOSERVER_URL = "http://geoserver:8080"
 #container R path.
-<<<<<<<< HEAD:grassland/settings/settings_local_code_dev_server.py
 #R_PATH = "/opt/conda/envs/gscape/bin/R"
 #local R path.
 R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
@@ -179,9 +178,7 @@ print(STATICFILES_DIRS)
 # TEMPLATE_DIRS = (
 #                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
 # )
-========
 R_PATH = "/opt/conda/envs/gscape/bin/R"
 MODEL_PATH = "/tmp/GrazeScape/grazescape/data_files/input_models"
->>>>>>>> dev:grassland/settings/settings_dev.py
 
 GCS_BUCKET_NAME = "dev_container_model_results"
