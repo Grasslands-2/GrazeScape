@@ -497,7 +497,7 @@ class OLMapFragment extends React.Component {
           renderMode: 'image',
           name: "southCentral",
           source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/Boundaries/southCentralWI.geojson',
+              url: static_global_folder + 'smartscape/gis/LearningHubs/southCentralWI.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
@@ -507,7 +507,7 @@ class OLMapFragment extends React.Component {
             renderMode: 'image',
             name: "southWest",
           source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/Boundaries/southWestWI.geojson',
+              url: static_global_folder + 'smartscape/gis/LearningHubs/southWestWI.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
@@ -517,7 +517,7 @@ class OLMapFragment extends React.Component {
             renderMode: 'image',
             name: "cloverBelt",
           source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/Boundaries/cloverBelt.geojson',
+              url: static_global_folder + 'smartscape/gis/LearningHubs/cloverBelt.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
