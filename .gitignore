@@ -36,7 +36,6 @@ layerData/
 data_files/
 node_modules/
 Watersheds/
-Boundaries/
 
 settings_local.py
 local_settings.py
