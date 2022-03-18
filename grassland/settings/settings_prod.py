@@ -35,3 +35,14 @@ R_PATH = "/opt/conda/envs/gscape/bin/R"
 MODEL_PATH = "/tmp/GrazeScape/grazescape/data_files/input_models"
 
 GCS_BUCKET_NAME = "prod_container_model_results"
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': db_name,
+        'USER': db_user,
+        'PASSWORD': db_pass,
+        'HOST': db_host,
+        # 'PORT': db_port
+    }
+}
