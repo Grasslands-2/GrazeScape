@@ -1,4 +1,33 @@
 var selectedInfra = {}
+function selectInfraDelete(){
+	DSS.select = new ol.interaction.Select({
+		features: new ol.Collection(),
+			toggleCondition: ol.events.condition.never,
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: 'white',
+					width: 4
+				}),
+			})
+		});
+	DSS.map.addInteraction(DSS.select);
+	console.log("select is on")
+	DSS.select.on('select', function(f) {
+		setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
+		console.log('select on happened');
+		selectedInfra = f.selected[0];
+		console.log(selectedInfra);
+		if(confirm('Are you sure you want to delete field '+selectedInfra.values_.infra_name + '?')) {
+			console.log("DELETED!")
+			deleteInfra(selectedInfra)
+			//alert('Infrastructure '+ selectedInfra.values_.infra_name+ ' has been deleted.')
+			DSS.MapState.removeMapInteractions()
+		  } else {
+			console.log("NOT DELETED!")
+			DSS.MapState.removeMapInteractions()
+		  }
+	})
+}
 function selectInfra(){
 	DSS.select = new ol.interaction.Select({
 		features: new ol.Collection(),

@@ -53,21 +53,15 @@ Ext.define('DSS.map.RegionPicker', {
 							//console.log(item.text);
 							console.log(DSS.map.getView())
 							if(item.text == "Clover Belt"){
-								console.log('Cloverbelt picked')
-								//DSS.activeRegion = "cloverBeltWI";
 								DSS.activeRegion = "cloverBeltWI";
-								
 								console.log(DSS.activeRegion);
 								DSS.map.setView(new ol.View({
 									center: [-10022690, 5616340],
-									zoom: 9,
+									zoom: 7,
 									maxZoom: 30,
-									minZoom: 8,//10,
-								//	constrainRotation: false,
-								//	rotation: 0.009,
+									minZoom: 8,
 									constrainOnlyCenter: false,
-									extent:[-10123258, 5529663,-9931236,5682859]
-									//extent:[ -10168100, 5318380, -10055830, 5454227]
+									extent:[-10143258, 5510000,-9913236,5702859]
 								}))
 							}
 							else{
@@ -76,11 +70,8 @@ Ext.define('DSS.map.RegionPicker', {
 									center: [-10112582,5392087],
 									zoom: 10,
 									maxZoom: 30,
-									minZoom: 8,//10,
-								//	constrainRotation: false,
-								//	rotation: 0.009,
+									minZoom: 8,
 									constrainOnlyCenter: false,
-									//extent:[-10155160, 5323674, -10065237, 5450767]
 									extent:[ -10168100, 5318380, -10055830, 5454227]
 								}))
 							}

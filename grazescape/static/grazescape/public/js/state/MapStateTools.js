@@ -299,6 +299,22 @@ Ext.define('DSS.state.MapStateTools', {
     // TODO: deal with multiple overlapping bits
 	//	console.log("TODO: many farms at the click location: " + fs.length);
     //-------------------------------------------------------------
+	zoomToActiveFarm: function(){
+		let me = this;
+		DSS.layer.scenarios.getSource().forEachFeature(function(f) {
+			//console.log(f)
+			if(f.values_.gid == DSS.activeScenario){
+				let g = f.getGeometry();
+				let pos = g.getFirstCoordinate()
+				let ex = ol.extent;
+				let extent = [pos[0], pos[1], pos[0], pos[1]];
+				ex.buffer(extent, 600, extent);
+				me.zoomToRealExtent(extent);
+			}
+		})
+	},
+
+	//-------------------------------------------------------------
     clickActivateFarmHandler: function(evt) {
 		console.log("in active farm handler")
 		DSS['viewModel'] = {}
@@ -337,7 +353,7 @@ Ext.define('DSS.state.MapStateTools', {
 						//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
 						//	extent = ex.extend(extent, f.getGeometry().getExtent());
 						//});
-						ex.buffer(extent, 250, extent);
+						ex.buffer(extent, 600, extent);
 						me.zoomToRealExtent(extent);
 						
 						// if results were already being computed (extents chosen and model), then trigger a recompute

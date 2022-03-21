@@ -1069,6 +1069,7 @@ Ext.define('DSS.map.Main', {
 		//--------------------------------------------------------------
 		me.map = DSS.map = new ol.Map({
 			maxTilesLoading: 100,
+			interactions : ol.interaction.defaults({doubleClickZoom :false}),
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
 				DSS.layer.osm_hybrid,

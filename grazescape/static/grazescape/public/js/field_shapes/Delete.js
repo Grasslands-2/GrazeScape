@@ -17,7 +17,7 @@ function selectFieldDelete(){
 	DSS.map.addInteraction(DSS.select);
 	console.log("select is on")
 	DSS.select.on('select', function(f) {
-		setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
+		//setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
 		console.log('select on happened');
 		selectedField = f.selected[0];
 		console.log(selectedField);
@@ -33,7 +33,6 @@ function selectFieldDelete(){
 			console.log("NOT DELETED!")
 			DSS.MapState.removeMapInteractions()
 		  }
-		
 	})
 }
 function deleteField(feat){
