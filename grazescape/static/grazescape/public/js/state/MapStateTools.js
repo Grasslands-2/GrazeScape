@@ -178,6 +178,7 @@ Ext.define('DSS.state.MapStateTools', {
 	removeMapInteractions: function(){
 		DSS.map.removeInteraction(DSS.draw);
 		DSS.map.removeInteraction(DSS.select);
+		document.body.style.cursor = 'default'
 		console.log("removeMapInteractions")
 	},
     //----------------------------------------

@@ -361,11 +361,12 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.state.scenario.CropNutrientMode',
 		'DSS.state.scenario.AnimalDialog',
 		'DSS.state.scenario.PerimeterDialog',
-		'DSS.state.operation.InfraShapeMode',
-		'DSS.state.operation.FieldShapeMode',
+		'DSS.state.operation.InfraDrawModeIndicator',
+		'DSS.state.operation.FieldDrawModeIndicator',
 		'DSS.field_shapes.FieldApplyPanel',
 		'DSS.infra_shapes.InfraApplyPanel',
-		'DSS.field_shapes.Delete'
+		'DSS.field_shapes.Delete',
+		'DSS.infra_shapes.DeleteLine'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -444,11 +445,15 @@ Ext.define('DSS.state.Scenario', {
 				{
 					xtype: 'button',
 					name:'Fields',
-					text: 'Fields',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Add/Delete Fields',
 					allowDepress: false,
 						menu: {
 							defaults:{
 							xtype: 'button',
+							cls: 'button-text-pad',
+							componentCls: 'button-margin',
 							hideOnClick: true,
 						},
 						items: [{
@@ -464,27 +469,45 @@ Ext.define('DSS.state.Scenario', {
 								self.setActive(false)
 								var af = parseInt(DSS.activeFarm,10);
 								var as = DSS.activeScenario;
-								console.log('This is the active scenario#: ');
-								//AppEvents.triggerEvent('show_field_shape_mode')
-								//DSS.MapState.removeMapInteractions()
 								AppEvents.triggerEvent('hide_field_grid')
 								AppEvents.triggerEvent('hide_infra_grid')
+								
 								DSS.MapState.removeMapInteractions();
-								//DSS.DrawFieldShapes.addModeControl(me);	
 								//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
 								DSS.mapClickFunction = undefined;
 								DSS.mouseMoveFunction = undefined;
+								
 								DSS.draw = new ol.interaction.Draw({
 									source: source,
 									type: 'MultiPolygon',
-									geometryName: 'geom'
+									geometryName: 'geom',
+									style:new ol.style.Style({
+										stroke: new ol.style.Stroke({
+											color: '#bfac32',
+											width: 4,
+										}),
+										fill: new ol.style.Fill({
+											color: 'rgba(255, 255, 255, 0.5)'
+										}),
+										image: new ol.style.Icon({
+											anchor: [0, 1],
+											//size: [96,96],
+											scale: 0.03,
+											src: '/static/grazescape/public/images/pencil-png-653.png'
+										}),
+									})
 								});
 								DSS.map.addInteraction(DSS.draw);
+								AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
+								AppEvents.triggerEvent('show_field_draw_mode_indicator')
+								document.body.style.cursor = 'none'
 								console.log("draw is on");
 								console.log(self)
 								DSS.draw.on('drawend', function (e) {
+									document.body.style.cursor = 'default'
 									fieldArea = e.feature.values_.geom.getArea();
 									console.log(fieldArea);
+									AppEvents.triggerEvent('hide_field_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
 									DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 				
 									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
@@ -495,30 +518,13 @@ Ext.define('DSS.state.Scenario', {
 						},
 						{
 							text: 'Delete a Field',
-							listeners:{
-								afterrender: function(self) {
-									//self.setChecked(DSS.layer.DEM_image3.getVisible());
-								},
-							},
 							handler: function(self){
 								self.setActiveCounter(0)
-								console.log('delete mode on')
+								console.log('delete field mode on')
+								AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 								selectFieldDelete()
-								//DSS.DeleteFieldShapes.addModeControl(me)
-								//this.up('menu').close()  
 							}
 						},
-						// {
-						// 	text: 'Open Field Table',
-						// 	listeners:{
-						// 		afterrender: function(self) {
-						// 			//self.setChecked(DSS.layer.DEM_image3.getVisible());
-						// 		},
-						// 	},
-						// 	handler: function(self){
-						// 		this.up('menu').close()  
-						// 	}
-						// }
 					]
 				},
 				addModeControl: function() {
@@ -533,16 +539,18 @@ Ext.define('DSS.state.Scenario', {
 					}
 				}
 				},
-
-
 				{
 					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
 					name:'Infrastructure',
-					text: 'Infrastructure',
+					text: 'Add/Delete Infrastructure',
 					allowDepress: false,
 						menu: {
 							defaults:{
 							xtype: 'button',
+							cls: 'button-text-pad',
+							componentCls: 'button-margin',
 							hideOnClick: true,
 						},
 						items: [{
@@ -556,31 +564,48 @@ Ext.define('DSS.state.Scenario', {
 							handler: function(self){
 								self.setActiveCounter(0)
 								self.setActive(false)
-								console.log('This is the active scenario#: ');
-								//AppEvents.triggerEvent('show_field_shape_mode')
-								//DSS.MapState.removeMapInteractions()
 								AppEvents.triggerEvent('hide_field_grid')
 								AppEvents.triggerEvent('hide_infra_grid')
 								DSS.MapState.removeMapInteractions();
-								//DSS.DrawFieldShapes.addModeControl(me);	
 								//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
 								DSS.mapClickFunction = undefined;
 								DSS.mouseMoveFunction = undefined;
+								
 								DSS.draw = new ol.interaction.Draw({
 									source: source,
 									type: 'LineString',
 									geometryName: 'geom',
-									//style: infraDrawDefaultStyle
+									style:new ol.style.Style({
+										stroke: new ol.style.Stroke({
+											color: '#0072fc',
+											width: 4,
+										}),
+										image: new ol.style.Icon({
+											anchor: [0, 1],
+											//size: [96,96],
+											scale: 0.03,
+											src: '/static/grazescape/public/images/pencil-png-653.png'
+										}),
+										// image: new ol.style.Circle({
+										// 	radius: 7,
+										// 	fill: new ol.style.Fill({
+										// 	  color: '#bd490f',
+										// 	}),
+										// }),
+									})
 								});
 								DSS.map.addInteraction(DSS.draw);
-								//alert("Infrastructure Draw Mode On.")
+								AppEvents.triggerEvent('hide_field_draw_mode_indicator')
+								AppEvents.triggerEvent('show_infra_draw_mode_indicator')
+								document.body.style.cursor = 'none'
 								console.log("draw is on");
 								console.log(self)
 								
 								DSS.draw.on('drawend', function (e) {
+									document.body.style.cursor = 'default'
 									infraLength = e.feature.values_.geom.getLength() * 3.28084;
 									console.log(infraLength);
-									
+									AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
 									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 				
 									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
@@ -591,30 +616,13 @@ Ext.define('DSS.state.Scenario', {
 						},
 						{
 							text: 'Delete Infrastructure',
-							listeners:{
-								afterrender: function(self) {
-									//self.setChecked(DSS.layer.DEM_image3.getVisible());
-								},
-							},
 							handler: function(self){
 								self.setActiveCounter(0)
-								console.log('delete mode on')
+								console.log('delete infra mode on')
+								AppEvents.triggerEvent('hide_field_draw_mode_indicator')
 								selectInfraDelete()
-								//DSS.DeleteFieldShapes.addModeControl(me)
-								//this.up('menu').close()  
-							}
-						},
-						// {
-						// 	text: 'Open Field Table',
-						// 	listeners:{
-						// 		afterrender: function(self) {
-						// 			//self.setChecked(DSS.layer.DEM_image3.getVisible());
-						// 		},
-						// 	},
-						// 	handler: function(self){
-						// 		this.up('menu').close()  
-						// 	}
-						// }
+							},
+						}
 					]
 				},
 				addModeControl: function() {
@@ -628,7 +636,7 @@ Ext.define('DSS.state.Scenario', {
 						Ext.resumeLayouts(true);
 					}
 				}
-				},
+			},
 
 
 
@@ -687,7 +695,8 @@ Ext.define('DSS.state.Scenario', {
 // 						}
 // 					}
 // 				},
-				{//------------------------------------------
+				//------------------------------------------
+				{
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Edit Scenario Attributes'
@@ -737,7 +746,7 @@ Ext.define('DSS.state.Scenario', {
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
 					allowDepress: true,
-					text: 'Field Attributes',
+					text: 'Edit Field Attributes',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
 							//console.log(DSS.field_grid.FieldGrid.getView()); 
@@ -768,7 +777,7 @@ Ext.define('DSS.state.Scenario', {
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
 					allowDepress: true,
-					text: 'Infrastructure Attributes',
+					text: 'Edit Infrastructure Attributes',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
 							DSS.MapState.removeMapInteractions();
@@ -929,7 +938,7 @@ Ext.define('DSS.state.Scenario', {
 		});
 		
 		me.callParent(arguments);
-		DSS.Inspector.addModeControl()
+		//DSS.Inspector.addModeControl()
 		DSS.MapState.disableFieldDraw();
 		DSS.draw.setActive(false);
 		DSS.modify.setActive(false);

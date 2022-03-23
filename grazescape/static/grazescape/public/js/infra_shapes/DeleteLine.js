@@ -1,52 +1,59 @@
 var selectedInfra = {}
 function selectInfraDelete(){
+	DSS.MapState.removeMapInteractions()
+	AppEvents.triggerEvent('show_infra_draw_mode_indicator')
+	document.body.style.cursor = "url('http://www.rw-designer.com/cursor-extern.php?id=85157.cur'), auto";
 	DSS.select = new ol.interaction.Select({
 		features: new ol.Collection(),
-			toggleCondition: ol.events.condition.never,
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: 'white',
-					width: 4
-				}),
-			})
-		});
+		toggleCondition: ol.events.condition.never,
+		layers: [DSS.layer.infrastructure],
+		style: new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: 'white',
+				width: 4
+			}),
+		})
+	});
 	DSS.map.addInteraction(DSS.select);
 	console.log("select is on")
 	DSS.select.on('select', function(f) {
-		setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
+		//setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
 		console.log('select on happened');
 		selectedInfra = f.selected[0];
 		console.log(selectedInfra);
-		if(confirm('Are you sure you want to delete field '+selectedInfra.values_.infra_name + '?')) {
-			console.log("DELETED!")
-			deleteInfra(selectedInfra)
-			//alert('Infrastructure '+ selectedInfra.values_.infra_name+ ' has been deleted.')
-			DSS.MapState.removeMapInteractions()
-		  } else {
-			console.log("NOT DELETED!")
-			DSS.MapState.removeMapInteractions()
-		  }
+		DSS.dialogs.InfraDeletePanel = Ext.create('DSS.infra_shapes.DeleteLine'); 		
+		DSS.dialogs.InfraDeletePanel.show().center().setY(0);
+		// if(confirm('Are you sure you want to delete field '+selectedInfra.values_.infra_name + '?')) {
+		// 	console.log("DELETED!")
+		// 	deleteInfra(selectedInfra)
+		// 	//alert('Infrastructure '+ selectedInfra.values_.infra_name+ ' has been deleted.')
+		// 	DSS.MapState.removeMapInteractions()
+		// 	AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
+		//   } else {
+		// 	console.log("NOT DELETED!")
+		// 	DSS.MapState.removeMapInteractions()
+		//   }
 	})
 }
-function selectInfra(){
-	DSS.select = new ol.interaction.Select({
-		features: new ol.Collection(),
-			toggleCondition: ol.events.condition.never,
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: 'white',
-					width: 4
-				}),
-			})
-		});
-	DSS.map.addInteraction(DSS.select);
-	console.log("select is on")
-	DSS.select.on('select', function(f) {
-		console.log('select on happened');
-		selectedInfra = f.selected[0];
-		console.log(selectedInfra);
-	});
-}
+// function selectInfra(){
+// 	DSS.select = new ol.interaction.Select({
+// 		features: new ol.Collection(),
+// 			toggleCondition: ol.events.condition.never,
+// 			style: new ol.style.Style({
+// 				stroke: new ol.style.Stroke({
+// 					color: 'white',
+// 					width: 4
+// 				}),
+// 			})
+// 		});
+// 	DSS.map.addInteraction(DSS.select);
+// 	console.log("select is on")
+// 	DSS.select.on('select', function(f) {
+// 		console.log('select on happened');
+// 		selectedInfra = f.selected[0];
+// 		console.log(selectedInfra);
+// 	});
+// }
 function deleteInfra(feat){
 
 
@@ -71,15 +78,19 @@ function deleteInfra(feat){
 //------------------------------------------------------------------------------
 Ext.define('DSS.infra_shapes.DeleteLine', {
 //------------------------------------------------------------------------------
-	extend: 'Ext.Container',
+	extend: 'Ext.window.Window',
 	alias: 'widget.Infra_delete',
     alternateClassName: 'DSS.DeleteInfraShapes',
-    singleton: true,	
-	
+    constrain: false,
+	modal: true,
+	width: 500,
+	resizable: true,
+	bodyPadding: 8,
+	//singleton: true,	
     autoDestroy: false,
-    
     scrollable: 'y',
-
+	titleAlign: 'center',
+	//title: 'Choose your new Fields Name and Crop Rotation',
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
@@ -90,7 +101,7 @@ Ext.define('DSS.infra_shapes.DeleteLine', {
 			items: [{
 				xtype: 'component',
 				cls: 'section-title light-text text-drp-20',
-				html: 'Infrastructure Lines <i class="fas fa-trash-alt fa-fw accent-text text-drp-50"></i>',
+				html: 'Delete Infrastructure',
 				height: 35
 			},{
 				xtype: 'container',
@@ -104,31 +115,37 @@ Ext.define('DSS.infra_shapes.DeleteLine', {
 				items: [{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Delete Infrastructure',
-				},{
-					xtype: 'component',
-					cls: 'information light-text text-drp-20',
-					html: 'Click a infrastructure line to delete it',
+					html: 'Are you sure you want to infrastructure line '+selectedInfra.values_.infra_name + '?'//'Would you like to delete this piece of infrastructure?',
 				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'delete button',
+					text: 'Yes',
 					formBind: true,
 					handler: function() {
-						//var data = me.viewModel.data;
-						console.log("delete Button");
-						var geomType = 'line'
-						if (selectedInfra != {}) {
-							deleteInfra(selectedInfra);
-							DSS.map.render;
-						}
-						else {
-							console.log("no infra selected")
-						}
+						console.log("DELETED!")
+						deleteInfra(selectedInfra)
+						alert('Infrastructure '+ selectedInfra.values_.infra_name+ ' has been deleted.')
+						DSS.MapState.removeMapInteractions()
+						AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
+						this.up('window').destroy();
 					}
-			    }]
+			    },
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'No',
+					formBind: true,
+					handler: function() {
+						console.log("NOT DELETED!")
+						DSS.MapState.removeMapInteractions()
+						AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
+						this.up('window').destroy();
+					}
+			    }
+			]
 			}]
 		});
 		

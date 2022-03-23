@@ -133,7 +133,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 				//----------------------------------------------------------------------------------
 				xtype: 'component',
 				cls: 'footer-text',
-				html: 'GrazeScape<br>Footer / Copyright ©2020'
+				html: 'GrazeScape<br>Copyright ©2022'
 			}]
 		});
 		

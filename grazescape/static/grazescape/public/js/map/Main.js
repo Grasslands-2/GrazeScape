@@ -219,7 +219,7 @@ Ext.define('DSS.map.Main', {
 			})
 		})	;
 		//--------------------------------------------------------------	
-		DSS.layer.osm_satelite = new ol.layer.Tile({
+		DSS.layer.osm_satellite = new ol.layer.Tile({
 			visible: false,
 			source: new ol.source.TileJSON({
 				url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
@@ -1073,7 +1073,7 @@ Ext.define('DSS.map.Main', {
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
 				DSS.layer.osm_hybrid,
-				DSS.layer.osm_satelite,
+				DSS.layer.osm_satellite,
 				DSS.layer.osm_streets,
 				DSS.layer.osm_topo,
 				DSS.layer.CBDEM_image0,

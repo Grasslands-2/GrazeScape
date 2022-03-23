@@ -591,7 +591,7 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Draw Infrastructure',
+					text: 'Add Infrastructure',
 					formBind: true,
 					handler: async function() {
 						//console.log(DSS.infra_shapes.apply.infraType.getValue())
