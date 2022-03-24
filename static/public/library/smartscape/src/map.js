@@ -119,6 +119,7 @@ class OLMapFragment extends React.Component {
         this.updateAreaSelectionType = this.updateAreaSelectionType.bind(this)
         this.getHuc12FromHuc10 = this.getHuc12FromHuc10.bind(this)
         this.addLayer = this.addLayer.bind(this)
+        this.getMapLayer = this.getMapLayer.bind(this)
 
         this.state = {isDrawing:false,activeTransLayer:null}
     }
@@ -131,30 +132,33 @@ class OLMapFragment extends React.Component {
       console.log(this.props)
         // if trans extents have been cleared (resetting to aoi)
       if (this.props.activeTrans.selection.extent.length == 0 && this.props.activeTrans.boundaryLayerID != -99){
-                this.selectedFeatures.clear()
+            this.selectedFeatures.clear()
 
-        let layer = this.getActiveBounLay()
-        // setting the aoi boundary because we don't have any trans yet
-        if (layer == null){
-          console.log("error")
-          return
-        }
-        layer.getSource().clear()
-        console.log("reset trans workarea")
-        console.log(layer)
-        console.log(this.boundaryLayerAOI)
-        layer.getSource().addFeatures(this.boundaryLayerAOI.getSource().getFeatures())
-        layer.getSource().getFeatures().forEach((lyr)=>{
-            console.log("looping through layers")
-            aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
-            aoiCoors.push(lyr.getGeometry().getCoordinates())
-        })
-                this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
-                this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+            let layer = this.getActiveBounLay()
+            // setting the aoi boundary because we don't have any trans yet
+            if (layer == null){
+              console.log("error")
+              return
+            }
+            layer.getSource().clear()
+            console.log("reset trans workarea")
+            console.log(layer)
+            console.log(this.boundaryLayerAOI)
+            layer.getSource().addFeatures(this.boundaryLayerAOI.getSource().getFeatures())
+            layer.getSource().getFeatures().forEach((lyr)=>{
+                console.log("looping through layers")
+                aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
+                aoiCoors.push(lyr.getGeometry().getCoordinates())
+            })
+            this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
+            this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
       }
       // if area selection has change activate type, activate different map tool
       if (prevProps.areaSelectionType !== this.props.areaSelectionType) {
         this.updateAreaSelectionType(this.props.areaSelectionType);
+      }
+      if(this.props.activeTrans.displayOpacity != prevProps.activeTrans.displayOpacity && this.props.activeTrans.displayLayerID != -99){
+            this.getMapLayer(this.props.activeTrans.displayLayerID).setOpacity(this.props.activeTrans.displayOpacity/100)
       }
       // the display layer of a transformation needs to be changed
       if (prevProps.activeDisplayProps !== this.props.activeDisplayProps) {
@@ -172,13 +176,11 @@ class OLMapFragment extends React.Component {
         for (let trans in listTrans){
             if(listTrans[trans].id == this.props.activeDisplayProps.transId){
                 let newLayer = listTrans[trans]
+                console.log("Map!!!", this.map)
                 let layers = this.map.getLayers().getArray()
                 for (let layer in layers){
                     if(layers[layer].ol_uid == newLayer.displayLayerID){
-                        console.log("setting new source")
-                        console.log(layers[layer])
                         layers[layer].setSource(rasterLayerSource)
-                        console.log(layers[layer])
 //                        layers[layer].getSource().refresh()
                         break
                     }
@@ -195,7 +197,6 @@ class OLMapFragment extends React.Component {
         this.map.removeInteraction(this.select);
         for (let ly in this.props.layerVisible){
             for (let layer in layers){
-            //          turn off previous active trans
                 if(layers[layer].get('name') == this.props.layerVisible[ly].name){
                     layers[layer].setVisible(this.props.layerVisible[ly].visible);
                 }
@@ -285,7 +286,17 @@ class OLMapFragment extends React.Component {
         };
       }
     }
-//   clip  the huc 12 watersheds to our aoi
+//    return layer of given layer id
+    getMapLayer(layerID){
+        let layers = this.map.getLayers().getArray()
+        for (let layer in layers){
+            if(layers[layer].ol_uid == layerID){
+                return layers[layer]
+            }
+        }
+    }
+    //   clip  the huc 12 watersheds to our aoi
+
     getHuc12FromHuc10(){
         let vectorSource = new VectorSource({projection: 'EPSG:3857',});
         this.map.removeInteraction(this.select)
@@ -506,6 +517,7 @@ class OLMapFragment extends React.Component {
         this.southWest = new VectorLayer({
             renderMode: 'image',
             name: "southWest",
+//            opacity: .2,
           source:new VectorSource({
               url: static_global_folder + 'smartscape/gis/LearningHubs/southWestWI.geojson',
               format: new GeoJSON(),
@@ -646,7 +658,7 @@ class OLMapFragment extends React.Component {
                     region = "southWestWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Clark"){
-                    region = "cloverBeltWI"
+                    region = "CloverBeltWI"
                 }
                 this.setActiveRegion(region)
 

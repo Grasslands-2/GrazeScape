@@ -29,6 +29,8 @@ setVisibilityMapLayer,updateActiveBaseProps, setActiveTransDisplay,updateTransLi
 import * as mainSlice from '/src/stores/mainSlice'
 import * as charts from '/src/utilities/charts'
 import { Doughnut } from 'react-chartjs-2';
+import { Slider, Rail, Handles, Tracks, Ticks } from 'react-compound-slider'
+
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -92,6 +94,21 @@ const mapDispatchToProps = (dispatch) => {
 
     }
 };
+const sliderStyle = {  // Give the slider some width
+  position: 'relative',
+  width: '100%',
+  height: 80,
+  border: '1px solid steelblue',
+}
+
+const railStyle = {
+  position: 'absolute',
+  width: '100%',
+  height: 10,
+  marginTop: 35,
+  borderRadius: 5,
+  backgroundColor: '#8B9CB6',
+}
 class SidePanel extends React.Component{
     constructor(props){
         super(props)
@@ -463,7 +480,7 @@ class SidePanel extends React.Component{
     }
   renderModal(){
     var labels = ['Yield', 'Erosion',
-        'Phosphorus Lose', 'Runoff',
+        'Phosphorus Loss', 'Runoff',
         'Honey Bee Toxicity', 'Curve Number'
     ]
     console.log(this.state.modelOutputs)
@@ -619,7 +636,7 @@ class SidePanel extends React.Component{
         optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
         optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/year/acre/year")
-        optionsRun = charts.getOptionsBar("Runoff (3 in Storm)", "in/year")
+        optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
 
@@ -729,7 +746,7 @@ class SidePanel extends React.Component{
                       <td>Erosion</td>
                       <td className="table-cell-left">{base.ero}</td>
                       <td>{model.ero}</td>
-                      <td>tons/year/acre/year</td>
+                      <td>tons/acre/year</td>
                       <td className="table-cell-left">{base.ero_total}</td>
                       <td>{model.ero_total}</td>
                       <td>tons/year</td>
@@ -748,13 +765,13 @@ class SidePanel extends React.Component{
                       <td></td>
                     </tr>
                    <tr>
-                      <td>Runoff (3 in Storm)</td>
+                      <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {base.runoff}</td>
                       <td>{model.runoff}</td>
-                      <td>in</td>
+                      <td>inches</td>
                       <td className="table-cell-left">{base.runoff_total}</td>
                       <td>{model.runoff_total}</td>
-                      <td>acre*ft</td>
+                      <td>acre-ft</td>
                       <td className="table-cell-left">{model.runoff_per_diff}</td>
                       <td></td>
                    </tr>
@@ -808,6 +825,10 @@ class SidePanel extends React.Component{
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
               </Row>
+
+
+
+
               </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="selection" title="Selection" hidden={this.props.hideTransAcc}>
@@ -903,6 +924,12 @@ class SidePanel extends React.Component{
 
                             </Form.Group>
 
+
+
+
+
+
+
                             </Accordion.Body>
                         </Accordion.Item>
                     </Accordion>
@@ -959,11 +986,18 @@ class SidePanel extends React.Component{
                                   <Form.Check ref={this.meters} inline label="meters" name="group1" type="radio"
                                     onClick={(e) => this.handleSelectionChangeUnit("useFt", false, e)}
                                   />
-
                                   </Form>
+
                             </Accordion.Body>
                         </Accordion.Item>
                     </Accordion>
+                   <Form.Label>Transparency</Form.Label>
+                   <RangeSlider size='sm'
+                    value={this.props.activeTrans.displayOpacity}
+                    onChange={(e) => this.props.updateActiveTransProps({"name":"displayOpacity", "value":parseFloat(e.currentTarget.value), "type":"base"})}
+                    max={100}
+                    min={0}
+                  />
                    <Stack gap={3}>
                    <Button onClick={this.displaySelectionCriteria} variant="primary" hidden={this.state.aoiOrDisplayLoading}>Display Selection</Button>
                     <Button id="btnModelsLoading" variant="primary" disabled hidden={!this.state.aoiOrDisplayLoading}>
@@ -1064,7 +1098,7 @@ class SidePanel extends React.Component{
             </Modal>
             <Modal show={this.state.outputModalShow} onHide={this.handleCloseModal} dialogClassName="modal-90w">
             <Modal.Header closeButton>
-              <Modal.Title>Transformation Settings</Modal.Title>
+              <Modal.Title>Transformation Results</Modal.Title>
             </Modal.Header>
             <Modal.Body>
 
