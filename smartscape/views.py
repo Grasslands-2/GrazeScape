@@ -140,7 +140,6 @@ def get_selection_criteria_raster(request):
     print(" ", time.time()-start)
     # print(request.POST)
     request_json = js.loads(request.body)
-    print(request_json)
     folder_id = request_json["folderId"]
 
     # folder_id = request.POST.get("folderId")
@@ -289,7 +288,7 @@ def get_transformed_land(request):
     # #     # overall model type crop, ploss, bio, runoff
     # #     "model_type": "test1",
     # # }
-    print(return_data)
+    # print(return_data)
     return JsonResponse(return_data, safe=False)
 
 
