@@ -601,7 +601,7 @@ Ext.define('DSS.map.LayerMenu', {
 								DSS.layer.osm_hybrid.setVisible(true);
 								DSS.layer.osm_streets.setVisible(false);
 								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.osm_satellite.setVisible(false);
 								DSS.layer.bingAerial.setVisible(false);
 							}
 						}
@@ -616,7 +616,7 @@ Ext.define('DSS.map.LayerMenu', {
 								DSS.layer.osm_streets.setVisible(true);
 								DSS.layer.osm_hybrid.setVisible(false);
 								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.osm_satellite.setVisible(false);
 								DSS.layer.bingAerial.setVisible(false);
 							}
 						}
@@ -631,19 +631,19 @@ Ext.define('DSS.map.LayerMenu', {
 								DSS.layer.osm_topo.setVisible(true);
 								DSS.layer.osm_hybrid.setVisible(false);
 								DSS.layer.osm_streets.setVisible(false);
-								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.osm_satellite.setVisible(false);
 								DSS.layer.bingAerial.setVisible(false);
 							}
 						}
 					}
 				},
 				{
-					boxLabel: 'Satelite',
+					boxLabel: 'satellite',
 					listeners:{change: function(checked)
 						{
 							if(this.checked){
 								console.log(this.checked)
-								DSS.layer.osm_satelite.setVisible(true);
+								DSS.layer.osm_satellite.setVisible(true);
 								DSS.layer.osm_topo.setVisible(false);
 								DSS.layer.osm_hybrid.setVisible(false);
 								DSS.layer.osm_streets.setVisible(false);
@@ -661,7 +661,7 @@ Ext.define('DSS.map.LayerMenu', {
 							if(this.checked){
 								console.log(this.checked)
 								DSS.layer.bingAerial.setVisible(true);
-								DSS.layer.osm_satelite.setVisible(false);
+								DSS.layer.osm_satellite.setVisible(false);
 								DSS.layer.osm_topo.setVisible(false);
 								DSS.layer.osm_hybrid.setVisible(false);
 								DSS.layer.osm_streets.setVisible(false);

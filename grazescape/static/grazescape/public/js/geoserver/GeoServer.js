@@ -201,6 +201,7 @@ class GeoServer{
             console.log("redraw fields")
             DSS.MapState.showFieldsForScenario();
             DSS.MapState.showInfraForScenario();
+            DSS.MapState.zoomToActiveFarm()
             
          })
 
@@ -211,6 +212,7 @@ class GeoServer{
            let geoJson = returnData.geojson
            let currObj = returnData.current
            currObj.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+           DSS.MapState.zoomToActiveFarm()
         })
    }
     //used to update the field attributes used in scenario.js and dashboardutiliites.js
@@ -280,6 +282,7 @@ class GeoServer{
             console.log("redraw fields")
             DSS.MapState.showFieldsForScenario();
             DSS.MapState.showInfraForScenario();
+            DSS.MapState.zoomToActiveFarm()
             // setFieldSource().then(function(){
             //     console.log("redraw fields")
             //     DSS.MapState.showNewFarm(DSS.activeFarm);
@@ -345,6 +348,7 @@ class GeoServer{
             let currObj = returnData.current
             console.log (currObj)
             currObj.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+            DSS.MapState.zoomToActiveFarm()
          })
     }
     // Copies features from active scneario to new scneario when a new scenario is created
