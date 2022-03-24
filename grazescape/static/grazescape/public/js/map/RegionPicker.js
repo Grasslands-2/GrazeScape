@@ -52,7 +52,7 @@ Ext.define('DSS.map.RegionPicker', {
 							this.up('window').destroy();
 							//console.log(item.text);
 							console.log(DSS.map.getView())
-							if(item.text == "Clover Belt"){
+							if(item.text == "Cloverbelt"){
 								DSS.activeRegion = "cloverBeltWI";
 								console.log(DSS.activeRegion);
 								DSS.map.setView(new ol.View({

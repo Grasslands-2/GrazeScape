@@ -2,7 +2,8 @@ var selectedInfra = {}
 function selectInfraDelete(){
 	DSS.MapState.removeMapInteractions()
 	AppEvents.triggerEvent('show_infra_draw_mode_indicator')
-	document.body.style.cursor = "url('http://www.rw-designer.com/cursor-extern.php?id=85157.cur'), auto";
+	document.body.style.cursor = "crosshair";
+	//document.body.style.cursor = "url('http://www.rw-designer.com/cursor-extern.php?id=85157.cur'), auto";
 	DSS.select = new ol.interaction.Select({
 		features: new ol.Collection(),
 		toggleCondition: ol.events.condition.never,
