@@ -236,7 +236,7 @@ class TransformationTable extends Component {
       </DragDropContext>
               <Modal size="lg" show={this.state.transModalShow} onHide={this.handleCloseModal} onShow={this.showModal}>
                 <Modal.Header closeButton>
-                  <Modal.Title>Transformation Results</Modal.Title>
+                  <Modal.Title>Transformation Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                                       {/*

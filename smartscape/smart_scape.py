@@ -27,6 +27,8 @@ import multiprocessing
 import concurrent.futures
 
 Ft_To_Meters = 0.3048
+
+
 class SmartScape:
     """
     Child of ModelBase that is specific for running SmartScape.
@@ -101,6 +103,27 @@ class SmartScape:
         has_land = False
         has_stream = False
         print("creating png")
+
+        # create empty raster to hold values from above calc
+        image1 = gdal.Open(os.path.join(self.geo_folder, "landuse-clipped.tif"))
+
+        driver = gdal.GetDriverByName("GTiff")
+        outdata = driver.Create(os.path.join(self.in_dir, "landuse_watershed.tif"), cols, rows, 1,
+                                gdal.GDT_Float32)
+        # set metadata to an existing raster
+        outdata.SetGeoTransform(
+            image1.GetGeoTransform())  ##sets same geotransform as input
+        outdata.SetProjection(
+            image1.GetProjection())  ##sets same projection as input
+        outdata.GetRasterBand(1).WriteArray(self.raster_inputs["landuse"])
+        outdata.GetRasterBand(1).SetNoDataValue(self.no_data)
+        # write to disk
+        outdata.FlushCache()
+        outdata = None
+        band = None
+        ds = None
+
+
 
         if use_ft:
             stream_dist1 = float(stream_dist1) * Ft_To_Meters
@@ -233,6 +256,7 @@ class SmartScape:
         download_thread = threading.Thread(target=self.download, args=(link, filelocation))
         download_thread.start()
         self.threads.append(download_thread)
+
     # def createNewRunoffThread(self, type):
     #     download_thread = threading.Thread(target=self.download, args=(link, filelocation))
     #     download_thread.start()
@@ -247,7 +271,8 @@ class SmartScape:
         -------
 
         """
-        m_to_acre = 0.000247105
+        # conversion from value / ac to value of cell at 30 m resolution
+        ac_to_m = 900 / 4046.86
         print("starting model aggregation")
         trans = self.request_json['trans']
         base_scen = self.request_json['base']
@@ -264,6 +289,7 @@ class SmartScape:
         base_names = ("contCorn", "cornGrain", "dairyRotation")
         model_names_base = ("Erosion", "PI", "CN")
         # contCorn
+        # create name of the layer that corresponds to geoserver
         for name in base_names:
             for model in model_names_base:
                 file_name = name + "_" + \
@@ -282,12 +308,13 @@ class SmartScape:
         base_layer_dic["landuse"] = "SmartScapeRaster:" + region + "_WiscLand_30m"
         # base_layer_dic["slope"] = "SmartScapeRaster:" + region + "_slopePer_30m"
         base_layer_dic["hyd_letter"] = "SmartScapeRaster:" + region + "_hydgrp_30m"
-
+        watershed_file_list = []
         # create list of layers to download for each trans
         for tran in trans:
             # for each trans get the path to the selection raster used
             file = os.path.join(self.data_dir, tran["id"], "selection_output.tif")
             file_list.append(file)
+            watershed_file_list.append(os.path.join(self.data_dir, tran["id"], "landuse_watershed.tif"))
             #       for right now we are only supporting transforming to pasture or pasture seedling
             #       yield
             #       medium_GrassYield_southWestWI.tif
@@ -323,6 +350,16 @@ class SmartScape:
 
         band = image.GetRasterBand(1)
         arr = band.ReadAsArray()
+        print(watershed_file_list)
+        # get full watershed
+        ds_clip = gdal.Warp(
+            # last raster ovrrides it
+            os.path.join(dir_path, "transformation_landuse.tif"), watershed_file_list,
+            dstNodata=-9999,
+            outputType=gc.GDT_Float32)
+        watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
+        watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
+        watershed_land_use = watershed_land_use_band.ReadAsArray()
 
         arr.fill(-9999)
         [rows, cols] = arr.shape
@@ -361,28 +398,18 @@ class SmartScape:
         # take each raster and convert it to array and then take max(higher priority) from array and combine to
         # create a master raster with overlapping values being determined from hierarchy
         for tran in trans:
-            # print(tran)
             file = os.path.join(self.data_dir, tran["id"])
-
             image1 = gdal.Open(os.path.join(file, "burned.tif"))
             band = image1.GetRasterBand(1)
             arr = band.ReadAsArray()
             # flatten the array to make comparison easier between rasters
             arr = arr.flatten()
-            # values, counts = np.unique(arr, return_counts=True)
-            # print(np.bincount(arr.flatten()))
             # replace select value with rank of trans
             datanm = np.where(arr == -99, tran["rank"], arr)
-            # print(np.bincount(datanm.flatten()))
-            # values, counts = np.unique(datanm, return_counts=True)
             # larger values have higher priority
             base = np.maximum(base, datanm)
             # close file
             image1 = None
-        # checking values were combined
-        # values, counts = np.unique(base, return_counts=True)
-        # print(values)
-        # print(counts)
         # put the array back into the raster shape
         base = np.reshape(base, [rows, cols])
         # save the base array into a new raster called merged
@@ -431,20 +458,14 @@ class SmartScape:
                 print("downloading layer ", model)
                 url = geoserver_url + "SmartScapeRaster:" + layer_dic[layer][
                     model] + extents_string_x + extents_string_y
-                # print(url)
                 raster_file_path = os.path.join(dir_path, layer_dic[layer][model] + ".tif")
                 self.createNewDownloadThread(url, raster_file_path)
-                # r = requests.get(url)
-                # with open(raster_file_path, "wb") as f:
-                #     f.write(r.content)
+
         for layer in base_layer_dic:
             print("downloading layer ", layer)
             url = geoserver_url + base_layer_dic[layer] + extents_string_x + extents_string_y
             raster_file_path = os.path.join(dir_path, layer + ".tif")
             self.createNewDownloadThread(url, raster_file_path)
-            # r = requests.get(url)
-            # with open(raster_file_path, "wb") as f:
-            #     f.write(r.content)
         self.joinThreads()
         print("done writing")
         # open model results raster
@@ -460,22 +481,15 @@ class SmartScape:
         }
         area = np.copy(arr)
         count_selected = np.count_nonzero(area > -88)
-        print("number of selected cells")
-        print(count_selected)
         # each cell is 30 x 30 m (900 sq m) and then convert to acres
         area_selected = count_selected * 900 * 0.000247105
         unique, counts = np.unique(area, return_counts=True)
         area_dict = {}
-        print(unique)
-        print(counts)
+
+        # get area of transformed land for each transformation
         for index, val in enumerate(unique):
             area_dict["{:,.0f}".format(val)] = "{:,.0f}".format(counts[index] * 900 * 0.000247105)
 
-        # slope_image = gdal.Open(os.path.join(dir_path, "slope.tif"))
-        # slope_arr = slope_image.GetRasterBand(1).ReadAsArray()
-        hyd_letter_image = gdal.Open(os.path.join(dir_path, "hyd_letter.tif"))
-        hyd_letter_arr = hyd_letter_image.GetRasterBand(1).ReadAsArray()
-        # get_runoff_vectorized = np.vectorize(self.calc_runoff)
         print("running transformation models")
         for layer in layer_dic:
             # yield
@@ -487,12 +501,10 @@ class SmartScape:
                 model_arr = model_band.ReadAsArray()
                 # arr is the array from the merged tif
                 # layer is the rank of the trans
-                # data_yield = np.where(data_yield == layer, model_arr, data_yield)
                 # if hierarchy matches the trans rank replace that value witht the model value
                 if model == "cn":
                     cn_final = np.where(model_data[model] == layer, model_arr, model_data[model])
-                    # cn_final = np.where(model_data[model] == layer, cn_inter, model_data[model])
-
+                    # only looking at 3 in storm
                     model_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
                     model_data[model] = cn_final
                 else:
@@ -501,13 +513,9 @@ class SmartScape:
                 model_image = None
                 model_band = None
                 model_arr = None
-        # for layer in layer_dic:
-        #     model_trans_filepath = os.path.join(dir_path, layer_dic[layer]["cn"] + ".tif")
-        #     model_image = gdal.Open(model_trans_filepath)
-        #     model_band = model_image.GetRasterBand(1)
-        #     model_arr = model_band.ReadAsArray()
 
         print("done with trans models")
+
         #   iterate through wiscland layer
         landuse_image = gdal.Open(os.path.join(dir_path, "landuse.tif"))
         landuse_arr = landuse_image.GetRasterBand(1).ReadAsArray()
@@ -537,6 +545,76 @@ class SmartScape:
             "runoff": np.copy(landuse_arr_sel),
             "insect": np.copy(landuse_arr_sel),
         }
+        base_data_watershed = {
+            "yield": np.copy(watershed_land_use),
+            "ero": np.copy(watershed_land_use),
+            "ploss": np.copy(watershed_land_use),
+            "cn": np.copy(watershed_land_use),
+            "runoff": np.copy(watershed_land_use),
+            "insect": np.copy(watershed_land_use),
+        }
+        print(base_data_watershed["yield"])
+        print("base layer dic")
+        print(base_layer_dic)
+        test1 = np.copy(watershed_land_use)
+        test2 = np.copy(watershed_land_use)
+        test1.fill(33)
+        test2.fill(100)
+        test2[0][0] = 77
+        print(test2)
+        count1 = np.count_nonzero(base_data_watershed["yield"] > -1)
+        print(count1)
+        count_selected = np.count_nonzero(base_data_watershed["yield"] > 0)
+        # each cell is 30 x 30 m (900 sq m) and then convert to acres
+        area_watershed = count_selected * 900 * 0.000247105
+        print(area_watershed)
+        test3 = base_data_watershed["yield"].flatten()
+        values, counts = np.unique(test3, return_counts=True)
+        print(values)
+        print(counts)
+
+        watershed_total = {
+            1: {"yield": 0, "ero": 2, "pl": 1.34, "cn": 1, "insect": 1},
+            2: {"yield": 0, "ero": 2, "pl": 0.81, "cn": 1, "insect": 1},
+            3: {"yield": test2, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            4: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            5: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            6: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            7: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            8: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            9: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            10: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
+            11: {"yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 1},
+            12: {"yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 1},
+            13: {"yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 1},
+            14: {"yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 1},
+            15: {"yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 1},
+            -9999: {"yield": test2, "ero": 0, "pl": 0.067, "cn": 1, "insect": 1},
+        }
+        for land_type in watershed_total:
+            # model_data[model] = np.where(model_data[model] == layer, model_arr, model_data[model])
+            base_data_watershed["yield"] = np.where(base_data_watershed["yield"] == land_type, watershed_total[land_type]["yield"], base_data_watershed["yield"])
+            base_data_watershed["ero"] = np.where(base_data_watershed["ero"] == land_type, watershed_total[land_type]["ero"], base_data_watershed["ero"])
+            base_data_watershed["pl"] = np.where(base_data_watershed["ploss"] == land_type, watershed_total[land_type]["pl"], base_data_watershed["ploss"])
+            base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type, watershed_total[land_type]["cn"], base_data_watershed["cn"])
+            base_data_watershed["insect"] = np.where(base_data_watershed["insect"] == land_type, watershed_total[land_type]["insect"], base_data_watershed["insect"])
+            # calculate runoff if cn is above zero
+            base_data_watershed["runoff"] = np.where(base_data_watershed["cn"] > 0, self.get_runoff_vectorized(base_data_watershed["cn"], 3), 0)
+        print(base_data_watershed["yield"])
+        base_test = np.where(
+            np.logical_or(base_data_watershed["yield"] == self.no_data, base_data_watershed["yield"] < 0),
+            0, base_data_watershed["yield"])
+        test_sum = np.sum(base_test)
+        print("sum of cn for base", test_sum)
+
+        count1 = np.count_nonzero(base_data_watershed["yield"])
+        print(count1)
+
+        base_data_watershed["yield"] = base_data_watershed["yield"].flatten()
+        values, counts = np.unique(base_data_watershed["yield"], return_counts=True)
+        print(values)
+        print(counts)
+
         base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
@@ -557,15 +635,12 @@ class SmartScape:
 
         base_cn = np.where(
             np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
-            0, (base_data["cn"] * 900 / 4046.86))
+            0, (base_data["cn"] * ac_to_m))
         sum_base_cn = np.sum(base_cn)
-        print("sum of cn for base", sum_base_cn)
         base_runoff = np.where(
             np.logical_or(base_data["runoff"] == self.no_data, base_data["runoff"] < 0),
-            0, (base_data["runoff"] * 900 / 4046.86))
+            0, (base_data["runoff"] * ac_to_m))
         sum_base_runoff = np.sum(base_runoff)
-
-
 
         landuse_ero = np.copy(landuse_arr_sel)
         landuse_yield = np.copy(landuse_arr_sel)
@@ -591,22 +666,13 @@ class SmartScape:
 
         base_insect = np.where(
             np.logical_or(base_data["insect"] == self.no_data, base_data["insect"] < 0),
-            0, (base_data["insect"] * 900 / 4046.86))
+            0, (base_data["insect"] * ac_to_m))
         sum_base_insect = np.sum(base_insect)
-        # [rows, cols] = landuse_arr_sel.shape
-        # driver = gdal.GetDriverByName("GTiff")
-        # outdata = driver.Create(os.path.join(dir_path, "pl_base_case.tif"), cols, rows, 1,
-        #                         gdal.GDT_Float32)
-        # outdata.SetGeoTransform(landuse_image.GetGeoTransform())  ##sets same geotransform as input
-        # outdata.SetProjection(landuse_image.GetProjection())  ##sets same projection as input
-        # outdata.GetRasterBand(1).WriteArray(landuse_arr_sel)
-        # outdata.GetRasterBand(1).SetNoDataValue(-9999)
-        # base case
 
         # model_value * conversion from ac to value / 30 sq m
         landuse_arr_sel = np.where(
             np.logical_or(landuse_arr_sel == self.no_data, landuse_arr_sel < 0),
-            0, (landuse_arr_sel * 900 / 4046.86))
+            0, (landuse_arr_sel * ac_to_m))
         sum_base = np.sum(landuse_arr_sel)
 
         # cont_pl_image = gdal.Open(os.path.join(dir_path, "cont_er_nc_su_25_50_1.tif"))
@@ -624,27 +690,10 @@ class SmartScape:
         dairy_pl_arr = dairy_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_ero = np.where(landuse_ero == 5, dairy_pl_arr, landuse_ero)
 
-
-
-        # CN
-
-        # Runoff
-
-        # [rows, cols] = landuse_ero.shape
-        # driver = gdal.GetDriverByName("GTiff")
-        # outdata = driver.Create(os.path.join(dir_path, "ero_base_case.tif"), cols, rows, 1,
-        #                         gdal.GDT_Float32)
-        # outdata.SetGeoTransform(landuse_image.GetGeoTransform())  # sets same geotransform as input
-        # outdata.SetProjection(landuse_image.GetProjection())  # sets same projection as input
-        # outdata.GetRasterBand(1).WriteArray(landuse_ero)
-        # outdata.GetRasterBand(1).SetNoDataValue(-9999)
-
-        # base case
-
         # model_value * conversion from ac to value / 30 sq m
         landuse_ero = np.where(
             np.logical_or(landuse_ero == self.no_data, landuse_ero < 0),
-            0, (landuse_ero * 900 / 4046.86))
+            0, (landuse_ero * ac_to_m))
         sum_base_ero = np.sum(landuse_ero)
 
         # base yield
@@ -670,39 +719,32 @@ class SmartScape:
 
         landuse_yield = np.where(
             np.logical_or(landuse_yield == self.no_data, landuse_yield < 0),
-            0, (landuse_yield * 900 / 4046.86))
+            0, (landuse_yield * ac_to_m))
         sum_base_yield = np.sum(landuse_yield)
 
         # model run
         # we are setting models less than zero to zero (effects mostly ero and ploss)
         model = np.where(
             np.logical_or(model_data["yield"] == self.no_data, model_data["yield"] < 0),
-            0, (model_data["yield"] * 900 / 4046.86))
+            0, (model_data["yield"] * ac_to_m))
         sum_model_yield = np.sum(model)
         model = np.where(
             np.logical_or(model_data["ero"] == self.no_data, model_data["ero"] < 0),
-            0, (model_data["ero"] * 900 / 4046.86))
+            0, (model_data["ero"] * ac_to_m))
         sum_model_ero = np.sum(model)
         model = np.where(
             np.logical_or(model_data["ploss"] == self.no_data, model_data["ploss"] < 0),
-            0, (model_data["ploss"] * 900 / 4046.86))
+            0, (model_data["ploss"] * ac_to_m))
         sum_model_ploss = np.sum(model)
         model = np.where(
             np.logical_or(model_data["cn"] == self.no_data, model_data["cn"] < 0),
-            0, (model_data["cn"] * 900 / 4046.86))
+            0, (model_data["cn"] * ac_to_m))
         sum_model_cn = np.sum(model)
-        print("The sum of cn for model is ", sum_model_cn)
         model = np.where(
             np.logical_or(model_data["runoff"] == self.no_data, model_data["runoff"] < 0),
-            0, (model_data["runoff"] * 900 / 4046.86))
+            0, (model_data["runoff"] * ac_to_m))
         sum_model_runoff = np.sum(model)
-        print("Some of the runoff", sum_model_runoff)
-        # datanm_ero = np.where(
-        #     np.logical_or(datanm_ero == self.no_data, datanm_ero < 0),
-        #     0, (datanm_ero * 900 / 4046.86))
-        # sum_model_ero = np.sum(datanm_ero)
-        # sum_model = 0
-        # sum_model_ero = 0
+
         return {
             "base": {
                 "ploss": {"total": "{:,.0f}".format(sum_base),
@@ -728,7 +770,7 @@ class SmartScape:
                     "units": ""
                 },
                 "runoff": {
-                    "total": "{:,.0f}".format(sum_base_runoff/12),
+                    "total": "{:,.0f}".format(sum_base_runoff / 12),
                     "total_per_area": str("%.1f" % (sum_base_runoff / area_selected)),
                     "units": ""
                 },
@@ -760,14 +802,15 @@ class SmartScape:
                     "units": ""
                 },
                 "runoff": {
-                    "total": "{:,.0f}".format(sum_model_runoff/12),
+                    "total": "{:,.0f}".format(sum_model_runoff / 12),
                     "total_per_area": str("%.1f" % (sum_model_runoff / area_selected)),
                     "units": ""
                 },
             },
             "land_stats": {
                 "area": "{:,.0f}".format(area_selected),
-                "area_trans": area_dict
+                "area_watershed": "{:,.0f}".format(area_watershed),
+                "area_trans": area_dict,
             }
 
         }
@@ -810,4 +853,3 @@ class SmartScape:
                          0)
 
         return event
-

@@ -164,7 +164,7 @@ class RasterDataSmartScape:
         raster_data_dic = {}
         bounds = 0
         for file in os.listdir(self.dir_path):
-            if '.tif' in file:
+            if '.tif' in file and "clipped.tif" not in file:
                 data_name = file.split(".")[0]
                 image = gdal.Open(os.path.join(self.dir_path, file))
                 # band = image.GetRasterBand(1)
