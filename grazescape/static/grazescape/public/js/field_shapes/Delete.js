@@ -1,39 +1,49 @@
 var selectedField = {}
 function selectFieldDelete(){
+	DSS.MapState.removeMapInteractions()
+	AppEvents.triggerEvent('show_field_draw_mode_indicator')
+	document.body.style.cursor = "crosshair";
+	//document.body.style.cursor = "url('http://www.rw-designer.com/cursor-extern.php?id=85157.cur'), auto";
 	DSS.select = new ol.interaction.Select({
 		features: new ol.Collection(),
-			toggleCondition: ol.events.condition.never,
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: 'white',
-					width: 4
-				}),
-				fill: new ol.style.Fill({
-					color: 'rgba(0,0,0,0)'
-				}),
-				zIndex: 5
-			})
-		});
+		toggleCondition: ol.events.condition.never,
+		layers: [DSS.layer.fields_1],
+		style: new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: 'white',
+				width: 4
+			}),
+			fill: new ol.style.Fill({
+				color: 'rgba(0,0,0,0)'
+			}),
+			image: new ol.style.Icon({
+				// anchor: [0, 1],
+				// //size: [96,96],
+				// scale: 0.03,
+				src: '/static/grazescape/public/images/eraser-icon-23413.png'
+			}),
+			zIndex: 5
+		})
+	});
 	DSS.map.addInteraction(DSS.select);
 	console.log("select is on")
 	DSS.select.on('select', function(f) {
-		setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
+		//setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90)
 		console.log('select on happened');
 		selectedField = f.selected[0];
 		console.log(selectedField);
-		//DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 				
-		//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
-		//DSS.dialogs.FieldApplyPanel.show().center().setY(0);
-		if(confirm('Are you sure you want to delete field '+selectedField.values_.field_name + '?')) {
-			console.log("DELETED!")
-			deleteField(selectedField)
-			alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
-			DSS.MapState.removeMapInteractions()
-		  } else {
-			console.log("NOT DELETED!")
-			DSS.MapState.removeMapInteractions()
-		  }
-		
+		DSS.dialogs.FieldDeletePanel = Ext.create('DSS.field_shapes.Delete'); 		
+		DSS.dialogs.FieldDeletePanel.show().center().setY(0);
+		// if(confirm('Are you sure you want to delete field '+selectedField.values_.field_name + '?')) {
+		// 	console.log("DELETED!")
+		// 	deleteField(selectedField)
+		// 	//alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
+		// 	DSS.MapState.removeMapInteractions()
+		// 	AppEvents.triggerEvent('hide_field_draw_mode_indicator')
+		// 	} else {
+		// 	console.log("NOT DELETED!")
+		// 	DSS.MapState.removeMapInteractions()
+		//   }
 	})
 }
 function deleteField(feat){
@@ -72,7 +82,7 @@ Ext.define('DSS.field_shapes.Delete', {
     autoDestroy: false,
     scrollable: 'y',
 	titleAlign: 'center',
-	title: 'Choose your new Fields Name and Crop Rotation',
+	//title: 'Choose your new Fields Name and Crop Rotation',
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
@@ -83,7 +93,7 @@ Ext.define('DSS.field_shapes.Delete', {
 			items: [{
 				xtype: 'component',
 				cls: 'section-title light-text text-drp-20',
-				html: 'Field Shapes <i class="fas fa-trash-alt fa-fw accent-text text-drp-50"></i>',
+				html: 'Delete Field',
 				height: 35
 			},{
 				xtype: 'container',
@@ -94,35 +104,41 @@ Ext.define('DSS.field_shapes.Delete', {
 				defaults: {
 					DSS_parent: me,
 				},
-				items: [{
+				items: [
+				{
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
-					html: 'Delete Field',
-				},{
-					xtype: 'component',
-					cls: 'information light-text text-drp-20',
-					html: 'Click a field to delete it',
+					html: 'Would you like to delete field '+selectedField.values_.field_name + '?',
 				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'delete button',
+					text: 'Yes',
 					formBind: true,
 					handler: function() {
-						//var data = me.viewModel.data;
-						console.log("delete Button");
-						var geomType = 'polygon'
-						if (selectedField != {}) {
-							deleteField(selectedField);
-							DSS.map.render;
-							DSS.MapState.removeMapInteractions()
-						}
-						else {
-							console.log("no field selected")
-						}
+						console.log("DELETED!")
+						deleteField(selectedField)
+						alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
+						DSS.MapState.removeMapInteractions()
+						AppEvents.triggerEvent('hide_field_draw_mode_indicator')
+						this.up('window').destroy();
 					}
-			    }]
+			    },
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'No',
+					formBind: true,
+					handler: function() {
+						console.log("NOT DELETED!")
+						DSS.MapState.removeMapInteractions()
+						AppEvents.triggerEvent('hide_field_draw_mode_indicator')
+						this.up('window').destroy();
+					}
+			    }
+			]
 			}]
 		});
 		

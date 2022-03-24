@@ -1,5 +1,16 @@
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
-
+var dupname = false
+// function dupNameCheck(inputName){
+// 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+// 		console.log(String(inputName))
+// 		console.log(f.values_.field_name)
+// 		if(f.values_.field_name === String(inputName)){
+// 			console.log("DUP NAME HIT!!!!")
+// 			dupname =  true
+// 			//dupname = true
+// 		}
+// 	})
+// }
 
 async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
 
@@ -124,7 +135,7 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 		})
 	setFeatureAttributes(e.feature)
 	addFieldAcreage(e.feature)
-	alert('Field Added!')
+	//alert('Field Added!')
 }
 
 var fieldData = {
@@ -278,28 +289,39 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 					componentCls: 'button-margin',
 					text: 'Add Field',
 					formBind: true,
-					handler: function() {
+					handler: async function() {
 						var form =  this.up('form').getForm();
 						//var data = fieldData;
 						var data = me.viewModel.data;
+						dupname = false
 						console.log(data)
 						if(form.isValid()){
-						DSS.map.removeInteraction(DSS.select);
-						//console.log(e)
-						console.log(inputFieldObj)
-
-						createFieldAP(inputFieldObj,data.graze_animals.dairy_lactating,
-							data.graze_animals.dairy_nonlactating,
-							data.graze_animals.beef,
-							data.crop.value,
-							data.tillage.value.tillage,
-							data.soil_p.value,
-							data.field_name.value,
-							//probably wrong, look up data schema
-							data.on_contour);
-							data.field_name.value = ''
-							//form.reset()
-							this.up('window').destroy();
+							DSS.map.removeInteraction(DSS.select);
+							//console.log(e)
+							console.log(inputFieldObj)
+							// DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+							// 	if(f.values_.field_name == data.field_name.value){
+							// 		dupname = true
+							// 	}
+							// })
+							await dupNameCheck(data.field_name.value,DSS.layer.fields_1,"field")
+							if(dupname){
+								alert("You already have a field with that name in this scenario!")
+								form.reset()
+							}else{
+							createFieldAP(inputFieldObj,data.graze_animals.dairy_lactating,
+								data.graze_animals.dairy_nonlactating,
+								data.graze_animals.beef,
+								data.crop.value,
+								data.tillage.value.tillage,
+								data.soil_p.value,
+								data.field_name.value,
+								//probably wrong, look up data schema
+								data.on_contour);
+								data.field_name.value = ''
+								//form.reset()
+								this.up('window').destroy();
+							}
 						}
 					}
 			    }]

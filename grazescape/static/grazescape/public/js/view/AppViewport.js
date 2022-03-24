@@ -28,7 +28,7 @@ Ext.define('DSS.view.AppViewport', {
 	requires: [
 		'DSS.state.ApplicationFlow',
         'DSS.map.Main',
-		'DSS.inspector.Main',
+		//'DSS.inspector.Main',
 		'DSS.map.LayerMenu',
 
 		'DSS.field_shapes.DrawAndApply',
@@ -109,18 +109,19 @@ Ext.define('DSS.view.AppViewport', {
 				items: [{
 					xtype: 'application_flow',
 				}]
-			},{
+			},
+			{
 				xtype: 'container',
 				region: 'east',
 				cls: 'info-panel',
 				resizable: {
-					dynamic: true,
-					maxWidth: 420,
+					dynamic: false,
+					maxWidth: 1,
 				},
 				resizeHandles: 'w',
-				width: 280,
+				width: 1,
 				itemId: 'DSS-mode-controls',
-				maxWidth: 420,
+				maxWidth: 1,
 				padding: '8 6',
 				scrollable: 'y',
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
@@ -129,7 +130,7 @@ Ext.define('DSS.view.AppViewport', {
 				],
 				listeners: {
 					afterrender: function(self) {
-						let targetSize = 280;
+						let targetSize = 1;
 						setTimeout(function() {
 							self.animate({
 								dynamic: true,
@@ -146,7 +147,8 @@ Ext.define('DSS.view.AppViewport', {
 						}, 10);
 					}
 				}
-			}]
+			}
+		]
 		});
 
 		me.callParent(arguments);

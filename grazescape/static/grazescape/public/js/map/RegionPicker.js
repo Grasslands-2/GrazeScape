@@ -1,7 +1,7 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 
-var regionsList = [{text: "Kickapoo Valley"}, {text: "Clover Belt"}]
+var regionsList = [{text: "Kickapoo Valley"}, {text: "Cloverbelt"}]
 DSS.activeRegion = "southWestWI";
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.RegionPicker', {
@@ -52,36 +52,27 @@ Ext.define('DSS.map.RegionPicker', {
 							this.up('window').destroy();
 							//console.log(item.text);
 							console.log(DSS.map.getView())
-							if(item.text == "Clover Belt"){
-								console.log('Cloverbelt picked')
-								//DSS.activeRegion = "cloverBeltWI";
+							if(item.text == "Cloverbelt"){
 								DSS.activeRegion = "cloverBeltWI";
-								
 								console.log(DSS.activeRegion);
 								DSS.map.setView(new ol.View({
 									center: [-10022690, 5616340],
-									zoom: 9,
+									zoom: 7,
 									maxZoom: 30,
-									minZoom: 8,//10,
-								//	constrainRotation: false,
-								//	rotation: 0.009,
+									minZoom: 8,
 									constrainOnlyCenter: false,
-									extent:[-10123258, 5529663,-9931236,5682859]
-									//extent:[ -10168100, 5318380, -10055830, 5454227]
+									extent:[-10143258, 5510000,-9913236,5702859]
 								}))
 							}
 							else{
 								DSS.activeRegion = "southWestWI";
 								DSS.map.setView(new ol.View({
 									center: [-10112582,5392087],
-									zoom: 10,
+									zoom: 6,
 									maxZoom: 30,
-									minZoom: 8,//10,
-								//	constrainRotation: false,
-								//	rotation: 0.009,
+									minZoom: 7,
 									constrainOnlyCenter: false,
-									//extent:[-10155160, 5323674, -10065237, 5450767]
-									extent:[ -10168100, 5318380, -10055830, 5454227]
+									extent:[ -10188178, 5301578, -10037615, 5466962]
 								}))
 							}
 							console.log("REGION PICKER DONE");

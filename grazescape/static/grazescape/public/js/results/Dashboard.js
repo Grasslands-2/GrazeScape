@@ -1191,7 +1191,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                            if (chartObj["ploss_farm"].chart !== null){
                                 return
                             }
-                            chartObj.ploss_farm.chart = create_graph(chartObj.ploss_farm, 'Phosphorous Loss', document.getElementById('ploss_farm').getContext('2d'));
+                            chartObj.ploss_farm.chart = create_graph(chartObj.ploss_farm, 'Phosphorus Loss', document.getElementById('ploss_farm').getContext('2d'));
                     }}
 
                 },{ xtype: 'panel',
@@ -1252,7 +1252,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                                chartObj["soil_loss_field"].chart.destroy()
                                 return
                             }
-                            chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorous Loss', document.getElementById('ploss_field').getContext('2d'));
+                            chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
 //                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
 
                     }}
@@ -2583,8 +2583,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff,
                 //feedoutput,
                 bio,
-                economics,
-                infrastructure,
+                //economics,
+                //infrastructure,
                 compare,
                 outputLayers,
                 summary,
