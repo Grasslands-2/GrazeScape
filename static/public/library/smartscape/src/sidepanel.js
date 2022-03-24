@@ -25,10 +25,12 @@ import RangeSlider from 'react-bootstrap-range-slider';
 import './App.css';
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
-setVisibilityMapLayer,updateActiveBaseProps} from '/src/stores/transSlice'
-import{setVisibilityAOIAcc, setVisibilityTransAcc} from '/src/stores/mainSlice'
+setVisibilityMapLayer,updateActiveBaseProps, setActiveTransDisplay,updateTransList} from '/src/stores/transSlice'
+import * as mainSlice from '/src/stores/mainSlice'
 import * as charts from '/src/utilities/charts'
 import { Doughnut } from 'react-chartjs-2';
+import { Slider, Rail, Handles, Tracks, Ticks } from 'react-compound-slider'
+
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -69,6 +71,7 @@ const mapStateToProps = state => {
     hideAOIAcc:state.main.hideAOIAcc,
     hideTransAcc:state.main.hideTransAcc,
     aoiFolderId:state.main.aoiFolderId,
+    extents:state.main.aoiExtents,
 }}
 
 const mapDispatchToProps = (dispatch) => {
@@ -80,16 +83,36 @@ const mapDispatchToProps = (dispatch) => {
         updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
         updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
-        setVisibilityAOIAcc: (type)=> dispatch(setVisibilityAOIAcc(type)),
-        setVisibilityTransAcc: (type)=> dispatch(setVisibilityTransAcc(type)),
+        setActiveTransDisplay: (type)=> dispatch(setActiveTransDisplay(type)),
+        updateTransList: (type)=> dispatch(updateTransList(type)),
+
+        setVisibilityAOIAcc: (type)=> dispatch(mainSlice.setVisibilityAOIAcc(type)),
+        setVisibilityTransAcc: (type)=> dispatch(mainSlice.setVisibilityTransAcc(type)),
+        setActiveRegion: (type)=> dispatch(mainSlice.setActiveRegion(type)),
+        setAoiFolderId: (type)=> dispatch(mainSlice.setAoiFolderId(type)),
+        setAoiFolderId: (type)=> dispatch(mainSlice.setAoiFolderId(type)),
+
     }
 };
+const sliderStyle = {  // Give the slider some width
+  position: 'relative',
+  width: '100%',
+  height: 80,
+  border: '1px solid steelblue',
+}
+
+const railStyle = {
+  position: 'absolute',
+  width: '100%',
+  height: 10,
+  marginTop: 35,
+  borderRadius: 5,
+  backgroundColor: '#8B9CB6',
+}
 class SidePanel extends React.Component{
     constructor(props){
         super(props)
         this.user = props.user
-//        this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
-        this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
         this.runModels = this.runModels.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
         this.tabControl = this.tabControl.bind(this);
@@ -98,14 +121,14 @@ class SidePanel extends React.Component{
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleOpenModalBase = this.handleOpenModalBase.bind(this);
         this.showModal = this.showModal.bind(this);
-        this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.handleCloseModalBase = this.handleCloseModalBase.bind(this);
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.renderModal = this.renderModal.bind(this);
+        this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
+        this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
+        this.clearSelection = this.clearSelection.bind(this);
         // selection criteria
-        this.slope1 = React.createRef();
-        this.slope2 = React.createRef();
-        this.streamDist1 = React.createRef();
-        this.streamDist2 = React.createRef();
+
         this.contCorn = React.createRef();
         this.cashGrain = React.createRef();
         this.dairy = React.createRef();
@@ -115,13 +138,17 @@ class SidePanel extends React.Component{
         this.pasture = React.createRef();
         this.grasslandIdle = React.createRef();
 
+        this.feet = React.createRef();
+        this.meters = React.createRef();
+
         this.rotationType = React.createRef();
         this.cover = React.createRef();
         this.tillage = React.createRef();
         this.density = React.createRef();
         this.contour = React.createRef();
         this.fertilizer = React.createRef();
-
+        this.slopeMax = 700;
+        this.distStreamMax = 16000;
         this.selectWatershed = React.createRef();
         this.state = {slope:{slope1:null, slope2:null},
             geometry:{extents:[],coords:[]},
@@ -137,6 +164,10 @@ class SidePanel extends React.Component{
             baseEro: "hello world",
             modelEro: "hello world",
             modelOutputs: {},
+            aoiOrDisplayLoading:false,
+            modelsLoading:false,
+            showViewResults:false,
+            showHuc10:false,
         }
     }
     // fires anytime state or props are updated
@@ -147,14 +178,27 @@ class SidePanel extends React.Component{
             this.setState({selectWatershed:false})
         }
         // set selection criteria to active scenario
-        this.slope1.current.value = this.props.activeTrans.selection.slope1
-        this.slope2.current.value = this.props.activeTrans.selection.slope2
-        this.streamDist1.current.value = this.props.activeTrans.selection.streamDist1
-        this.streamDist2.current.value = this.props.activeTrans.selection.streamDist2
+
         // land use selection
         this.contCorn.current.checked = this.props.activeTrans.selection.landCover.contCorn
         this.cashGrain.current.checked = this.props.activeTrans.selection.landCover.cashGrain
         this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
+        this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
+//       which unit to use for steam distance
+        if (this.props.activeTrans.selection.useFt){
+            this.feet.current.checked = true
+            this.meters.current.checked = false
+        }
+        else{
+            this.meters.current.checked = true
+            this.feet.current.checked = false
+        }
+//        if region is changed show huc 10
+        if (prevProps.region != this.props.region){
+           this.setState({showHuc10:true})
+           console.log(this.state.showHuc10)
+
+        }
 //        this.potato.current.checked = this.props.activeTrans.selection.potato
 //        this.cranberry.current.checked = this.props.activeTrans.selection.cranberry
 //        this.hay.current.checked = this.props.activeTrans.selection.hay
@@ -163,7 +207,7 @@ class SidePanel extends React.Component{
 
 
     }
-      handleCloseModal(){
+      handleCloseModalBase(){
         this.setState({baseModalShow: false})
       }
       handleOpenModalBase(){
@@ -180,21 +224,24 @@ class SidePanel extends React.Component{
         this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
 
       }
+    clearSelection(selectionType){
 
-    // triggered by button click and displays selection
-    //TODO needs to be updated to work with new redux workflow
-    displaySelectionCriteria(){
-        console.log(this.state)
-        console.log(this.slope1.current.value)
-        console.log(this.state)
-        this.props.displaySelectionCriteria()
-//        this.setState({slope:{slope1: this.slope1.current.value, slope2: this.slope2.current.value}}, () => {
-//          console.log("changing state")
-//          console.log(this.state);
-//          this.props.displaySelectionCriteria(this.state)
-//        });
+        if(selectionType == "slope"){
+             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
+             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+
+        }
+        else if(selectionType == "streamDist"){
+             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
+             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
+        }
+        else if(selectionType == "subArea"){
+            this.props.updateActiveTransProps({"name":'extent', "value":[], "type":"reg"})
+
+        }
+
+
     }
-
     // activates the area selection tool
     handleAreaSelectionType(type, e){
         console.log("selection type", type, e)
@@ -226,14 +273,21 @@ class SidePanel extends React.Component{
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"land"})
         console.log(this.props)
     }
+    handleSelectionChangeUnit(type, useFt, e){
+        this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
+
+    }
     // fires when we switch tab so we can download the work area rasters
   tabControl(e){
     console.log(e)
     if(e == "selection"){
         // get bounds of current selection method and start downloading
-        this.props.loadSelectionRaster()
+        this.setState({aoiOrDisplayLoading:true})
+        this.loadSelectionRaster()
+
         // turn off huc 10
-        this.props.setVisibilityMapLayer([{'name':'huc10', 'visible':false},{'name':'southWest', 'visible':false}])
+        this.props.setVisibilityMapLayer([{'name':'huc10', 'visible':false},{'name':'southWest', 'visible':false},
+        {'name':'southCentral', 'visible':false},{'name':'cloverBelt', 'visible':false}])
 //        this.props.setVisibilityMapLayer()
 //        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':true})
     }
@@ -249,11 +303,12 @@ class SidePanel extends React.Component{
     // show huc 12 if the subwatershed accordion is open
     // otherwise hide huc 12
     if (!this.state.showHuc12){
-        this.props.setVisibilityMapLayer([{'name':'huc12', 'visible':true}])
+        this.props.setVisibilityMapLayer([{'name':'subHuc12', 'visible':true}])
         this.setState({showHuc12:true})
     }
     else{
-        this.props.setVisibilityMapLayer([{'name':'huc12', 'visible':false}])
+//        this.props.setVisibilityMapLayer([{'name':'huc12', 'visible':false}])
+        this.props.setVisibilityMapLayer([{'name':'subHuc12', 'visible':false}])
         this.setState({showHuc12:false})
     }
     console.log("sub area selection")
@@ -265,7 +320,7 @@ class SidePanel extends React.Component{
     // random id from 1 to 100
     let tempId = uuidv4();
 
-    let newTrans = Transformation("test trans",tempId, 5)
+    let newTrans = Transformation(" ",tempId, 5)
     this.props.setActiveTrans(newTrans)
     this.props.addTrans(newTrans)
 //    this.props.setActiveTrans(newTrans)
@@ -278,8 +333,97 @@ class SidePanel extends React.Component{
     this.setState({outputModalShow: true})
 //    this.basePloss.current.value = "hello world"
   }
+    // load rasters for aoi in background
+  loadSelectionRaster(){
+     // ajax call with selection criteria
+
+    if (this.props.listTrans.length < 1){
+        let tempId = uuidv4();
+        let newTrans = Transformation(" ",tempId, 5)
+        this.props.setActiveTrans(newTrans)
+        this.props.addTrans(newTrans)
+    }
+    console.log(this.props)
+     if (this.props.extents.length == 0){
+        return
+     }
+    var csrftoken = Cookies.get('csrftoken');
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": csrftoken }
+    });
+    $.ajax({
+        url : '/smartscape/get_selection_raster',
+        type : 'POST',
+        data : JSON.stringify({
+            geometry:{
+                // this is the aoi extent; saved to appcontainer local storage
+                extent:this.props.extents,
+//                field_coors:this.state.coors
+            },
+            region:this.props.region,
+        }),
+        success: (response, opts) => {
+            delete $.ajaxSetup().headers
+            console.log("raster loaded");
+            console.log(response);
+            this.setState({boundaryRasterId:response.folder_id})
+            this.props.setAoiFolderId(response.folder_id)
+            console.log(this.state)
+//            alert("Raster loaded")
+            this.setState({aoiOrDisplayLoading:false})
+        },
+
+        failure: function(response, opts) {
+        }
+    });
+
+  }
+  // get display raster from active transformation
+  displaySelectionCriteria(){
+    this.setState({aoiOrDisplayLoading:true})
+    // ajax call with selection criteria
+    console.log(this.props.activeTrans)
+    let transPayload = JSON.parse(JSON.stringify(this.props.activeTrans))
+    console.log(transPayload)
+    var csrftoken = Cookies.get('csrftoken');
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": csrftoken }
+    });
+    $.ajax({
+        url : '/smartscape/get_selection_criteria_raster',
+        type : 'POST',
+        data : JSON.stringify({
+//            selectionCrit:selectionCrit,
+            selectionCrit:transPayload,
+            geometry:{
+                extent:this.props.activeTrans.selection.extent,
+                field_coors:this.props.activeTrans.selection.field_coors,
+                field_coors_len:this.props.activeTrans.selection.field_coors.length
+            },
+            folderId: this.props.aoiFolderId,
+            transId: this.props.activeTrans.id,
+            region:this.props.region,
+
+        }),
+        success: (responses, opts) => {
+            delete $.ajaxSetup().headers
+            console.log(responses)
+            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            console.log(url)
+            this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
+            this.setState({aoiOrDisplayLoading:false})
+        },
+
+        failure: function(response, opts) {
+        }
+    });
+
+    // return url to image of raster
+    // put image into raster layer
+  }
    runModels(){
         // ajax call with selection criteria
+        this.setState({modelsLoading:true})
         console.log("Running models!!")
         let transPayload = JSON.parse(JSON.stringify(this.props.listTrans))
         let lengthTrans = transPayload.length
@@ -288,6 +432,7 @@ class SidePanel extends React.Component{
             transPayload[trans].rank = lengthTrans;
             lengthTrans--;
         }
+        this.props.updateTransList(transPayload);
         console.log(transPayload)
         console.log(this.props.baseTrans)
         // add method to only grab required trans data and get the rank based on list order
@@ -302,11 +447,21 @@ class SidePanel extends React.Component{
                 trans: transPayload,
                 base:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
-                region: "southWestWI"
+                region: this.props.region,
             }),
             success: (responses, opts) => {
                 delete $.ajaxSetup().headers
                 console.log(responses)
+                let list = JSON.parse(JSON.stringify(this.props.listTrans))
+                for (let item in list){
+                    console.log(item)
+                    console.log(list[item])
+                    console.log(list[item].rank)
+                    console.log(responses.land_stats.area_trans[list[item].rank])
+                    list[item].area = responses.land_stats.area_trans[list[item].rank]
+                }
+                 this.props.updateTransList(list);
+
                 this.setState({basePloss:"Phosphorus Loss: " + responses.base.ploss.total + " lb/year; "+ responses.base.ploss.total_per_area + " lb/year/ac"})
                 this.setState({modelPloss:"Phosphorus Loss: " + responses.model.ploss.total + " lb/year; "+ responses.model.ploss.total_per_area + " lb/year/ac"})
                 this.setState({baseEro:"Erosion: " + responses.base.ero.total + " tons/year; "+ responses.base.ero.total_per_area + " tons/year/ac"})
@@ -314,6 +469,9 @@ class SidePanel extends React.Component{
 //                this.setState({modelPloss:5555})
                 this.setState({outputModalShow:true})
                 this.setState({modelOutputs:responses})
+                this.setState({modelsLoading:false})
+                this.setState({showViewResults:true})
+
             },
 
             failure: function(response, opts) {
@@ -322,7 +480,7 @@ class SidePanel extends React.Component{
     }
   renderModal(){
     var labels = ['Yield', 'Erosion',
-        'Phosphours Lose', 'Runoff',
+        'Phosphorus Loss', 'Runoff',
         'Honey Bee Toxicity', 'Curve Number'
     ]
     console.log(this.state.modelOutputs)
@@ -346,7 +504,7 @@ class SidePanel extends React.Component{
     let radarData = [[1,1,1,1,1,1],[2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     console.log("done with radar")
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, 81, 56, 55, 40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
     let dataYield = dataBarPercent
     let dataEro= dataBarPercent
     let dataPloss= dataBarPercent
@@ -400,6 +558,7 @@ class SidePanel extends React.Component{
 
         model.cn = this.state.modelOutputs.model.cn.total_per_area
         model.runoff = this.state.modelOutputs.model.runoff.total_per_area
+        model.runoff_total = this.state.modelOutputs.model.runoff.total
         model.insect = this.state.modelOutputs.model.insect.total_per_area
 
         base.yield = this.state.modelOutputs.base.yield.total_per_area
@@ -411,6 +570,7 @@ class SidePanel extends React.Component{
 
         base.cn = this.state.modelOutputs.base.cn.total_per_area
         base.runoff = this.state.modelOutputs.base.runoff.total_per_area
+        base.runoff_total = this.state.modelOutputs.base.runoff.total
         base.insect = this.state.modelOutputs.base.insect.total_per_area
 
         let models = ["yield","ero","ploss","cn","insect","runoff"]
@@ -426,13 +586,14 @@ class SidePanel extends React.Component{
 //            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
 //            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
+//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
+            model[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
         }
         dataBarPercent ={ labels: labels,
           datasets: [{
             axis: 'y',
              minBarLength: 7,
-            label: 'Percent Difference Between Base and Transformation',
+            label: 'Relative Change Between Base and Transformation',
             data: [
                 model.yield_per_diff,
                 model.ero_per_diff,
@@ -472,139 +633,168 @@ class SidePanel extends React.Component{
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
         console.log(dataCN)
 
-        optionsYield = charts.getOptionsBar("Yield", "Tons-Dry Matter/year")
-        optionsEro = charts.getOptionsBar("Erosion", "Tons/Year")
-        optionsPloss = charts.getOptionsBar("Phosphorus Loss", "LB/Year")
-        optionsRun = charts.getOptionsBar("Runoff", "IN")
-        optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "")
-        optionsCN = charts.getOptionsBar("Curve Number", "")
+        optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
+        optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
+        optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/year/acre/year")
+        optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
+        optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
+        optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
 
     }
 
     return(
             <div>
-            <div> Total area Transformed: {area} acres</div>
-            <Tabs defaultActiveKey="chart" id="uncontrolled-tab-example" className="mb-3">
-              <Tab eventKey="chart" title="Chart">
-               <Row className = 'row-height'>
-                <Col  className='sidePanelCol'>
+            <Accordion defaultActiveKey="0">
+              <Accordion.Item eventKey="0">
+                <Accordion.Header>Transformation Information</Accordion.Header>
+                <Accordion.Body>
+                    <div> Total area Transformed: {area} acres</div>
+                    <Table striped bordered hover size="sm" responsive>
+                      <thead>
+                      <tr style={{textAlign:"center"}}>
+                          <th>Priority</th>
+                          <th>Name</th>
+                          <th>Area (ac)</th>
+                        </tr>
+                      </thead>
+                        {this.props.listTrans.map((trans, index) => (
+
+                      <tbody>
+                        <tr>
+                          <td>{index + 1}</td>
+                          <td>{trans.name}</td>
+                          <td>{trans.area}</td>
+                        </tr>
+                       </tbody>
+                        ))}
+                    </Table>
+                </Accordion.Body>
+            </Accordion.Item>
+            </Accordion>
+            <Tabs defaultActiveKey="chartsBar" id="uncontrolled-tab-example" className="mb-3">
+              <Tab eventKey="chartsBar" title="Bar Charts">
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsYield} data={dataYield}/>
+                    </Col>
+                    <Col xs={6}>
+                        <Bar options = {optionsEro} data={dataEro}/>
+                    </Col>
+                 </Row>
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsPloss} data={dataPloss}/>
+                    </Col>
+                    <Col xs={6}>
+                        <Bar options = {optionsRun} data={dataRun}/>
+                    </Col>
+                 </Row>
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsInsect} data={dataInsect}/>
+                    </Col>
+                    <Col xs={6}>
+                        <Bar options = {optionsCN} data={dataCN}/>
+                    </Col>
+                </Row>
+              </Tab>
+              <Tab eventKey="chart" title="Summary Charts">
+               <Row>
+                <Col xs={6}>
                     <Radar data={dataRadar}/>
                 </Col>
-                <Col  className='sidePanelCol'>
+                <Col xs={6}>
                     <Bar options = {optionsBarPercent} data={dataBarPercent}/>
                 </Col>
                 </Row>
-                <Row className = 'row-height'>
-                <Col  className='sidePanelCol'>
-                    <Bar options = {optionsYield} data={dataYield}/>
-                </Col>
-                <Col  className='sidePanelCol'>
-                    <Bar options = {optionsEro} data={dataEro}/>
-                </Col>
-                </Row>
-                <Row className = 'row-height'>
-                <Col  className='sidePanelCol'>
-                    <Bar options = {optionsPloss} data={dataPloss}/>
-                </Col>
-                <Col  className='sidePanelCol'>
-                    <Bar options = {optionsRun} data={dataRun}/>
-                </Col>
-                </Row>
-                <Row className = 'row-height'>
-                <Col  className='sidePanelCol'>
-                    <Bar options = {optionsInsect} data={dataInsect}/>
-                </Col>
-                <Col  className='sidePanelCol'>
-                    <Bar options = {optionsCN} data={dataCN}/>
-                </Col>
-                </Row>
+
             </Tab>
               <Tab eventKey="tabular" title="Tabular">
                 <Table striped bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
                       <th></th>
-                      <th colSpan={3}>Per Acre</th>
-                      <th colSpan={3}>Total</th>
-                      <th colSpan={2}></th>
+                      <th className="table-cell-left" colSpan={3}>Per Acre</th>
+                      <th className="table-cell-left" colSpan={3}>Total</th>
+                      <th className="table-cell-left" colSpan={2}></th>
                     </tr>
                     <tr style={{textAlign:"center"}}>
-                      <th>Variable</th>
-                      <th>Base</th>
+                      <th  >Variable</th>
+                      <th className="table-cell-left">Base</th>
                       <th>Transformation</th>
                       <th>Units</th>
-                      <th>Base</th>
+                      <th className="table-cell-left">Base</th>
                       <th>Transformation</th>
                       <th>Units</th>
-                      <th>% Difference</th>
+                      <th className="table-cell-left">Relative Change</th>
                       <th>Help</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td>Yield</td>
-                      <td>{base.yield}</td>
+                      <td className="table-cell-left">{base.yield}</td>
                       <td>{model.yield}</td>
-                      <td>Tons-Dry Matter/year</td>
-                      <td>{base.yield_total}</td>
+                      <td>tons-dry matter/acre/year</td>
+                      <td className="table-cell-left">{base.yield_total}</td>
                       <td>{model.yield_total}</td>
-                      <td>Tons-Dry Matter/year</td>
-                      <td>{model.yield_per_diff}</td>
+                      <td>tons-dry matter/year</td>
+                      <td className="table-cell-left">{model.yield_per_diff}</td>
                       <td></td>
                     </tr>
                     <tr>
                       <td>Erosion</td>
-                      <td>{base.ero}</td>
+                      <td className="table-cell-left">{base.ero}</td>
                       <td>{model.ero}</td>
-                      <td>Tons/Year</td>
-                      <td>{base.ero_total}</td>
+                      <td>tons/acre/year</td>
+                      <td className="table-cell-left">{base.ero_total}</td>
                       <td>{model.ero_total}</td>
-                      <td>Tons/Year</td>
-                      <td>{model.ero_per_diff}</td>
+                      <td>tons/year</td>
+                      <td className="table-cell-left">{model.ero_per_diff}</td>
                       <td></td>
                     </tr>
                     <tr>
                       <td>Phosphorus Loss</td>
-                      <td>{base.ploss}</td>
+                      <td className="table-cell-left">{base.ploss}</td>
                       <td>{model.ploss}</td>
-                      <td>LB/Year</td>
-                      <td>{base.ploss_total}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{base.ploss_total}</td>
                       <td>{model.ploss_total}</td>
-                      <td>LB/Year</td>
-                      <td>{model.ploss_per_diff}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{model.ploss_per_diff}</td>
                       <td></td>
                     </tr>
                    <tr>
-                      <td>Runoff</td>
-                      <td>{base.runoff}</td>
+                      <td>Runoff (3 inch Storm)</td>
+                      <td className="table-cell-left"> {base.runoff}</td>
                       <td>{model.runoff}</td>
-                      <td>IN</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td>{model.runoff_per_diff}</td>
+                      <td>inches</td>
+                      <td className="table-cell-left">{base.runoff_total}</td>
+                      <td>{model.runoff_total}</td>
+                      <td>acre-ft</td>
+                      <td className="table-cell-left">{model.runoff_per_diff}</td>
                       <td></td>
                    </tr>
                    <tr>
                       <td>Honey Bee Toxicity</td>
-                      <td>{base.insect}</td>
+                      <td className="table-cell-left">{base.insect}</td>
                       <td>{model.insect}</td>
-                      <td>Insecticide Index</td>
+                      <td>insecticide index</td>
+                      <td className="table-cell-left">NA</td>
                       <td>NA</td>
                       <td>NA</td>
-                      <td>NA</td>
-                      <td>{model.insect_per_diff}</td>
+                      <td className="table-cell-left">{model.insect_per_diff}</td>
                       <td></td>
                    </tr>
                    <tr>
                       <td>Curve Number</td>
-                      <td>{base.cn}</td>
+                      <td className="table-cell-left">{base.cn}</td>
                       <td>{model.cn}</td>
+                      <td>curve number</td>
+                      <td className="table-cell-left">NA</td>
                       <td>NA</td>
                       <td>NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td>{model.cn_per_diff}</td>
+                      <td className="table-cell-left">{model.cn_per_diff}</td>
                       <td></td>
                     </tr>
                   </tbody>
@@ -629,11 +819,16 @@ class SidePanel extends React.Component{
               <Row>
                   <h4>Select a work area<sup>*</sup></h4>
                  <InputGroup size="sm" className="mb-3">
-                 <h6> Please select a region and then select at least one large watershed </h6>
-                 <h6> Hold shift to select multiple watersheds </h6>
+                 <h6 hidden={this.state.showHuc10}> Please select a region</h6>
+                 <h6 hidden={!this.state.showHuc10}>  Select at least one large watershed </h6>
+                 <div hidden={!this.state.showHuc10}> Hold shift to select multiple watersheds </div>
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
               </Row>
+
+
+
+
               </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="selection" title="Selection" hidden={this.props.hideTransAcc}>
@@ -668,7 +863,7 @@ class SidePanel extends React.Component{
                         <Accordion.Header>Sub Area</Accordion.Header>
                         <Accordion.Body>
                           <Row>
-                               <Form.Check
+                               {/*<Form.Check
                                 inline
                                 label="Select Sub Watersheds"
                                 ref={this.selectWatershed}
@@ -676,11 +871,13 @@ class SidePanel extends React.Component{
                                 name="group2"
                                 type='radio'
                                 onChange={(e) => this.handleAreaSelectionType("watershed", e)}
-                              />
+                              />*
                                 <Button variant="secondary" onClick={(e) => this.handleAreaSelectionType("none", e)}>
                                 Stop Selection
-                              </Button>
-                               <h6> Hold shift to select multiple watersheds </h6>
+                              </Button>*/}
+                               <h6> Hold shift to select multiple watersheds. </h6>
+                               <h6> Close accordion to stop selection. </h6>
+                                <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Clear Selection</Button>
 
                           </Row>
                         </Accordion.Body>
@@ -690,34 +887,49 @@ class SidePanel extends React.Component{
                       <Accordion.Item eventKey="3">
                         <Accordion.Header>Slope</Accordion.Header>
                         <Accordion.Body>
+                        <Form.Group as={Row}>
                             <Form.Label>Slope Range</Form.Label>
-                              <InputGroup size="sm" className="mb-3">
-                                <FormControl
-                                  ref={this.slope1}
-                                  placeholder=""
-                                  aria-label="Username"
-                                  aria-describedby="basic-addon1"
-                                  onChange={(e) => this.handleSelectionChange("slope1", e)}
+                                <Form.Label>Minimum Slope</Form.Label>
 
-                                />
-                                <RangeSlider
-                                  value={55}
-                                />
-                                <InputGroup.Text>%</InputGroup.Text>
-                                <Form.Select aria-label="Default select example">
-                                  <option value="<">&lt;</option>
-                                  <option value="<=">&#60;&#61;</option>
-                                </Form.Select>
-                                <FormControl
-                                  ref={this.slope2}
-                                  placeholder=""
-                                  aria-label="Username"
-                                  aria-describedby="basic-addon1"
-                                  onChange={(e) => this.handleSelectionChange("slope2", e)}
+                                <Col xs="4">
+                                  <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
+                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
+                                  />
+                                </Col>
+                                <Col xs="8">
+                                  <RangeSlider size='sm'
+                                    value={this.props.activeTrans.selection.slope1}
+                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
+                                    max={this.props.activeTrans.selection.slope2 - 1}
+                                  />
+                                </Col>
+                                </Form.Group>
+                            <Form.Label>Maximum Slope</Form.Label>
 
-                                />
-                                <InputGroup.Text>%</InputGroup.Text>
-                              </InputGroup>
+                             <Form.Group as={Row}>
+                                <Col xs="4">
+                                  <Form.Control value={this.props.activeTrans.selection.slope2} size='sm'
+                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
+                                  />
+                                </Col>
+                                <Col xs="8">
+                                  <RangeSlider size='sm'
+                                    value={this.props.activeTrans.selection.slope2}
+                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
+                                    max={this.slopeMax}
+                                    min={parseFloat(this.props.activeTrans.selection.slope1) + 1}
+                                  />
+                                </Col>
+                                <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Clear Selection</Button>
+
+                            </Form.Group>
+
+
+
+
+
+
+
                             </Accordion.Body>
                         </Accordion.Item>
                     </Accordion>
@@ -726,80 +938,101 @@ class SidePanel extends React.Component{
                       <Accordion.Item eventKey="4">
                         <Accordion.Header>Distance to Stream</Accordion.Header>
                         <Accordion.Body>
-                            <InputGroup size="sm" className="mb-3">
-                                <FormControl
-                                  ref={this.streamDist1}
-                                  placeholder=""
-                                  aria-label="Username"
-                                  aria-describedby="basic-addon1"
-                                  onChange={(e) => this.handleSelectionChange("streamDist1", e)}
-                                />
-                                <InputGroup.Text>m</InputGroup.Text>
-                                <Form.Select aria-label="Default select example">
-                                  <option value="<">&lt;</option>
-                                  <option value="<=">&#60;&#61;</option>
-                                </Form.Select>
-                                <FormControl
-                                  ref={this.streamDist2}
-                                  placeholder=""
-                                  aria-label="Username"
-                                  aria-describedby="basic-addon1"
-                                  onChange={(e) => this.handleSelectionChange("streamDist2", e)}
+                            <Form.Group as={Row}>
+                            <Form.Label>Slope Range</Form.Label>
+                            <Form.Label>Minimum Distance to Stream</Form.Label>
+                                <Col xs="4">
+                                  <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
+                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
+                                  />
+                                </Col>
+                                <Col xs="8">
+                                  <RangeSlider size='sm'
+                                    value={this.props.activeTrans.selection.streamDist1}
+                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
+                                    max={this.props.activeTrans.selection.streamDist2 - 1}
 
-                                />
-                                <InputGroup.Text>m</InputGroup.Text>
+                                  />
+                                </Col>
+                                </Form.Group>
+                            <Form.Label>Maximum Distance to Stream</Form.Label>
 
-                              </InputGroup>
+                             <Form.Group as={Row}>
+                                <Col xs="4">
+                                  <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
+                                    onChange={(e) => this.handleSelectionChange("streamDist2", e)}
+
+
+                                  />
+                                </Col>
+                                <Col xs="8">
+                                  <RangeSlider size='sm'
+                                    value={this.props.activeTrans.selection.streamDist2}
+                                    onChange={(e) => this.handleSelectionChange("streamDist2", e)}
+                                    max={this.distStreamMax}
+                                    min={parseFloat(this.props.activeTrans.selection.streamDist1) + 1}
+
+                                  />
+                                </Col>
+                                <Button variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Clear Selection</Button>
+
+                            </Form.Group>
+
                                 <Form.Label>Units</Form.Label>
                                 <Form>
-                                <Form.Check inline label="feet" name="group1" type="radio"
+                                <Form.Check ref={this.feet} inline label="feet" name="group1" type="radio"
+                                    onClick={(e) => this.handleSelectionChangeUnit("useFt", true, e)}
                                   />
-                                  <Form.Check inline label="meters" name="group1" type="radio" checked={true}
-                                    onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
+                                  <Form.Check ref={this.meters} inline label="meters" name="group1" type="radio"
+                                    onClick={(e) => this.handleSelectionChangeUnit("useFt", false, e)}
                                   />
                                   </Form>
+
                             </Accordion.Body>
                         </Accordion.Item>
                     </Accordion>
+                   <Form.Label>Transparency</Form.Label>
+                   <RangeSlider size='sm'
+                    value={this.props.activeTrans.displayOpacity}
+                    onChange={(e) => this.props.updateActiveTransProps({"name":"displayOpacity", "value":parseFloat(e.currentTarget.value), "type":"base"})}
+                    max={100}
+                    min={0}
+                  />
+                   <Stack gap={3}>
+                   <Button onClick={this.displaySelectionCriteria} variant="primary" hidden={this.state.aoiOrDisplayLoading}>Display Selection</Button>
+                    <Button id="btnModelsLoading" variant="primary" disabled hidden={!this.state.aoiOrDisplayLoading}>
+                        <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
+                        Loading...
+                     </Button>
+                   </Stack>
                     </div>
-                                    <div className = "criteriaSections">
+                    <div className = "criteriaSections">
 
                 <Form.Label>3) Manage Your Land Transformations</Form.Label>
 
                     <TransformationTable/>
-                                      <Stack gap={3}>
+                  <Stack gap={3}>
                   <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
                      <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
-                     <Button onClick={this.displaySelectionCriteria} variant="primary">Display Selection</Button>
                      </Stack>
                       </div>
                       <Form.Label>4) Assess Your Scenario</Form.Label>
 
                      <Stack gap={3}>
-                     <Button onClick={this.runModels} variant="success">Assess Scenario</Button>
-                      <Button variant="primary" onClick={this.handleOpenModal}>View Results</Button>
+                     <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
+                     <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
+                        <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
+                        Loading...
+                     </Button>
+                      <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
                      </Stack>
-
-                                  {/*
-                             <Button onClick={this.displaySelectionCriteria} variant="primary">Clear Selections</Button>
-
-            <Button variant="primary" disabled>
-                <Spinner
-                  as="span"
-                  animation="grow"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-                Loading...
-              </Button>
-              */}
               </Accordion.Body>
               </Accordion.Item>
             </Accordion>
-            <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModal} onShow={this.showModal}>
+
+            <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>
-                  <Modal.Title>Transformation Results</Modal.Title>
+                  <Modal.Title>Base Assumptions</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                                       {/*
@@ -858,7 +1091,7 @@ class SidePanel extends React.Component{
                     </Form.Select>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={this.handleCloseModal}>
+                  <Button variant="secondary" onClick={this.handleCloseModalBase}>
                     Close
                   </Button>
                 </Modal.Footer>

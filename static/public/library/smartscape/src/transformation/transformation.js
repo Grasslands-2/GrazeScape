@@ -17,18 +17,21 @@ function Transformation(name, id, rank){
         name:name,
         id:id,
         rank: 99,
+        area:0,
         // the open layers id of the selection display layer
         displayLayerID:-99,
         // ol id of the layer containing the boundary information
         boundaryLayerID:-99,
+        displayOpacity:100,
         // all selection criteria stored here
         selection:{
-            slope1:null,
-            slope2:null,
-            streamDist1:null,
-            streamDist2:null,
-            extent:null,
-            field_coors:null,
+            slope1:0,
+            slope2:700,
+            streamDist1:0,
+            streamDist2:16000,
+            useFt:true,
+            extent:[],
+            field_coors:[],
             landCover:{
                 contCorn:false,
                 cashGrain:false,

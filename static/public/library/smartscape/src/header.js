@@ -28,7 +28,7 @@ class Header extends React.Component{
                 />
                 </Navbar.Brand>
                 <Nav className="justify-content-center ">
-                  <Nav.Link href="https://grasslandag.org/" target="_blank">Grassland 2.0</Nav.Link>
+                  <Nav.Link href="/">Main Menu</Nav.Link>
                   <Nav.Link href="https://github.com/Grasslands-2" target="_blank">Source Code</Nav.Link>
                 </Nav>
                 <Nav>
