@@ -572,43 +572,43 @@ class SmartScape:
             14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 0},
             15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 0},
         }
-        for model in model_list:
-            for land_type in watershed_total:
-                # CN and runoff
-                base_image = gdal.Open(os.path.join(dir_path, "contCorn_" + CN + ".tif"))
-                base_arr = base_image.GetRasterBand(1).ReadAsArray()
-                cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
-                base_data["runoff"] = np.where(base_data["runoff"] == 4, self.get_runoff_vectorized(cn_final, 3), base_data["runoff"])
-                base_data["cn"] = cn_final
+        # for model in model_list:
+        #     for land_type in watershed_total:
+        #         # CN and runoff
+        #         base_image = gdal.Open(os.path.join(dir_path, "contCorn_" + CN + ".tif"))
+        #         base_arr = base_image.GetRasterBand(1).ReadAsArray()
+        #         cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
+        #         base_data["runoff"] = np.where(base_data["runoff"] == 4, self.get_runoff_vectorized(cn_final, 3), base_data["runoff"])
+        #         base_data["cn"] = cn_final
 
-                base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
-                base_arr = base_image.GetRasterBand(1).ReadAsArray()
-                cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
-                base_data["runoff"] = np.where(base_data["runoff"] == 3, self.get_runoff_vectorized(cn_final, 3), base_data["runoff"])
-                base_data["cn"] = cn_final
+        base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
+        base_arr = base_image.GetRasterBand(1).ReadAsArray()
+        cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
+        base_data["runoff"] = np.where(base_data["runoff"] == 3, self.get_runoff_vectorized(cn_final, 3),
+                                       base_data["runoff"])
+        base_data["cn"] = cn_final
 
-                base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
-                base_arr = base_image.GetRasterBand(1).ReadAsArray()
-                cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
-                base_data["runoff"] = np.where(base_data["runoff"] == 5, self.get_runoff_vectorized(cn_final, 3), base_data["runoff"])
-                base_data["cn"] = cn_final
+        base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
+        base_arr = base_image.GetRasterBand(1).ReadAsArray()
+        cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
+        base_data["runoff"] = np.where(base_data["runoff"] == 5, self.get_runoff_vectorized(cn_final, 3),
+                                       base_data["runoff"])
+        base_data["cn"] = cn_final
 
-                base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
-                base_arr = base_image.GetRasterBand(1).ReadAsArray()
-                cn_final = np.where(base_data["cn"] == 5, base_arr, base_data["cn"])
-                base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
-                base_data["cn"] = cn_final
+        base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
+        base_arr = base_image.GetRasterBand(1).ReadAsArray()
+        cn_final = np.where(base_data["cn"] == 5, base_arr, base_data["cn"])
+        base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
+        base_data["cn"] = cn_final
 
-                base_cn = np.where(
-                    np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
-                    0, (base_data["cn"] * ac_to_m))
-                sum_base_cn = np.sum(base_cn)
-                base_runoff = np.where(
-                    np.logical_or(base_data["runoff"] == self.no_data, base_data["runoff"] < 0),
-                    0, (base_data["runoff"] * ac_to_m))
-                sum_base_runoff = np.sum(base_runoff)
-
-
+        base_cn = np.where(
+            np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
+            0, (base_data["cn"] * ac_to_m))
+        sum_base_cn = np.sum(base_cn)
+        base_runoff = np.where(
+            np.logical_or(base_data["runoff"] == self.no_data, base_data["runoff"] < 0),
+            0, (base_data["runoff"] * ac_to_m))
+        sum_base_runoff = np.sum(base_runoff)
         # Ploss
         landuse_ero = np.copy(landuse_arr_sel)
         landuse_yield = np.copy(landuse_arr_sel)
