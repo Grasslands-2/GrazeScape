@@ -172,13 +172,13 @@ class SmartScape:
         if landuse_par["cashGrain"] or landuse_par["contCorn"] or landuse_par["dairy"]:
             datanm_landuse = self.raster_inputs["landuse"]
             if landuse_par["cashGrain"]:
-                cash_grain = 4
+                cash_grain = 3
                 datanm_landuse = np.where(
                     np.logical_and(cash_grain == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
                 )
                 has_land = True
             if landuse_par["contCorn"]:
-                cont_corn = 3
+                cont_corn = 4
                 print("selecting continous corn")
                 datanm_landuse = np.where(
                     np.logical_and(cont_corn == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
@@ -279,27 +279,40 @@ class SmartScape:
         # region = self.request_json['base']
         region = self.request_json['region']
         dir_path = self.in_dir
-
+        insect = {"cc": 0.51,
+                  "cg": 0.51,
+                  "dr": 0.12,
+                  "cso": 0.22,
+                  "dl": 0,
+                  "ps": 0,
+                  "pt": 0
+                  }
         file_list = []
         # get each transformation selection output raster
         layer_dic = {}
         base_layer_dic = {}
 
         # download layers for base case
-        base_names = ("contCorn", "cornGrain", "dairyRotation")
+        base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pasture")
+        model_names_base = ("ero", "pl", "cn")
         model_names_base = ("Erosion", "PI", "CN")
         # contCorn
         # create name of the layer that corresponds to geoserver
         for name in base_names:
             for model in model_names_base:
-                file_name = name + "_" + \
-                            model + "_" + \
-                            base_scen["management"]["cover"] + "_" + \
-                            base_scen["management"]["tillage"] + "_" + \
-                            base_scen["management"]["contour"] + "_" + \
-                            base_scen["management"]["fertilizer"] + "_" + \
-                            region
-                base_layer_dic[name + "_" + model] = "SmartScapeRaster:" + file_name
+                if name == "hayGrassland":
+                    # medium_GrassYield_southWestWI.tif
+                    # pasture_CN_rt_rt_0_0_southWestWI.tif
+                    base_layer_dic[name + "_" + model] = "SmartScapeRaster:pasture_" + model + "_rt_rt_0_0_" + region
+                else:
+                    file_name = name + "_" + \
+                                model + "_" + \
+                                base_scen["management"]["cover"] + "_" + \
+                                base_scen["management"]["tillage"] + "_" + \
+                                base_scen["management"]["contour"] + "_" + \
+                                base_scen["management"]["fertilizer"] + "_" + \
+                                region
+                    base_layer_dic[name + "_" + model] = "SmartScapeRaster:" + file_name
         # download corn and soy rasters for yield
         corn = "corn_Yield_" + region
         soy = "soy_Yield_" + region
@@ -308,6 +321,8 @@ class SmartScape:
         base_layer_dic["landuse"] = "SmartScapeRaster:" + region + "_WiscLand_30m"
         # base_layer_dic["slope"] = "SmartScapeRaster:" + region + "_slopePer_30m"
         base_layer_dic["hyd_letter"] = "SmartScapeRaster:" + region + "_hydgrp_30m"
+        base_layer_dic["hay_grassland_yield"] = "SmartScapeRaster:pasture_Yield_medium_" + region
+
         watershed_file_list = []
         # create list of layers to download for each trans
         for tran in trans:
@@ -326,14 +341,7 @@ class SmartScape:
             cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
                       tran["management"]["fertilizer"] + "_" + region
             # cn_adjustment = tran["management"]["rotationType"] + "_" + tran["management"]["density"]
-            insect = {"cc": 0.51,
-                      "cg": 0.51,
-                      "dr": 0.12,
-                      "cso": 0.22,
-                      "dl": 0,
-                      "ps": 0,
-                      "pt": 0
-                      }
+
             layer_dic[tran["rank"]] = {}
             layer_dic[tran["rank"]]["yield"] = yield_name
             layer_dic[tran["rank"]]["ero"] = ero_name
@@ -396,7 +404,7 @@ class SmartScape:
         base = np.empty([rows * cols])
         base.fill(-9999)
         # take each raster and convert it to array and then take max(higher priority) from array and combine to
-        # create a master raster with overlapping values being determined from hierarchy
+        # create a master raster with overlapping values being determined from hierarchy (user input)
         for tran in trans:
             file = os.path.join(self.data_dir, tran["id"])
             image1 = gdal.Open(os.path.join(file, "burned.tif"))
@@ -520,22 +528,24 @@ class SmartScape:
         landuse_image = gdal.Open(os.path.join(dir_path, "landuse.tif"))
         landuse_arr = landuse_image.GetRasterBand(1).ReadAsArray()
         # create new array where landuse codes are plugged into arr (arr is the raster with rank of the selected cells)
+        # and more importantly is has our selected cells
         # selected values are greater than zero
         landuse_arr_sel = np.where(arr > 0, landuse_arr, arr)
 
-        [rows, cols] = landuse_arr_sel.shape
-        driver = gdal.GetDriverByName("GTiff")
-        outdata = driver.Create(os.path.join(dir_path, "landuse_replaced.tif"), cols, rows, 1,
-                                gdal.GDT_Float32)
-        outdata.SetGeoTransform(landuse_image.GetGeoTransform())  ##sets same geotransform as input
-        outdata.SetProjection(landuse_image.GetProjection())  ##sets same projection as input
-        outdata.GetRasterBand(1).WriteArray(landuse_arr_sel)
-        outdata.GetRasterBand(1).SetNoDataValue(-9999)
-        # write to disk
-        outdata.FlushCache()
-        model_image = None
-        model_band = None
-        model_arr = None
+        # debugging code and how to output a raster
+        # [rows, cols] = landuse_arr_sel.shape
+        # driver = gdal.GetDriverByName("GTiff")
+        # outdata = driver.Create(os.path.join(dir_path, "landuse_replaced.tif"), cols, rows, 1,
+        #                         gdal.GDT_Float32)
+        # outdata.SetGeoTransform(landuse_image.GetGeoTransform())  ##sets same geotransform as input
+        # outdata.SetProjection(landuse_image.GetProjection())  ##sets same projection as input
+        # outdata.GetRasterBand(1).WriteArray(landuse_arr_sel)
+        # outdata.GetRasterBand(1).SetNoDataValue(-9999)
+        # # write to disk
+        # outdata.FlushCache()
+        # model_image = None
+        # model_band = None
+        # model_arr = None
 
         base_data = {
             "yield": np.copy(landuse_arr_sel),
@@ -545,86 +555,44 @@ class SmartScape:
             "runoff": np.copy(landuse_arr_sel),
             "insect": np.copy(landuse_arr_sel),
         }
-        base_data_watershed = {
-            "yield": np.copy(watershed_land_use),
-            "ero": np.copy(watershed_land_use),
-            "ploss": np.copy(watershed_land_use),
-            "cn": np.copy(watershed_land_use),
-            "runoff": np.copy(watershed_land_use),
-            "insect": np.copy(watershed_land_use),
-        }
-        print(base_data_watershed["yield"])
-        print("base layer dic")
-        print(base_layer_dic)
-        test1 = np.copy(watershed_land_use)
-        test2 = np.copy(watershed_land_use)
-        test1.fill(33)
-        test2.fill(100)
-        test2[0][0] = 77
-        print(test2)
-        count1 = np.count_nonzero(base_data_watershed["yield"] > -1)
-        print(count1)
-        count_selected = np.count_nonzero(base_data_watershed["yield"] > 0)
-        # each cell is 30 x 30 m (900 sq m) and then convert to acres
-        area_watershed = count_selected * 900 * 0.000247105
-        print(area_watershed)
-        test3 = base_data_watershed["yield"].flatten()
-        values, counts = np.unique(test3, return_counts=True)
-        print(values)
-        print(counts)
-
         watershed_total = {
-            1: {"yield": 0, "ero": 2, "pl": 1.34, "cn": 1, "insect": 1},
-            2: {"yield": 0, "ero": 2, "pl": 0.81, "cn": 1, "insect": 1},
-            3: {"yield": test2, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            4: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            5: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            6: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            7: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            8: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            9: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            10: {"yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 1},
-            11: {"yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 1},
-            12: {"yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 1},
-            13: {"yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 1},
-            14: {"yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 1},
-            15: {"yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 1},
-            -9999: {"yield": test2, "ero": 0, "pl": 0.067, "cn": 1, "insect": 1},
+            1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 1.34, "cn": 1, "insect": 0.51},
+            2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 0.81, "cn": 1, "insect": 0.51},
+            3: {"name": "contCorn", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.51},
+            4: {"name": "cornGrain", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.51},
+            5: {"name": "dairyRotation", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.12},
+            6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.12},
+            7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.12},
+            8: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0},
+            9: {"name": "pasture", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0},
+            10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0},
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 0},
+            12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 0},
+            13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 0},
+            14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 0},
+            15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 0},
         }
-        for land_type in watershed_total:
-            # model_data[model] = np.where(model_data[model] == layer, model_arr, model_data[model])
-            base_data_watershed["yield"] = np.where(base_data_watershed["yield"] == land_type, watershed_total[land_type]["yield"], base_data_watershed["yield"])
-            base_data_watershed["ero"] = np.where(base_data_watershed["ero"] == land_type, watershed_total[land_type]["ero"], base_data_watershed["ero"])
-            base_data_watershed["pl"] = np.where(base_data_watershed["ploss"] == land_type, watershed_total[land_type]["pl"], base_data_watershed["ploss"])
-            base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type, watershed_total[land_type]["cn"], base_data_watershed["cn"])
-            base_data_watershed["insect"] = np.where(base_data_watershed["insect"] == land_type, watershed_total[land_type]["insect"], base_data_watershed["insect"])
-            # calculate runoff if cn is above zero
-            base_data_watershed["runoff"] = np.where(base_data_watershed["cn"] > 0, self.get_runoff_vectorized(base_data_watershed["cn"], 3), 0)
-        print(base_data_watershed["yield"])
-        base_test = np.where(
-            np.logical_or(base_data_watershed["yield"] == self.no_data, base_data_watershed["yield"] < 0),
-            0, base_data_watershed["yield"])
-        test_sum = np.sum(base_test)
-        print("sum of cn for base", test_sum)
-
-        count1 = np.count_nonzero(base_data_watershed["yield"])
-        print(count1)
-
-        base_data_watershed["yield"] = base_data_watershed["yield"].flatten()
-        values, counts = np.unique(base_data_watershed["yield"], return_counts=True)
-        print(values)
-        print(counts)
+        # for model in model_list:
+        #     for land_type in watershed_total:
+        #         # CN and runoff
+        #         base_image = gdal.Open(os.path.join(dir_path, "contCorn_" + CN + ".tif"))
+        #         base_arr = base_image.GetRasterBand(1).ReadAsArray()
+        #         cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
+        #         base_data["runoff"] = np.where(base_data["runoff"] == 4, self.get_runoff_vectorized(cn_final, 3), base_data["runoff"])
+        #         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
-        base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
+        cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
+        base_data["runoff"] = np.where(base_data["runoff"] == 3, self.get_runoff_vectorized(cn_final, 3),
+                                       base_data["runoff"])
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
         base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
-        base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
+        cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
+        base_data["runoff"] = np.where(base_data["runoff"] == 5, self.get_runoff_vectorized(cn_final, 3),
+                                       base_data["runoff"])
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
@@ -641,26 +609,26 @@ class SmartScape:
             np.logical_or(base_data["runoff"] == self.no_data, base_data["runoff"] < 0),
             0, (base_data["runoff"] * ac_to_m))
         sum_base_runoff = np.sum(base_runoff)
-
+        # Ploss
         landuse_ero = np.copy(landuse_arr_sel)
         landuse_yield = np.copy(landuse_arr_sel)
-
         cont_pl_image = gdal.Open(os.path.join(dir_path, "contCorn_PI.tif"))
         cont_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        landuse_arr_sel = np.where(landuse_arr_sel == 3, cont_pl_arr, landuse_arr_sel)
+        landuse_arr_sel = np.where(landuse_arr_sel == 4, cont_pl_arr, landuse_arr_sel)
 
         corn_pl_image = gdal.Open(os.path.join(dir_path, "cornGrain_PI.tif"))
         corn_pl_arr = corn_pl_image.GetRasterBand(1).ReadAsArray()
-        landuse_arr_sel = np.where(landuse_arr_sel == 4, corn_pl_arr, landuse_arr_sel)
+        landuse_arr_sel = np.where(landuse_arr_sel == 3, corn_pl_arr, landuse_arr_sel)
 
         dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairyRotation_PI.tif"))
         dairy_pl_arr = dairy_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_arr_sel = np.where(landuse_arr_sel == 5, dairy_pl_arr, landuse_arr_sel)
 
+        # Insect
         # contCorn
-        base_data["insect"] = np.where(base_data["insect"] == 3, .51, base_data["insect"])
-        # cash grain
         base_data["insect"] = np.where(base_data["insect"] == 4, .51, base_data["insect"])
+        # cash grain
+        base_data["insect"] = np.where(base_data["insect"] == 3, .51, base_data["insect"])
         # dairy
         base_data["insect"] = np.where(base_data["insect"] == 5, .12, base_data["insect"])
 
@@ -675,15 +643,16 @@ class SmartScape:
             0, (landuse_arr_sel * ac_to_m))
         sum_base = np.sum(landuse_arr_sel)
 
+        # Erosion
         # cont_pl_image = gdal.Open(os.path.join(dir_path, "cont_er_nc_su_25_50_1.tif"))
         cont_pl_image = gdal.Open(os.path.join(dir_path, "contCorn_Erosion.tif"))
         cont_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        landuse_ero = np.where(landuse_ero == 3, cont_pl_arr, landuse_ero)
+        landuse_ero = np.where(landuse_ero == 4, cont_pl_arr, landuse_ero)
 
         # corn_pl_image = gdal.Open(os.path.join(dir_path, "corn_er_nc_su_25_50_1.tif"))
         corn_pl_image = gdal.Open(os.path.join(dir_path, "cornGrain_Erosion.tif"))
         corn_pl_arr = corn_pl_image.GetRasterBand(1).ReadAsArray()
-        landuse_ero = np.where(landuse_ero == 4, corn_pl_arr, landuse_ero)
+        landuse_ero = np.where(landuse_ero == 3, corn_pl_arr, landuse_ero)
 
         # dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairy_er_nc_su_25_50_1.tif"))
         dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairyRotation_Erosion.tif"))
@@ -713,8 +682,8 @@ class SmartScape:
         corn_yield = (corn_arr * .5) + (soy_arr * .5)
         dairy_yield = 1 / 5 * silage_yield + 1 / 5 * corn_arr + 3 / 5 * alfalfa_yield
 
-        landuse_yield = np.where(landuse_yield == 3, cont_yield, landuse_yield)
-        landuse_yield = np.where(landuse_yield == 4, corn_yield, landuse_yield)
+        landuse_yield = np.where(landuse_yield == 4, cont_yield, landuse_yield)
+        landuse_yield = np.where(landuse_yield == 3, corn_yield, landuse_yield)
         landuse_yield = np.where(landuse_yield == 5, dairy_yield, landuse_yield)
 
         landuse_yield = np.where(
@@ -722,6 +691,67 @@ class SmartScape:
             0, (landuse_yield * ac_to_m))
         sum_base_yield = np.sum(landuse_yield)
 
+
+
+        base_data_watershed = {
+            "yield": np.copy(watershed_land_use),
+            "ero": np.copy(watershed_land_use),
+            "ploss": np.copy(watershed_land_use),
+            "cn": np.copy(watershed_land_use),
+            "runoff": np.copy(watershed_land_use),
+            "insect": np.copy(watershed_land_use),
+        }
+        print(base_data_watershed["yield"])
+        print("base layer dic")
+        print(base_layer_dic)
+        # test1 = np.copy(watershed_land_use)
+        # test2 = np.copy(watershed_land_use)
+        # test1.fill(33)
+        # test2.fill(100)
+        # test2[0][0] = 77
+        # print(test2)
+        # count1 = np.count_nonzero(base_data_watershed["yield"] > -1)
+        # print(count1)
+        count_selected = np.count_nonzero(base_data_watershed["yield"] > 0)
+        # each cell is 30 x 30 m (900 sq m) and then convert to acres
+        area_watershed = count_selected * 900 * 0.000247105
+        # print(area_watershed)
+        test3 = base_data_watershed["yield"].flatten()
+        values, counts = np.unique(test3, return_counts=True)
+        print(values)
+        print(counts)
+
+
+        for land_type in watershed_total:
+            # model_data[model] = np.where(model_data[model] == layer, model_arr, model_data[model])
+            base_data_watershed["yield"] = np.where(base_data_watershed["yield"] == land_type,
+                                                    watershed_total[land_type]["yield"], base_data_watershed["yield"])
+            base_data_watershed["ero"] = np.where(base_data_watershed["ero"] == land_type,
+                                                  watershed_total[land_type]["ero"], base_data_watershed["ero"])
+            base_data_watershed["pl"] = np.where(base_data_watershed["ploss"] == land_type,
+                                                 watershed_total[land_type]["pl"], base_data_watershed["ploss"])
+            base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type,
+                                                 watershed_total[land_type]["cn"], base_data_watershed["cn"])
+            base_data_watershed["insect"] = np.where(base_data_watershed["insect"] == land_type,
+                                                     watershed_total[land_type]["insect"],
+                                                     base_data_watershed["insect"])
+            # calculate runoff if cn is above zero
+            base_data_watershed["runoff"] = np.where(base_data_watershed["cn"] > 0,
+                                                     self.get_runoff_vectorized(base_data_watershed["cn"], 3), 0)
+        print(base_data_watershed["yield"])
+        base_test = np.where(
+            np.logical_or(base_data_watershed["yield"] == self.no_data, base_data_watershed["yield"] < 0),
+            0, base_data_watershed["yield"])
+        test_sum = np.sum(base_test)
+        print("sum of yield for base", test_sum)
+
+        count1 = np.count_nonzero(base_data_watershed["yield"])
+        print(count1)
+
+        base_data_watershed["yield"] = base_data_watershed["yield"].flatten()
+        values, counts = np.unique(base_data_watershed["yield"], return_counts=True)
+        print(values)
+        print(counts)
         # model run
         # we are setting models less than zero to zero (effects mostly ero and ploss)
         model = np.where(

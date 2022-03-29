@@ -321,6 +321,11 @@ class SidePanel extends React.Component{
     let tempId = uuidv4();
 
     let newTrans = Transformation(" ",tempId, 5)
+    newTrans.management.rotationType = "pt"
+    newTrans.management.density = "rt_rt"
+    newTrans.management.fertilizer = "0_0"
+    console.log("Adding new trans")
+    console.log(newTrans)
     this.props.setActiveTrans(newTrans)
     this.props.addTrans(newTrans)
 //    this.props.setActiveTrans(newTrans)
@@ -338,10 +343,7 @@ class SidePanel extends React.Component{
      // ajax call with selection criteria
 
     if (this.props.listTrans.length < 1){
-        let tempId = uuidv4();
-        let newTrans = Transformation(" ",tempId, 5)
-        this.props.setActiveTrans(newTrans)
-        this.props.addTrans(newTrans)
+       this.addTrans()
     }
     console.log(this.props)
      if (this.props.extents.length == 0){

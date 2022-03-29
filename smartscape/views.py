@@ -42,7 +42,7 @@ def index(request):
                             'data_files', 'raster_inputs')
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_names = ["southWestWI_HUC_10", "cloverBeltWI_HUC_10", "cloverBeltWI_HUC_12", "southWestWI_HUC_12"]
+    file_names = ["southWestWI_HUC_10", "CloverBeltWI_HUC_10", "CloverBeltWI_HUC_12", "southWestWI_HUC_12"]
     for name in file_names:
         print("downloading", name)
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A"+name+"&outputFormat=application%2Fjson"
