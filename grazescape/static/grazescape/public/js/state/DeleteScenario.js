@@ -47,35 +47,23 @@ function wfsDeleteItem(featsArray,layerString){
 	console.log(str);
 	geoServer.wfsDeleteItem(str, featsArray)
 }
-function selectDeleteScenario(fgid){
+async function selectDeleteScenario(fgid){
 	console.log("in selectDeleteScenario")
-	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
+	DSS.layer.scenarios.getSource().getFeatures().forEach(async function(f) {
 		var delScenarioFeature = f;
 		console.log(delScenarioFeature.values_.gid);
 		if (delScenarioFeature.values_.gid == fgid){
 		    console.log(fgid)
 			itemToBeDeleted = delScenarioFeature;
-			console.log("scenario selected for termination:")
-			console.log(itemToBeDeleted);
-			console.log("current active scenario: " + DSS.activeScenario)
 			delArray = [];
 			delArray.push(itemToBeDeleted)
-			//break;
-		//}else{
-			//console.log("delete scenario failed")
-			////pass
-			wfsDeleteItem(delArray,'scenarios_2');
-			if(DSS.activeScenario == itemToBeDeleted.values_.scenario_id){
-			    console.log("active scneario!!!!")
-				getWFSScenarioDS()
-				DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker');
-				DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);
-				DSS.dialogs.ScenarioPicker.show().center().setY(0);
-			}
+			await wfsDeleteItem(delArray,'scenarios_2');
 		};
 	});
-	selectDeleteFieldInfra(fgid,fieldArrayDS,DSS.layer.fields_1,'field_2')
-	selectDeleteFieldInfra(fgid,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
+	//await getWFSScenarioSP
+	await selectDeleteFieldInfra(fgid,fieldArrayDS,DSS.layer.fields_1,'field_2')
+	await selectDeleteFieldInfra(fgid,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
+	await DSS.ApplicationFlow.instance.showManageOperationPage();
 }
 fieldArrayDS = []
 infraArrayDS = []
@@ -180,8 +168,9 @@ Ext.define('DSS.state.DeleteScenario', {
 									//selectDeleteFieldInfra(item.inputValue,infrastructureSourceDS,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
 									alert('Scenario: ' + item.text + ' Deleted')
 									geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
-									geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-									geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+									//geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+									//geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
+									//DSS.ApplicationFlow.instance.showManageOperationPage();
 								}
 							}
 						}),

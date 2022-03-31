@@ -77,9 +77,14 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					text: 'Choose Region',
 					handler: function() {
 						//Region Picker 
-						DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
-						DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
-						DSS.dialogs.RegionPicker.show().center().setY(0);
+						//regionPickerFunc()
+						//AppEvents.triggerEvent('show_region_picker_indicator')
+						// DSS.layer.regionLabels.setVisible(true)
+						// DSS.layer.farms_1.setVisible(false)
+						DSS.ApplicationFlow.instance.showLandingPage();
+						// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
+						// DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
+						// DSS.dialogs.RegionPicker.show().center().setY(0);
 					}
 				},
 //				{

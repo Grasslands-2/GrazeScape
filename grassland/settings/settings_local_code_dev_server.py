@@ -29,7 +29,8 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-GEOSERVER_URL = "http://geoserver:8080"
+GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080/"
+#GEOSERVER_URL = "http://geoserver:8080"
 #container R path.
 #R_PATH = "/opt/conda/envs/gscape/bin/R"
 #local R path.
@@ -178,7 +179,4 @@ print(STATICFILES_DIRS)
 # TEMPLATE_DIRS = (
 #                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
 # )
-R_PATH = "/opt/conda/envs/gscape/bin/R"
-MODEL_PATH = "/tmp/GrazeScape/grazescape/data_files/input_models"
 
-GCS_BUCKET_NAME = "dev_container_model_results"

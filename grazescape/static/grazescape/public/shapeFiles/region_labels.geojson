@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "region_labels",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 0, "Name": "Kickapoo Valley" }, "geometry": { "type": "Point", "coordinates": [ -10109346.626750063151121, 5399666.257742308080196 ] } },
+{ "type": "Feature", "properties": { "id": 1, "Name": "Cloverbelt" }, "geometry": { "type": "Point", "coordinates": [ -10031433.023683208972216, 5608630.541167604736984 ] } }
+]
+}
