@@ -101,6 +101,7 @@ class GeoServer{
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             geoJson = JSON.parse(geoJson.geojson)
 			let scenObj = geoJson.features
+            console.log(scenObj)
 			farmArray = [];
 			itemsArray = [];
 			popItemsArray(scenObj);
@@ -316,6 +317,7 @@ class GeoServer{
             console.log("DONE WITH NEW SCENARIO COPY AND INSERT!!!!!!!!")
             DSS.MapState.showFieldsForScenario();
             DSS.MapState.showInfraForScenario();
+            await geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
             //Placed here to change the window to manage the new scenario once everything is ready to go.
             DSS.ApplicationFlow.instance.showScenarioPage();
 
@@ -367,6 +369,7 @@ class GeoServer{
     //used in delete scneario to delete assocaited fields and infra
     wfsDeleteItem(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
+            console.log(feat)
             // let geoJson = returnData.geojson
             // let currObj = returnData.current
             // currObj.setScenariosSource()
@@ -374,6 +377,9 @@ class GeoServer{
             // currObj.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
             // currObj.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
             geoServer.setScenariosSource()
+            if(feat = 'scenarios_2'){
+                getWFSScenarioSP()
+            }
          })
     }
     //Function that hits geoserver with ajax request.

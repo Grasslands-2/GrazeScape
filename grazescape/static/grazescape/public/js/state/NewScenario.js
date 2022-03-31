@@ -214,7 +214,7 @@ function createNewScenario(sname,sdescript){
 				})
 				var geomType = 'point'
 				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')
-				console.log("HI! WFS new scenario Insert ran with a brand new farm!!")
+				console.log("HI! NEW BLANK SCENARIO CREATED!!!!!!")
 			}else{}
 		})
 		
@@ -363,6 +363,7 @@ Ext.define('DSS.state.NewScenario', {
 								await createNewScenario(scenName,scenDes)
 								//This is used to make sure								
 								//geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
+								//getWFSScenarioSP()
 								//DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
 							}
