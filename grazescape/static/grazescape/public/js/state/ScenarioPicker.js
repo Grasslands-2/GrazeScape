@@ -71,7 +71,6 @@ function popItemsArray(obj){
 		for (i in obj){
 			Ext.getCmp("scenarioMenu").add({
 				text:obj[i].properties.scenario_name,
-				//inputValue:obj[i].properties.scenario_id,
 				inputValue:obj[i].properties.gid,
 				itemFid: obj[i].id
 			})
@@ -99,7 +98,7 @@ Ext.define('DSS.state.ScenarioPicker', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
 	alias: 'widget.state_scenario_picker',
-	id: "scenarioPicker",
+	//id: "scenarioPicker",
 //	autoDestroy: false,
 //	closeAction: 'hide',
 	constrain: true,

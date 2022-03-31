@@ -245,6 +245,36 @@ Ext.define('DSS.map.Main', {
 				crossOrigin: 'anonymous'
 			})
 		})	;
+		//---------------------------Region Label Layer-----------------
+		let regionLabel = new ol.style.Style({
+			text: new ol.style.Text({
+				font: '22px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: 'rgba(204,187,68, 1)',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: 'rgba(255, 255, 255, 0.7)',
+				  width: 1,
+				}),
+			  }),
+			zIndex: 0
+		});
+		DSS.layer.regionLabels = new ol.layer.Vector({
+			//minZoom: 6,
+			title: 'regionLabels',
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/region_labels.geojson',
+			}),
+			style: function(feature, resolution) {
+				regionLabel.getText().setText(feature.values_.Name);
+				return regionLabel;
+			}
+		})
 		//--------------------------------------------------------------		
 		DSS.layer.cloverBeltBorder = new ol.layer.Vector({
 			visible: true,
@@ -252,12 +282,15 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/Clover_Belt_Border.geojson',
+				url: '/static/grazescape/public/shapeFiles/Clover_Belt_Border2.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
 					color: '#FF0000',
 					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
 				})
 			})
 		});
@@ -274,6 +307,9 @@ Ext.define('DSS.map.Main', {
 				stroke: new ol.style.Stroke({
 					color: '#FF0000',
 					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
 				})
 			})
 		});
@@ -1010,7 +1046,7 @@ Ext.define('DSS.map.Main', {
 		//-------------------------------------------------------------------------
 		DSS.layer.farms_1 = new ol.layer.Vector({
 			title: 'farms_1',
-			visible: true,
+			visible: false,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: farms_1Source,
@@ -1133,16 +1169,18 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.SWSand3,
 				DSS.layer.cloverBeltBorder,
 				DSS.layer.kickapoowatershed,
-				DSS.layer.rullandsCouleewshed,
+				//DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
 				DSS.layer.swwiBorder,
 				DSS.layer.scenarios,
 				DSS.layer.farms_1,
+				DSS.layer.regionLabels,
 				DSS.layer.fields_1,
 				DSS.layer.erosionGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.runoffGroup,
 				DSS.layer.yieldGroup
+
 				],
 				//------------------------------------------------------------------------
 			view: new ol.View({

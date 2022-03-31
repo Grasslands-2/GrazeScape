@@ -1,45 +1,49 @@
 
-DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
-
 var regionsList = [{text: "Kickapoo Valley"}, {text: "Cloverbelt"}]
 DSS.activeRegion = "southWestWI";
 //------------------------------------------------------------------------------
-Ext.define('DSS.map.RegionPicker', {
+Ext.define('DSS.state.RegionPickerPanel', {
 //------------------------------------------------------------------------------
-	extend: 'Ext.window.Window',
-	alias: 'widget.map_region_picker',
-	id: "regionPicker",
-//	autoDestroy: false,
-//	closeAction: 'hide',
-	constrain: true,
-	modal: true,
-	width: 832,
-	resizable: false,
-	bodyPadding: 8,
-	titleAlign: 'center',
-	
-	title: 'Pick The Region you want to work in',
-	
-	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
-	
+	extend: 'Ext.Container',
+	alias: 'widget.region_picker_panel',
+
+	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
+	cls: 'section',
+
+	DSS_singleText: '"Start by Choosing the Region you want to work in."',
+					
 	//--------------------------------------------------------------------------
 	initComponent: function() {
-		AppEvents.triggerEvent('show_region_picker_indicator')
 		let me = this;
+
 		Ext.applyIf(me, {
+			defaults: {
+				margin: '1rem',
+			},
 			items: [{
-					xtype: 'container',
-					width: '100%',
-					layout: 'absolute',
+				xtype: 'component',
+				x: 0, y: -6,
+				width: '100%',
+				height: 50,
+				cls: 'information accent-text bold',
+				html: "Welcome to GrazeScape!",
+			},{
+				xtype: 'component',
+				cls: 'information med-text',
+				html: 'Region Selection'
+			},
+				{
+				xtype: 'container',
+				width: '100%',
+				layout: 'absolute',
 					items: [{
 						xtype: 'component',
 						x: 0, y: -6,
 						width: '100%',
-						height: 28,
+						height: 75,
 						cls: 'information accent-text bold',
-						html: "Choose From the Regions Below",
+						html: "Please choose to work in one of the regions below, or click on the region on the map.",
 					}],
-					
 				},
 				Ext.create('Ext.menu.Menu', {
 					width: 100,
@@ -50,7 +54,7 @@ Ext.define('DSS.map.RegionPicker', {
 					items: regionsList,
 					listeners:{
 						click: function( menu, item, e, eOpts ) {
-							this.up('window').destroy();
+							//this.up('window').destroy();
 							//console.log(item.text);
 							console.log(DSS.map.getView())
 							if(item.text == "Cloverbelt"){
@@ -64,7 +68,12 @@ Ext.define('DSS.map.RegionPicker', {
 									constrainOnlyCenter: false,
 									extent:[-10143258, 5510000,-9913236,5702859]
 								}))
+								DSS.map.un('pointermove', regionHighlighter)
 								AppEvents.triggerEvent('hide_region_picker_indicator')
+								DSS.layer.regionLabels.setVisible(false)
+								DSS.layer.farms_1.setVisible(true)
+								DSS.ApplicationFlow.instance.showFarmPickerPage();
+								DSS.map.removeInteraction(DSS.selectRP);
 							}
 							else{
 								DSS.activeRegion = "southWestWI";
@@ -78,20 +87,19 @@ Ext.define('DSS.map.RegionPicker', {
 								}))
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 							}
-							console.log("REGION PICKER DONE");
-							
+							DSS.map.un('pointermove', regionHighlighter)
+							AppEvents.triggerEvent('hide_region_picker_indicator')
+							DSS.layer.regionLabels.setVisible(false)
+							DSS.layer.farms_1.setVisible(true)
+							DSS.ApplicationFlow.instance.showFarmPickerPage();
+							DSS.map.removeInteraction(DSS.selectRP);
 						}
 					}
 				}),
-//				myMask
-
 			]
 		});
 		
 		me.callParent(arguments);
-		AppEvents.registerListener("viewport_resize", function(opts) {
-			me.center();
-		})
-	},
-	
+	}
+
 });

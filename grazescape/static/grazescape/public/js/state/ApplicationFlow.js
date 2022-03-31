@@ -49,10 +49,12 @@ Ext.define('DSS.state.ApplicationFlow', {
 		'DSS.state.ScenarioPicker',
 		'DSS.state.MapStateTools',
 		'DSS.state.BrowseOrCreate',
+		'DSS.state.RegionPickerPanel',
 		'DSS.state.CreateNew_wfs',
 		'DSS.state.DeleteOperation',
 		'DSS.state.Manage',
-		'DSS.state.Scenario'
+		'DSS.state.Scenario',
+		'DSS.map.RegionPickerIndicator'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
@@ -153,15 +155,15 @@ Ext.define('DSS.state.ApplicationFlow', {
 		me.DSS_App.FlowContainer.add(extDef);
 	},
 	
-	// SHOW Handling -------------------------------------------------------------------
-	//
-	//----------------------------------------------------------------------------------
-	showLandingPage: function() {
+	// SHOW Operation management page -------------------------------------------------------------------
+	showFarmPickerPage: function() {
 		let me = this;
-		console.log('IM THE LANDING PAGE!!')
+		console.log('IM THE FARM PICKER PAGE!!')
 		
 		Ext.suspendLayouts();
+		//This sets the opertion browse panel in the landing page.  Change this to a region picker menu
 			me.setControlBlock({xtype:'operation_browse_create'});
+			//me.setControlBlock({xtype:'region_picker_panel'});
 		Ext.resumeLayouts(true);
 		
 		DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
@@ -174,9 +176,44 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.layer.farms_1.setOpacity(1);
 		DSS.layer.markers.setVisible(false);
 		//Region Picker 
-		DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
-		DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
-		DSS.dialogs.RegionPicker.show().center().setY(0);
+		
+		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
+		// DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
+		// DSS.dialogs.RegionPicker.show().center().setY(0);
+		//regionPickerFunc()
+		//AppEvents.triggerEvent('show_region_picker_indicator')
+		//DSS.layer.regionLabels.setVisible(true)
+		//DSS.layer.farms_1.setVisible(false)
+	},
+	//----------------------------------------------------------------------------------
+	showLandingPage: function() {
+		let me = this;
+		console.log('IM THE LANDING PAGE!!')
+		
+		Ext.suspendLayouts();
+		//This sets the opertion browse panel in the landing page.  Change this to a region picker menu
+			//me.setControlBlock({xtype:'operation_browse_create'});
+			me.setControlBlock({xtype:'region_picker_panel'});
+		Ext.resumeLayouts(true);
+		
+		DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
+		DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
+		DSS.MapState.zoomToExtent();
+		
+		DSS.MapState.disableFieldDraw();
+		
+		DSS.layer.farms_1.setVisible(true);
+		DSS.layer.farms_1.setOpacity(1);
+		DSS.layer.markers.setVisible(false);
+		//Region Picker 
+		
+		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
+		// DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
+		// DSS.dialogs.RegionPicker.show().center().setY(0);
+		regionPickerFunc()
+		AppEvents.triggerEvent('show_region_picker_indicator')
+		DSS.layer.regionLabels.setVisible(true)
+		DSS.layer.farms_1.setVisible(false)
 	},
 	
 	//----------------------------------------------------------------------------------
