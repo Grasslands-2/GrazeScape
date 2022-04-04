@@ -60,38 +60,39 @@ Ext.define('DSS.state.RegionPickerPanel', {
 							if(item.text == "Cloverbelt"){
 								DSS.activeRegion = "cloverBeltWI";
 								console.log(DSS.activeRegion);
-								DSS.map.setView(new ol.View({
-									center: [-10022690, 5616340],
-									zoom: 7,
-									maxZoom: 30,
-									minZoom: 8,
-									constrainOnlyCenter: false,
-									extent:[-10143258, 5510000,-9913236,5702859]
-								}))
 								DSS.map.un('pointermove', regionHighlighter)
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.layer.regionLabels.setVisible(false)
 								DSS.layer.farms_1.setVisible(true)
 								DSS.ApplicationFlow.instance.showFarmPickerPage();
 								DSS.map.removeInteraction(DSS.selectRP);
+								DSS.map.setView(new ol.View({
+									center: [-10030031,5610033],
+									zoom: 8,
+									maxZoom: 30,
+									minZoom: 8,
+									constrainOnlyCenter: false,
+									extent:[-10221386, 5467295, -9843661, 5750901]
+								}))
 							}
 							else{
 								DSS.activeRegion = "southWestWI";
-								DSS.map.setView(new ol.View({
-									center: [-10112582,5392087],
-									zoom: 6,
-									maxZoom: 30,
-									minZoom: 7,
-									constrainOnlyCenter: false,
-									extent:[ -10188178, 5301578, -10037615, 5466962]
-								}))
 								AppEvents.triggerEvent('hide_region_picker_indicator')
+								DSS.map.un('pointermove', regionHighlighter)
+								AppEvents.triggerEvent('hide_region_picker_indicator')
+								DSS.layer.regionLabels.setVisible(false)
+								DSS.layer.farms_1.setVisible(true)
+								DSS.ApplicationFlow.instance.showFarmPickerPage();
+								DSS.map.removeInteraction(DSS.selectRP);
+								DSS.map.setView(new ol.View({
+									center: [-10106698,5391875],
+									zoom: 8,
+									maxZoom: 30,
+									minZoom: 8,
+									constrainOnlyCenter: false,
+									extent:[-10258162, 5258487, -9967076, 5520900]
+								}))
 							}
-							DSS.map.un('pointermove', regionHighlighter)
-							AppEvents.triggerEvent('hide_region_picker_indicator')
-							DSS.layer.regionLabels.setVisible(false)
-							DSS.layer.farms_1.setVisible(true)
-							DSS.ApplicationFlow.instance.showFarmPickerPage();
 							DSS.map.removeInteraction(DSS.selectRP);
 						}
 					}

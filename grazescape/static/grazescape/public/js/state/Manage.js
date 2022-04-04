@@ -97,7 +97,7 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'component',
 					flex: 1,
 					cls: 'section-title accent-text right-pad',
-					html: 'Manage'
+					html: 'Farm Manage'
 				},
 			]
 			},{ 
@@ -120,7 +120,7 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Create a Empty Scenario',
+					text: 'Create New Blank Scenario',
 					handler: function(self) {
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
@@ -152,25 +152,7 @@ Ext.define('DSS.state.Manage', {
 				// 		DSS.dialogs.ScenarioPicker.show().center().setY(0);
 				// 	}
 				// },
-				//---------------------Delete Scenarios Button-------------
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Delete a Scenario',
-					handler: function(self) {
-						reSourcescenarios()
-						//getWFSScenario()
-						reSourceFields()
-						reSourceinfra()
-						//console.log(itemsArray);
-						//getWFSScenarioDS()
-						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
-						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						
-					}
-				},
+				
 			//------------------------Load Scenario Button-------------
 			{
 				xtype: 'container',
@@ -213,6 +195,24 @@ Ext.define('DSS.state.Manage', {
 					}
 				}
 			}),]
+			},//---------------------Delete Scenarios Button-------------
+			{
+				xtype: 'button',
+				cls: 'button-text-pad',
+				componentCls: 'button-margin',
+				text: 'Delete a Scenario',
+				handler: function(self) {
+					reSourcescenarios()
+					//getWFSScenario()
+					reSourceFields()
+					reSourceinfra()
+					//console.log(itemsArray);
+					//getWFSScenarioDS()
+					DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
+					DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+					DSS.dialogs.ScenarioPicker.show().center().setY(0);
+					
+				}
 			}]
 		});
 		

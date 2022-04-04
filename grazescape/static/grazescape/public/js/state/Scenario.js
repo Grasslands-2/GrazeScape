@@ -486,6 +486,10 @@ Ext.define('DSS.state.Scenario', {
 						//reSourceinfra()
 					}
 				},
+				{//------------------------------------------
+					xtype: 'component',
+					height: 32
+				},
 				{
 					xtype: 'button',
 					name:'Fields',
