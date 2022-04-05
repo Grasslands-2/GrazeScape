@@ -286,7 +286,7 @@ Ext.define('DSS.map.Main', {
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
-					color: '#FF0000',
+					color: '#EE6677',
 					width: 4
 				}),
 				fill: new ol.style.Fill({
@@ -305,7 +305,7 @@ Ext.define('DSS.map.Main', {
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
-					color: '#FF0000',
+					color: '#EE6677',
 					width: 4
 				}),
 				fill: new ol.style.Fill({
@@ -1191,9 +1191,9 @@ Ext.define('DSS.map.Main', {
 				minZoom: 4,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
-				constrainOnlyCenter: false,
+				//constrainOnlyCenter: false,
 				//extent:[-10155160, 5323674, -10065237, 5450767]
-				//extent:[ -10168100, 5318380, -10055830, 5454227]
+				extent:[ -10168100, 5318380, -10055830, 5454227]
 			})
 		});
 

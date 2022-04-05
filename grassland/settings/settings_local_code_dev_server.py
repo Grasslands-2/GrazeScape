@@ -48,55 +48,55 @@ GCS_BUCKET_NAME = "dev_container_model_results"
 
 # Application definition
 
-INSTALLED_APPS = [
-    'homepage',
-    'corsheaders',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.gis',
-    'grazescape',
-    'smartscape',
+# INSTALLED_APPS = [
+#     'homepage',
+#     'corsheaders',
+#     'django.contrib.admin',
+#     'django.contrib.auth',
+#     'django.contrib.contenttypes',
+#     'django.contrib.sessions',
+#     'django.contrib.messages',
+#     'django.contrib.staticfiles',
+#     'django.contrib.gis',
+#     'grazescape',
+#     'smartscape',
 
-]
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    # Manages sessions across requests
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # Associates users with requests using sessions.
-]
+# ]
+# MIDDLEWARE = [
+#     'corsheaders.middleware.CorsMiddleware',
+#     'django.middleware.security.SecurityMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     # Manages sessions across requests
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     # Associates users with requests using sessions.
+# ]
 
 
-ROOT_URLCONF = 'grassland.urls'
+# ROOT_URLCONF = 'grassland.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
+# TEMPLATES = [
+#     {
+#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#         'DIRS': [os.path.join(BASE_DIR, 'templates')],
+#         'APP_DIRS': True,
+#         'OPTIONS': {
+#             'context_processors': [
+#                 'django.template.context_processors.debug',
+#                 'django.template.context_processors.request',
+#                 'django.contrib.auth.context_processors.auth',
+#                 'django.contrib.messages.context_processors.messages',
+#             ],
+#         },
+#     },
+# ]
 
-WSGI_APPLICATION = 'grassland.wsgi.application'
+# WSGI_APPLICATION = 'grassland.wsgi.application'
 
 
 # Database
@@ -134,49 +134,49 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+# AUTH_PASSWORD_VALIDATORS = [
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+#     },
+# ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.1/topics/i18n/
+# # Internationalization
+# # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'America/Chicago'
+# TIME_ZONE = 'America/Chicago'
 
-USE_I18N = True
+# USE_I18N = True
 
-USE_L10N = True
+# USE_L10N = True
 
-USE_TZ = True
+# USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
+# # Static files (CSS, JavaScript, Images)
+# # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-LOGIN_URL = '/'
-# STATIC_ROOT = 'static'
 # STATIC_URL = '/static/'
-#
-STATICFILES_DIRS = (
-                os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles"
-)
-print(STATICFILES_DIRS)
-# TEMPLATE_DIRS = (
-#                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
+# LOGIN_URL = '/'
+# # STATIC_ROOT = 'static'
+# # STATIC_URL = '/static/'
+# #
+# STATICFILES_DIRS = (
+#                 os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles"
 # )
+# print(STATICFILES_DIRS)
+# # TEMPLATE_DIRS = (
+# #                 os.path.join(PROJECT_DIR,'template'), # if your static files folder is named "template"
+# # )
 
