@@ -33,7 +33,7 @@ class Header extends React.Component{
                 </Nav>
                 <Nav>
                     <Navbar.Text>
-                        Signed in as:  <u>{this.props.text}</u>
+                        Signed in as:  <u>{user_info.user_name}</u>
                     </Navbar.Text>
 
                </Nav>

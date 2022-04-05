@@ -209,6 +209,7 @@ class OLMapFragment extends React.Component {
         if(this.props.layerVisible[0].name == "huc10" && this.props.layerVisible[0].visible == false){
                 console.log(this.boundaryLayerAOI)
                 var extent = this.boundaryLayerAOI.getSource().getExtent()
+                extent = this.add10PerExtent(extent)
                 console.log(extent)
                 this.map.getView().fit(extent,{"duration":500});
         }
@@ -272,6 +273,7 @@ class OLMapFragment extends React.Component {
                 this.props.updateTransList(items)
                 this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+                displayLayer.setOpacity(this.props.activeTrans.displayOpacity/100)
             }
         }
       }
@@ -367,6 +369,15 @@ class OLMapFragment extends React.Component {
           }
         };
         return null
+    }
+    add10PerExtent(extents){
+        let x = Math.abs((extents[0]-extents[2]) * .1)
+        let y = Math.abs((extents[1]-extents[3]) * .1)
+        extents[0] = extents[0] - x
+        extents[1] = extents[1] - y
+        extents[2] = extents[2] + x
+        extents[3] = extents[3] + y
+        return extents
     }
     setActiveRegion(region){
         let region_10 = region + "_HUC_10.geojson"
@@ -647,12 +658,14 @@ class OLMapFragment extends React.Component {
             let aoiCoors = []
             console.log(f.target)
 //            console.log(f.target.item(0).getGeometry())
-            console.log(f.target.item(0).getGeometry().getExtent())
 //          selecting by county
             if(f.target.item(0).get("NAME") != undefined){
                 console.log("selecting a county!!!!!")
                 var extent = f.target.item(0).getGeometry().getExtent()
                 console.log(extent)
+                extent = this.add10PerExtent(extent)
+                console.log(extent)
+
                 this.map.getView().fit(extent,{"duration":500});
                 if(f.target.item(0).get("NAME") == "La Crosse"){
                     region = "southWestWI"
