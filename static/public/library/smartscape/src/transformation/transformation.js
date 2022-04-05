@@ -22,7 +22,7 @@ function Transformation(name, id, rank){
         displayLayerID:-99,
         // ol id of the layer containing the boundary information
         boundaryLayerID:-99,
-        displayOpacity:100,
+        displayOpacity:50,
         // all selection criteria stored here
         selection:{
             slope1:0,

@@ -123,8 +123,6 @@ class SmartScape:
         band = None
         ds = None
 
-
-
         if use_ft:
             stream_dist1 = float(stream_dist1) * Ft_To_Meters
             stream_dist2 = float(stream_dist2) * Ft_To_Meters
@@ -167,7 +165,7 @@ class SmartScape:
             has_stream = True
             # combine base case with slope
             datanm = np.where(np.logical_and(datanm == -99, datanm_stream == -99), -99, self.no_data)
-            has_stream = True
+        #     has_stream = True
 
         if landuse_par["cashGrain"] or landuse_par["contCorn"] or landuse_par["dairy"]:
             datanm_landuse = self.raster_inputs["landuse"]
@@ -293,14 +291,14 @@ class SmartScape:
         base_layer_dic = {}
 
         # download layers for base case
-        base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pasture")
+        base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pastureWatershed")
         model_names_base = ("ero", "pl", "cn")
         model_names_base = ("Erosion", "PI", "CN")
         # contCorn
         # create name of the layer that corresponds to geoserver
         for name in base_names:
             for model in model_names_base:
-                if name == "hayGrassland":
+                if name == "hayGrassland" or name == "pastureWatershed":
                     # medium_GrassYield_southWestWI.tif
                     # pasture_CN_rt_rt_0_0_southWestWI.tif
                     base_layer_dic[name + "_" + model] = "SmartScapeRaster:pasture_" + model + "_rt_rt_0_0_" + region
@@ -319,9 +317,9 @@ class SmartScape:
         base_layer_dic["corn_yield"] = "SmartScapeRaster:" + corn
         base_layer_dic["soy_yield"] = "SmartScapeRaster:" + soy
         base_layer_dic["landuse"] = "SmartScapeRaster:" + region + "_WiscLand_30m"
-        # base_layer_dic["slope"] = "SmartScapeRaster:" + region + "_slopePer_30m"
         base_layer_dic["hyd_letter"] = "SmartScapeRaster:" + region + "_hydgrp_30m"
-        base_layer_dic["hay_grassland_yield"] = "SmartScapeRaster:pasture_Yield_medium_" + region
+        base_layer_dic["hayGrassland_Yield"] = "SmartScapeRaster:pasture_Yield_medium_" + region
+        base_layer_dic["pastureWatershed_Yield"] = "SmartScapeRaster:pasture_Yield_medium_" + region
 
         watershed_file_list = []
         # create list of layers to download for each trans
@@ -489,6 +487,9 @@ class SmartScape:
         }
         area = np.copy(arr)
         count_selected = np.count_nonzero(area > -88)
+        print("Selected cells for model", count_selected)
+        count1 = np.count_nonzero(model_data["yield"] == -9999)
+        print("yield before run", count1)
         # each cell is 30 x 30 m (900 sq m) and then convert to acres
         area_selected = count_selected * 900 * 0.000247105
         unique, counts = np.unique(area, return_counts=True)
@@ -501,6 +502,7 @@ class SmartScape:
         print("running transformation models")
         for layer in layer_dic:
             # yield
+            print("layer", layer)
             for model in model_list:
                 print("running model ", model)
                 model_trans_filepath = os.path.join(dir_path, layer_dic[layer][model] + ".tif")
@@ -509,7 +511,7 @@ class SmartScape:
                 model_arr = model_band.ReadAsArray()
                 # arr is the array from the merged tif
                 # layer is the rank of the trans
-                # if hierarchy matches the trans rank replace that value witht the model value
+                # if hierarchy matches the trans rank replace that value with the model value
                 if model == "cn":
                     cn_final = np.where(model_data[model] == layer, model_arr, model_data[model])
                     # only looking at 3 in storm
@@ -523,7 +525,8 @@ class SmartScape:
                 model_arr = None
 
         print("done with trans models")
-
+        count1 = np.count_nonzero(model_data["yield"] == -9999)
+        print("yield after run", count1)
         #   iterate through wiscland layer
         landuse_image = gdal.Open(os.path.join(dir_path, "landuse.tif"))
         landuse_arr = landuse_image.GetRasterBand(1).ReadAsArray()
@@ -555,23 +558,7 @@ class SmartScape:
             "runoff": np.copy(landuse_arr_sel),
             "insect": np.copy(landuse_arr_sel),
         }
-        watershed_total = {
-            1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 1.34, "cn": 1, "insect": 0.51},
-            2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 0.81, "cn": 1, "insect": 0.51},
-            3: {"name": "contCorn", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.51},
-            4: {"name": "cornGrain", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.51},
-            5: {"name": "dairyRotation", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.12},
-            6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.12},
-            7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0.12},
-            8: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0},
-            9: {"name": "pasture", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0},
-            10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 1, "pl": 1, "cn": 1, "insect": 0},
-            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 0},
-            12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 0},
-            13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 0},
-            14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 1, "insect": 0},
-            15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 1, "insect": 0},
-        }
+
         # for model in model_list:
         #     for land_type in watershed_total:
         #         # CN and runoff
@@ -582,22 +569,22 @@ class SmartScape:
         #         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
-        base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
+        base_arr_corn_cn = base_image.GetRasterBand(1).ReadAsArray()
+        cn_final = np.where(base_data["cn"] == 4, base_arr_corn_cn, base_data["cn"])
         base_data["runoff"] = np.where(base_data["runoff"] == 3, self.get_runoff_vectorized(cn_final, 3),
                                        base_data["runoff"])
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
-        base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 3, base_arr, base_data["cn"])
+        base_arr_corngrain_cn = base_image.GetRasterBand(1).ReadAsArray()
+        cn_final = np.where(base_data["cn"] == 3, base_arr_corngrain_cn, base_data["cn"])
         base_data["runoff"] = np.where(base_data["runoff"] == 5, self.get_runoff_vectorized(cn_final, 3),
                                        base_data["runoff"])
         base_data["cn"] = cn_final
 
         base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
-        base_arr = base_image.GetRasterBand(1).ReadAsArray()
-        cn_final = np.where(base_data["cn"] == 5, base_arr, base_data["cn"])
+        base_arr_dairy_cn = base_image.GetRasterBand(1).ReadAsArray()
+        cn_final = np.where(base_data["cn"] == 5, base_arr_dairy_cn, base_data["cn"])
         base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
         base_data["cn"] = cn_final
 
@@ -612,6 +599,7 @@ class SmartScape:
         # Ploss
         landuse_ero = np.copy(landuse_arr_sel)
         landuse_yield = np.copy(landuse_arr_sel)
+
         cont_pl_image = gdal.Open(os.path.join(dir_path, "contCorn_PI.tif"))
         cont_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_arr_sel = np.where(landuse_arr_sel == 4, cont_pl_arr, landuse_arr_sel)
@@ -646,23 +634,25 @@ class SmartScape:
         # Erosion
         # cont_pl_image = gdal.Open(os.path.join(dir_path, "cont_er_nc_su_25_50_1.tif"))
         cont_pl_image = gdal.Open(os.path.join(dir_path, "contCorn_Erosion.tif"))
-        cont_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        landuse_ero = np.where(landuse_ero == 4, cont_pl_arr, landuse_ero)
+        cont_er_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        landuse_ero = np.where(landuse_ero == 4, cont_er_arr, landuse_ero)
 
         # corn_pl_image = gdal.Open(os.path.join(dir_path, "corn_er_nc_su_25_50_1.tif"))
         corn_pl_image = gdal.Open(os.path.join(dir_path, "cornGrain_Erosion.tif"))
-        corn_pl_arr = corn_pl_image.GetRasterBand(1).ReadAsArray()
-        landuse_ero = np.where(landuse_ero == 3, corn_pl_arr, landuse_ero)
+        corn_er_arr = corn_pl_image.GetRasterBand(1).ReadAsArray()
+        landuse_ero = np.where(landuse_ero == 3, corn_er_arr, landuse_ero)
 
         # dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairy_er_nc_su_25_50_1.tif"))
         dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairyRotation_Erosion.tif"))
-        dairy_pl_arr = dairy_pl_image.GetRasterBand(1).ReadAsArray()
-        landuse_ero = np.where(landuse_ero == 5, dairy_pl_arr, landuse_ero)
+        dairy_er_arr = dairy_pl_image.GetRasterBand(1).ReadAsArray()
+        landuse_ero = np.where(landuse_ero == 5, dairy_er_arr, landuse_ero)
 
         # model_value * conversion from ac to value / 30 sq m
         landuse_ero = np.where(
             np.logical_or(landuse_ero == self.no_data, landuse_ero < 0),
             0, (landuse_ero * ac_to_m))
+        count1 = np.count_nonzero(landuse_ero > 0)
+        print("base erosion cell count", count1)
         sum_base_ero = np.sum(landuse_ero)
 
         # base yield
@@ -685,13 +675,17 @@ class SmartScape:
         landuse_yield = np.where(landuse_yield == 4, cont_yield, landuse_yield)
         landuse_yield = np.where(landuse_yield == 3, corn_yield, landuse_yield)
         landuse_yield = np.where(landuse_yield == 5, dairy_yield, landuse_yield)
+        count1 = np.count_nonzero(landuse_yield > 0)
+        print("base yield cell count", count1)
 
         landuse_yield = np.where(
             np.logical_or(landuse_yield == self.no_data, landuse_yield < 0),
             0, (landuse_yield * ac_to_m))
         sum_base_yield = np.sum(landuse_yield)
+        count1 = np.count_nonzero(landuse_yield > 0)
+        print("base yield cell count", count1)
 
-
+        print("Selected yield is", sum_base_yield)
 
         base_data_watershed = {
             "yield": np.copy(watershed_land_use),
@@ -701,9 +695,10 @@ class SmartScape:
             "runoff": np.copy(watershed_land_use),
             "insect": np.copy(watershed_land_use),
         }
-        print(base_data_watershed["yield"])
-        print("base layer dic")
-        print(base_layer_dic)
+
+        # print(base_data_watershed["yield"])
+        # print("base layer dic")
+        # print(base_layer_dic)
         # test1 = np.copy(watershed_land_use)
         # test2 = np.copy(watershed_land_use)
         # test1.fill(33)
@@ -712,15 +707,58 @@ class SmartScape:
         # print(test2)
         # count1 = np.count_nonzero(base_data_watershed["yield"] > -1)
         # print(count1)
-        count_selected = np.count_nonzero(base_data_watershed["yield"] > 0)
+        count_selected = np.count_nonzero(base_data_watershed["yield"] != self.no_data)
+        count_selected3 = np.count_nonzero(base_data_watershed["yield"] == 3)
+        count_selected1 = np.count_nonzero(base_data_watershed["yield"] == 4)
+        count_selected2 = np.count_nonzero(base_data_watershed["yield"] == 5)
+        print("watershed selected cells ", count_selected3 + count_selected1 + count_selected2)
+        print("whole watershed cells ", count_selected)
         # each cell is 30 x 30 m (900 sq m) and then convert to acres
         area_watershed = count_selected * 900 * 0.000247105
         # print(area_watershed)
         test3 = base_data_watershed["yield"].flatten()
         values, counts = np.unique(test3, return_counts=True)
-        print(values)
-        print(counts)
+        # print(values)
+        # print(counts)
 
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_Yield.tif"))
+        hay_yield_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_Erosion.tif"))
+        hay_er_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_PI.tif"))
+        hay_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_CN.tif"))
+        hay_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_Yield.tif"))
+        pasture_yield_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_Erosion.tif"))
+        pasture_er_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_PI.tif"))
+        pasture_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_CN.tif"))
+        pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+
+        watershed_total = {
+            1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 1.34, "cn": 93, "insect": 0.51},
+            2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 0.81, "cn": 85, "insect": 0.51},
+            4: {"name": "contCorn", "is_calc": True, "yield": cont_yield, "ero": cont_er_arr, "pl": cont_pl_arr,
+                "cn": base_arr_corn_cn, "insect": 0.51},
+            3: {"name": "cornGrain", "is_calc": True, "yield": corn_yield, "ero": corn_er_arr, "pl": corn_pl_arr,
+                "cn": base_arr_corngrain_cn, "insect": 0.51},
+            5: {"name": "dairyRotation", "is_calc": True, "yield": dairy_yield, "ero": dairy_er_arr, "pl": dairy_pl_arr,
+                "cn": base_arr_dairy_cn, "insect": 0.12},
+            6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "pl": 2, "cn": 75, "insect": 0.12},
+            7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "pl": 2, "cn": 75, "insect": 0.12},
+            8: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "pl": hay_pl_arr, "cn": hay_cn_arr, "insect": 0},
+            9: {"name": "pasture", "is_calc": True, "yield": pasture_yield_arr, "ero": pasture_er_arr, "pl": pasture_pl_arr, "cn": pasture_cn_arr, "insect": 0},
+            10: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "pl": hay_pl_arr, "cn": hay_cn_arr, "insect": 0},
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 65, "insect": 0},
+            12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 98, "insect": 0},
+            13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 85, "insect": 0},
+            14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 82, "insect": 0},
+            15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 72, "insect": 0},
+        }
 
         for land_type in watershed_total:
             # model_data[model] = np.where(model_data[model] == layer, model_arr, model_data[model])
@@ -728,8 +766,8 @@ class SmartScape:
                                                     watershed_total[land_type]["yield"], base_data_watershed["yield"])
             base_data_watershed["ero"] = np.where(base_data_watershed["ero"] == land_type,
                                                   watershed_total[land_type]["ero"], base_data_watershed["ero"])
-            base_data_watershed["pl"] = np.where(base_data_watershed["ploss"] == land_type,
-                                                 watershed_total[land_type]["pl"], base_data_watershed["ploss"])
+            base_data_watershed["ploss"] = np.where(base_data_watershed["ploss"] == land_type,
+                                                    watershed_total[land_type]["pl"], base_data_watershed["ploss"])
             base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type,
                                                  watershed_total[land_type]["cn"], base_data_watershed["cn"])
             base_data_watershed["insect"] = np.where(base_data_watershed["insect"] == land_type,
@@ -738,20 +776,56 @@ class SmartScape:
             # calculate runoff if cn is above zero
             base_data_watershed["runoff"] = np.where(base_data_watershed["cn"] > 0,
                                                      self.get_runoff_vectorized(base_data_watershed["cn"], 3), 0)
-        print(base_data_watershed["yield"])
+        # print(base_data_watershed["yield"])
+        model_data_watershed = {
+            "yield": np.copy(base_data_watershed["yield"]),
+            "ero": np.copy(base_data_watershed["ero"]),
+            "ploss": np.copy(base_data_watershed["ploss"]),
+            "cn": np.copy(base_data_watershed["cn"]),
+            "runoff": np.copy(base_data_watershed["runoff"]),
+            "insect": np.copy(base_data_watershed["insect"]),
+        }
+        # base_test = np.where(
+        #     np.logical_or(model_data_watershed["yield"] == self.no_data,  model_data_watershed["yield"] < 0),
+        #     0,  model_data_watershed["yield"] * ac_to_m)
+        # test_sum = np.sum(base_test)
+        # print("sum of yield for base", test_sum)
+        #
+        count1 = np.count_nonzero(model_data_watershed["yield"] > 0)
+        print("Whole watershed cell count", count1)
+        model_data_watershed["yield"] = np.where(model_data["yield"] != self.no_data, model_data["yield"],
+                                                 model_data_watershed["yield"])
         base_test = np.where(
-            np.logical_or(base_data_watershed["yield"] == self.no_data, base_data_watershed["yield"] < 0),
-            0, base_data_watershed["yield"])
+            np.logical_or(model_data_watershed["yield"] == self.no_data, model_data_watershed["yield"] < 0),
+            0, model_data_watershed["yield"] * ac_to_m)
         test_sum = np.sum(base_test)
-        print("sum of yield for base", test_sum)
+        print("sum of yield for watershed with model", test_sum)
+        for model in model_data_watershed:
+            if model == "insect":
+                model_data_watershed[model] = np.where(
+                    np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
+                    0, model_data_watershed[model] * ac_to_m)
 
-        count1 = np.count_nonzero(base_data_watershed["yield"])
-        print(count1)
+                continue
+            model_data_watershed[model] = np.where(model_data[model] != self.no_data, model_data[model],
+                                                   model_data_watershed[model])
+            model_data_watershed[model] = np.where(
+                np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
+                0, model_data_watershed[model] * ac_to_m)
+        for model in base_data_watershed:
+            base_data_watershed[model] = np.where(
+                np.logical_or(base_data_watershed[model] == self.no_data, base_data_watershed[model] < 0),
+                0, base_data_watershed[model] * ac_to_m)
+        # model = np.where(
+        #     np.logical_or(model_data["yield"] == self.no_data, model_data["yield"] < 0),
+        #     0, (model_data["yield"] * ac_to_m))
+        # test_sum = np.sum(model)
+        # print("sum of yield for mdoel", test_sum)
 
-        base_data_watershed["yield"] = base_data_watershed["yield"].flatten()
-        values, counts = np.unique(base_data_watershed["yield"], return_counts=True)
-        print(values)
-        print(counts)
+        # base_data_watershed["yield"] = base_data_watershed["yield"].flatten()
+        # values, counts = np.unique(base_data_watershed["yield"], return_counts=True)
+        # print(values)
+        # print(counts)
         # model run
         # we are setting models less than zero to zero (effects mostly ero and ploss)
         model = np.where(
@@ -779,29 +853,41 @@ class SmartScape:
             "base": {
                 "ploss": {"total": "{:,.0f}".format(sum_base),
                           "total_per_area": str("%.1f" % (sum_base / area_selected)),
+                          "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["ploss"])),
+                          "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["ploss"]) / area_watershed)),
                           "units": "Phosphorus Runoff (lb/year)"
                           },
                 "ero": {"total": "{:,.0f}".format(sum_base_ero),
                         "total_per_area": str("%.1f" % (sum_base_ero / area_selected)),
+                        "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["ero"])),
+                        "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["ero"]) / area_watershed)),
                         "units": "Erosion (tons/year)"
                         },
                 "yield": {"total": "{:,.0f}".format(sum_base_yield),
                           "total_per_area": str("%.1f" % (sum_base_yield / area_selected)),
+                          "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["yield"])),
+                          "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["yield"]) / area_watershed)),
                           "units": "Yield (tons-Dry Matter/year)"
                           },
                 "cn": {
                     "total": "{:,.0f}".format(sum_base_cn),
                     "total_per_area": str("%.0f" % (sum_base_cn / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["cn"])),
+                    "total_per_area_watershed": str("%.0f" % (np.sum(base_data_watershed["cn"]) / area_watershed)),
                     "units": "Curve Number"
                 },
                 "insect": {
                     "total": "{:,.0f}".format(sum_base_insect),
                     "total_per_area": str("%.1f" % (sum_base_insect / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["insect"])),
+                    "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["insect"]) / area_watershed)),
                     "units": ""
                 },
                 "runoff": {
                     "total": "{:,.0f}".format(sum_base_runoff / 12),
                     "total_per_area": str("%.1f" % (sum_base_runoff / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["runoff"])),
+                    "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["runoff"]) / area_watershed)),
                     "units": ""
                 },
             },
@@ -809,31 +895,43 @@ class SmartScape:
                 "ploss": {
                     "total": "{:,.0f}".format(sum_model_ploss),
                     "total_per_area": str("%.1f" % (sum_model_ploss / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["ploss"])),
+                    "total_per_area_watershed": str("%.1f" % (np.sum(model_data_watershed["ploss"]) / area_watershed)),
                     "units": "Phosphorus Runoff (lb/year)"
                 },
                 "ero": {
                     "total": "{:,.0f}".format(sum_model_ero),
                     "total_per_area": str("%.1f" % (sum_model_ero / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["ero"])),
+                    "total_per_area_watershed": str("%.1f" % (np.sum(model_data_watershed["ero"]) / area_watershed)),
                     "units": "Erosion (tons/year)"
                 },
                 "yield": {
                     "total": "{:,.0f}".format(sum_model_yield),
                     "total_per_area": str("%.1f" % (sum_model_yield / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["yield"])),
+                    "total_per_area_watershed": str("%.1f" % (np.sum(model_data_watershed["yield"]) / area_watershed)),
                     "units": "Yield (tons-Dry Matter/year)"
                 },
                 "cn": {
                     "total": "{:,.0f}".format(sum_model_cn),
                     "total_per_area": str("%.0f" % (sum_model_cn / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["cn"])),
+                    "total_per_area_watershed": str("%.0f" % (np.sum(model_data_watershed["cn"]) / area_watershed)),
                     "units": "Curve Number"
                 },
                 "insect": {
                     "total": "{:,.0f}".format(0),
                     "total_per_area": str("%.1f" % (0 / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["insect"])),
+                    "total_per_area_watershed": str("%.1f" % (np.sum(model_data_watershed["insect"]) / area_watershed)),
                     "units": ""
                 },
                 "runoff": {
                     "total": "{:,.0f}".format(sum_model_runoff / 12),
                     "total_per_area": str("%.1f" % (sum_model_runoff / area_selected)),
+                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["runoff"])),
+                    "total_per_area_watershed": str("%.1f" % (np.sum(model_data_watershed["runoff"]) / area_watershed)),
                     "units": ""
                 },
             },
