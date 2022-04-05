@@ -296,6 +296,7 @@ Ext.define('DSS.state.NewScenario', {
 	initComponent: function() {
 		let me = this;
 		getWFSScenarioSP()
+		//getWFSScenarioNS()
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',

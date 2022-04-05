@@ -39,7 +39,7 @@ const selectStyle = new ol.style.Style({
 
   const unslectStyle =  new ol.style.Style({
 	stroke: new ol.style.Stroke({
-		color: '#FF0000',
+		color: '#EE6677',
 		width: 4
 	}),
 	fill: new ol.style.Fill({
@@ -90,33 +90,35 @@ function regionPickerFunc() {
 		if(selectedRegion.values_.Name == 'CB_WI'){
 			DSS.activeRegion = "cloverBeltWI";
 			console.log(DSS.activeRegion);
+			AppEvents.triggerEvent('hide_region_picker_indicator')
+			DSS.layer.regionLabels.setVisible(false)
+			DSS.layer.farms_1.setVisible(true)
+			DSS.ApplicationFlow.instance.showFarmPickerPage();
+			DSS.map.removeInteraction(DSS.selectRP);
 			DSS.map.setView(new ol.View({
-				center: [-10022690, 5616340],
-				zoom: 7,
+				center: [-10030031,5610033],
+				zoom: 8,
 				maxZoom: 30,
 				minZoom: 8,
 				constrainOnlyCenter: false,
-				extent:[-10143258, 5510000,-9913236,5702859]
+				extent:[-10221386, 5467295, -9843661, 5750901]
 			}))
-		AppEvents.triggerEvent('hide_region_picker_indicator')
-		DSS.layer.regionLabels.setVisible(false)
-		DSS.layer.farms_1.setVisible(true)
-		DSS.ApplicationFlow.instance.showFarmPickerPage();
 		}else{
 			DSS.activeRegion = "southWestWI";
+			AppEvents.triggerEvent('hide_region_picker_indicator')
+			DSS.layer.regionLabels.setVisible(false)
+			DSS.layer.farms_1.setVisible(true)
+			DSS.ApplicationFlow.instance.showFarmPickerPage();
+			DSS.map.removeInteraction(DSS.selectRP);
 			DSS.map.setView(new ol.View({
-				center: [-10112582,5392087],
-				zoom: 6,
+				center: [-10106698,5391875],
+				zoom: 8,
 				maxZoom: 30,
-				minZoom: 7,
+				minZoom: 8,
 				constrainOnlyCenter: false,
-				extent:[ -10188178, 5301578, -10037615, 5466962]
+				extent:[-10258162, 5258487, -9967076, 5520900]
 			}))
 		}
-		AppEvents.triggerEvent('hide_region_picker_indicator')
-		DSS.layer.regionLabels.setVisible(false)
-		DSS.layer.farms_1.setVisible(true)
-		DSS.ApplicationFlow.instance.showFarmPickerPage();
 		DSS.map.removeInteraction(DSS.selectRP);
 	})
 }

@@ -27,6 +27,7 @@ DSS.utils.addStyle('.footer-text {border-top: 1px solid rgba(0,0,0,0.15); backgr
 DSS.utils.addStyle('.button-margin { margin: 0.5rem 1.75rem 0.75rem;}')
 DSS.utils.addStyle('.button-text-pad { padding: 0.33rem;}')
 
+DSS.utils.addStyle('.information-scenlabel { padding: 0.5rem 0 0.25rem 0; font-size: 1.1rem; text-align: center; font-weight: bold}')
 DSS.utils.addStyle('.information { padding: 0.5rem 0 0.25rem 0; font-size: 0.9rem; text-align: center}')
 DSS.utils.addStyle('.information-compact { padding: 0.1rem 0 0.1rem 0; font-size: 0.9rem; text-align: center}')
 DSS.utils.addStyle('.section-title { padding: 0.5rem; font-size: 1.2rem; text-align: center; font-weight: bold}');

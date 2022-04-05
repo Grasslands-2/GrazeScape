@@ -385,6 +385,7 @@ Ext.define('DSS.state.Scenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
+		//DSS.MapState.hideFieldsandInfra()
 
 		Ext.applyIf(me, {
 			defaults: {
@@ -411,6 +412,9 @@ Ext.define('DSS.state.Scenario', {
 									//DSS.layer.PLossGroup.setVisible(false);
 									DSS.layer.erosionGroup.setVisible(false);
 									DSS.layer.yieldGroup.setVisible(false);
+									DSS.MapState.hideFieldsandInfra()
+									AppEvents.triggerEvent('hide_field_grid')
+									AppEvents.triggerEvent('hide_infra_grid')
 									DSS.layer.PLossGroup.values_.layers.array_ = [];
 									DSS.layer.erosionGroup.values_.layers.array_ = [];
 									DSS.layer.yieldGroup.values_.layers.array_ = [];
@@ -438,54 +442,58 @@ Ext.define('DSS.state.Scenario', {
 					cls: 'information med-text',
 					html: 'Scenario: ' + DSS.scenarioName,
 				},
+				{//------------------------------------------
+					xtype: 'component',
+					cls: 'information',
+					html: 'Draw or Delete Fields<br>and Infrastructure'
+				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'Duplicate Current Scenario',
+				// 	handler: function(self) {
+				// 		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
+				// 		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+				// 		DSS.dialogs.ScenarioPicker.show().center().setY(0);
+				// 		reSourcescenarios();
+				// 		reSourceFields()
+				// 		getWFSScenarioSP()
+				// 		//getWFSScenarioNS();
+				// 		// DSS.layer.scenarios.getSource().refresh();
+				// 		console.log('This is the scenarioArray: ')
+				// 		console.log(scenarioArray)
+				// 		//DSS.ApplicationFlow.instance.showScenarioPage();
+				// 	}
+				// },
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'Delete Current Scenario',
+				// 	handler: async function(self) {
+				// 		if(confirm('Are you sure you want to delete the current active scenario?')) {
+				// 			console.log("DELETED!")
+				// 			await selectDeleteScenario(DSS.activeScenario)
+				// 			geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
+				// 			//DSS.ApplicationFlow.instance.showManageOperationPage();
+				// 			//alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
+				// 			//DSS.MapState.removeMapInteractions()
+				// 			//AppEvents.triggerEvent('hide_field_draw_mode_indicator')
+				// 			} else {
+				// 			console.log("NOT DELETED!")
+				// 			//DSS.MapState.removeMapInteractions()
+				// 		  }
+				// 		//reSourcescenarios()
+				// 		//getWFSScenario()
+				// 		//reSourceFields()
+				// 		//reSourceinfra()
+				// 	}
+				// },
 				// {//------------------------------------------
 				// 	xtype: 'component',
-				// 	cls: 'information med-text',
-				// 	html: 'Draw or Delete Fields<br>and Infrastructure'
+				// 	height: 32
 				// },
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Duplicate Current Scenario',
-					handler: function(self) {
-						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
-						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						reSourcescenarios();
-						reSourceFields()
-						getWFSScenarioSP()
-						//getWFSScenarioNS();
-						// DSS.layer.scenarios.getSource().refresh();
-						console.log('This is the scenarioArray: ')
-						console.log(scenarioArray)
-						//DSS.ApplicationFlow.instance.showScenarioPage();
-					}
-				},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Delete Current Scenario',
-					handler: async function(self) {
-						if(confirm('Are you sure you want to delete the current active scenario?')) {
-							console.log("DELETED!")
-							await selectDeleteScenario(DSS.activeScenario)
-							geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
-							//DSS.ApplicationFlow.instance.showManageOperationPage();
-							//alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
-							//DSS.MapState.removeMapInteractions()
-							//AppEvents.triggerEvent('hide_field_draw_mode_indicator')
-							} else {
-							console.log("NOT DELETED!")
-							//DSS.MapState.removeMapInteractions()
-						  }
-						//reSourcescenarios()
-						//getWFSScenario()
-						//reSourceFields()
-						//reSourceinfra()
-					}
-				},
 				{
 					xtype: 'button',
 					name:'Fields',
@@ -740,11 +748,11 @@ Ext.define('DSS.state.Scenario', {
 // 					}
 // 				},
 				//------------------------------------------
-				// {
-				// 	xtype: 'component',
-				// 	cls: 'information med-text',
-				// 	html: 'Edit Scenario Attributes'
-				// },
+				{
+					xtype: 'component',
+					cls: 'information',
+					html: 'Edit Scenario Attributes'
+				},
 				// {
 				// 	xtype: 'button',
 				// 	cls: 'button-text-pad',
@@ -855,9 +863,14 @@ Ext.define('DSS.state.Scenario', {
 				// 	},
 				// },
 						
-				{//------------------------------------------
+				// {//------------------------------------------
+				// 	xtype: 'component',
+				// 	height: 32
+				// },
+				{
 					xtype: 'component',
-					height: 32
+					cls: 'information',
+					html: 'Run Models, and View Results'
 				},
 				// {//------------------------------------------
 				// 	xtype: 'component',
