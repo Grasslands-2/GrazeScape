@@ -1,4 +1,4 @@
-
+DSS.utils.addStyle('.information-scenlabel { padding: 0.5rem 0 0.25rem 0; font-size: 1.1rem; text-align: center; font-weight: bold}')
 function reSourceFields() {
     geoServer.setFieldSource('&CQL_filter=farm_id='+DSS.activeFarm)
 	console.log("reSource Fields ran");
@@ -141,8 +141,9 @@ Ext.define('DSS.state.Manage', {
 				{ //------------------------------------------
 					xtype: 'component',
 					id: 'scenIDpanel',
-					cls: 'information',
+					cls: 'information-scenlabel',
 					style:{
+						fontsize: 45,
 						color: '#EE6677'
 					},
 					html: DSS.scenarioName,
@@ -228,11 +229,11 @@ Ext.define('DSS.state.Manage', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Delete Current Scenario',
+					text: 'Delete Selected Scenario',
 					id: 'delCurScen',
 					disabled: true,
 					handler: async function(self) {
-						if(confirm('Are you sure you want to delete the current active scenario?')) {
+						if(confirm('Are you sure you want to delete scenario ' + DSS.scenarioName)) {
 							console.log("DELETED!")
 							await selectDeleteScenario(DSS.activeScenario)
 							DSS.MapState.hideFieldsandInfra()
