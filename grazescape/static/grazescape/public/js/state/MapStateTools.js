@@ -157,6 +157,12 @@ Ext.define('DSS.state.MapStateTools', {
 		DSS.layer.fieldsLabels.setVisible(true);
 		console.log("showfieldsforscenario ran");
 	},
+	hideFieldsandInfra: function() {
+		DSS.layer.fields_1.setVisible(false);
+		DSS.layer.fieldsLabels.setVisible(false);
+		DSS.layer.infrastructure.setVisible(false);
+		console.log('turned off feature visiblty ')
+	},
 	//----------------------------------------
 	showInfraForScenario: function(){
 		console.log(DSS.layer.infrastructure.getStyle())
@@ -311,7 +317,7 @@ Ext.define('DSS.state.MapStateTools', {
 				let pos = g.getFirstCoordinate()
 				let ex = ol.extent;
 				let extent = [pos[0], pos[1], pos[0], pos[1]];
-				ex.buffer(extent, 600, extent);
+				ex.buffer(extent, 800, extent);
 				me.zoomToRealExtent(extent);
 			}
 		})

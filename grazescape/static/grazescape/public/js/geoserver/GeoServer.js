@@ -50,17 +50,17 @@ class GeoServer{
             DSS.layer.fields_1.getSource().clear()
             DSS.layer.fieldsLabels.getSource().clear()
             var FSgeoJson = geoJson.geojson
-            
             var format = new ol.format.GeoJSON();
             var myGeoJsonFeatures = format.readFeatures(
                 FSgeoJson,
                 {featureProjection: 'EPSG:3857'}
             );
-            console.log(myGeoJsonFeatures)
             DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
             DSS.layer.fieldsLabels.getSource().addFeatures(myGeoJsonFeatures)
-            // DSS.layer.fields_1.getSource().refresh();
-            // DSS.layer.fieldsLabels.getSource().refresh();
+            let ex = ol.extent;
+            let extent = DSS.layer.fields_1.getSource().getExtent()
+            ex.buffer(extent, 200, extent);
+            DSS.MapState.zoomToRealExtent(extent)
         })
     }
     //    returns a geojson of the infrastructure
