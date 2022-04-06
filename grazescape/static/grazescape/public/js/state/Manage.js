@@ -26,6 +26,7 @@ function deactivateScenButtons(){
 	Ext.getCmp('dupCurScen').setDisabled(true)
 	Ext.getCmp('delCurScen').setDisabled(true)
 }
+var fieldZoom = false
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Manage', {
 //------------------------------------------------------------------------------
@@ -82,6 +83,7 @@ Ext.define('DSS.state.Manage', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: function(self) {
+									fieldZoom = false
 //									reSourceFields()
 //									reSourceinfra()
 									reSourcefarms()
@@ -171,7 +173,8 @@ Ext.define('DSS.state.Manage', {
 				renderTo: Ext.getBody(),  // usually rendered by it's containing component
 				items: itemsArray,
 				listeners:{
-					click: function( menu, item, e, eOpts ) {
+					click: async function( menu, item, e, eOpts ) {
+						fieldZoom = true
 						//console.log(item.text);
 						console.log(item)
 						//console.log(item.inputValue);
@@ -186,6 +189,7 @@ Ext.define('DSS.state.Manage', {
 						DSS.layer.fieldsLabels.getSource().refresh();
 						DSS.layer.infrastructure.setVisible(true);
 						DSS.layer.fieldsLabels.setVisible(true);
+						console.log('choose scenario menu')
 						activateScenButtons()
 					}
 				}
@@ -209,7 +213,7 @@ Ext.define('DSS.state.Manage', {
 					id: 'dupCurScen',
 					disabled: true,
 					componentCls: 'button-margin',
-					text: 'Duplicate Current Scenario',
+					text: 'Duplicate Selected Scenario',
 					handler: function(self) {
 						gatherScenarioTableData()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
@@ -260,6 +264,8 @@ Ext.define('DSS.state.Manage', {
 					componentCls: 'button-margin',
 					text: 'Create New Blank Scenario',
 					handler: function(self) {
+						DSS.activeScenario = null
+						DSS.scenarioName = ''
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
