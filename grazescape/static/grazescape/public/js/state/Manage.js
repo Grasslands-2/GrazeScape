@@ -209,7 +209,7 @@ Ext.define('DSS.state.Manage', {
 					id: 'dupCurScen',
 					disabled: true,
 					componentCls: 'button-margin',
-					text: 'Duplicate Current Scenario',
+					text: 'Duplicate Selected Scenario',
 					handler: function(self) {
 						gatherScenarioTableData()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
