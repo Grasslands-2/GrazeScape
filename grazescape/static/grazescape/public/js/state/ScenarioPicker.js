@@ -71,20 +71,24 @@ function popItemsArray(obj){
 		for (i in obj){
 			Ext.getCmp("scenarioMenu").add({
 				text:obj[i].properties.scenario_name,
+				description:obj[i].properties.scenario_desp,
 				inputValue:obj[i].properties.gid,
 				itemFid: obj[i].id
 			})
 		}
 	}
-    
-	// for (i in obj){
-    //     Ext.getCmp("scenarioMenu").add({
-    //         text:obj[i].properties.scenario_name,
-	// 		//inputValue:obj[i].properties.scenario_id,
-    //         inputValue:obj[i].properties.gid,
-    //         itemFid: obj[i].id
-    //     })
-    // }
+	if(Ext.getCmp("scenarioMenuNewDup")){
+		Ext.getCmp("scenarioMenuNewDup").removeAll()
+		for (i in obj){
+			Ext.getCmp("scenarioMenuNewDup").add({
+				name:obj[i].properties.scenario_name,
+				text: "<b>Scen Name: </b>" + obj[i].properties.scenario_name.fontcolor('#EE6677').bold() + '<b>		Description: </b>' + obj[i].properties.scenario_desp.fontcolor('#228833').bold(),
+				description:obj[i].properties.scenario_desp,
+				inputValue:obj[i].properties.gid,
+				itemFid: obj[i].id
+			})
+		}
+	}
 	console.log(itemsArray);
 
 }

@@ -76,6 +76,7 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					componentCls: 'button-margin',
 					text: 'Choose Region',
 					handler: function() {
+						fieldZoom = false
 						//Region Picker 
 						//regionPickerFunc()
 						//AppEvents.triggerEvent('show_region_picker_indicator')
