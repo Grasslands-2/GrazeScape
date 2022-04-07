@@ -38,6 +38,7 @@ Ext.define('DSS.state.Manage', {
 		'DSS.state.ScenarioPicker',
 		'DSS.state.DeleteScenario',
 		'DSS.state.NewScenario',
+		'DSS.state.NewDupScenario',
 		'DSS.state.operation.InfraShapeMode',
 		'DSS.state.operation.FieldShapeMode',
 		'DSS.state.Scenario',
@@ -116,6 +117,19 @@ Ext.define('DSS.state.Manage', {
 					html: 'Farm Management'
 				},
 			]
+			},{
+				xtype: 'container',
+				width: '100%',
+				layout: 'absolute',
+				items: [{
+					xtype: 'component',
+					x: 0, y: -6,
+					width: '100%',
+					height: 30,
+					cls: 'information accent-text bold',
+					html: "Work with an existing Scenario",
+				}],
+				
 			},{ 
 				xtype: 'container',
 				layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -151,22 +165,11 @@ Ext.define('DSS.state.Manage', {
 					html: DSS.scenarioName,
 				},
 			//------------------------Load Scenario Button-------------
-			{
-				xtype: 'container',
-				width: '100%',
-				layout: 'absolute',
-				items: [{
-					xtype: 'component',
-					x: 0, y: -6,
-					width: '100%',
-					height: 45,
-					cls: 'information accent-text bold',
-					html: "Pick existing Scenario to work with",
-				}],
-				
-			},
+			
 			Ext.create('Ext.menu.Menu', {
 				width: 80,
+				//height: 140,
+				scrollable: true,
 				id: "scenarioMenu",
 				margin: '0 0 10 0',
 				floating: false,  // usually you want this set to True (default)
@@ -193,8 +196,11 @@ Ext.define('DSS.state.Manage', {
 						activateScenButtons()
 					}
 				}
-			}),]
+			})]
 			},
+//Create new Scenario button
+			
+
 			{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -207,28 +213,28 @@ Ext.define('DSS.state.Manage', {
 						DSS.ApplicationFlow.instance.showScenarioPage();
 					}
 				},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					id: 'dupCurScen',
-					disabled: true,
-					componentCls: 'button-margin',
-					text: 'Duplicate Selected Scenario',
-					handler: function(self) {
-						gatherScenarioTableData()
-						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
-						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						reSourcescenarios();
-						//reSourceFields()
-						getWFSScenarioSP()
-						//getWFSScenarioNS();
-						// DSS.layer.scenarios.getSource().refresh();
-						console.log('This is the scenarioArray: ')
-						console.log(scenarioArray)
-						//DSS.ApplicationFlow.instance.showScenarioPage();
-					}
-				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	id: 'dupCurScen',
+				// 	disabled: true,
+				// 	componentCls: 'button-margin',
+				// 	text: 'Duplicate Selected Scenario',
+				// 	handler: function(self) {
+				// 		gatherScenarioTableData()
+				// 		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
+				// 		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+				// 		DSS.dialogs.ScenarioPicker.show().center().setY(0);
+				// 		reSourcescenarios();
+				// 		//reSourceFields()
+				// 		getWFSScenarioSP()
+				// 		//getWFSScenarioNS();
+				// 		// DSS.layer.scenarios.getSource().refresh();
+				// 		console.log('This is the scenarioArray: ')
+				// 		console.log(scenarioArray)
+				// 		//DSS.ApplicationFlow.instance.showScenarioPage();
+				// 	}
+				// },
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -253,32 +259,108 @@ Ext.define('DSS.state.Manage', {
 					cls: 'information',
 					html: 'Or',
 				},
+				{
+					xtype: 'button',
+					name:'Fields',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Create New Scenario',
+					allowDepress: false,
+						menu: {
+							defaults:{
+							xtype: 'button',
+							cls: 'button-text-pad',
+							componentCls: 'button-margin',
+							hideOnClick: true,
+						},
+						items: [
+						{
+							xtype: 'button',
+							cls: 'button-text-pad',
+							id: 'dupCurScen',
+							//disabled: true,
+							componentCls: 'button-margin',
+							text: 'Duplicate Selected Scenario',
+							handler: function(self) {
+								//getWFSScenarioSP
+								gatherScenarioTableData()
+								DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewDupScenario'); 
+								DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+								DSS.dialogs.ScenarioPicker.show().center().setY(0);
+								reSourcescenarios();
+								getWFSScenarioSP()
+								console.log('This is the scenarioArray: ')
+								console.log(scenarioArray)
+								//DSS.ApplicationFlow.instance.showScenarioPage();
+							}
+						},
+						 { //------------------------------------------
+						xtype: 'component',
+						//id: 'scenIDpanel',
+						cls: 'information',
+						html: 'Or',
+					},
+						{
+							xtype: 'button',
+							cls: 'button-text-pad',
+							componentCls: 'button-margin',
+							text: 'Create New Blank Scenario',
+							handler: function(self) {
+								DSS.activeScenario = null
+								DSS.scenarioName = ''
+								DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
+								DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+								DSS.dialogs.ScenarioPicker.show().center().setY(0);
+								reSourcescenarios();
+								//reSourceFields()
+								getWFSScenarioNS();
+								// DSS.layer.scenarios.getSource().refresh();
+								console.log('This is the scenarioArray: ')
+								console.log(scenarioArray)
+								getWFSScenarioSP()
+								//DSS.ApplicationFlow.instance.showScenarioPage();
+							}
+						}
+					]
+				},
+				addModeControl: function() {
+					let me = this;
+					let c = DSS_viewport.down('#DSS-mode-controls');
+					
+					if (!c.items.has(me)) {
+						Ext.suspendLayouts();
+							c.removeAll(false);
+							c.add(me);
+						Ext.resumeLayouts(true);
+					}
+				}
+				},
 				// {//------------------------------------------
 				// 	xtype: 'component',
 				// 	height: 32
 				// },
 				//---------------------Create New Scenario Button-----------
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Create New Blank Scenario',
-					handler: function(self) {
-						DSS.activeScenario = null
-						DSS.scenarioName = ''
-						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
-						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						reSourcescenarios();
-						//reSourceFields()
-						getWFSScenarioNS();
-						// DSS.layer.scenarios.getSource().refresh();
-						console.log('This is the scenarioArray: ')
-						console.log(scenarioArray)
-						getWFSScenarioSP()
-						//DSS.ApplicationFlow.instance.showScenarioPage();
-					}
-				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'Create New Blank Scenario',
+				// 	handler: function(self) {
+				// 		DSS.activeScenario = null
+				// 		DSS.scenarioName = ''
+				// 		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
+				// 		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+				// 		DSS.dialogs.ScenarioPicker.show().center().setY(0);
+				// 		reSourcescenarios();
+				// 		//reSourceFields()
+				// 		getWFSScenarioNS();
+				// 		// DSS.layer.scenarios.getSource().refresh();
+				// 		console.log('This is the scenarioArray: ')
+				// 		console.log(scenarioArray)
+				// 		getWFSScenarioSP()
+				// 		//DSS.ApplicationFlow.instance.showScenarioPage();
+				// 	}
+				// },
 			//---------------------Delete Scenarios Button-------------
 			// {
 			// 	xtype: 'button',

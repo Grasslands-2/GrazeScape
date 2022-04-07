@@ -136,7 +136,15 @@ Ext.define('DSS.state.MapStateTools', {
 		console.log("setFarmSource in MapStateTools.js within showNewFarm")
 		DSS.layer.farms_1.setOpacity(1);
 	},
-
+	reSourceFeatsToFarm: function() {
+		DSS.layer.fieldsLabels.setVisible(false);
+		DSS.layer.fields_1.setVisible(false);
+		DSS.layer.infrastructure.setVisible(false);
+    	geoServer.setFieldSource('&CQL_filter=farm_id='+DSS.activeFarm)
+		geoServer.setInfrastructureSource('&CQL_filter=farm_id='+DSS.activeFarm)
+		console.log("showfieldsforfarm ran");
+		DSS.layer.fields_1.getSource().refresh();
+    },
 	//used to limit return of fields to just active farm
     showFieldsForFarm: function() {
 		console.log(DSS.activeScenario)
