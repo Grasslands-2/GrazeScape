@@ -18,6 +18,10 @@ import time
 import requests
 import json as js
 import threading
+import shutil
+from osgeo import gdal
+import numpy as np
+from osgeo import gdalconst as gc
 
 @login_required
 def index(request):
@@ -51,6 +55,19 @@ def index(request):
         # r = requests.get(url)
         # with open(raster_file_path, "wb") as f:
         #     f.write(r.content)
+    input_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
+                              'raster_inputs')
+
+    now = time.time()
+    #
+    for f in os.listdir(input_path):
+        try:
+            f = os.path.join(input_path, f)
+            if os.stat(f).st_mtime < now - 3600:
+                shutil.rmtree(f)
+        except OSError as e:
+            print("Error: %s : %s" % (f, e.strerror))
+
     return render(request, 'smartscape_home.html', context=context)
 
 def createNewDownloadThread(link, filelocation):
@@ -248,13 +265,34 @@ def get_transformed_land(request):
     # print(request.body)
     request_json = js.loads(request.body)
     # create a new folder for the model outputs
-    print(request_json)
     trans_id = str(uuid.uuid4())
     folder_id = request_json["folderId"]
 
     model = SmartScape(request_json, trans_id, folder_id)
     return_data = model.create_model_agr()
-
+    watershed_land_use_image = gdal.Open(os.path.join(model.in_dir, "transformation_landuse.tif"))
+    watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
+    watershed_land_use = watershed_land_use_band.ReadAsArray()
+    print(watershed_land_use)
+    base_data_watershed = {
+        "yield": np.copy(watershed_land_use),
+        "ero": np.copy(watershed_land_use),
+        "ploss": np.copy(watershed_land_use),
+        "cn": np.copy(watershed_land_use),
+        "runoff": np.copy(watershed_land_use),
+        "insect": np.copy(watershed_land_use),
+    }
+    count_selected = np.count_nonzero(base_data_watershed["yield"] != -9999)
+    count_selected3 = np.count_nonzero(base_data_watershed["yield"] == 3)
+    count_selected1 = np.count_nonzero(base_data_watershed["yield"] == 4)
+    count_selected2 = np.count_nonzero(base_data_watershed["yield"] == 5)
+    print("watershed selected cells ", count_selected3 + count_selected1 + count_selected2)
+    print("whole watershed cells ", count_selected)
+    test3 = base_data_watershed["yield"].flatten()
+    values, counts = np.unique(test3, return_counts=True)
+    print(values)
+    print(counts)
+    return_data["whole_watershed"] = {"values":values.tolist(), "count":counts.tolist()}
     #
     # except KeyError as e:
     #     error = str(e) + " while running models for field " + f_name
