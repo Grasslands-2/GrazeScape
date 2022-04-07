@@ -50,17 +50,20 @@ class GeoServer{
             DSS.layer.fields_1.getSource().clear()
             DSS.layer.fieldsLabels.getSource().clear()
             var FSgeoJson = geoJson.geojson
-            
             var format = new ol.format.GeoJSON();
             var myGeoJsonFeatures = format.readFeatures(
                 FSgeoJson,
                 {featureProjection: 'EPSG:3857'}
             );
-            console.log(myGeoJsonFeatures)
             DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
             DSS.layer.fieldsLabels.getSource().addFeatures(myGeoJsonFeatures)
-            // DSS.layer.fields_1.getSource().refresh();
-            // DSS.layer.fieldsLabels.getSource().refresh();
+            if(fieldZoom == true){
+                let ex = ol.extent;
+                let extent = DSS.layer.fields_1.getSource().getExtent()
+                ex.buffer(extent, 1000, extent);
+                console.log("setFieldSource")
+                DSS.MapState.zoomToRealExtent(extent)
+            }
         })
     }
     //    returns a geojson of the infrastructure
@@ -101,6 +104,7 @@ class GeoServer{
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             geoJson = JSON.parse(geoJson.geojson)
 			let scenObj = geoJson.features
+            console.log(scenObj)
 			farmArray = [];
 			itemsArray = [];
 			popItemsArray(scenObj);
@@ -316,6 +320,7 @@ class GeoServer{
             console.log("DONE WITH NEW SCENARIO COPY AND INSERT!!!!!!!!")
             DSS.MapState.showFieldsForScenario();
             DSS.MapState.showInfraForScenario();
+            await geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
             //Placed here to change the window to manage the new scenario once everything is ready to go.
             DSS.ApplicationFlow.instance.showScenarioPage();
 
@@ -367,6 +372,7 @@ class GeoServer{
     //used in delete scneario to delete assocaited fields and infra
     wfsDeleteItem(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
+            console.log(feat)
             // let geoJson = returnData.geojson
             // let currObj = returnData.current
             // currObj.setScenariosSource()
@@ -374,6 +380,9 @@ class GeoServer{
             // currObj.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
             // currObj.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
             geoServer.setScenariosSource()
+            if(feat = 'scenarios_2'){
+                getWFSScenarioSP()
+            }
          })
     }
     //Function that hits geoserver with ajax request.

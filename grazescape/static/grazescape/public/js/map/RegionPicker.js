@@ -24,6 +24,7 @@ Ext.define('DSS.map.RegionPicker', {
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
+		AppEvents.triggerEvent('show_region_picker_indicator')
 		let me = this;
 		Ext.applyIf(me, {
 			items: [{
@@ -63,6 +64,7 @@ Ext.define('DSS.map.RegionPicker', {
 									constrainOnlyCenter: false,
 									extent:[-10143258, 5510000,-9913236,5702859]
 								}))
+								AppEvents.triggerEvent('hide_region_picker_indicator')
 							}
 							else{
 								DSS.activeRegion = "southWestWI";
@@ -74,6 +76,7 @@ Ext.define('DSS.map.RegionPicker', {
 									constrainOnlyCenter: false,
 									extent:[ -10188178, 5301578, -10037615, 5466962]
 								}))
+								AppEvents.triggerEvent('hide_region_picker_indicator')
 							}
 							console.log("REGION PICKER DONE");
 							

@@ -314,7 +314,7 @@ class TransformationTable extends Component {
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModal}>
-                    Close
+                    Save
                   </Button>
                 </Modal.Footer>
             </Modal>

@@ -321,6 +321,11 @@ class SidePanel extends React.Component{
     let tempId = uuidv4();
 
     let newTrans = Transformation(" ",tempId, 5)
+    newTrans.management.rotationType = "pt"
+    newTrans.management.density = "rt_rt"
+    newTrans.management.fertilizer = "0_0"
+    console.log("Adding new trans")
+    console.log(newTrans)
     this.props.setActiveTrans(newTrans)
     this.props.addTrans(newTrans)
 //    this.props.setActiveTrans(newTrans)
@@ -338,10 +343,7 @@ class SidePanel extends React.Component{
      // ajax call with selection criteria
 
     if (this.props.listTrans.length < 1){
-        let tempId = uuidv4();
-        let newTrans = Transformation(" ",tempId, 5)
-        this.props.setActiveTrans(newTrans)
-        this.props.addTrans(newTrans)
+       this.addTrans()
     }
     console.log(this.props)
      if (this.props.extents.length == 0){
@@ -500,17 +502,44 @@ class SidePanel extends React.Component{
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
     }
+    let modelWatershed = {
+        "yield":null, "yield_total":null, "yield_per_diff":null,
+        "ero":null, "ero_total":null,"ero_per_diff":null,
+        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "cn":null,"cn_per_diff":null,
+        "runoff":null,"runoff_per_diff":null,
+        "insect":null,"insect_per_diff":null,
+    }
+    let baseWatershed = {
+        "yield":null, "yield_total":null, "yield_per_diff":null,
+        "ero":null, "ero_total":null,"ero_per_diff":null,
+        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "cn":null,"cn_per_diff":null,
+        "runoff":null,"runoff_per_diff":null,
+        "insect":null,"insect_per_diff":null,
+    }
     let area = 0
+    let areaWatershed = 0
     let radarData = [[1,1,1,1,1,1],[2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
+    let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
     console.log("done with radar")
     let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
+
     let dataYield = dataBarPercent
     let dataEro= dataBarPercent
     let dataPloss= dataBarPercent
     let dataRun= dataBarPercent
     let dataInsect= dataBarPercent
     let dataCN = dataBarPercent
+
+    let dataYieldWatershed = dataBarPercent
+    let dataEroWatershed= dataBarPercent
+    let dataPlossWatershed= dataBarPercent
+    let dataRunWatershed= dataBarPercent
+    let dataInsectWatershed= dataBarPercent
+    let dataCNWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     let optionsYield = optionsBarPercent
@@ -519,36 +548,9 @@ class SidePanel extends React.Component{
     let optionsRun = optionsBarPercent
     let optionsInsect = optionsBarPercent
     let optionsCN = optionsBarPercent
+
 //    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
-        area = this.state.modelOutputs.land_stats.area
-        dataRadar = {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Base',
-              data: [1,1,1,1,1,1],
-              backgroundColor: 'rgba(238, 119, 51,.2)',
-              borderColor: 'rgba(238, 119, 51,1)',
-              borderWidth: 1,
-            },
-                    {
-              label: 'Transformation',
-              data: [
-                  this.state.modelOutputs.model.yield.total_per_area/this.state.modelOutputs.base.yield.total_per_area,
-                  this.state.modelOutputs.model.ero.total_per_area/this.state.modelOutputs.base.ero.total_per_area,
-                  this.state.modelOutputs.model.ploss.total_per_area/this.state.modelOutputs.base.ploss.total_per_area,
-                  this.state.modelOutputs.model.runoff.total_per_area/this.state.modelOutputs.base.runoff.total_per_area,
-                  this.state.modelOutputs.model.insect.total_per_area/this.state.modelOutputs.base.insect.total_per_area,
-                  this.state.modelOutputs.model.cn.total_per_area/this.state.modelOutputs.base.cn.total_per_area,
-              ],
-              backgroundColor: 'rgba(0, 119, 187,.2)',
-              borderColor: 'rgba(0, 119, 187,1)',
-              borderWidth: 1,
-            },
-          ],
-        };
-
         model.yield = this.state.modelOutputs.model.yield.total_per_area
         model.yield_total = this.state.modelOutputs.model.yield.total
         model.ero = this.state.modelOutputs.model.ero.total_per_area
@@ -573,6 +575,89 @@ class SidePanel extends React.Component{
         base.runoff_total = this.state.modelOutputs.base.runoff.total
         base.insect = this.state.modelOutputs.base.insect.total_per_area
 
+
+        modelWatershed.yield = this.state.modelOutputs.model.yield.total_per_area_watershed
+        modelWatershed.yield_total = this.state.modelOutputs.model.yield.total_watershed
+        modelWatershed.ero = this.state.modelOutputs.model.ero.total_per_area_watershed
+        modelWatershed.ero_total = this.state.modelOutputs.model.ero.total_watershed
+        modelWatershed.ploss = this.state.modelOutputs.model.ploss.total_per_area_watershed
+        modelWatershed.ploss_total = this.state.modelOutputs.model.ploss.total_watershed
+
+        modelWatershed.cn = this.state.modelOutputs.model.cn.total_per_area_watershed
+        modelWatershed.runoff = this.state.modelOutputs.model.runoff.total_per_area_watershed
+        modelWatershed.runoff_total = this.state.modelOutputs.model.runoff.total_watershed
+        modelWatershed.insect = this.state.modelOutputs.model.insect.total_per_area_watershed
+
+        baseWatershed.yield = this.state.modelOutputs.base.yield.total_per_area_watershed
+        baseWatershed.yield_total = this.state.modelOutputs.base.yield.total_watershed
+        baseWatershed.ero = this.state.modelOutputs.base.ero.total_per_area_watershed
+        baseWatershed.ero_total = this.state.modelOutputs.base.ero.total_watershed
+        baseWatershed.ploss = this.state.modelOutputs.base.ploss.total_per_area_watershed
+        baseWatershed.ploss_total = this.state.modelOutputs.base.ploss.total_watershed
+
+        baseWatershed.cn = this.state.modelOutputs.base.cn.total_per_area_watershed
+        baseWatershed.runoff = this.state.modelOutputs.base.runoff.total_per_area_watershed
+        baseWatershed.runoff_total = this.state.modelOutputs.base.runoff.total_watershed
+        baseWatershed.insect = this.state.modelOutputs.base.insect.total_per_area_watershed
+
+        area = this.state.modelOutputs.land_stats.area
+        areaWatershed = this.state.modelOutputs.land_stats.area_watershed
+
+        dataRadar = {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Base',
+              data: [1,1,1,1,1,1],
+              backgroundColor: 'rgba(238, 119, 51,.2)',
+              borderColor: 'rgba(238, 119, 51,1)',
+              borderWidth: 1,
+            },
+                    {
+              label: 'Transformation',
+              data: [
+                  model.yield/base.yield,
+                  model.ero/base.ero,
+                  model.ploss/base.ploss,
+                  model.runoff/base.runoff ,
+                  model.insect/base.insect,
+                  model.cn/base.cn,
+              ],
+              backgroundColor: 'rgba(0, 119, 187,.2)',
+              borderColor: 'rgba(0, 119, 187,1)',
+              borderWidth: 1,
+            },
+          ],
+        };
+        dataRadarWatershed = {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Base',
+              data: [1,1,1,1,1,1],
+              backgroundColor: 'rgba(238, 119, 51,.2)',
+              borderColor: 'rgba(238, 119, 51,1)',
+              borderWidth: 1,
+            },
+                    {
+              label: 'Transformation',
+              data: [
+                  modelWatershed.yield/baseWatershed.yield,
+                  modelWatershed.ero/baseWatershed.ero,
+                  modelWatershed.ploss/baseWatershed.ploss,
+                  modelWatershed.runoff/baseWatershed.runoff ,
+                  modelWatershed.insect/baseWatershed.insect,
+                  modelWatershed.cn/baseWatershed.cn,
+              ],
+              backgroundColor: 'rgba(0, 119, 187,.2)',
+              borderColor: 'rgba(0, 119, 187,1)',
+              borderWidth: 1,
+            },
+          ],
+        };
+
+
+
         let models = ["yield","ero","ploss","cn","insect","runoff"]
         let v1, v2 = 0
         let model_name = ""
@@ -588,6 +673,19 @@ class SidePanel extends React.Component{
 //            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
             model[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
+        }
+
+        for (let m in models) {
+            model_name = models[m]
+            v1 = parseFloat(modelWatershed[model_name])
+            v2 = parseFloat(baseWatershed[model_name])
+//            console.log(v1, v2)
+//            console.log(((v1 + v2)/2))
+//            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
+//            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
+            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
         }
         dataBarPercent ={ labels: labels,
           datasets: [{
@@ -624,14 +722,56 @@ class SidePanel extends React.Component{
             ],
             borderWidth: 1
           }]
-    };
+        };
+        dataBarPercentWatershed ={ labels: labels,
+          datasets: [{
+            axis: 'y',
+             minBarLength: 7,
+            label: 'Relative Change Between Base and Transformation for Watershed',
+            data: [
+                modelWatershed.yield_per_diff,
+                modelWatershed.ero_per_diff,
+                modelWatershed.ploss_per_diff,
+                modelWatershed.runoff_per_diff,
+                modelWatershed.insect_per_diff,
+                modelWatershed.cn_per_diff,
+
+            ],
+            fill: false,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(201, 203, 207, 0.2)'
+            ],
+            borderColor: [
+              'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)',
+              'rgb(75, 192, 192)',
+              'rgb(54, 162, 235)',
+              'rgb(153, 102, 255)',
+              'rgb(201, 203, 207)'
+            ],
+            borderWidth: 1
+          }]
+        };
         dataYield = charts.getChartDataBar([base.yield,null], [null,model.yield])
         dataEro= charts.getChartDataBar([base.ero,null],[ null,model.ero])
         dataPloss= charts.getChartDataBar([base.ploss,null], [null,model.ploss])
         dataRun= charts.getChartDataBar([base.runoff,null], [null,model.runoff])
         dataInsect= charts.getChartDataBar([base.insect,null], [null,model.insect])
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
-        console.log(dataCN)
+
+        dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
+        dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
+        dataPlossWatershed= charts.getChartDataBar([baseWatershed.ploss,null], [null,modelWatershed.ploss])
+        dataRunWatershed= charts.getChartDataBar([baseWatershed.runoff,null], [null,modelWatershed.runoff])
+        dataInsectWatershed= charts.getChartDataBar([baseWatershed.insect,null], [null,modelWatershed.insect])
+        dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
 
         optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
@@ -648,7 +788,8 @@ class SidePanel extends React.Component{
               <Accordion.Item eventKey="0">
                 <Accordion.Header>Transformation Information</Accordion.Header>
                 <Accordion.Body>
-                    <div> Total area Transformed: {area} acres</div>
+                    <div> Total area Transformed: {area} acres ({(parseFloat(area)/parseFloat(areaWatershed) * 100 ).toFixed(2)}%)</div>
+                    <div> Total area in Work Area: {areaWatershed} acres</div>
                     <Table striped bordered hover size="sm" responsive>
                       <thead>
                       <tr style={{textAlign:"center"}}>
@@ -673,6 +814,7 @@ class SidePanel extends React.Component{
             </Accordion>
             <Tabs defaultActiveKey="chartsBar" id="uncontrolled-tab-example" className="mb-3">
               <Tab eventKey="chartsBar" title="Bar Charts">
+              <h4>By Selection</h4>
                  <Row>
                     <Col xs={6}>
                         <Bar options = {optionsYield} data={dataYield}/>
@@ -697,8 +839,35 @@ class SidePanel extends React.Component{
                         <Bar options = {optionsCN} data={dataCN}/>
                     </Col>
                 </Row>
+                  <h4>By Watershed</h4>
+
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsYield} data={dataYieldWatershed}/>
+                    </Col>
+                    <Col xs={6}>
+                        <Bar options = {optionsEro} data={dataEroWatershed}/>
+                    </Col>
+                 </Row>
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsPloss} data={dataPlossWatershed}/>
+                    </Col>
+                    <Col xs={6}>
+                        <Bar options = {optionsRun} data={dataRunWatershed}/>
+                    </Col>
+                 </Row>
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsInsect} data={dataInsectWatershed}/>
+                    </Col>
+                    <Col xs={6}>
+                        <Bar options = {optionsCN} data={dataCNWatershed}/>
+                    </Col>
+                </Row>
               </Tab>
               <Tab eventKey="chart" title="Summary Charts">
+              <h4>By Selection</h4>
                <Row>
                 <Col xs={6}>
                     <Radar data={dataRadar}/>
@@ -707,9 +876,19 @@ class SidePanel extends React.Component{
                     <Bar options = {optionsBarPercent} data={dataBarPercent}/>
                 </Col>
                 </Row>
+                <h4>By Watershed</h4>
+                <Row>
+                <Col xs={6}>
+                    <Radar data={dataRadarWatershed}/>
+                </Col>
+                <Col xs={6}>
+                    <Bar options = {optionsBarPercent} data={dataBarPercentWatershed}/>
+                </Col>
+                </Row>
 
             </Tab>
               <Tab eventKey="tabular" title="Tabular">
+                  <h4>By Selection</h4>
                 <Table striped bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
@@ -795,6 +974,97 @@ class SidePanel extends React.Component{
                       <td>NA</td>
                       <td>NA</td>
                       <td className="table-cell-left">{model.cn_per_diff}</td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </Table>
+            <h4>By Watershed</h4>
+
+              <Table striped bordered hover size="sm" responsive>
+                  <thead>
+                  <tr style={{textAlign:"center"}}>
+                      <th></th>
+                      <th className="table-cell-left" colSpan={3}>Per Acre</th>
+                      <th className="table-cell-left" colSpan={3}>Total</th>
+                      <th className="table-cell-left" colSpan={2}></th>
+                    </tr>
+                    <tr style={{textAlign:"center"}}>
+                      <th  >Variable</th>
+                      <th className="table-cell-left">Base</th>
+                      <th>Transformation</th>
+                      <th>Units</th>
+                      <th className="table-cell-left">Base</th>
+                      <th>Transformation</th>
+                      <th>Units</th>
+                      <th className="table-cell-left">Relative Change</th>
+                      <th>Help</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Yield</td>
+                      <td className="table-cell-left">{baseWatershed.yield}</td>
+                      <td>{modelWatershed.yield}</td>
+                      <td>tons-dry matter/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.yield_total}</td>
+                      <td>{modelWatershed.yield_total}</td>
+                      <td>tons-dry matter/year</td>
+                      <td className="table-cell-left">{modelWatershed.yield_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Erosion</td>
+                      <td className="table-cell-left">{baseWatershed.ero}</td>
+                      <td>{modelWatershed.ero}</td>
+                      <td>tons/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.ero_total}</td>
+                      <td>{modelWatershed.ero_total}</td>
+                      <td>tons/year</td>
+                      <td className="table-cell-left">{modelWatershed.ero_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Phosphorus Loss</td>
+                      <td className="table-cell-left">{baseWatershed.ploss}</td>
+                      <td>{modelWatershed.ploss}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.ploss_total}</td>
+                      <td>{modelWatershed.ploss_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{modelWatershed.ploss_per_diff}</td>
+                      <td></td>
+                    </tr>
+                   <tr>
+                      <td>Runoff (3 inch Storm)</td>
+                      <td className="table-cell-left"> {baseWatershed.runoff}</td>
+                      <td>{modelWatershed.runoff}</td>
+                      <td>inches</td>
+                      <td className="table-cell-left">{baseWatershed.runoff_total}</td>
+                      <td>{modelWatershed.runoff_total}</td>
+                      <td>acre-ft</td>
+                      <td className="table-cell-left">{modelWatershed.runoff_per_diff}</td>
+                      <td></td>
+                   </tr>
+                   <tr>
+                      <td>Honey Bee Toxicity</td>
+                      <td className="table-cell-left">{baseWatershed.insect}</td>
+                      <td>{modelWatershed.insect}</td>
+                      <td>insecticide index</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.insect_per_diff}</td>
+                      <td></td>
+                   </tr>
+                   <tr>
+                      <td>Curve Number</td>
+                      <td className="table-cell-left">{baseWatershed.cn}</td>
+                      <td>{modelWatershed.cn}</td>
+                      <td>curve number</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.cn_per_diff}</td>
                       <td></td>
                     </tr>
                   </tbody>
@@ -1092,7 +1362,7 @@ class SidePanel extends React.Component{
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModalBase}>
-                    Close
+                    Save
                   </Button>
                 </Modal.Footer>
             </Modal>

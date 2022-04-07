@@ -208,7 +208,7 @@ Ext.define('DSS.map.LayerMenu', {
 				style: 'border-bottom: 1px solid rgba(0,0,0,0.2);padding-top: 4px; background-color: #ccc'
 			},{ //-------------------------------------------
 				text: 'Tainter Creek',
-                checked: true,
+                checked: false,
                 //menu: makeOpacityMenu("tainterwatershed", DSS.layer.tainterwatershed),
                 listeners: {
                 	afterrender: function(self) {
@@ -219,22 +219,24 @@ Ext.define('DSS.map.LayerMenu', {
                 	Ext.util.Cookies.set("tainterwatershed:visible", self.checked ? "1" : "0");                	
                 	DSS.layer.tainterwatershed.setVisible(self.checked);                    	
                 }
-			},{ //-------------------------------------------
-				text: 'Rulland Coulee',
-                checked: true,
-                //menu: makeOpacityMenu("rullandsCouleewshed", DSS.layer.rullandsCouleewshed),
-                listeners: {
-                	afterrender: function(self) {
-                		self.setChecked(DSS.layer.rullandsCouleewshed.getVisible());
-                	}
-                },
-                handler: function(self) {
-                	Ext.util.Cookies.set("rullandsCouleewshed:visible", self.checked ? "1" : "0");                	
-                	DSS.layer.rullandsCouleewshed.setVisible(self.checked);                    	
-                }
-			},{ //-------------------------------------------
+			},
+			// { //-------------------------------------------
+			// 	text: 'Rulland Coulee',
+            //     checked: false,
+            //     //menu: makeOpacityMenu("rullandsCouleewshed", DSS.layer.rullandsCouleewshed),
+            //     listeners: {
+            //     	afterrender: function(self) {
+            //     		self.setChecked(DSS.layer.rullandsCouleewshed.getVisible());
+            //     	}
+            //     },
+            //     handler: function(self) {
+            //     	Ext.util.Cookies.set("rullandsCouleewshed:visible", self.checked ? "1" : "0");                	
+            //     	DSS.layer.rullandsCouleewshed.setVisible(self.checked);                    	
+            //     }
+			// },
+			{ //-------------------------------------------
 				text: 'Kickapoo',
-                checked: true,
+                checked: false,
                 //menu: makeOpacityMenu("kickapoowatershed", DSS.layer.kickapoowatershed),
                 listeners: {
                 	afterrender: function(self) {
