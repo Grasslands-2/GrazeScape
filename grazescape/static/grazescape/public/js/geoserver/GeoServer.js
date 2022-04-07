@@ -57,10 +57,13 @@ class GeoServer{
             );
             DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
             DSS.layer.fieldsLabels.getSource().addFeatures(myGeoJsonFeatures)
-            let ex = ol.extent;
-            let extent = DSS.layer.fields_1.getSource().getExtent()
-            ex.buffer(extent, 200, extent);
-            DSS.MapState.zoomToRealExtent(extent)
+            if(fieldZoom == true){
+                let ex = ol.extent;
+                let extent = DSS.layer.fields_1.getSource().getExtent()
+                ex.buffer(extent, 1000, extent);
+                console.log("setFieldSource")
+                DSS.MapState.zoomToRealExtent(extent)
+            }
         })
     }
     //    returns a geojson of the infrastructure
