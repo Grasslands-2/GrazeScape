@@ -26,6 +26,7 @@ import time
 import multiprocessing
 import concurrent.futures
 
+
 Ft_To_Meters = 0.3048
 
 
@@ -358,15 +359,7 @@ class SmartScape:
         arr = band.ReadAsArray()
         print(watershed_file_list)
         # get full watershed
-        ds_clip = gdal.Warp(
-            # last raster ovrrides it
-            os.path.join(dir_path, "transformation_landuse.tif"),
-            watershed_file_list,
-            dstNodata=-9999,
-            outputType=gc.GDT_Float32)
-        watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
-        watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
-        watershed_land_use = watershed_land_use_band.ReadAsArray()
+
 
         # fill the blank raster with no data values
         arr.fill(self.no_data)
@@ -687,7 +680,17 @@ class SmartScape:
         print("base yield cell count", count1)
 
         print("Selected yield is", sum_base_yield)
-
+        ds_clip = gdal.Warp(
+            # last raster ovrrides it
+            os.path.join(dir_path, "transformation_landuse.tif"),
+            watershed_file_list,
+            dstNodata=-9999,
+            outputType=gc.GDT_Float32)
+        time.sleep(15)
+        watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
+        watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
+        watershed_land_use = watershed_land_use_band.ReadAsArray()
+        print("shape of watershed land use ", watershed_land_use.shape)
         base_data_watershed = {
             "yield": np.copy(watershed_land_use),
             "ero": np.copy(watershed_land_use),
