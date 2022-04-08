@@ -360,6 +360,15 @@ class SmartScape:
         print(watershed_file_list)
         # get full watershed
 
+        ds_clip = gdal.Warp(
+            # last raster ovrrides it
+            os.path.join(dir_path, "transformation_landuse.tif"),
+            watershed_file_list,
+            dstNodata=-9999,
+            outputType=gc.GDT_Float32)
+        watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
+        watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
+        watershed_land_use = watershed_land_use_band.ReadAsArray()
 
         # fill the blank raster with no data values
         arr.fill(self.no_data)
