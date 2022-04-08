@@ -427,7 +427,7 @@ Ext.define('DSS.state.Scenario', {
 					flex: 1,
 					cls: 'section-title accent-text right-pad',
 					// TODO: Dynamic name...
-					html: 'Scenario Management'
+					html: 'Scenario Design'
 				}]
 			},{ 
 				xtype: 'container',

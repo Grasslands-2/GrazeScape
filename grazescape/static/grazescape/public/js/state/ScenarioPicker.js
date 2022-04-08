@@ -82,7 +82,7 @@ function popItemsArray(obj){
 		for (i in obj){
 			Ext.getCmp("scenarioMenuNewDup").add({
 				name:obj[i].properties.scenario_name,
-				text: "<b>Scen Name: </b>" + obj[i].properties.scenario_name.fontcolor('#EE6677').bold() + '<b>		Description: </b>' + obj[i].properties.scenario_desp.fontcolor('#228833').bold(),
+				text: "<b>Scenario Name: </b>" + obj[i].properties.scenario_name.fontcolor('#EE6677').bold() + '<b>		Description: </b>' + obj[i].properties.scenario_desp.fontcolor('#228833').bold(),
 				description:obj[i].properties.scenario_desp,
 				inputValue:obj[i].properties.gid,
 				itemFid: obj[i].id
