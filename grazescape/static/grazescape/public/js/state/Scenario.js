@@ -138,6 +138,7 @@ function waitForScen(){
             console.log("done waiting!!!!!!!!!!!!")
             console.log("2222")
             resolve("done")
+	    activateRunModels()
         })
 	}
 function popScenarioArray(obj) {
