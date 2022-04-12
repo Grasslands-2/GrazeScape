@@ -206,7 +206,7 @@ class GeoServer{
             DSS.MapState.showFieldsForScenario();
             DSS.MapState.showInfraForScenario();
             DSS.MapState.zoomToActiveFarm()
-            
+            document.body.style.cursor = "default";
          })
 
     }
@@ -287,6 +287,7 @@ class GeoServer{
             DSS.MapState.showFieldsForScenario();
             DSS.MapState.showInfraForScenario();
             DSS.MapState.zoomToActiveFarm()
+            activateRunModels()
             // setFieldSource().then(function(){
             //     console.log("redraw fields")
             //     DSS.MapState.showNewFarm(DSS.activeFarm);

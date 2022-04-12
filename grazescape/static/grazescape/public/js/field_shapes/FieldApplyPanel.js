@@ -320,6 +320,8 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 								data.on_contour);
 								data.field_name.value = ''
 								//form.reset()
+								document.body.style.cursor = "wait";
+								Ext.getCmp("btnRunModels").setDisabled(false)
 								this.up('window').destroy();
 							}
 						}
