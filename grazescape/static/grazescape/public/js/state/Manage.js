@@ -27,6 +27,8 @@ function deactivateScenButtons(){
 	Ext.getCmp('delCurScen').setDisabled(true)
 }
 var fieldZoom = false
+
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Manage', {
 //------------------------------------------------------------------------------

@@ -118,6 +118,13 @@ function gatherYieldTableData() {
     }
     console.log(fieldYieldArray)
 }; 
+function turnOffMappedResults() {
+    DSS.MapState.destroyLegend();
+    DSS.layer.yieldGroup.setVisible(false);
+    DSS.layer.erosionGroup.setVisible(false);
+    DSS.layer.runoffGroup.setVisible(false);
+    DSS.layer.PLossGroup.setVisible(false);
+}
     
 var fieldYieldArray = [];
 var modelTypes = ['yield', 'ploss','runoff', 'bio']
@@ -213,36 +220,20 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         
         hide: function(){
             console.log("hide")
-            DSS.MapState.destroyLegend();
-            DSS.layer.yieldGroup.setVisible(false);
-            DSS.layer.erosionGroup.setVisible(false);
-            DSS.layer.runoffGroup.setVisible(false);
-            DSS.layer.PLossGroup.setVisible(false);
+            turnOffMappedResults()
         },
 
         close: function(thisWindow){
             console.log("close")
-            DSS.MapState.destroyLegend();
-            DSS.layer.yieldGroup.setVisible(false);
-            DSS.layer.erosionGroup.setVisible(false);
-            DSS.layer.runoffGroup.setVisible(false);
-            DSS.layer.PLossGroup.setVisible(false);
+            turnOffMappedResults()
         },
         closeaction: function(thisWindow){
             console.log("closeAction")
-            DSS.MapState.destroyLegend();
-            DSS.layer.yieldGroup.setVisible(false);
-            DSS.layer.erosionGroup.setVisible(false);
-            DSS.layer.runoffGroup.setVisible(false);
-            DSS.layer.PLossGroup.setVisible(false);
+            turnOffMappedResults()
         },
         beforeclose: function(thisWindow){
             console.log("beforeclose")
-            DSS.MapState.destroyLegend();
-            DSS.layer.yieldGroup.setVisible(false);
-            DSS.layer.erosionGroup.setVisible(false);
-            DSS.layer.runoffGroup.setVisible(false);
-            DSS.layer.PLossGroup.setVisible(false);
+            turnOffMappedResults()
         },
         minimize: function (window, opts) {
             console.log("minimize")
@@ -2480,11 +2471,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 							listeners:{change: function(checked)
 								{
 									if(this.checked){
-										DSS.MapState.destroyLegend();
-										DSS.layer.yieldGroup.setVisible(false);
-                                        DSS.layer.erosionGroup.setVisible(false);
-                                        DSS.layer.runoffGroup.setVisible(false);
-                                        DSS.layer.PLossGroup.setVisible(false);
+                                        turnOffMappedResults()
 									}
 								}
 							}
