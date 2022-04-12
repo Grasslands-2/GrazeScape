@@ -308,23 +308,11 @@ Ext.define('DSS.state.NewDupScenario', {
 							click: async function( menu, item, e, eOpts ) {
 								fieldZoom = true
 								geoServer.getWFSScenario()
-								//console.log(item.text);
 								console.log(item)
-								//console.log(item.inputValue);
 								DSS.activeScenario = item.inputValue;
 								DSS.scenarioName = item.name
 								Ext.getCmp('scenDupIDpanel').setHtml('"'+ item.name+'"');
-								Ext.getCmp('scenDupDesp').setHtml(item.description);
 								scenarioPickerArray = []
-								// DSS.MapState.showFieldsForScenario();
-								// DSS.MapState.showInfraForScenario();
-								// DSS.layer.fields_1.setVisible(true);
-								// DSS.layer.fields_1.getSource().refresh();
-								// DSS.layer.fieldsLabels.getSource().refresh();
-								// DSS.layer.infrastructure.setVisible(true);
-								// DSS.layer.fieldsLabels.setVisible(true);
-								// console.log('choose scenario menu')
-								//activateScenButtons()
 							}
 						}
 					}),
@@ -341,22 +329,6 @@ Ext.define('DSS.state.NewDupScenario', {
 						style:{
 							fontsize: 45,
 							color: '#EE6677'
-						},
-						html: DSS.scenarioName,
-					},
-					{ //------------------------------------------
-						xtype: 'component',
-						//id: 'scenIDpanel',
-						cls: 'information',
-						html: 'Selected Scenario Description: ',
-					},
-					{ //------------------------------------------
-						xtype: 'component',
-						id: 'scenDupDesp',
-						cls: 'information-scenlabel',
-						style:{
-							fontsize: 35,
-							color: '#228833'
 						},
 						html: DSS.scenarioName,
 					},

@@ -26,6 +26,7 @@ import time
 import multiprocessing
 import concurrent.futures
 
+
 Ft_To_Meters = 0.3048
 
 
@@ -70,7 +71,7 @@ class SmartScape:
         self.data_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs')
         self.in_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                                    'raster_inputs', self.file_name)
-
+        print("data directory", self.in_dir)
         if not os.path.exists(self.in_dir):
             os.makedirs(self.in_dir)
         self.geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
@@ -358,19 +359,21 @@ class SmartScape:
         arr = band.ReadAsArray()
         print(watershed_file_list)
         # get full watershed
+
         ds_clip = gdal.Warp(
             # last raster ovrrides it
-            os.path.join(dir_path, "transformation_landuse.tif"), watershed_file_list,
+            os.path.join(dir_path, "transformation_landuse.tif"),
+            watershed_file_list,
             dstNodata=-9999,
             outputType=gc.GDT_Float32)
         watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
         watershed_land_use = watershed_land_use_band.ReadAsArray()
 
-        arr.fill(-9999)
+        # fill the blank raster with no data values
+        arr.fill(self.no_data)
         [rows, cols] = arr.shape
         driver = gdal.GetDriverByName("GTiff")
-        # create new tif same size as temp_extents.tif but set all values to no data values
         outdata = driver.Create(os.path.join(dir_path, "raster_base_projection.tif"), cols, rows, 1,
                                 gdal.GDT_Float32)
         outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
@@ -686,7 +689,17 @@ class SmartScape:
         print("base yield cell count", count1)
 
         print("Selected yield is", sum_base_yield)
-
+        ds_clip = gdal.Warp(
+            # last raster ovrrides it
+            os.path.join(dir_path, "transformation_landuse.tif"),
+            watershed_file_list,
+            dstNodata=-9999,
+            outputType=gc.GDT_Float32)
+        time.sleep(15)
+        watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
+        watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
+        watershed_land_use = watershed_land_use_band.ReadAsArray()
+        print("shape of watershed land use ", watershed_land_use.shape)
         base_data_watershed = {
             "yield": np.copy(watershed_land_use),
             "ero": np.copy(watershed_land_use),
@@ -801,12 +814,14 @@ class SmartScape:
         test_sum = np.sum(base_test)
         print("sum of yield for watershed with model", test_sum)
         for model in model_data_watershed:
+            # set any negative values to zero and convert to units of value/m^2
             if model == "insect":
                 model_data_watershed[model] = np.where(
                     np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
                     0, model_data_watershed[model] * ac_to_m)
 
                 continue
+            # replace any cells in the base watershed with model ouputs when the model value exists for that cell
             model_data_watershed[model] = np.where(model_data[model] != self.no_data, model_data[model],
                                                    model_data_watershed[model])
             model_data_watershed[model] = np.where(
@@ -828,6 +843,7 @@ class SmartScape:
         # print(counts)
         # model run
         # we are setting models less than zero to zero (effects mostly ero and ploss)
+        # this needs to come after whole watershed calcs so that we can capture no data cells
         model = np.where(
             np.logical_or(model_data["yield"] == self.no_data, model_data["yield"] < 0),
             0, (model_data["yield"] * ac_to_m))
@@ -939,6 +955,13 @@ class SmartScape:
                 "area": "{:,.0f}".format(area_selected),
                 "area_watershed": "{:,.0f}".format(area_watershed),
                 "area_trans": area_dict,
+                "model_id": self.in_dir,
+            },
+            "debugging":{
+                "runoff_base":base_data_watershed["runoff"].tolist(),
+                "runoff_model":model_data_watershed["runoff"].tolist(),
+                "actual_landuse":watershed_land_use.tolist()
+
             }
 
         }
