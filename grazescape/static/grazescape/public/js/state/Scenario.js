@@ -349,6 +349,16 @@ function wfs_update(feat,layer) {
     geoServer.updateFieldAtt(str,feat )
 }
 
+function activateRunModels(){
+	if(DSS.layer.fields_1.getSource().getFeatures().length > 0){
+		console.log("Fields Layer more then 0")
+		Ext.getCmp("btnRunModels").setDisabled(false)
+	}else{
+		console.log("Fields Layer more is Empty")
+		Ext.getCmp("btnRunModels").setDisabled(true)
+	}
+}
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Scenario', {
 //------------------------------------------------------------------------------
@@ -410,6 +420,7 @@ Ext.define('DSS.state.Scenario', {
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
 									//DSS.layer.PLossGroup.setVisible(false);
+									DSS.MapState.destroyLegend();
 									DSS.layer.erosionGroup.setVisible(false);
 									DSS.layer.yieldGroup.setVisible(false);
 									DSS.MapState.hideFieldsandInfra()
@@ -427,7 +438,7 @@ Ext.define('DSS.state.Scenario', {
 					flex: 1,
 					cls: 'section-title accent-text right-pad',
 					// TODO: Dynamic name...
-					html: 'Scenario Management'
+					html: 'Scenario Design'
 				}]
 			},{ 
 				xtype: 'container',
@@ -447,53 +458,6 @@ Ext.define('DSS.state.Scenario', {
 					cls: 'information',
 					html: 'Draw or Delete Fields<br>and Infrastructure'
 				},
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'Duplicate Current Scenario',
-				// 	handler: function(self) {
-				// 		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
-				// 		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-				// 		DSS.dialogs.ScenarioPicker.show().center().setY(0);
-				// 		reSourcescenarios();
-				// 		reSourceFields()
-				// 		getWFSScenarioSP()
-				// 		//getWFSScenarioNS();
-				// 		// DSS.layer.scenarios.getSource().refresh();
-				// 		console.log('This is the scenarioArray: ')
-				// 		console.log(scenarioArray)
-				// 		//DSS.ApplicationFlow.instance.showScenarioPage();
-				// 	}
-				// },
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'Delete Current Scenario',
-				// 	handler: async function(self) {
-				// 		if(confirm('Are you sure you want to delete the current active scenario?')) {
-				// 			console.log("DELETED!")
-				// 			await selectDeleteScenario(DSS.activeScenario)
-				// 			geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
-				// 			//DSS.ApplicationFlow.instance.showManageOperationPage();
-				// 			//alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
-				// 			//DSS.MapState.removeMapInteractions()
-				// 			//AppEvents.triggerEvent('hide_field_draw_mode_indicator')
-				// 			} else {
-				// 			console.log("NOT DELETED!")
-				// 			//DSS.MapState.removeMapInteractions()
-				// 		  }
-				// 		//reSourcescenarios()
-				// 		//getWFSScenario()
-				// 		//reSourceFields()
-				// 		//reSourceinfra()
-				// 	}
-				// },
-				// {//------------------------------------------
-				// 	xtype: 'component',
-				// 	height: 32
-				// },
 				{
 					xtype: 'button',
 					name:'Fields',
@@ -801,6 +765,7 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Edit Field Attributes',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
+							DSS.MapState.destroyLegend();
 							//console.log(DSS.field_grid.FieldGrid.getView()); 
 							DSS.MapState.removeMapInteractions();
 							//Running gatherTableData before showing grid to get latest
@@ -832,6 +797,7 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Edit Infrastructure Attributes',
 					toggleHandler: function(self, pressed) {
 						if (pressed) {
+							DSS.MapState.destroyLegend();
 							DSS.MapState.removeMapInteractions();
 							gatherInfraTableData();
 							AppEvents.triggerEvent('show_infra_grid');
@@ -883,6 +849,7 @@ Ext.define('DSS.state.Scenario', {
 					componentCls: 'button-margin',
 					id: "btnRunModels",
 					text: 'Run Models',
+					disabled:true,
 					handler: async function(self) {
 						if(fieldArray.length <1 ){
 							gatherTableData();
@@ -1010,6 +977,7 @@ Ext.define('DSS.state.Scenario', {
 
             })
             }, 1500);
+			activateRunModels()
         },
 	
 
