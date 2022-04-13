@@ -162,7 +162,7 @@ Ext.define('DSS.state.Manage', {
 						id: 'dupCurScen',
 						//disabled: true,
 						componentCls: 'button-margin',
-						text: 'Duplicate Selected Scenario',
+						text: 'Duplicate a Scenario',
 						handler: function(self) {
 							//getWFSScenarioSP
 							gatherScenarioTableData()
@@ -268,7 +268,7 @@ Ext.define('DSS.state.Manage', {
 						fontsize: 45,
 						color: '#EE6677'
 					},
-					html: DSS.scenarioName,
+					html: "No Scenario Selected",
 				},
 			//------------------------Load Scenario Button-------------
 			

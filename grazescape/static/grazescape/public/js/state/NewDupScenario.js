@@ -258,7 +258,6 @@ Ext.define('DSS.state.NewDupScenario', {
 		if(Ext.getCmp("scenarioMenuNewDup")){
 			Ext.getCmp("scenarioMenuNewDup").destroy()
 			Ext.getCmp('scenDupIDpanel').destroy()
-			Ext.getCmp('scenDupDesp').destroy()
 		}
 		DSS.activeScenario = null
 		DSS.scenarioName = ''
@@ -346,6 +345,7 @@ Ext.define('DSS.state.NewDupScenario', {
 						padding: 4,
 					},{
 						xtype: 'button',
+						disabled: true,
 						cls: 'button-text-pad',
 						componentCls: 'button-margin',
 						text: 'Create New Scenario',
@@ -353,7 +353,7 @@ Ext.define('DSS.state.NewDupScenario', {
 						handler: async function() { 
 							console.log('new scenario button pushed')
 							var form = this.up('form').getForm();
-							if (form.isValid()) {
+							if (form.isValid() && DSS.activeScenario  !== null) {
 								//fieldZoom = true
 								//DSS.layer.scenarios.getSource().refresh();
 								farmArray = [];
@@ -371,6 +371,8 @@ Ext.define('DSS.state.NewDupScenario', {
 								//getWFSScenarioSP()
 								//DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
+							}else{
+								alert("Please Select a Scenario to Duplicate!")
 							}
 						}
 					}],
