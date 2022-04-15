@@ -138,6 +138,7 @@ function waitForScen(){
             console.log("done waiting!!!!!!!!!!!!")
             console.log("2222")
             resolve("done")
+	    activateRunModels()
         })
 	}
 function popScenarioArray(obj) {
@@ -527,7 +528,7 @@ Ext.define('DSS.state.Scenario', {
 									DSS.MapState.removeMapInteractions()
 									DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 				
 									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
-									DSS.dialogs.FieldApplyPanel.show().center().setY(0);
+									DSS.dialogs.FieldApplyPanel.show().center().setY(100);
 									inputFieldObj = e
 								})     
 							}
@@ -625,7 +626,7 @@ Ext.define('DSS.state.Scenario', {
 									DSS.MapState.removeMapInteractions()
 									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 				
 									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
-									DSS.dialogs.InfraApplyPanel.show().center().setY(0);
+									DSS.dialogs.InfraApplyPanel.show().center().setY(100);
 									inputInfraObj = e
 								})     
 							}
@@ -732,7 +733,7 @@ Ext.define('DSS.state.Scenario', {
 				// 		AppEvents.triggerEvent('hide_infra_grid')
 				// 		AppEvents.triggerEvent('hide_field_shape_mode');
 				// 		AppEvents.triggerEvent('hide_infra_line_mode');
-				// 		DSS.dialogs.HeiferScapeDialog.show().center().setY(0);
+				// 		DSS.dialogs.HeiferScapeDialog.show().center().setY(100);
 				// 	}
 				// },
 				// {
@@ -753,7 +754,7 @@ Ext.define('DSS.state.Scenario', {
 				// 		AppEvents.triggerEvent('hide_infra_grid')
 				// 		AppEvents.triggerEvent('hide_field_shape_mode');
 				// 		AppEvents.triggerEvent('hide_infra_line_mode');
-				// 		DSS.dialogs.AnimalDialog.show().center().setY(0);
+				// 		DSS.dialogs.AnimalDialog.show().center().setY(100);
 				// 	}
 				// }, 
 				{

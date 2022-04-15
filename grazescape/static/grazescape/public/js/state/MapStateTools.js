@@ -349,7 +349,8 @@ Ext.define('DSS.state.MapStateTools', {
 			let fs = DSS.map.getFeaturesAtPixel(pixel);
 			for (let idx = 0; idx < fs.length; idx++) {
 				let f = fs[idx];
-				//console.log(fs)
+				console.log(f)
+				console.log(fs)
 				let g = f.getGeometry();
 
 				if (g && g.getType() === "Point") {
