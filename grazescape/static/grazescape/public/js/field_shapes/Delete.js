@@ -33,7 +33,7 @@ function selectFieldDelete(){
 		selectedField = f.selected[0];
 		console.log(selectedField);
 		DSS.dialogs.FieldDeletePanel = Ext.create('DSS.field_shapes.Delete'); 		
-		DSS.dialogs.FieldDeletePanel.show().center().setY(0);
+		DSS.dialogs.FieldDeletePanel.show().center().setY(100);
 		// if(confirm('Are you sure you want to delete field '+selectedField.values_.field_name + '?')) {
 		// 	console.log("DELETED!")
 		// 	deleteField(selectedField)

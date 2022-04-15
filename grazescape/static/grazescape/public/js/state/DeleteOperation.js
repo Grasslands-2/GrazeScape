@@ -11,6 +11,7 @@ farmIDToDelete = 0;
 var selectedOperation = {}
 function selectOperation(){
 	DSS.select = new ol.interaction.Select({
+		layers:[DSS.layer.farms_1],
 		features: new ol.Collection(),
 			toggleCondition: ol.events.condition.never,
 			style: new ol.style.Style({

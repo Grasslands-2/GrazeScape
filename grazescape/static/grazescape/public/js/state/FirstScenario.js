@@ -8,6 +8,20 @@ fieldUrlNS = ""
 infraUrlNS = ""
 newScenarioName = ''
 function getWFSFarm() {
+
+
+//	return $.ajax({
+//		jsonp: false,
+//		type: 'GET',
+//		url: farmUrl,
+//		async: false,
+//		dataType: 'json',
+//		success:function(response)
+//		{
+//			farmObj = response.features
+//			console.log(farmObj[0])
+//		}
+//	})
 }
 //bring in farm layer table as object for iteration
 function getWFSScenarioNS() {
@@ -33,7 +47,7 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
 	//layerName.setSource(source);
 	console.log("Scenario being pulled from: " + copyScenarioNum);
 		await layerName.getSource().getFeatures().forEach(async function(f){
-            console.log("current features scenario ID: " + f.values_.scenario_id);
+            //console.log("current features scenario ID: " + f.values_.scenario_id);
             if(f.values_.scenario_id == copyScenarioNum){
 				console.log("current features scenario ID: " + f.values_.scenario_id);
                 //delete f.id_
@@ -107,6 +121,33 @@ highestFarmId = 0;
 highestScenarioId = 0;
 //loops through data array ids to find largest value and hold on to it with highestfarmid
 
+function getHighestFarmId(){
+	getWFSFarm()
+	popFarmArray(farmObj);
+	for (i in farmArray){
+		console.log(farmArray[i].id)
+		if (farmArray[i].id > highestFarmId){
+			highestFarmId = farmArray[i].id
+			console.log('hightestFarmId after getHighestFarm run: ' + highestFarmId)
+		};
+	};
+}
+//function rerunPopScenarioArrayNS(){
+//	getWFSScenarioNS();
+//}
+function getHighestScenarioId(){
+	getWFSScenarioNS();
+	for (i in scenarioArray){
+		console.log(scenarioArray[i].scenarioId)
+		console.log(highestScenarioId)
+		if (scenarioArray[i].scenarioId > highestScenarioId){
+			highestScenarioId = scenarioArray[i].scenarioId
+			console.log('hightestScenarioId after getHighestScenario run: ' + highestScenarioId)
+		};
+	};
+}
+//Do we need to call these?  I guess it doesnt hurt in the mean time.
+
 
 //---------------------------------Working Functions-------------------------------
 async function wfs_new_scenario_features_copy(featsArray,fType) {
@@ -150,7 +191,7 @@ function wfs_scenario_insert(feat,geomType,fType) {
     console.log(node);
     geoServer.wfs_scenario_insert(str, feat)
 }
-function createNewScenario(sname,sdescript){
+function createFirstScenario(sname,sdescript){
 	console.log('in createnewscen')
 	console.log('scenarioArray at start of createnewscen: ');
 	console.log(scenarioArray)
@@ -233,12 +274,12 @@ function createNewScenario(sname,sdescript){
 //+
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.state.NewDupScenario', {
+Ext.define('DSS.state.FirstScenario', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
-	alias: 'widget.state_new_dup_scenario',
+	alias: 'widget.state_first_scenario',
 	
-	autoDestroy: true,
+	autoDestroy: false,
 	closeAction: 'hide',
 	constrain: true,
 	modal: true,
@@ -247,23 +288,15 @@ Ext.define('DSS.state.NewDupScenario', {
 	bodyPadding: 8,
 	titleAlign: 'center',
 	
-	title: 'Set up your new duplicate Scenario!',
+	title: "Set up your new operation's first scenario!",
 	
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		//itemsArray = []
-		if(Ext.getCmp("scenarioMenuNewDup")){
-			Ext.getCmp("scenarioMenuNewDup").destroy()
-			Ext.getCmp('scenDupIDpanel').destroy()
-		}
-		DSS.activeScenario = null
-		DSS.scenarioName = ''
-		geoServer.getWFSScenario()
-		DSS.MapState.reSourceFeatsToFarm();
-
+		getWFSScenarioSP()
+		//getWFSScenarioNS()
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',
@@ -275,10 +308,16 @@ Ext.define('DSS.state.NewDupScenario', {
 						width: '100%',
 						height: 28,
 						cls: 'information accent-text bold',
-						html: "Choose From the Scenarios Below",
+						//html: "Choose From the Scenarios Below",
 					}],
+					
+				},{ //------------------------------------------
+					xtype: 'component',
+					//id: 'scenIDpanel',
+					cls: 'information',
+					html: "You should set up your first scenario to reflect your farm's current situation.",
 				},
-					{
+				{
 					xtype: 'form',
 					url: 'create_operation',
 					jsonSubmit: true,
@@ -296,56 +335,20 @@ Ext.define('DSS.state.NewDupScenario', {
 
 					 console.log("i'm showing!!!!!!!!!!!!!!")
 					}},
-					items: [Ext.create('Ext.menu.Menu', {
-						width: 40,
-						id: "scenarioMenuNewDup",
-						margin: '0 0 10 0',
-						floating: false,  // usually you want this set to True (default)
-						renderTo: Ext.getBody(),  // usually rendered by it's containing component
-						items: itemsArray,
-						listeners:{
-							click: async function( menu, item, e, eOpts ) {
-								fieldZoom = true
-								geoServer.getWFSScenario()
-								console.log(item)
-								DSS.activeScenario = item.inputValue;
-								DSS.scenarioName = item.name
-								Ext.getCmp('scenDupIDpanel').setHtml('"'+ item.name+'"');
-								scenarioPickerArray = []
-							}
-						}
-					}),
-					{ //------------------------------------------
-						xtype: 'component',
-						//id: 'scenIDpanel',
-						cls: 'information',
-						html: 'Scenario to be Duplicated: ',
-					},
-					{ //------------------------------------------
-						xtype: 'component',
-						id: 'scenDupIDpanel',
-						cls: 'information-scenlabel',
-						style:{
-							fontsize: 45,
-							color: '#EE6677'
-						},
-						html: DSS.scenarioName,
-					},
-					{
-						fieldLabel: "New Scenario's Name",
+					items: [{
+						fieldLabel: 'Scenario Name',
 						name: 'scenario_name',
 						allowBlank: false,
 						margin: '12 0',
 						padding: 4,
 					},{
-						fieldLabel: "New Scenario's Description",
+						fieldLabel: 'Scenario Description',
 						name: 'scenario_description',
 						allowBlank: false,
 						margin: '12 0',
 						padding: 4,
 					},{
 						xtype: 'button',
-						disabled: true,
 						cls: 'button-text-pad',
 						componentCls: 'button-margin',
 						text: 'Create New Scenario',
@@ -353,8 +356,7 @@ Ext.define('DSS.state.NewDupScenario', {
 						handler: async function() { 
 							console.log('new scenario button pushed')
 							var form = this.up('form').getForm();
-							if (form.isValid() && DSS.activeScenario  !== null) {
-								//fieldZoom = true
+							if (form.isValid()) {
 								//DSS.layer.scenarios.getSource().refresh();
 								farmArray = [];
 								scenarioArrayNS = scenarioArray
@@ -364,15 +366,12 @@ Ext.define('DSS.state.NewDupScenario', {
 								scenarioNumHold = DSS.activeScenario
 								let scenName = form.findField('scenario_name').getSubmitValue()
 								let scenDes = form.findField('scenario_description').getSubmitValue()
-								//createNewScenario kicks off process to copy scenario data, and associated fields and infra
-								await createNewScenario(scenName,scenDes)
+								await createFirstScenario(scenName,scenDes)
 								//This is used to make sure								
 								//geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
 								//getWFSScenarioSP()
 								//DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
-							}else{
-								alert("Please Select a Scenario to Duplicate!")
 							}
 						}
 					}],

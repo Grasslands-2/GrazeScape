@@ -145,7 +145,11 @@ class GeoServer{
             DSS.activeFarm = intFgid
             DSS.farmName = feat.values_.farm_name;
             DSS.scenarioName = ''//feat.values_.scenario_name;
-            DSS.ApplicationFlow.instance.showManageOperationPage();
+            DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.FirstScenario'); 
+            DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+            DSS.dialogs.ScenarioPicker.show().center().setY(100);
+            DSS.MapState.showNewFarm();
+            //DSS.ApplicationFlow.instance.showManageOperationPage();
             //DSS.ApplicationFlow.instance.showScenarioPage();
 
             // var formatWFS = new ol.format.WFS();

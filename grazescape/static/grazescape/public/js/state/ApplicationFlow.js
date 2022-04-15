@@ -25,7 +25,9 @@ DSS.utils.addStyle('.x-mask { background-color: rgba(102,102,102,0.6);}')
 DSS.utils.addStyle('.footer-text {border-top: 1px solid rgba(0,0,0,0.15); background: rgba(0,0,0,0.5);padding: 0.72rem; color: #fff; font-size: 0.8rem; text-align: center}')
 
 DSS.utils.addStyle('.button-margin { margin: 0.5rem 1.75rem 0.75rem;}')
+DSS.utils.addStyle('.button-margin-large { margin: 0.5rem 0.5rem 0.5rem;}')
 DSS.utils.addStyle('.button-text-pad { padding: 0.33rem;}')
+DSS.utils.addStyle('.button-text-pad-large { padding: 0.2rem;}')
 
 DSS.utils.addStyle('.information-scenlabel { padding: 0.5rem 0 0.25rem 0; font-size: 1.1rem; text-align: center; font-weight: bold}')
 DSS.utils.addStyle('.information { padding: 0.5rem 0 0.25rem 0; font-size: 0.9rem; text-align: center}')
@@ -180,7 +182,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		
 		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
 		// DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
-		// DSS.dialogs.RegionPicker.show().center().setY(0);
+		// DSS.dialogs.RegionPicker.show().center().setY(100);
 		//regionPickerFunc()
 		//AppEvents.triggerEvent('show_region_picker_indicator')
 		//DSS.layer.regionLabels.setVisible(true)
@@ -197,8 +199,8 @@ Ext.define('DSS.state.ApplicationFlow', {
 			me.setControlBlock({xtype:'region_picker_panel'});
 		Ext.resumeLayouts(true);
 		
-		DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
-		DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
+		// DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
+		// DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
 		DSS.MapState.zoomToExtent();
 		
 		DSS.MapState.disableFieldDraw();
@@ -210,7 +212,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		
 		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
 		// DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
-		// DSS.dialogs.RegionPicker.show().center().setY(0);
+		// DSS.dialogs.RegionPicker.show().center().setY(100);
 		regionPickerFunc()
 		AppEvents.triggerEvent('show_region_picker_indicator')
 		DSS.layer.regionLabels.setVisible(true)
