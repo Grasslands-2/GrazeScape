@@ -658,11 +658,6 @@ function validateImageOL(json, layer, tryCount) {
 // Creates graphs for each model result for the dashboard
 function create_graph(chart,title,element){
 
-    function setMinScale(data) {
-        //Build a function with the data.chartDataOri array to either set the max y to 1 or whatever the 
-        // or whatever the highs value in the data.chartDataOri array plus 5
-    }
-
     units = chart.units
     data = chart.chartData
     console.log(element)
@@ -727,10 +722,7 @@ function create_graph(chart,title,element){
 
             },
             scales: {
-                scaleOverride:true,
                 y: {
-                    max:1,
-                    min:0,
                     ticks: {
                         beginAtZero: true,
                         maxTicksLimit:5,
