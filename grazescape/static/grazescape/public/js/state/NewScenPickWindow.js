@@ -40,7 +40,7 @@ Ext.define('DSS.state.NewScenPickWindow', {
 				height: 35
 			},{
 				xtype: 'container',
-				style: 'background-color: #666; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
+				style: 'background-color: #BBBBBB; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
 				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 				margin: '8 4',
 				padding: '2 8 10 8',
@@ -53,6 +53,23 @@ Ext.define('DSS.state.NewScenPickWindow', {
 				// 	cls: 'information light-text text-drp-20',
 				// 	html: 'Would you like to delete field '+selectedField.values_.field_name + '?',
 				// },
+				{
+					xtype: 'component',
+					cls: 'information-scenlabel',
+					x: 0, y: -6,
+					width: '100%',
+					height: 50,
+					style:{
+								fontsize: 45,
+								color: '#4477AA'
+							},
+					html: "Duplicate an existing scenario or create a blank scenario!",
+				},{ //------------------------------------------
+					xtype: 'component',
+					//id: 'scenIDpanel',
+					cls: 'information',
+					html: 'Duplicating a current scenario allows you to transfer all fields from an existing scenario to your new one.',
+				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -73,11 +90,17 @@ Ext.define('DSS.state.NewScenPickWindow', {
 						//DSS.ApplicationFlow.instance.showScenarioPage();
 						this.up('window').destroy();
 					}
-				},{
+				},{ //------------------------------------------
+					xtype: 'component',
+					//id: 'scenIDpanel',
+					cls: 'information',
+					html: 'Creating an entirely blank scenario could make your model results harder to compare across scenarios.',
+				},
+				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Create New Blank Scenario',
+					text: 'Create Blank Scenario',
 					handler: function(self) {
 						DSS.activeScenario = null
 						DSS.scenarioName = ''
