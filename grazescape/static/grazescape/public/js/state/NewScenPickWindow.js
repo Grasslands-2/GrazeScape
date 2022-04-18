@@ -1,4 +1,6 @@
-
+function getWFSScenarioDupS(){
+	geoServer.getWFSScenarioDupS()
+}
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.NewScenPickWindow', {
@@ -29,9 +31,18 @@ Ext.define('DSS.state.NewScenPickWindow', {
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
-	initComponent: function() {
+	initComponent: async function() {
 		let me = this;
-
+		if(Ext.getCmp('dupCurScen')){
+			Ext.getCmp('dupCurScen').setDisabled(true)
+		}
+		getWFSScenarioSP()
+		// await getWFSScenarioDupS()
+		// scenDupArray = []
+		// for(s in scenServerObj){
+		// 	scenPropertiesArray.push(scenServerObj[s].properties)
+		// }
+		// console.log(scenDupArray)
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'component',
@@ -63,7 +74,7 @@ Ext.define('DSS.state.NewScenPickWindow', {
 								fontsize: 45,
 								color: '#4477AA'
 							},
-					html: "Duplicate an existing scenario or create a blank scenario!",
+					html: "Duplicate an existing scenario or create a blank scenario.",
 				},{ //------------------------------------------
 					xtype: 'component',
 					//id: 'scenIDpanel',
@@ -74,19 +85,22 @@ Ext.define('DSS.state.NewScenPickWindow', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					id: 'dupCurScen',
-					//disabled: true,
+					disabled: true,
 					componentCls: 'button-margin',
 					text: 'Duplicate a Scenario',
 					handler: function(self) {
+						
 						//getWFSScenarioSP
-						gatherScenarioTableData()
+						//geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+						//gatherScenarioTableData()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewDupScenario'); 
 						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
-						reSourcescenarios();
-						getWFSScenarioSP()
+						//reSourcescenarios();
+						//getWFSScenarioSP()
 						console.log('This is the scenarioArray: ')
 						console.log(scenarioArray)
+						console.log(scenDupArray);
 						//DSS.ApplicationFlow.instance.showScenarioPage();
 						this.up('window').destroy();
 					}

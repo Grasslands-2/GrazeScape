@@ -1,4 +1,4 @@
-
+scenDupArray = []
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 //DSS.scenarioName = ''
 //local functions to make sure selected scenario infra and fields only draw
@@ -66,6 +66,10 @@ function popScenarioArraySP(obj) {
 itemsArray = []
 
 function popItemsArray(obj){
+	scenDupArray = []
+	for(i in obj){
+		scenDupArray.push(obj[i].properties)
+	}
 	if(Ext.getCmp("scenarioMenu")){
 		Ext.getCmp("scenarioMenu").removeAll()
 		for (i in obj){
@@ -90,6 +94,7 @@ function popItemsArray(obj){
 		}
 	}
 	console.log(itemsArray);
+	console.log(scenDupArray);
 
 }
 //getWFSScenarioSP(DSS.activeFarm)

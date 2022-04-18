@@ -229,6 +229,8 @@ function createNewScenario(sname,sdescript){
 	})}
 }
 
+
+
 //------------------working variables--------------------
 //+
 
@@ -254,16 +256,23 @@ Ext.define('DSS.state.NewDupScenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		//itemsArray = []
+		console.log(scenDupArray)
+		console.log(itemsArrayStore)
+		
 		if(Ext.getCmp("scenarioMenuNewDup")){
 			Ext.getCmp("scenarioMenuNewDup").destroy()
 			Ext.getCmp('scenDupIDpanel').destroy()
+			//Ext.getCmp('itemsArrayStore').destroy()
 		}
 		DSS.activeScenario = null
 		DSS.scenarioName = ''
 		geoServer.getWFSScenario()
 		DSS.MapState.reSourceFeatsToFarm();
-
+		var itemsArrayStore = Ext.create('Ext.data.Store', {
+			data: scenDupArray,
+			id:'itemsArrayStore',
+			storeId: 'itemsArrayStore',
+		});
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',
@@ -296,25 +305,57 @@ Ext.define('DSS.state.NewDupScenario', {
 
 					 console.log("i'm showing!!!!!!!!!!!!!!")
 					}},
-					items: [Ext.create('Ext.menu.Menu', {
-						width: 40,
-						id: "scenarioMenuNewDup",
-						margin: '0 0 10 0',
-						floating: false,  // usually you want this set to True (default)
-						renderTo: Ext.getBody(),  // usually rendered by it's containing component
-						items: itemsArray,
-						listeners:{
-							click: async function( menu, item, e, eOpts ) {
-								fieldZoom = true
-								geoServer.getWFSScenario()
-								console.log(item)
-								DSS.activeScenario = item.inputValue;
-								DSS.scenarioName = item.name
-								Ext.getCmp('scenDupIDpanel').setHtml('"'+ item.name+'"');
-								scenarioPickerArray = []
+					items: [
+						Ext.create('Ext.grid.GridPanel', {
+							title: 'Available Scenarios to Duplicate',
+							id: "scenarioMenuNewDup",
+							store: Ext.data.StoreManager.lookup('itemsArrayStore'),
+							columns: [{
+								text: 'Name',
+								dataIndex: 'scenario_name',
+								flex: 1
+							}, 
+							{
+								text: 'Description',
+								dataIndex: 'scenario_desp',
+								flex: 2
 							}
-						}
-					}),
+						],
+								listeners:{
+								select: async function( menu, item, e, eOpts ) {
+									fieldZoom = true
+									geoServer.getWFSScenario()
+									console.log(item)
+									DSS.activeScenario = item.data.gid;
+									DSS.scenarioName = item.data.scenario_name;
+									Ext.getCmp('scenDupIDpanel').setHtml('"'+item.data.scenario_name+'"');
+									scenarioPickerArray = []
+								}
+						},
+						
+							//height: 300,
+							width: 500,
+							renderTo: Ext.getBody()
+						}),
+					// 	Ext.create('Ext.menu.Menu', {
+					// 	width: 40,
+					// 	id: "scenarioMenuNewDup",
+					// 	margin: '0 0 10 0',
+					// 	floating: false,  // usually you want this set to True (default)
+					// 	renderTo: Ext.getBody(),  // usually rendered by it's containing component
+					// 	items: itemsArray,
+					// 	listeners:{
+					// 		click: async function( menu, item, e, eOpts ) {
+					// 			fieldZoom = true
+					// 			geoServer.getWFSScenario()
+					// 			console.log(item)
+					// 			DSS.activeScenario = item.inputValue;
+					// 			DSS.scenarioName = item.name
+					// 			Ext.getCmp('scenDupIDpanel').setHtml('"'+ item.name+'"');
+					// 			scenarioPickerArray = []
+					// 		}
+					// 	}
+					// }),
 					{ //------------------------------------------
 						xtype: 'component',
 						//id: 'scenIDpanel',
