@@ -129,19 +129,8 @@ function regionPickerFunc() {
 				constrainOnlyCenter: false,
 				extent:[-10258162, 5258487, -9967076, 5520900]
 			})
-			//let ex = ol.extent;
 			let extent = [-10258162, 5258487, -9967076, 5520900]
-			//ex.buffer(extent, 600, extent);
 			await DSS.MapState.zoomToRealExtentRP(extent,view)
-			//console.log("afterzoom")
-			// DSS.map.setView(new ol.View({
-			// 	center: [-10106698,5391875],
-			// 	zoom: 8,
-			// 	maxZoom: 30,
-			// 	minZoom: 8,
-			// 	constrainOnlyCenter: false,
-			// 	extent:[-10258162, 5258487, -9967076, 5520900]
-			// }))
 		}
 		DSS.map.removeInteraction(DSS.selectRP);
 	})
