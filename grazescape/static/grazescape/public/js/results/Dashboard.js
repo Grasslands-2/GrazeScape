@@ -1549,6 +1549,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'panel',
                         width: chart_width,
                         collapsible: true,
+                        scrollable: true,
                         items:[{
                               id: 'checkErosion',
                       xtype: 'checkboxgroup',
@@ -1566,6 +1567,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         title: "Nutrients",
                         xtype: 'panel',
                         width: chart_width,
+                        scrollable: true,
                         collapsible: true,
                         items:[{
                             xtype: 'checkboxgroup',
@@ -1601,7 +1603,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },{
                         title: "Insecticide",
                         xtype: 'panel',
-
                         width: chart_width,
                         collapsible: true,
                         items:[{

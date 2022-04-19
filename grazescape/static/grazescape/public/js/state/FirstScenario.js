@@ -315,7 +315,7 @@ Ext.define('DSS.state.FirstScenario', {
 					xtype: 'component',
 					//id: 'scenIDpanel',
 					cls: 'information',
-					html: "You should set up your first scenario to reflect your farm's current situation.",
+					html: "Name and describe your first scenario. We recommend that this scenario reflect your current operation so that you can validate model results. We also recommend that you draw as many field boundaries as you may want to compare in future scenarios.",
 				},
 				{
 					xtype: 'form',
