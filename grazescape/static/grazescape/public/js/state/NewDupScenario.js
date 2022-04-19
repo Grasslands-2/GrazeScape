@@ -51,15 +51,8 @@ async function getWFSFieldsInfraNS(copyScenarioNum,featArray,layerName,layerTitl
 		//We can use this to copy exact geometry, thus creating exact copies of feautres
 		
 		})
-		// console.log('featArrayNS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-		// console.log(featArray);
-		// if(featArray.length > 0){
-		// 	await wfs_new_scenario_features_copy(featArray,layerTitle)
-		// }
 }
 
-//empty array to catch feature objects 
-//define function to populate data array with farm table data
 function popFarmArray(obj) {
 	for (i in obj) 
 	farmArray.push({
@@ -68,41 +61,7 @@ function popFarmArray(obj) {
 		name: obj[i].properties.farm_name
 	});
 }
-// function popScenarioArray(obj) {
-// 	for (i in obj) 
-// 	scenarioArray.push({
-// 		fid: obj[i].id,
-// 		gid: obj[i].properties.gid,
-// 		geom: obj[i].geometry,
-// 		scenarioId:obj[i].properties.scenario_id,
-// 		scenarioName:obj[i].properties.scenario_name,
-// 		scenarioDesp:obj[i].properties.scenario_desp,
-// 		farmId: obj[i].properties.farm_id,
-// 		farmName: obj[i].properties.farm_name,
-// 		lacCows: obj[i].properties.lac_cows,
-// 		dryCows: obj[i].properties.dry_cows,
-// 		heifers: obj[i].properties.heifers,
-// 		youngStock: obj[i].properties.youngstock,
-// 		beefCows: obj[i].properties.beef_cows,
-// 		stockers: obj[i].properties.stockers,
-// 		finishers: obj[i].properties.finishers,
-// 		aveMilkYield: obj[i].properties.ave_milk_yield,
-// 		aveDailyGain: obj[i].properties.ave_daily_gain,
-// 		lacMonthsConfined: obj[i].properties.lac_confined_mos,
-// 		dryMonthsConfined: obj[i].properties.dry_confined_mos,
-// 		beefMonthsConfined: obj[i].properties.beef_confined_mos,
-// 		lacGrazeTime: obj[i].properties.lac_graze_time,
-// 		dryGrazeTime: obj[i].properties.dry_graze_time,
-// 		beefGrazeTime: obj[i].properties.beef_graze_time,
-// 		lacRotateFreq: obj[i].properties.lac_rotate_freq,
-// 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
-// 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
-// 	});
-// 	console.log(scenarioArray)
-// }
-//populate data array with farm object data from each farm
-//popArray(farmObj);
-//var to hold onto largest id value of current farms before another is added
+
 highestFarmId = 0;
 highestScenarioId = 0;
 //loops through data array ids to find largest value and hold on to it with highestfarmid
@@ -229,6 +188,8 @@ function createNewScenario(sname,sdescript){
 	})}
 }
 
+
+
 //------------------working variables--------------------
 //+
 
@@ -247,36 +208,39 @@ Ext.define('DSS.state.NewDupScenario', {
 	bodyPadding: 8,
 	titleAlign: 'center',
 	
-	title: 'Set up your new duplicate Scenario!',
+	title: 'Set up your new duplicate Scenario.',
 	
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		//itemsArray = []
+		console.log(scenDupArray)
+		console.log(itemsArrayStore)
+		
 		if(Ext.getCmp("scenarioMenuNewDup")){
 			Ext.getCmp("scenarioMenuNewDup").destroy()
 			Ext.getCmp('scenDupIDpanel').destroy()
+			//Ext.getCmp('itemsArrayStore').destroy()
 		}
 		DSS.activeScenario = null
 		DSS.scenarioName = ''
 		geoServer.getWFSScenario()
 		DSS.MapState.reSourceFeatsToFarm();
-
+		var itemsArrayStore = Ext.create('Ext.data.Store', {
+			data: scenDupArray,
+			id:'itemsArrayStore',
+			storeId: 'itemsArrayStore',
+		});
 		Ext.applyIf(me, {
-			items: [{
-					xtype: 'container',
+			items: [
+				{
+					xtype: 'component',
+					x: 0, y: -6,
 					width: '100%',
-					layout: 'absolute',
-					items: [{
-						xtype: 'component',
-						x: 0, y: -6,
-						width: '100%',
-						height: 28,
-						cls: 'information accent-text bold',
-						html: "Choose From the Scenarios Below",
-					}],
+					height: 28,
+					cls: 'information accent-text bold',
+					html: "Choose From the Scenarios Below",
 				},
 					{
 					xtype: 'form',
@@ -296,25 +260,38 @@ Ext.define('DSS.state.NewDupScenario', {
 
 					 console.log("i'm showing!!!!!!!!!!!!!!")
 					}},
-					items: [Ext.create('Ext.menu.Menu', {
-						width: 40,
-						id: "scenarioMenuNewDup",
-						margin: '0 0 10 0',
-						floating: false,  // usually you want this set to True (default)
-						renderTo: Ext.getBody(),  // usually rendered by it's containing component
-						items: itemsArray,
-						listeners:{
-							click: async function( menu, item, e, eOpts ) {
-								fieldZoom = true
-								geoServer.getWFSScenario()
-								console.log(item)
-								DSS.activeScenario = item.inputValue;
-								DSS.scenarioName = item.name
-								Ext.getCmp('scenDupIDpanel').setHtml('"'+ item.name+'"');
-								scenarioPickerArray = []
+					items: [
+						Ext.create('Ext.grid.GridPanel', {
+							title: 'Available Scenarios to Duplicate',
+							id: "scenarioMenuNewDup",
+							store: Ext.data.StoreManager.lookup('itemsArrayStore'),
+							columns: [{
+								text: '<b>Name</b>',
+								dataIndex: 'scenario_name',
+								flex: 1
+							}, 
+							{
+								text: '<b>Description</b>',
+								dataIndex: 'scenario_desp',
+								flex: 2
 							}
-						}
-					}),
+						],
+								listeners:{
+								select: async function( menu, item, e, eOpts ) {
+									fieldZoom = true
+									geoServer.getWFSScenario()
+									console.log(item)
+									DSS.activeScenario = item.data.gid;
+									DSS.scenarioName = item.data.scenario_name;
+									Ext.getCmp('scenDupIDpanel').setHtml('"'+item.data.scenario_name+'"');
+									scenarioPickerArray = []
+								}
+						},
+						
+							//height: 300,
+							width: 500,
+							renderTo: Ext.getBody()
+						}),
 					{ //------------------------------------------
 						xtype: 'component',
 						//id: 'scenIDpanel',

@@ -1186,7 +1186,7 @@ Ext.define('DSS.map.Main', {
 			view: new ol.View({
 				center: [-10000312.33,5506092.31],
 				//10000312.33 5506092.31 
-				zoom: 6,
+				zoom: 8,
 				maxZoom: 30,
 				minZoom: 4,//10,
 			//	constrainRotation: false,

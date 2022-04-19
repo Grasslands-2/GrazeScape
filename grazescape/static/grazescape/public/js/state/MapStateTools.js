@@ -324,6 +324,7 @@ Ext.define('DSS.state.MapStateTools', {
 			if(f.values_.gid == DSS.activeScenario){
 				let g = f.getGeometry();
 				let pos = g.getFirstCoordinate()
+				console.log(pos)
 				let ex = ol.extent;
 				let extent = [pos[0], pos[1], pos[0], pos[1]];
 				ex.buffer(extent, 800, extent);
@@ -360,6 +361,7 @@ Ext.define('DSS.state.MapStateTools', {
 						DSS.farmName = f.get("farm_name")
 						
 						let pos = g.getFirstCoordinate()
+						console.log(pos)
 						me.setPinMarker(pos);
 						console.log("pin set in activatefarmhandler")
 						console.log(DSS.activeFarm)
@@ -423,6 +425,13 @@ Ext.define('DSS.state.MapStateTools', {
     zoomToRealExtent: function(extent) {
 		console.log('zoomToRealExtent')
     	DSS.map.getView().fit(extent, {size: DSS.map.getSize(), duration: 1000});
+    },
+	zoomToRealExtentRP: function(extent,view) {
+		console.log('zoomToRealExtent')
+    	DSS.map.getView().fit(extent, {size: DSS.map.getSize(), duration: 1000});
+		setTimeout(() => { DSS.map.setView(view)
+	 }, 1000)
+		
     },
     
     //-------------------------------------------------------------

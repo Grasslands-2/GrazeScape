@@ -53,7 +53,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 					renderTo: Ext.getBody(),  // usually rendered by it's containing component
 					items: regionsList,
 					listeners:{
-						click: function( menu, item, e, eOpts ) {
+						click: async function( menu, item, e, eOpts ) {
 							//this.up('window').destroy();
 							//console.log(item.text);
 							DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
@@ -68,14 +68,17 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								DSS.layer.farms_1.setVisible(true)
 								DSS.ApplicationFlow.instance.showFarmPickerPage();
 								DSS.map.removeInteraction(DSS.selectRP);
-								DSS.map.setView(new ol.View({
+								let view = new ol.View({
 									center: [-10030031,5610033],
 									zoom: 8,
 									maxZoom: 30,
 									minZoom: 8,
 									constrainOnlyCenter: false,
 									extent:[-10221386, 5467295, -9843661, 5750901]
-								}))
+								})
+								let extent = [-10221386, 5467295, -9843661, 5750901]
+								await DSS.MapState.zoomToRealExtentRP(extent,view)
+						
 							}
 							else{
 								DSS.activeRegion = "southWestWI";
@@ -86,14 +89,16 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								DSS.layer.farms_1.setVisible(true)
 								DSS.ApplicationFlow.instance.showFarmPickerPage();
 								DSS.map.removeInteraction(DSS.selectRP);
-								DSS.map.setView(new ol.View({
+								let view = new ol.View({
 									center: [-10106698,5391875],
-									zoom: 8,
+									zoom: 6,
 									maxZoom: 30,
-									minZoom: 8,
+									minZoom: 6,
 									constrainOnlyCenter: false,
 									extent:[-10258162, 5258487, -9967076, 5520900]
-								}))
+								})
+								let extent = [-10258162, 5258487, -9967076, 5520900]
+								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
 							DSS.map.removeInteraction(DSS.selectRP);
 						}
