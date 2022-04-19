@@ -1,5 +1,5 @@
 var geoserverURL = ""
-
+var scenDupArray = []
 class GeoServer{
     constructor() {
         this.geoFarm_Url = '/geoserver/GrazeScape_Vector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=GrazeScape_Vector%3Afarm_2&outputFormat=application%2Fjson'
@@ -105,9 +105,24 @@ class GeoServer{
             geoJson = JSON.parse(geoJson.geojson)
 			let scenObj = geoJson.features
             console.log(scenObj)
+            scenDupArray = []
+            scenDupArray = scenObj
+            console.log(scenDupArray)
 			farmArray = [];
 			itemsArray = [];
 			popItemsArray(scenObj);
+            if(Ext.getCmp('dupCurScen') && scenObj.length > 0){
+                Ext.getCmp('dupCurScen').setDisabled(false)
+            }
+        })
+    }
+    getWFSScenarioDupS(parameter = ''){
+        this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
+            geoJson = JSON.parse(geoJson.geojson)
+			let scenObj = geoJson.features
+            console.log(scenObj)
+			//return DupScenArray
+            
         })
     }
 // Slightly different in how ScenarioMenu is handled
