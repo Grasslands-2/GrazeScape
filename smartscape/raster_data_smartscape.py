@@ -99,7 +99,7 @@ class RasterDataSmartScape:
         crs = {'init': self.crs}
         polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
         print(polygon)
-        polygon.to_file(filename=os.path.join(self.dir_path, self.file_name +".shp"), driver="ESRI Shapefile")
+        polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
 
     def check_raster_data(self, raster_dic):
         raster_dic_key_list = [*raster_dic.keys()]

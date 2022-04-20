@@ -70,6 +70,12 @@ class TransformationTable extends Component {
     super(props);
     this.state = {
         transModalShow:false,
+        showPastureMang:true,
+        showCover:false,
+        showTillage:false,
+        showCont:false,
+        showGrassYield:true,
+        showRotFreq:true
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -88,6 +94,8 @@ class TransformationTable extends Component {
     this.density = React.createRef();
     this.contour = React.createRef();
     this.fertilizer = React.createRef();
+    this.grassYield = React.createRef();
+    this.rotFreq = React.createRef();
   }
   componentDidUpdate(prevProps) {
     console.log(prevProps)
@@ -119,13 +127,46 @@ class TransformationTable extends Component {
         this.rotationType.current.value = this.props.activeTrans.management.rotationType
         this.density.current.value = this.props.activeTrans.management.density
         this.fertilizer.current.value = this.props.activeTrans.management.fertilizer
-    //        this.cover.current.value = this.props.activeTrans.management.cover
-    //        this.tillage.current.value = this.props.activeTrans.management.tillage
-    //        this.contour.current.value = this.props.activeTrans.management.contour
+        this.cover.current.value = this.props.activeTrans.management.cover
+        this.tillage.current.value = this.props.activeTrans.management.tillage
+        this.contour.current.value = this.props.activeTrans.management.contour
+        this.grassYield.current.value = this.props.activeTrans.management.grassYield
+        this.rotFreq.current.value = this.props.activeTrans.management.rotFreq
 
       }
     handleSelectionChange(type, e){
+//      turn off all pasture options
+        if(this.rotationType.current.value != "pasture"){
+            this.setState({
+                showPastureMang:false,
+                showGrassYield:false,
+                showRotFreq:false,
+                showCover:true,
+                showTillage:true,
+                showCont:true,
+            })
+
+        }
+//        turn on pasture options
+        else{
+         this.setState({
+                showPastureMang:true,
+                showGrassYield:true,
+                showCover:false,
+                showTillage:false,
+                showCont:false,
+            })
+//          only show rotational freq if rotational options is selected
+            if(this.density.current.value == "rt_rt"){
+                this.setState({showRotFreq:true})
+            }
+            else{
+                this.setState({showRotFreq:false})
+            }
+        }
+//      update active transformation with new value
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})    }
+
     handleSelectionChangeRadio(type, e){
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"mang"})
     }
@@ -249,23 +290,69 @@ class TransformationTable extends Component {
                   <Form.Label>New Land Cover</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.rotationType}
                       onChange={(e) => this.handleSelectionChange("rotationType", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="pt">Pasture</option>
+                      <option value="pasture">Pasture</option>
+                      <option value="contCorn">Continuous Corn</option>
+                      <option value="cornGrain">Cash Grain</option>
+                      <option value="dairyRotation">Corn Silage to Corn Grain to Alfalfa(3x)</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
-                    <Form.Label>Pasture Animal Density</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.density}
+
+                    <Form.Label hidden={!this.state.showGrassYield}>Grass Yield</Form.Label>
+                    <Form.Select aria-label="Default select example" hidden={!this.state.showGrassYield} ref={this.grassYield}
+                      onChange={(e) => this.handleSelectionChange("grassYield", e)}>
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </Form.Select>
+
+                    <Form.Label hidden={!this.state.showPastureMang}>Pasture Management</Form.Label>
+                    <Form.Select aria-label="Default select example" hidden={!this.state.showPastureMang} ref={this.density}
                       onChange={(e) => this.handleSelectionChange("density", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="cn_hi">High</option>
-                      <option value="cn_lo">Low</option>
+                      <option value="cn_hi">Continuous High Density</option>
+                      <option value="cn_lo">Continuous Low Density</option>
                       <option value="rt_rt">Rotational</option>
                     </Form.Select>
+
+                    <Form.Label hidden={!this.state.showRotFreq}>Rotational Frequency</Form.Label>
+                    <Form.Select aria-label="Default select example" hidden={!this.state.showRotFreq} ref={this.rotFreq}
+                      onChange={(e) => this.handleSelectionChange("rotFreq", e)}>
+                      <option value="1.2">More then once a day</option>
+                      <option value="1">Once a day</option>
+                      <option value="0.95">Every 3 days</option>
+                      <option value="0.75">Every 7 days</option>
+                    </Form.Select>
+
+                    <Form.Label hidden={!this.state.showCover}>Cover Crop</Form.Label>
+                    <Form.Select aria-label="Default select example" hidden={!this.state.showCover} ref={this.cover}
+                      onChange={(e) => this.handleSelectionChange("cover", e)}>
+                      <option value="cc">Small Grain</option>
+                      <option value="gcds">Grazed Cover Direct Seeded</option>
+                      <option value="gcis">Grazed Cover Interseeded</option>
+                      <option value="nc">No Cover</option>
+                    </Form.Select>
+
+                    <Form.Label hidden={!this.state.showTillage} >Tillage</Form.Label >
+                    <Form.Select aria-label="Default select example" hidden={!this.state.showTillage} ref={this.tillage}
+                    onChange={(e) => this.handleSelectionChange("tillage", e)}>
+                      <option value="fc">Fall Chisel</option>
+                      <option value="fm">Fall Moldboard</option>
+                      <option value="nt">No Till</option>
+                      <option value="sc">Spring Chisel, Disked</option>
+                      <option value="sn">Spring Chisel, No Disk</option>
+                      <option value="su">Spring Cultivation</option>
+                      <option value="sv">Spring Vertical</option>
+                    </Form.Select>
+
+                    <Form.Label hidden={!this.state.showCont}>On Contour</Form.Label >
+                    <Form.Select aria-label="Default select example" hidden={!this.state.showCont} ref={this.contour}
+                      onChange={(e) => this.handleSelectionChange("contour", e)}>
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
+                    </Form.Select>
+
                     <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.fertilizer}
                       onChange={(e) => this.handleSelectionChange("fertilizer", e)}>
-
-                      <option value="default">Open this select menu</option>
                       <option value="0_0">0/	0</option>
                       <option value="0_100">0/	100</option>
                       <option value="100_0">100/	0</option>
@@ -274,43 +361,8 @@ class TransformationTable extends Component {
                       <option value="25_50">25/	50</option>
                       <option value="50_0">50/	0</option>
                     </Form.Select>
-                    {/*
-                    <Form.Label>Cover Crop</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.cover}
-                      onChange={(e) => this.handleSelectionChange("cover", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="cc">Small Grain</option>
-                      <option value="gcds">Grazed Cover Direct Seeded</option>
-                      <option value="gcis">Grazed Cover Interseeded</option>
-                      <option value="nc">No Cover</option>
-                      <option value="na">NA</option>
-                    </Form.Select>
-                    <Form.Label>Tillage</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.tillage}
-                    onChange={(e) => this.handleSelectionChange("tillage", e)}>
-
-                      <option value="default">Open this select menu</option>
-                      <option value="fc">Fall Chisel</option>
-                      <option value="fm">Fall Moldboard</option>
-                      <option value="nt">No Till</option>
-                      <option value="sc">Spring Chisel, Disked</option>
-                      <option value="sn">Spring Chisel, No Disk</option>
-                      <option value="su">Spring Cultivation</option>
-                      <option value="sv">Spring Vertical</option>
-                      <option value="na">NA</option>
-                    </Form.Select>
 
 
-                    <Form.Label>On Contour</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.contour}
-                      onChange={(e) => this.handleSelectionChange("contour", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                      <option value="na">N/A</option>
-                    </Form.Select>
-
-                    */}
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModal}>
