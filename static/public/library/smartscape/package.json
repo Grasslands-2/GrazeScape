@@ -27,6 +27,7 @@
     "css-loader": "^6.5.1",
     "jsts": "^2.8.1",
     "ol": "^6.9.0",
+    "proj4": "^2.8.0",
     "react-beautiful-dnd": "^13.1.0",
     "react-bootstrap": "^2.0.4",
     "react-bootstrap-icons": "^1.7.2",
