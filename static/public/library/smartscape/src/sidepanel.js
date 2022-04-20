@@ -90,7 +90,6 @@ const mapDispatchToProps = (dispatch) => {
         setVisibilityTransAcc: (type)=> dispatch(mainSlice.setVisibilityTransAcc(type)),
         setActiveRegion: (type)=> dispatch(mainSlice.setActiveRegion(type)),
         setAoiFolderId: (type)=> dispatch(mainSlice.setAoiFolderId(type)),
-        setAoiFolderId: (type)=> dispatch(mainSlice.setAoiFolderId(type)),
 
     }
 };
@@ -319,11 +318,16 @@ class SidePanel extends React.Component{
     // example transformation
     // random id from 1 to 100
     let tempId = uuidv4();
-
+//  set default parameters
     let newTrans = Transformation(" ",tempId, 5)
-    newTrans.management.rotationType = "pt"
+    newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
     newTrans.management.fertilizer = "0_0"
+    newTrans.management.contour = "0"
+    newTrans.management.cover = "cc"
+    newTrans.management.tillage = "fc"
+    newTrans.management.grassYield = "medium"
+    newTrans.management.rotFreq = "1"
     console.log("Adding new trans")
     console.log(newTrans)
     this.props.setActiveTrans(newTrans)
@@ -363,6 +367,7 @@ class SidePanel extends React.Component{
 //                field_coors:this.state.coors
             },
             region:this.props.region,
+            baseTrans: this.props.baseTrans
         }),
         success: (response, opts) => {
             delete $.ajaxSetup().headers
