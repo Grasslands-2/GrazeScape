@@ -46,10 +46,10 @@ def index(request):
                             'data_files', 'raster_inputs')
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_names = ["southWestWI_HUC_10", "CloverBeltWI_HUC_10", "CloverBeltWI_HUC_12", "southWestWI_HUC_12"]
+    file_names = ["southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12"]
     for name in file_names:
-        print("downloading", name)
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A"+name+"&outputFormat=application%2Fjson"
+        print("downloading", url)
         raster_file_path = os.path.join(dir_path, name + ".geojson")
         createNewDownloadThread(url, raster_file_path)
         # r = requests.get(url)
@@ -100,21 +100,26 @@ def get_selection_raster(request):
     error = ""
     start = time.time()
     print(" ", time.time()-start)
-    print(request.POST)
     request_json = js.loads(request.body)
-    print(request_json)
+    # folder for all input and outputs
     folder_id = str(uuid.uuid4())
     extents = request_json["geometry"]["extent"]
     region = request_json["region"]
-
+    base = request_json["baseTrans"]
+    print(base)
     print(extents)
     try:
         geo_data = RasterDataSmartScape(
-                extents, None,
+                extents, base["selection"]["field_coors"],
                 folder_id,
                 region)
-        print("Downloading ", time.time() - start)
+
         geo_data.load_layers()
+        # geo_data.create_clip()
+        print("Clip raster ", time.time() - start)
+
+        # geo_data.clip_rasters()
+        print("Downloading ", time.time() - start)
         print("Layer loaded ", time.time() - start)
         data = {
             "get_data": "success",
@@ -269,30 +274,8 @@ def get_transformed_land(request):
     folder_id = request_json["folderId"]
 
     model = SmartScape(request_json, trans_id, folder_id)
-    return_data = model.create_model_agr()
-    watershed_land_use_image = gdal.Open(os.path.join(model.in_dir, "transformation_landuse.tif"))
-    watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
-    watershed_land_use = watershed_land_use_band.ReadAsArray()
-    print(watershed_land_use)
-    base_data_watershed = {
-        "yield": np.copy(watershed_land_use),
-        "ero": np.copy(watershed_land_use),
-        "ploss": np.copy(watershed_land_use),
-        "cn": np.copy(watershed_land_use),
-        "runoff": np.copy(watershed_land_use),
-        "insect": np.copy(watershed_land_use),
-    }
-    count_selected = np.count_nonzero(base_data_watershed["yield"] != -9999)
-    count_selected3 = np.count_nonzero(base_data_watershed["yield"] == 3)
-    count_selected1 = np.count_nonzero(base_data_watershed["yield"] == 4)
-    count_selected2 = np.count_nonzero(base_data_watershed["yield"] == 5)
-    print("watershed selected cells ", count_selected3 + count_selected1 + count_selected2)
-    print("whole watershed cells ", count_selected)
-    test3 = base_data_watershed["yield"].flatten()
-    values, counts = np.unique(test3, return_counts=True)
-    print(values)
-    print(counts)
-    return_data["whole_watershed"] = {"values":values.tolist(), "count":counts.tolist()}
+    return_data = model.run_models()
+
     #
     # except KeyError as e:
     #     error = str(e) + " while running models for field " + f_name

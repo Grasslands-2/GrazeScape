@@ -264,7 +264,7 @@ class SmartScape:
         for thread in self.threads:
             thread.join()
 
-    def create_model_agr(self):
+    def run_models(self):
         """
         Create a model aggregate from all the input transformations specified by client
         -------
@@ -273,18 +273,16 @@ class SmartScape:
         # conversion from value / ac to value of cell at 30 m resolution
         ac_to_m = 900 / 4046.86
         print("starting model aggregation")
+        print(self.geo_folder)
         trans = self.request_json['trans']
         base_scen = self.request_json['base']
         # region = self.request_json['base']
         region = self.request_json['region']
-        dir_path = self.in_dir
-        insect = {"cc": 0.51,
-                  "cg": 0.51,
-                  "dr": 0.12,
-                  "cso": 0.22,
-                  "dl": 0,
-                  "ps": 0,
-                  "pt": 0
+        self.in_dir = self.in_dir
+        insect = {"contCorn": 0.51,
+                  "cornGrain": 0.51,
+                  "dairyRotation": 0.12,
+                  "pasture": 0
                   }
         file_list = []
         # get each transformation selection output raster
@@ -296,7 +294,7 @@ class SmartScape:
         model_names_base = ("ero", "pl", "cn")
         model_names_base = ("Erosion", "PI", "CN")
         # contCorn
-        # create name of the layer that corresponds to geoserver
+        # create name of the layer that corresponds to geoserver for base case
         for name in base_names:
             for model in model_names_base:
                 if name == "hayGrassland" or name == "pastureWatershed":
@@ -329,18 +327,27 @@ class SmartScape:
             file = os.path.join(self.data_dir, tran["id"], "selection_output.tif")
             file_list.append(file)
             watershed_file_list.append(os.path.join(self.data_dir, tran["id"], "landuse_watershed.tif"))
-            #       for right now we are only supporting transforming to pasture or pasture seedling
-            #       yield
-            #       medium_GrassYield_southWestWI.tif
-            yield_name = "pasture_Yield_medium_" + region
-            ero_name = "pasture_Erosion_" + tran["management"]["density"] + "_" + \
-                       tran["management"]["fertilizer"] + "_" + region
-            ploss_name = "pasture_PI_" + tran["management"]["density"] + "_" + \
-                         tran["management"]["fertilizer"] + "_" + region
-            cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
-                      tran["management"]["fertilizer"] + "_" + region
-            # cn_adjustment = tran["management"]["rotationType"] + "_" + tran["management"]["density"]
-
+            if tran["management"]["rotationType"] == "pasture":
+                yield_name = "pasture_Yield_" + tran["management"]["grassYield"] + "_" + region
+                ero_name = "pasture_Erosion_" + tran["management"]["density"] + "_" + \
+                           tran["management"]["fertilizer"] + "_" + region
+                ploss_name = "pasture_PI_" + tran["management"]["density"] + "_" + \
+                             tran["management"]["fertilizer"] + "_" + region
+                cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
+                          tran["management"]["fertilizer"] + "_" + region
+            else:
+                # yield_name = tran["management"]["rotationType"] + "_Yield_" + \
+                #             tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                #             tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
+                ero_name = tran["management"]["rotationType"] + "_Erosion_" + \
+                            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                            tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
+                ploss_name = tran["management"]["rotationType"] + "_PI_" + \
+                            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                            tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
+                cn_name = tran["management"]["rotationType"] + "_CN_" + \
+                            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                            tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
             layer_dic[tran["rank"]] = {}
             layer_dic[tran["rank"]]["yield"] = yield_name
             layer_dic[tran["rank"]]["ero"] = ero_name
@@ -350,31 +357,21 @@ class SmartScape:
         # create blank raster that has extents from all transformations
         ds_clip = gdal.Warp(
             # last raster ovrrides it
-            os.path.join(dir_path, "temp_extents.tif"), file_list,
+            os.path.join(self.in_dir, "temp_extents.tif"), file_list,
             dstNodata=-9999,
             outputType=gc.GDT_Float32)
-        image = gdal.Open(os.path.join(dir_path, "temp_extents.tif"))
+        image = gdal.Open(os.path.join(self.in_dir, "temp_extents.tif"))
 
         band = image.GetRasterBand(1)
         arr = band.ReadAsArray()
         print(watershed_file_list)
         # get full watershed
 
-        ds_clip = gdal.Warp(
-            # last raster ovrrides it
-            os.path.join(dir_path, "transformation_landuse.tif"),
-            watershed_file_list,
-            dstNodata=-9999,
-            outputType=gc.GDT_Float32)
-        watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
-        watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
-        watershed_land_use = watershed_land_use_band.ReadAsArray()
-
         # fill the blank raster with no data values
         arr.fill(self.no_data)
         [rows, cols] = arr.shape
         driver = gdal.GetDriverByName("GTiff")
-        outdata = driver.Create(os.path.join(dir_path, "raster_base_projection.tif"), cols, rows, 1,
+        outdata = driver.Create(os.path.join(self.in_dir, "raster_base_projection.tif"), cols, rows, 1,
                                 gdal.GDT_Float32)
         outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
         outdata.SetProjection(image.GetProjection())  ##sets same projection as input
@@ -393,10 +390,10 @@ class SmartScape:
             file = os.path.join(self.data_dir, tran["id"])
             print(file)
             ds_clip = gdal.Warp(
-                # os.path.join(dir_path, "test-joined.tif"), ["slope-clipped.tif", "landuse-clipped.tif"],
+                # os.path.join(self.in_dir, "test-joined.tif"), ["slope-clipped.tif", "landuse-clipped.tif"],
                 # last raster ovrrides it
                 os.path.join(file, "burned.tif"),
-                [os.path.join(dir_path, "raster_base_projection.tif"), os.path.join(file, "selection_output.tif")],
+                [os.path.join(self.in_dir, "raster_base_projection.tif"), os.path.join(file, "selection_output.tif")],
                 dstNodata=-9999,
                 outputType=gc.GDT_Float32)
             ds_clip.FlushCache()
@@ -423,7 +420,7 @@ class SmartScape:
         base = np.reshape(base, [rows, cols])
         # save the base array into a new raster called merged
         driver = gdal.GetDriverByName("GTiff")
-        outdata = driver.Create(os.path.join(dir_path, "merged.tif"), cols, rows, 1,
+        outdata = driver.Create(os.path.join(self.in_dir, "merged.tif"), cols, rows, 1,
                                 gdal.GDT_Float32)
         outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
         outdata.SetProjection(image.GetProjection())  ##sets same projection as input
@@ -435,7 +432,7 @@ class SmartScape:
         ds = None
         image = None
 
-        image = gdal.Open(os.path.join(dir_path, "merged.tif"))
+        image = gdal.Open(os.path.join(self.in_dir, "merged.tif"))
 
         band = image.GetRasterBand(1)
         # arr will be the base array that all model calcs pull from. All valid values have the hierarch of the
@@ -460,20 +457,20 @@ class SmartScape:
         ds = None
         image = None
         geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
-                                         "request=GetCoverage&CoverageId="
+                                         "srsName=EPSG:3071&request=GetCoverage&CoverageId="
         # download raster model outputs
         for layer in layer_dic:
             for model in layer_dic[layer]:
                 print("downloading layer ", model)
                 url = geoserver_url + "SmartScapeRaster:" + layer_dic[layer][
                     model] + extents_string_x + extents_string_y
-                raster_file_path = os.path.join(dir_path, layer_dic[layer][model] + ".tif")
+                raster_file_path = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
                 self.createNewDownloadThread(url, raster_file_path)
 
         for layer in base_layer_dic:
             print("downloading layer ", layer)
             url = geoserver_url + base_layer_dic[layer] + extents_string_x + extents_string_y
-            raster_file_path = os.path.join(dir_path, layer + ".tif")
+            raster_file_path = os.path.join(self.in_dir, layer + ".tif")
             self.createNewDownloadThread(url, raster_file_path)
         self.joinThreads()
         print("done writing")
@@ -508,7 +505,7 @@ class SmartScape:
             print("layer", layer)
             for model in model_list:
                 print("running model ", model)
-                model_trans_filepath = os.path.join(dir_path, layer_dic[layer][model] + ".tif")
+                model_trans_filepath = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
                 model_image = gdal.Open(model_trans_filepath)
                 model_band = model_image.GetRasterBand(1)
                 model_arr = model_band.ReadAsArray()
@@ -531,7 +528,7 @@ class SmartScape:
         count1 = np.count_nonzero(model_data["yield"] == -9999)
         print("yield after run", count1)
         #   iterate through wiscland layer
-        landuse_image = gdal.Open(os.path.join(dir_path, "landuse.tif"))
+        landuse_image = gdal.Open(os.path.join(self.in_dir, "landuse.tif"))
         landuse_arr = landuse_image.GetRasterBand(1).ReadAsArray()
         # create new array where landuse codes are plugged into arr (arr is the raster with rank of the selected cells)
         # and more importantly is has our selected cells
@@ -541,7 +538,7 @@ class SmartScape:
         # debugging code and how to output a raster
         # [rows, cols] = landuse_arr_sel.shape
         # driver = gdal.GetDriverByName("GTiff")
-        # outdata = driver.Create(os.path.join(dir_path, "landuse_replaced.tif"), cols, rows, 1,
+        # outdata = driver.Create(os.path.join(self.in_dir, "landuse_replaced.tif"), cols, rows, 1,
         #                         gdal.GDT_Float32)
         # outdata.SetGeoTransform(landuse_image.GetGeoTransform())  ##sets same geotransform as input
         # outdata.SetProjection(landuse_image.GetProjection())  ##sets same projection as input
@@ -565,27 +562,27 @@ class SmartScape:
         # for model in model_list:
         #     for land_type in watershed_total:
         #         # CN and runoff
-        #         base_image = gdal.Open(os.path.join(dir_path, "contCorn_" + CN + ".tif"))
+        #         base_image = gdal.Open(os.path.join(self.in_dir, "contCorn_" + CN + ".tif"))
         #         base_arr = base_image.GetRasterBand(1).ReadAsArray()
         #         cn_final = np.where(base_data["cn"] == 4, base_arr, base_data["cn"])
         #         base_data["runoff"] = np.where(base_data["runoff"] == 4, self.get_runoff_vectorized(cn_final, 3), base_data["runoff"])
         #         base_data["cn"] = cn_final
 
-        base_image = gdal.Open(os.path.join(dir_path, "contCorn_CN.tif"))
+        base_image = gdal.Open(os.path.join(self.in_dir, "contCorn_CN.tif"))
         base_arr_corn_cn = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 4, base_arr_corn_cn, base_data["cn"])
         base_data["runoff"] = np.where(base_data["runoff"] == 3, self.get_runoff_vectorized(cn_final, 3),
                                        base_data["runoff"])
         base_data["cn"] = cn_final
 
-        base_image = gdal.Open(os.path.join(dir_path, "cornGrain_CN.tif"))
+        base_image = gdal.Open(os.path.join(self.in_dir, "cornGrain_CN.tif"))
         base_arr_corngrain_cn = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 3, base_arr_corngrain_cn, base_data["cn"])
         base_data["runoff"] = np.where(base_data["runoff"] == 5, self.get_runoff_vectorized(cn_final, 3),
                                        base_data["runoff"])
         base_data["cn"] = cn_final
 
-        base_image = gdal.Open(os.path.join(dir_path, "dairyRotation_CN.tif"))
+        base_image = gdal.Open(os.path.join(self.in_dir, "dairyRotation_CN.tif"))
         base_arr_dairy_cn = base_image.GetRasterBand(1).ReadAsArray()
         cn_final = np.where(base_data["cn"] == 5, base_arr_dairy_cn, base_data["cn"])
         base_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
@@ -603,15 +600,15 @@ class SmartScape:
         landuse_ero = np.copy(landuse_arr_sel)
         landuse_yield = np.copy(landuse_arr_sel)
 
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "contCorn_PI.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "contCorn_PI.tif"))
         cont_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_arr_sel = np.where(landuse_arr_sel == 4, cont_pl_arr, landuse_arr_sel)
 
-        corn_pl_image = gdal.Open(os.path.join(dir_path, "cornGrain_PI.tif"))
+        corn_pl_image = gdal.Open(os.path.join(self.in_dir, "cornGrain_PI.tif"))
         corn_pl_arr = corn_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_arr_sel = np.where(landuse_arr_sel == 3, corn_pl_arr, landuse_arr_sel)
 
-        dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairyRotation_PI.tif"))
+        dairy_pl_image = gdal.Open(os.path.join(self.in_dir, "dairyRotation_PI.tif"))
         dairy_pl_arr = dairy_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_arr_sel = np.where(landuse_arr_sel == 5, dairy_pl_arr, landuse_arr_sel)
 
@@ -635,18 +632,18 @@ class SmartScape:
         sum_base = np.sum(landuse_arr_sel)
 
         # Erosion
-        # cont_pl_image = gdal.Open(os.path.join(dir_path, "cont_er_nc_su_25_50_1.tif"))
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "contCorn_Erosion.tif"))
+        # cont_pl_image = gdal.Open(os.path.join(self.in_dir, "cont_er_nc_su_25_50_1.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "contCorn_Erosion.tif"))
         cont_er_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_ero = np.where(landuse_ero == 4, cont_er_arr, landuse_ero)
 
-        # corn_pl_image = gdal.Open(os.path.join(dir_path, "corn_er_nc_su_25_50_1.tif"))
-        corn_pl_image = gdal.Open(os.path.join(dir_path, "cornGrain_Erosion.tif"))
+        # corn_pl_image = gdal.Open(os.path.join(self.in_dir, "corn_er_nc_su_25_50_1.tif"))
+        corn_pl_image = gdal.Open(os.path.join(self.in_dir, "cornGrain_Erosion.tif"))
         corn_er_arr = corn_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_ero = np.where(landuse_ero == 3, corn_er_arr, landuse_ero)
 
-        # dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairy_er_nc_su_25_50_1.tif"))
-        dairy_pl_image = gdal.Open(os.path.join(dir_path, "dairyRotation_Erosion.tif"))
+        # dairy_pl_image = gdal.Open(os.path.join(self.in_dir, "dairy_er_nc_su_25_50_1.tif"))
+        dairy_pl_image = gdal.Open(os.path.join(self.in_dir, "dairyRotation_Erosion.tif"))
         dairy_er_arr = dairy_pl_image.GetRasterBand(1).ReadAsArray()
         landuse_ero = np.where(landuse_ero == 5, dairy_er_arr, landuse_ero)
 
@@ -659,7 +656,7 @@ class SmartScape:
         sum_base_ero = np.sum(landuse_ero)
 
         # base yield
-        corn_image = gdal.Open(os.path.join(dir_path, "corn_yield.tif"))
+        corn_image = gdal.Open(os.path.join(self.in_dir, "corn_yield.tif"))
         corn_arr = corn_image.GetRasterBand(1).ReadAsArray()
         # [bushels/acre x 10] original units and then convert to tons of dry matter / ac
         corn_arr = corn_arr / 10
@@ -667,7 +664,7 @@ class SmartScape:
         silage_yield = ((3.73E-4 * corn_arr * corn_arr) + (3.95E-2 * corn_arr + 6.0036)) * 2000 * (1 - 0.65) / 2000
         corn_arr = corn_arr * 56 * (1 - 0.155) / 2000
 
-        soy_image = gdal.Open(os.path.join(dir_path, "soy_yield.tif"))
+        soy_image = gdal.Open(os.path.join(self.in_dir, "soy_yield.tif"))
         soy_arr = soy_image.GetRasterBand(1).ReadAsArray()
         soy_arr = soy_arr * 60 * 0.792 * 0.9008 / (2000 * 10)
 
@@ -691,12 +688,18 @@ class SmartScape:
         print("Selected yield is", sum_base_yield)
         ds_clip = gdal.Warp(
             # last raster ovrrides it
-            os.path.join(dir_path, "transformation_landuse.tif"),
+            os.path.join(self.in_dir, "transformation_landuse.tif"),
             watershed_file_list,
             dstNodata=-9999,
+            # dstSRS="EPSG:3071",
             outputType=gc.GDT_Float32)
-        time.sleep(15)
-        watershed_land_use_image = gdal.Open(os.path.join(dir_path, "transformation_landuse.tif"))
+        ds_clip.FlushCache()
+        ds_clip = None
+        # time.sleep(15)
+        print("clip")
+        print(ds_clip)
+        # watershed_land_use_image = gdal.Open(os.path.join(self.geo_folder, "landuse-clipped.tif"))
+        watershed_land_use_image = gdal.Open(os.path.join(self.in_dir, "transformation_landuse.tif"))
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
         watershed_land_use = watershed_land_use_band.ReadAsArray()
         print("shape of watershed land use ", watershed_land_use.shape)
@@ -734,22 +737,22 @@ class SmartScape:
         # print(values)
         # print(counts)
 
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_Yield.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "hayGrassland_Yield.tif"))
         hay_yield_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_Erosion.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "hayGrassland_Erosion.tif"))
         hay_er_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_PI.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "hayGrassland_PI.tif"))
         hay_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "hayGrassland_CN.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "hayGrassland_CN.tif"))
         hay_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
 
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_Yield.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "pastureWatershed_Yield.tif"))
         pasture_yield_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_Erosion.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "pastureWatershed_Erosion.tif"))
         pasture_er_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_PI.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "pastureWatershed_PI.tif"))
         pasture_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-        cont_pl_image = gdal.Open(os.path.join(dir_path, "pastureWatershed_CN.tif"))
+        cont_pl_image = gdal.Open(os.path.join(self.in_dir, "pastureWatershed_CN.tif"))
         pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
 
         watershed_total = {
