@@ -351,6 +351,7 @@ function wfs_update(feat,layer) {
 }
 
 function activateRunModels(){
+	console.log(DSS.layer.fields_1.getSource().getFeatures().length)
 	if(DSS.layer.fields_1.getSource().getFeatures().length > 0){
 		console.log("Fields Layer more then 0")
 		Ext.getCmp("btnRunModels").setDisabled(false)
