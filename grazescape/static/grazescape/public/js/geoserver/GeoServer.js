@@ -45,7 +45,7 @@ class GeoServer{
     setFieldSource(parameter = ""){
         console.log(parameter)
         //This function returns its value, since it is used in promises inside other functions to refresh fields array
-        this.makeRequest(this.geoField_Url + parameter, "source").then(function(geoJson){
+        this.makeRequest(this.geoField_Url + parameter, "source").then(async function(geoJson){
             //console.log(geoJson.geojson)
             DSS.layer.fields_1.getSource().clear()
             DSS.layer.fieldsLabels.getSource().clear()
@@ -55,7 +55,7 @@ class GeoServer{
                 FSgeoJson,
                 {featureProjection: 'EPSG:3857'}
             );
-            DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
+            await DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
             DSS.layer.fieldsLabels.getSource().addFeatures(myGeoJsonFeatures)
             if(fieldZoom == true){
                 let ex = ol.extent;
@@ -64,6 +64,7 @@ class GeoServer{
                 console.log("setFieldSource")
                 DSS.MapState.zoomToRealExtent(extent)
             }
+            waitForScen()
         })
     }
     //    returns a geojson of the infrastructure
@@ -296,17 +297,17 @@ class GeoServer{
     }
     //used to delete fields
     deleteField(payLoad, feat){
-        this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
+        this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(async function(returnData){
             let geoJson = returnData.geojson
             let currObj = returnData.current
             console.log("deleteField")
             //console.log(currObj)
             //currObj.setFieldSource().then(function(){
             console.log("redraw fields")
-            DSS.MapState.showFieldsForScenario();
-            DSS.MapState.showInfraForScenario();
+            await DSS.MapState.showFieldsForScenario();
+            await DSS.MapState.showInfraForScenario();
             DSS.MapState.zoomToActiveFarm()
-            activateRunModels()
+            //activateRunModels()
             // setFieldSource().then(function(){
             //     console.log("redraw fields")
             //     DSS.MapState.showNewFarm(DSS.activeFarm);
