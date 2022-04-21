@@ -23,8 +23,13 @@ function gatherArrayForYieldAdjustment(mdobj) {
 function populateChartObj(scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
+    console.log(scenList)
+    console.log(fieldList)
+    console.log(allField)
+    console.log(allScen)
     for (chart in chartList){
         chartName = chartList[chart]
+        console.log(chartName)
         if(chartName.includes('field')){
             node = new ChartData()
             node.chartData =  {
@@ -92,13 +97,10 @@ function populateChartObj(scenList, fieldList, allField, allScen){
                 node.areaSum[scen] = []
             }
             node.chartData.chartDataOri = new Array(scenList.length).fill(null)
-
         }
-
         chartObj[chartName] = node
         chartObj[chartName].chart = null
         chartObj[chartName].show = false
-
     }
 }
 
@@ -1646,6 +1648,23 @@ class ChartDatasetContainer{
 
         this.colorIndex = 0
         this.getScenarios().then(returnData =>{
+            //added by ZJH to reorder this.scenarios
+            this.scenarios.sort(function(a, b){return a.dbID - b.dbID})
+
+            for(let scen in this.scenarios){
+                 console.log(this.scenarios[scen])
+                 
+                 if(this.scenarios[scen].dbID == DSS.activeScenario){
+                    console.log("Active Scenario Hit")
+                    var first = this.scenarios[scen]
+                    this.scenarios.sort(function(x,y){ return x.dbID == first.dbID ? -1 : y.dbID == first.dbID ? 1 : 0; });
+
+            //         let scenIndex =  this.scenarios.indexOf(this.scenarios[scen])
+            //         this.scenarios.splice(scenIndex, this.scenarios[scen])
+            //         this.scenarios.unshift(this.scenarios[scen])
+                 }
+             }
+            //End addition
             this.getFields().then(returnData =>{
                 populateChartObj(this.getScenarioList(), this.getFieldList(),this.fields, this.scenarios)
                 this.setCheckBoxes()
@@ -1848,10 +1867,15 @@ class ChartDatasetContainer{
     }
     getScenarioList(){
         let scen_list = []
-
+        console.log(this.scenarios)
+        let scenariosList2 = this.scenarios
         for (let scen in this.scenarios){
+            console.log(this.scenarios[scen])
+            //if(this.scenarios[scen].dbID == DSS.activeScenario){
+            //    scen_list.unshift(this.scenarios[scen].name)
+            //}else{
             scen_list.push(this.scenarios[scen].name)
-
+           // }
         }
         return scen_list
     }
