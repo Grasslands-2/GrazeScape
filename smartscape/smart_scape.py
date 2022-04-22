@@ -79,6 +79,20 @@ class SmartScape:
         self.request_json = request_json
         self.threads = []
 
+    def create_tif(self, input_array, base_tiff, file_name):
+        [rows, cols] = input_array.shape
+        driver = gdal.GetDriverByName("GTiff")
+        outdata = driver.Create(os.path.join(self.in_dir, file_name + ".tif"), cols, rows, 1,
+                                gdal.GDT_Float32)
+        outdata.SetGeoTransform(base_tiff.GetGeoTransform())  ##sets same geotransform as input
+        outdata.SetProjection(base_tiff.GetProjection())  ##sets same projection as input
+        outdata.GetRasterBand(1).WriteArray(input_array)
+        outdata.GetRasterBand(1).SetNoDataValue(-9999)
+        # write to disk
+        outdata.FlushCache()
+        outdata = None
+
+
     def get_model_png(self):
         """
         Create display png and raster indicating no data, selected, and unselected cells
@@ -104,7 +118,7 @@ class SmartScape:
         has_land = False
         has_stream = False
         print("creating png")
-
+        print(rows, cols)
         # create empty raster to hold values from above calc
         image1 = gdal.Open(os.path.join(self.geo_folder, "landuse-clipped.tif"))
 
@@ -270,6 +284,28 @@ class SmartScape:
         -------
 
         """
+        # shutil.copyfile(os.path.join(self.geo_folder, "slope_aoi-clipped.tif"), os.path.join(self.in_dir, "base_aoi.tif"))
+        image = gdal.Open(os.path.join(self.geo_folder, "slope_aoi-clipped.tif"))
+
+        band = image.GetRasterBand(1)
+        arr_aoi = band.ReadAsArray()
+        # create a new raster with all valid cells set to -88 to be merged with merged.tif later
+        # arr_aoi_out = np.where(arr_aoi == self.no_data, arr_aoi, -88)
+        arr_aoi.fill(self.no_data)
+        [rows, cols] = arr_aoi.shape
+        driver = gdal.GetDriverByName("GTiff")
+        outdata = driver.Create(os.path.join(self.in_dir, "base_aoi.tif"), cols, rows, 1,
+                                gdal.GDT_Float32)
+        outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
+        outdata.SetProjection(image.GetProjection())  ##sets same projection as input
+        outdata.GetRasterBand(1).WriteArray(arr_aoi)
+        outdata.GetRasterBand(1).SetNoDataValue(-9999)
+        # write to disk
+        outdata.FlushCache()
+        outdata = None
+        band = None
+        ds = None
+
         # conversion from value / ac to value of cell at 30 m resolution
         ac_to_m = 900 / 4046.86
         print("starting model aggregation")
@@ -278,6 +314,10 @@ class SmartScape:
         base_scen = self.request_json['base']
         # region = self.request_json['base']
         region = self.request_json['region']
+        aoi_area = self.request_json["aoiArea"]
+        aoi_extents = self.request_json["aoiExtents"]
+        print("area", aoi_area)
+        print("area", aoi_extents)
         self.in_dir = self.in_dir
         insect = {"contCorn": 0.51,
                   "cornGrain": 0.51,
@@ -431,14 +471,25 @@ class SmartScape:
         band = None
         ds = None
         image = None
+        # burn out combined trans rater into the aoi raster
+        ds_clip = gdal.Warp(
+            # last raster ovrrides it
+            os.path.join(self.in_dir, "trans_with_aoi.tif"),
+            [os.path.join(self.in_dir, "base_aoi.tif"), os.path.join(self.in_dir, "merged.tif")],
+            dstNodata=-9999,
+            # dstSRS="EPSG:3071",
+            outputType=gc.GDT_Float32)
+        ds_clip.FlushCache()
+        ds_clip = None
 
-        image = gdal.Open(os.path.join(self.in_dir, "merged.tif"))
-
+        image = gdal.Open(os.path.join(self.in_dir, "trans_with_aoi.tif"))
         band = image.GetRasterBand(1)
         # arr will be the base array that all model calcs pull from. All valid values have the hierarch of the
         # transformation
         arr = band.ReadAsArray()
         # calc area
+
+        aoi_image = gdal.Open(os.path.join(self.in_dir, "base_aoi.tif"))
 
         geoTransform = image.GetGeoTransform()
         minx = geoTransform[0]
@@ -451,6 +502,21 @@ class SmartScape:
                 math.ceil(float(extents[2]))) + ")"
             extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
                 math.ceil(float(extents[3]))) + ")"
+
+        geoTransform = aoi_image.GetGeoTransform()
+        minx = geoTransform[0]
+        maxy = geoTransform[3]
+        maxx = minx + geoTransform[1] * image.RasterXSize
+        miny = maxy + geoTransform[5] * image.RasterYSize
+        geoTransform = None
+        aoi_image = None
+        extents_aoi = [minx, miny, maxx, maxy]
+        if extents_aoi is not None:
+            extents_aoi_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(
+                math.ceil(float(extents[2]))) + ")"
+            extents_aoi_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
+                math.ceil(float(extents[3]))) + ")"
+
         geo_server_url = settings.GEOSERVER_URL
         outdata = None
         band = None
@@ -466,10 +532,10 @@ class SmartScape:
                     model] + extents_string_x + extents_string_y
                 raster_file_path = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
                 self.createNewDownloadThread(url, raster_file_path)
-
+        # use extents of aoi for base, so we get whole area
         for layer in base_layer_dic:
             print("downloading layer ", layer)
-            url = geoserver_url + base_layer_dic[layer] + extents_string_x + extents_string_y
+            url = geoserver_url + base_layer_dic[layer] + extents_aoi_string_x + extents_aoi_string_y
             raster_file_path = os.path.join(self.in_dir, layer + ".tif")
             self.createNewDownloadThread(url, raster_file_path)
         self.joinThreads()
@@ -494,7 +560,9 @@ class SmartScape:
         area_selected = count_selected * 900 * 0.000247105
         unique, counts = np.unique(area, return_counts=True)
         area_dict = {}
-
+        print(unique)
+        print(counts)
+        print(area_selected)
         # get area of transformed land for each transformation
         for index, val in enumerate(unique):
             area_dict["{:,.0f}".format(val)] = "{:,.0f}".format(counts[index] * 900 * 0.000247105)
@@ -514,6 +582,7 @@ class SmartScape:
                 # if hierarchy matches the trans rank replace that value with the model value
                 if model == "cn":
                     cn_final = np.where(model_data[model] == layer, model_arr, model_data[model])
+                    # print("sum of cn" , np.sum(cn_final)
                     # only looking at 3 in storm
                     model_data["runoff"] = self.get_runoff_vectorized(cn_final, 3)
                     model_data[model] = cn_final
@@ -686,20 +755,12 @@ class SmartScape:
         print("base yield cell count", count1)
 
         print("Selected yield is", sum_base_yield)
-        ds_clip = gdal.Warp(
-            # last raster ovrrides it
-            os.path.join(self.in_dir, "transformation_landuse.tif"),
-            watershed_file_list,
-            dstNodata=-9999,
-            # dstSRS="EPSG:3071",
-            outputType=gc.GDT_Float32)
-        ds_clip.FlushCache()
-        ds_clip = None
+        # example of writing merged to to whole watershed
+
         # time.sleep(15)
         print("clip")
-        print(ds_clip)
-        # watershed_land_use_image = gdal.Open(os.path.join(self.geo_folder, "landuse-clipped.tif"))
-        watershed_land_use_image = gdal.Open(os.path.join(self.in_dir, "transformation_landuse.tif"))
+        watershed_land_use_image = gdal.Open(os.path.join(self.geo_folder, "landuse_aoi-clipped.tif"))
+        # watershed_land_use_image = gdal.Open(os.path.join(self.in_dir, "transformation_landuse.tif"))
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
         watershed_land_use = watershed_land_use_band.ReadAsArray()
         print("shape of watershed land use ", watershed_land_use.shape)
@@ -731,7 +792,7 @@ class SmartScape:
         print("whole watershed cells ", count_selected)
         # each cell is 30 x 30 m (900 sq m) and then convert to acres
         area_watershed = count_selected * 900 * 0.000247105
-        # print(area_watershed)
+        print("watershed area", area_watershed)
         test3 = base_data_watershed["yield"].flatten()
         values, counts = np.unique(test3, return_counts=True)
         # print(values)
@@ -834,6 +895,14 @@ class SmartScape:
             base_data_watershed[model] = np.where(
                 np.logical_or(base_data_watershed[model] == self.no_data, base_data_watershed[model] < 0),
                 0, base_data_watershed[model] * ac_to_m)
+
+        self.create_tif(model_data_watershed["cn"], watershed_land_use_image, "zzzmodel_watershed_cn")
+        self.create_tif(base_data_watershed["cn"], watershed_land_use_image, "zzzbase_watershed_cn")
+
+
+
+
+
         # model = np.where(
         #     np.logical_or(model_data["yield"] == self.no_data, model_data["yield"] < 0),
         #     0, (model_data["yield"] * ac_to_m))
@@ -867,6 +936,9 @@ class SmartScape:
             np.logical_or(model_data["runoff"] == self.no_data, model_data["runoff"] < 0),
             0, (model_data["runoff"] * ac_to_m))
         sum_model_runoff = np.sum(model)
+        print(np.sum(model_data_watershed["cn"]))
+        print(np.sum(sum_model_cn))
+        print(area_watershed)
 
         return {
             "base": {
