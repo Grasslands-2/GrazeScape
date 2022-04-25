@@ -307,16 +307,16 @@ class SmartScape:
         ds = None
 
         # conversion from value / ac to value of cell at 30 m resolution
-        ac_to_m = 900 / 4046.86
+        # ac_to_m = 900 / 4046.86
         print("starting model aggregation")
         print(self.geo_folder)
         trans = self.request_json['trans']
         base_scen = self.request_json['base']
         # region = self.request_json['base']
         region = self.request_json['region']
-        aoi_area = self.request_json["aoiArea"]
+        aoi_area_total = self.request_json["aoiArea"]
         aoi_extents = self.request_json["aoiExtents"]
-        print("area", aoi_area)
+        print("area", aoi_area_total)
         print("area", aoi_extents)
         self.in_dir = self.in_dir
         insect = {"contCorn": 0.51,
@@ -327,6 +327,7 @@ class SmartScape:
         file_list = []
         # get each transformation selection output raster
         layer_dic = {}
+        layer_area_dic = {}
         base_layer_dic = {}
 
         # download layers for base case
@@ -367,6 +368,13 @@ class SmartScape:
             file = os.path.join(self.data_dir, tran["id"], "selection_output.tif")
             file_list.append(file)
             watershed_file_list.append(os.path.join(self.data_dir, tran["id"], "landuse_watershed.tif"))
+
+            image = gdal.Open(os.path.join(self.data_dir, tran["id"], "landuse_watershed.tif"))
+
+            band = image.GetRasterBand(1)
+            arr = band.ReadAsArray()
+
+            total_count = np.count_nonzero(arr > 0)
             if tran["management"]["rotationType"] == "pasture":
                 yield_name = "pasture_Yield_" + tran["management"]["grassYield"] + "_" + region
                 ero_name = "pasture_Erosion_" + tran["management"]["density"] + "_" + \
@@ -393,6 +401,7 @@ class SmartScape:
             layer_dic[tran["rank"]]["ero"] = ero_name
             layer_dic[tran["rank"]]["ploss"] = ploss_name
             layer_dic[tran["rank"]]["cn"] = cn_name
+            layer_area_dic[tran["rank"]]["total_count"] = total_count
 
         # create blank raster that has extents from all transformations
         ds_clip = gdal.Warp(
@@ -404,7 +413,7 @@ class SmartScape:
 
         band = image.GetRasterBand(1)
         arr = band.ReadAsArray()
-        print(watershed_file_list)
+        # print(watershed_file_list)
         # get full watershed
 
         # fill the blank raster with no data values
@@ -458,6 +467,8 @@ class SmartScape:
             image1 = None
         # put the array back into the raster shape
         base = np.reshape(base, [rows, cols])
+        count_total_selected = np.count_nonzero(base > 0)
+
         # save the base array into a new raster called merged
         driver = gdal.GetDriverByName("GTiff")
         outdata = driver.Create(os.path.join(self.in_dir, "merged.tif"), cols, rows, 1,
@@ -554,18 +565,21 @@ class SmartScape:
         area = np.copy(arr)
         count_selected = np.count_nonzero(area > -88)
         print("Selected cells for model", count_selected)
-        count1 = np.count_nonzero(model_data["yield"] == -9999)
-        print("yield before run", count1)
+        # count1 = np.count_nonzero(model_data["yield"] == -9999)
         # each cell is 30 x 30 m (900 sq m) and then convert to acres
-        area_selected = count_selected * 900 * 0.000247105
+        area_selected = count_selected / count_total_selected * aoi_area_total
         unique, counts = np.unique(area, return_counts=True)
         area_dict = {}
         print(unique)
         print(counts)
-        print(area_selected)
+        # print(area_selected)
         # get area of transformed land for each transformation
-        for index, val in enumerate(unique):
-            area_dict["{:,.0f}".format(val)] = "{:,.0f}".format(counts[index] * 900 * 0.000247105)
+        # for index, val in enumerate(unique):
+        #     area_dict["{:,.0f}".format(val)] = "{:,.0f}".format(counts[index])
+        for tran in trans:
+            area = counts[tran["rank"]] / layer_area_dic[tran["rank"]]["total_count"] * tran["area"]
+            area_dict["{:,.0f}".format(area)] = "{:,.0f}".format(counts[tran["rank"]])
+
 
         print("running transformation models")
         for layer in layer_dic:
@@ -851,8 +865,7 @@ class SmartScape:
                                                      watershed_total[land_type]["insect"],
                                                      base_data_watershed["insect"])
             # calculate runoff if cn is above zero
-            base_data_watershed["runoff"] = np.where(base_data_watershed["cn"] > 0,
-                                                     self.get_runoff_vectorized(base_data_watershed["cn"], 3), 0)
+            base_data_watershed["runoff"] = self.get_runoff_vectorized(base_data_watershed["cn"], 3)
         # print(base_data_watershed["yield"])
         model_data_watershed = {
             "yield": np.copy(base_data_watershed["yield"]),
