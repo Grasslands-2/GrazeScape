@@ -17,7 +17,7 @@ var fields_1Source = new ol.source.Vector({
 	// 	return geoserverURL + geoServer.geoField_Url
 	// },
 });
-
+//import {getArea, getDistance} from 'ol/sphere';
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------

@@ -418,13 +418,14 @@ Ext.define('DSS.results.YieldAdjustment', {
 						//console.log(heiferFeedData)
 						//calcHeiferFeedBreakdown(heiferFeedData)						
 						console.log(chartObj)
-						await chartObj.grass_yield_farm.chart.update()
-						await chartObj.corn_yield_farm.chart.update()
-						await chartObj.corn_silage_yield_farm.chart.update()
-						await chartObj.soy_yield_farm.chart.update()
-						await chartObj.oat_yield_farm.chart.update()
-						await chartObj.alfalfa_yield_farm.chart.update()
-						await chartObj.rotation_yield_farm.chart.update()
+						if(chartObj.grass_yield_farm.chart !== null){await chartObj.grass_yield_farm.chart.update()}
+						if(chartObj.corn_yield_farm.chart !== null){await chartObj.corn_yield_farm.chart.update()}
+						if(chartObj.corn_silage_yield_farm.chart !== null){await chartObj.corn_silage_yield_farm.chart.update()}
+						if(chartObj.soy_yield_farm.chart !== null){await chartObj.soy_yield_farm.chart.update()}
+						if(chartObj.oat_yield_farm.chart !== null){await chartObj.oat_yield_farm.chart.update()}
+						if(chartObj.alfalfa_yield_farm.chart !== null){await chartObj.alfalfa_yield_farm.chart.update()}
+						if(chartObj.rotation_yield_farm.chart !== null){await chartObj.rotation_yield_farm.chart.update()}
+						
 						await chartObj.grass_yield_field.chart.update()
 						await chartObj.corn_yield_field.chart.update()
 						await chartObj.corn_silage_yield_field.chart.update()

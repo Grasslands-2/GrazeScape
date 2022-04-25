@@ -97,7 +97,9 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 	// alert('Field Added!')
 }
 function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput) {
-	fieldArea = e.feature.values_.geom.getArea();
+	//fieldArea = e.feature.values_.geom.ol.sphere.getArea('EPSG:3071');
+	var geometry = e.feature.values_.geom
+	fieldArea = ol.sphere.getArea(geometry)
 	console.log(fieldArea);
 	// get default OM value
 	console.log(e)

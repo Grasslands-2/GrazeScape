@@ -334,6 +334,8 @@ class PhosphorousLoss(ModelBase):
         pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
         ero = r.get("erosion").to_numpy()
         ploss = r.get("final_pi").to_numpy()
+        ero=  np.where(ero < 0.01, .01, ero)
+        ploss=  np.where(ploss < 0.01, .01, ploss)
         # if np.sum(ero) < 0:
         #     ero = np.array([0])
         # print(np.sum(ploss))

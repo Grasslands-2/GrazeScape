@@ -143,8 +143,7 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	// console.log('This is the active scenario#: ');
 
 	DSS.draw.on('drawend', function (e,) {
-		fieldArea = e.feature.values_.geom.getArea();
-		console.log(fieldArea);
+		//fieldArea = e.feature.values_.geom.getArea();
         // get default OM value
         console.log(e)
         e.feature.setProperties({
