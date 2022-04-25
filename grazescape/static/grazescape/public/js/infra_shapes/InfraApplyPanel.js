@@ -175,44 +175,47 @@ function addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,wat
 	//var geom = e.target;
 	console.log(e);
 	//		in meters convert to feet
-			infraLength = e.feature.values_.geom.getLength() * 3.28084;
-			data = {
-				extents: e.feature.values_.geom.extent_,
-				cords: e.feature.values_.geom.flatCoordinates,
-				infraID: e.feature.ol_uid,
-				// infraLengthXY kept in meters
-				infraLengthXY: e.feature.values_.geom.getLength()
-			}
-			console.log(data)
-			console.log(infraLength);
-			//await get_terrian_distance(data)
-			console.log(infraLength);
-			totalCost = (infraLength * costPerFoot).toFixed(2)
-			console.log(totalCost);
-			e.feature.setProperties({
-				id: DSS.activeFarm,
-				farm_id: DSS.activeFarm,
-				scenario_id: DSS.activeScenario,
-				infra_name: infra_nameInput,
-				infra_type: infra_typeInput,
-				infra_type_disp: infra_typeDisp,
-				fence_material: fence_materialInput,
-				fence_material_disp: fence_materialDisp,
-				water_pipe: water_pipeInput,
-				water_pipe_disp: water_pipeDisp,
-				lane_material: lane_materialInput,
-				lane_material_disp:lane_materialDisp,
-				cost_per_foot: costPerFoot,
-				infra_length: infraLength,
-				total_cost: totalCost
-			})
-			var geomType = 'Line'
-			console.log(e.feature)
-			DSS.MapState.removeMapInteractions()
-			wfs_infra_insert(e.feature, geomType)
-			console.log("HI! WFS infra Insert ran!")
-			alert('Infrastructure added!')
-		}    
+	var lineGeom = e.feature.values_.geom
+	//infraLength = e.feature.values_.geom.getLength() * 3.28084;
+	infraLength = ol.sphere.getLength(lineGeom) * 3.28084;
+	data = {
+		extents: e.feature.values_.geom.extent_,
+		cords: e.feature.values_.geom.flatCoordinates,
+		infraID: e.feature.ol_uid,
+		// infraLengthXY kept in meters
+		infraLengthXY: infraLength
+		//e.feature.values_.geom.getLength()
+	}
+	console.log(data)
+	console.log(infraLength);
+	//await get_terrian_distance(data)
+	console.log(infraLength);
+	totalCost = (infraLength * costPerFoot).toFixed(2)
+	console.log(totalCost);
+	e.feature.setProperties({
+		id: DSS.activeFarm,
+		farm_id: DSS.activeFarm,
+		scenario_id: DSS.activeScenario,
+		infra_name: infra_nameInput,
+		infra_type: infra_typeInput,
+		infra_type_disp: infra_typeDisp,
+		fence_material: fence_materialInput,
+		fence_material_disp: fence_materialDisp,
+		water_pipe: water_pipeInput,
+		water_pipe_disp: water_pipeDisp,
+		lane_material: lane_materialInput,
+		lane_material_disp:lane_materialDisp,
+		cost_per_foot: costPerFoot,
+		infra_length: infraLength,
+		total_cost: totalCost
+	})
+	var geomType = 'Line'
+	console.log(e.feature)
+	DSS.MapState.removeMapInteractions()
+	wfs_infra_insert(e.feature, geomType)
+	console.log("HI! WFS infra Insert ran!")
+	alert('Infrastructure added!')
+}      
 
 
 //------------------working variables--------------------
