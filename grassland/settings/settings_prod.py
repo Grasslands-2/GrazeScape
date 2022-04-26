@@ -17,11 +17,8 @@ if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     params = parser.items("postgresql")
     db_name = params[1][1]
     db_user = params[2][1]
-    db_pass = os.environ['db_pass']
-    # Matt I switched this back last night to try to get the production container working.
+    db_pass = params[3][1]
     db_host = params[0][1]
-    print(os.environ)
-    print(db_pass)
 else:
     raise Exception(
         'Section {0} not found in the {1} file'.format("captcha_google", filename))
