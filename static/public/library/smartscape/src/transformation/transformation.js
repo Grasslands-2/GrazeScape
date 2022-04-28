@@ -54,6 +54,8 @@ function Transformation(name, id, rank){
             fertilizer:"default",
             // only for pasture
             density:"default",
+            grassYield:"default",
+            rotFreq:"default",
 
         }
     }

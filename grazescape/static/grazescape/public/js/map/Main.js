@@ -148,9 +148,9 @@ Ext.define('DSS.map.Main', {
 		let me = this;
 		me._cookieInternalHelper("crop", "1", 0.8);
 		me._cookieInternalHelper("inspector", "1", 0.8);
-		me._cookieInternalHelper("tainterwatershed", "1", 0.6);
+		me._cookieInternalHelper("tainterwatershed", "0", 0.6);
 		me._cookieInternalHelper("DEM", "0", 0.6);
-		me._cookieInternalHelper("kickapoowatershed", "1", 0.6);
+		me._cookieInternalHelper("kickapoowatershed", "0", 0.6);
 		me._cookieInternalHelper("hillshade", "0", 0.5);
 		me._cookieInternalHelper("ploss", "0", 1);
 		
@@ -315,8 +315,8 @@ Ext.define('DSS.map.Main', {
 		});
 		//--------------------------------------------------------------		
 		DSS.layer.tainterwatershed = new ol.layer.Vector({
-			visible: DSS.layer['tainterwatershed:visible'],
-			opacity: DSS.layer['tainterwatershed:opacity'],
+			visible: false,//DSS.layer['tainterwatershed:visible'],
+			//opacity: DSS.layer['tainterwatershed:opacity'],
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
@@ -332,8 +332,8 @@ Ext.define('DSS.map.Main', {
 		});
 		//--------------------------------------------------------------
 		DSS.layer.kickapoowatershed = new ol.layer.Vector({
-			visible: DSS.layer['kickapoowatershed:visible'],
-			opacity: DSS.layer['kickapoowatershed:opacity'],
+			visible: false,//DSS.layer['kickapoowatershed:visible'],
+			//opacity: DSS.layer['kickapoowatershed:opacity'],
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({

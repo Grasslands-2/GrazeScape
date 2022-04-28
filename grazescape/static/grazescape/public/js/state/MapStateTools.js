@@ -160,10 +160,10 @@ Ext.define('DSS.state.MapStateTools', {
 		let me = this;
 		//console.log(DSS.activeScenario)
 		geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-		console.log(DSS.layer.fields_1.getStyle())
 		DSS.layer.fields_1.getSource().refresh();
 		DSS.layer.fields_1.setVisible(true);
 		DSS.layer.fieldsLabels.setVisible(true);
+		console.log(DSS.layer.fields_1.getSource().getFeatures().length)
 		console.log("showfieldsforscenario ran");
 	},
 	hideFieldsandInfra: function() {

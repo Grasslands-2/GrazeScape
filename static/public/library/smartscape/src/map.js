@@ -54,6 +54,9 @@ import {
     Projection,
     get as getProjection
  } from 'ol/proj'
+ import {getArea, getLength} from 'ol/sphere';
+ import proj4 from 'proj4';
+import {register} from 'ol/proj/proj4';
 import ImageLayer from "ol/layer/Image";
 import Static from "ol/source/ImageStatic";
 import VectorImageLayer from 'ol/layer/VectorImage';
@@ -70,9 +73,20 @@ import {extend, createEmpty,getCenter} from 'ol/extent';
 //import * as jsts from "jsts/dist/jsts.js";
 import { useSelector, useDispatch, connect  } from 'react-redux'
 import{setActiveTrans,setActiveTransOL, updateTransList,updateAreaSelectionType,
-updateActiveTransProps,setVisibilityMapLayer} from '/src/stores/transSlice'
+updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps} from '/src/stores/transSlice'
 import configureStore from './stores/store'
 import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion} from '/src/stores/mainSlice'
+proj4.defs(
+  'EPSG:27700',
+  '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' +
+    '+x_0=400000 +y_0=-100000 +ellps=airy ' +
+    '+towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 ' +
+    '+units=m +no_defs'
+);
+proj4.defs(
+'EPSG:3071',"+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs "
+)
+register(proj4);
 
 // map values from redux store to local props
 const mapStateToProps = state => {
@@ -94,6 +108,7 @@ const mapDispatchToProps = (dispatch) => {
         updateTransList: (value)=> dispatch(updateTransList(value)),
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
         setVisibilityTransAcc: (type)=> dispatch(setVisibilityTransAcc(type)),
+        updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
 
 //        getTrans: (value)=> dispatch(getTrans(value)),
         updateAreaSelectionType: (value)=> dispatch(updateAreaSelectionType(value)),
@@ -157,14 +172,13 @@ class OLMapFragment extends React.Component {
       if (prevProps.areaSelectionType !== this.props.areaSelectionType) {
         this.updateAreaSelectionType(this.props.areaSelectionType);
       }
+      // set opacity of active transformation
       if(this.props.activeTrans.displayOpacity != prevProps.activeTrans.displayOpacity && this.props.activeTrans.displayLayerID != -99){
             this.getMapLayer(this.props.activeTrans.displayLayerID).setOpacity(this.props.activeTrans.displayOpacity/100)
       }
       // the display layer of a transformation needs to be changed
       if (prevProps.activeDisplayProps !== this.props.activeDisplayProps) {
         // create a new raster source
-        console.log("creating new image source")
-        console.log(this.props.activeDisplayProps)
         let rasterLayerSource =
             new Static({
                 url: this.props.activeDisplayProps.url,
@@ -176,7 +190,6 @@ class OLMapFragment extends React.Component {
         for (let trans in listTrans){
             if(listTrans[trans].id == this.props.activeDisplayProps.transId){
                 let newLayer = listTrans[trans]
-                console.log("Map!!!", this.map)
                 let layers = this.map.getLayers().getArray()
                 for (let layer in layers){
                     if(layers[layer].ol_uid == newLayer.displayLayerID){
@@ -192,7 +205,14 @@ class OLMapFragment extends React.Component {
       if(prevProps.layerVisible != this.props.layerVisible){
           let layers = this.map.getLayers().getArray()
 //        turn off selection
-
+//        console.log("Projection ", this.huc10.getSource())
+//        for (let w in this.huc10.getSource().getFeatures()){
+//            console.log(w)
+//            console.log(this.huc10.getSource().getFeatures()[w])
+//            console.log(this.huc10.getSource().getFeatures()[w].getGeometry())
+//            console.log(getArea(this.huc10.getSource().getFeatures()[w].getGeometry()))
+////            console.log(getArea(this.huc10.getSource().getFeatures()[w].ge)
+//        }
         this.props.updateAreaSelectionType(null);
         this.map.removeInteraction(this.select);
         for (let ly in this.props.layerVisible){
@@ -208,6 +228,15 @@ class OLMapFragment extends React.Component {
 //        zoomm in on aoi
         if(this.props.layerVisible[0].name == "huc10" && this.props.layerVisible[0].visible == false){
                 console.log(this.boundaryLayerAOI)
+//            let aoiExtents = createEmpty();
+//            let aoiCoors = []
+//            this.boundaryLayerAOI.getSource().getFeatures().forEach((lyr)=>{
+//                    console.log("looping through layers")
+//                    aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
+//                    aoiCoors.push(lyr.getGeometry().getCoordinates())
+//            })
+//                this.props.updateActiveBaseProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+//                this.props.updateActiveBaseProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 var extent = this.boundaryLayerAOI.getSource().getExtent()
                 extent = this.add10PerExtent(extent)
                 console.log(extent)
@@ -225,6 +254,7 @@ class OLMapFragment extends React.Component {
         let newLayer = this.props.activeTrans
         for (let layer in layers){
 //          turn off previous active trans
+
             if(layers[layer].ol_uid == oldLayer.displayLayerID ||layers[layer].ol_uid == oldLayer.boundaryLayerID){
                 layers[layer].setVisible(false);
             }
@@ -235,8 +265,8 @@ class OLMapFragment extends React.Component {
       }
       // create two new layers for a new trans and add them to the map
       if(prevProps.listTrans.length < this.props.listTrans.length){
-                        let aoiExtents = createEmpty();
-                let aoiCoors = []
+        let aoiExtents = createEmpty();
+        let aoiCoors = []
         let items = JSON.parse(JSON.stringify(this.props.listTrans))
         let addTransId = this.props.addTrans.id
         for(let trans in items){
@@ -249,7 +279,7 @@ class OLMapFragment extends React.Component {
                     visible: true,
                 })
                 let boundarySource= new VectorSource({
-                        projection: 'EPSG:3857',
+                        projection: 'EPSG:3071',
                     })
                 // new transformations have the aoi as there default area selection
                 this.boundaryLayerAOI.getSource().getFeatures().forEach((lyr)=>{
@@ -273,6 +303,7 @@ class OLMapFragment extends React.Component {
                 this.props.updateTransList(items)
                 this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+
                 displayLayer.setOpacity(this.props.activeTrans.displayOpacity/100)
             }
         }
@@ -300,7 +331,7 @@ class OLMapFragment extends React.Component {
     //   clip  the huc 12 watersheds to our aoi
 
     getHuc12FromHuc10(){
-        let vectorSource = new VectorSource({projection: 'EPSG:3857',});
+        let vectorSource = new VectorSource({projection: 'EPSG:3071',});
         this.map.removeInteraction(this.select)
         this.selectedFeatures.clear();
         this.map.addInteraction(this.select);
@@ -380,27 +411,33 @@ class OLMapFragment extends React.Component {
         return extents
     }
     setActiveRegion(region){
-        let region_10 = region + "_HUC_10.geojson"
+        let region_10 = region + "_Huc10.geojson"
         let url = location.origin + "/smartscape/get_image?file_name="+region_10+ "&time="+Date.now()
         let source = new VectorSource({
               url: url,
               format: new GeoJSON(),
-               projection: 'EPSG:3857',
+               projection: 'EPSG:3071',
             })
         this.huc10.setSource(source)
-        let region_12 = region + "_HUC_12.geojson"
+        let region_12 = region + "_Huc12.geojson"
         url = location.origin + "/smartscape/get_image?file_name="+region_12+ "&time="+Date.now()
         source = new VectorSource({
               url: url,
               format: new GeoJSON(),
-               projection: 'EPSG:3857',
             })
+        console.log("Projection ", this.huc10)
+        console.log("Projection ", this.huc10.getSource().getProjection())
+        console.log(getProjection('EPSG:3071'))
         this.huc12.setSource(source)
+
+
+
         this.props.setActiveRegion(region)
         this.map.removeInteraction(this.select)
         this.selectedFeatures.clear()
         this.map.render()
         this.map.addInteraction(this.select);
+
 
     }
     // allows user to draw selection polygon
@@ -476,7 +513,7 @@ class OLMapFragment extends React.Component {
           name: "aoi",
           zIndex: 10,
           source: new VectorSource({
-            projection: 'EPSG:3857',
+            projection: 'EPSG:3071',
             }),
             style:this.stylesBoundary,
         });
@@ -484,7 +521,7 @@ class OLMapFragment extends React.Component {
           name: "subHuc12",
 //          zIndex: 100,
           source: new VectorSource({
-            projection: 'EPSG:3857',
+            projection: 'EPSG:3071',
             }),
             style: styles,
         });
@@ -492,6 +529,7 @@ class OLMapFragment extends React.Component {
          this.huc10 = new VectorLayer({
             name:'huc10',
             renderMode: 'image',
+
 //          source:new VectorSource({
 //              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
 ////              url: "http://geoserver-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
@@ -508,7 +546,7 @@ class OLMapFragment extends React.Component {
 //              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_json.geojson',
 //              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_trim.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:3857',
+               projection: 'EPSG:3071',
             }),
             style: this.nullStyle,
             visible: true,
@@ -588,6 +626,7 @@ class OLMapFragment extends React.Component {
             // Render the tile layers in a map view with a Mercator projection
             view: new View({
                 projection: 'EPSG:3857',
+//                projection: 'EPSG:3071',
 //                center: [0, 0],
 //                zoom: 2,
 //                centered at the learning hubs
@@ -752,7 +791,7 @@ class OLMapFragment extends React.Component {
 //
 //
 //        });
-this.map.addInteraction(this.select);
+    this.map.addInteraction(this.select);
     }
     render(){
         const style = {

@@ -66,34 +66,63 @@ function gatherYieldTableData() {
     for(i in fieldYieldArray){
         var fieldID = fieldYieldArray[i].id
         for(g in grassdataarray){
-            if (grassdataarray[g].dbID == fieldID){
+            if (grassdataarray[g].dbID == fieldID && typeof(grassdataarray[g].fieldData) !== 'undefined'){
                 fieldYieldArray[i].grassYieldTonsAc = grassdataarray[g].fieldData
             }
         }
         for(c in corndataarray){
-            if (corndataarray[c].dbID == fieldID){
+            if (corndataarray[c].dbID == fieldID && typeof(corndataarray[c].fieldData) !== 'undefined'){
                 fieldYieldArray[i].cornGrainBrusdAc = corndataarray[c].fieldData
             }
         }
         for(s in silagedataarray){
-            if (silagedataarray[s].dbID == fieldID){
+            if (silagedataarray[s].dbID == fieldID && typeof(silagedataarray[s].fieldData) !== 'undefined'){
                 fieldYieldArray[i].cornSilageTonsAc = silagedataarray[s].fieldData
             }
+            // if (silagedataarray[s].dbID == fieldID){
+            //     if(typeof(fieldYieldArray[i].cornSilageTonsAc) == 'undefined'){
+            //         fieldYieldArray[i].cornSilageTonsAc = null
+            //     }else{
+            //         fieldYieldArray[i].cornSilageTonsAc = silagedataarray[s].fieldData
+            //     }
+            // }
         }
         for(so in soydataarray){
-            if (soydataarray[so].dbID == fieldID){
+            if (soydataarray[so].dbID == fieldID && typeof(soydataarray[so].fieldData) !== 'undefined'){
                 fieldYieldArray[i].soyGrainBrusAc = soydataarray[so].fieldData
             }
+            // if(typeof(fieldYieldArray[i].soyGrainBrusAc) == 'undefined'){
+            //     fieldYieldArray[i].soyGrainBrusAc = null
+            // }else{
+            //     fieldYieldArray[i].soyGrainBrusAc = soydataarray[so].fieldData
+            // }
+            
         }
         for(o in oatdataarray){
-            if (oatdataarray[o].dbID == fieldID){
+            if (oatdataarray[o].dbID == fieldID && typeof(oatdataarray[o].fieldData) !== 'undefined'){
                 fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].fieldData
             }
+                
+                // if(typeof(fieldYieldArray[i].soyGrainBrusAc) == 'undefined'){
+                //     fieldYieldArray[i].oatYieldBrusAc = null
+                // }else{
+                //     fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].fieldData
+                // }
+                //fieldYieldArray[i].oatYieldBrusAc = oatdataarray[o].fieldData
+            //}
         }
         for(a in alfalfadataarray){
-            if (alfalfadataarray[a].dbID == fieldID){
+            if (alfalfadataarray[a].dbID == fieldID && typeof(alfalfadataarray[a].fieldData) !== 'undefined'){
                 fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].fieldData
             }
+            // if (alfalfadataarray[a].dbID == fieldID){
+            //     if(typeof(fieldYieldArray[i].alfalfaYieldTonsAc) == 'undefined'){
+            //         fieldYieldArray[i].alfalfaYieldTonsAc = null
+            //     }else{
+            //         fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].fieldData
+            //     }
+            //     //fieldYieldArray[i].alfalfaYieldTonsAc = alfalfadataarray[a].fieldData
+            // }
         }
         rotationValSum = fieldYieldArray[i].rotationVal1// + fieldYieldArray[i].rotationVal2
         switch(rotationValSum){
@@ -1011,6 +1040,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         chartObj.oat_yield_farm.chart = create_graph(chartObj.oat_yield_farm, 'Oat Yield', document.getElementById('oat_yield_farm').getContext('2d'));
                         chartObj.alfalfa_yield_farm.chart = create_graph(chartObj.alfalfa_yield_farm, 'Alfalfa Yield', document.getElementById('alfalfa_yield_farm').getContext('2d'));
                         chartObj.rotation_yield_farm.chart = create_graph(chartObj.rotation_yield_farm, 'Total Yield', document.getElementById('rotation_yield_farm').getContext('2d'));
+                        // await chartObj.grass_yield_farm.chart.update()
+						// await chartObj.corn_yield_farm.chart.update()
+						// await chartObj.corn_silage_yield_farm.chart.update()
+						// await chartObj.soy_yield_farm.chart.update()
+						// await chartObj.oat_yield_farm.chart.update()
+						// await chartObj.alfalfa_yield_farm.chart.update()
+						// await chartObj.rotation_yield_farm.chart.update()
                     }
                 }
                 },

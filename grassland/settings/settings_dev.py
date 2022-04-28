@@ -18,7 +18,6 @@ if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     db_name = params[1][1]
     db_user = params[2][1]
     db_pass = os.environ['db_pass']
-    # Matt I switched this back last night to try to get the production container working.
     db_host = params[0][1]
     print(os.environ)
     print(db_pass)

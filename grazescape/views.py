@@ -463,8 +463,13 @@ def get_model_results(request):
             if type(sum) is not list:
                 sum = round(sum, 2)
             # erosion and ploss should not be less than zero
-            if model_type == 'ploss' and sum < 0:
-                sum = 0
+            if model_type == 'ploss': #and sum <= 0:
+                print("PLOSS MODEL TYPE HITT!!!!!!!!!!!!!!!")
+                print(f_name)
+                print(result.model_type)
+                print(field_id)
+                print(sum)
+                #sum = 0.01
             data = {
                 "extent": [*bounds],
                 "palette": palette,

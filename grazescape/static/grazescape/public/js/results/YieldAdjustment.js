@@ -97,11 +97,11 @@ function userUpdateYields(){
 			oatYeildFarm.data[0] = 0
 			alfalfaYeildFarm.data[0] = 0
 
-			console.log(fieldYieldArray)
-			console.log(rotYeildFarm)
-			console.log(grassYeildFarm)
-			console.log(cornYeildFarm)
-			console.log(soyYeildFarm)
+			// console.log(fieldYieldArray)
+			// console.log(rotYeildFarm)
+			console.log(grassYeildFarm.data[0])
+			// console.log(cornYeildFarm)
+			// console.log(soyYeildFarm)
 			for(f in fieldYieldArray){
 				var fieldID = fieldYieldArray[f].id
 				fieldYieldArray[f].dMYieldAc = 0
@@ -113,22 +113,31 @@ function userUpdateYields(){
 				// }
 				//use the above example to update the farm values in the chartobj to reflect the new totals after a user adjusts the yields.
 				for(g in grassYeildFieldDS){
-					if (grassYeildFieldDS[g].dbID == fieldID){
+					if (grassYeildFieldDS[g].dbID == fieldID && typeof(fieldYieldArray[f].grassYieldTonsAc) == 'number'){
 						console.log(grassYeildFarm.data[0])
+						console.log(chartObj.grass_yield_farm.chartData.datasets[dataSet])
 						console.log(chartObj.grass_yield_field.area[g])
-						//console.log(fieldYieldArray[f].grassYieldTonsAc)
-						grassYeildFieldDS[g].data[dataSet] = fieldYieldArray[f].grassYieldTonsAc
-						grassYeildFieldDS[g].fieldData = fieldYieldArray[f].grassYieldTonsAc
-						grassYeildFarm.data[0] = grassYeildFarm.data[0] + (fieldYieldArray[f].grassYieldTonsAc * chartObj.rotation_yield_field.area[g])
-						//console.log(grassYeildFarm.data[0])
-						fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + fieldYieldArray[f].grassYieldTonsAc
+						console.log(typeof(grassYeildFarm.data[0]))
+						console.log(typeof(chartObj.grass_yield_field.area[g]))
+						console.log(fieldYieldArray[f].grassYieldTonsAc)
+						//if(typeof(fieldYieldArray[f].grassYieldTonsAc) == 'number'){
+							console.log("GRASS NUMBER VALUE HITS!!!!!!!")
+							grassYeildFieldDS[g].data[dataSet] = fieldYieldArray[f].grassYieldTonsAc
+							grassYeildFieldDS[g].fieldData = parseFloat((fieldYieldArray[f].grassYieldTonsAc))
+							grassYeildFarm.data[0] = grassYeildFarm.data[0] + parseFloat((fieldYieldArray[f].grassYieldTonsAc * chartObj.rotation_yield_field.area[g]))
+							//console.log(grassYeildFarm.data[0])
+							fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + fieldYieldArray[f].grassYieldTonsAc
+						//}
 					}
 				}
 				for(c in cornYeildFieldDS){
-					if (cornYeildFieldDS[c].dbID == fieldID){
-						cornYeildFieldDS[c].data[dataSet] = fieldYieldArray[f].cornGrainBrusdAc
-						cornYeildFieldDS[c].fieldData = fieldYieldArray[f].cornGrainBrusdAc
-						cornYeildFarm.data[0] = cornYeildFarm.data[0] + (fieldYieldArray[f].cornGrainBrusdAc * chartObj.rotation_yield_field.area[c])
+					if (cornYeildFieldDS[c].dbID == fieldID && typeof(fieldYieldArray[f].cornGrainBrusdAc) == 'number'){
+						//if(typeof(fieldYieldArray[f].cornGrainBrusdAc) == 'number'){
+							console.log("CORN GRAIN!!! NUMBER VALUE HITS!!!!!!!")
+							cornYeildFieldDS[c].data[dataSet] = fieldYieldArray[f].cornGrainBrusdAc
+							cornYeildFieldDS[c].fieldData = fieldYieldArray[f].cornGrainBrusdAc
+							cornYeildFarm.data[0] = cornYeildFarm.data[0] + (fieldYieldArray[f].cornGrainBrusdAc * chartObj.rotation_yield_field.area[c])
+						//}
 						//console.log(cornYeildFarm.data[0])
 						// if(fieldYieldArray[f].rotationVal1 == "cc"){
 						// 	fieldYieldArray[f].dMYieldAc = fieldYieldArray[f].dMYieldAc + (fieldYieldArray[f].cornGrainBrusdAc* 56 * (1 - 0.155) / 2000
@@ -140,7 +149,7 @@ function userUpdateYields(){
 					}
 				}
 				for(so in soyYeildFieldDS){
-					if (soyYeildFieldDS[so].dbID == fieldID){
+					if (soyYeildFieldDS[so].dbID == fieldID && typeof(fieldYieldArray[f].soyGrainBrusAc) == 'number'){
 						soyYeildFieldDS[so].data[dataSet] = fieldYieldArray[f].soyGrainBrusAc
 						soyYeildFieldDS[so].fieldData = fieldYieldArray[f].soyGrainBrusAc
 						soyYeildFarm.data[0] = soyYeildFarm.data[0] + (fieldYieldArray[f].soyGrainBrusAc * chartObj.rotation_yield_field.area[so])
@@ -148,16 +157,17 @@ function userUpdateYields(){
 					}
 				}
 				for(s in silageYeildFieldDS){
-					if (silageYeildFieldDS[s].dbID == fieldID){
+					if (silageYeildFieldDS[s].dbID == fieldID && typeof(fieldYieldArray[f].cornSilageTonsAc) == 'number'){
 						silageYeildFieldDS[s].data[dataSet] = fieldYieldArray[f].cornSilageTonsAc
 						silageYeildFieldDS[s].fieldData = fieldYieldArray[f].cornSilageTonsAc
 						silageYeildFarm.data[0] = silageYeildFarm.data[0] + fieldYieldArray[f].cornSilageTonsAc
+						
 						//rotYeildFieldDS.data[0] = rotYeildFieldDS.data[0] +
 						//Apperently silage is not considered as part of the DM yield in this case.  Ask team.
 					}
 				}
 				for(o in oatYeildFieldDS){
-					if (oatYeildFieldDS[o].dbID == fieldID){
+					if (oatYeildFieldDS[o].dbID == fieldID && typeof(fieldYieldArray[f].oatYieldBrusAc) == 'number'){
 						oatYeildFieldDS[o].data[dataSet] = fieldYieldArray[f].oatYieldBrusAc
 						oatYeildFieldDS[o].fieldData = fieldYieldArray[f].oatYieldBrusAc
 						oatYeildFarm.data[0] = oatYeildFarm.data[0] + fieldYieldArray[f].oatYieldBrusAc
@@ -165,7 +175,7 @@ function userUpdateYields(){
 					}
 				}
 				for(a in alfalfaYeildFieldDS){
-					if (alfalfaYeildFieldDS[a].dbID == fieldID){
+					if (alfalfaYeildFieldDS[a].dbID == fieldID && typeof(fieldYieldArray[f].alfalfaYieldTonsAc) == 'number'){
 						alfalfaYeildFieldDS[a].data[dataSet] = fieldYieldArray[f].alfalfaYieldTonsAc
 						alfalfaYeildFieldDS[a].fieldData = fieldYieldArray[f].alfalfaYieldTonsAc
 						alfalfaYeildFarm.data[0] = alfalfaYeildFarm.data[0] + (fieldYieldArray[f].alfalfaYieldTonsAc * chartObj.rotation_yield_field.area[a])
@@ -217,21 +227,34 @@ function userUpdateYields(){
 		//rotYeildFarm.data[0] = rotYeildFarm.data[0] + fieldYieldArray[f].dMYieldAc
 	}
 	//final farm and DM calcs
-	console.log(grassYeildFarm.data[0])
-	console.log(chartObj.grass_yield_farm.area[0])
-	grassYeildFarm.data[0] = (grassYeildFarm.data[0] /chartObj.grass_yield_farm.area[0]).toFixed(2)
-	console.log(grassYeildFarm.data[0])
-	cornYeildFarm.data[0] = (cornYeildFarm.data[0]/chartObj.corn_yield_farm.area[0]).toFixed(2)
-	//console.log(cornYeildFarm.data[0])
-	soyYeildFarm.data[0] = (soyYeildFarm.data[0] /chartObj.soy_yield_farm.area[0]).toFixed(2)
-	//console.log(soyYeildFarm.data[0])
-	oatYeildFarm.data[0] = (oatYeildFarm.data[0] /chartObj.oat_yield_farm.area[0]).toFixed(2)
-	//console.log(oatYeildFarm.data[0])
-	alfalfaYeildFarm.data[0] = (alfalfaYeildFarm.data[0] /chartObj.oat_yield_farm.area[0]).toFixed(2)
-	//console.log(alfalfaYeildFarm.data[0])
-	//rotYeildFarm.data[0] = rotYeildFarm.data[0] /chartObj.rotation_yield_farm.area[0]
-	rotYeildFarm.data[0] = rotYeildFarm.data[0].toFixed(2)
-
+	console.log(grassYeildFarm.data[dataSet])
+	console.log(typeof(grassYeildFarm.data[dataSet]))
+	console.log(chartObj.grass_yield_farm.area[dataSet])
+	if(typeof(grassYeildFarm.data[0]) == 'number'){
+		grassYeildFarm.data[0] = parseFloat((grassYeildFarm.data[0] /chartObj.grass_yield_farm.area[dataSet]).toFixed(2))
+		console.log(grassYeildFarm.data[dataSet])
+	}
+	if(typeof(cornYeildFarm.data[0]) == 'number'){
+		cornYeildFarm.data[0] = parseFloat((cornYeildFarm.data[0]/chartObj.corn_yield_farm.area[dataSet]).toFixed(2))
+		//console.log(cornYeildFarm.data[dataSet])
+	}
+	if(typeof(soyYeildFarm.data[0]) == 'number'){
+		soyYeildFarm.data[0] = parseFloat((soyYeildFarm.data[0] /chartObj.soy_yield_farm.area[dataSet]).toFixed(2))
+		//console.log(soyYeildFarm.data[dataSet])
+	}
+	if(typeof(oatYeildFarm.data[0]) == 'number'){
+		oatYeildFarm.data[0] = parseFloat((oatYeildFarm.data[0] /chartObj.oat_yield_farm.area[dataSet]).toFixed(2))
+		//console.log(oatYeildFarm.data[dataSet])
+	}
+	if(typeof(alfalfaYeildFarm.data[0]) == 'number'){
+		alfalfaYeildFarm.data[0] = parseFloat((alfalfaYeildFarm.data[0] /chartObj.alfalfa_yield_farm.area[dataSet]).toFixed(2))
+		//console.log(alfalfaYeildFarm.data[dataSet])
+		//rotYeildFarm.data[dataSet] = rotYeildFarm.data[dataSet] /chartObj.rotation_yield_farm.area[dataSet]
+	}
+	if(typeof(rotYeildFarm.data[0]) == 'number'){
+		rotYeildFarm.data[0] = (rotYeildFarm.data[0]).toFixed(2)
+	}
+	console.log(typeof(grassYeildFarm.data[dataSet]))
 	console.log(chartObj)
 		}
 	}
