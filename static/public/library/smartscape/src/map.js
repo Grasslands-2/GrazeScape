@@ -75,7 +75,7 @@ import { useSelector, useDispatch, connect  } from 'react-redux'
 import{setActiveTrans,setActiveTransOL, updateTransList,updateAreaSelectionType,
 updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps} from '/src/stores/transSlice'
 import configureStore from './stores/store'
-import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion} from '/src/stores/mainSlice'
+import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea} from '/src/stores/mainSlice'
 proj4.defs(
   'EPSG:27700',
   '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' +
@@ -115,6 +115,7 @@ const mapDispatchToProps = (dispatch) => {
         updateActiveTransProps: (value)=> dispatch(updateActiveTransProps(value)),
         setAoiExtentsCoors: (value)=> dispatch(setAoiExtentsCoors(value)),
         setActiveRegion: (value)=> dispatch(setActiveRegion(value)),
+        setAoiArea: (value)=> dispatch(setAoiArea(value)),
     }
 };
 /**
@@ -148,7 +149,6 @@ class OLMapFragment extends React.Component {
         // if trans extents have been cleared (resetting to aoi)
       if (this.props.activeTrans.selection.extent.length == 0 && this.props.activeTrans.boundaryLayerID != -99){
             this.selectedFeatures.clear()
-
             let layer = this.getActiveBounLay()
             // setting the aoi boundary because we don't have any trans yet
             if (layer == null){
@@ -165,8 +165,10 @@ class OLMapFragment extends React.Component {
                 aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                 aoiCoors.push(lyr.getGeometry().getCoordinates())
             })
+
             this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
             this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+
       }
       // if area selection has change activate type, activate different map tool
       if (prevProps.areaSelectionType !== this.props.areaSelectionType) {
@@ -270,6 +272,8 @@ class OLMapFragment extends React.Component {
         let items = JSON.parse(JSON.stringify(this.props.listTrans))
         let addTransId = this.props.addTrans.id
         for(let trans in items){
+                        let area = 0
+
             if(items[trans].id == addTransId){
                 let displayLayer = new ImageLayer({
                     source: new Static({
@@ -287,6 +291,8 @@ class OLMapFragment extends React.Component {
                     boundarySource.addFeature(lyr)
                     aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                     aoiCoors.push(lyr.getGeometry().getCoordinates())
+                    area = area + lyr.get("areasqM")
+
                 })
 
                 let boundaryLayer = new VectorLayer({
@@ -303,7 +309,9 @@ class OLMapFragment extends React.Component {
                 this.props.updateTransList(items)
                 this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
-
+                this.props.updateActiveTransProps({"name":'area', "value":area, "type":"base"})
+                            console.log("area")
+            console.log(area)
                 displayLayer.setOpacity(this.props.activeTrans.displayOpacity/100)
             }
         }
@@ -695,6 +703,8 @@ class OLMapFragment extends React.Component {
             let region = ""
             let aoiExtents = createEmpty();
             let aoiCoors = []
+            // cumulative area of selection
+            let area = 0
             console.log(f.target)
 //            console.log(f.target.item(0).getGeometry())
 //          selecting by county
@@ -722,26 +732,33 @@ class OLMapFragment extends React.Component {
             // setting the aoi boundary because we don't have any trans yet
             if (layer == null){
                this.props.setVisibilityTransAcc(false)
-                layer = this.boundaryLayerAOI
+               layer = this.boundaryLayerAOI
             }
             layer.getSource().clear()
             console.log("Selection layer")
-            console.log(layer)
             layer.getSource().addFeatures(f.target.getArray())
             layer.getSource().getFeatures().forEach((lyr)=>{
                 console.log("looping through layers")
+                console.log(lyr)
                 aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                 aoiCoors.push(lyr.getGeometry().getCoordinates())
+                area = area + lyr.get("areasqM")
             })
 //            selecting the huc 10 aoi
             if(layer.get('name')== 'aoi'){
                 // set state of appcontainer to the current extents and coords of selection areas
                 this.props.setAoiExtentsCoors({"extents":aoiExtents, "coors":aoiCoors})
+                this.props.setAoiArea({"aoiArea":area})
+
             }
 //            otherwise its just a transformation selection
             else{
                 this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+                this.props.updateActiveTransProps({"name":'area', "value":area, "type":"base"})
+                console.log("area")
+                console.log(area)
+
             }
             console.log("done with add selection")
           });

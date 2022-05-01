@@ -349,7 +349,6 @@ class TransformationTable extends Component {
                       <option value="0">No</option>
                       <option value="1">Yes</option>
                     </Form.Select>
-
                     <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.fertilizer}
                       onChange={(e) => this.handleSelectionChange("fertilizer", e)}>
@@ -360,9 +359,8 @@ class TransformationTable extends Component {
                       <option value="200_0">200/	0</option>
                       <option value="25_50">25/	50</option>
                       <option value="50_0">50/	0</option>
+                      <option value="50_50">50/	50</option>
                     </Form.Select>
-
-
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModal}>

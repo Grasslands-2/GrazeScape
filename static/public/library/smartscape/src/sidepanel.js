@@ -62,7 +62,6 @@ import { useSelector, useDispatch, connect  } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 
 const mapStateToProps = state => {
-    console.log("mapping sidepannel")
     return{
     activeTrans: state.transformation.activeTrans,
     listTrans:state.transformation.listTrans,
@@ -72,10 +71,11 @@ const mapStateToProps = state => {
     hideTransAcc:state.main.hideTransAcc,
     aoiFolderId:state.main.aoiFolderId,
     extents:state.main.aoiExtents,
+    aoiCoors:state.main.aoiCoors,
+    aoiArea:state.main.aoiArea,
 }}
 
 const mapDispatchToProps = (dispatch) => {
-    console.log("Dispatching!!")
     return{
         setActiveTrans: (value)=> dispatch(setActiveTrans(value)),
         addTrans: (value)=> dispatch(addTrans(value)),
@@ -344,8 +344,6 @@ class SidePanel extends React.Component{
   }
     // load rasters for aoi in background
   loadSelectionRaster(){
-     // ajax call with selection criteria
-
     if (this.props.listTrans.length < 1){
        this.addTrans()
     }
@@ -357,6 +355,8 @@ class SidePanel extends React.Component{
     $.ajaxSetup({
         headers: { "X-CSRFToken": csrftoken }
     });
+    console.log("coordsa")
+    console.log(this.state.aoiCoors)
     $.ajax({
         url : '/smartscape/get_selection_raster',
         type : 'POST',
@@ -364,7 +364,7 @@ class SidePanel extends React.Component{
             geometry:{
                 // this is the aoi extent; saved to appcontainer local storage
                 extent:this.props.extents,
-//                field_coors:this.state.coors
+                field_coors:this.props.aoiCoors,
             },
             region:this.props.region,
             baseTrans: this.props.baseTrans
@@ -455,17 +455,21 @@ class SidePanel extends React.Component{
                 base:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 region: this.props.region,
+                aoiArea: this.props.aoiArea,
+                aoiExtents: this.props.extents
             }),
             success: (responses, opts) => {
                 delete $.ajaxSetup().headers
+                console.log("done with model runs")
                 console.log(responses)
                 let list = JSON.parse(JSON.stringify(this.props.listTrans))
                 for (let item in list){
+                    console.log("Parsing area for transformation")
                     console.log(item)
                     console.log(list[item])
                     console.log(list[item].rank)
-                    console.log(responses.land_stats.area_trans[list[item].rank])
-                    list[item].area = responses.land_stats.area_trans[list[item].rank]
+                    console.log(responses.land_stats.area_trans[list[item].rank]["area"])
+                    list[item].areaSelected = responses.land_stats.area_trans[list[item].rank]["area"]
                 }
                  this.props.updateTransList(list);
 
@@ -528,7 +532,6 @@ class SidePanel extends React.Component{
     let radarData = [[1,1,1,1,1,1],[2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    console.log("done with radar")
     let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
     let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
 
@@ -809,7 +812,7 @@ class SidePanel extends React.Component{
                         <tr>
                           <td>{index + 1}</td>
                           <td>{trans.name}</td>
-                          <td>{trans.area}</td>
+                          <td>{trans.areaSelected}</td>
                         </tr>
                        </tbody>
                         ))}
