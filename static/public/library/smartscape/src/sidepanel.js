@@ -464,11 +464,12 @@ class SidePanel extends React.Component{
                 console.log(responses)
                 let list = JSON.parse(JSON.stringify(this.props.listTrans))
                 for (let item in list){
+                    console.log("Parsing area for transformation")
                     console.log(item)
                     console.log(list[item])
                     console.log(list[item].rank)
-                    console.log(responses.land_stats.area_trans[list[item].rank])
-                    list[item].area = responses.land_stats.area_trans[list[item].rank]
+                    console.log(responses.land_stats.area_trans[list[item].rank]["area"])
+                    list[item].areaSelected = responses.land_stats.area_trans[list[item].rank]["area"]
                 }
                  this.props.updateTransList(list);
 
@@ -811,7 +812,7 @@ class SidePanel extends React.Component{
                         <tr>
                           <td>{index + 1}</td>
                           <td>{trans.name}</td>
-                          <td>{trans.area}</td>
+                          <td>{trans.areaSelected}</td>
                         </tr>
                        </tbody>
                         ))}
@@ -1297,7 +1298,6 @@ class SidePanel extends React.Component{
 
                      <Stack gap={3}>
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
-                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
                         Loading...
