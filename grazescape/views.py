@@ -222,6 +222,15 @@ def download_rasters(request):
 #Makes post requests to WEI geoserver
 @login_required
 @csrf_protect
+def outside_geom_field_insert(request):
+    print("OUTSIDE_GEOM_DATA INCOMING!!!!!!!")
+    print(request.POST)
+    print(request.POST.get("coords_array"))
+    scenario_id = request.POST.get("scenario_id")
+    farm_id = request.POST.get("farm_id")
+    coords_array = request.POST.get("coords_array")
+    insert_json_coords(scenario_id,farm_id,coords_array)
+
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")

@@ -1944,6 +1944,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     for(i in fArray){
                         //modelruntime = fArray[i].values_.model_time_stamp
                         //modelruntimeFromDB = fArray[i].values_.model_time_stamp
+                        // THIS MIGHT HAVE FIXED THE OLD MAPS ISSUE! LOOK UP modelruntime AT TIME OF DISPLAY!!!! 04292022
                         modelruntimeFromDB = modelruntime
                         fExtents = fArray[i].values_.geometry.extent_
                         for(e in fExtents){

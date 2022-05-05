@@ -499,3 +499,53 @@ def clean_db():
     # print(result)
     cur.close()
     conn.close()
+def insert_json_coords(scenario_id,farm_id,coords_array):
+    cur, conn = get_db_conn()
+    print(scenario_id)
+    print(farm_id)
+    print(coords_array)
+    coords_array = [[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]]
+    try:
+        # cur.execute("""INSERT INTO field_2 
+        # (gid,scenario_id,farm_id, geom)
+        # VALUES(9999,%s,%s,ST_GeomFromText('MULTIPOLYGON(((-10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405)))'))""",
+        #     (scenario_id,farm_id))
+        # cur.execute("""INSERT INTO field_2 
+        # (scenario_id,farm_id, geom)
+        # VALUES(%s,%s,ST_GeomFromGeoJSON('{"type":"MultiPolygon","coordinates":[[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]]}'))""",
+        #     (scenario_id,farm_id,coords_array))
+        cur.execute("""INSERT INTO field_2 
+            (scenario_id,farm_id, geom)
+            VALUES(%s,%s,
+            ST_GeomFromGML('
+                <gml:MultiPolygon xmlns="http://www.opengis.net/gml" srsName="EPSG:3857">
+                    <gml:coordinates>
+                        -10115640.011618003,5414802.3536429405 -10115648.965725254,5415103.8085870221 -10116105.625194993,5415118.7320991009 -10116111.594599824,5414793.3995356858 -10115640.011618003,5414802.3536429405
+                    </gml:coordinates> 
+                </gml:MultiPolygon>'))""",
+                (scenario_id,farm_id))
+    except Exception as e:
+        print(e)
+        print(type(e).__name__)
+
+        error = str(e)
+        print(error)
+        raise
+    # close the communication with the PostgreSQL
+    finally:
+        cur.close()
+        conn.commit()
+        conn.close()
+
+
+        # <gml:polygonMember>
+        #                 <gml:Polygon srsName="EPSG:3857">
+        #                     <gml:exterior>
+        #                         <gml:LinearRing srsName="EPSG:3857">
+        #                             <gml:posList srsDimension="2">
+        #                                 -10115640.011618003,5414802.3536429405 -10115648.965725254,5415103.8085870221 -10116105.625194993,5415118.7320991009 -10116111.594599824,5414793.3995356858 -10115640.011618003,5414802.3536429405
+        #                             </gml:posList>
+        #                         </gml:LinearRing>
+        #                     </gml:exterior>
+        #                 </gml:Polygon>
+        #             </gml:polygonMember>
