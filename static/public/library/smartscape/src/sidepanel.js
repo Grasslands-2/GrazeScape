@@ -527,8 +527,10 @@ class SidePanel extends React.Component{
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
     }
+    let areaCalc = 0
     let area = 0
     let areaWatershed = 0
+    let areaWatershedCalc = 0
     let radarData = [[1,1,1,1,1,1],[2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
@@ -609,7 +611,9 @@ class SidePanel extends React.Component{
         baseWatershed.insect = this.state.modelOutputs.base.insect.total_per_area_watershed
 
         area = this.state.modelOutputs.land_stats.area
+        areaCalc = this.state.modelOutputs.land_stats.area_calc
         areaWatershed = this.state.modelOutputs.land_stats.area_watershed
+        areaWatershedCalc = this.state.modelOutputs.land_stats.area_watershed_calc
 
         dataRadar = {
           labels: labels,
@@ -680,7 +684,16 @@ class SidePanel extends React.Component{
 //            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            model[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
+            let perDif = Math.round(((v1-v2)/v2) * 100)
+//            console.log(model_name)
+//            console.log("percent different " + perDif)
+            if (isNaN(perDif)){
+                model[model_name + "_per_diff"] = 0
+            }
+            else{
+
+                model[model_name + "_per_diff"] = perDif
+            }
         }
 
         for (let m in models) {
@@ -693,7 +706,16 @@ class SidePanel extends React.Component{
 //            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
+            let perDif = Math.round(((v1-v2)/v2) * 100)
+
+            if (isNaN(perDif)){
+                modelWatershed[model_name + "_per_diff"] = 0
+            }
+            else{
+
+                modelWatershed[model_name + "_per_diff"] = perDif
+            }
+//            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
         }
         dataBarPercent ={ labels: labels,
           datasets: [{
@@ -789,6 +811,7 @@ class SidePanel extends React.Component{
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
 
     }
+    let percentArea = (parseFloat(areaCalc)/parseFloat(areaWatershedCalc) * 100).toFixed(2)
 
     return(
             <div>
@@ -796,7 +819,7 @@ class SidePanel extends React.Component{
               <Accordion.Item eventKey="0">
                 <Accordion.Header>Transformation Information</Accordion.Header>
                 <Accordion.Body>
-                    <div> Total area Transformed: {area} acres ({(parseFloat(area)/parseFloat(areaWatershed) * 100 ).toFixed(2)}%)</div>
+                    <div> Total area Transformed: {area} acres ({percentArea}%)</div>
                     <div> Total area in Work Area: {areaWatershed} acres</div>
                     <Table striped bordered hover size="sm" responsive>
                       <thead>

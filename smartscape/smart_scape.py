@@ -71,7 +71,6 @@ class SmartScape:
         self.data_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs')
         self.in_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                                    'raster_inputs', self.file_name)
-        print("data directory", self.in_dir)
         if not os.path.exists(self.in_dir):
             os.makedirs(self.in_dir)
         self.geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
@@ -117,10 +116,7 @@ class SmartScape:
         has_slope = False
         has_land = False
         has_stream = False
-        print("creating png")
-        print(slope1)
-        print(slope2)
-        print(rows, cols)
+
         # create empty raster to hold values from above calc
         image1 = gdal.Open(os.path.join(self.geo_folder, "landuse-clipped.tif"))
 
@@ -193,7 +189,6 @@ class SmartScape:
                 has_land = True
             if landuse_par["contCorn"]:
                 cont_corn = 4
-                print("selecting continous corn")
                 datanm_landuse = np.where(
                     np.logical_and(cont_corn == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
                 )
@@ -249,7 +244,6 @@ class SmartScape:
 
         # add dimensions to data array so we can convert it to a RGBA image
         datanm_image = np.expand_dims(datanm_image, axis=2)
-        print("done with selection")
         datanm_image = datanm_image * three_d
         datanm_image = datanm_image.astype(np.uint8)
         im = Image.fromarray(datanm_image)
@@ -311,15 +305,13 @@ class SmartScape:
         # conversion from value / ac to value of cell at 30 m resolution
         # ac_to_m = 900 / 4046.86
         print("starting model aggregation")
-        print(self.geo_folder)
         trans = self.request_json['trans']
         base_scen = self.request_json['base']
         # region = self.request_json['base']
         region = self.request_json['region']
         aoi_area_total = self.request_json["aoiArea"]
         aoi_extents = self.request_json["aoiExtents"]
-        print("area", aoi_area_total)
-        print("area", aoi_extents)
+
         self.in_dir = self.in_dir
         insect = {"contCorn": 0.51,
                   "cornGrain": 0.51,
@@ -343,7 +335,7 @@ class SmartScape:
                 if name == "hayGrassland" or name == "pastureWatershed":
                     # medium_GrassYield_southWestWI.tif
                     # pasture_CN_rt_rt_0_0_southWestWI.tif
-                    base_layer_dic[name + "_" + model] = "SmartScapeRaster:pasture_" + model + "_rt_rt_0_0_" + region
+                    base_layer_dic[name + "_" + model] = "pasture_" + model + "_rt_rt_0_0_" + region
                 else:
                     file_name = name + "_" + \
                                 model + "_" + \
@@ -352,16 +344,16 @@ class SmartScape:
                                 base_scen["management"]["contour"] + "_" + \
                                 base_scen["management"]["fertilizer"] + "_" + \
                                 region
-                    base_layer_dic[name + "_" + model] = "SmartScapeRaster:" + file_name
+                    base_layer_dic[name + "_" + model] = "" + file_name
         # download corn and soy rasters for yield
         corn = "corn_Yield_" + region
         soy = "soy_Yield_" + region
-        base_layer_dic["corn_yield"] = "SmartScapeRaster:" + corn
-        base_layer_dic["soy_yield"] = "SmartScapeRaster:" + soy
-        base_layer_dic["landuse"] = "SmartScapeRaster:" + region + "_WiscLand_30m"
-        base_layer_dic["hyd_letter"] = "SmartScapeRaster:" + region + "_hydgrp_30m"
-        base_layer_dic["hayGrassland_Yield"] = "SmartScapeRaster:pasture_Yield_medium_" + region
-        base_layer_dic["pastureWatershed_Yield"] = "SmartScapeRaster:pasture_Yield_medium_" + region
+        base_layer_dic["corn_yield"] = "" + corn
+        base_layer_dic["soy_yield"] = "" + soy
+        base_layer_dic["landuse"] = "" + region + "_WiscLand_30m"
+        base_layer_dic["hyd_letter"] = "" + region + "_hydgrp_30m"
+        base_layer_dic["hayGrassland_Yield"] = "pasture_Yield_medium_" + region
+        base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_medium_" + region
 
         watershed_file_list = []
         # create list of layers to download for each trans
@@ -378,38 +370,34 @@ class SmartScape:
             band = image.GetRasterBand(1)
             arr = band.ReadAsArray()
             unique, counts = np.unique(arr, return_counts=True)
-            print(unique)
-            print(counts)
 
-            print("trans id ", tran["id"])
+
             # total_count = np.count_nonzero(arr > -100)
-            print("total selected", np.count_nonzero(arr == -99))
             selected_cells = np.count_nonzero(arr == -99)
             total_cells = np.count_nonzero(arr > self.no_data)
-            print("total not selected", np.count_nonzero(arr == -88))
             if tran["management"]["rotationType"] == "pasture":
-                yield_name = "SmartScapeRaster:pasture_Yield_" + tran["management"]["grassYield"] + "_" + region
-                ero_name = "SmartScapeRaster:pasture_Erosion_" + tran["management"]["density"] + "_" + \
+                yield_name = "pasture_Yield_" + tran["management"]["grassYield"] + "_" + region
+                ero_name = "pasture_Erosion_" + tran["management"]["density"] + "_" + \
                            tran["management"]["fertilizer"] + "_" + region
-                ploss_name = "SmartScapeRaster:pasture_PI_" + tran["management"]["density"] + "_" + \
+                ploss_name = "pasture_PI_" + tran["management"]["density"] + "_" + \
                              tran["management"]["fertilizer"] + "_" + region
-                cn_name = "SmartScapeRaster:pasture_CN_" + tran["management"]["density"] + "_" + \
+                cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
                           tran["management"]["fertilizer"] + "_" + region
                 layer_dic[tran["rank"]]["yield"] = yield_name
 
             else:
                 corn = "corn_Yield_" + region
                 soy = "soy_Yield_" + region
-                layer_dic[tran["rank"]]["corn"] = "SmartScapeRaster:" + corn
-                layer_dic[tran["rank"]]["soy"] = "SmartScapeRaster:" + soy
+                layer_dic[tran["rank"]]["corn"] = "" + corn
+                layer_dic[tran["rank"]]["soy"] = "" + soy
 
-                ero_name = "SmartScapeRaster:" + tran["management"]["rotationType"] + "_Erosion_" + \
+                ero_name = "" + tran["management"]["rotationType"] + "_Erosion_" + \
                             tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
                             tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
-                ploss_name = "SmartScapeRaster:" + tran["management"]["rotationType"] + "_PI_" + \
+                ploss_name = "" + tran["management"]["rotationType"] + "_PI_" + \
                             tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
                             tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
-                cn_name = "SmartScapeRaster:" + tran["management"]["rotationType"] + "_CN_" + \
+                cn_name = "" + tran["management"]["rotationType"] + "_CN_" + \
                             tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
                             tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
             layer_dic[tran["rank"]]["ero"] = ero_name
@@ -419,7 +407,6 @@ class SmartScape:
             layer_area_dic[tran["rank"]] = {}
             layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(tran["area"] *
                                                                     (selected_cells / total_cells) * mm_to_ac)
-        print("area", layer_area_dic)
         # create blank raster that has extents from all transformations
         ds_clip = gdal.Warp(
             # last raster ovrrides it
@@ -454,7 +441,6 @@ class SmartScape:
         for tran in trans:
             # file = trans[tran]["id"]
             file = os.path.join(self.data_dir, tran["id"])
-            print(file)
             ds_clip = gdal.Warp(
                 # os.path.join(self.in_dir, "test-joined.tif"), ["slope-clipped.tif", "landuse-clipped.tif"],
                 # last raster ovrrides it
@@ -555,7 +541,7 @@ class SmartScape:
             print("layer", layer)
             for model in model_list:
                 print("running model ", model)
-
+                # something besides pasture
                 if model == "yield" and "yield" not in layer_dic[layer]:
                     for tran in trans:
                         if tran["rank"] == layer:
@@ -574,6 +560,7 @@ class SmartScape:
                                                  model_data[model])
                     continue
                 model_trans_filepath = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
+                print("trans model file path ", model_trans_filepath)
                 model_image = gdal.Open(model_trans_filepath)
                 model_band = model_image.GetRasterBand(1)
                 model_arr = model_band.ReadAsArray()
@@ -929,18 +916,34 @@ class SmartScape:
 
         area_selected = area_selected_total * mm_to_ac
         area_watershed = aoi_area_total * mm_to_ac
+
+        def check_ero_pl(value):
+            return value if value >= 0.1 else 0.1
+        base_ero = check_ero_pl(sum_base_ero / selected_cells)
+        base_ero_water = check_ero_pl(np.sum(base_data_watershed["ero"]) / total_cells)
+
+        model_ero = check_ero_pl(sum_model_ero / selected_cells)
+        model_ero_water = check_ero_pl(np.sum(model_data_watershed["ero"]) / total_cells)
+
+        base_pl = check_ero_pl(sum_base / selected_cells)
+        base_pl_water = check_ero_pl(np.sum(base_data_watershed["ploss"]) / total_cells)
+
+        model_pl = check_ero_pl(sum_model_ploss / selected_cells)
+        model_pl_water = check_ero_pl(np.sum(model_data_watershed["ploss"]) / total_cells)
+
+
         return {
             "base": {
-                "ploss": {"total": "{:,.0f}".format(sum_base / selected_cells * area_selected),
-                          "total_per_area": str("%.1f" % (sum_base / selected_cells)),
-                          "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["ploss"])/ total_cells * area_watershed),
-                          "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["ploss"]) / total_cells)),
+                "ploss": {"total": "{:,.0f}".format(base_pl * area_selected),
+                          "total_per_area": str("%.1f" % base_pl),
+                          "total_watershed": "{:,.0f}".format(base_pl_water * area_watershed),
+                          "total_per_area_watershed": str("%.1f" % base_pl_water),
                           "units": "Phosphorus Runoff (lb/year)"
                           },
-                "ero": {"total": "{:,.0f}".format(sum_base_ero / selected_cells * area_selected),
-                        "total_per_area": str("%.1f" % (sum_base_ero / selected_cells)),
-                        "total_watershed": "{:,.0f}".format(np.sum(base_data_watershed["ero"])/ total_cells * area_watershed),
-                        "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["ero"]) / total_cells)),
+                "ero": {"total": "{:,.0f}".format(base_ero * area_selected),
+                        "total_per_area": str("%.1f" % base_ero),
+                        "total_watershed": "{:,.0f}".format(base_ero_water * area_watershed),
+                        "total_per_area_watershed": str("%.1f" % base_ero_water),
                         "units": "Erosion (tons/year)"
                         },
                 "yield": {"total": "{:,.0f}".format(sum_base_yield/ selected_cells * area_selected),
@@ -973,17 +976,17 @@ class SmartScape:
             },
             "model": {
                 "ploss": {
-                    "total": "{:,.0f}".format(sum_model_ploss/ selected_cells * area_selected),
-                    "total_per_area": str("%.1f" % (sum_model_ploss / selected_cells)),
-                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["ploss"])/ total_cells * area_watershed),
-                    "total_per_area_watershed": str("%.1f" % (np.sum(model_data_watershed["ploss"]) / total_cells)),
+                    "total": "{:,.0f}".format(model_pl * area_selected),
+                    "total_per_area": str("%.1f" % model_pl),
+                    "total_watershed": "{:,.0f}".format(model_pl_water * area_watershed),
+                    "total_per_area_watershed": str("%.1f" % model_pl_water),
                     "units": "Phosphorus Runoff (lb/year)"
                 },
                 "ero": {
-                    "total": "{:,.0f}".format(sum_model_ero/ selected_cells * area_selected),
-                    "total_per_area": str("%.1f" % (sum_model_ero / selected_cells)),
-                    "total_watershed": "{:,.0f}".format(np.sum(model_data_watershed["ero"])/ total_cells * area_watershed),
-                    "total_per_area_watershed": str("%.1f" % (np.sum(model_data_watershed["ero"]) / total_cells)),
+                    "total": "{:,.0f}".format(model_ero * area_selected),
+                    "total_per_area": str("%.1f" % model_ero),
+                    "total_watershed": "{:,.0f}".format(model_ero_water * area_watershed),
+                    "total_per_area_watershed": str("%.1f" % model_ero_water),
                     "units": "Erosion (tons/year)"
                 },
                 "yield": {
@@ -1017,7 +1020,9 @@ class SmartScape:
             },
             "land_stats": {
                 "area": "{:,.0f}".format(area_selected),
+                "area_calc": area_selected,
                 "area_watershed": "{:,.0f}".format(area_watershed),
+                "area_watershed_calc": area_watershed,
                 "area_trans": layer_area_dic,
                 "model_id": self.in_dir,
             },
@@ -1069,7 +1074,7 @@ class SmartScape:
 
         return event
 
-    def download_rasters(self, geoTransform, image, layer_dic, base_layer_dic):
+    def download_rasters(self, geoTransform, image, layer_dic, base_layer_dic,workspace="SmartScapeRaster:"):
         minx = geoTransform[0]
         maxy = geoTransform[3]
         maxx = minx + geoTransform[1] * image.RasterXSize
@@ -1088,14 +1093,14 @@ class SmartScape:
             for model in layer_dic[layer]:
                 print("downloading layer ", layer_dic[layer][
                     model])
-                url = geoserver_url + layer_dic[layer][
+                url = geoserver_url + workspace + layer_dic[layer][
                     model] + extents_string_x + extents_string_y
                 raster_file_path = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
                 self.createNewDownloadThread(url, raster_file_path)
         # use extents of aoi for base, so we get whole area
         for layer in base_layer_dic:
             print("downloading layer ", base_layer_dic[layer])
-            url = geoserver_url + base_layer_dic[layer] + extents_string_x + extents_string_y
+            url = geoserver_url + workspace + base_layer_dic[layer] + extents_string_x + extents_string_y
             raster_file_path = os.path.join(self.in_dir, layer + ".tif")
             self.createNewDownloadThread(url, raster_file_path)
         self.joinThreads()
@@ -1126,4 +1131,4 @@ class SmartScape:
         soy_image = None
         corn_arr = None
         soy_arr = None
-        return {"contCorn": cont_yield,"cashGrain": corn_yield, "dairy": dairy_yield}
+        return {"contCorn": cont_yield,"cornGrain": corn_yield, "dairyRotation": dairy_yield}
