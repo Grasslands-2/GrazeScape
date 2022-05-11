@@ -321,7 +321,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let fieldNameColumn = { 
 			editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
-			locked: false, draggable: false, editable: true,
+			locked: true, draggable: false, editable: true,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 
 		};

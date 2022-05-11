@@ -581,7 +581,7 @@ Ext.define('DSS.state.Scenario', {
 						// 	}]
 						// })
 						{
-							text: 'Shapefile Upload',
+							text: 'Upload GeoJSON',
 							handler: function(self) {
 								DSS.dialogs.ShpFieldUpload = Ext.create('DSS.field_shapes.ShpFieldUpload'); 				
 								DSS.dialogs.ShpFieldUpload.show().center().setY(100);

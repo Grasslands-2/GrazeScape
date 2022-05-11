@@ -1,10 +1,30 @@
+from operator import is_
 import psycopg2
+import re
 # from configparser import ConfigParser
 import configparser
 import os
 from django.conf import settings
 from psycopg2.errors import UniqueViolation
-
+def multifindcoords(string):
+    values = []
+    # while True:
+    begstring = '"coordinates":[[['
+    endstring = ']]]},"properties":'
+    tmp = string.split(begstring)
+    for par in tmp:
+        if endstring in par:
+            values.append(par.split(endstring)[0])
+        # found = string.find(value, start, stop)
+        # foundtext = string[string.find(begstring)+len(begstring):string.rfind(endstring)]
+        # if found == -1:
+        #     break
+        # print(found)
+        # #print(foundtext)
+        # values.append(foundtext)
+        # start = found + 1
+    print(values)
+    return values
 
 def config(filename='database.ini', section='postgresql'):
     """
@@ -499,53 +519,69 @@ def clean_db():
     # print(result)
     cur.close()
     conn.close()
-def insert_json_coords(scenario_id,farm_id,coords_array):
-    cur, conn = get_db_conn()
-    print(scenario_id)
-    print(farm_id)
-    print(coords_array)
-    coords_array = [[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]]
-    try:
-        # cur.execute("""INSERT INTO field_2 
-        # (gid,scenario_id,farm_id, geom)
-        # VALUES(9999,%s,%s,ST_GeomFromText('MULTIPOLYGON(((-10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405)))'))""",
-        #     (scenario_id,farm_id))
-        # cur.execute("""INSERT INTO field_2 
-        # (scenario_id,farm_id, geom)
-        # VALUES(%s,%s,ST_GeomFromGeoJSON('{"type":"MultiPolygon","coordinates":[[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]]}'))""",
-        #     (scenario_id,farm_id,coords_array))
-        cur.execute("""INSERT INTO field_2 
-            (scenario_id,farm_id, geom)
-            VALUES(%s,%s,
-            ST_GeomFromGML('
-                <gml:MultiPolygon xmlns="http://www.opengis.net/gml" srsName="EPSG:3857">
-                    <gml:coordinates>
-                        -10115640.011618003,5414802.3536429405 -10115648.965725254,5415103.8085870221 -10116105.625194993,5415118.7320991009 -10116111.594599824,5414793.3995356858 -10115640.011618003,5414802.3536429405
-                    </gml:coordinates> 
-                </gml:MultiPolygon>'))""",
-                (scenario_id,farm_id))
-    except Exception as e:
-        print(e)
-        print(type(e).__name__)
+def insert_json_coords(scenario_id,farm_id,file_data):
+    # print(scenario_id)
+    # print(farm_id)
+    # print(file_data)
+    tillage = "su"
+    tillage_disp = "Spring Cultivation"
+    grass_speciesdisp = "Low Yielding"
+    grass_speciesval = "Bluegrass-clover"
+    cover_crop = 'nc'
+    cover_crop_disp = 'No Cover'
+    field_name = "(imported field)"
+    rotation = "pt-cn"
+    rotation_disp = "Continuous Pasture"
+    rotational_freq_val = 1
+    rotational_freq_disp = "Once a day"
+    grazingdensityval = "lo"
+    grazingdensitydisp = "low"
+    spread_confined_manure_on_pastures = False
+    on_contour = False
+    interseeded_clover = False
+    is_dirty = True
+    soil_p = 35
+    om = 2.0
+    coord_strings = multifindcoords(file_data)
+    print(coord_strings)
 
-        error = str(e)
-        print(error)
-        raise
-    # close the communication with the PostgreSQL
-    finally:
-        cur.close()
-        conn.commit()
-        conn.close()
+#[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]
+#-10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405
+# VALUES(%s,%s,%s,ST_GeomFromText('MULTIPOLYGON(((%s)))'))""",
 
+#,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+#,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
 
-        # <gml:polygonMember>
-        #                 <gml:Polygon srsName="EPSG:3857">
-        #                     <gml:exterior>
-        #                         <gml:LinearRing srsName="EPSG:3857">
-        #                             <gml:posList srsDimension="2">
-        #                                 -10115640.011618003,5414802.3536429405 -10115648.965725254,5415103.8085870221 -10116105.625194993,5415118.7320991009 -10116111.594599824,5414793.3995356858 -10115640.011618003,5414802.3536429405
-        #                             </gml:posList>
-        #                         </gml:LinearRing>
-        #                     </gml:exterior>
-        #                 </gml:Polygon>
-        #             </gml:polygonMember>
+    for coord in coord_strings:
+        coord = "["+coord+"]"
+        coord = coord.replace(',',' ')
+        coord = coord.replace('] [',',')
+        coord = coord.replace('[','')
+        coord = coord.replace(']','')
+        coord = "MULTIPOLYGON(((" + coord + ")))"
+        print(coord)
+        postgreSQL_select_Query = "SELECT MAX(gid) FROM field_2;"
+        cur, conn = get_db_conn()
+        try:
+            print("GETTING LAST GID!!!!!!!!!!")
+            cur.execute(postgreSQL_select_Query)
+            lastGID = cur.fetchall()
+            print(lastGID[0][0] + 1)
+            next_gid = lastGID[0][0] + 1
+            cur.execute("""INSERT INTO field_2 
+            (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om)
+            VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om))
+
+        except Exception as e:
+            print(e)
+            print(type(e).__name__)
+
+            error = str(e)
+            print(error)
+            raise
+        # close the communication with the PostgreSQL
+        finally:
+            cur.close()
+            conn.commit()
+            conn.close()
