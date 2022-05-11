@@ -291,39 +291,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             window.setHeight(300);
         }
      },
-    //  {
-    //     type: 'close',
-    //     handler: function (evt, toolEl, owner, tool) {
-    //         console.log("close")
-    //         DSS.MapState.destroyLegend();
-    //         DSS.layer.yieldGroup.setVisible(false);
-    //         DSS.layer.erosionGroup.setVisible(false);
-    //         DSS.layer.runoffGroup.setVisible(false);
-    //         DSS.layer.PLossGroup.setVisible(false);
-    //     }
-    // },
-    // {
-    //     type: 'beforeclose',
-    //     handler: function (evt, toolEl, owner, tool) {
-    //         console.log("beforeclose")
-    //         DSS.MapState.destroyLegend();
-    //         DSS.layer.yieldGroup.setVisible(false);
-    //         DSS.layer.erosionGroup.setVisible(false);
-    //         DSS.layer.runoffGroup.setVisible(false);
-    //         DSS.layer.PLossGroup.setVisible(false);
-    //     }
-    // },
-    // {
-    //     type: "remove",
-    //     handler: function (evt, toolEl, owner, tool) {
-    //         console.log("remove")
-    //         DSS.MapState.destroyLegend();
-    //         DSS.layer.yieldGroup.setVisible(false);
-    //         DSS.layer.erosionGroup.setVisible(false);
-    //         DSS.layer.runoffGroup.setVisible(false);
-    //         DSS.layer.PLossGroup.setVisible(false);
-    //     }
-    // },
 ],
 
 
@@ -1966,8 +1933,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 if(layerslengtharray < 1){
                     console.log("No pngs ")
                     console.log(modelruntime)
-                    //DSS.map.removeLayer(DSS.layer.PLossGroup);
-                    //DSS.map.addLayer(DSS.layer.PLossGroup)
                     var fArray = []
                     var fExtents = []
                     DSS.layer.fields_1.getSource().getFeatures().forEach(function(f) {
@@ -1977,8 +1942,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     //You need to find out whats in the image files, so you can get the proper model run number
 
                     for(i in fArray){
-                        modelruntime = fArray[i].values_.model_time_stamp
-                        modelruntimeFromDB = fArray[i].values_.model_time_stamp
+                        //modelruntime = fArray[i].values_.model_time_stamp
+                        //modelruntimeFromDB = fArray[i].values_.model_time_stamp
+                        // THIS MIGHT HAVE FIXED THE OLD MAPS ISSUE! LOOK UP modelruntime AT TIME OF DISPLAY!!!! 04292022
+                        modelruntimeFromDB = modelruntime
                         fExtents = fArray[i].values_.geometry.extent_
                         for(e in fExtents){
                             fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
@@ -1987,6 +1954,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         var fId = fArray[i].values_.gid
                         console.log(fExtentsNum)
                         console.log(fId)
+                        console.log(modelruntimeFromDB)
                         //-------------------------------------Ploss--------------------------------------
                         DSS.layer.ploss_field = new ol.layer.Image({
                             visible: false,

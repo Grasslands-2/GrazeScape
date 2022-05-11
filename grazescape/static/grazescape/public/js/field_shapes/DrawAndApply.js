@@ -29,6 +29,7 @@ function addFieldAcreage(feature){
 
 }
 function setFeatureAttributes(feature,af,as){
+	console.log(feature)
     console.log(feature.getGeometry().getExtent())
     console.log(feature.getGeometry().getCoordinates()[0])
     data = {
@@ -146,6 +147,7 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 		//fieldArea = e.feature.values_.geom.getArea();
         // get default OM value
         console.log(e)
+		console.log(e.feature)
         e.feature.setProperties({
                 id: af,
                 farm_id: af,

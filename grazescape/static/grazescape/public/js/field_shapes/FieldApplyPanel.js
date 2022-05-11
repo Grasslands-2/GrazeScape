@@ -102,6 +102,7 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 	console.log(fieldArea);
 	// get default OM value
 	console.log(e)
+	console.log(e.feature)
 	e.feature.setProperties({
 			id: DSS.activeFarm,
 			farm_id: DSS.activeFarm,
@@ -127,7 +128,7 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 			interseeded_clover: false,
 			pasture_grazing_rot_cont:false,
 			grass_speciesval: grassVal,
-			 grass_speciesdisp: grassDisp,
+			grass_speciesdisp: grassDisp,
 			rotational_freq_val: rotationFreqVal,
 			rotational_freq_disp: rotationFreqdisp,
 			grazingdensityval: grazeDensityVal,
