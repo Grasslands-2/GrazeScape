@@ -1,3 +1,5 @@
+//const { listenerCount } = require("process");
+
 var farmArray = [];
 var farmObj = {};
 var scenarioArray = [];
@@ -378,7 +380,8 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.field_shapes.FieldApplyPanel',
 		'DSS.infra_shapes.InfraApplyPanel',
 		'DSS.field_shapes.Delete',
-		'DSS.infra_shapes.DeleteLine'
+		'DSS.infra_shapes.DeleteLine',
+		'DSS.field_shapes.ShpFieldUpload'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -522,6 +525,7 @@ Ext.define('DSS.state.Scenario', {
 								console.log("draw is on");
 								console.log(self)
 								DSS.draw.on('drawend', function (e) {
+									console.log(e)
 									document.body.style.cursor = 'default'
 									fieldArea = e.feature.values_.geom.getArea();
 									console.log(fieldArea);
@@ -543,6 +547,94 @@ Ext.define('DSS.state.Scenario', {
 								selectFieldDelete()
 							}
 						},
+						// Ext.create('Ext.form.Panel', {
+						// 	title: 'Upload a Photo',
+						// 	width: 400,
+						// 	bodyPadding: 10,
+						// 	frame: true,
+						// 	renderTo: Ext.getBody(),
+						// 	items: [{
+						// 		xtype: 'filefield',
+						// 		name: 'photo',
+						// 		fieldLabel: 'Photo',
+						// 		labelWidth: 50,
+						// 		msgTarget: 'side',
+						// 		allowBlank: false,
+						// 		anchor: '100%',
+						// 		buttonText: 'Select Photo...'
+						// 	}],
+						
+						// 	buttons: [{
+						// 		text: 'Upload',
+						// 		handler: function() {
+						// 			var form = this.up('form').getForm();
+						// 			if(form.isValid()) {
+						// 				form.submit({
+						// 					url: 'photo-upload.php',
+						// 					waitMsg: 'Uploading your photo...',
+						// 					success: function(fp, o) {
+						// 						Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
+						// 					}
+						// 				});
+						// 			}
+						// 		}
+						// 	}]
+						// })
+						{
+							text: 'Upload GeoJSON',
+							handler: function(self) {
+								DSS.dialogs.ShpFieldUpload = Ext.create('DSS.field_shapes.ShpFieldUpload'); 				
+								DSS.dialogs.ShpFieldUpload.show().center().setY(100);
+							}
+						},
+						// {
+						// 	xtype: 'filebutton',
+						// 	text: 'Shapefile Upload',
+						// 	name: 'photo',
+						// 	fieldLabel: 'Photo',
+						// 	labelWidth: 50,
+						// 	msgTarget: 'side',
+						// 	allowBlank: false,
+						// 	anchor: '100%',
+						// 	buttonText: 'Select Photo...',
+						// 	handler: function() {
+						// 		console.log("shapefile uploaded clicked")
+								
+						// 		//var form = this.up('form').getForm();
+						// 		// if(form.isValid()) {
+						// 		// 	form.submit({
+						// 		// 		url: 'photo-upload.php',
+						// 		// 		waitMsg: 'Uploading your photo...',
+						// 		// 		success: function(fp, o) {
+						// 		// 			Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
+						// 		// 		}
+						// 		// 	});
+						// 		// }
+						// 	},
+						// 	listeners: {
+						// 		fileselected: function(){
+						// 			console.log("file selected")
+						// 		}
+						// 	}
+						// }
+						// {
+						// 	text: 'Get File Path',
+						// 	renderTo: 'fi-basic-btn',
+						// 	handler: function(){
+						// 		var v = fibasic.getValue();
+						// 		msg('Selected File', v && v !== '' ? v : 'None');
+						// 	}
+						// }
+					
+		// 				{
+		// 					text: 'Shapefile Upload',
+		// 					handler: function(self){
+		// 						console.log('shapefile upload')
+        // }
+		// 						// const fileInput = document.getElementById('input');
+		// 						// fileInput
+		// 					}
+		// 				},
 					]
 				},
 				addModeControl: function() {
