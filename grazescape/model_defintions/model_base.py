@@ -61,7 +61,14 @@ class ModelBase:
             self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','cloverBeltWI')
         else:
             self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','southWestWI')
-
+        # if active_region == "cloverBeltWI":
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','cloverBeltWI')
+        # if active_region == "southWestWI":
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','southWestWI')
+        # if active_region == "uplandsWI":
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','uplandsWI')
+        # if active_region == "northeastWI":
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','northeastWI')
         #Local Set up                  
         # if active_region == "cloverBeltWI":
         #     self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
