@@ -1,0 +1,45 @@
+{
+  "name": "grassland",
+  "version": "1.0.0",
+  "description": "main react library for grassland project",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Grasslands-2"
+  },
+  "author": "Matthew Bayles",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "@babel/preset-env": "^7.16.5",
+    "@babel/preset-react": "^7.16.5",
+    "@fortawesome/fontawesome-free": "^6.0.0",
+    "@reduxjs/toolkit": "^1.7.1",
+    "babel-loader": "^8.2.3",
+    "bootstrap": "^5.1.3",
+    "chart.js": "^3.7.0",
+    "css-loader": "^6.5.1",
+    "jsts": "^2.8.1",
+    "ol": "^6.9.0",
+    "proj4": "^2.8.0",
+    "react-beautiful-dnd": "^13.1.0",
+    "react-bootstrap": "^2.0.4",
+    "react-bootstrap-icons": "^1.7.2",
+    "react-bootstrap-range-slider": "^3.0.3",
+    "react-chartjs-2": "^4.0.1",
+    "react-compound-slider": "^3.3.1",
+    "react-redux": "^7.2.6",
+    "react-router-dom": "^6.2.1",
+    "regenerator-runtime": "^0.13.9",
+    "style-loader": "^3.3.1",
+    "svg-url-loader": "^7.1.1",
+    "uuid": "^8.3.2",
+    "webpack": "^5.65.0"
+  }
+}
