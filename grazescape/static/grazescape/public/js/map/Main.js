@@ -294,6 +294,44 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+		//--------------------------------------------------------------	
+		DSS.layer.northeastBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/northeastWI_boundaries.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
+		//--------------------------------------------------------------		
+		DSS.layer.uplandBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/uplandsWI_boundaries.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
 		//--------------------------------------------------------------		
 		DSS.layer.swwiBorder = new ol.layer.Vector({
 			visible: true,
@@ -1167,6 +1205,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.SWSand1,
 				DSS.layer.SWSand2,
 				DSS.layer.SWSand3,
+				DSS.layer.northeastBorder,
+				DSS.layer.uplandBorder,
 				DSS.layer.cloverBeltBorder,
 				DSS.layer.kickapoowatershed,
 				//DSS.layer.rullandsCouleewshed,

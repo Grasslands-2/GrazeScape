@@ -70,7 +70,27 @@ class RasterData:
                 "soy": "InputRasters:cloverBelt_soy_10m_v2",
                 "hydgrp":"InputRasters:cloverBelt_hydgrp_10m_v2",
             }
-        else:
+        # else:
+        #     self.layer_dic = {
+        #         "elevation": "InputRasters:southWestWI_DEM_10m_2",
+        #         "slope": "InputRasters:southWestWI_slopePer_10m_2",
+        #         "sand": "InputRasters:southWestWI_sand10m",
+        #         "silt": "InputRasters:southWestWI_silt_10m",
+        #         "clay": "InputRasters:southWestWI_clay_10m_2",
+        #         "k": "InputRasters:southWestWI_kfact_10m",
+        #         "ksat": "InputRasters:southWestWI_ksat_10m",
+        #         "om": "InputRasters:southWestWI_om_10m",
+        #         #"cec": "InputRasters:southWestWI_cec_10m",
+        #         "ph": "InputRasters:southWestWI_ph_10m_2",
+        #         "total_depth": "InputRasters:southWestWI_depth_10m",
+        #         "slope_length": "InputRasters:southWestWI_slopelen_10m",
+        #         "awc": "InputRasters:southWestWI_awc_10m",
+        #         "ls": "InputRasters:southWestWI_LS_10m_2",
+        #         "corn": "InputRasters:southWestWIcorn_10m2",
+        #         "soy": "InputRasters:southWestWIsoy_10m2",
+        #         "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
+        #     }
+        if self.active_region == "southWestWI":
             self.layer_dic = {
                 "elevation": "InputRasters:southWestWI_DEM_10m_2",
                 "slope": "InputRasters:southWestWI_slopePer_10m_2",
@@ -89,6 +109,46 @@ class RasterData:
                 "corn": "InputRasters:southWestWIcorn_10m2",
                 "soy": "InputRasters:southWestWIsoy_10m2",
                 "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
+            }
+        if self.active_region == "northeastWI":
+            self.layer_dic = {
+                "elevation": "InputRasters:northeastWI_DEM_10m_2",
+                "slope": "InputRasters:northeastWI_slopePer_10m_2",
+                "sand": "InputRasters:northeastWI_sand10m",
+                "silt": "InputRasters:northeastWI_silt_10m",
+                "clay": "InputRasters:northeastWI_clay_10m_2",
+                "k": "InputRasters:northeastWI_kfact_10m",
+                "ksat": "InputRasters:northeastWI_ksat_10m",
+                "om": "InputRasters:northeastWI_om_10m",
+                #"cec": "InputRasters:northeastWI_cec_10m",
+                "ph": "InputRasters:northeastWI_ph_10m_2",
+                "total_depth": "InputRasters:northeastWI_depth_10m",
+                "slope_length": "InputRasters:northeastWI_slopelen_10m",
+                "awc": "InputRasters:northeastWI_awc_10m",
+                "ls": "InputRasters:northeastWI_LS_10m_2",
+                "corn": "InputRasters:northeastWIcorn_10m2",
+                "soy": "InputRasters:northeastWIsoy_10m2",
+                "hydgrp":"InputRasters:northeastWI_hydgrp_10m",
+            }
+        if self.active_region == "uplandsWI":
+            self.layer_dic = {
+                "elevation": "InputRasters:uplandsWI_DEM_10m_2",
+                "slope": "InputRasters:uplandsWI_slopePer_10m_2",
+                "sand": "InputRasters:uplandsWI_sand10m",
+                "silt": "InputRasters:uplandsWI_silt_10m",
+                "clay": "InputRasters:uplandsWI_clay_10m_2",
+                "k": "InputRasters:uplandsWI_kfact_10m",
+                "ksat": "InputRasters:uplandsWI_ksat_10m",
+                "om": "InputRasters:uplandsWI_om_10m",
+                #"cec": "InputRasters:uplandsWI_cec_10m",
+                "ph": "InputRasters:uplandsWI_ph_10m_2",
+                "total_depth": "InputRasters:uplandsWI_depth_10m",
+                "slope_length": "InputRasters:uplandsWI_slopelen_10m",
+                "awc": "InputRasters:uplandsWI_awc_10m",
+                "ls": "InputRasters:uplandsWI_LS_10m_2",
+                "corn": "InputRasters:uplandsWIcorn_10m2",
+                "soy": "InputRasters:uplandsWIsoy_10m2",
+                "hydgrp":"InputRasters:uplandsWI_hydgrp_10m",
             }
          # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
