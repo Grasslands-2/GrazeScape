@@ -307,6 +307,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		},
 		update: function (me, record) {
 		    console.log(me, record)
+		},
+		rowclick: function(){
+			console.log("ROWcd d CLICK")
 		}
 
 	},

@@ -20,6 +20,7 @@ urlpatterns = [
     path('geoserver_request', views.geoserver_request, name='geoserver_request'),
     path('get_default_om', views.get_default_om, name='get_default_om'),
     path('outside_geom_field_insert', views.outside_geom_field_insert, name='outside_geom_field_insert'),
+    path('field_png_lookup', views.field_png_lookup, name='field_png_lookup'),
     # path('chart_data', views.chart, name='chart'),
     # path('point_elevations', views.point_elevation    s, name='point_elevations'),
 ]

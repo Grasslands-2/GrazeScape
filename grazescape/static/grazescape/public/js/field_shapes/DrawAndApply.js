@@ -128,9 +128,15 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	if(DSS.activeRegion == "cloverBeltWI"){
 		console.log("Clover Belt has hit")
 		soilPVal = 40 
-	}else{
-		console.log("Else has hit")
-		soilPVal = 35
+	}if(DSS.activeRegion == "northeastWI"){
+		console.log("Clover Belt has hit")
+		soilPVal = 36 
+	}if(DSS.activeRegion == "uplandsWI"){
+		console.log("Clover Belt has hit")
+		soilPVal = 466
+	}if(DSS.activeRegion == "southWestWI"){
+		console.log("Clover Belt has hit")
+		soilPVal = 466
 	}
 	// DSS.draw = new ol.interaction.Draw({
 	// 	source: source,

@@ -2,6 +2,88 @@
 // const path = require('path');
 // const fs = require('fs');
 // ploss scale bar values
+
+function field_png_lookup(data,layer,extents){
+    return new Promise(function(resolve) {
+    var csrftoken = Cookies.get('csrftoken');
+	console.log('data coming into ajax call')
+    console.log(layer)
+	console.log(data)
+    $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+    $.ajax({
+    'url' : '/grazescape/field_png_lookup',
+    'type' : 'POST',
+    'data' : data,
+    success: function(responses) {
+		//console.log(responses)
+        if(layer == 'ploss'){
+            plossPNGFile = responses[0]
+            console.log(plossPNGFile)
+            //-------------------------------------Ploss--------------------------------------
+            DSS.layer.ploss_field = new ol.layer.Image({
+                visible: false,
+                opacity: 1,
+                updateWhileAnimating: true,
+                updateWhileInteracting: true,
+                source: new ol.source.ImageStatic({
+                //url:'/static/grazescape/public/images/ploss'+ plossPNGFile[0]/*'String(fId) + '_' + modelruntimeFromDB + */'.png',
+                url:'/static/grazescape/public/images/'+ plossPNGFile/*'String(fId) + '_' + modelruntimeFromDB + */,
+                imageExtent: extents
+                })
+            })
+            //DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
+            DSS.layer.ploss_field.getSource().refresh();
+            DSS.layer.ploss_field.getSource().changed();
+            DSS.map.addLayer(DSS.layer.ploss_field)
+            var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+            plossGroupLayers.push(DSS.layer.ploss_field);
+            DSS.map.removeLayer(DSS.layer.ploss_field)
+        }
+        if(layer == 'ero'){
+            eroPNGFile = responses[0]
+            DSS.layer.erosion_field = new ol.layer.Image({
+                visible: false,
+                updateWhileAnimating: true,
+                updateWhileInteracting: true,
+                source: new ol.source.ImageStatic({
+                //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                url: '/static/grazescape/public/images/' + eroPNGFile,
+                imageExtent: extents
+                })
+            })
+            //DSS.layer.erosion_field.set('name', 'ero'+ String(fId));
+            var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
+            erosionGroupLayers.push(DSS.layer.erosion_field);
+            DSS.map.removeLayer(DSS.layer.erosion_field)
+        }
+        if(layer == 'yield'){
+            yieldPNGFile = responses[0]
+            DSS.layer.yield_field = new ol.layer.Image({
+                visible: false,
+                updateWhileAnimating: true,
+                updateWhileInteracting: true,
+                source: new ol.source.ImageStatic({
+                //url: '/static/grazescape/public/images/Rotational Average'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                url: '/static/grazescape/public/images/'+ yieldPNGFile,
+                imageExtent: extents
+                })
+            })
+            //DSS.layer.yield_field.set('name', 'Rotational Average'+ String(fId));
+            var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+            yieldGroupLayers.push(DSS.layer.yield_field);
+            DSS.map.removeLayer(DSS.layer.yield_field)
+        }
+		resolve([])
+	},
+	error: function(responses) {
+		console.log('python tool call error')
+		console.log(responses)
+	}
+	})
+	})
+}
 function get_results_image(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -1931,6 +2013,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 //AFTER 3/9/2022 the layerslengtharray should always be <1. No PNGS should be present in the group layers 
                 //until the mapped results button is clicked!  ELSE is kept as legacy.  Will be removed in next dev push!
                 if(layerslengtharray < 1){
+                    // var plossPNGFile = ''
+                    // var eroPNGFile = ''
+                    // var yieldPNGFile = ''
                     console.log("No pngs ")
                     console.log(modelruntime)
                     var fArray = []
@@ -1951,91 +2036,93 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
                         }
                         fExtentsNum = fExtents.map(Number);
-                        var fId = fArray[i].values_.gid
+                        //var fId = fArray[i].values_.gid
                         console.log(fExtentsNum)
-                        console.log(fId)
+                        //console.log(fId)
                         console.log(modelruntimeFromDB)
-                        //-------------------------------------Ploss--------------------------------------
-                        DSS.layer.ploss_field = new ol.layer.Image({
-                            visible: false,
-                            opacity: 1,
-                            updateWhileAnimating: true,
-                            updateWhileInteracting: true,
-                            source: new ol.source.ImageStatic({
-                            url:'/static/grazescape/public/images/ploss'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                            imageExtent: fExtentsNum
-                            })
-                        })
-                        DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
-                        DSS.layer.ploss_field.getSource().refresh();
-                        DSS.layer.ploss_field.getSource().changed();
-                        DSS.map.addLayer(DSS.layer.ploss_field)
-                        var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-//                      KEEPING THIS ONE EXAMPLE of the old way to organize pngs in group layers others deleted
+                        field_png_lookup({model_field:['ploss'+ String(fArray[i].values_.gid)]},'ploss',fExtentsNum)
+                        field_png_lookup({model_field:['ero'+ String(fArray[i].values_.gid)]},'ero',fExtentsNum)
+                        field_png_lookup({model_field:['Rotational Average'+ String(fArray[i].values_.gid)]},'yield',fExtentsNum)
+                        setTimeout(() => {console.log('sup')},100)
 
-                        // if(plossGroupLayers.length == 0){
-                        //     plossGroupLayers.push(DSS.layer.ploss_field);
-                        // }
-                        // else{
-                        //     for(l in plossGroupLayers){
-                        //         console.log(plossGroupLayers[l].values_.name)
-                        //         console.log(DSS.layer.ploss_field.values_.name)
-                        //         if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
-                        //             const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
-                        //             if(index > -1) {
-                        //                 plossGroupLayers.splice(index,1);
-                        //                 console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
-                        //             }
-                        //             plossGroupLayers.push(DSS.layer.ploss_field);
-                        //         }
-                        //     }
-                        // plossGroupLayers.push(DSS.layer.ploss_field);
-                        // }
-                        plossGroupLayers.push(DSS.layer.ploss_field);
-                        DSS.map.removeLayer(DSS.layer.ploss_field)
-                        //--------------------Erosion_---------------------------------------
-                        DSS.layer.erosion_field = new ol.layer.Image({
-                            visible: false,
-                            updateWhileAnimating: true,
-                            updateWhileInteracting: true,
-                            source: new ol.source.ImageStatic({
-                            url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                            imageExtent: fExtentsNum
-                            })
-                        })
-                        DSS.layer.erosion_field.set('name', 'ero'+ String(fId));
-                        var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
-                        erosionGroupLayers.push(DSS.layer.erosion_field);
-                        DSS.map.removeLayer(DSS.layer.erosion_field)
-                        //--------------------Runoff_---------------------------------------
-                        DSS.layer.runoff_field = new ol.layer.Image({
-                            visible: false,
-                            updateWhileAnimating: true,
-                            updateWhileInteracting: true,
-                            source: new ol.source.ImageStatic({
-                            url: '/static/grazescape/public/images/Curve Number'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                            imageExtent: fExtentsNum
-                            })
-                        })
-                        DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
-                        var runoffGroupLayers =DSS.layer.runoffGroup.getLayers().getArray();
-                        runoffGroupLayers.push(DSS.layer.runoff_field);
-                        DSS.map.removeLayer(DSS.layer.runoff_field)
-                    //--------------------Yield_---------------------------------------
-                        DSS.layer.yield_field = new ol.layer.Image({
-                            visible: false,
-                            updateWhileAnimating: true,
-                            updateWhileInteracting: true,
-                            source: new ol.source.ImageStatic({
-                            url: '/static/grazescape/public/images/Rotational Average'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                            imageExtent: fExtentsNum
-                            })
-                        })
-                        DSS.layer.yield_field.set('name', 'Rotational Average'+ String(fId));
-                        var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                        yieldGroupLayers.push(DSS.layer.yield_field);
-                        DSS.map.removeLayer(DSS.layer.yield_field)
+                        //MOVED TO field_png_lookup!! Delete after June 1st 2022 if things are working
+                    //     setTimeout(() => {
+                    //     console.log(plossPNGFile)
+                    //     //-------------------------------------Ploss--------------------------------------
+                    //     DSS.layer.ploss_field = new ol.layer.Image({
+                    //         visible: false,
+                    //         opacity: 1,
+                    //         updateWhileAnimating: true,
+                    //         updateWhileInteracting: true,
+                    //         source: new ol.source.ImageStatic({
+                    //         //url:'/static/grazescape/public/images/ploss'+ plossPNGFile[0]/*'String(fId) + '_' + modelruntimeFromDB + */'.png',
+                    //         url:'/static/grazescape/public/images/'+ plossPNGFile/*'String(fId) + '_' + modelruntimeFromDB + */,
+                    //         imageExtent: fExtentsNum
+                    //         })
+                    //     })
+                    //     //DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
+                    //     DSS.layer.ploss_field.getSource().refresh();
+                    //     DSS.layer.ploss_field.getSource().changed();
+                    //     DSS.map.addLayer(DSS.layer.ploss_field)
+                    //     var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
+                    //     plossGroupLayers.push(DSS.layer.ploss_field);
+                    //     DSS.map.removeLayer(DSS.layer.ploss_field)
+                    // },500)
+                    //     //--------------------Erosion_---------------------------------------
+                    //     field_png_lookup({model_field:['ero'+ String(fId)]},'ero')
+                    //     setTimeout(() => {
+                    //     console.log(eroPNGFile)
+                    //     DSS.layer.erosion_field = new ol.layer.Image({
+                    //         visible: false,
+                    //         updateWhileAnimating: true,
+                    //         updateWhileInteracting: true,
+                    //         source: new ol.source.ImageStatic({
+                    //         //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                    //         url: '/static/grazescape/public/images/' + eroPNGFile,
+                    //         imageExtent: fExtentsNum
+                    //         })
+                    //     })
+                    //     DSS.layer.erosion_field.set('name', 'ero'+ String(fId));
+                    //     var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
+                    //     erosionGroupLayers.push(DSS.layer.erosion_field);
+                    //     DSS.map.removeLayer(DSS.layer.erosion_field)
+                    // },100)
+                    //     //--------------------Runoff_---------------------------------------
+                    //     DSS.layer.runoff_field = new ol.layer.Image({
+                    //         visible: false,
+                    //         updateWhileAnimating: true,
+                    //         updateWhileInteracting: true,
+                    //         source: new ol.source.ImageStatic({
+                    //         url: '/static/grazescape/public/images/Curve Number'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                    //         imageExtent: fExtentsNum
+                    //         })
+                    //     })
+                    //     DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
+                    //     var runoffGroupLayers =DSS.layer.runoffGroup.getLayers().getArray();
+                    //     runoffGroupLayers.push(DSS.layer.runoff_field);
+                    //     DSS.map.removeLayer(DSS.layer.runoff_field)
+                    // //--------------------Yield_---------------------------------------
+                    //     field_png_lookup({model_field:['Rotational Average'+ String(fId)]},'yield')
+                    //     setTimeout(() => {
+                    //         console.log(yieldPNGFile)
+                    //         DSS.layer.yield_field = new ol.layer.Image({
+                    //             visible: false,
+                    //             updateWhileAnimating: true,
+                    //             updateWhileInteracting: true,
+                    //             source: new ol.source.ImageStatic({
+                    //             //url: '/static/grazescape/public/images/Rotational Average'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                    //             url: '/static/grazescape/public/images/'+ yieldPNGFile,
+                    //             imageExtent: fExtentsNum
+                    //             })
+                    //         })
+                    //         DSS.layer.yield_field.set('name', 'Rotational Average'+ String(fId));
+                    //         var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+                    //         yieldGroupLayers.push(DSS.layer.yield_field);
+                    //         DSS.map.removeLayer(DSS.layer.yield_field)
+                    //     },100)
+
                     }
+
                     //OLD LEGACY CODE KEEP PLOSS EXAMPLE FOR REFERENCE!!!!!!!!
                     //---------------------------------------------------------------------------
                     // DSS.map.removeLayer(DSS.layer.PLossGroup);

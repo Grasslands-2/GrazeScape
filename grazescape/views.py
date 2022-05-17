@@ -123,7 +123,24 @@ def delete_gcs_model_result_blob(field_id):
         except:
             print("There was an error")
             pass
-# Used to set up heifer feed break down calculations 
+# Used to set up heifer feed break down calculations
+def field_png_lookup(request):
+    print("POST!!!!!!!!!!!")
+    print(request.POST.getlist('model_field[]')[0])
+    try:
+        #starts_with = 'ploss791'
+        starts_with = request.POST.getlist('model_field[]')[0]
+        print(starts_with)
+        source_folder = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
+        for file in os.listdir(source_folder):
+            if file.startswith(starts_with):
+                print("FOUND MODELFILE!!!!!!!")
+                filestr = str(file)
+                print(filestr)
+                return(JsonResponse([filestr], safe = False))
+    except AttributeError:
+                    pass           
+# Downloads model results from GCS bucket
 @csrf_protect
 @login_required
 def heiferFeedBreakDown(data):

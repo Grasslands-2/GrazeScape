@@ -566,12 +566,21 @@ def insert_json_coords(scenario_id,farm_id,file_data):
             print("GETTING LAST GID!!!!!!!!!!")
             cur.execute(postgreSQL_select_Query)
             lastGID = cur.fetchall()
-            print(lastGID[0][0] + 1)
+            #print(lastGID[0][0] + 1)
+            #update_gid = int(lastGID[0][0])
+            #print(update_gid)
             next_gid = lastGID[0][0] + 1
             cur.execute("""INSERT INTO field_2 
             (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om)
             VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om))
+            (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om))
+            
+            cur.execute("""SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
+            #for ref
+            #SELECT setval(pg_get_serial_sequence('table_name', 'id'), coalesce(max(id), 0)+1 , false) FROM table_name;
+            #cur.execute("""ALTER SEQUENCE field_2_gid_seq RESTART WITH %s;"""
+
+            
 
         except Exception as e:
             print(e)
