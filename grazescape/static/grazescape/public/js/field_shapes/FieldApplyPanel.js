@@ -78,13 +78,13 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 		console.log("Clover Belt has hit")
 		soilPVal = 40 
 	}if(DSS.activeRegion == "northeastWI"){
-		console.log("Clover Belt has hit")
+		console.log("northeastWI has hit")
 		soilPVal = 36 
 	}if(DSS.activeRegion == "uplandsWI"){
-		console.log("Clover Belt has hit")
+		console.log("uplandsWI has hit")
 		soilPVal = 466
 	}if(DSS.activeRegion == "southWestWI"){
-		console.log("Clover Belt has hit")
+		console.log("southWestWI has hit")
 		soilPVal = 466
 	}
 	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput)
