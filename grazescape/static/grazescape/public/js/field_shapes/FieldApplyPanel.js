@@ -76,16 +76,16 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 	var soil_pInput = 0
 	if(DSS.activeRegion == "cloverBeltWI"){
 		console.log("Clover Belt has hit")
-		soilPVal = 40 
+		soil_pInput = 40 
 	}if(DSS.activeRegion == "northeastWI"){
 		console.log("northeastWI has hit")
-		soilPVal = 36 
+		soil_pInput = 36 
 	}if(DSS.activeRegion == "uplandsWI"){
 		console.log("uplandsWI has hit")
-		soilPVal = 466
+		soil_pInput = 46
 	}if(DSS.activeRegion == "southWestWI"){
 		console.log("southWestWI has hit")
-		soilPVal = 466
+		soil_pInput = 35
 	}
 	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput)
 	// DSS.draw = new ol.interaction.Draw({
