@@ -112,22 +112,22 @@ class RasterData:
             }
         if self.active_region == "northeastWI":
             self.layer_dic = {
-                "elevation": "InputRasters:northeastWI_DEM_10m_2",
-                "slope": "InputRasters:northeastWI_slopePer_10m_2",
-                "sand": "InputRasters:northeastWI_sand10m",
+                "elevation": "InputRasters:northeastWI_elev_10m",
+                "slope": "InputRasters:northeastWI_slopePer_10m",
+                "sand": "InputRasters:northeastWI_sand_10m",
                 "silt": "InputRasters:northeastWI_silt_10m",
-                "clay": "InputRasters:northeastWI_clay_10m_2",
+                "clay": "InputRasters:northeastWI_clay_10m",
                 "k": "InputRasters:northeastWI_kfact_10m",
                 "ksat": "InputRasters:northeastWI_ksat_10m",
                 "om": "InputRasters:northeastWI_om_10m",
                 #"cec": "InputRasters:northeastWI_cec_10m",
-                "ph": "InputRasters:northeastWI_ph_10m_2",
+                "ph": "InputRasters:northeastWI_ph_10m",
                 "total_depth": "InputRasters:northeastWI_depth_10m",
                 "slope_length": "InputRasters:northeastWI_slopelen_10m",
                 "awc": "InputRasters:northeastWI_awc_10m",
-                "ls": "InputRasters:northeastWI_LS_10m_2",
-                "corn": "InputRasters:northeastWIcorn_10m2",
-                "soy": "InputRasters:northeastWIsoy_10m2",
+                "ls": "InputRasters:northeastWI_ls_10m",
+                "corn": "InputRasters:northeastWI_corn_10m",
+                "soy": "InputRasters:northeastWI_soy_10m",
                 "hydgrp":"InputRasters:northeastWI_hydgrp_10m",
             }
         if self.active_region == "uplandsWI":
@@ -146,7 +146,7 @@ class RasterData:
                 "slope_length": "InputRasters:uplandsWI_slopelen_10m",
                 "awc": "InputRasters:uplandsWI_awc_10m",
                 "ls": "InputRasters:uplandsWI_LS_10m_2",
-                "corn": "InputRasters:uplandsWIcorn_10m2",
+                "corn": "InputRasters:uplandsWIcorn_10m",
                 "soy": "InputRasters:uplandsWIsoy_10m2",
                 "hydgrp":"InputRasters:uplandsWI_hydgrp_10m",
             }
