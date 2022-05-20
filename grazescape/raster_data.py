@@ -132,22 +132,22 @@ class RasterData:
             }
         if self.active_region == "uplandsWI":
             self.layer_dic = {
-                "elevation": "InputRasters:uplandsWI_DEM_10m_2",
-                "slope": "InputRasters:uplandsWI_slopePer_10m_2",
-                "sand": "InputRasters:uplandsWI_sand10m",
+                "elevation": "InputRasters:uplandsWI_elev_10m",
+                "slope": "InputRasters:uplandsWI_slopePer_10m",
+                "sand": "InputRasters:uplandsWI_sand_10m",
                 "silt": "InputRasters:uplandsWI_silt_10m",
-                "clay": "InputRasters:uplandsWI_clay_10m_2",
+                "clay": "InputRasters:uplandsWI_clay_10m",
                 "k": "InputRasters:uplandsWI_kfact_10m",
                 "ksat": "InputRasters:uplandsWI_ksat_10m",
                 "om": "InputRasters:uplandsWI_om_10m",
                 #"cec": "InputRasters:uplandsWI_cec_10m",
-                "ph": "InputRasters:uplandsWI_ph_10m_2",
+                "ph": "InputRasters:uplandsWI_ph_10m",
                 "total_depth": "InputRasters:uplandsWI_depth_10m",
                 "slope_length": "InputRasters:uplandsWI_slopelen_10m",
                 "awc": "InputRasters:uplandsWI_awc_10m",
-                "ls": "InputRasters:uplandsWI_LS_10m_2",
-                "corn": "InputRasters:uplandsWIcorn_10m",
-                "soy": "InputRasters:uplandsWIsoy_10m2",
+                "ls": "InputRasters:uplandsWI_ls_10m",
+                "corn": "InputRasters:uplandsWI_corn_10m",
+                "soy": "InputRasters:uplandsWI_soy_10m",
                 "hydgrp":"InputRasters:uplandsWI_hydgrp_10m",
             }
          # self.layer_dic = {"corn_yield": "InputRasters:awc"}
