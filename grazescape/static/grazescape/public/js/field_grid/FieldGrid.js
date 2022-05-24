@@ -277,7 +277,21 @@ Ext.create('Ext.data.Store', {
 		sorters: ['name'],
 	data: fieldArray
 });
-
+Ext.define('DSS.field_grid.FieldGrid', {
+    extend: 'Ext.grid.selection.Selection',
+    requires: [
+        'Ext.util.Collection'
+    ],
+ 
+    type: 'rows',
+ 
+    // /**
+    //  * @property {Boolean} isRows 
+    //  * This property indicates the this selection represents selected rows.
+    //  * @readonly
+    //  */
+    // isRows: true,
+});
 //------------------------------------------------------------------------------
 Ext.define('DSS.field_grid.FieldGrid', {
 	//------------------------------------------------------------------------------
@@ -520,6 +534,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//figured out how to decouple the local value setting from the onContour array value
 		//will test more when i get back from vaca. 05202021
 		//------------------------------------------------------------------------------
+		//Change to fertpercP
 		let fertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 100, step: 5
@@ -527,6 +542,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
+		//Change to manupercP
 		let manuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 200, step: 5
@@ -535,6 +551,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
+		//Add fertpectN and manuPercN 
+		//fertpectN maxValue to 200
 		let grazeDairyLactatingColumn = {
 			xtype: 'widgetcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, editor:{},
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,

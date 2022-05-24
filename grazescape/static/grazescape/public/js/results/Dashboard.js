@@ -2684,7 +2684,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff,
                 //feedoutput,
                 bio,
-                //economics,
+                economics,
                 //infrastructure,
                 compare,
                 outputLayers,
