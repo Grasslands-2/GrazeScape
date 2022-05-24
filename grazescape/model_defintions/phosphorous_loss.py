@@ -118,6 +118,12 @@ class PhosphorousLoss(ModelBase):
         P2O5_applied_lbs = (fert + manure)*(p_needs/100) 
         totalP2O5_lbs = sum(grazedP2O5, P2O5_applied_lbs, na.rm = TRUE)
 
+        #P2O5_fert <- (fert)*(p_needs/100)
+
+       # N_fert <- 0
+        #We will need manure N at some point for a future nitrate leeching model.
+        #(fertN)*(n_needs/100)
+
         fert_df <- tibble(total_DM_lbs = total_DM_lbs, totalP2O5_lbs = totalP2O5_lbs)
 
         #create data frame for models
@@ -334,6 +340,8 @@ class PhosphorousLoss(ModelBase):
         pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
         ero = r.get("erosion").to_numpy()
         ploss = r.get("final_pi").to_numpy()
+        pl.P2O5_fert = r.get("P2O5_fert")
+        pl.N_fert = r.get("N_fert")
         ero=  np.where(ero < 0.01, .01, ero)
         ploss=  np.where(ploss < 0.01, .01, ploss)
         # if np.sum(ero) < 0:

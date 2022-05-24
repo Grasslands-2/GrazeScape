@@ -88,6 +88,7 @@ class ModelBase:
 
     def parse_model_parameters(self, request):
         # crop, crop cover, rotation, densit
+        #add Nneeds to these rotational averages when Elissa gets them to you.
         nutrient_dict = {"ccgcdsnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
                                         "grazed_P2O5_lbs": 2.46},
                          "ccgcisnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
@@ -337,6 +338,8 @@ class OutputDataNode:
         self.alternate_units = alternate_units
         self.default_units = default_units
         self.data = []
+        self.P2O5_fert = None
+        self.N_fert = None
 
     def set_data(self, data):
         self.data.append(data)
