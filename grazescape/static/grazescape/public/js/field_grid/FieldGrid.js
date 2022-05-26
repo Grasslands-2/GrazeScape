@@ -31,8 +31,10 @@ function popFieldsArray(obj) {
 		coverCropVal: obj[i].properties.cover_crop,
 		coverCropDisp: obj[i].properties.cover_crop_disp,
 		onContour: obj[i].properties.on_contour,
-		fertPerc:obj[i].properties.fertilizerpercent,
-		manuPerc:obj[i].properties.manurepercent,
+		fertPercP:obj[i].properties.perc_fert_p,
+		manuPercP:obj[i].properties.perc_manure_p,
+		fertPercN:obj[i].properties.perc_fert_n,
+		manuPercN:obj[i].properties.perc_manure_n,
 		grassSpeciesVal:obj[i].properties.grass_speciesval,
 		grassSpeciesDisp:obj[i].properties.grass_speciesdisp,
 		interseededClover: obj[i].properties.interseeded_clover,
@@ -47,7 +49,8 @@ function popFieldsArray(obj) {
         area: obj[i].properties.area,
         fence_type: obj[i].properties.fence_type,
         fence_cost: obj[i].properties.fence_cost,
-        fence_unit_cost:obj[i].properties.fence_unit_cost
+        fence_unit_cost:obj[i].properties.fence_unit_cost,
+		landCost: obj[i].properties.land_cost
 	});
 	console.log("DOne with popping fields")
 }
@@ -270,10 +273,10 @@ Ext.create('Ext.data.Store', {
 	alternateClassName: 'DSS.FieldStore',
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
 	'tillageDisp', 'coverCropDisp', 'coverCropVal',
-		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp',
+		'onContour','fertPercP','manuPercP','fertPercN','manuPercN','grassSpeciesVal','grassSpeciesDisp',
 		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
 		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
-        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp'],
+        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp','landCost'],
 		sorters: ['name'],
 	data: fieldArray
 });
@@ -348,6 +351,13 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
 			}, text: 'Soil-P', dataIndex: 'soilP', width: 80, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		let landCost_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5
+			}, text: 'Land Cost(acre)', dataIndex: 'landCost', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
@@ -535,18 +545,32 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//will test more when i get back from vaca. 05202021
 		//------------------------------------------------------------------------------
 		//Change to fertpercP
-		let fertPerc_Column = {
+		let PfertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 100, step: 5
-			}, text: 'Percent<br>Fertilizer', dataIndex: 'fertPerc', width: 80, 
+			}, text: 'Percent<br>Fert P', dataIndex: 'fertPercP', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		//Change to manupercP
-		let manuPerc_Column = {
+		let PmanuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 200, step: 5
-			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
+			}, text: 'Percent<br>Manure P', dataIndex: 'manuPercN', width: 80, 
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		};
+		let NfertPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', maxValue: 100, step: 5
+			}, text: 'Percent<br>Fert N', dataIndex: 'fertPercP', width: 80, 
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		//Change to manupercP
+		let NmanuPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', maxValue: 200, step: 5
+			}, text: 'Percent<br>Manure N', dataIndex: 'manuPercN', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
@@ -881,14 +905,17 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			columns: [
 				fieldNameColumn,
 				area_Column,
+				landCost_Column,
 				soilP_Column,
 				soilOM_Column,
 				cropRotationColumn,
 				coverCropColumn,
 				tillageColumn,
 				onContourColumn,
-				fertPerc_Column,
-				manuPerc_Column,
+				PfertPerc_Column,
+				PmanuPerc_Column,
+				NfertPerc_Column,
+				NmanuPerc_Column,
 				//grazeDairyLactatingColumn,
 				//grazeDairyNonLactatingColumn,
 				//grazeBeefCattleColumn,

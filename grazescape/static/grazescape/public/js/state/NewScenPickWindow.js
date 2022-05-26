@@ -94,7 +94,7 @@ Ext.define('DSS.state.NewScenPickWindow', {
 						//geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 						//gatherScenarioTableData()
 						DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewDupScenario'); 
-						DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+						//DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
 						DSS.dialogs.ScenarioPicker.show().center().setY(0);
 						//reSourcescenarios();
 						//getWFSScenarioSP()

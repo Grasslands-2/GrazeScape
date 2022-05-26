@@ -139,7 +139,8 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 			rotational_freq_disp: rotationFreqdisp,
 			grazingdensityval: grazeDensityVal,
 			grazingdensitydisp: grazeDensityDisp,
-			is_dirty:true
+			is_dirty:true,
+			land_cost:140
 		})
 	setFeatureAttributes(e.feature)
 	addFieldAcreage(e.feature)
