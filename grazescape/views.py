@@ -351,11 +351,40 @@ def get_default_om(request):
 @csrf_protect
 def run_econ_model(request):
     print("RUN ECON MODELS!!!")
-    fields = request.POST.get("fieldArray[1][rotationVal]")
-    scen = request.POST.get("scenArray[0][gid]")
+    total_operations_cost = 0
+    cost_per_ton_md = 0
+    field_count =  request.POST.get('fieldCount')
+    alfalfaMachCost = request.POST.get("scenArray[0][alfalfaMachCost]")
+    alfalfaPestCost = request.POST.get("scenArray[0][alfalfaPestCost]")
+    alfalfaSeedCost = request.POST.get("scenArray[0][alfalfaSeedCost]")
+    cornMachCost = request.POST.get("scenArray[0][cornMachCost]")
+    cornPestCost = request.POST.get("scenArray[0][cornPestCost]")
+    cornSeedCost = request.POST.get("scenArray[0][cornSeedCost]")
+    grassMachCost = request.POST.get("scenArray[0][grassMachCost]")
+    grassPestCost = request.POST.get("scenArray[0][grassPestCost]")
+    grassSeedCost = request.POST.get("scenArray[0][grassSeedCost]")
+    oatMachCost = request.POST.get("scenArray[0][oatMachCost]")
+    oatPestCost = request.POST.get("scenArray[0][oatPestCost]")
+    oatSeedCost = request.POST.get("scenArray[0][oatSeedCost]")
+    soyMachCost = request.POST.get("scenArray[0][soyMachCost]")
+    soyPestCost = request.POST.get("scenArray[0][soyPestCost]")
+    soySeedCost = request.POST.get("scenArray[0][soySeedCost]")
+    fertNCost = request.POST.get("scenArray[0][fertNCost]")
+    fertPCost = request.POST.get("scenArray[0][fertPCost]")
     print(request.POST)
-    print(fields)
-    print(scen)
+    for i in range(int(field_count)):
+        count_string = str(i)
+        cost_of_field = 0
+        land_cost = request.POST.get("fieldArray["+ count_string + "][landCost]")
+        land_area = request.POST.get("fieldArray["+ count_string + "][area]")
+        rotation = request.POST.get("fieldArray["+ count_string + "][rotationVal]")
+        fert_p = request.POST.get("fieldArray["+ count_string + "][fertPercP]")
+        manure_p = request.POST.get("fieldArray["+ count_string + "][manuPercP]")
+        fert_n = request.POST.get("fieldArray["+ count_string + "][fertPercN]")
+        manure_n = request.POST.get("fieldArray["+ count_string + "][manuPercN]")
+
+        print(i)
+        print(land_cost)
     return JsonResponse('hi', safe=False)
 def get_model_results(request):
     field_id = request.POST.getlist("field_id")[0]

@@ -199,6 +199,8 @@ function popScenarioArray(obj) {
 		alfalfaSeedCost: obj[i].properties.alfalfa_seed_cost,
 		alfalfaPestCost: obj[i].properties.alfalfa_pest_cost,
 		alfalfaMachCost: obj[i].properties.alfalfa_mach_cost,
+		fertPCost: obj[i].properties.fert_p_cost,
+		fertNCost: obj[i].properties.fert_n_cost,
 	});
 	console.log("gatherTableData for scenarios ran");
 	console.log(scenarioArray);
@@ -886,12 +888,13 @@ Ext.define('DSS.state.Scenario', {
 					text: 'run econ model',
 					allowDepress: false,
 					handler: function(self) {
-
+						//console.log(fieldArray)
 						econPact = {
 							"fieldCount": fieldArray.length,
 							"fieldArray": fieldArray,
-							//"scenArray": scenarioArray
+							"scenArray": scenarioArray
 						}
+						console.log(econPact)
 						//run econ model calcs
 						run_econ_model(econPact)
 					}
@@ -1133,6 +1136,8 @@ Ext.define('DSS.state.Scenario', {
 					crop:scenarioArray[0].crop_acreage
 				},
 				costs:{
+					fertPCost: scenarioArray[0].fertPCost,
+					fertNCost: scenarioArray[0].fertNCost,
 					cornSeedCost: scenarioArray[0].cornSeedCost,
 					cornPestCost: scenarioArray[0].cornPestCost,
 					cornMachCost: scenarioArray[0].cornMachCost,

@@ -57,17 +57,28 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 				defaults: {
 					xtype: 'numberfield',
 					minValue: 0,
-					step: 1,
+					step: 3,
 					labelAlign: 'left',
 					labelWidth: 100,
 					width: 200,
 				},
 				items: [
 					{
+						fieldLabel: 'P Fertilizer per lb',
+						value: scenarioArray[0].fertPCost,
+						bind: '{costs.fertPCost}'
+					},
+					{
+						fieldLabel: 'N Fertilizer per lb',
+						value: scenarioArray[0].fertNCost,
+						bind: '{costs.fertNCost}'
+					},
+					{
 						fieldLabel: 'Corn Seed Costs Per Acre',
 						value: scenarioArray[0].cornSeedCost,
 						bind: '{costs.cornSeedCost}'
-					},{
+					},
+					{
 						fieldLabel: 'Corn Pesticide Costs Per Acre',
 						value: scenarioArray[0].cornPestCost,
 						bind: '{costs.cornPestCost}'
