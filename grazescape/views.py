@@ -349,6 +349,14 @@ def get_default_om(request):
 #This gets the model results from the model results table
 @login_required
 @csrf_protect
+def run_econ_model(request):
+    print("RUN ECON MODELS!!!")
+    fields = request.POST.get("fieldArray[1][rotationVal]")
+    scen = request.POST.get("scenArray[0][gid]")
+    print(request.POST)
+    print(fields)
+    print(scen)
+    return JsonResponse('hi', safe=False)
 def get_model_results(request):
     field_id = request.POST.getlist("field_id")[0]
     scenario_id = request.POST.getlist("scenario_id")[0]
@@ -361,8 +369,7 @@ def get_model_results(request):
     active_scen = request.POST.get('model_parameters[active_scen]')
     active_region = request.POST.get('model_parameters[active_region]')
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
-    print(active_region)
-    print(request)
+    print(request.POST.getlist("field_id"))
     db_has_field(field_id)
     if request.POST.getlist("runModels")[0] == 'false':
         print("not active scenario")

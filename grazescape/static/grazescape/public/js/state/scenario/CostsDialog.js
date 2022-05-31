@@ -142,8 +142,12 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 				text: 'Save Changes',
 				handler: async function(self) {
 					await runScenarioUpdate();
+					//
+					//gatherScenarioTableData()
+					await geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+					//DSS.layer.scenarios.getSource().refresh()
 					console.log("Changes saved")
-					this.up('window').destroy();
+					this.up('window').close();
 				}
 			}
 		]
