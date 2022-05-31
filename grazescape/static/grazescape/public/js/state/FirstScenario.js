@@ -211,6 +211,22 @@ function createFirstScenario(sname,sdescript){
 					//scenario_id: snewhighID,
 					farm_id: DSS.activeFarm,
 					farm_name:DSS.farmName,
+					corn_seed_cost: 80.5,
+					corn_pest_cost: 55.64,
+					corn_mach_cost: 123,
+					soy_seed_cost: 54,
+					soy_pest_cost: 40,
+					soy_mach_cost: 62,
+					grass_seed_cost: 25.15,
+					grass_pest_cost: 2.62,
+					grass_mach_cost: 17.05,
+					oat_seed_cost: 30,
+					oat_pest_cost: 20,
+					oat_mach_cost: 63.5,
+					alfalfa_seed_cost: 60,
+					alfalfa_pest_cost: 32,
+					alfalfa_mach_cost: 136.5,
+
 				})
 				var geomType = 'point'
 				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')

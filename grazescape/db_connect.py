@@ -530,8 +530,8 @@ def insert_json_coords(scenario_id,farm_id,file_data):
     cover_crop = 'nc'
     cover_crop_disp = 'No Cover'
     field_name = "(imported field)"
-    rotation = "pt-cn"
-    rotation_disp = "Continuous Pasture"
+    rotation = "cc"
+    rotation_disp = "Continuous Corn"
     rotational_freq_val = 1
     rotational_freq_disp = "Once a day"
     grazingdensityval = "lo"
@@ -542,6 +542,7 @@ def insert_json_coords(scenario_id,farm_id,file_data):
     is_dirty = True
     soil_p = 35
     om = 2.0
+    land_cost = 140
     coord_strings = multifindcoords(file_data)
     print(coord_strings)
 
@@ -571,9 +572,9 @@ def insert_json_coords(scenario_id,farm_id,file_data):
             #print(update_gid)
             next_gid = lastGID[0][0] + 1
             cur.execute("""INSERT INTO field_2 
-            (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om)
-            VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-            (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om))
+            (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost)
+            VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+            (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost))
             
             cur.execute("""SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
             #for ref
