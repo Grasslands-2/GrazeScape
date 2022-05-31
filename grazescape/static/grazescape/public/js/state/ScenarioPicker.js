@@ -58,21 +58,6 @@ function popScenarioArraySP(obj) {
 		lacRotateFreq: obj[i].properties.lac_rotate_freq,
 		dryRotateFreq: obj[i].properties.dry_rotate_freq,
 		beefRotateFreq: obj[i].properties.beef_rotate_freq,
-		cornSeedCost: obj[i].properties.corn_seed_cost,
-		cornPestCost: obj[i].properties.corn_pest_cost,
-		cornMachCost: obj[i].properties.corn_mach_cost,
-		soySeedCost: obj[i].properties.soy_seed_cost,
-		soyPestCost: obj[i].properties.soy_pest_cost,
-		soyMachCost: obj[i].properties.soy_mach_cost,
-		grassSeedCost: obj[i].properties.grass_seed_cost,
-		grassPestCost: obj[i].properties.grass_pest_cost,
-		grassMachCost: obj[i].properties.grass_mach_cost,
-		oatSeedCost: obj[i].properties.oat_seed_cost,
-		oatPestCost: obj[i].properties.oat_pest_cost,
-		oatMachCost: obj[i].properties.oat_mach_cost,
-		alfalfaSeedCost: obj[i].properties.alfalfa_seed_cost,
-		alfalfaPestCost: obj[i].properties.alfalfa_pest_cost,
-		alfalfaMachCost: obj[i].properties.alfalfa_mach_cost,
 	});
 	console.log(scenarioPickerArray);
 	//DSS.scenarioName = scenarioPickerArray[0].scenarioName

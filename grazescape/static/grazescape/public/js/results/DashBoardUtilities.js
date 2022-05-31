@@ -1,4 +1,3 @@
-var barLabels = []
 modelResult = {}
 var mfieldID = ''
 var modelError = false
@@ -24,13 +23,8 @@ function gatherArrayForYieldAdjustment(mdobj) {
 function populateChartObj(scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
-    console.log(scenList)
-    console.log(fieldList)
-    console.log(allField)
-    console.log(allScen)
     for (chart in chartList){
         chartName = chartList[chart]
-        console.log(chartName)
         if(chartName.includes('field')){
             node = new ChartData()
             node.chartData =  {
@@ -98,10 +92,13 @@ function populateChartObj(scenList, fieldList, allField, allScen){
                 node.areaSum[scen] = []
             }
             node.chartData.chartDataOri = new Array(scenList.length).fill(null)
+
         }
+
         chartObj[chartName] = node
         chartObj[chartName].chart = null
         chartObj[chartName].show = false
+
     }
 }
 
@@ -623,50 +620,6 @@ function get_model_data(data){
     });
     })
 	}
-    function run_econ_model(data){
-        return new Promise(function(resolve) {
-        var csrftoken = Cookies.get('csrftoken');
-        $.ajaxSetup({
-                headers: { "X-CSRFToken": csrftoken }
-            });
-        $.ajax({
-        'url' : '/grazescape/run_econ_model',
-        'type' : 'POST',
-        'data' : data,
-        'timeout':0,
-            success: async function(responses, opts) {
-                delete $.ajaxSetup().headers
-                if(responses == null){
-                    resolve([]);
-                }
-                for (response in responses){
-                    obj = responses[response];
-                    if(obj.error || response == null){
-                        console.log("model did not run")
-                        console.log(obj.error)
-                        if(!modelError){
-                            alert(obj.error);
-                            modelErrorMessages.push(obj.error)
-                            modelError = true
-                        }
-                        continue
-                    }
-                    let e = obj.extent;
-                    if(responses[response].value_type != "dry lot"){
-                        //console.log(obj)
-                        format_chart_data(obj)
-                    }
-                }
-                resolve(responses);
-            },
-    
-            failure: function(response, opts) {
-                me.stopWorkerAnimation();
-            },
-            //timeout:50
-        });
-        })
-    }
 //validates images?  Not sure, Havent worked with 
 function validateImageOL(json, layer, tryCount) {
     var me = this;
@@ -703,17 +656,15 @@ function validateImageOL(json, layer, tryCount) {
  * @inputString {String} inputString - The input acronym
  */
 // Creates graphs for each model result for the dashboard
-
 function create_graph(chart,title,element){
+
     units = chart.units
     data = chart.chartData
-    //console.log(element)
-    //console.log(chartObj)
-    //console.log(data)
+    console.log(element)
+    console.log(data)
     let barchart = new Chart(element, {
         type: 'bar',
         data: data,
-        plugins: [ChartDataLabels],
         options: {
             responsive: true,
             skipNull:true,
@@ -723,31 +674,6 @@ function create_graph(chart,title,element){
               },
 //            maintainAspectRatio: false,
             plugins:{
-                //ChartDataLabels:
-                datalabels:
-                {
-                    formatter: function(value, context) {
-                        //console.log(data)
-                        //console.log(value)
-                        //console.log(chartObj)
-                        //console.log(context)
-                        //console.log(context.dataset)
-                        if(value !== null){
-                            return context.dataset.label//"hi there!"//context.chart.data.datasets[context.dataIndex].label
-                        ;}//context.dataset.label
-                    },
-                    anchor: 'start',
-                    align: 'end',
-                    offset: 10,
-                    color: 'black',
-                    rotation: -70,
-                    font: {
-                        weight: 'bold',
-                        size: 13
-                      },
-                    textStrokeColor: 'white',
-                    textStrokeWidth: 1
-                },
                 title:
                 {
                     display: true,
@@ -780,7 +706,6 @@ function create_graph(chart,title,element){
                     }
                 },
                 legend: {
-                    display: false,
                     position: 'top',
                     test1: "Hi everyone!",
                     onClick: function (event, legendItem, legend){
@@ -1721,20 +1646,6 @@ class ChartDatasetContainer{
 
         this.colorIndex = 0
         this.getScenarios().then(returnData =>{
-            //added by ZJH to reorder this.scenarios
-            this.scenarios.sort(function(a, b){return a.dbID - b.dbID})
-
-            for(let scen in this.scenarios){
-                 console.log(this.scenarios[scen])
-                 
-                 if(this.scenarios[scen].dbID == DSS.activeScenario){
-                    console.log("Active Scenario Hit")
-                    var first = this.scenarios[scen]
-                    this.scenarios.sort(function(x,y){ return x.dbID == first.dbID ? -1 : y.dbID == first.dbID ? 1 : 0; });
-                    console.log(this.scenarios)
-                 }
-             }
-            //End addition
             this.getFields().then(returnData =>{
                 populateChartObj(this.getScenarioList(), this.getFieldList(),this.fields, this.scenarios)
                 this.setCheckBoxes()
@@ -1788,7 +1699,7 @@ class ChartDatasetContainer{
                 console.log(results)
                 let {fieldList, fieldIdList, scenIdList,geomList} = results
                 for (let scen in fieldList){
-                    this.addSet(fieldList[scen] /*+ " ("+ this.getScenName(scenIdList[scen])+ ")" */,'field',fieldIdList[scen], scen, geomList[scen],scenIdList[scen])
+                    this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen], scen, geomList[scen])
                 }
                 resolve()
             })
@@ -1806,7 +1717,7 @@ class ChartDatasetContainer{
         //        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
         //        scenList.sort()
                 for (let scen in scenList){
-                    this.addSet(scenList[scen], 'scen',scenIdList[scen], scen,"",scenIdList[scen])
+                    this.addSet(scenList[scen], 'scen',scenIdList[scen], scen)
                     // populating scenario picker combobox for the compare chart
                     scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
                     scenariosStore.sort('name', 'ASC');
@@ -1819,7 +1730,8 @@ class ChartDatasetContainer{
     }
     // fields that are the same across scenarios should have the same color
     // right now we are looking at geometry to tie fields between scenarios
-    fieldDuplicate(geom, index,scenId,type){
+    fieldDuplicate(geom, index){
+        console.log(geom)
         let match = null
         let foundMatch = true
         // loop through all fields
@@ -1827,6 +1739,8 @@ class ChartDatasetContainer{
             // loop through all fields' geometry
             foundMatch = true
             for(let point in this.fields[field].geom){
+//                console.log(geom[point])
+//                console.log(this.fields[field].geom[point])
                 if(geom[point] == undefined){
                     foundMatch = false
                     break
@@ -1836,61 +1750,30 @@ class ChartDatasetContainer{
                     break
                 }
             }
-            // if(foundMatch){
-            //     match = this.fields[field]
-            // }
+            if(foundMatch){
+
+                match = this.fields[field]
+            }
         }
-        // if (match != null){
-        //     return match.color
-        // }
-        if(scenId === DSS.activeScenario && type === 'field'){
-            console.log('HIT ACTIVE SCENARIO AND FIELD')
-            console.log(index)
-            console.log(geom)
-            console.log(scenId)
-            console.log(type)
-            return chartColorsAS[index % chartColorsAS.length]
+        if (match != null){
+            return match.color
         }
-        if(scenId != DSS.activeScenario && type === 'field'){
-            console.log(index)
-            console.log(geom)
-            console.log(scenId)
-            console.log(type)
-            return chartColors[index % chartColors.length]
-        }
-        if(scenId === DSS.activeScenario && type === 'scen'){
-            console.log('HIT ACTIVE SCENARIO AND SCENARIO')
-            console.log(index)
-            console.log(geom)
-            console.log(scenId)
-            console.log(type)
-            return chartColorsAS[index % chartColorsAS.length]
-        }
-        if(scenId != DSS.activeScenario && type === 'scen'){
-            console.log(index)
-            console.log(geom)
-            console.log(scenId)
-            console.log(type)
-            return chartColors[index % chartColors.length]
-        }
+        return chartColors[index % chartColors.length]
     }
 //    sort fields alphabetically(so they show in same order on each graph) and choose color.
 //@ param setName Name of scenario
 //@ type field or scen
 //@ id primary key of the scenario or field
 // return index of field
-    addSet(setName, type, id, index, geom="",scenId){
-        console.log(type)
-        console.log(scenId)
+    addSet(setName, type, id, index, geom=""){
         let sets = null
         if (type == "field"){
             sets  = this.fields
-            console.log(this.fields)
         }
         else if (type == "scen"){
             sets  = this.scenarios
         }
-        let color = this.fieldDuplicate(geom, index,scenId,type)
+        let color = this.fieldDuplicate(geom, index)
         let currField = new DatasetNode(setName, color, id, geom)
         if (sets.length < 1){
             sets.push(currField)
@@ -1957,21 +1840,18 @@ class ChartDatasetContainer{
         let counter = 0
         for (let field in this.fields){
             field_list.push(this.fields[field].name)
+
+
         }
         return field_list
 
     }
     getScenarioList(){
         let scen_list = []
-        console.log(this.scenarios)
-        let scenariosList2 = this.scenarios
+
         for (let scen in this.scenarios){
-            console.log(this.scenarios[scen])
-            //if(this.scenarios[scen].dbID == DSS.activeScenario){
-            //    scen_list.unshift(this.scenarios[scen].name)
-            //}else{
             scen_list.push(this.scenarios[scen].name)
-           // }
+
         }
         return scen_list
     }

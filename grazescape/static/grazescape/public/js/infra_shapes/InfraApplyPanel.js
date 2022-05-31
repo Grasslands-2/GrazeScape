@@ -215,7 +215,8 @@ function addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,wat
 	wfs_infra_insert(e.feature, geomType)
 	console.log("HI! WFS infra Insert ran!")
 	alert('Infrastructure added!')
-}
+}      
+
 
 //------------------working variables--------------------
 var type = "Line";
@@ -640,4 +641,5 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 			Ext.resumeLayouts(true);
 		}
 	}
-})
+	
+});
