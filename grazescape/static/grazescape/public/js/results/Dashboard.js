@@ -417,6 +417,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             fieldChangeList = fieldChangeList.flat()
             chartDatasetContainer = new ChartDatasetContainer()
             compCheckBoxes = compareChartCheckBox()
+            econPact = {
+                //"fieldArray": fieldArray,
+                "scenArray": scenarioArray
+            }
+            //run econ model calcs
+            run_econ_model(econPact)
 //            get progress bars
 
 //            need just a slight delay

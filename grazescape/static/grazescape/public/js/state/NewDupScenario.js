@@ -153,6 +153,7 @@ function createNewScenario(sname,sdescript){
 		
 	}else{
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
+		console.log(f.values_.gid)
 	//DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
@@ -170,6 +171,8 @@ function createNewScenario(sname,sdescript){
 						scenario_desp:sdescript,
 						//scenario_id: 9999,
 						//scenario_id: snewhighID,
+						//geom: scenarioArray[i].geom,
+						//geometry: scenarioArray[i].geom,
 						farm_id: DSS.activeFarm,
 						farm_name:DSS.farmName,
 						lac_cows:scenarioArray[i].lacCows,

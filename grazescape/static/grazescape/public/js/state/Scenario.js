@@ -317,36 +317,36 @@ async function runScenarioUpdate(){
 				//Animal variables commented out for now, until needed by later development
 				//ZJH 05252022
 
-				lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
-				dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
-				youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
-				beef_cows: DSS['viewModel'].scenario.data.beef.cows,
-				stockers: DSS['viewModel'].scenario.data.beef.stockers,
-				finishers: DSS['viewModel'].scenario.data.beef.finishers,
-				ave_milk_yield: DSS['viewModel'].scenario.data.dairy.dailyYield,
-				lac_confined_mos: DSS['viewModel'].scenario.data.dairy.lactatingConfined,
-				dry_confined_mos: DSS['viewModel'].scenario.data.dairy.nonLactatingConfined,
-				beef_confined_mos: DSS['viewModel'].scenario.data.beef.confined,
-				lac_graze_time: DSS['viewModel'].scenario.data.dairy.lactatingGrazeTime,
-				dry_graze_time: DSS['viewModel'].scenario.data.dairy.nonLactatingGrazeTime,
-				beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
-				lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
-				dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
-				perc_residual_on_pasture: DSS['viewModel'].scenario.data.percResidualOnPasture,
-				beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
-				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.rotationFreqVal,
-				pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
-				crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
-				pasture_rot_freq: DSS['viewModel'].scenario.data.pastRotationFreq,
-				heifers: DSS['viewModel'].scenario.data.heifers.heifers,
-				heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
-				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
-				heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,
-				heifer_starting_weight: aswValue,
-				heifer_days_on_pasture: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
-				heifer_feed_from_pasture_per_head_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerHeadDay,
-				heifer_feed_from_pasture_per_herd_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerDayHerd,
-				heifer_dmi_demand_per_season: DSS['viewModel'].scenario.data.heifers.dmiDemandPerSeason,
+				// lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
+				// dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
+				// youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
+				// beef_cows: DSS['viewModel'].scenario.data.beef.cows,
+				// stockers: DSS['viewModel'].scenario.data.beef.stockers,
+				// finishers: DSS['viewModel'].scenario.data.beef.finishers,
+				// ave_milk_yield: DSS['viewModel'].scenario.data.dairy.dailyYield,
+				// lac_confined_mos: DSS['viewModel'].scenario.data.dairy.lactatingConfined,
+				// dry_confined_mos: DSS['viewModel'].scenario.data.dairy.nonLactatingConfined,
+				// beef_confined_mos: DSS['viewModel'].scenario.data.beef.confined,
+				// lac_graze_time: DSS['viewModel'].scenario.data.dairy.lactatingGrazeTime,
+				// dry_graze_time: DSS['viewModel'].scenario.data.dairy.nonLactatingGrazeTime,
+				// beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
+				// lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
+				// dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
+				// perc_residual_on_pasture: DSS['viewModel'].scenario.data.percResidualOnPasture,
+				// beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
+				// heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.rotationFreqVal,
+				// pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
+				// crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
+				// pasture_rot_freq: DSS['viewModel'].scenario.data.pastRotationFreq,
+				// heifers: DSS['viewModel'].scenario.data.heifers.heifers,
+				// heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
+				// heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
+				// heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,
+				// heifer_starting_weight: aswValue,
+				// heifer_days_on_pasture: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+				// heifer_feed_from_pasture_per_head_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerHeadDay,
+				// heifer_feed_from_pasture_per_herd_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerDayHerd,
+				// heifer_dmi_demand_per_season: DSS['viewModel'].scenario.data.heifers.dmiDemandPerSeason,
 				corn_seed_cost: DSS['viewModel'].scenario.data.costs.cornSeedCost,
 				corn_pest_cost: DSS['viewModel'].scenario.data.costs.cornPestCost,
 				corn_mach_cost: DSS['viewModel'].scenario.data.costs.cornMachCost,
@@ -871,12 +871,29 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					toggleGroup: 'create-scenario',
 					text: 'Edit Scenario Costs',
+					allowDepress: false,
 					handler: function(self) {
 						DSS.dialogs.CostsDialog = Ext.create('DSS.state.scenario.CostsDialog');
 						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
-						DSS.dialogs.CostsDialog.show().center().setY(100);
+						DSS.dialogs.CostsDialog.show().center().setY(10);
+					}
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'run econ model',
+					allowDepress: false,
+					handler: function(self) {
+
+						econPact = {
+							"fieldCount": fieldArray.length,
+							"fieldArray": fieldArray,
+							//"scenArray": scenarioArray
+						}
+						//run econ model calcs
+						run_econ_model(econPact)
 					}
 				},
 				//------------------------------------------
