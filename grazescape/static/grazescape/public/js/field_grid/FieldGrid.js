@@ -307,10 +307,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		},
 		update: function (me, record) {
 		    console.log(me, record)
-		},
-		rowclick: function(self){
-			console.log(self)
-			console.log("ROWcd d CLICK")
 		}
 
 	},
@@ -324,8 +320,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		
 		//------------------------------------------------------------------------------
 		let fieldNameColumn = { 
-			editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
-			locked: true, draggable: false, editable: true,
+			/*editor: 'textfield', */text: 'Field', dataIndex: 'name', width: 120, 
+			locked: true, draggable: false, editable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 
 		};

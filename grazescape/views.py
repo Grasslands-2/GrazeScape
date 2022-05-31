@@ -123,24 +123,7 @@ def delete_gcs_model_result_blob(field_id):
         except:
             print("There was an error")
             pass
-# Used to set up heifer feed break down calculations
-def field_png_lookup(request):
-    print("POST!!!!!!!!!!!")
-    print(request.POST.getlist('model_field[]')[0])
-    try:
-        #starts_with = 'ploss791'
-        starts_with = request.POST.getlist('model_field[]')[0]
-        print(starts_with)
-        source_folder = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
-        for file in os.listdir(source_folder):
-            if file.startswith(starts_with):
-                print("FOUND MODELFILE!!!!!!!")
-                filestr = str(file)
-                print(filestr)
-                return(JsonResponse([filestr], safe = False))
-    except AttributeError:
-                    pass           
-# Downloads model results from GCS bucket
+# Used to set up heifer feed break down calculations 
 @csrf_protect
 @login_required
 def heiferFeedBreakDown(data):
@@ -239,13 +222,6 @@ def download_rasters(request):
 #Makes post requests to WEI geoserver
 @login_required
 @csrf_protect
-def outside_geom_field_insert(request):
-    scenario_id = request.POST.get("scenario_id")
-    farm_id = request.POST.get("farm_id")
-    file_data = request.POST.get("file_data")
-    insert_json_coords(scenario_id,farm_id,file_data)
-    return JsonResponse({"Insert":"Complete"})
-
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")

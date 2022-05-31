@@ -17,7 +17,7 @@ var fields_1Source = new ol.source.Vector({
 	// 	return geoserverURL + geoServer.geoField_Url
 	// },
 });
-//import {getArea, getDistance} from 'ol/sphere';
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Ext.define('DSS.map.Main', {
 	style: 'background-color: rgb(75,80,60)',
 	
 	BING_KEY: 'Au_ohpV01b_LnpbMExJmpmUnamgty20v7Cpl1GvNmwzZPOezhtzegaNM0MNaSPoa',
-	OSM_KEY: /*'8UmAwNixnmOYWs2lqUpR'*/'fBrGdagAiyuEcYIsxr72',
+	OSM_KEY: /*'fBrGdagAiyuEcYIsxr72',*/'cRFDJdDADPOOqUQsdxJT',
 	
 	requires: [
 		'DSS.map.DrawAndModify',
@@ -294,44 +294,6 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		//--------------------------------------------------------------	
-		DSS.layer.northeastBorder = new ol.layer.Vector({
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source: new ol.source.Vector({
-				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/northeastWI_boundaries.geojson',
-			}),
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#EE6677',
-					width: 4
-				}),
-				fill: new ol.style.Fill({
-					color: 'rgba(32,96,160,0)'
-				})
-			})
-		});
-		//--------------------------------------------------------------		
-		DSS.layer.uplandBorder = new ol.layer.Vector({
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source: new ol.source.Vector({
-				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/uplandsWI_boundaries.geojson',
-			}),
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#EE6677',
-					width: 4
-				}),
-				fill: new ol.style.Fill({
-					color: 'rgba(32,96,160,0)'
-				})
-			})
-		});
 		//--------------------------------------------------------------		
 		DSS.layer.swwiBorder = new ol.layer.Vector({
 			visible: true,
@@ -419,8 +381,8 @@ Ext.define('DSS.map.Main', {
 		SWinputextent1 = [ -10111969.314900, 5318375.349200, -10055829.314900, 5386305.349200]
 		SWinputextent2 = [ -10168109.314900, 5386305.349200, -10111969.314900, 5454235.349200]
 		SWinputextent3 = [ -10111969.314900, 5386305.349200, -10055829.314900, 5454235.349200]
-		
 		CBinputextent0 = [ -10121877.038627, 5624880.297527, -10071577.038627, 5682010.297527]
+
 		CBinputextent1 = [ -9986457.038627, 5569960.297527, -9932247.038627, 5641430.297527]
 		CBinputextent2 = [ -10022377.038627, 5570390.297527, -9986437.038627, 5641140.297527]
 		CBinputextent3 = [ -10121877.038627, 5530940.297527, -10053077.038627, 5570930.297527]
@@ -1205,8 +1167,6 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.SWSand1,
 				DSS.layer.SWSand2,
 				DSS.layer.SWSand3,
-				DSS.layer.northeastBorder,
-				DSS.layer.uplandBorder,
 				DSS.layer.cloverBeltBorder,
 				DSS.layer.kickapoowatershed,
 				//DSS.layer.rullandsCouleewshed,

@@ -97,33 +97,28 @@ def get_selection_raster(request):
 
     """
     data = {}
-    field_coors_formatted = []
     error = ""
     start = time.time()
-    print("downloading rasters in background")
+    print(" ", time.time()-start)
     request_json = js.loads(request.body)
     # folder for all input and outputs
     folder_id = str(uuid.uuid4())
     extents = request_json["geometry"]["extent"]
-    field_coors = request_json["geometry"]["field_coors"]
     region = request_json["region"]
-    print(field_coors)
-    for val in field_coors:
-        # print("###########################")
-        # print(val)
-        field_coors_formatted.append(val[0][0])
+    base = request_json["baseTrans"]
+    print(base)
+    print(extents)
     try:
         geo_data = RasterDataSmartScape(
-                extents, field_coors_formatted,
+                extents, base["selection"]["field_coors"],
                 folder_id,
                 region)
-        print("loading layers")
+
         geo_data.load_layers()
-        print("create clip #######################################")
-        geo_data.create_clip()
+        # geo_data.create_clip()
         print("Clip raster ", time.time() - start)
 
-        geo_data.clip_rasters(True)
+        # geo_data.clip_rasters()
         print("Downloading ", time.time() - start)
         print("Layer loaded ", time.time() - start)
         data = {
@@ -212,7 +207,7 @@ def get_selection_criteria_raster(request):
     geo_data.create_clip()
     print("Clip raster ", time.time() - start)
 
-    geo_data.clip_rasters(False)
+    geo_data.clip_rasters()
     print("done clipping ", time.time() - start)
 
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
@@ -280,7 +275,7 @@ def get_transformed_land(request):
 
     model = SmartScape(request_json, trans_id, folder_id)
     return_data = model.run_models()
-    print("done running models")
+
     #
     # except KeyError as e:
     #     error = str(e) + " while running models for field " + f_name

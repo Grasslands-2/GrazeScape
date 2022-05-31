@@ -4,8 +4,6 @@
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3857" } },
 "features": [
 { "type": "Feature", "properties": { "id": 0, "Name": "Kickapoo Valley" }, "geometry": { "type": "Point", "coordinates": [ -10109346.626750063151121, 5399666.257742308080196 ] } },
-{ "type": "Feature", "properties": { "id": 1, "Name": "Cloverbelt" }, "geometry": { "type": "Point", "coordinates": [ -10031433.023683208972216, 5608630.541167604736984 ] } },
-{ "type": "Feature", "properties": { "id": 2, "Name": "Uplands" }, "geometry": { "type": "Point", "coordinates": [ -10039400.676750063151121, 5305041.646750063151121 ] } },
-{ "type": "Feature", "properties": { "id": 3, "Name": "Northeast" }, "geometry": { "type": "Point", "coordinates": [ -9786696.73, 5509118.34 ] } }
+{ "type": "Feature", "properties": { "id": 1, "Name": "Cloverbelt" }, "geometry": { "type": "Point", "coordinates": [ -10031433.023683208972216, 5608630.541167604736984 ] } }
 ]
 }

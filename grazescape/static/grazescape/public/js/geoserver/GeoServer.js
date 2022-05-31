@@ -41,42 +41,6 @@ class GeoServer{
            //DSS.layer.farms_1.setOpacity(1);
         })
     }
-    setFieldsAfterImport(parameter = ""){
-        console.log(parameter)
-        //This function returns its value, since it is used in promises inside other functions to refresh fields array
-        this.makeRequest(this.geoField_Url + parameter, "source").then(async function(geoJson){
-            //console.log(geoJson.geojson)
-            DSS.layer.fields_1.getSource().clear()
-            DSS.layer.fieldsLabels.getSource().clear()
-            var FSgeoJson = geoJson.geojson
-            var format = new ol.format.GeoJSON();
-            var myGeoJsonFeatures = format.readFeatures(
-                FSgeoJson,
-                {featureProjection: 'EPSG:3857'}
-            );
-            await DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
-            DSS.layer.fieldsLabels.getSource().addFeatures(myGeoJsonFeatures)
-            await DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-                console.log(f)
-                if (f.values_.field_name == "(imported field)"){
-                    //f.values_.area = ol.sphere.getArea(f.values_.geometry)* 0.000247105
-                    f.setProperties({
-                        area: ol.sphere.getArea(f.values_.geometry)* 0.000247105
-                    })
-                    console.log(f)
-                    wfs_update(f,'field_2');
-                }		
-            })
-            if(fieldZoom == true){
-                let ex = ol.extent;
-                let extent = DSS.layer.fields_1.getSource().getExtent()
-                ex.buffer(extent, 1000, extent);
-                console.log("setFieldSource")
-                DSS.MapState.zoomToRealExtent(extent)
-            }
-            waitForScen()
-        })
-    }
     //    returns a geojson of the fields
     setFieldSource(parameter = ""){
         console.log(parameter)
