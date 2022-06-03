@@ -82,7 +82,6 @@ def db_has_field(field_id):
                 [field_id])
     db_result = cur.fetchone()
     # close the communication with the PostgreSQL
-
     cur.close()
     conn.close()
     return db_result is not None
@@ -274,6 +273,8 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
 
     if data["value_type"] == 'insect':
         col_name.append("honey_bee_toxicity")
+    if data["value_type"] == 'econ':
+        col_name.append("costs_per_acre")
     else:
         col_name.append("cell_count")
         values.append(data['counted_cells'])
@@ -374,7 +375,7 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                 "units_alternate": "Phosphorus Runoff (lb/year)",
                 "type": "ploss"},
             "soil_erosion_tons_per_acre": {
-                "units": "Phosphorus Runoff (lb/acre/year)",
+                "units": "Soil Erosion (ton/acre/year)",
                 "units_alternate": "Soil Erosion (tons of soil/year",
                 "type": "ero"}
         },
@@ -389,7 +390,14 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
             "honey_bee_toxicity": {"units": "Insecticide Index",
                                    "units_alternate": "Insecticide Index",
                                    "type": "insect"}
-        }
+        },
+        'econ': {
+            "costs_per_acre": {"units": "US Dollars (dollars/acre/year)",
+                                    "units_alternate": "US Dollars (Dollars/year)",
+                                    "type": "econ"},
+        # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
+        #                            "type": "'costs_per_ton_dm"},
+    },
     }
 
     return_data = []
@@ -403,6 +411,7 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
     column_names = [desc[0] for desc in cur.description]
     for model in model_types:
         if model == request.POST.get('model_parameters[model_type]'):
+            
             if result is None:
                 # print("the query return no results")
                 f_name = request.POST.get('model_parameters[f_name]')
@@ -424,9 +433,14 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                         for run_col in runoff_col:
                             col_index = column_names.index(run_col)
                             sum1.append(result[col_index])
+                    
+
                     else:
                         col_index = column_names.index(col)
                         sum1 = result[col_index]
+                        if model == 'econ':
+                            print("ECON SUM1")
+                            print(sum1)
                     units = model_types[model][col]["units"]
                     units_alternate = model_types[model][col][
                             "units_alternate"]

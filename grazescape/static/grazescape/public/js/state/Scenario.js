@@ -199,6 +199,9 @@ function popScenarioArray(obj) {
 		alfalfaSeedCost: obj[i].properties.alfalfa_seed_cost,
 		alfalfaPestCost: obj[i].properties.alfalfa_pest_cost,
 		alfalfaMachCost: obj[i].properties.alfalfa_mach_cost,
+		alfalfaMachYearOneCost: obj[i].properties.alfalfa_mach_year_one,
+		fertPCost: obj[i].properties.fert_p_cost,
+		fertNCost: obj[i].properties.fert_n_cost,
 	});
 	console.log("gatherTableData for scenarios ran");
 	console.log(scenarioArray);
@@ -292,6 +295,10 @@ function runFieldUpdate(){
 					fence_type: fieldArray[i].fence_type,
 					fence_cost: fieldArray[i].fence_cost,
 					fence_unit_cost: fieldArray[i].fence_unit_cost,
+					perc_fert_p: fieldArray[i].fertPercP,
+					perc_fert_n: fieldArray[i].fertPercN,
+					perc_manure_p: fieldArray[i].manuPercP,
+					perc_manure_n: fieldArray[i].manuPercN,
 				});
 				wfs_update(feildFeature,'field_2');
 				break;
@@ -362,6 +369,9 @@ async function runScenarioUpdate(){
 				alfalfa_seed_cost: DSS['viewModel'].scenario.data.costs.alfalfaSeedCost,
 				alfalfa_pest_cost: DSS['viewModel'].scenario.data.costs.alfalfaPestCost,
 				alfalfa_mach_cost: DSS['viewModel'].scenario.data.costs.alfalfaMachCost,
+				alfalfa_mach_year_one: DSS['viewModel'].scenario.data.costs.alfalfaMachYearOneCost,
+				fert_p_cost: DSS['viewModel'].scenario.data.costs.fertPCost,
+				fert_n_cost: DSS['viewModel'].scenario.data.costs.fertNCost
 			});
 			wfs_update(scenarioFeature,'scenarios_2');
 		}						
@@ -879,23 +889,24 @@ Ext.define('DSS.state.Scenario', {
 						DSS.dialogs.CostsDialog.show().center().setY(10);
 					}
 				},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'run econ model',
-					allowDepress: false,
-					handler: function(self) {
-
-						econPact = {
-							"fieldCount": fieldArray.length,
-							"fieldArray": fieldArray,
-							//"scenArray": scenarioArray
-						}
-						//run econ model calcs
-						run_econ_model(econPact)
-					}
-				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'run econ model',
+				// 	allowDepress: false,
+				// 	handler: function(self) {
+				// 		//console.log(fieldArray)
+				// 		econPact = {
+				// 			"fieldCount": fieldArray.length,
+				// 			"fieldArray": fieldArray,
+				// 			"scenArray": scenarioArray
+				// 		}
+				// 		console.log(econPact)
+				// 		//run econ model calcs
+				// 		run_econ_model(econPact)
+				// 	}
+				// },
 				//------------------------------------------
 				// {
 				// 	xtype: 'button',
@@ -1133,6 +1144,8 @@ Ext.define('DSS.state.Scenario', {
 					crop:scenarioArray[0].crop_acreage
 				},
 				costs:{
+					fertPCost: scenarioArray[0].fertPCost,
+					fertNCost: scenarioArray[0].fertNCost,
 					cornSeedCost: scenarioArray[0].cornSeedCost,
 					cornPestCost: scenarioArray[0].cornPestCost,
 					cornMachCost: scenarioArray[0].cornMachCost,
@@ -1148,6 +1161,7 @@ Ext.define('DSS.state.Scenario', {
 					alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
 					alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
 					alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
+					alfalfaMachYearOneCost: scenarioArray[0].alfalfaMachYearOneCost,
 				}
 			}
 		})

@@ -154,7 +154,29 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         model_run_timestamp: modelruntimeOrig,
         active_scen: activeScenario,
         f_scen: f["scenario_id"],
-        active_region: DSS.activeRegion
+        land_area: f["area"],
+        land_cost: f["land_cost"],
+        fert_p_perc:f["perc_fert_p"],
+        fert_n_perc:f["perc_fert_n"],
+        active_region: DSS.activeRegion,
+        alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
+        alfalfaMachCostY1: scenarioArray[0].alfalfaMachYearOneCost,
+        alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
+        alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
+        cornMachCost: scenarioArray[0].cornMachCost,
+        cornPestCost: scenarioArray[0].cornPestCost,
+        cornSeedCost: scenarioArray[0].cornSeedCost,
+        grassMachCost: scenarioArray[0].grassMachCost,
+        grassPestCost: scenarioArray[0].grassPestCost,
+        grassSeedCost: scenarioArray[0].grassSeedCost,
+        oatMachCost: scenarioArray[0].oatMachCost,
+        oatPestCost: scenarioArray[0].oatPestCost,
+        oatSeedCost: scenarioArray[0].oatSeedCost,
+        soyMachCost: scenarioArray[0].soyMachCost,
+        soyPestCost: scenarioArray[0].soyPestCost,
+        soySeedCost: scenarioArray[0].soySeedCost,
+        fertNCost: scenarioArray[0].fertNCost,
+        fertPCost: scenarioArray[0].fertPCost,
     }
     model_pack = {
         "farm_id": DSS.activeFarm,
@@ -163,6 +185,7 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         "runModels": runModel,
         "model_parameters":model_para
     }
+    console.log(model_pack)
     return model_pack
 }
 function format_chart_data(model_data){
@@ -426,6 +449,8 @@ function format_chart_data(model_data){
             chartTypeFarm = chartObj.insecticide_farm
             break
         case 'econ':
+            chartTypeField = chartObj.econ_field
+            chartTypeFarm = chartObj.econ_farm
             break
         case 'feed breakdown':
             chartTypeField = chartObj.feed_breakdown
@@ -437,8 +462,17 @@ function format_chart_data(model_data){
         chartTypeField.units_alternate = model_data.units_alternate
         let chartVal = null
         if(model_data.sum_cells != null){
+            //if econ dont do this
+            if(chartTypeField == chartObj.econ_field){
+                console.log(chartTypeField)
+                console.log(model_data.sum_cells)
+                console.log(model_data.counted_cells)
+                chartVal = +((model_data.sum_cells).toFixed(2))
+            chartTypeField.show = true
+            }else{
             chartVal = +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
             chartTypeField.show = true
+            }
 
         }
         else{
@@ -468,24 +502,46 @@ function format_chart_data(model_data){
     let chartArea = null
     if(model_data.sum_cells != null){
         chartTypeFarm.show = true
+        if(chartTypeFarm == chartObj.econ_farm){
+            console.log(model_data)
+            console.log(model_data.sum_cells)
+            console.log(model_data.counted_cells)
+            chartVal = model_data.sum_cells * model_data.counted_cells
+            console.log(chartVal)
+            chartCells = model_data.counted_cells
+            chartArea = model_data.area
+            chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
+            chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? /*model_data.sum_cells*/chartVal:chartTypeFarm.sum[scenIndex] + chartVal
+            chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
-        chartVal = model_data.sum_cells
-        chartCells = model_data.counted_cells
-        chartArea = model_data.area
-        chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
-        chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
-        chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
+
+            chartTypeFarm.units = model_data.units
+            chartTypeFarm.units_alternate = model_data.units_alternate
+
+            chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells * model_data.counted_cells
+            chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
+
+            chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex),null]
+            chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex),null]
+        }else{
+            chartVal = model_data.sum_cells
+            chartCells = model_data.counted_cells
+            chartArea = model_data.area
+            chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
+            chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
+            chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
 
-        chartTypeFarm.units = model_data.units
-        chartTypeFarm.units_alternate = model_data.units_alternate
+            chartTypeFarm.units = model_data.units
+            chartTypeFarm.units_alternate = model_data.units_alternate
 
-        chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
-        chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
+            chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
+            chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
 
-        chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex),null]
-        chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex),null]
-
+            chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex),null]
+            chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex),null]
+        }
+        
         if(chartTypeFarm.chart !== null){
             chartTypeFarm.chart.update()
             chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
@@ -580,6 +636,7 @@ function calcHeiferFeedBreakdown(data){
 )}
 // calls to the python to run get_model_results function which either collects data from the model results table, or runs the models on the fields, if they are dirty/new
 function get_model_data(data){
+    console.log(data)
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
     $.ajaxSetup({
@@ -592,6 +649,7 @@ function get_model_data(data){
     'timeout':0,
         success: async function(responses, opts) {
             delete $.ajaxSetup().headers
+            console.log(responses)
             if(responses == null){
                 resolve([]);
             }
@@ -623,50 +681,48 @@ function get_model_data(data){
     });
     })
 	}
-    function run_econ_model(data){
-        return new Promise(function(resolve) {
-        var csrftoken = Cookies.get('csrftoken');
-        $.ajaxSetup({
-                headers: { "X-CSRFToken": csrftoken }
-            });
-        $.ajax({
-        'url' : '/grazescape/run_econ_model',
-        'type' : 'POST',
-        'data' : data,
-        'timeout':0,
-            success: async function(responses, opts) {
-                delete $.ajaxSetup().headers
-                if(responses == null){
-                    resolve([]);
-                }
-                for (response in responses){
-                    obj = responses[response];
-                    if(obj.error || response == null){
-                        console.log("model did not run")
-                        console.log(obj.error)
-                        if(!modelError){
-                            alert(obj.error);
-                            modelErrorMessages.push(obj.error)
-                            modelError = true
-                        }
-                        continue
-                    }
-                    let e = obj.extent;
-                    if(responses[response].value_type != "dry lot"){
-                        //console.log(obj)
-                        format_chart_data(obj)
-                    }
-                }
-                resolve(responses);
-            },
+    // function run_econ_model(data){
+    //     return new Promise(function(resolve) {
+    //     var csrftoken = Cookies.get('csrftoken');
+    //     $.ajaxSetup({
+    //             headers: { "X-CSRFToken": csrftoken }
+    //         });
+    //     $.ajax({
+    //     'url' : '/grazescape/run_econ_model',
+    //     'type' : 'POST',
+    //     'data' : data,
+    //     'timeout':0,
+    //         success: async function(responses, opts) {
+    //             console.log(responses)
+    //             delete $.ajaxSetup().headers
+    //             // if(responses == null){
+    //             //     resolve([]);
+    //             // }
+    //             // for (response in responses){
+    //             //     obj = responses[response];
+    //             //     if(obj.error || response == null){
+    //             //         console.log("model did not run")
+    //             //         console.log(obj.error)
+    //             //         if(!modelError){
+    //             //             alert(obj.error);
+    //             //             modelErrorMessages.push(obj.error)
+    //             //             modelError = true
+    //             //         }
+    //             //         continue
+    //             //     }
+    //             //     let e = obj.extent;
+    //             // }
+    //             resolve(responses);
+    //         },
     
-            failure: function(response, opts) {
-                me.stopWorkerAnimation();
-            },
-            //timeout:50
-        });
-        })
-    }
+    //         failure: function(response, opts) {
+    //             console.log(responses)
+    //             me.stopWorkerAnimation();
+    //         },
+    //         //timeout:50
+    //     });
+    //     })
+    // }
 //validates images?  Not sure, Havent worked with 
 function validateImageOL(json, layer, tryCount) {
     var me = this;
