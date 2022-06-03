@@ -110,7 +110,7 @@ class Econ(ModelBase):
                 fertn_cost = fertNCost * 60 
             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
             cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + land_cost)
+            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + (land_cost * land_area))
             cost_per_arce = cost_of_field/land_area
         elif crop == 'cso':
             cost_seed = (cornSeedCost + soySeedCost + oatSeedCost)/3
@@ -119,7 +119,7 @@ class Econ(ModelBase):
             fertp_cost = fertPCost * 46.67  # 46.67 from cropcover needs table.  results is $/acre in P fertilizer
             fertn_cost = fertNCost * 60 # 60 from cropcover needs table.  results is $/acre in N fertilizer
             cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + land_cost)
+            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + (land_cost * land_area))
             cost_per_arce = cost_of_field/land_area
         elif crop == 'dl':
             cost_seed = 0
@@ -128,7 +128,7 @@ class Econ(ModelBase):
             fertp_cost = 0
             fertn_cost = 0
             cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + land_cost)
+            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + (land_cost * land_area))
             cost_per_arce = cost_of_field/land_area
         elif crop == 'dr':
             cost_seed = ((cornSeedCost*2) + alfalfaSeedCost)/5
@@ -138,7 +138,7 @@ class Econ(ModelBase):
             fertn_cost = fertNCost * 52 #  52 from cropcover needs table.  results is $/acre in N fertilizer
             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
             cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + land_cost)
+            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + (land_cost * land_area))
             cost_per_arce = cost_of_field/land_area
         elif crop == 'pt':
             cost_seed = grassSeedCost
@@ -147,7 +147,7 @@ class Econ(ModelBase):
             fertp_cost = 40
             fertn_cost = 2
             cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + land_cost)
+            cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + (land_cost * land_area))
             cost_per_arce = cost_of_field/land_area
         
         # cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
