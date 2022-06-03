@@ -177,6 +177,7 @@ class GeoServer{
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             geoJson = JSON.parse(geoJson.geojson)
             scenarioObj = geoJson.features
+            console.log(scenarioObj)
             scenarioArray = [];
             popScenarioArray(scenarioObj);
         })

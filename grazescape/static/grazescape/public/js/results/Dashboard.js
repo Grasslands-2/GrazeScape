@@ -238,7 +238,7 @@ function turnOffMappedResults() {
 }
     
 var fieldYieldArray = [];
-var modelTypes = ['yield', 'ploss','runoff', 'bio']
+var modelTypes = ['yield', 'ploss','runoff', 'bio','econ']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -260,6 +260,7 @@ var chartList = [
     'rotation_yield_farm' , 'rotation_yield_field',
     'insecticide_farm', 'insecticide_field',
     'feed_breakdown',
+    'econ_farm','econ_field'
     //'crop_feed_breakdown'
 ]
 var chartColorsAS = [
@@ -417,12 +418,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             fieldChangeList = fieldChangeList.flat()
             chartDatasetContainer = new ChartDatasetContainer()
             compCheckBoxes = compareChartCheckBox()
-            econPact = {
-                //"fieldArray": fieldArray,
-                "scenArray": scenarioArray
-            }
-            //run econ model calcs
-            run_econ_model(econPact)
 //            get progress bars
 
 //            need just a slight delay
@@ -432,11 +427,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 ero_pb = document.getElementById("ero_pb");
                 bio_pb = document.getElementById("bio_pb");
                 runoff_pb = document.getElementById("runoff_pb");
-
-                eco_pb = document.getElementById("eco_pb");
+                econ_pb = document.getElementById("econ_pb");
 
                 // show progress bars when models run
-//                eco_pb.hidden = false
+                econ_pb.hidden = false
                 ero_pb.hidden = false
                 bio_pb.hidden = false
                 runoff_pb.hidden = false
@@ -446,6 +440,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("erosionFieldConvert").setDisabled(true)
                 Ext.getCmp("yieldFarmConvert").setDisabled(true)
                 Ext.getCmp("yieldFieldConvert").setDisabled(true)
+                Ext.getCmp("econFarmConvert").setDisabled(true)
+                Ext.getCmp("econFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFarmConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
@@ -454,6 +450,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             }, 10);
             createDashBoard(me)
         }
+        //create dashboard model runs
         async function createDashBoard(dashboard){
 
             layerList = []
@@ -487,6 +484,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     case 'bio':
                         bio_pb.max = numbFields
                         break
+                    case 'econ':
+                        econ_pb.max = numbFields
+                        break
                 }
             }
             console.log(fieldIter)
@@ -516,7 +516,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         console.log(returnData[0])
                         console.log(f)
                         console.log(f.properties.is_dirty)
-                        console.log(returnData[0].model_run_timestamp)
+                        //console.log(returnData[0].model_run_timestamp)
                         console.log(DSS.activeScenario.toString())
                         if(f.properties.is_dirty == false && returnData[0].model_type == 'ploss' && returnData[0].model_run_timestamp != modelruntimeOrig && returnData[0].scen_id == DSS.activeScenario.toString()){
                             modelruntime = returnData[0].model_run_timestamp
@@ -592,6 +592,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 if(bio_pb.value == bio_pb.max){
                                     bio_pb.hidden = true
                                     Ext.getCmp("bioTab").setDisabled(false)
+                                }
+                                break
+                            case 'econ':
+                                econ_pb.value = econ_pb.value + 1
+                                if(econ_pb.value == econ_pb.max){
+                                    econ_pb.hidden = true
+                                    Ext.getCmp("econTab").setDisabled(false)
+                                    Ext.getCmp("econFarmConvert").setDisabled(false)
+                                    Ext.getCmp("econFieldConvert").setDisabled(false)
                                 }
                                 break
                         }
@@ -1111,8 +1120,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             //TODO update
         var economics = {
 
-                title: '<i class="fa fa-money fa-lg"></i>  Economics <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=eco_pb >50%</progress>',
+                title: '<i class="fa fa-money fa-lg"></i>  Economics <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=econ_pb >50%</progress>',
                 plain: true,
+                id: "econTab",
                 disabled:true,
                 tabConfig:{
                     tooltip: "Economics",
@@ -1136,11 +1146,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                inner tabs for farm and field scale
                 items:[{ xtype: 'panel',
                 title: '<i class="fas fa-seedling"></i></i>  Field',
+                id: 'econFieldTab',
                 border: false,
                 layout: {
                     type: 'table',
                     // The total column count must be specified here
-                    columns: 2
+                    columns: 1
                 },
                 defaults: {
 
@@ -1148,66 +1159,112 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 border:0,
             },
                 items:[{
+                        xtype: 'radiogroup',
+                        id: 'econFieldConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Cost / Acre',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total Cost',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("econ_field", e.id)
+                            console.log(chartObj)
+                         }},
+                    },
+                    {
                     xtype: 'container',
-//                        html: '<div id="container" ><canvas id="cost_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                },{
-                    xtype: 'container',
-//                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                },{
-                    xtype: 'container',
-                },{
-                    xtype: 'container',
-//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                }],
+                        html: '<div id="container" ><canvas id="econ_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                 {
+//                     xtype: 'container',
+// //                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                 },
+//                 {
+//                     xtype: 'container',
+//                 },
+//                 {
+//                     xtype: 'container',
+// //                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                 }
+            ],
                 listeners:{activate: function() {
-//                        console.log("activated field")
-//                        if (chartObj["cost_field"].chart !== null){
-//                            return
-////                            chartObj["cost_field"].chart.destroy()
-////                            chartObj["net_return_field"].chart.destroy()
-//                        }
-//                        chartObj.cost_field.chart = create_graph(chartObj.cost_field, 'test title', document.getElementById('cost_field').getContext('2d'));
+                       console.log("activated field")
+                       if (chartObj["econ_field"].chart !== null){
+                           return
+//                            chartObj["econ_field"].chart.destroy()
+//                            chartObj["net_return_field"].chart.destroy()
+                       }
+                       chartObj.econ_field.chart = create_graph(chartObj.econ_field, 'Costs Per Arce', document.getElementById('econ_field').getContext('2d'));
 //                        chartObj.net_return_field.chart = create_graph(chartObj.net_return_field, 'test title', document.getElementById('net_return_field').getContext('2d'));
 //                            create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_field').getContext('2d'));
-                }}
-            },
-            {
+                    }
+                }
+            },{
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
                     border: false,
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
-                        columns: 2
+                        columns: 1
                     },
                     defaults: {
-
                     style: 'padding:10px; ',
                     border:0,
                 },
                     items:[{
+                        xtype: 'radiogroup',
+                        id: 'econFarmConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Cost / Acre',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total Cost',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("econ_farm", e.id)
+                            console.log(chartObj)
+                         }},
+                    },
+                    {
                         xtype: 'container',
-//                        html: '<div id="container" ><canvas id="cost_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="net_return_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                    },{
-                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="milk_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                    }],
+                        html: '<div id="container" ><canvas id="econ_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    // {
+                    //     xtype: 'container',
+                    //     html: '<div id="container"><canvas  id="net_return_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                    // },
+                    // {
+                    //     xtype: 'container',
+                    // },{
+                    //     xtype: 'container',
+                    //     html: '<div id="container"><canvas  id="milk_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+                    // }
+                ],
                     scope: this,
                     listeners:{activate: function() {
-//                        console.log("activated farm")
-//                          if (chartObj["cost_farm"].chart !== null){
-//                            return
-////                            chartObj["cost_farm"].chart.destroy()
-////                            chartObj["net_return_farm"].chart.destroy()
-//                        }
-//                        chartObj.cost_farm.chart = create_graph(chartObj.cost_farm, 'Cost per Dry Matter Ton', document.getElementById('cost_farm').getContext('2d'));
-//                        chartObj.net_return_farm.chart = create_graph(chartObj.cost_farm, 'Net Return per Acre', document.getElementById('net_return_farm').getContext('2d'));
-////                        create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_farm').getContext('2d'));
+                       console.log("activated farm")
+                         if (chartObj["econ_farm"].chart !== null){
+                           return
+//                            chartObj["econ_farm"].chart.destroy()
+//                            chartObj["net_return_farm"].chart.destroy()
+                       }
+                       chartObj.econ_farm.chart = create_graph(chartObj.econ_farm, 'Costs Per Arce', document.getElementById('econ_farm').getContext('2d'));
+                       //chartObj.net_return_farm.chart = create_graph(chartObj.econ_farm, 'Net Return per Acre', document.getElementById('net_return_farm').getContext('2d'));
+                      // create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_farm').getContext('2d'));
 
                     }}
 

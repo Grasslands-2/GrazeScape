@@ -226,6 +226,7 @@ function createNewScenario(sname,sdescript){
 					alfalfa_seed_cost: 60,
 					alfalfa_pest_cost: 32,
 					alfalfa_mach_cost: 136.5,
+					alfalfa_mach_year_one: 225.50,
 				})
 				var geomType = 'point'
 				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')

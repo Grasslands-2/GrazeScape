@@ -73,6 +73,7 @@ function popScenarioArraySP(obj) {
 		alfalfaSeedCost: obj[i].properties.alfalfa_seed_cost,
 		alfalfaPestCost: obj[i].properties.alfalfa_pest_cost,
 		alfalfaMachCost: obj[i].properties.alfalfa_mach_cost,
+		alfalfaMachYearOneCost: obj[i].properties.alfalfa_mach_year_one,
 		fertPCost: obj[i].properties.fert_p_cost,
 		fertNCost: obj[i].properties.fert_n_cost,
 	});

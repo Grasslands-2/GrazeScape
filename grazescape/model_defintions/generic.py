@@ -8,8 +8,8 @@ import numpy as np
 
 
 class GenericModel(ModelBase):
-    def __init__(self,request, model_type, is_smart_scape, file_name=None ):
-        super().__init__(request, file_name, is_smart_scape)
+    def __init__(self,request, model_type,  file_name=None ):
+        super().__init__(request, file_name)
         self.model_type = model_type
 
     # overwriting abstract method

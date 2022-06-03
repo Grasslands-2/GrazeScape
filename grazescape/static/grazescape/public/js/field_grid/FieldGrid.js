@@ -556,13 +556,13 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let PmanuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 200, step: 5
-			}, text: 'Percent<br>Manure P', dataIndex: 'manuPercN', width: 80, 
+			}, text: 'Percent<br>Manure P', dataIndex: 'manuPercP', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		let NfertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 100, step: 5
-			}, text: 'Percent<br>Fert N', dataIndex: 'fertPercP', width: 80, 
+			}, text: 'Percent<br>Fert N', dataIndex: 'fertPercN', width: 80, 
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
