@@ -17,7 +17,8 @@ function Transformation(name, id, rank){
         name:name,
         id:id,
         rank: 99,
-        areaSelected: -9999,
+        areaSelected: 0,
+        areaSelectedPerWorkArea: 0,
         area:0,
         // the open layers id of the selection display layer
         displayLayerID:-99,
@@ -41,7 +42,7 @@ function Transformation(name, id, rank){
                 cranberry:false,
                 hay:false,
                 pasture:false,
-                grassland:false
+                grasslandIdle:false
             }
         },
         // store the changes to the management practices
