@@ -136,6 +136,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 LOGIN_URL = '/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 STATICFILES_DIRS = (
-                os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles"
+                os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles",
 )
