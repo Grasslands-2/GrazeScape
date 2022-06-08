@@ -65,44 +65,58 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 			{
 				xtype: 'container',
 				//layout: DSS.utils.layout('hbox', 'start', 'left'),
-				height: 700,
+				height: 720,
 				width: 150,
-				//scrollable: true,
+				scrollable: true,
 				//autoHeight: true,
 				//margin: 8,
 				layout: {
 					type: 'vbox',       // Arrange child items vertically
-					align: 'stretch',    // Each takes up full width
-					padding: 5
+					//align: 'stretch',    // Each takes up full width
+					padding: 10
 				},
 				//width: undefined,
 				// layout: {
 				// 	type: 'hbox',
 				// 	align: 'stretch'
 				// },
-				// defaults: {
-				// 	xtype: 'numberfield',
-				// 	minValue: 0,
-				// 	step: 3,
-				// 	labelAlign: 'left',
-				// 	labelWidth: 100,
-				// 	width: 200,
-				// },
+				defaults: {
+					height: 20
+				},
 				items: [
-					{
-						xtype: 'fieldcontainer',
+					{	
+						xtype: 'container',
+						// xtype: 'component',
+						cls: 'information med-text',
+						x: 0, y: 5,
+						width: '100%',
 						flex: 1,
-						height: 75,
+						style:{
+									fontsize: 12,
+								},
+						html: 'Note: These costs represent those associated with feed/crop production and are broken out into the following categories: fertilizer (P2O5 and N), seed, pesticide, and machinery (fixed and variable). Land rent is not included. Default values are based on Iowa State Extension and University of Wisconsin Extension estimated crop budgets.'
+					},
+					// {
+                    //     xtype: 'label',
+                    //     cls: 'information med-text',
+                    //     html: 'Note: These costs represent those associated with feed/crop production and are broken out into the following categories: fertilizer (P2O5 and N), seed, pesticide, and machinery (fixed and variable). Land rent is not included. Default values are based on Iowa State Extension and University of Wisconsin Extension estimated crop budgets.'
+                    // },
+					{
+						xtype: 'container',
+						flex: 0.62,
+						height: 10,
 						defaults: {
 							xtype: 'numberfield',
 							minValue: 0,
-							step: 3,
+							//step: 2,
+							//height: 70,
 							labelAlign: 'left',
 							labelWidth: 250,
 							width: 350,
 						},
-						items: [{
-							fieldLabel: 'P Fertilizer per lb',
+						items: [
+						{
+							fieldLabel: 'P2O5 Fertilizer per lb',
 							value: scenarioArray[0].fertPCost,
 							bind: '{costs.fertPCost}'
 						},
@@ -116,7 +130,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 					{
 						xtype: 'fieldcontainer',
 						flex: 1,
-						height: 100,
+						//height: 60,
 						defaults: {
 							xtype: 'numberfield',
 							minValue: 0,
@@ -124,6 +138,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 							labelAlign: 'left',
 							labelWidth: 250,
 							width: 350,
+							height: 10,
 						},
 						items: [{
 							fieldLabel: 'Corn Seed Costs Per Acre',
@@ -136,7 +151,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 							bind: '{costs.cornPestCost}'
 						},
 						{
-							fieldLabel: 'Corn Machinary Costs Per Acre',
+							fieldLabel: 'Corn Machinery Costs Per Acre',
 							value: scenarioArray[0].cornMachCost,
 							bind: '{costs.cornMachCost}'
 						},
@@ -145,7 +160,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 					{
 						xtype: 'fieldcontainer',
 						flex: 1,
-						height: 100,
+						//height: 60,
 						defaults: {
 							xtype: 'numberfield',
 							minValue: 0,
@@ -153,6 +168,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 							labelAlign: 'left',
 							labelWidth: 250,
 							width: 350,
+							height: 10,
 						},
 						items: [ {
 								fieldLabel: 'Soy Seed Costs Per Acre',
@@ -164,7 +180,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 								bind: '{costs.soyPestCost}'
 							},
 							{
-								fieldLabel: 'Soy Machinary Costs Per Acre',
+								fieldLabel: 'Soy Machinery Costs Per Acre',
 								value: scenarioArray[0].soyMachCost,
 								bind: '{costs.soyMachCost}'
 							},
@@ -172,71 +188,16 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 					},
 					{
 						xtype: 'fieldcontainer',
-						flex: 1,
-						height: 100,
-						defaults: {
-							xtype: 'currencyfield',
-							minValue: 0,
-							step: 3,
-							labelAlign: 'left',
-							labelWidth: 250,
-							width: 350,
-						},
-						items: [ {
-							fieldLabel: 'Grass Seed Costs Per Acre',
-							value: scenarioArray[0].grassSeedCost,
-							bind: '{costs.grassSeedCost}'
-						},{
-							fieldLabel: 'Grass Pesticide Costs Per Acre',
-							value: scenarioArray[0].grassPestCost,
-							bind: '{costs.grassPestCost}'
-						},
-						{
-							fieldLabel: 'Grass Machinary Costs Per Acre',
-							value: scenarioArray[0].grassMachCost,
-							bind: '{costs.grassMachCost}'
-						},
-					]
-					},
-					{
-						xtype: 'fieldcontainer',
-						flex: 1,
-						height: 100,
+						flex: 1.2,
+						//height: 85,
 						defaults: {
 							xtype: 'numberfield',
 							minValue: 0,
-							step: 3,
+							step: 4,
 							labelAlign: 'left',
 							labelWidth: 250,
 							width: 350,
-						},
-						items: [ {
-							fieldLabel: 'Oat Seed Costs Per Acre',
-							value: scenarioArray[0].oatSeedCost,
-							bind: '{costs.oatSeedCost}'
-						},{
-							fieldLabel: 'Oat Pesticide Costs Per Acre',
-							value: scenarioArray[0].oatPestCost,
-							bind: '{costs.oatPestCost}'
-						},
-						{
-							fieldLabel: 'Oat Machinary Costs Per Acre',
-							value: scenarioArray[0].oatMachCost,
-							bind: '{costs.oatMachCost}'
-						},
-					]
-					},
-					{
-						xtype: 'fieldcontainer',
-						flex: 1,
-						height: 100,
-						defaults: {
-							xtype: 'numberfield',
-							minValue: 0,
-							step: 3,
-							labelAlign: 'left',
-							labelWidth: 250,
-							width: 350,
+							height: 10,
 						},
 						items: [ {
 							fieldLabel: 'Alfalfa Seed Costs Per Acre',
@@ -248,14 +209,71 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 							bind: '{costs.alfalfaPestCost}'
 						},
 						{
-							fieldLabel: 'Alfalfa Machinary Costs Per Acre',
+							fieldLabel: 'Alfalfa Machinery Costs Per Acre',
 							value: scenarioArray[0].alfalfaMachCost,
 							bind: '{costs.alfalfaMachCost}'
 						},
 						{
-							fieldLabel: 'Alfalfa Machinary Costs First Year',
+							fieldLabel: 'Alfalfa Machinery Costs First Year',
 							value: scenarioArray[0].alfalfaMachYearOneCost,
 							bind: '{costs.alfalfaMachYearOneCost}'
+						},
+					]
+					},
+					{
+						xtype: 'fieldcontainer',
+						flex: 1,
+						//height: 60,
+						defaults: {
+							xtype: 'numberfield',
+							minValue: 0,
+							step: 3,
+							labelAlign: 'left',
+							labelWidth: 250,
+							width: 350,
+							height: 10,
+						},
+						items: [ {
+							fieldLabel: 'Oat Seed Costs Per Acre',
+							value: scenarioArray[0].oatSeedCost,
+							bind: '{costs.oatSeedCost}'
+						},{
+							fieldLabel: 'Oat Pesticide Costs Per Acre',
+							value: scenarioArray[0].oatPestCost,
+							bind: '{costs.oatPestCost}'
+						},
+						{
+							fieldLabel: 'Oat Machinery Costs Per Acre',
+							value: scenarioArray[0].oatMachCost,
+							bind: '{costs.oatMachCost}'
+						},
+					]
+					},
+					{
+						xtype: 'fieldcontainer',
+						flex: 0.75,
+						//height: 60,
+						defaults: {
+							xtype: 'currencyfield',
+							minValue: 0,
+							step: 3,
+							labelAlign: 'left',
+							labelWidth: 250,
+							width: 350,
+						},
+						items: [ {
+							fieldLabel: 'Pasture Seed Costs Per Acre',
+							value: scenarioArray[0].grassSeedCost,
+							bind: '{costs.grassSeedCost}'
+						},{
+							fieldLabel: 'Pasture Pesticide Costs Per Acre',
+							value: scenarioArray[0].grassPestCost,
+							bind: '{costs.grassPestCost}'
+						},
+						{
+							fieldLabel: 'Pasture Machinery Costs Per Acre',
+							value: scenarioArray[0].grassMachCost,
+							bind: '{costs.grassMachCost}'
 						},
 					]
 					},

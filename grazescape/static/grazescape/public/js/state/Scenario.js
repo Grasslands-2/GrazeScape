@@ -886,7 +886,7 @@ Ext.define('DSS.state.Scenario', {
 					handler: function(self) {
 						DSS.dialogs.CostsDialog = Ext.create('DSS.state.scenario.CostsDialog');
 						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
-						DSS.dialogs.CostsDialog.show().center().setY(10);
+						DSS.dialogs.CostsDialog.show().center().setY(0);
 					}
 				},
 				// {

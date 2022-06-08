@@ -365,8 +365,8 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                                   "units_alternate": "Yield (bushels/year)",
                                   "type": "Oats"},
         "rotation_dry_matter_yield_kg-DM/ac/year": {
-            "units": "Yield (lb-Dry Matter/ac/year)",
-            "units_alternate": "Yield (lb-Dry Matter/year)",
+            "units": "Yield (tons-Dry Matter/ac/year)",
+            "units_alternate": "Yield (tons-Dry Matter/year)",
             "type": "Rotational Average"}
     },
         'ploss': {
@@ -392,8 +392,9 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                                    "type": "insect"}
         },
         'econ': {
-            "costs_per_acre": {"units": "US Dollars (dollars/acre/year)",
-                                    "units_alternate": "US Dollars (Dollars/year)",
+            "costs_per_acre": {"units": "Costs (dollars/acre/year)",
+                                    "units_alternate": "Costs (dollars/year)",
+                                    "units_alternate_2": "Costs (dollars/Tons DM)",
                                     "type": "econ"},
         # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
         #                            "type": "'costs_per_ton_dm"},

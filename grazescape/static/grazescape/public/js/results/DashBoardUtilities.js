@@ -468,6 +468,7 @@ function format_chart_data(model_data){
                 console.log(model_data.sum_cells)
                 console.log(model_data.counted_cells)
                 chartVal = +((model_data.sum_cells).toFixed(2))
+                chartTypeField.units_alternate_2 = model_data.units_alternate_2
             chartTypeField.show = true
             }else{
             chartVal = +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
@@ -517,6 +518,7 @@ function format_chart_data(model_data){
 
             chartTypeFarm.units = model_data.units
             chartTypeFarm.units_alternate = model_data.units_alternate
+            chartTypeFarm.units_alternate_2 = model_data.units_alternate_2
 
             chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells * model_data.counted_cells
             chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
@@ -1158,6 +1160,143 @@ function displayAlternate(chartName, btnId){
     }
     chartData.chart.update()
 }
+// toggle between displaying data between yearly total vs total per area vs total per dm TON
+function displayAlternateEcon(chartName,oldValue,newValue){
+    fieldYieldDatasets = chartObj.rotation_yield_field.chartData.datasets
+    farmYieldDatasets = chartObj.rotation_yield_farm.chartData.datasets
+    console.log(chartName)
+    console.log(fieldYieldDatasets)
+    console.log(farmYieldDatasets)
+    console.log(oldValue)
+    console.log(newValue)
+    chartDatasets = chartObj[chartName].chartData.datasets
+    chartData = chartObj[chartName]
+
+//    btnObject = Ext.getCmp(btnId)
+    divideArea = true
+//    switch back to yield by area
+    if(newValue == 'a'){
+//        btnObject.setText('Average Yield')
+        chartData.chart.options.scales.y.title.text = chartData.units;
+        chartData.useAlternate = false
+        //divideArea = true
+//        conv = 1/area
+    }
+    if (newValue == 't'){
+//        btnObject.setText('Average Yield / Area')
+        chartData.chart.options.scales.y.title.text= chartData.units_alternate;
+        chartData.useAlternate = true
+//        conv = area
+        //divideArea = false
+    }
+    if (newValue == 'd'){
+        //        btnObject.setText('Average Yield / Area')
+                chartData.chart.options.scales.y.title.text= "Costs (dollars/Tons DM)";
+                chartData.useAlternate = true
+        //        conv = area
+                //divideArea = false
+            }
+    //where recalc goes
+    if(chartName = "econ_field"){
+        for(set in chartDatasets){
+           for(yset in fieldYieldDatasets){
+               if(chartDatasets[set].dbID == fieldYieldDatasets[yset].dbID){
+                   console.log("field match")
+                   let yieldDataPerAcre = fieldYieldDatasets[yset].fieldData
+                   for(value in chartDatasets[set].data){
+                      let v = chartDatasets[set].data[value]
+                      let acreage = chartData.area[set]
+                      console.log(chartDatasets[set].data[value])
+                      console.log(acreage)
+                      console.log(yieldDataPerAcre)
+                      if(chartDatasets[set].data[value] !== null){
+                        if(oldValue == 'a' && newValue == 't'){
+                            console.log("a and t")
+                           chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * acreage)).toFixed(2)
+                           console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 'a' && newValue == 'd'){
+                            console.log("a and d")
+                            chartDatasets[set].data[value] = (chartDatasets[set].data[value] / yieldDataPerAcre).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 't' && newValue == 'a'){
+                            console.log("t and a")
+                            chartDatasets[set].data[value] = (chartDatasets[set].data[value] / acreage).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 't' && newValue == 'd'){
+                            console.log("t and d")
+                            chartDatasets[set].data[value] = ((chartDatasets[set].data[value] / acreage) / yieldDataPerAcre).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 'd' && newValue == 'a'){
+                            console.log("d and a")
+                            chartDatasets[set].data[value] = (chartDatasets[set].data[value] * yieldDataPerAcre).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 'd' && newValue == 't'){
+                            console.log("d and t")
+                            chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * yieldDataPerAcre) * acreage).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                    }
+                    }
+               }
+           }
+        }
+    }
+    if(chartName = "econ_farm"){
+        for(set in chartDatasets){
+           for(yset in farmYieldDatasets){
+               if(chartDatasets[set].dbID == farmYieldDatasets[yset].dbID){
+                   console.log("field match")
+                   let yieldDataPerAcre = chartObj.rotation_yield_farm.sum[set]/chartObj.rotation_yield_farm.count[set]
+                   for(value in chartDatasets[set].data){
+                      let v = chartDatasets[set].data[value]
+                      acreage = chartObj.rotation_yield_farm.area[set]
+                      console.log(chartDatasets[set].data[value])
+                      console.log(acreage)
+                      console.log(yieldDataPerAcre)
+                       if(chartDatasets[set].data[value] !== null){
+                            if(oldValue == 'a' && newValue == 't'){
+                                console.log("a and t")
+                               chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * acreage)).toFixed(2)
+                               console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 'a' && newValue == 'd'){
+                                console.log("a and d")
+                                chartDatasets[set].data[value] = (chartDatasets[set].data[value] / yieldDataPerAcre).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 't' && newValue == 'a'){
+                                console.log("t and a")
+                                chartDatasets[set].data[value] = (chartDatasets[set].data[value] / acreage).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 't' && newValue == 'd'){
+                                console.log("t and d")
+                                chartDatasets[set].data[value] = ((chartDatasets[set].data[value] / acreage) / yieldDataPerAcre).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 'd' && newValue == 'a'){
+                                console.log("d and a")
+                                chartDatasets[set].data[value] = (chartDatasets[set].data[value] * yieldDataPerAcre).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 'd' && newValue == 't'){
+                                console.log("d and t")
+                                chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * yieldDataPerAcre) * acreage).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                        }
+                    }
+               }
+           }
+        }
+    }
+    chartData.chart.update()
+}
 // organzies all fields and scenarios so that they show in order and with the same colors
 //across charts
 function compareChartCheckBox(){
@@ -1195,6 +1334,8 @@ function compareChartCheckBox(){
         ["Runoff from 5 in storm","runoff_farm", false, false]
      ],
      insectVar: [["Honey Bee Toxicity", 'insecticide_farm', false, false]],
+     costVar:  [
+        ["Farm Production Costs  " , 'econ_farm', false, false]],
      infraVar : [
 //     "Total Fence Length", "Total Fence Cost",
 //     "Total Water Line Distance", "Total Water Line Cost", "Total Lane Distance",
@@ -1246,9 +1387,10 @@ function populateRadarChart(){
     let checkNutrients = Ext.getCmp('checkNutrients').getChecked()
     let checkRunoff = Ext.getCmp('checkRunoff').getChecked()
     let checkInsecticide = Ext.getCmp('checkInsecticide').getChecked()
+    let checkCosts = Ext.getCmp('checkCosts').getChecked()
     checkBoxArr = []
 //  combine all the checkbox section into one array
-    checkBoxArr = checkYield.concat(checkErosion,checkNutrients,checkRunoff,checkInsecticide)
+    checkBoxArr = checkYield.concat(checkErosion,checkNutrients,checkRunoff,checkInsecticide,checkCosts)
     checkBoxArr.concat(checkYield)
     if(checkBoxArr.length<0){
         return

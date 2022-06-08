@@ -1120,7 +1120,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             //TODO update
         var economics = {
 
-                title: '<i class="fa fa-money fa-lg"></i>  Economics <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=econ_pb >50%</progress>',
+                title: '<i class="fa fa-money fa-lg"></i> Production Costs <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=econ_pb >50%</progress>',
                 plain: true,
                 id: "econTab",
                 disabled:true,
@@ -1162,21 +1162,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'radiogroup',
                         id: 'econFieldConvert',
                         vertical: true,
-                        columns:2,
+                        columns:3,
                         items: [
                             {
                                 boxLabel  : 'Cost / Acre',
                                 inputValue: 'a',
                                 checked:true
-                            }, {
+                            },
+                            {
                                 boxLabel  : 'Total Cost',
                                 inputValue: 't',
                             },
+                            {
+                                boxLabel  : 'Cost/Ton DM',
+                                inputValue: 'd',
+                            },
                         ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            displayAlternate("econ_field", e.id)
-                            console.log(chartObj)
-                         }},
+                         listeners:{change: function(e, newValue, oldValue,   eOpts) {
+                            displayAlternateEcon("econ_field", oldValue.econFieldConvert,newValue.econFieldConvert)
+                        }},
                     },
                     {
                     xtype: 'container',
@@ -1201,7 +1205,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                            chartObj["econ_field"].chart.destroy()
 //                            chartObj["net_return_field"].chart.destroy()
                        }
-                       chartObj.econ_field.chart = create_graph(chartObj.econ_field, 'Costs Per Arce', document.getElementById('econ_field').getContext('2d'));
+                       chartObj.econ_field.chart = create_graph(chartObj.econ_field, 'Costs', document.getElementById('econ_field').getContext('2d'));
 //                        chartObj.net_return_field.chart = create_graph(chartObj.net_return_field, 'test title', document.getElementById('net_return_field').getContext('2d'));
 //                            create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_field').getContext('2d'));
                     }
@@ -1223,21 +1227,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'radiogroup',
                         id: 'econFarmConvert',
                         vertical: true,
-                        columns:2,
+                        columns:3,
                         items: [
                             {
                                 boxLabel  : 'Cost / Acre',
                                 inputValue: 'a',
                                 checked:true
-                            }, {
+                            },
+                            {
                                 boxLabel  : 'Total Cost',
                                 inputValue: 't',
                             },
+                            {
+                                boxLabel  : 'Cost/Ton DM',
+                                inputValue: 'd',
+                            },
                         ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            displayAlternate("econ_farm", e.id)
-                            console.log(chartObj)
-                         }},
+                         listeners:{change: function(e, newValue, oldValue,   eOpts) {
+                            displayAlternateEcon("econ_farm", oldValue.econFarmConvert,newValue.econFarmConvert)
+                        }},
                     },
                     {
                         xtype: 'container',
@@ -1776,6 +1784,25 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 populateRadarChart()
                             }},
                             items:compCheckBoxes.insectVar
+                        }]
+                    },
+                    {
+                        title: "Production Costs",
+                        xtype: 'panel',
+                        width: chart_width,
+                        collapsible: true,
+                        items:[{
+                          id: 'checkCosts',
+                          xtype: 'checkboxgroup',
+                            layout: {
+                                type: 'table',
+                                // The total column count must be specified here
+                                columns: 1
+                            },
+                            listeners:{change: function(box, newVal, oldVal, e) {
+                                populateRadarChart()
+                            }},
+                            items:compCheckBoxes.costVar
                         }]
                     },
                     // {
@@ -2653,6 +2680,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 								}
 							}
 						},
+                        
                         {
                             xtype: 'label',
                             cls: 'information med-text',
