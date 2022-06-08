@@ -31,6 +31,7 @@ __pycache__/
 *.tif
 *.zip
 dynamicFiles/
+static_root/
 layerData/
 data_files/
 node_modules/

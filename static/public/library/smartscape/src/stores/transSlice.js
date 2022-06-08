@@ -37,6 +37,23 @@ export const transSlice = createSlice({
     setActiveTrans: (state, action) => {
         state.activeTrans = action.payload
     },
+    reset: (state, action) => {
+        // active transformation
+        state.activeTrans =Transformation(" ",-1, -1)
+        // tracks new transformation
+//        state.addTrans = null
+        // transformation to remove
+        state.removeTrans = null
+        // map selection type
+        state.areaSelectionType = null
+        // turn of layer be name (only for huc 12 and huc 10)
+//        layerVisible = {'name':null,visible:null}
+        // update this to update a transformation's display layer
+        state.activeDisplayProps = null
+        // list of all transformations
+        state.listTrans = []
+        // base case transformations holds the initial conditions
+    },
     /**
      * Set active transformation display layer. Triggers an update in map.js
      * @param  {Transformation} action.payload The new active display.
@@ -154,6 +171,7 @@ export const { setActiveTrans,
                 setVisibilityMapLayer,
                 setActiveTransDisplay,
                 updateActiveBaseProps,
+                reset,
                  } = transSlice.actions
 
 export default transSlice.reducer

@@ -114,43 +114,52 @@ class Econ(ModelBase):
             cost_of_fert_per_acre = ((fertp_cost_per_acre * fert_p_perc) + (fertn_cost_per_acre * fert_n_perc))
             cost_per_acre = (cost_of_fert_per_acre + cost_seed + cost_pest + cost_mach + (land_cost))
             #cost_per_acre = cost_of_field/land_area
+
         elif crop == 'cso':
             cost_seed = (cornSeedCost + soySeedCost + oatSeedCost)/3
             cost_pest = (cornPestCost + soyPestCost + oatPestCost)/3
             cost_mach = (cornMachCost + soyMachCost + oatMachCost)/3
+
             fertp_cost_per_acre = fertPPrice * 46.67  # 46.67 from cropcover needs table.  results is $/acre in P fertilizer
             fertn_cost_per_acre = fertNPrice * 60 # 60 from cropcover needs table.  results is $/acre in N fertilizer
             cost_of_fert_per_acre = ((fertp_cost_per_acre * fert_p_perc) + (fertn_cost_per_acre * fert_n_perc))
             cost_per_acre = (cost_of_fert_per_acre + cost_seed + cost_pest + cost_mach + (land_cost))
             #cost_per_acre = cost_of_field/land_area
+
         elif crop == 'dl':
             cost_seed = 0
             cost_pest = 0
             cost_mach = 0
+
             fertp_cost_per_acre = 0
             fertn_cost_per_acre = 0
             cost_of_fert_per_acre = ((fertp_cost_per_acre * fert_p_perc) + (fertn_cost_per_acre * fert_n_perc))
             cost_per_acre = (cost_of_fert_per_acre + cost_seed + cost_pest + cost_mach + (land_cost))
             #cost_per_acre = cost_of_field/land_area
+
         elif crop == 'dr':
             cost_seed = ((cornSeedCost*2) + alfalfaSeedCost)/5
             cost_pest = ((cornPestCost*2) + (alfalfaPestCost*3))/5
             cost_mach = ((cornMachCost*2) + (alfalfaMachCost*2 + alfalfaMachCostY1))/5 # +89 to account for the extra cost in the planting alfalfa year
+
             fertp_cost_per_acre = fertPPrice * 49  # 49 from cropcover needs table.  results is $/acre in P fertilizer
             fertn_cost_per_acre = fertNPrice * 52 #  52 from cropcover needs table.  results is $/acre in N fertilizer
             #cost_of_fert_per_acre = ((fertp_cost_per_acre * fert_p_perc) + (fertn_cost_per_acre * fert_n_perc))
             cost_of_fert_per_acre = ((fertp_cost_per_acre * fert_p_perc) + (fertn_cost_per_acre * fert_n_perc))
             cost_per_acre = (cost_of_fert_per_acre + cost_seed + cost_pest + cost_mach + (land_cost))
             #cost_per_acre = cost_of_field/land_area
+
         elif crop == 'pt':
             cost_seed = grassSeedCost
             cost_pest = grassPestCost
             cost_mach = grassMachCost
+
             fertp_cost_per_acre = 40
             fertn_cost_per_acre = 2
             cost_of_fert_per_acre = ((fertp_cost_per_acre * fert_p_perc) + (fertn_cost_per_acre * fert_n_perc))
             cost_per_acre = (cost_of_fert_per_acre + cost_seed + cost_pest + cost_mach + (land_cost))
             #cost_per_acre = cost_of_field/land_area
+
         
         # cost_of_fert_per_acre = ((fertp_cost_per_acre * fert_p_perc) + (fertn_cost_per_acre * fert_n_perc))
         # cost_per_acre = (cost_of_fert_per_acre + cost_seed + cost_pest + cost_mach + land_cost)

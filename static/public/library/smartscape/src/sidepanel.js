@@ -30,7 +30,7 @@ import * as mainSlice from '/src/stores/mainSlice'
 import * as charts from '/src/utilities/charts'
 import { Doughnut } from 'react-chartjs-2';
 import { Slider, Rail, Handles, Tracks, Ticks } from 'react-compound-slider'
-
+import { SliderRail, Handle, Track, Tick } from "./components"; // example render components - source below
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -75,6 +75,22 @@ const mapStateToProps = state => {
     aoiArea:state.main.aoiArea,
 }}
 
+const domain = [0, 700];
+const domainStream = [0, 16000];
+const sliderStyle = {  // Give the slider some width
+  position: 'relative',
+  width: '100%',
+  height: 80,
+}
+
+const railStyle = {
+  position: 'absolute',
+  width: '100%',
+  height: 10,
+  marginTop: 35,
+  borderRadius: 5,
+  backgroundColor: '#8B9CB6',
+}
 const mapDispatchToProps = (dispatch) => {
     return{
         setActiveTrans: (value)=> dispatch(setActiveTrans(value)),
@@ -93,21 +109,7 @@ const mapDispatchToProps = (dispatch) => {
 
     }
 };
-const sliderStyle = {  // Give the slider some width
-  position: 'relative',
-  width: '100%',
-  height: 80,
-  border: '1px solid steelblue',
-}
 
-const railStyle = {
-  position: 'absolute',
-  width: '100%',
-  height: 10,
-  marginTop: 35,
-  borderRadius: 5,
-  backgroundColor: '#8B9CB6',
-}
 class SidePanel extends React.Component{
     constructor(props){
         super(props)
@@ -126,6 +128,9 @@ class SidePanel extends React.Component{
         this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
         this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
         this.clearSelection = this.clearSelection.bind(this);
+        this.reset = this.reset.bind(this);
+        this.sliderChangeSlope = this.sliderChangeSlope.bind(this);
+        this.sliderChangeStream = this.sliderChangeStream.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
@@ -167,6 +172,7 @@ class SidePanel extends React.Component{
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
+            slopeSliderValues:[0,700]
         }
     }
     // fires anytime state or props are updated
@@ -182,7 +188,11 @@ class SidePanel extends React.Component{
         this.contCorn.current.checked = this.props.activeTrans.selection.landCover.contCorn
         this.cashGrain.current.checked = this.props.activeTrans.selection.landCover.cashGrain
         this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
-        this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
+        this.potato.current.checked = this.props.activeTrans.selection.landCover.potato
+        this.cranberry.current.checked = this.props.activeTrans.selection.landCover.cranberry
+        this.hay.current.checked = this.props.activeTrans.selection.landCover.hay
+        this.pasture.current.checked = this.props.activeTrans.selection.landCover.pasture
+        this.grasslandIdle.current.checked = this.props.activeTrans.selection.landCover.grasslandIdle
 //       which unit to use for steam distance
         if (this.props.activeTrans.selection.useFt){
             this.feet.current.checked = true
@@ -198,13 +208,22 @@ class SidePanel extends React.Component{
            console.log(this.state.showHuc10)
 
         }
-//        this.potato.current.checked = this.props.activeTrans.selection.potato
-//        this.cranberry.current.checked = this.props.activeTrans.selection.cranberry
-//        this.hay.current.checked = this.props.activeTrans.selection.hay
-//        this.pasture.current.checked = this.props.activeTrans.selection.pasture
-//        this.grasslandIdle.current.checked = this.props.activeTrans.selection.grasslandIdle
 
 
+
+    }
+
+    sliderChangeSlope(e){
+        console.log("slider change")
+        console.log(e)
+        this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
+        this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
+    }
+    sliderChangeStream(e){
+        console.log("slider change")
+        console.log(e)
+        this.props.updateActiveTransProps({"name":"streamDist1", "value":e[0], "type":"reg"})
+        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
     }
       handleCloseModalBase(){
         this.setState({baseModalShow: false})
@@ -237,6 +256,12 @@ class SidePanel extends React.Component{
         else if(selectionType == "subArea"){
             this.props.updateActiveTransProps({"name":'extent', "value":[], "type":"reg"})
 
+        }
+        else if (selectionType == "all"){
+             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
+             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
+             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
         }
 
 
@@ -276,17 +301,40 @@ class SidePanel extends React.Component{
         this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
 
     }
+    reset(){
+//      clear any selection criteria
+        this.clearSelection("all")
+        this.props.setVisibilityMapLayer([
+            {'name':'southWest', 'visible':true},
+            {'name':'southCentral', 'visible':true},
+            {'name':'cloverBelt', 'visible':true},
+            {'name':'subHuc12', 'visible':false},
+            {'name':'huc10', 'visible':true}
+            ])
+        this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
+
+//        remove all transformations
+// remove activate transformation
+// display all learning hubs
+
+    }
     // fires when we switch tab so we can download the work area rasters
   tabControl(e){
-    console.log(e)
     if(e == "selection"){
         // get bounds of current selection method and start downloading
         this.setState({aoiOrDisplayLoading:true})
         this.loadSelectionRaster()
 
         // turn off huc 10
-        this.props.setVisibilityMapLayer([{'name':'huc10', 'visible':false},{'name':'southWest', 'visible':false},
-        {'name':'southCentral', 'visible':false},{'name':'cloverBelt', 'visible':false}])
+        this.props.setVisibilityMapLayer([
+            {'name':'huc10', 'visible':false},
+            {'name':'southWest', 'visible':false},
+            {'name':'southCentral', 'visible':false},
+            {'name':'cloverBelt', 'visible':false}
+            ])
 //        this.props.setVisibilityMapLayer()
 //        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':true})
     }
@@ -325,7 +373,7 @@ class SidePanel extends React.Component{
     newTrans.management.fertilizer = "0_0"
     newTrans.management.contour = "0"
     newTrans.management.cover = "cc"
-    newTrans.management.tillage = "fc"
+    newTrans.management.tillage = "nt"
     newTrans.management.grassYield = "medium"
     newTrans.management.rotFreq = "1"
     console.log("Adding new trans")
@@ -419,6 +467,12 @@ class SidePanel extends React.Component{
             console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
+            let cellRatio = responses[0]["cellRatio"]
+            let totalArea = Math.round(this.props.aoiArea* 0.000247105)
+            let selectionArea = Math.round(cellRatio * totalArea)
+            let perArea = Math.round(selectionArea/totalArea * 100)
+            this.props.updateActiveTransProps({"name":"areaSelected", "value":selectionArea, "type":"base"})
+            this.props.updateActiveTransProps({"name":"areaSelectedPerWorkArea", "value":perArea, "type":"base"})
         },
 
         failure: function(response, opts) {
@@ -805,7 +859,7 @@ class SidePanel extends React.Component{
 
         optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
-        optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/year/acre/year")
+        optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/acre/year")
         optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
@@ -1110,9 +1164,13 @@ class SidePanel extends React.Component{
         return(
         <Container className='side_pannel_style'>
             <h4>Selection Parameters</h4>
+            {/*
+
             <Container className='progress_bar'>
-              <ProgressBar variant="success" now={40} label='Progress'/>
+             <ProgressBar variant="success" now={40} label='Progress'/>
             </Container>
+            */}
+
               <Accordion  defaultActiveKey="aoi" id="uncontrolled-tab-example" className="mb-3" onSelect={(e) => this.tabControl(e)}>
               <Accordion.Item eventKey="aoi" title="Area of Interest" hidden={this.props.hideAOIAcc}>
                   <Accordion.Header>Select Work Area</Accordion.Header>
@@ -1125,6 +1183,8 @@ class SidePanel extends React.Component{
                  <div hidden={!this.state.showHuc10}> Hold shift to select multiple watersheds </div>
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
+                   <Button onClick={this.reset} variant="danger">Reset Work Area</Button>
+
               </Row>
 
 
@@ -1142,7 +1202,7 @@ class SidePanel extends React.Component{
                 <Form.Label>1) Select at least one Land Type</Form.Label>
                     <Form >
                       <Form.Check
-                        ref={this.contCorn} type="switch" label="Continuous Corn"
+                        disabled={false} ref={this.contCorn} type="switch" label="Continuous Corn"
                         onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
                       />
                       <Form.Check
@@ -1152,6 +1212,26 @@ class SidePanel extends React.Component{
                       <Form.Check
                         ref={this.dairy} type="switch" label="Dairy Rotation"
                         onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
+                      />
+                      <Form.Check
+                        ref={this.potato} type="switch" label="Potato and Vegetable"
+                        onChange={(e) => this.handleSelectionChangeLand("potato", e)}
+                      />
+                      <Form.Check
+                        ref={this.cranberry} type="switch" label="Cranberries"
+                        onChange={(e) => this.handleSelectionChangeLand("cranberry", e)}
+                      />
+                      <Form.Check
+                        ref={this.hay} type="switch" label="Hay"
+                        onChange={(e) => this.handleSelectionChangeLand("hay", e)}
+                      />
+                      <Form.Check
+                        ref={this.pasture} type="switch" label="Pasture"
+                        onChange={(e) => this.handleSelectionChangeLand("pasture", e)}
+                      />
+                      <Form.Check
+                        ref={this.grasslandIdle} type="switch" label="Idle Grassland"
+                        onChange={(e) => this.handleSelectionChangeLand("grasslandIdle", e)}
                       />
                     </Form>
 
@@ -1190,37 +1270,77 @@ class SidePanel extends React.Component{
                         <Accordion.Body>
                         <Form.Group as={Row}>
                             <Form.Label>Slope Range</Form.Label>
-                                <Form.Label>Minimum Slope</Form.Label>
+                             <Col xs="12">
+                                 <div style={{ margin: "5%", }}>
+                                    <Slider
+                                      mode={2}
+                                      step={1}
+                                      domain={domain}
+                                      rootStyle={sliderStyle}
+                                      onChange={this.sliderChangeSlope}
+                                      values={[this.props.activeTrans.selection.slope1,this.props.activeTrans.selection.slope2]}
+                                    >
+                                      <Rail>
+                                        {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
+                                      </Rail>
+                                      <Handles>
+                                        {({ handles, getHandleProps }) => (
+                                          <div className="slider-handles">
+                                            {handles.map((handle) => (
+                                              <Handle
+                                                key={handle.id}
+                                                handle={handle}
+                                                domain={domain}
+                                                getHandleProps={getHandleProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Handles>
+                                      <Tracks left={false} right={false}>
+                                        {({ tracks, getTrackProps }) => (
+                                          <div className="slider-tracks">
+                                            {tracks.map(({ id, source, target }) => (
+                                              <Track
+                                                key={id}
+                                                source={source}
+                                                target={target}
+                                                getTrackProps={getTrackProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Tracks>
+                                      <Ticks count={5}>
+                                        {({ ticks }) => (
+                                          <div className="slider-ticks">
+                                            {ticks.map((tick) => (
+                                              <Tick key={tick.id} tick={tick} count={ticks.length} />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Ticks>
+                                    </Slider>
+                                  </div>
+                                  </Col>
 
-                                <Col xs="4">
+                                </Form.Group>
+
+                             <Form.Group as={Row}>
+
+                                <Col xs="5">
+                              <Form.Label>Minimum Slope</Form.Label>
                                   <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
                                     onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
                                 </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.slope1}
-                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
-                                    max={this.props.activeTrans.selection.slope2 - 1}
-                                  />
-                                </Col>
-                                </Form.Group>
+                                <Col xs="5">
                             <Form.Label>Maximum Slope</Form.Label>
-
-                             <Form.Group as={Row}>
-                                <Col xs="4">
                                   <Form.Control value={this.props.activeTrans.selection.slope2} size='sm'
                                     onChange={(e) => this.handleSelectionChange("slope2", e)}
                                   />
                                 </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.slope2}
-                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
-                                    max={this.slopeMax}
-                                    min={parseFloat(this.props.activeTrans.selection.slope1) + 1}
-                                  />
-                                </Col>
+
                                 <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Clear Selection</Button>
 
                             </Form.Group>
@@ -1240,41 +1360,78 @@ class SidePanel extends React.Component{
                         <Accordion.Header>Distance to Stream</Accordion.Header>
                         <Accordion.Body>
                             <Form.Group as={Row}>
-                            <Form.Label>Slope Range</Form.Label>
-                            <Form.Label>Minimum Distance to Stream</Form.Label>
-                                <Col xs="4">
+
+                                <Col xs="12">
+                                 <div style={{ margin: "5%", }}>
+                                    <Slider
+                                      mode={2}
+                                      step={1}
+                                      domain={domainStream}
+                                      rootStyle={sliderStyle}
+                                      onChange={this.sliderChangeStream}
+                                      values={[this.props.activeTrans.selection.streamDist1,this.props.activeTrans.selection.streamDist2]}
+                                    >
+                                      <Rail>
+                                        {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
+                                      </Rail>
+                                      <Handles>
+                                        {({ handles, getHandleProps }) => (
+                                          <div className="slider-handles">
+                                            {handles.map((handle) => (
+                                              <Handle
+                                                key={handle.id}
+                                                handle={handle}
+                                                domain={domain}
+                                                getHandleProps={getHandleProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Handles>
+                                      <Tracks left={false} right={false}>
+                                        {({ tracks, getTrackProps }) => (
+                                          <div className="slider-tracks">
+                                            {tracks.map(({ id, source, target }) => (
+                                              <Track
+                                                key={id}
+                                                source={source}
+                                                target={target}
+                                                getTrackProps={getTrackProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Tracks>
+                                      <Ticks count={4}>
+                                        {({ ticks }) => (
+                                          <div className="slider-ticks">
+                                            {ticks.map((tick) => (
+                                              <Tick key={tick.id} tick={tick} count={ticks.length} />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Ticks>
+                                    </Slider>
+                                  </div>
+                                </Col>
+                                </Form.Group>
+                             <Form.Group as={Row}>
+                                <Col xs="5">
+                                 <Form.Label>Minimum Distance to Stream</Form.Label>
                                   <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
                                     onChange={(e) => this.handleSelectionChange("streamDist1", e)}
                                   />
                                 </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.streamDist1}
-                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
-                                    max={this.props.activeTrans.selection.streamDist2 - 1}
 
-                                  />
-                                </Col>
-                                </Form.Group>
+                                <Col xs="5">
                             <Form.Label>Maximum Distance to Stream</Form.Label>
-
-                             <Form.Group as={Row}>
-                                <Col xs="4">
                                   <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
                                     onChange={(e) => this.handleSelectionChange("streamDist2", e)}
 
 
                                   />
                                 </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.streamDist2}
-                                    onChange={(e) => this.handleSelectionChange("streamDist2", e)}
-                                    max={this.distStreamMax}
-                                    min={parseFloat(this.props.activeTrans.selection.streamDist1) + 1}
 
-                                  />
-                                </Col>
                                 <Button variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Clear Selection</Button>
 
                             </Form.Group>
@@ -1317,6 +1474,27 @@ class SidePanel extends React.Component{
                      <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
                      </Stack>
                       </div>
+                            {/* convert from sq m to acres*/}
+                      <div>Work Area: {Math.round(this.props.aoiArea* 0.000247105).toLocaleString('en-US')} ac</div>
+                      <Table striped bordered hover size="sm" responsive>
+                      <thead>
+                      <tr style={{textAlign:"center"}}>
+                          <th>Name</th>
+                          <th>Area (ac)</th>
+                          <th>% Work Area</th>
+                        </tr>
+                      </thead>
+                        {this.props.listTrans.map((trans, index) => (
+
+                      <tbody>
+                        <tr>
+                          <td>{trans.name}</td>
+                          <td>{trans.areaSelected.toLocaleString('en-US')}</td>
+                          <td>{trans.areaSelectedPerWorkArea.toLocaleString('en-US')}</td>
+                        </tr>
+                       </tbody>
+                        ))}
+                    </Table>
                       <Form.Label>4) Assess Your Scenario</Form.Label>
 
                      <Stack gap={3}>

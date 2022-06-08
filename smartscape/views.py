@@ -227,13 +227,14 @@ def get_selection_criteria_raster(request):
     # loop here to build a response for all the model types
     return_data = []
     print("Creating png", time.time() - start)
-    model.get_model_png()
+    cell_ratio = model.get_model_png()
     print("Done ", time.time() - start)
 
     data = {
         "extent": extents,
         "url": os.path.join(model.file_name, "selection.png"),
-        "transId": trans_id
+        "transId": trans_id,
+        "cellRatio": cell_ratio
     }
     return_data.append(data)
     return JsonResponse(return_data, safe=False)
