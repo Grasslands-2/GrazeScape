@@ -635,6 +635,7 @@ def get_model_results(request):
                 "values": values_legend,
                 "units": result.default_units,
                 "units_alternate": result.alternate_units,
+                #"units_alternate_2": result.alternate_units_2,
                 # overall model type crop, ploss, bio, runoff
                 "model_type": model_type,
                 # specific model for runs with multiple models like corn silage
