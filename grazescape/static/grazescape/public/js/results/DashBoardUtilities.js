@@ -105,214 +105,88 @@ function populateChartObj(scenList, fieldList, allField, allScen){
     }
 }
 
-async function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
-    return new Promise(function(resolve) {
+function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
     let runModel = false
     let split = ""
     console.log(DSS.activeRegion)
-    //console.log(f)
-    field_scen_id = f.scenario_id
-    //fieldModelRunScenArray = await geoServer.getWFSScenarioModelRuns('&CQL_filter=gid='+field_scen_id)
-    //console.log(fieldModelRunScenArray)
-    geoServer.getWFSScenarioModelRuns('&CQL_filter=gid='+field_scen_id).then(returnData =>{
-        console.log(returnData[0])
-        if(f["is_dirty"] == true){
-            runModel = true
-        }
-        console.log(runModel)
-        console.log(f)
-        let rotation_split = f["rotation"].split("-")
-    
-        crop = rotation_split[0]
-        rotation = rotation_split.length > 1 ?rotation_split[1]:null
-        let density = f["grazingdensityval"]
-        let graze_factor = 1
-        if (rotation == "cn"){
-            graze_factor = 0.65
-        }
-        else if (rotation == "rt" ){
-            graze_factor = parseFloat(f["rotational_freq_val"])
-            density = "na"
-        }
-        model_para = {
-            f_name: f["field_name"],
-            extent: geometry.bbox,
-            // at this point fields wont have any holes so just get the first entry
-            field_coors: geometry.geometry.coordinates[0],
-            grass_type: f["grass_speciesval"],
-    //            need to convert this to integer
-            contour: f["on_contour"]?1:0,
-            soil_p: f["soil_p"],
-            tillage: f["tillage"],
-            fert: f["perc_fert_p"],
-            manure: f["perc_manure_p"],
-            crop:crop,
-            area:f["area"],
-            om: f["om"],
-            crop_cover: f["cover_crop"],
-    //			doesn't appear to be in the table at this time
-            rotation: rotation,
-            rotationFreq:"",
-            density: density,
-    //      comes from the the looping var in Dashboard.js
-            model_type: modelChoice,
-            graze_factor:graze_factor,
-            scen: chartDatasetContainer.getScenName(f["scenario_id"]),
-            model_run_timestamp: modelruntimeOrig,
-            active_scen: field_scen_id,
-            f_scen: f["scenario_id"],
-            land_area: f["area"],
-            land_cost: f["land_cost"],
-            fert_p_perc:f["perc_fert_p"],
-            fert_n_perc:f["perc_fert_n"],
-            active_region: DSS.activeRegion,
-            alfalfaMachCost: returnData[0].properties.alfalfa_mach_cost,
-            alfalfaMachCostY1: returnData[0].properties.alfalfa_mach_year_one,
-            alfalfaPestCost: returnData[0].properties.alfalfa_pest_cost,
-            alfalfaSeedCost: returnData[0].properties.alfalfa_seed_cost,
-            cornMachCost: returnData[0].properties.corn_mach_cost,
-            cornPestCost: returnData[0].properties.corn_pest_cost,
-            cornSeedCost: returnData[0].properties.corn_seed_cost,
-            grassMachCost: returnData[0].properties.grass_mach_cost,
-            grassPestCost: returnData[0].properties.grass_pest_cost,
-            grassSeedCost: returnData[0].properties.grass_seed_cost,
-            oatMachCost: returnData[0].properties.oat_mach_cost,
-            oatPestCost: returnData[0].properties.oat_pest_cost,
-            oatSeedCost: returnData[0].properties.oat_seed_cost,
-            soyMachCost: returnData[0].properties.soy_mach_cost,
-            soyPestCost: returnData[0].properties.soy_pest_cost,
-            soySeedCost: returnData[0].properties.soy_seed_cost,
-            fertNCost: returnData[0].properties.fert_n_cost,
-            fertPCost: returnData[0].properties.fert_p_cost,
-    
-            // alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
-            // alfalfaMachCostY1: scenarioArray[0].alfalfaMachYearOneCost,
-            // alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
-            // alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
-            // cornMachCost: scenarioArray[0].cornMachCost,
-            // cornPestCost: scenarioArray[0].cornPestCost,
-            // cornSeedCost: scenarioArray[0].cornSeedCost,
-            // grassMachCost: scenarioArray[0].grassMachCost,
-            // grassPestCost: scenarioArray[0].grassPestCost,
-            // grassSeedCost: scenarioArray[0].grassSeedCost,
-            // oatMachCost: scenarioArray[0].oatMachCost,
-            // oatPestCost: scenarioArray[0].oatPestCost,
-            // oatSeedCost: scenarioArray[0].oatSeedCost,
-            // soyMachCost: scenarioArray[0].soyMachCost,
-            // soyPestCost: scenarioArray[0].soyPestCost,
-            // soySeedCost: scenarioArray[0].soySeedCost,
-            // fertNCost: scenarioArray[0].fertNCost,
-            // fertPCost: scenarioArray[0].fertPCost,
-        }
-        model_pack = {
-            "farm_id": DSS.activeFarm,
-            field_id: f["gid"],
-            "scenario_id": f["scenario_id"],
-            "runModels": runModel,
-            "model_parameters":model_para
-        }
-        console.log(model_pack)
-        //return model_pack
-        resolve(model_pack)
-    })
-    })
-//     if(f["is_dirty"] == true){
-//         runModel = true
-//     }
-//     console.log(runModel)
+    console.log(f)
+    if(f["is_dirty"] == true){
+        runModel = true
+    }
+    console.log(runModel)
 
-//     let rotation_split = f["rotation"].split("-")
-
-//     crop = rotation_split[0]
-//     rotation = rotation_split.length > 1 ?rotation_split[1]:null
-//     let density = f["grazingdensityval"]
-//     let graze_factor = 1
-//     if (rotation == "cn"){
-//         graze_factor = 0.65
-//     }
-//     else if (rotation == "rt" ){
-//         graze_factor = parseFloat(f["rotational_freq_val"])
-//         density = "na"
-//     }
-//     model_para = {
-//         f_name: f["field_name"],
-//         extent: geometry.bbox,
-//         // at this point fields wont have any holes so just get the first entry
-//         field_coors: geometry.geometry.coordinates[0],
-//         grass_type: f["grass_speciesval"],
-// //            need to convert this to integer
-//         contour: f["on_contour"]?1:0,
-//         soil_p: f["soil_p"],
-//         tillage: f["tillage"],
-//         fert: f["perc_fert_p"],
-//         manure: f["perc_manure_p"],
-//         crop:crop,
-//         area:f["area"],
-//         om: f["om"],
-//         crop_cover: f["cover_crop"],
-// //			doesn't appear to be in the table at this time
-//         rotation: rotation,
-//         rotationFreq:"",
-//         density: density,
-// //      comes from the the looping var in Dashboard.js
-//         model_type: modelChoice,
-//         graze_factor:graze_factor,
-//         scen: chartDatasetContainer.getScenName(f["scenario_id"]),
-//         model_run_timestamp: modelruntimeOrig,
-//         active_scen: activeScenario,
-//         f_scen: f["scenario_id"],
-//         land_area: f["area"],
-//         land_cost: f["land_cost"],
-//         fert_p_perc:f["perc_fert_p"],
-//         fert_n_perc:f["perc_fert_n"],
-//         active_region: DSS.activeRegion,
-//         alfalfaMachCost: fieldModelRunScenArray[0].alfalfaMachCost,
-//         alfalfaMachCostY1: fieldModelRunScenArray[0].alfalfaMachYearOneCost,
-//         alfalfaPestCost: fieldModelRunScenArray[0].alfalfaPestCost,
-//         alfalfaSeedCost: fieldModelRunScenArray[0].alfalfaSeedCost,
-//         cornMachCost: fieldModelRunScenArray[0].cornMachCost,
-//         cornPestCost: fieldModelRunScenArray[0].cornPestCost,
-//         cornSeedCost: fieldModelRunScenArray[0].cornSeedCost,
-//         grassMachCost: fieldModelRunScenArray[0].grassMachCost,
-//         grassPestCost: fieldModelRunScenArray[0].grassPestCost,
-//         grassSeedCost: fieldModelRunScenArray[0].grassSeedCost,
-//         oatMachCost: fieldModelRunScenArray[0].oatMachCost,
-//         oatPestCost: fieldModelRunScenArray[0].oatPestCost,
-//         oatSeedCost: fieldModelRunScenArray[0].oatSeedCost,
-//         soyMachCost: fieldModelRunScenArray[0].soyMachCost,
-//         soyPestCost: fieldModelRunScenArray[0].soyPestCost,
-//         soySeedCost: fieldModelRunScenArray[0].soySeedCost,
-//         fertNCost: fieldModelRunScenArray[0].fertNCost,
-//         fertPCost: fieldModelRunScenArray[0].fertPCost,
-
-//         // alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
-//         // alfalfaMachCostY1: scenarioArray[0].alfalfaMachYearOneCost,
-//         // alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
-//         // alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
-//         // cornMachCost: scenarioArray[0].cornMachCost,
-//         // cornPestCost: scenarioArray[0].cornPestCost,
-//         // cornSeedCost: scenarioArray[0].cornSeedCost,
-//         // grassMachCost: scenarioArray[0].grassMachCost,
-//         // grassPestCost: scenarioArray[0].grassPestCost,
-//         // grassSeedCost: scenarioArray[0].grassSeedCost,
-//         // oatMachCost: scenarioArray[0].oatMachCost,
-//         // oatPestCost: scenarioArray[0].oatPestCost,
-//         // oatSeedCost: scenarioArray[0].oatSeedCost,
-//         // soyMachCost: scenarioArray[0].soyMachCost,
-//         // soyPestCost: scenarioArray[0].soyPestCost,
-//         // soySeedCost: scenarioArray[0].soySeedCost,
-//         // fertNCost: scenarioArray[0].fertNCost,
-//         // fertPCost: scenarioArray[0].fertPCost,
-//     }
-//     model_pack = {
-//         "farm_id": DSS.activeFarm,
-//         field_id: f["gid"],
-//         "scenario_id": f["scenario_id"],
-//         "runModels": runModel,
-//         "model_parameters":model_para
-//     }
-//     console.log(model_pack)
-//     return model_pack
+    let rotation_split = f["rotation"].split("-")
+    crop = rotation_split[0]
+    rotation = rotation_split.length > 1 ?rotation_split[1]:null
+    let density = f["grazingdensityval"]
+    let graze_factor = 1
+    if (rotation == "cn"){
+        graze_factor = 0.65
+    }
+    else if (rotation == "rt" ){
+        graze_factor = parseFloat(f["rotational_freq_val"])
+        density = "na"
+    }
+    model_para = {
+        f_name: f["field_name"],
+        extent: geometry.bbox,
+        // at this point fields wont have any holes so just get the first entry
+        field_coors: geometry.geometry.coordinates[0],
+        grass_type: f["grass_speciesval"],
+//            need to convert this to integer
+        contour: f["on_contour"]?1:0,
+        soil_p: f["soil_p"],
+        tillage: f["tillage"],
+        fert: f["fertilizerpercent"],
+        manure: f["manurepercent"],
+        crop:crop,
+        area:f["area"],
+        om: f["om"],
+        crop_cover: f["cover_crop"],
+//			doesn't appear to be in the table at this time
+        rotation: rotation,
+        rotationFreq:"",
+        density: density,
+//      comes from the the looping var in Dashboard.js
+        model_type: modelChoice,
+        graze_factor:graze_factor,
+        scen: chartDatasetContainer.getScenName(f["scenario_id"]),
+        model_run_timestamp: modelruntimeOrig,
+        active_scen: activeScenario,
+        f_scen: f["scenario_id"],
+        land_area: f["area"],
+        land_cost: f["land_cost"],
+        fert_p_perc:f["perc_fert_p"],
+        fert_n_perc:f["perc_fert_n"],
+        active_region: DSS.activeRegion,
+        alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
+        alfalfaMachCostY1: scenarioArray[0].alfalfaMachYearOneCost,
+        alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
+        alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
+        cornMachCost: scenarioArray[0].cornMachCost,
+        cornPestCost: scenarioArray[0].cornPestCost,
+        cornSeedCost: scenarioArray[0].cornSeedCost,
+        grassMachCost: scenarioArray[0].grassMachCost,
+        grassPestCost: scenarioArray[0].grassPestCost,
+        grassSeedCost: scenarioArray[0].grassSeedCost,
+        oatMachCost: scenarioArray[0].oatMachCost,
+        oatPestCost: scenarioArray[0].oatPestCost,
+        oatSeedCost: scenarioArray[0].oatSeedCost,
+        soyMachCost: scenarioArray[0].soyMachCost,
+        soyPestCost: scenarioArray[0].soyPestCost,
+        soySeedCost: scenarioArray[0].soySeedCost,
+        fertNCost: scenarioArray[0].fertNCost,
+        fertPCost: scenarioArray[0].fertPCost,
+    }
+    model_pack = {
+        "farm_id": DSS.activeFarm,
+        field_id: f["gid"],
+        "scenario_id": f["scenario_id"],
+        "runModels": runModel,
+        "model_parameters":model_para
+    }
+    console.log(model_pack)
+    return model_pack
 }
 function format_chart_data(model_data){
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
