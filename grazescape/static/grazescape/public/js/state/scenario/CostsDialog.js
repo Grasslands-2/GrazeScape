@@ -1,4 +1,22 @@
 
+function dirtyUpFields(){
+    // let changedFieldsList = []
+    // for (field in fieldChangeList){
+    //     changedFieldsList.push(fieldChangeList[field].id)
+    // }
+    // console.log(changedFieldsList)
+	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+		console.log(f)
+		var feildFeature = f;
+		console.log("from fields_1 loop through: " + feildFeature.id_);
+		feildFeature.setProperties({
+			is_dirty:true
+		});
+		wfs_update(feildFeature,'field_2');
+	})
+};
+
+
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 Ext.define('CurrencyField', {
 	extend: 'Ext.form.field.Number',
@@ -33,28 +51,45 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 	alias: 'widget.state_costs_dialog',
 	alternateClassName: 'DSS.CostsDialog',
 	autoDestroy: false,
+	id: "CostDialog",
 	closeAction: 'hide',
 	//constrain: true,
 	modal: true,
 	width: 500,
-	resizable: true,
+	height: 650,
+	//resizable: true,
 	bodyPadding: 8,
 	titleAlign: 'center',
 	scrollable: true,
 	
 	title: 'Adjust Costs of Operation',
-	
+	listeners:{
+		close: async function(window){
+			console.log("close")
+			await runScenarioUpdate()
+					//
+					//await gatherScenarioTableData()
+					setTimeout(function(){
+						geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+						dirtyUpFields()
+					},1000)
+					//DSS.layer.scenarios.getSource().refresh()
+					console.log("Changes saved")
+					//this.up(window).close();
+		},
+	},
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-
+		
 		//--------------------------------------------
 		// Dairy Container
 		//--------------------------------------------
 			
 		Ext.applyIf(me, {
+
 			items: [
 			// 	{
 			// 	xtype: 'component',
@@ -65,7 +100,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 			{
 				xtype: 'container',
 				//layout: DSS.utils.layout('hbox', 'start', 'left'),
-				height: 720,
+				height: 750,
 				width: 150,
 				scrollable: true,
 				//autoHeight: true,
@@ -290,7 +325,9 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 					//
 					//await gatherScenarioTableData()
 					setTimeout(function(){
-						geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)},1000)
+						geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+						dirtyUpFields()
+					},1000)
 					//DSS.layer.scenarios.getSource().refresh()
 					console.log("Changes saved")
 					this.up('window').close();

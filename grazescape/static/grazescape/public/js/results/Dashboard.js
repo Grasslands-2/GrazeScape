@@ -350,11 +350,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             console.log("close")
             turnOffMappedResults()
         },
-        closeaction: function(thisWindow){
+        closeaction: function(window){
             console.log("closeAction")
             turnOffMappedResults()
         },
-        beforeclose: function(thisWindow){
+        beforeclose: function(window){
             console.log("beforeclose")
             turnOffMappedResults()
         },
@@ -510,8 +510,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    model_request = build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion)
-                    get_model_data(model_request).then(returnData =>{
+                    //model_request = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return)
+                    build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return => {
+                    get_model_data(model_request_return).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                         console.log(returnData[0])
                         console.log(f)
@@ -617,6 +618,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
                         }
                         Ext.getCmp('mainTab').update()
+                    })
                     })
                 }
             }
@@ -1270,7 +1272,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                            chartObj["econ_farm"].chart.destroy()
 //                            chartObj["net_return_farm"].chart.destroy()
                        }
-                       chartObj.econ_farm.chart = create_graph(chartObj.econ_farm, 'Costs Per Arce', document.getElementById('econ_farm').getContext('2d'));
+                       chartObj.econ_farm.chart = create_graph(chartObj.econ_farm, 'Costs', document.getElementById('econ_farm').getContext('2d'));
                        //chartObj.net_return_farm.chart = create_graph(chartObj.econ_farm, 'Net Return per Acre', document.getElementById('net_return_farm').getContext('2d'));
                       // create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_farm').getContext('2d'));
 
