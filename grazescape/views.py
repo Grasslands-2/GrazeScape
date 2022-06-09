@@ -463,6 +463,8 @@ def get_default_om(request):
 #     return JsonResponse(fields_data_array, safe=False)
 
 def get_model_results(request):
+    print(request.POST.getlist("field_id"))
+    print(request.POST)
     field_id = request.POST.getlist("field_id")[0]
     scenario_id = request.POST.getlist("scenario_id")[0]
     farm_id = request.POST.getlist("farm_id")[0]

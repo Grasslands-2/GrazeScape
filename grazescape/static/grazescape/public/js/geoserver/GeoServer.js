@@ -182,6 +182,17 @@ class GeoServer{
             popScenarioArray(scenarioObj);
         })
     }
+    getWFSScenarioModelRuns(parameter = ''){
+        return new Promise(function(resolve) {
+            geoServer.makeRequest(geoServer.geoScen_Url + parameter, "source").then(function(geoJson){
+            
+                geoJson = JSON.parse(geoJson.geojson)
+                scenarioObj = geoJson.features
+                console.log(scenarioObj)
+                resolve(scenarioObj)
+            })
+        })
+    }
 // Used to insert new farms into geoserver. if statements handle if the new farm or scenario is coming in
     insertFarm(payLoad, feat, fType){
         this.makeRequest(this.geoUpdate_Url, "insert_farm", payLoad, this).then(function(returnData){

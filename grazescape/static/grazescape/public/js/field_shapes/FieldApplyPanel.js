@@ -127,8 +127,8 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 			rotational_density:0,
 			area:fieldArea * 0.000247105,
 			//this changes the square meters to acres
-			fertilizerpercent:0,
-			manurepercent:0,
+			perc_fert_p:0,
+			perc_manure_p:0,
 			spread_confined_manure_on_pastures: false,
 			on_contour: false,
 			interseeded_clover: false,

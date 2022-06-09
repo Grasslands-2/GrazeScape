@@ -23,8 +23,8 @@ function runModels(layer,modelChoice) {
             contour: f.get("on_contour")?1:0,
             soil_p: f.get("soil_p"),
             tillage: f.get("tillage"),
-            fert: f.get("fertilizerpercent"),
-            manure: f.get("manurepercent"),
+            fert: f.get("perc_fert_p"),
+            manure: f.get("perc_manure_p"),
             crop:crop,
             crop_cover: f.get("cover_crop"),
 //			doesn't appear to be in the table at this time

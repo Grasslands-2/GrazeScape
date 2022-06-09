@@ -277,8 +277,8 @@ function runFieldUpdate(){
 					cover_crop: fieldArray[i].coverCropVal,
 					cover_crop_disp: fieldArray[i].coverCropDisp,
 					on_contour: fieldArray[i].onContour,
-					fertilizerpercent:fieldArray[i].fertPerc,
-					manurepercent: fieldArray[i].manuPerc,
+					perc_fert_p:fieldArray[i].fertPerc,
+					perc_manure_p: fieldArray[i].manuPerc,
 					grass_speciesval: fieldArray[i].grassSpeciesVal,
 					grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
 					interseeded_clover: fieldArray[i].interseededClover,
@@ -448,6 +448,10 @@ Ext.define('DSS.state.Scenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
+		if(Ext.getCmp("CostDialog")){
+			Ext.getCmp("CostDialog").destroy()
+			console.log("cost dialog destroyed")
+		}
 		//DSS.MapState.hideFieldsandInfra()
 
 		Ext.applyIf(me, {
@@ -884,10 +888,20 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Edit Scenario Costs',
 					allowDepress: false,
 					handler: function(self) {
+					if(Ext.getCmp("CostDialog")){
+						DSS.dialogs.CostsDialog = Ext.getCmp("CostDialog").show()
+						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
+						DSS.dialogs.CostsDialog.show().center().setY(25);
+						console.log("cost dialog destroyed")
+					}else{
+					// setTimeout(() => {
 						DSS.dialogs.CostsDialog = Ext.create('DSS.state.scenario.CostsDialog');
 						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
-						DSS.dialogs.CostsDialog.show().center().setY(0);
+						DSS.dialogs.CostsDialog.show().center().setY(25);
 					}
+					//}, 1000);
+					}
+					
 				},
 				// {
 				// 	xtype: 'button',
