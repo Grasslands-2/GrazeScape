@@ -110,3 +110,7 @@ right: 15px !important;
     border-color: red !important;
     border-bottom-width: thick !important;
 }
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+            color: black;
+            opacity: 1; /* Firefox */
+}

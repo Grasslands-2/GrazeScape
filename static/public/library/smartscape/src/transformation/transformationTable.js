@@ -348,7 +348,7 @@ class TransformationTable extends Component {
                             overlay={<Tooltip>Land Transformation Priority</Tooltip>}>
                             <Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}>&nbsp;&nbsp;{index +1}&nbsp;&nbsp;</Form.Label>
                         </OverlayTrigger>
-                        <Form.Control placeholder="Selection Name" id={item1.id} className={ this.props.activeTrans.id === item1.id && 'active1' } onChange={this.handleTransNameChange} onClick={this.selectTransClick} />
+                        <Form.Control placeholder="Enter Name..." id={item1.id} className={ this.props.activeTrans.id === item1.id && 'active1' } onChange={this.handleTransNameChange} onClick={this.selectTransClick} />
                         <OverlayTrigger key="top" placement="top"
                           overlay={<Tooltip>Set Transformation</Tooltip>}>
                             <Button size="sm" variant="primary" id={item1.id} onClick={this.handleOpenModalTrans}><Sliders/></Button>

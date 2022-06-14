@@ -179,27 +179,32 @@ class OLMapFragment extends React.Component {
       // the display layer of a transformation needs to be changed
       if (prevProps.activeDisplayProps !== this.props.activeDisplayProps) {
         // create a new raster source
-        let rasterLayerSource =
-            new Static({
-                url: this.props.activeDisplayProps.url,
-                projection: 'EPSG:3857',
-                imageExtent: this.props.activeDisplayProps.extents
-        })
-        let listTrans = this.props.listTrans
-        // loop through all transformations to find transformation whose display layer has been updated
-        for (let trans in listTrans){
-            if(listTrans[trans].id == this.props.activeDisplayProps.transId){
-                let newLayer = listTrans[trans]
-                let layers = this.map.getLayers().getArray()
-                for (let layer in layers){
-                    if(layers[layer].ol_uid == newLayer.displayLayerID){
-                        layers[layer].setSource(rasterLayerSource)
-//                        layers[layer].getSource().refresh()
-                        break
+        if(this.props.activeDisplayProps != null){
+            let rasterLayerSource =
+                new Static({
+                    url: this.props.activeDisplayProps.url,
+                    projection: 'EPSG:3857',
+                    imageExtent: this.props.activeDisplayProps.extents
+            })
+            let listTrans = this.props.listTrans
+            // loop through all transformations to find transformation whose display layer has been updated
+            for (let trans in listTrans){
+                if(listTrans[trans].id == this.props.activeDisplayProps.transId){
+                    let newLayer = listTrans[trans]
+                    let layers = this.map.getLayers().getArray()
+                    for (let layer in layers){
+                        if(layers[layer].ol_uid == newLayer.displayLayerID){
+                            layers[layer].setSource(rasterLayerSource)
+    //                        layers[layer].getSource().refresh()
+                            break
+                        }
                     }
                 }
             }
+
+
         }
+
       }
       // turn of give layer (only used for learning hub boundary, huc 10 and huc 12 at this point)
       if(prevProps.layerVisible != this.props.layerVisible){
