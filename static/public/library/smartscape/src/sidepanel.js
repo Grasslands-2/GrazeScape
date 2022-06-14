@@ -75,12 +75,13 @@ const mapStateToProps = state => {
     aoiArea:state.main.aoiArea,
 }}
 
-const domain = [0, 700];
+//const domain = [0, 700];
+const domainSlope = [0, 51];
 const domainStream = [0, 16000];
 const sliderStyle = {  // Give the slider some width
   position: 'relative',
   width: '100%',
-  height: 80,
+  height: 40,
 }
 
 const railStyle = {
@@ -137,7 +138,7 @@ class SidePanel extends React.Component{
         this.cashGrain = React.createRef();
         this.dairy = React.createRef();
         this.potato = React.createRef();
-        this.cranberry = React.createRef();
+//        this.cranberry = React.createRef();
         this.hay = React.createRef();
         this.pasture = React.createRef();
         this.grasslandIdle = React.createRef();
@@ -189,7 +190,7 @@ class SidePanel extends React.Component{
         this.cashGrain.current.checked = this.props.activeTrans.selection.landCover.cashGrain
         this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
         this.potato.current.checked = this.props.activeTrans.selection.landCover.potato
-        this.cranberry.current.checked = this.props.activeTrans.selection.landCover.cranberry
+//        this.cranberry.current.checked = this.props.activeTrans.selection.landCover.cranberry
         this.hay.current.checked = this.props.activeTrans.selection.landCover.hay
         this.pasture.current.checked = this.props.activeTrans.selection.landCover.pasture
         this.grasslandIdle.current.checked = this.props.activeTrans.selection.landCover.grasslandIdle
@@ -204,20 +205,23 @@ class SidePanel extends React.Component{
         }
 //        if region is changed show huc 10
         if (prevProps.region != this.props.region){
-           this.setState({showHuc10:true})
+            if(this.props.region != null){
+
+                this.setState({showHuc10:true})
+            }
            console.log(this.state.showHuc10)
-
         }
-
-
-
     }
 
     sliderChangeSlope(e){
         console.log("slider change")
         console.log(e)
-        this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
-        this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
+//        if slope entered in textbox is greater than box domain dont update slider
+        if(e[1] != domainSlope[1] + 1){
+            console.log("not updating")
+            this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
+        }
+            this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
     }
     sliderChangeStream(e){
         console.log("slider change")
@@ -304,6 +308,8 @@ class SidePanel extends React.Component{
     reset(){
 //      clear any selection criteria
         this.clearSelection("all")
+        this.setState({showHuc10:false})
+        this.props.setActiveRegion(null)
         this.props.setVisibilityMapLayer([
             {'name':'southWest', 'visible':true},
             {'name':'southCentral', 'visible':true},
@@ -315,7 +321,7 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
-
+        console.log("huc 10 vis ", this.state.showHuc10)
 //        remove all transformations
 // remove activate transformation
 // display all learning hubs
@@ -370,9 +376,9 @@ class SidePanel extends React.Component{
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
-    newTrans.management.fertilizer = "0_0"
-    newTrans.management.contour = "0"
-    newTrans.management.cover = "cc"
+    newTrans.management.fertilizer = "50_50"
+    newTrans.management.contour = "1"
+    newTrans.management.cover = "nc"
     newTrans.management.tillage = "nt"
     newTrans.management.grassYield = "medium"
     newTrans.management.rotFreq = "1"
@@ -1176,14 +1182,15 @@ class SidePanel extends React.Component{
                   <Accordion.Header>Select Work Area</Accordion.Header>
               <Accordion.Body>
               <Row>
-                  <h4>Select a work area<sup>*</sup></h4>
+                  <h5>Select a work area<sup>*</sup></h5>
+                  <h5>(by clicking on the map)</h5>
                  <InputGroup size="sm" className="mb-3">
                  <h6 hidden={this.state.showHuc10}> Please select a region</h6>
                  <h6 hidden={!this.state.showHuc10}>  Select at least one large watershed </h6>
                  <div hidden={!this.state.showHuc10}> Hold shift to select multiple watersheds </div>
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
-                   <Button onClick={this.reset} variant="danger">Reset Work Area</Button>
+                   <Button hidden={!this.state.showHuc10} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>
 
               </Row>
 
@@ -1199,7 +1206,7 @@ class SidePanel extends React.Component{
               <Accordion.Body>
 
                 <div className = "criteriaSections">
-                <Form.Label>1) Select at least one Land Type</Form.Label>
+                <Form.Label>1) Select at least one Land Type<sup>*</sup></Form.Label>
                     <Form >
                       <Form.Check
                         disabled={false} ref={this.contCorn} type="switch" label="Continuous Corn"
@@ -1217,10 +1224,16 @@ class SidePanel extends React.Component{
                         ref={this.potato} type="switch" label="Potato and Vegetable"
                         onChange={(e) => this.handleSelectionChangeLand("potato", e)}
                       />
-                      <Form.Check
+                      {/*
+
+
+                        <Form.Check
+                        hidden = {true}
                         ref={this.cranberry} type="switch" label="Cranberries"
                         onChange={(e) => this.handleSelectionChangeLand("cranberry", e)}
                       />
+*/}
+
                       <Form.Check
                         ref={this.hay} type="switch" label="Hay"
                         onChange={(e) => this.handleSelectionChangeLand("hay", e)}
@@ -1234,7 +1247,7 @@ class SidePanel extends React.Component{
                         onChange={(e) => this.handleSelectionChangeLand("grasslandIdle", e)}
                       />
                     </Form>
-
+                    <sup>*</sup><a target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34">Wiscland 2 Land Categories</a>
                 </div>
 
                 <div className = "criteriaSections">
@@ -1275,9 +1288,9 @@ class SidePanel extends React.Component{
                                     <Slider
                                       mode={2}
                                       step={1}
-                                      domain={domain}
+                                      domain={domainSlope}
                                       rootStyle={sliderStyle}
-                                      onChange={this.sliderChangeSlope}
+                                      onUpdate={this.sliderChangeSlope}
                                       values={[this.props.activeTrans.selection.slope1,this.props.activeTrans.selection.slope2]}
                                     >
                                       <Rail>
@@ -1311,7 +1324,7 @@ class SidePanel extends React.Component{
                                           </div>
                                         )}
                                       </Tracks>
-                                      <Ticks count={5}>
+                                      <Ticks values={[0,10, 20, 30,40,50]}>
                                         {({ ticks }) => (
                                           <div className="slider-ticks">
                                             {ticks.map((tick) => (
@@ -1340,6 +1353,8 @@ class SidePanel extends React.Component{
                                     onChange={(e) => this.handleSelectionChange("slope2", e)}
                                   />
                                 </Col>
+                            </Form.Group>
+                            <Form.Group as={Row} className="mt-2">
 
                                 <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Clear Selection</Button>
 
@@ -1417,25 +1432,17 @@ class SidePanel extends React.Component{
                                 </Form.Group>
                              <Form.Group as={Row}>
                                 <Col xs="5">
-                                 <Form.Label>Minimum Distance to Stream</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
+                                    <Form.Label>Minimum Distance to Stream</Form.Label>
+                                    <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
                                     onChange={(e) => this.handleSelectionChange("streamDist1", e)}
                                   />
                                 </Col>
-
                                 <Col xs="5">
-                            <Form.Label>Maximum Distance to Stream</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
+                                    <Form.Label>Maximum Distance to Stream</Form.Label>
+                                    <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
                                     onChange={(e) => this.handleSelectionChange("streamDist2", e)}
-
-
                                   />
                                 </Col>
-
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Clear Selection</Button>
-
-                            </Form.Group>
-
                                 <Form.Label>Units</Form.Label>
                                 <Form>
                                 <Form.Check ref={this.feet} inline label="feet" name="group1" type="radio"
@@ -1445,6 +1452,10 @@ class SidePanel extends React.Component{
                                     onClick={(e) => this.handleSelectionChangeUnit("useFt", false, e)}
                                   />
                                   </Form>
+                                <Button className="mt-2" variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Clear Selection</Button>
+                            </Form.Group>
+
+
 
                             </Accordion.Body>
                         </Accordion.Item>
@@ -1457,7 +1468,7 @@ class SidePanel extends React.Component{
                     min={0}
                   />
                    <Stack gap={3}>
-                   <Button onClick={this.displaySelectionCriteria} variant="primary" hidden={this.state.aoiOrDisplayLoading}>Display Selection</Button>
+                   <Button onClick={this.displaySelectionCriteria} variant="primary" hidden={this.state.aoiOrDisplayLoading}>View and Save Selection</Button>
                     <Button id="btnModelsLoading" variant="primary" disabled hidden={!this.state.aoiOrDisplayLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
                         Loading...
@@ -1465,17 +1476,7 @@ class SidePanel extends React.Component{
                    </Stack>
                     </div>
                     <div className = "criteriaSections">
-
-                <Form.Label>3) Manage Your Land Transformations</Form.Label>
-
-                    <TransformationTable/>
-                  <Stack gap={3}>
-                  <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
-                     <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
-                     </Stack>
-                      </div>
-                            {/* convert from sq m to acres*/}
-                      <div>Work Area: {Math.round(this.props.aoiArea* 0.000247105).toLocaleString('en-US')} ac</div>
+                                      <div>Work Area: {Math.round(this.props.aoiArea* 0.000247105).toLocaleString('en-US')} ac</div>
                       <Table striped bordered hover size="sm" responsive>
                       <thead>
                       <tr style={{textAlign:"center"}}>
@@ -1495,6 +1496,16 @@ class SidePanel extends React.Component{
                        </tbody>
                         ))}
                     </Table>
+                <Form.Label>3) Manage Your Land Transformations</Form.Label>
+
+                  <TransformationTable/>
+                  <Stack gap={3}>
+                  <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
+                     <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
+                     </Stack>
+                      </div>
+                            {/* convert from sq m to acres*/}
+
                       <Form.Label>4) Assess Your Scenario</Form.Label>
 
                      <Stack gap={3}>
