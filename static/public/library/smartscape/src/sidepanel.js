@@ -217,7 +217,7 @@ class SidePanel extends React.Component{
         console.log("slider change")
         console.log(e)
 //        if slope entered in textbox is greater than box domain dont update slider
-        if(e[1] != domainSlope[1] + 1){
+        if(e[1] != domainSlope[1]){
             console.log("not updating")
             this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
         }
@@ -1303,7 +1303,7 @@ class SidePanel extends React.Component{
                                               <Handle
                                                 key={handle.id}
                                                 handle={handle}
-                                                domain={domain}
+                                                domain={domainSlope}
                                                 getHandleProps={getHandleProps}
                                               />
                                             ))}
@@ -1396,7 +1396,7 @@ class SidePanel extends React.Component{
                                               <Handle
                                                 key={handle.id}
                                                 handle={handle}
-                                                domain={domain}
+                                                domain={domainStream}
                                                 getHandleProps={getHandleProps}
                                               />
                                             ))}

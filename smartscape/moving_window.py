@@ -28,7 +28,6 @@ from sklearn.ensemble import RandomForestRegressor
 import pickle
 
 
-
 class MovingWindow:
     """
     Moving window analysis for rasters
@@ -115,18 +114,20 @@ class MovingWindow:
         x_count = 0
         # TODO look at implementing this loop with cython
         for iy in range(0, base.shape[0]):
-
+            #
             for ix in range(0, base.shape[1]):
+                # get index of stored moving window
                 b = window_raster[iy, ix]
-                if b[index_val][index_val] != self.no_data:
-                    for y in b:
-                        for x in y:
-
-                            if bird_cat[x][iy, ix] == self.no_data:
-
-                                bird_cat[x][iy, ix] = 1
-                            else:
-                                bird_cat[x][iy, ix] = 1 + bird_cat[x][iy, ix]
+                # only compute cell index if its no data
+                # if b[index_val][index_val] != self.no_data:
+                #     # count number of cells in each category for each cell
+                #     for y in b:
+                #         for x in y:
+                #             if bird_cat[x][iy, ix] == self.no_data:
+                #
+                #                 bird_cat[x][iy, ix] = 1
+                #             else:
+                #                 bird_cat[x][iy, ix] = 1 + bird_cat[x][iy, ix]
 
                 x_count = x_count + 1
             y_count = y_count + 1
@@ -166,20 +167,20 @@ if __name__ == "__main__":
     test_file_path = "C://Users/mmbay/Work/work/grazescape_utilities/Bird Model/landuse-clipped.tif"
     image1 = gdal.Open(test_file_path)
     outdata = image1.GetRasterBand(1).ReadAsArray()
-    outdata = np.array(
+    outdata1 = np.array(
                     [[1, 2, 3, 7, 8, 2],
                      [4, 5, 6, 9, 1, 2],
                      [7, 8, 9, 9, 4, 2],
                      [7, 8, 19, 3, 4, 2],
                      [8, 8, 9, 3, 4, 2],
                      ])
-    outdata = np.array(
-                    [[8, 8, 8, 8, 8, 8],
-                     [8, 8, 8, 8, 8, 8],
-                     [9, 9, 9, 9, 9, 9],
-                     [9, 9, 9, 9, 9, 9],
-                     [10, 10, 10, 10, 10, 10],
-                     ])
+    # outdata = np.array(
+    #                 [[8, 8, 8, 8, 8, 8],
+    #                  [8, 8, 8, 8, 8, 8],
+    #                  [9, 9, 9, 9, 9, 9],
+    #                  [9, 9, 9, 9, 9, 9],
+    #                  [10, 10, 10, 10, 10, 10],
+    #                  ])
     image1.FlushCache()
 
     band = None
