@@ -110,6 +110,7 @@ class RasterDataSmartScape:
                                  " dimensions do not match other rasters")
 
         self.bounds["y"], self.bounds["x"] = raster_shape
+        return
 
     def load_layers(self):
         """
@@ -153,7 +154,7 @@ class RasterDataSmartScape:
         for thread in self.threads:
             thread.join()
 
-    def clip_rasters(self):
+    def clip_rasters(self, is_aoi):
         """
         Clip raster and return a rectangular array
 
@@ -176,13 +177,17 @@ class RasterDataSmartScape:
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "-clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                     cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+                if is_aoi:
+                    ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "_aoi-clipped.tif"), image,
+                                        cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
+                                        cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
         print("done clipping")
 
     def get_clipped_rasters(self):
         raster_data_dic = {}
         bounds = 0
         for file in os.listdir(self.dir_path):
-            if '-clipped.tif' in file:
+            if '-clipped.tif' in file and 'aoi' not in file:
                 data_name = file.split(".")[0]
                 data_name = data_name.split("-")[0]
                 # print("file paths!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -198,5 +203,8 @@ class RasterDataSmartScape:
                 band = ds_clip.GetRasterBand(1)
                 arr = np.asarray(band.ReadAsArray())
                 raster_data_dic[data_name] = arr
+
+                ds_clip = None
+                band = None
         self.check_raster_data(raster_data_dic)
         return raster_data_dic, bounds

@@ -17,11 +17,8 @@ function Transformation(name, id, rank){
         name:name,
         id:id,
         rank: 99,
-<<<<<<< HEAD
         areaSelected: 0,
         areaSelectedPerWorkArea: 0,
-=======
->>>>>>> 9fda76af2c930326cb472f6f2b722fcc8b091dfe
         area:0,
         // the open layers id of the selection display layer
         displayLayerID:-99,

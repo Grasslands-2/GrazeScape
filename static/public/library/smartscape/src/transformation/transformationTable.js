@@ -75,7 +75,14 @@ class TransformationTable extends Component {
         showTillage:false,
         showCont:false,
         showGrassYield:true,
-        showRotFreq:true
+        showRotFreq:true,
+        showTillageFC:false,
+        showTillageFM:false,
+        showTillageNT:true,
+        showTillageSC:false,
+        showTillageSN:true,
+        showTillageSU:true,
+        showTillageSV:false,
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -88,6 +95,7 @@ class TransformationTable extends Component {
 //    this.addTransformation = this.addTransformation.bind(this);
     this.removeTransformation = this.removeTransformation.bind(this);
     this.showModal = this.showModal.bind(this);
+
     this.rotationType = React.createRef();
     this.cover = React.createRef();
     this.tillage = React.createRef();
@@ -132,10 +140,82 @@ class TransformationTable extends Component {
         this.contour.current.value = this.props.activeTrans.management.contour
         this.grassYield.current.value = this.props.activeTrans.management.grassYield
         this.rotFreq.current.value = this.props.activeTrans.management.rotFreq
+        this.handleTransMangement()
+      }
+      configureTillage(){
+        let rot = this.rotationType.current.value
+        let cover = this.cover.current.value
+        let currentTill = this.tillage.current.value
+        console.log("tillage")
+        console.log(currentTill)
+        console.log(this.tillage)
+//        set all till disabled to start
+        this.setState({
+                showTillageFC:false,
+                showTillageFM:false,
+                showTillageNT:false,
+                showTillageSC:false,
+                showTillageSN:false,
+                showTillageSU:false,
+                showTillageSV:false,
+            })
+
+        this.tillage.current.value = "na"
+        if (cover == "cc"){
+            this.setState({
+                showTillageNT:true,
+                showTillageSU:true,
+            })
+            if (rot == "dairyRotation"){
+                this.setState({
+                    showTillageSC:true
+
+                })
+            }
+            else{
+                this.setState({
+                    showTillageSN:true,
+                })
+            }
+        }
+        else if (cover == "nc"){
+            this.setState({
+                showTillageFC:true,
+                showTillageFM:true,
+                showTillageNT:true,
+                showTillageSN:true,
+                showTillageSU:true,
+                showTillageSV:true,
+            })
+
+        }
+        else if (cover == "gcis"){
+        this.setState({
+                showTillageNT:true,
+                showTillageSC:true,
+                showTillageSU:true,
+            })
+        }
+        else if (cover == "gcds"){
+            this.setState({
+                    showTillageNT:true,
+                    showTillageSC:true,
+                    showTillageSU:true,
+                })
+            }
+        console.log(this.state["showTillage" + currentTill.toUpperCase()])
+        console.log("showTillage" + currentTill.toUpperCase())
+
+        console.log(this.state)
+//        if(this.state["showTillage" + currentTill.toUpperCase()] == true){
+//            this.tillage.current.value = currentTill
+//        }
 
       }
-    handleSelectionChange(type, e){
-//      turn off all pasture options
+
+      handleTransMangement(){
+      //      turn off all pasture options
+
         if(this.rotationType.current.value != "pasture"){
             this.setState({
                 showPastureMang:false,
@@ -145,10 +225,12 @@ class TransformationTable extends Component {
                 showTillage:true,
                 showCont:true,
             })
+//            configure tillage options
 
-        }
+            }
 //        turn on pasture options
         else{
+
          this.setState({
                 showPastureMang:true,
                 showGrassYield:true,
@@ -163,9 +245,20 @@ class TransformationTable extends Component {
             else{
                 this.setState({showRotFreq:false})
             }
+//            handle tillage display
+
         }
+        if(this.cover.current.value != this.props.activeTrans.management.cover ||
+        this.rotationType.current.value != this.props.activeTrans.management.rotationType){
+            this.configureTillage()
+        }
+
+      }
+    handleSelectionChange(type, e){
+         this.handleTransMangement()
 //      update active transformation with new value
-        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})    }
+        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
+        }
 
     handleSelectionChangeRadio(type, e){
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"mang"})
@@ -334,13 +427,14 @@ class TransformationTable extends Component {
                     <Form.Label hidden={!this.state.showTillage} >Tillage</Form.Label >
                     <Form.Select aria-label="Default select example" hidden={!this.state.showTillage} ref={this.tillage}
                     onChange={(e) => this.handleSelectionChange("tillage", e)}>
-                      <option value="fc">Fall Chisel</option>
-                      <option value="fm">Fall Moldboard</option>
-                      <option value="nt">No Till</option>
-                      <option value="sc">Spring Chisel, Disked</option>
-                      <option value="sn">Spring Chisel, No Disk</option>
-                      <option value="su">Spring Cultivation</option>
-                      <option value="sv">Spring Vertical</option>
+                      <option disabled={!this.state.showTillageFC} value="fc">Fall Chisel</option>
+                      <option disabled={!this.state.showTillageFM} value="fm">Fall Moldboard</option>
+                      <option disabled={!this.state.showTillageNT} value="nt">No Till</option>
+                      <option disabled={!this.state.showTillageSC} value="sc">Spring Chisel, Disked</option>
+                      <option disabled={!this.state.showTillageSN} value="sn">Spring Chisel, No Disk</option>
+                      <option disabled={!this.state.showTillageSU} value="su">Spring Cultivation</option>
+                      <option disabled={!this.state.showTillageSV} value="sv">Spring Vertical</option>
+                      <option value="na">Please Select a Value</option>
                     </Form.Select>
 
                     <Form.Label hidden={!this.state.showCont}>On Contour</Form.Label >
@@ -349,7 +443,6 @@ class TransformationTable extends Component {
                       <option value="0">No</option>
                       <option value="1">Yes</option>
                     </Form.Select>
-
                     <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.fertilizer}
                       onChange={(e) => this.handleSelectionChange("fertilizer", e)}>
@@ -360,9 +453,8 @@ class TransformationTable extends Component {
                       <option value="200_0">200/	0</option>
                       <option value="25_50">25/	50</option>
                       <option value="50_0">50/	0</option>
+                      <option value="50_50">50/	50</option>
                     </Form.Select>
-
-
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModal}>
