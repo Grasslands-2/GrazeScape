@@ -25,8 +25,7 @@ import threading
 import time
 import multiprocessing
 import concurrent.futures
-
-
+from smartscape.model_definitions.bird_model import window
 Ft_To_Meters = 0.3048
 
 
@@ -121,6 +120,11 @@ class SmartScape:
         band = image1.GetRasterBand(1)
         arr_landuse = band.ReadAsArray()
 
+        image1 = gdal.Open(os.path.join(self.geo_folder, "landuse_aoi-clipped.tif"))
+        band = image1.GetRasterBand(1)
+        arr_total_valid_cells = band.ReadAsArray()
+        total_cells = np.count_nonzero(arr_total_valid_cells != self.no_data)
+
         driver = gdal.GetDriverByName("GTiff")
         outdata = driver.Create(os.path.join(self.in_dir, "landuse_watershed.tif"), cols, rows, 1,
                                 gdal.GDT_Float32)
@@ -173,7 +177,8 @@ class SmartScape:
         if stream_dist1 is not None and stream_dist2 is not None:
             datanm_stream = self.raster_inputs["stream_dist"]
             datanm_stream = np.where(
-                np.logical_and(datanm_stream > float(stream_dist1), float(stream_dist2) > datanm_stream), -99, datanm_stream
+                np.logical_and(datanm_stream > float(stream_dist1), float(stream_dist2) > datanm_stream), -99,
+                datanm_stream
             )
             has_stream = True
             # combine base case with slope
@@ -183,8 +188,8 @@ class SmartScape:
         # if landuse_par["cashGrain"] or landuse_par["contCorn"] or landuse_par["dairy"]:
         datanm_landuse = self.raster_inputs["landuse"]
         print(arr_landuse.dtype)
-        print("total cells", np.count_nonzero( datanm_landuse != self.no_data))
-        total_cells = np.count_nonzero(datanm_landuse != self.no_data)
+        print("total cells", np.count_nonzero(datanm_landuse != self.no_data))
+
         if landuse_par["cashGrain"]:
             datanm_landuse = np.where(
                 np.logical_and(3 == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
@@ -218,8 +223,8 @@ class SmartScape:
                 np.logical_and(10 == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
             )
         datanm = np.where(np.logical_and(datanm == -99, datanm_landuse == -99), -99, self.no_data)
-        print("selected cells",np.count_nonzero( datanm != self.no_data))
-        selected_cells = np.count_nonzero( datanm != self.no_data)
+        print("selected cells", np.count_nonzero(datanm != self.no_data))
+        selected_cells = np.count_nonzero(datanm != self.no_data)
         datanm_image = np.copy(datanm)
         # selected values get 1 and everything else gets a zero
         datanm_image = np.where(
@@ -332,7 +337,6 @@ class SmartScape:
 
         # download layers for base case
         base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pastureWatershed")
-        model_names_base = ("ero", "pl", "cn")
         model_names_base = ("Erosion", "PI", "CN")
         # contCorn
         # create name of the layer that corresponds to geoserver for base case
@@ -375,8 +379,6 @@ class SmartScape:
             image = gdal.Open(file)
             band = image.GetRasterBand(1)
             arr = band.ReadAsArray()
-            unique, counts = np.unique(arr, return_counts=True)
-
 
             # total_count = np.count_nonzero(arr > -100)
             selected_cells = np.count_nonzero(arr == -99)
@@ -390,25 +392,33 @@ class SmartScape:
                 cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
                           tran["management"]["fertilizer"] + "_" + region
                 layer_dic[tran["rank"]]["yield"] = yield_name
+                land_id = 9
 
             else:
+                if tran["management"]["rotationType"] == "contCorn":
+                    land_id = 4
+                elif tran["management"]["rotationType"] == "cashGrain":
+                    land_id = 3
+                elif tran["management"]["rotationType"] == "dairyRotation":
+                    land_id = 5
                 corn = "corn_Yield_" + region
                 soy = "soy_Yield_" + region
                 layer_dic[tran["rank"]]["corn"] = "" + corn
                 layer_dic[tran["rank"]]["soy"] = "" + soy
 
                 ero_name = "" + tran["management"]["rotationType"] + "_Erosion_" + \
-                            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
-                            tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
+                           tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                           tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
                 ploss_name = "" + tran["management"]["rotationType"] + "_PI_" + \
-                            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
-                            tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
+                             tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                             tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
                 cn_name = "" + tran["management"]["rotationType"] + "_CN_" + \
-                            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
-                            tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
+                          tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                          tran["management"]["contour"] + "_" + tran["management"]["fertilizer"] + "_" + region
             layer_dic[tran["rank"]]["ero"] = ero_name
             layer_dic[tran["rank"]]["ploss"] = ploss_name
             layer_dic[tran["rank"]]["cn"] = cn_name
+            layer_dic[tran["rank"]]["land_id"] = land_id
 
             layer_area_dic[tran["rank"]] = {}
             layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(tran["area"] *
@@ -536,7 +546,10 @@ class SmartScape:
             "cn": np.copy(arr),
             "runoff": np.copy(arr),
             "insect": np.copy(arr),
+            "bird": np.copy(arr),
+
         }
+        bird_selection = np.copy(arr)
 
         for layer in layer_dic:
             # yield
@@ -559,6 +572,7 @@ class SmartScape:
                     model_data[model] = np.where(model_data[model] == layer, insect[tran["management"]["rotationType"]],
                                                  model_data[model])
                     continue
+
                 model_trans_filepath = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
                 print("trans model file path ", model_trans_filepath)
                 model_image = gdal.Open(model_trans_filepath)
@@ -604,10 +618,24 @@ class SmartScape:
         cont_pl_image = gdal.Open(os.path.join(self.in_dir, "pastureWatershed_CN.tif"))
         pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
 
+        plain_landuse = np.copy(landuse_arr)
         # create new array where landuse codes are plugged into arr (arr is the raster with rank of the selected cells)
         # and more importantly is has our selected cells
         # selected values are greater than zero
         landuse_arr_sel = np.where(arr > 0, landuse_arr, arr)
+
+        land_use_selected = np.copy(landuse_arr_sel)
+        start = time.time()
+        base_sel_bird = window(plain_landuse, land_use_selected, 10)
+        print("done with cython ", time.time() - start)
+        print("bird model base!!!!!! ", base_sel_bird)
+        # replace landuse from base data with new landuse
+        for layer in layer_dic:
+            plain_landuse = np.where(arr == layer, layer_dic[layer]["land_id"], plain_landuse)
+        start = time.time()
+        model_sel_bird = window(plain_landuse, land_use_selected, 10)
+        print("done with cython ", time.time() - start)
+        print("bird model model!!!!!! ", base_sel_bird)
 
         base_data = {
             "yield": np.copy(landuse_arr_sel),
@@ -729,6 +757,16 @@ class SmartScape:
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
         watershed_land_use = watershed_land_use_band.ReadAsArray()
 
+        start = time.time()
+        base_watershed_bird = window(watershed_land_use, watershed_land_use, 10)
+        print("done with cython ", time.time() - start)
+        print("bird model base whole watershed!!!!!! ", base_sel_bird)
+
+        start = time.time()
+        model_watershed_bird = window(plain_landuse, watershed_land_use, 10)
+        print("done with cython ", time.time() - start)
+        print("bird model model whole watershed!!!!!! ", base_sel_bird)
+
         base_data_watershed = {
             "yield": np.copy(watershed_land_use),
             "ero": np.copy(watershed_land_use),
@@ -739,27 +777,34 @@ class SmartScape:
         }
 
         watershed_total = {
-            1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 1.34, "cn": 93, "insect": 0.51},
-            2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 0.81, "cn": 85, "insect": 0.51},
+            1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 1.34, "cn": 93, "insect": 0.51,
+                "bird": 0},
+            2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "pl": 0.81, "cn": 85, "insect": 0.51,
+                "bird": 0},
             4: {"name": "contCorn", "is_calc": True, "yield": cont_yield, "ero": cont_er_arr, "pl": cont_pl_arr,
-                "cn": base_arr_corn_cn, "insect": 0.51},
+                "cn": base_arr_corn_cn, "insect": 0.51, "bird": 0},
             3: {"name": "cornGrain", "is_calc": True, "yield": corn_yield, "ero": corn_er_arr, "pl": corn_pl_arr,
-                "cn": base_arr_corngrain_cn, "insect": 0.51},
+                "cn": base_arr_corngrain_cn, "insect": 0.51, "bird": 0},
             5: {"name": "dairyRotation", "is_calc": True, "yield": dairy_yield, "ero": dairy_er_arr, "pl": dairy_pl_arr,
-                "cn": base_arr_dairy_cn, "insect": 0.12},
-            6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "pl": 2, "cn": 75, "insect": 0.12},
-            7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "pl": 2, "cn": 75, "insect": 0.12},
-            8: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "pl": hay_pl_arr, "cn": hay_cn_arr, "insect": 0},
-            9: {"name": "pasture", "is_calc": True, "yield": pasture_yield_arr, "ero": pasture_er_arr, "pl": pasture_pl_arr, "cn": pasture_cn_arr, "insect": 0},
-            10: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "pl": hay_pl_arr, "cn": hay_cn_arr, "insect": 0},
-            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 65, "insect": 0},
-            12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 98, "insect": 0},
-            13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 85, "insect": 0},
-            14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 82, "insect": 0},
-            15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 72, "insect": 0},
+                "cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0},
+            6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "pl": 2, "cn": 75, "insect": 0.12, "bird": 0},
+            7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "pl": 2, "cn": 75, "insect": 0.12, "bird": 0},
+            8: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "pl": hay_pl_arr,
+                "cn": hay_cn_arr, "insect": 0, "bird": 0},
+            9: {"name": "pasture", "is_calc": True, "yield": pasture_yield_arr, "ero": pasture_er_arr,
+                "pl": pasture_pl_arr, "cn": pasture_cn_arr, "insect": 0, "bird": 0},
+            10: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "pl": hay_pl_arr,
+                 "cn": hay_cn_arr, "insect": 0, "bird": 0},
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 65, "insect": 0,
+                 "bird": 0},
+            12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 98, "insect": 0, "bird": 0},
+            13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 85, "insect": 0, "bird": 0},
+            14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "pl": 0, "cn": 82, "insect": 0, "bird": 0},
+            15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "pl": 0.067, "cn": 72, "insect": 0,
+                 "bird": 0},
         }
-        selec_arr = [3,4,5,6,7,8,9,10]
-
+        selec_arr = [3, 4, 5, 6, 7, 8, 9, 10]
+        # calc data for base run
         for land in selec_arr:
             cn_final = np.where(base_data["cn"] == land, watershed_total[land]["cn"], base_data["cn"])
             base_data["runoff"] = np.where(base_data["runoff"] == land, self.get_runoff_vectorized(cn_final, 3),
@@ -768,9 +813,11 @@ class SmartScape:
 
             base_data["ero"] = np.where(base_data["ero"] == land, watershed_total[land]["ero"], base_data["ero"])
 
-            base_data["insect"] = np.where(base_data["insect"] == land, watershed_total[land]["insect"], base_data["insect"])
+            base_data["insect"] = np.where(base_data["insect"] == land, watershed_total[land]["insect"],
+                                           base_data["insect"])
 
-            base_data["yield"] = np.where(base_data["yield"] == land, watershed_total[land]["yield"], base_data["yield"])
+            base_data["yield"] = np.where(base_data["yield"] == land, watershed_total[land]["yield"],
+                                          base_data["yield"])
             base_data["ploss"] = np.where(base_data["ploss"] == land, watershed_total[land]["pl"], base_data["ploss"])
         base_cn = np.where(
             np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
@@ -809,7 +856,9 @@ class SmartScape:
             base_data_watershed["insect"] = np.where(base_data_watershed["insect"] == land_type,
                                                      watershed_total[land_type]["insect"],
                                                      base_data_watershed["insect"])
+
             base_data_watershed["runoff"] = self.get_runoff_vectorized(base_data_watershed["cn"], 3)
+
         model_data_watershed = {
             "yield": np.copy(base_data_watershed["yield"]),
             "ero": np.copy(base_data_watershed["ero"]),
@@ -826,8 +875,9 @@ class SmartScape:
                     model_data_watershed[model])
             else:
                 # replace any cells in the base watershed with model ouputs when the model value exists for that cell
-                model_data_watershed[model] = np.where(np.logical_and(model_data[model] != self.no_data, model_data[model] != -88), model_data[model],
-                                                       model_data_watershed[model])
+                model_data_watershed[model] = np.where(
+                    np.logical_and(model_data[model] != self.no_data, model_data[model] != -88), model_data[model],
+                    model_data_watershed[model])
             model_data_watershed[model] = np.where(
                 np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
                 0, model_data_watershed[model])
@@ -880,6 +930,7 @@ class SmartScape:
 
         def check_ero_pl(value):
             return value if value >= 0.1 else 0.1
+
         base_ero = check_ero_pl(sum_base_ero / selected_cells)
         base_ero_water = check_ero_pl(np.sum(base_data_watershed["ero"]) / total_cells)
 
@@ -891,7 +942,6 @@ class SmartScape:
 
         model_pl = check_ero_pl(sum_model_ploss / selected_cells)
         model_pl_water = check_ero_pl(np.sum(model_data_watershed["ploss"]) / total_cells)
-
 
         return {
             "base": {
@@ -907,33 +957,42 @@ class SmartScape:
                         "total_per_area_watershed": str("%.2f" % base_ero_water),
                         "units": "Erosion (tons/year)"
                         },
-                "yield": {"total": "{:,.2f}".format(sum_base_yield/ selected_cells * area_selected),
+                "yield": {"total": "{:,.2f}".format(sum_base_yield / selected_cells * area_selected),
                           "total_per_area": str("%.2f" % (sum_base_yield / selected_cells)),
-                          "total_watershed": "{:,.2f}".format(np.sum(base_data_watershed["yield"])/ total_cells * area_watershed),
-                          "total_per_area_watershed": str("%.2f" % (np.sum(base_data_watershed["yield"]) / total_cells)),
+                          "total_watershed": "{:,.2f}".format(
+                              np.sum(base_data_watershed["yield"]) / total_cells * area_watershed),
+                          "total_per_area_watershed": str(
+                              "%.2f" % (np.sum(base_data_watershed["yield"]) / total_cells)),
                           "units": "Yield (tons-Dry Matter/year)"
                           },
                 "cn": {
                     "total": "{:,.1f}".format(sum_base_cn / selected_cells),
-                    "total_per_area": str("%.1f" % (sum_base_cn  / selected_cells)),
-                    "total_watershed": "{:,.1f}".format(np.sum(base_data_watershed["cn"])/ total_cells),
+                    "total_per_area": str("%.1f" % (sum_base_cn / selected_cells)),
+                    "total_watershed": "{:,.1f}".format(np.sum(base_data_watershed["cn"]) / total_cells),
                     "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["cn"]) / total_cells)),
                     "units": "Curve Number"
                 },
                 "insect": {
                     "total": "{:,.2f}".format(sum_base_insect / selected_cells),
-                    "total_per_area": str("%.2f" % (sum_base_insect/ selected_cells)),
-                    "total_watershed": "{:,.2f}".format(np.sum(base_data_watershed["insect"])/ total_cells),
+                    "total_per_area": str("%.2f" % (sum_base_insect / selected_cells)),
+                    "total_watershed": "{:,.2f}".format(np.sum(base_data_watershed["insect"]) / total_cells),
                     "total_per_area_watershed": str("%.2f" % (np.sum(base_data_watershed["insect"]) / total_cells)),
                     "units": ""
                 },
                 "runoff": {
                     "total": "{:,.2f}".format(sum_base_runoff / 12 / selected_cells * area_selected),
                     "total_per_area": str("%.2f" % (sum_base_runoff / selected_cells)),
-                    "total_watershed": "{:,.2f}".format(np.sum(base_data_watershed["runoff"])/ 12/ total_cells * area_watershed),
+                    "total_watershed": "{:,.2f}".format(
+                        np.sum(base_data_watershed["runoff"]) / 12 / total_cells * area_watershed),
                     "total_per_area_watershed": str("%.2f" % (np.sum(base_data_watershed["runoff"]) / total_cells)),
                     "units": ""
                 },
+                "bird": {
+                    "total": "{:,.2f}".format(0),
+                    "total_per_area": "{:,.2f}".format(base_sel_bird),
+                    "total_watershed": "{:,.2f}".format(0),
+                    "total_per_area_watershed": "{:,.2f}".format(base_watershed_bird)
+                }
             },
             "model": {
                 "ploss": {
@@ -951,9 +1010,10 @@ class SmartScape:
                     "units": "Erosion (tons/year)"
                 },
                 "yield": {
-                    "total": "{:,.2f}".format(sum_model_yield/ selected_cells * area_selected),
+                    "total": "{:,.2f}".format(sum_model_yield / selected_cells * area_selected),
                     "total_per_area": str("%.2f" % (sum_model_yield / selected_cells)),
-                    "total_watershed": "{:,.2f}".format(np.sum(model_data_watershed["yield"])/ total_cells * area_watershed),
+                    "total_watershed": "{:,.2f}".format(
+                        np.sum(model_data_watershed["yield"]) / total_cells * area_watershed),
                     "total_per_area_watershed": str("%.2f" % (np.sum(model_data_watershed["yield"]) / total_cells)),
                     "units": "Yield (tons-Dry Matter/year)"
                 },
@@ -967,17 +1027,24 @@ class SmartScape:
                 "insect": {
                     "total": "{:,.2f}".format(sum_model_insect / selected_cells),
                     "total_per_area": str("%.2f" % (sum_model_insect / selected_cells)),
-                    "total_watershed": "{:,.2f}".format(np.sum(model_data_watershed["insect"])/ total_cells),
+                    "total_watershed": "{:,.2f}".format(np.sum(model_data_watershed["insect"]) / total_cells),
                     "total_per_area_watershed": str("%.2f" % (np.sum(model_data_watershed["insect"]) / total_cells)),
                     "units": ""
                 },
                 "runoff": {
                     "total": "{:,.2f}".format(sum_model_runoff / 12 / selected_cells * area_selected),
                     "total_per_area": str("%.2f" % (sum_model_runoff / selected_cells)),
-                    "total_watershed": "{:,.2f}".format(np.sum(model_data_watershed["runoff"])/ 12/ total_cells * area_watershed),
+                    "total_watershed": "{:,.2f}".format(
+                        np.sum(model_data_watershed["runoff"]) / 12 / total_cells * area_watershed),
                     "total_per_area_watershed": str("%.2f" % (np.sum(model_data_watershed["runoff"]) / total_cells)),
                     "units": ""
                 },
+                "bird": {
+                    "total": "{:,.2f}".format(0),
+                    "total_per_area": "{:,.2f}".format(model_sel_bird),
+                    "total_watershed": "{:,.2f}".format(0),
+                    "total_per_area_watershed": "{:,.2f}".format(model_watershed_bird)
+                }
             },
             "land_stats": {
                 "area": "{:,.0f}".format(area_selected),
@@ -987,12 +1054,12 @@ class SmartScape:
                 "area_trans": layer_area_dic,
                 "model_id": self.in_dir,
             },
-            "debugging": {
-                "runoff_ base": base_data_watershed["runoff"].tolist(),
-                "runoff_model": model_data_watershed["runoff"].tolist(),
-                "actual_landuse": watershed_land_use.tolist()
-
-            }
+            # "debugging": {
+            #     "runoff_ base": base_data_watershed["runoff"].tolist(),
+            #     "runoff_model": model_data_watershed["runoff"].tolist(),
+            #     "actual_landuse": watershed_land_use.tolist()
+            #
+            # }
 
         }
 
@@ -1035,7 +1102,7 @@ class SmartScape:
 
         return event
 
-    def download_rasters(self, geoTransform, image, layer_dic, base_layer_dic,workspace="SmartScapeRaster:"):
+    def download_rasters(self, geoTransform, image, layer_dic, base_layer_dic, workspace="SmartScapeRaster:"):
         minx = geoTransform[0]
         maxy = geoTransform[3]
         maxx = minx + geoTransform[1] * image.RasterXSize
@@ -1052,12 +1119,13 @@ class SmartScape:
                                          "srsName=EPSG:3071&request=GetCoverage&CoverageId="
         for layer in layer_dic:
             for model in layer_dic[layer]:
-                print("downloading layer ", layer_dic[layer][
-                    model])
-                url = geoserver_url + workspace + layer_dic[layer][
-                    model] + extents_string_x + extents_string_y
-                raster_file_path = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
-                self.createNewDownloadThread(url, raster_file_path)
+                if model != "land_id":
+                    print("downloading layer ", layer_dic[layer][
+                        model])
+                    url = geoserver_url + workspace + layer_dic[layer][
+                        model] + extents_string_x + extents_string_y
+                    raster_file_path = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
+                    self.createNewDownloadThread(url, raster_file_path)
         # use extents of aoi for base, so we get whole area
         for layer in base_layer_dic:
             print("downloading layer ", base_layer_dic[layer])
@@ -1092,4 +1160,4 @@ class SmartScape:
         soy_image = None
         corn_arr = None
         soy_arr = None
-        return {"contCorn": cont_yield,"cornGrain": corn_yield, "dairyRotation": dairy_yield}
+        return {"contCorn": cont_yield, "cornGrain": corn_yield, "dairyRotation": dairy_yield}
