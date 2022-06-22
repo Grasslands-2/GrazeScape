@@ -167,14 +167,14 @@ if __name__ == "__main__":
     image1 = gdal.Open(test_file_path)
     outdata = image1.GetRasterBand(1).ReadAsArray()
     selection = np.copy(outdata)
-    outdata = np.array(
+    outdata1 = np.array(
                     [[1, 2, 3, 7, 8, 2],
                      [4, 5, 6, 9, 1, 2],
                      [7, 8, 9, 9, 4, 2],
                      [7, 8, 19, 3, 4, 2],
                      [8, 8, 9, 3, 4, 2],
                      ], dtype='f')
-    selection = np.array(
+    selection1 = np.array(
                     [[1, 1, -1, -1, 0, 0],
                      [1, 1, -1, -1, 0, 0],
                      [1, 1, -1, -1, 0, 0],
@@ -191,6 +191,6 @@ if __name__ == "__main__":
     # outdata = None
     print("calling widnow")
     start = time.time()
-    print(bird_model.window(outdata, selection, 10))
+    print(bird_model.window(outdata, selection, 13))
     print("done with cython ", time.time() - start)
 

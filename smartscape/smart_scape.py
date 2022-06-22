@@ -626,14 +626,14 @@ class SmartScape:
 
         land_use_selected = np.copy(landuse_arr_sel)
         start = time.time()
-        base_sel_bird = window(plain_landuse, land_use_selected, 10)
+        base_sel_bird = window(plain_landuse, land_use_selected, 13)
         print("done with cython ", time.time() - start)
         print("bird model base!!!!!! ", base_sel_bird)
         # replace landuse from base data with new landuse
         for layer in layer_dic:
             plain_landuse = np.where(arr == layer, layer_dic[layer]["land_id"], plain_landuse)
         start = time.time()
-        model_sel_bird = window(plain_landuse, land_use_selected, 10)
+        model_sel_bird = window(plain_landuse, land_use_selected, 13)
         print("done with cython ", time.time() - start)
         print("bird model model!!!!!! ", base_sel_bird)
 
@@ -758,12 +758,12 @@ class SmartScape:
         watershed_land_use = watershed_land_use_band.ReadAsArray()
 
         start = time.time()
-        base_watershed_bird = window(watershed_land_use, watershed_land_use, 10)
+        base_watershed_bird = window(watershed_land_use, watershed_land_use, 13)
         print("done with cython ", time.time() - start)
         print("bird model base whole watershed!!!!!! ", base_sel_bird)
 
         start = time.time()
-        model_watershed_bird = window(plain_landuse, watershed_land_use, 10)
+        model_watershed_bird = window(plain_landuse, watershed_land_use, 13)
         print("done with cython ", time.time() - start)
         print("bird model model whole watershed!!!!!! ", base_sel_bird)
 
