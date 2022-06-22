@@ -17,7 +17,7 @@ var fields_1Source = new ol.source.Vector({
 	// 	return geoserverURL + geoServer.geoField_Url
 	// },
 });
-//import {getArea, getDistance} from 'ol/sphere';
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Ext.define('DSS.map.Main', {
 	style: 'background-color: rgb(75,80,60)',
 	
 	BING_KEY: 'Au_ohpV01b_LnpbMExJmpmUnamgty20v7Cpl1GvNmwzZPOezhtzegaNM0MNaSPoa',
-	OSM_KEY: /*'8UmAwNixnmOYWs2lqUpR'*/'fBrGdagAiyuEcYIsxr72',
+	OSM_KEY: /*'fBrGdagAiyuEcYIsxr72',*/'cRFDJdDADPOOqUQsdxJT',
 	
 	requires: [
 		'DSS.map.DrawAndModify',

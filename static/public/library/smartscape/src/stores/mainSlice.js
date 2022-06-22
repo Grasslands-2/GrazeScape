@@ -15,7 +15,6 @@ export const mainSlice = createSlice({
     aoiFolderId:null,
     aoiExtents:null,
     aoiCoors:null,
-    aoiArea:0,
   },
   // functions to interact with redux store
   reducers: {
@@ -51,9 +50,6 @@ export const mainSlice = createSlice({
     setAoiFolderId: (state, action) => {
         state.aoiFolderId = action.payload
     },
-    setAoiArea: (state, action) => {
-        state.aoiArea = action.payload["aoiArea"]
-    }
   },
 })
 
@@ -63,7 +59,6 @@ export const {setActiveRegion,
                 setVisibilityTransAcc,
                 setAoiFolderId,
                 setAoiExtentsCoors,
-                setAoiArea,
                  } = mainSlice.actions
 
 export default mainSlice.reducer

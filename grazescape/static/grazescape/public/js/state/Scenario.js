@@ -772,7 +772,7 @@ Ext.define('DSS.state.Scenario', {
 							DSS.MapState.removeMapInteractions();
 							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
-							cropAcreage = 0
+							pastAcreage = 0
 							gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
 							AppEvents.triggerEvent('hide_field_shape_mode');

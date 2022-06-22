@@ -180,26 +180,15 @@ var chartList = [
     'feed_breakdown',
     //'crop_feed_breakdown'
 ]
-var chartColorsAS = [
-    {trans:'rgba(68, 119, 170,.2)',opa:'rgb(68, 119, 170)'}  ,
-    {trans:'rgba(0, 119, 187,.2)',opa:'rgb(0, 119, 187)'},
-    {trans:'rgba(51, 187, 238,.2)',opa:'rgb(51, 187, 238)'},
-    {trans:'rgba(102, 204, 238,.2)',opa:'rgb(102, 204, 238)'},
-    {trans:'rgba(25, 136, 255,.2)',opa:'rgb(25, 136, 255)'},
-    {trans:'rgba(2, 101, 207,.2)',opa:'rgb(2, 101, 207)'},
-    {trans:'rgba(51, 109, 255,.2)',opa:'rgb(51, 109, 255)'}
-]
-
 var chartColors = [
-    {trans:'rgba(200, 200, 200,.2)',opa:'rgb(200, 200, 200)'},
-    {trans:'rgba(190, 190, 190,.2)',opa:'rgb(190, 190, 190)'},
-    {trans:'rgba(180, 180, 180,.2)',opa:'rgb(180, 180, 180)'},
-    {trans:'rgba(170, 170, 170,.2)',opa:'rgb(170, 170, 170)'},
-    {trans:'rgba(160, 160, 160,.2)',opa:'rgb(160, 160, 160)'},
-    {trans:'rgba(150, 150, 150,.2)',opa:'rgb(150, 150, 150)'},
-    {trans:'rgba(140, 140, 140,.2)',opa:'rgb(140, 140, 140)'},
-    {trans:'rgba(130, 130, 130,.2)',opa:'rgb(130, 130, 130)'},
-]
+            {trans:'rgba(238, 119, 51,.2)', opa:'rgb(238, 119, 51)'},
+             {trans:'rgba(0, 119, 187,.2)',opa:'rgb(0, 119, 187)'},
+             {trans:'rgba(51, 187, 238,.2)',opa:'rgb(51, 187, 238)'},
+             {trans:'rgba(238, 51, 119,.2)',opa:'rgb(238, 51, 119)'},
+             {trans:'rgba(204, 51, 17,.2)',opa:'rgb(204, 51, 17)'},
+             {trans:'rgba(0, 153, 136,.2)',opa:'rgb(0, 153, 136)'},
+             {trans:'rgba(187, 187, 187,.2)',opa:'rgb(187, 187, 187)'}
+        ]
 // stores references to each chart object. Stores ChartNodes which store the actual chart object and stores the data for each chart
 var chartObj = {}
 //controls order of how datasets are displayed and with what colors
