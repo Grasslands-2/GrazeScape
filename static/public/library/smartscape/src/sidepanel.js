@@ -30,7 +30,7 @@ import * as mainSlice from '/src/stores/mainSlice'
 import * as charts from '/src/utilities/charts'
 import { Doughnut } from 'react-chartjs-2';
 import { Slider, Rail, Handles, Tracks, Ticks } from 'react-compound-slider'
-
+import { SliderRail, Handle, Track, Tick } from "./components"; // example render components - source below
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -62,7 +62,6 @@ import { useSelector, useDispatch, connect  } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 
 const mapStateToProps = state => {
-    console.log("mapping sidepannel")
     return{
     activeTrans: state.transformation.activeTrans,
     listTrans:state.transformation.listTrans,
@@ -72,10 +71,28 @@ const mapStateToProps = state => {
     hideTransAcc:state.main.hideTransAcc,
     aoiFolderId:state.main.aoiFolderId,
     extents:state.main.aoiExtents,
+    aoiCoors:state.main.aoiCoors,
+    aoiArea:state.main.aoiArea,
 }}
 
+//const domain = [0, 700];
+const domainSlope = [0, 51];
+const domainStream = [0, 16000];
+const sliderStyle = {  // Give the slider some width
+  position: 'relative',
+  width: '100%',
+  height: 40,
+}
+
+const railStyle = {
+  position: 'absolute',
+  width: '100%',
+  height: 10,
+  marginTop: 35,
+  borderRadius: 5,
+  backgroundColor: '#8B9CB6',
+}
 const mapDispatchToProps = (dispatch) => {
-    console.log("Dispatching!!")
     return{
         setActiveTrans: (value)=> dispatch(setActiveTrans(value)),
         addTrans: (value)=> dispatch(addTrans(value)),
@@ -93,21 +110,7 @@ const mapDispatchToProps = (dispatch) => {
 
     }
 };
-const sliderStyle = {  // Give the slider some width
-  position: 'relative',
-  width: '100%',
-  height: 80,
-  border: '1px solid steelblue',
-}
 
-const railStyle = {
-  position: 'absolute',
-  width: '100%',
-  height: 10,
-  marginTop: 35,
-  borderRadius: 5,
-  backgroundColor: '#8B9CB6',
-}
 class SidePanel extends React.Component{
     constructor(props){
         super(props)
@@ -126,13 +129,16 @@ class SidePanel extends React.Component{
         this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
         this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
         this.clearSelection = this.clearSelection.bind(this);
+        this.reset = this.reset.bind(this);
+        this.sliderChangeSlope = this.sliderChangeSlope.bind(this);
+        this.sliderChangeStream = this.sliderChangeStream.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
         this.cashGrain = React.createRef();
         this.dairy = React.createRef();
         this.potato = React.createRef();
-        this.cranberry = React.createRef();
+//        this.cranberry = React.createRef();
         this.hay = React.createRef();
         this.pasture = React.createRef();
         this.grasslandIdle = React.createRef();
@@ -167,6 +173,7 @@ class SidePanel extends React.Component{
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
+            slopeSliderValues:[0,700]
         }
     }
     // fires anytime state or props are updated
@@ -182,7 +189,11 @@ class SidePanel extends React.Component{
         this.contCorn.current.checked = this.props.activeTrans.selection.landCover.contCorn
         this.cashGrain.current.checked = this.props.activeTrans.selection.landCover.cashGrain
         this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
-        this.dairy.current.checked = this.props.activeTrans.selection.landCover.dairy
+        this.potato.current.checked = this.props.activeTrans.selection.landCover.potato
+//        this.cranberry.current.checked = this.props.activeTrans.selection.landCover.cranberry
+        this.hay.current.checked = this.props.activeTrans.selection.landCover.hay
+        this.pasture.current.checked = this.props.activeTrans.selection.landCover.pasture
+        this.grasslandIdle.current.checked = this.props.activeTrans.selection.landCover.grasslandIdle
 //       which unit to use for steam distance
         if (this.props.activeTrans.selection.useFt){
             this.feet.current.checked = true
@@ -194,17 +205,42 @@ class SidePanel extends React.Component{
         }
 //        if region is changed show huc 10
         if (prevProps.region != this.props.region){
-           this.setState({showHuc10:true})
+            if(this.props.region != null){
+                if(this.props.region == "southWestWI"){
+                    this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+                }
+//                clover belt for now
+               else{
+                this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+               }
+
+                this.setState({showHuc10:true})
+            }
            console.log(this.state.showHuc10)
-
         }
-//        this.potato.current.checked = this.props.activeTrans.selection.potato
-//        this.cranberry.current.checked = this.props.activeTrans.selection.cranberry
-//        this.hay.current.checked = this.props.activeTrans.selection.hay
-//        this.pasture.current.checked = this.props.activeTrans.selection.pasture
-//        this.grasslandIdle.current.checked = this.props.activeTrans.selection.grasslandIdle
+    }
 
-
+    sliderChangeSlope(e){
+        console.log("slider change")
+        console.log(e)
+//        if slope entered in textbox is greater than box domain dont update slider
+        if(e[1] != domainSlope[1]){
+            console.log("not updating")
+            this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
+        }
+            this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
+    }
+    sliderChangeStream(e){
+        console.log("slider change")
+        console.log(e)
+        this.props.updateActiveTransProps({"name":"streamDist1", "value":e[0], "type":"reg"})
+        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
     }
       handleCloseModalBase(){
         this.setState({baseModalShow: false})
@@ -237,6 +273,12 @@ class SidePanel extends React.Component{
         else if(selectionType == "subArea"){
             this.props.updateActiveTransProps({"name":'extent', "value":[], "type":"reg"})
 
+        }
+        else if (selectionType == "all"){
+             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
+             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
+             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
         }
 
 
@@ -276,17 +318,42 @@ class SidePanel extends React.Component{
         this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
 
     }
+    reset(){
+//      clear any selection criteria
+        this.clearSelection("all")
+        this.setState({showHuc10:false})
+        this.props.setActiveRegion(null)
+        this.props.setVisibilityMapLayer([
+            {'name':'southWest', 'visible':true},
+            {'name':'southCentral', 'visible':true},
+            {'name':'cloverBelt', 'visible':true},
+            {'name':'subHuc12', 'visible':false},
+            {'name':'huc10', 'visible':true}
+            ])
+        this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
+        console.log("huc 10 vis ", this.state.showHuc10)
+//        remove all transformations
+// remove activate transformation
+// display all learning hubs
+
+    }
     // fires when we switch tab so we can download the work area rasters
   tabControl(e){
-    console.log(e)
     if(e == "selection"){
         // get bounds of current selection method and start downloading
         this.setState({aoiOrDisplayLoading:true})
         this.loadSelectionRaster()
 
         // turn off huc 10
-        this.props.setVisibilityMapLayer([{'name':'huc10', 'visible':false},{'name':'southWest', 'visible':false},
-        {'name':'southCentral', 'visible':false},{'name':'cloverBelt', 'visible':false}])
+        this.props.setVisibilityMapLayer([
+            {'name':'huc10', 'visible':false},
+            {'name':'southWest', 'visible':false},
+            {'name':'southCentral', 'visible':false},
+            {'name':'cloverBelt', 'visible':false}
+            ])
 //        this.props.setVisibilityMapLayer()
 //        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':true})
     }
@@ -322,10 +389,10 @@ class SidePanel extends React.Component{
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
-    newTrans.management.fertilizer = "0_0"
-    newTrans.management.contour = "0"
-    newTrans.management.cover = "cc"
-    newTrans.management.tillage = "fc"
+    newTrans.management.fertilizer = "50_50"
+    newTrans.management.contour = "1"
+    newTrans.management.cover = "nc"
+    newTrans.management.tillage = "nt"
     newTrans.management.grassYield = "medium"
     newTrans.management.rotFreq = "1"
     console.log("Adding new trans")
@@ -344,8 +411,6 @@ class SidePanel extends React.Component{
   }
     // load rasters for aoi in background
   loadSelectionRaster(){
-     // ajax call with selection criteria
-
     if (this.props.listTrans.length < 1){
        this.addTrans()
     }
@@ -357,6 +422,8 @@ class SidePanel extends React.Component{
     $.ajaxSetup({
         headers: { "X-CSRFToken": csrftoken }
     });
+    console.log("coordsa")
+    console.log(this.state.aoiCoors)
     $.ajax({
         url : '/smartscape/get_selection_raster',
         type : 'POST',
@@ -364,7 +431,7 @@ class SidePanel extends React.Component{
             geometry:{
                 // this is the aoi extent; saved to appcontainer local storage
                 extent:this.props.extents,
-//                field_coors:this.state.coors
+                field_coors:this.props.aoiCoors,
             },
             region:this.props.region,
             baseTrans: this.props.baseTrans
@@ -419,6 +486,13 @@ class SidePanel extends React.Component{
             console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
+            let cellRatio = responses[0]["cellRatio"]
+//          only works if whole area is selected
+            let totalArea = Math.round(this.props.aoiArea* 0.000247105)
+            let selectionArea = Math.round(cellRatio * totalArea)
+            let perArea = Math.round(selectionArea/totalArea * 100)
+            this.props.updateActiveTransProps({"name":"areaSelected", "value":selectionArea, "type":"base"})
+            this.props.updateActiveTransProps({"name":"areaSelectedPerWorkArea", "value":perArea, "type":"base"})
         },
 
         failure: function(response, opts) {
@@ -455,17 +529,21 @@ class SidePanel extends React.Component{
                 base:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 region: this.props.region,
+                aoiArea: this.props.aoiArea,
+                aoiExtents: this.props.extents
             }),
             success: (responses, opts) => {
                 delete $.ajaxSetup().headers
+                console.log("done with model runs")
                 console.log(responses)
                 let list = JSON.parse(JSON.stringify(this.props.listTrans))
                 for (let item in list){
+                    console.log("Parsing area for transformation")
                     console.log(item)
                     console.log(list[item])
                     console.log(list[item].rank)
-                    console.log(responses.land_stats.area_trans[list[item].rank])
-                    list[item].area = responses.land_stats.area_trans[list[item].rank]
+                    console.log(responses.land_stats.area_trans[list[item].rank]["area"])
+                    list[item].areaSelected = responses.land_stats.area_trans[list[item].rank]["area"]
                 }
                  this.props.updateTransList(list);
 
@@ -488,7 +566,7 @@ class SidePanel extends React.Component{
   renderModal(){
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number'
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness"
     ]
     console.log(this.state.modelOutputs)
     let model = {
@@ -498,6 +576,7 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
     let base = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -506,6 +585,7 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
     let modelWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -514,6 +594,7 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
     let baseWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -522,15 +603,17 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
+    let areaCalc = 0
     let area = 0
     let areaWatershed = 0
-    let radarData = [[1,1,1,1,1,1],[2,2,2,2,2,2]]
+    let areaWatershedCalc = 0
+    let radarData = [[1,1,1,1,1,1,1],[2,2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    console.log("done with radar")
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40])
 
     let dataYield = dataBarPercent
     let dataEro= dataBarPercent
@@ -538,6 +621,7 @@ class SidePanel extends React.Component{
     let dataRun= dataBarPercent
     let dataInsect= dataBarPercent
     let dataCN = dataBarPercent
+    let dataBird = dataBarPercent
 
     let dataYieldWatershed = dataBarPercent
     let dataEroWatershed= dataBarPercent
@@ -545,6 +629,7 @@ class SidePanel extends React.Component{
     let dataRunWatershed= dataBarPercent
     let dataInsectWatershed= dataBarPercent
     let dataCNWatershed = dataBarPercent
+    let dataBirdWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     let optionsYield = optionsBarPercent
@@ -553,6 +638,7 @@ class SidePanel extends React.Component{
     let optionsRun = optionsBarPercent
     let optionsInsect = optionsBarPercent
     let optionsCN = optionsBarPercent
+    let optionsBird= optionsBarPercent
 
 //    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
@@ -567,6 +653,7 @@ class SidePanel extends React.Component{
         model.runoff = this.state.modelOutputs.model.runoff.total_per_area
         model.runoff_total = this.state.modelOutputs.model.runoff.total
         model.insect = this.state.modelOutputs.model.insect.total_per_area
+        model.bird = this.state.modelOutputs.model.bird.total_per_area
 
         base.yield = this.state.modelOutputs.base.yield.total_per_area
         base.yield_total = this.state.modelOutputs.base.yield.total
@@ -579,6 +666,7 @@ class SidePanel extends React.Component{
         base.runoff = this.state.modelOutputs.base.runoff.total_per_area
         base.runoff_total = this.state.modelOutputs.base.runoff.total
         base.insect = this.state.modelOutputs.base.insect.total_per_area
+        base.bird = this.state.modelOutputs.base.bird.total_per_area
 
 
         modelWatershed.yield = this.state.modelOutputs.model.yield.total_per_area_watershed
@@ -592,6 +680,7 @@ class SidePanel extends React.Component{
         modelWatershed.runoff = this.state.modelOutputs.model.runoff.total_per_area_watershed
         modelWatershed.runoff_total = this.state.modelOutputs.model.runoff.total_watershed
         modelWatershed.insect = this.state.modelOutputs.model.insect.total_per_area_watershed
+        modelWatershed.bird = this.state.modelOutputs.model.bird.total_per_area_watershed
 
         baseWatershed.yield = this.state.modelOutputs.base.yield.total_per_area_watershed
         baseWatershed.yield_total = this.state.modelOutputs.base.yield.total_watershed
@@ -604,9 +693,12 @@ class SidePanel extends React.Component{
         baseWatershed.runoff = this.state.modelOutputs.base.runoff.total_per_area_watershed
         baseWatershed.runoff_total = this.state.modelOutputs.base.runoff.total_watershed
         baseWatershed.insect = this.state.modelOutputs.base.insect.total_per_area_watershed
+        baseWatershed.bird = this.state.modelOutputs.base.bird.total_per_area_watershed
 
         area = this.state.modelOutputs.land_stats.area
+        areaCalc = this.state.modelOutputs.land_stats.area_calc
         areaWatershed = this.state.modelOutputs.land_stats.area_watershed
+        areaWatershedCalc = this.state.modelOutputs.land_stats.area_watershed_calc
 
         dataRadar = {
           labels: labels,
@@ -627,6 +719,7 @@ class SidePanel extends React.Component{
                   model.runoff/base.runoff ,
                   model.insect/base.insect,
                   model.cn/base.cn,
+                  model.bird/base.bird,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -653,6 +746,7 @@ class SidePanel extends React.Component{
                   modelWatershed.runoff/baseWatershed.runoff ,
                   modelWatershed.insect/baseWatershed.insect,
                   modelWatershed.cn/baseWatershed.cn,
+                  modelWatershed.bird/baseWatershed.bird,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -663,7 +757,7 @@ class SidePanel extends React.Component{
 
 
 
-        let models = ["yield","ero","ploss","cn","insect","runoff"]
+        let models = ["yield","ero","ploss","cn","insect","runoff","bird"]
         let v1, v2 = 0
         let model_name = ""
 //        calculate percent difference
@@ -677,7 +771,16 @@ class SidePanel extends React.Component{
 //            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            model[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
+            let perDif = Math.round(((v1-v2)/v2) * 100)
+//            console.log(model_name)
+//            console.log("percent different " + perDif)
+            if (isNaN(perDif)){
+                model[model_name + "_per_diff"] = 0
+            }
+            else{
+
+                model[model_name + "_per_diff"] = perDif
+            }
         }
 
         for (let m in models) {
@@ -690,7 +793,16 @@ class SidePanel extends React.Component{
 //            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
 //            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
+            let perDif = Math.round(((v1-v2)/v2) * 100)
+
+            if (isNaN(perDif)){
+                modelWatershed[model_name + "_per_diff"] = 0
+            }
+            else{
+
+                modelWatershed[model_name + "_per_diff"] = perDif
+            }
+//            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
         }
         dataBarPercent ={ labels: labels,
           datasets: [{
@@ -704,6 +816,7 @@ class SidePanel extends React.Component{
                 model.runoff_per_diff,
                 model.insect_per_diff,
                 model.cn_per_diff,
+                model.bird_per_diff,
 
             ],
             fill: false,
@@ -714,7 +827,7 @@ class SidePanel extends React.Component{
               'rgba(75, 192, 192, 0.2)',
               'rgba(54, 162, 235, 0.2)',
               'rgba(153, 102, 255, 0.2)',
-              'rgba(201, 203, 207, 0.2)'
+              'rgba(136, 34, 85, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -723,7 +836,7 @@ class SidePanel extends React.Component{
               'rgb(75, 192, 192)',
               'rgb(54, 162, 235)',
               'rgb(153, 102, 255)',
-              'rgb(201, 203, 207)'
+              'rgb(136, 34, 85)',
             ],
             borderWidth: 1
           }]
@@ -740,6 +853,7 @@ class SidePanel extends React.Component{
                 modelWatershed.runoff_per_diff,
                 modelWatershed.insect_per_diff,
                 modelWatershed.cn_per_diff,
+                modelWatershed.bird_per_diff,
 
             ],
             fill: false,
@@ -750,7 +864,7 @@ class SidePanel extends React.Component{
               'rgba(75, 192, 192, 0.2)',
               'rgba(54, 162, 235, 0.2)',
               'rgba(153, 102, 255, 0.2)',
-              'rgba(201, 203, 207, 0.2)'
+              'rgba(136, 34, 85, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -759,7 +873,7 @@ class SidePanel extends React.Component{
               'rgb(75, 192, 192)',
               'rgb(54, 162, 235)',
               'rgb(153, 102, 255)',
-              'rgb(201, 203, 207)'
+              'rgb(136, 34, 85)',
             ],
             borderWidth: 1
           }]
@@ -770,6 +884,7 @@ class SidePanel extends React.Component{
         dataRun= charts.getChartDataBar([base.runoff,null], [null,model.runoff])
         dataInsect= charts.getChartDataBar([base.insect,null], [null,model.insect])
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
+        dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
 
         dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
         dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
@@ -777,15 +892,18 @@ class SidePanel extends React.Component{
         dataRunWatershed= charts.getChartDataBar([baseWatershed.runoff,null], [null,modelWatershed.runoff])
         dataInsectWatershed= charts.getChartDataBar([baseWatershed.insect,null], [null,modelWatershed.insect])
         dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
+        dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
 
         optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
-        optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/year/acre/year")
+        optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/acre/year")
         optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
+        optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
 
     }
+    let percentArea = (parseFloat(areaCalc)/parseFloat(areaWatershedCalc) * 100).toFixed(2)
 
     return(
             <div>
@@ -793,7 +911,7 @@ class SidePanel extends React.Component{
               <Accordion.Item eventKey="0">
                 <Accordion.Header>Transformation Information</Accordion.Header>
                 <Accordion.Body>
-                    <div> Total area Transformed: {area} acres ({(parseFloat(area)/parseFloat(areaWatershed) * 100 ).toFixed(2)}%)</div>
+                    <div> Total area Transformed: {area} acres ({percentArea}%)</div>
                     <div> Total area in Work Area: {areaWatershed} acres</div>
                     <Table striped bordered hover size="sm" responsive>
                       <thead>
@@ -809,7 +927,7 @@ class SidePanel extends React.Component{
                         <tr>
                           <td>{index + 1}</td>
                           <td>{trans.name}</td>
-                          <td>{trans.area}</td>
+                          <td>{trans.areaSelected}</td>
                         </tr>
                        </tbody>
                         ))}
@@ -844,6 +962,14 @@ class SidePanel extends React.Component{
                         <Bar options = {optionsCN} data={dataCN}/>
                     </Col>
                 </Row>
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsBird} data={dataBird}/>
+                    </Col>
+                    <Col xs={6}>
+
+                    </Col>
+                </Row>
                   <h4>By Watershed</h4>
 
                  <Row>
@@ -868,6 +994,13 @@ class SidePanel extends React.Component{
                     </Col>
                     <Col xs={6}>
                         <Bar options = {optionsCN} data={dataCNWatershed}/>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsBird} data={dataBirdWatershed}/>
+                    </Col>
+                    <Col xs={6}>
                     </Col>
                 </Row>
               </Tab>
@@ -981,6 +1114,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{model.cn_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>Bird Friendliness</td>
+                      <td className="table-cell-left">{base.bird}</td>
+                      <td>{model.bird}</td>
+                      <td>bird friendliness index</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{model.bird_per_diff}</td>
+                      <td></td>
+                    </tr>
                   </tbody>
                 </Table>
             <h4>By Watershed</h4>
@@ -1072,6 +1216,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{modelWatershed.cn_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>Bird Friendliness</td>
+                      <td className="table-cell-left">{baseWatershed.bird}</td>
+                      <td>{modelWatershed.bird}</td>
+                      <td>bird friendliness index</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.bird_per_diff}</td>
+                      <td></td>
+                    </tr>
                   </tbody>
                 </Table>
               </Tab>
@@ -1084,21 +1239,28 @@ class SidePanel extends React.Component{
         return(
         <Container className='side_pannel_style'>
             <h4>Selection Parameters</h4>
+            {/*
+
             <Container className='progress_bar'>
-              <ProgressBar variant="success" now={40} label='Progress'/>
+             <ProgressBar variant="success" now={40} label='Progress'/>
             </Container>
+            */}
+
               <Accordion  defaultActiveKey="aoi" id="uncontrolled-tab-example" className="mb-3" onSelect={(e) => this.tabControl(e)}>
               <Accordion.Item eventKey="aoi" title="Area of Interest" hidden={this.props.hideAOIAcc}>
                   <Accordion.Header>Select Work Area</Accordion.Header>
               <Accordion.Body>
               <Row>
-                  <h4>Select a work area<sup>*</sup></h4>
+                  <h5>Select a work area<sup>*</sup></h5>
+                  <h5>(by clicking on the map)</h5>
                  <InputGroup size="sm" className="mb-3">
                  <h6 hidden={this.state.showHuc10}> Please select a region</h6>
                  <h6 hidden={!this.state.showHuc10}>  Select at least one large watershed </h6>
                  <div hidden={!this.state.showHuc10}> Hold shift to select multiple watersheds </div>
                   </InputGroup>
                   <h6>*All land transformations must reside in the work area</h6>
+                   <Button hidden={!this.state.showHuc10} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>
+
               </Row>
 
 
@@ -1113,10 +1275,10 @@ class SidePanel extends React.Component{
               <Accordion.Body>
 
                 <div className = "criteriaSections">
-                <Form.Label>1) Select at least one Land Type</Form.Label>
+                <Form.Label>1) Select at least one Land Type<sup>*</sup></Form.Label>
                     <Form >
                       <Form.Check
-                        ref={this.contCorn} type="switch" label="Continuous Corn"
+                        disabled={false} ref={this.contCorn} type="switch" label="Continuous Corn"
                         onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
                       />
                       <Form.Check
@@ -1127,8 +1289,34 @@ class SidePanel extends React.Component{
                         ref={this.dairy} type="switch" label="Dairy Rotation"
                         onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
                       />
-                    </Form>
+                      <Form.Check
+                        ref={this.potato} type="switch" label="Potato and Vegetable"
+                        onChange={(e) => this.handleSelectionChangeLand("potato", e)}
+                      />
+                      {/*
 
+
+                        <Form.Check
+                        hidden = {true}
+                        ref={this.cranberry} type="switch" label="Cranberries"
+                        onChange={(e) => this.handleSelectionChangeLand("cranberry", e)}
+                      />
+*/}
+
+                      <Form.Check
+                        ref={this.hay} type="switch" label="Hay"
+                        onChange={(e) => this.handleSelectionChangeLand("hay", e)}
+                      />
+                      <Form.Check
+                        ref={this.pasture} type="switch" label="Pasture"
+                        onChange={(e) => this.handleSelectionChangeLand("pasture", e)}
+                      />
+                      <Form.Check
+                        ref={this.grasslandIdle} type="switch" label="Idle Grassland"
+                        onChange={(e) => this.handleSelectionChangeLand("grasslandIdle", e)}
+                      />
+                    </Form>
+                    <a className = "wisc_link" target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34"><sup>*</sup>From Wiscland 2 (2019)</a>
                 </div>
 
                 <div className = "criteriaSections">
@@ -1152,7 +1340,7 @@ class SidePanel extends React.Component{
                               </Button>*/}
                                <h6> Hold shift to select multiple watersheds. </h6>
                                <h6> Close accordion to stop selection. </h6>
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Clear Selection</Button>
+                                <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Reset Sub Area</Button>
 
                           </Row>
                         </Accordion.Body>
@@ -1164,38 +1352,80 @@ class SidePanel extends React.Component{
                         <Accordion.Body>
                         <Form.Group as={Row}>
                             <Form.Label>Slope Range</Form.Label>
-                                <Form.Label>Minimum Slope</Form.Label>
+                             <Col xs="12">
+                                 <div style={{ margin: "5%", }}>
+                                    <Slider
+                                      mode={2}
+                                      step={1}
+                                      domain={domainSlope}
+                                      rootStyle={sliderStyle}
+                                      onUpdate={this.sliderChangeSlope}
+                                      values={[this.props.activeTrans.selection.slope1,this.props.activeTrans.selection.slope2]}
+                                    >
+                                      <Rail>
+                                        {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
+                                      </Rail>
+                                      <Handles>
+                                        {({ handles, getHandleProps }) => (
+                                          <div className="slider-handles">
+                                            {handles.map((handle) => (
+                                              <Handle
+                                                key={handle.id}
+                                                handle={handle}
+                                                domain={domainSlope}
+                                                getHandleProps={getHandleProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Handles>
+                                      <Tracks left={false} right={false}>
+                                        {({ tracks, getTrackProps }) => (
+                                          <div className="slider-tracks">
+                                            {tracks.map(({ id, source, target }) => (
+                                              <Track
+                                                key={id}
+                                                source={source}
+                                                target={target}
+                                                getTrackProps={getTrackProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Tracks>
+                                      <Ticks values={[0,10, 20, 30,40,50]}>
+                                        {({ ticks }) => (
+                                          <div className="slider-ticks">
+                                            {ticks.map((tick) => (
+                                              <Tick key={tick.id} tick={tick} count={ticks.length} />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Ticks>
+                                    </Slider>
+                                  </div>
+                                  </Col>
 
-                                <Col xs="4">
+                                </Form.Group>
+
+                             <Form.Group as={Row}>
+
+                                <Col xs="5">
+                              <Form.Label>Min Slope</Form.Label>
                                   <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
                                     onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
                                 </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.slope1}
-                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
-                                    max={this.props.activeTrans.selection.slope2 - 1}
-                                  />
-                                </Col>
-                                </Form.Group>
-                            <Form.Label>Maximum Slope</Form.Label>
-
-                             <Form.Group as={Row}>
-                                <Col xs="4">
+                                <Col xs="5">
+                            <Form.Label>Max Slope</Form.Label>
                                   <Form.Control value={this.props.activeTrans.selection.slope2} size='sm'
                                     onChange={(e) => this.handleSelectionChange("slope2", e)}
                                   />
                                 </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.slope2}
-                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
-                                    max={this.slopeMax}
-                                    min={parseFloat(this.props.activeTrans.selection.slope1) + 1}
-                                  />
-                                </Col>
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Clear Selection</Button>
+                            </Form.Group>
+                            <Form.Group as={Row} className="mt-2">
+
+                                <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Reset Slope</Button>
 
                             </Form.Group>
 
@@ -1214,45 +1444,74 @@ class SidePanel extends React.Component{
                         <Accordion.Header>Distance to Stream</Accordion.Header>
                         <Accordion.Body>
                             <Form.Group as={Row}>
-                            <Form.Label>Slope Range</Form.Label>
-                            <Form.Label>Minimum Distance to Stream</Form.Label>
-                                <Col xs="4">
-                                  <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
-                                  />
-                                </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.streamDist1}
-                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
-                                    max={this.props.activeTrans.selection.streamDist2 - 1}
 
-                                  />
+                                <Col xs="12">
+                                 <div style={{ margin: "5%", }}>
+                                    <Slider
+                                      mode={2}
+                                      step={1}
+                                      domain={domainStream}
+                                      rootStyle={sliderStyle}
+                                      onChange={this.sliderChangeStream}
+                                      values={[this.props.activeTrans.selection.streamDist1,this.props.activeTrans.selection.streamDist2]}
+                                    >
+                                      <Rail>
+                                        {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
+                                      </Rail>
+                                      <Handles>
+                                        {({ handles, getHandleProps }) => (
+                                          <div className="slider-handles">
+                                            {handles.map((handle) => (
+                                              <Handle
+                                                key={handle.id}
+                                                handle={handle}
+                                                domain={domainStream}
+                                                getHandleProps={getHandleProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Handles>
+                                      <Tracks left={false} right={false}>
+                                        {({ tracks, getTrackProps }) => (
+                                          <div className="slider-tracks">
+                                            {tracks.map(({ id, source, target }) => (
+                                              <Track
+                                                key={id}
+                                                source={source}
+                                                target={target}
+                                                getTrackProps={getTrackProps}
+                                              />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Tracks>
+                                      <Ticks count={4}>
+                                        {({ ticks }) => (
+                                          <div className="slider-ticks">
+                                            {ticks.map((tick) => (
+                                              <Tick key={tick.id} tick={tick} count={ticks.length} />
+                                            ))}
+                                          </div>
+                                        )}
+                                      </Ticks>
+                                    </Slider>
+                                  </div>
                                 </Col>
                                 </Form.Group>
-                            <Form.Label>Maximum Distance to Stream</Form.Label>
-
                              <Form.Group as={Row}>
-                                <Col xs="4">
-                                  <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("streamDist2", e)}
-
-
+                                <Col xs="5">
+                                    <Form.Label>Minimum Distance to Stream</Form.Label>
+                                    <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
+                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
                                   />
                                 </Col>
-                                <Col xs="8">
-                                  <RangeSlider size='sm'
-                                    value={this.props.activeTrans.selection.streamDist2}
+                                <Col xs="5">
+                                    <Form.Label>Maximum Distance to Stream</Form.Label>
+                                    <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
                                     onChange={(e) => this.handleSelectionChange("streamDist2", e)}
-                                    max={this.distStreamMax}
-                                    min={parseFloat(this.props.activeTrans.selection.streamDist1) + 1}
-
                                   />
                                 </Col>
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Clear Selection</Button>
-
-                            </Form.Group>
-
                                 <Form.Label>Units</Form.Label>
                                 <Form>
                                 <Form.Check ref={this.feet} inline label="feet" name="group1" type="radio"
@@ -1262,6 +1521,10 @@ class SidePanel extends React.Component{
                                     onClick={(e) => this.handleSelectionChangeUnit("useFt", false, e)}
                                   />
                                   </Form>
+                                <Button className="mt-2" variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Reset Stream Distance</Button>
+                            </Form.Group>
+
+
 
                             </Accordion.Body>
                         </Accordion.Item>
@@ -1274,7 +1537,7 @@ class SidePanel extends React.Component{
                     min={0}
                   />
                    <Stack gap={3}>
-                   <Button onClick={this.displaySelectionCriteria} variant="primary" hidden={this.state.aoiOrDisplayLoading}>Display Selection</Button>
+                   <Button onClick={this.displaySelectionCriteria} variant="primary" hidden={this.state.aoiOrDisplayLoading}>View and Save Selection</Button>
                     <Button id="btnModelsLoading" variant="primary" disabled hidden={!this.state.aoiOrDisplayLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
                         Loading...
@@ -1282,15 +1545,36 @@ class SidePanel extends React.Component{
                    </Stack>
                     </div>
                     <div className = "criteriaSections">
+                      <div>Work Area: {Math.round(this.props.aoiArea* 0.000247105).toLocaleString('en-US')} ac</div>
+                      <Table striped bordered hover size="sm" responsive>
+                      <thead>
+                      <tr style={{textAlign:"center"}}>
+                          <th>Name</th>
+                          <th>Area (ac)</th>
+                          <th>% Work Area</th>
+                        </tr>
+                      </thead>
+                        {this.props.listTrans.map((trans, index) => (
 
+                      <tbody>
+                        <tr>
+                          <td>{trans.name}</td>
+                          <td>{trans.areaSelected.toLocaleString('en-US')}</td>
+                          <td>{trans.areaSelectedPerWorkArea.toLocaleString('en-US')}</td>
+                        </tr>
+                       </tbody>
+                        ))}
+                    </Table>
                 <Form.Label>3) Manage Your Land Transformations</Form.Label>
 
-                    <TransformationTable/>
+                  <TransformationTable/>
                   <Stack gap={3}>
                   <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
                      <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
                      </Stack>
                       </div>
+                            {/* convert from sq m to acres*/}
+
                       <Form.Label>4) Assess Your Scenario</Form.Label>
 
                      <Stack gap={3}>

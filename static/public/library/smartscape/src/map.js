@@ -34,6 +34,7 @@ import {
     OverviewMap,
     defaults as DefaultControls
 } from 'ol/control'
+import Overlay from 'ol/Overlay';
 import {
     Style,
     Fill as FillStyle,
@@ -50,11 +51,12 @@ import {
   Polygon,
 } from 'ol/geom';
 import LinearRing from 'ol/geom/LinearRing';
-import { 
+import {
     Projection,
     get as getProjection
  } from 'ol/proj'
  import {getArea, getLength} from 'ol/sphere';
+ import ol from 'ol'
  import proj4 from 'proj4';
 import {register} from 'ol/proj/proj4';
 import ImageLayer from "ol/layer/Image";
@@ -73,9 +75,10 @@ import {extend, createEmpty,getCenter} from 'ol/extent';
 //import * as jsts from "jsts/dist/jsts.js";
 import { useSelector, useDispatch, connect  } from 'react-redux'
 import{setActiveTrans,setActiveTransOL, updateTransList,updateAreaSelectionType,
-updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps} from '/src/stores/transSlice'
+updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps,reset} from '/src/stores/transSlice'
 import configureStore from './stores/store'
-import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion} from '/src/stores/mainSlice'
+import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea} from '/src/stores/mainSlice'
+import {RotateNorthControl} from '/src/mapControls/controlTransSummary'
 proj4.defs(
   'EPSG:27700',
   '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' +
@@ -87,7 +90,13 @@ proj4.defs(
 'EPSG:3071',"+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs "
 )
 register(proj4);
-
+  var customControl = function(opt_options) {
+    var element = document.createElement('div');
+    element.className = 'custom-control ol-unselectable ol-control';
+    ol.control.Control.call(this, {
+      element: element
+    });
+  };
 // map values from redux store to local props
 const mapStateToProps = state => {
     return{
@@ -109,12 +118,14 @@ const mapDispatchToProps = (dispatch) => {
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
         setVisibilityTransAcc: (type)=> dispatch(setVisibilityTransAcc(type)),
         updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
+        reset: ()=> dispatch(reset()),
 
 //        getTrans: (value)=> dispatch(getTrans(value)),
         updateAreaSelectionType: (value)=> dispatch(updateAreaSelectionType(value)),
         updateActiveTransProps: (value)=> dispatch(updateActiveTransProps(value)),
         setAoiExtentsCoors: (value)=> dispatch(setAoiExtentsCoors(value)),
         setActiveRegion: (value)=> dispatch(setActiveRegion(value)),
+        setAoiArea: (value)=> dispatch(setAoiArea(value)),
     }
 };
 /**
@@ -148,7 +159,6 @@ class OLMapFragment extends React.Component {
         // if trans extents have been cleared (resetting to aoi)
       if (this.props.activeTrans.selection.extent.length == 0 && this.props.activeTrans.boundaryLayerID != -99){
             this.selectedFeatures.clear()
-
             let layer = this.getActiveBounLay()
             // setting the aoi boundary because we don't have any trans yet
             if (layer == null){
@@ -156,17 +166,16 @@ class OLMapFragment extends React.Component {
               return
             }
             layer.getSource().clear()
-            console.log("reset trans workarea")
-            console.log(layer)
-            console.log(this.boundaryLayerAOI)
             layer.getSource().addFeatures(this.boundaryLayerAOI.getSource().getFeatures())
             layer.getSource().getFeatures().forEach((lyr)=>{
                 console.log("looping through layers")
                 aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                 aoiCoors.push(lyr.getGeometry().getCoordinates())
             })
+
             this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
             this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+
       }
       // if area selection has change activate type, activate different map tool
       if (prevProps.areaSelectionType !== this.props.areaSelectionType) {
@@ -179,69 +188,68 @@ class OLMapFragment extends React.Component {
       // the display layer of a transformation needs to be changed
       if (prevProps.activeDisplayProps !== this.props.activeDisplayProps) {
         // create a new raster source
-        let rasterLayerSource =
-            new Static({
-                url: this.props.activeDisplayProps.url,
-                projection: 'EPSG:3857',
-                imageExtent: this.props.activeDisplayProps.extents
-        })
-        let listTrans = this.props.listTrans
-        // loop through all transformations to find transformation whose display layer has been updated
-        for (let trans in listTrans){
-            if(listTrans[trans].id == this.props.activeDisplayProps.transId){
-                let newLayer = listTrans[trans]
-                let layers = this.map.getLayers().getArray()
-                for (let layer in layers){
-                    if(layers[layer].ol_uid == newLayer.displayLayerID){
-                        layers[layer].setSource(rasterLayerSource)
-//                        layers[layer].getSource().refresh()
-                        break
+        if(this.props.activeDisplayProps != null){
+            let rasterLayerSource =
+                new Static({
+                    url: this.props.activeDisplayProps.url,
+                    projection: 'EPSG:3857',
+                    imageExtent: this.props.activeDisplayProps.extents
+            })
+            let listTrans = this.props.listTrans
+            // loop through all transformations to find transformation whose display layer has been updated
+            for (let trans in listTrans){
+                if(listTrans[trans].id == this.props.activeDisplayProps.transId){
+                    let newLayer = listTrans[trans]
+                    let layers = this.map.getLayers().getArray()
+                    for (let layer in layers){
+                        if(layers[layer].ol_uid == newLayer.displayLayerID){
+                            layers[layer].setSource(rasterLayerSource)
+    //                        layers[layer].getSource().refresh()
+                            break
+                        }
                     }
                 }
             }
+
+
         }
+
       }
       // turn of give layer (only used for learning hub boundary, huc 10 and huc 12 at this point)
       if(prevProps.layerVisible != this.props.layerVisible){
-          let layers = this.map.getLayers().getArray()
-//        turn off selection
-//        console.log("Projection ", this.huc10.getSource())
-//        for (let w in this.huc10.getSource().getFeatures()){
-//            console.log(w)
-//            console.log(this.huc10.getSource().getFeatures()[w])
-//            console.log(this.huc10.getSource().getFeatures()[w].getGeometry())
-//            console.log(getArea(this.huc10.getSource().getFeatures()[w].getGeometry()))
-////            console.log(getArea(this.huc10.getSource().getFeatures()[w].ge)
-//        }
-        this.props.updateAreaSelectionType(null);
-        this.map.removeInteraction(this.select);
-        for (let ly in this.props.layerVisible){
-            for (let layer in layers){
-                if(layers[layer].get('name') == this.props.layerVisible[ly].name){
-                    layers[layer].setVisible(this.props.layerVisible[ly].visible);
+            let layers = this.map.getLayers().getArray()
+            this.props.updateAreaSelectionType(null);
+            this.map.removeInteraction(this.select);
+            for (let ly in this.props.layerVisible){
+                for (let layer in layers){
+                    if(layers[layer].get('name') == this.props.layerVisible[ly].name){
+                        layers[layer].setVisible(this.props.layerVisible[ly].visible);
+                    }
                 }
             }
-        }
-        if(this.props.layerVisible[0].name == "subHuc12" && this.props.layerVisible[0].visible == true){
-            this.getHuc12FromHuc10()
-        }
-//        zoomm in on aoi
-        if(this.props.layerVisible[0].name == "huc10" && this.props.layerVisible[0].visible == false){
-                console.log(this.boundaryLayerAOI)
-//            let aoiExtents = createEmpty();
-//            let aoiCoors = []
-//            this.boundaryLayerAOI.getSource().getFeatures().forEach((lyr)=>{
-//                    console.log("looping through layers")
-//                    aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
-//                    aoiCoors.push(lyr.getGeometry().getCoordinates())
-//            })
-//                this.props.updateActiveBaseProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
-//                this.props.updateActiveBaseProps({"name":'extent', "value":aoiExtents, "type":"reg"})
-                var extent = this.boundaryLayerAOI.getSource().getExtent()
-                extent = this.add10PerExtent(extent)
-                console.log(extent)
-                this.map.getView().fit(extent,{"duration":500});
-        }
+            if(this.props.layerVisible[0].name == "subHuc12" && this.props.layerVisible[0].visible == true){
+                this.getHuc12FromHuc10()
+            }
+    //        zoomm in on aoi
+            if(this.props.layerVisible[0].name == "huc10" && this.props.layerVisible[0].visible == false){
+                    var extent = this.boundaryLayerAOI.getSource().getExtent()
+                    extent = this.add10PerExtent(extent)
+                    this.map.getView().fit(extent,{"duration":500});
+            }
+//          user has pressed the reset button
+            if(this.props.layerVisible[0].name == "southWest" && this.props.layerVisible[0].visible == true){
+//                zoom out to starting level and activate selection
+                console.log("resetting to beginning")
+                this.props.reset();
+                this.selectedFeatures.clear();
+                this.huc10.getSource().clear()
+                this.boundaryLayerAOI.setVisible(false)
+                this.map.addInteraction(this.select);
+                this.props.setVisibilityTransAcc(true)
+                this.map.getView().setCenter([-10008338,5525100]);
+                this.map.getView().setZoom(8);
+                return
+            }
 
 
       }
@@ -270,6 +278,8 @@ class OLMapFragment extends React.Component {
         let items = JSON.parse(JSON.stringify(this.props.listTrans))
         let addTransId = this.props.addTrans.id
         for(let trans in items){
+                        let area = 0
+
             if(items[trans].id == addTransId){
                 let displayLayer = new ImageLayer({
                     source: new Static({
@@ -287,6 +297,8 @@ class OLMapFragment extends React.Component {
                     boundarySource.addFeature(lyr)
                     aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                     aoiCoors.push(lyr.getGeometry().getCoordinates())
+                    area = area + lyr.get("areasqM")
+
                 })
 
                 let boundaryLayer = new VectorLayer({
@@ -303,19 +315,21 @@ class OLMapFragment extends React.Component {
                 this.props.updateTransList(items)
                 this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
-
+                this.props.updateActiveTransProps({"name":'area', "value":area, "type":"base"})
+                            console.log("area")
+            console.log(area)
                 displayLayer.setOpacity(this.props.activeTrans.displayOpacity/100)
             }
         }
       }
       // remove layer
-      else if(prevProps.listTrans.length > this.props.listTrans.length){
+      else if(this.props.removeTrans != null && prevProps.listTrans.length > this.props.listTrans.length){
         let layers = this.map.getLayers().getArray()
         for (let layer in layers){
           if (layers[layer].ol_uid == this.props.removeTrans.displayLayerID ||
-          layers[layer] == this.props.removeTrans.boundaryLayerID) {
-            this.map.removeLayer(layers[layer])
-          }
+            layers[layer] == this.props.removeTrans.boundaryLayerID) {
+                this.map.removeLayer(layers[layer])
+            }
         };
       }
     }
@@ -425,13 +439,11 @@ class OLMapFragment extends React.Component {
               url: url,
               format: new GeoJSON(),
             })
-        console.log("Projection ", this.huc10)
-        console.log("Projection ", this.huc10.getSource().getProjection())
-        console.log(getProjection('EPSG:3071'))
+
         this.huc12.setSource(source)
 
 
-
+//        this.huc10.setVisible(true)
         this.props.setActiveRegion(region)
         this.map.removeInteraction(this.select)
         this.selectedFeatures.clear()
@@ -609,11 +621,16 @@ class OLMapFragment extends React.Component {
 
 
         ]
+        var overlay2 = new Overlay({
+            position: [-10008338,5525100],
+            element: document.getElementById('overlay2')
+        });
         // Create an Openlayer Map instance
         this.map = new Map({
             //  Display the map in the div with the id of map
             target: 'map',
             layers: this.layers,
+//            overlays: [overlay2],
             // Add in the following map controls
 //            controls: [
 //                new ZoomSlider(),
@@ -695,9 +712,11 @@ class OLMapFragment extends React.Component {
             let region = ""
             let aoiExtents = createEmpty();
             let aoiCoors = []
-            console.log(f.target)
+            // cumulative area of selection
+            let area = 0
 //            console.log(f.target.item(0).getGeometry())
 //          selecting by county
+            console.log(f.target)
             if(f.target.item(0).get("NAME") != undefined){
                 console.log("selecting a county!!!!!")
                 var extent = f.target.item(0).getGeometry().getExtent()
@@ -722,26 +741,33 @@ class OLMapFragment extends React.Component {
             // setting the aoi boundary because we don't have any trans yet
             if (layer == null){
                this.props.setVisibilityTransAcc(false)
-                layer = this.boundaryLayerAOI
+               layer = this.boundaryLayerAOI
             }
             layer.getSource().clear()
             console.log("Selection layer")
-            console.log(layer)
             layer.getSource().addFeatures(f.target.getArray())
             layer.getSource().getFeatures().forEach((lyr)=>{
                 console.log("looping through layers")
+                console.log(lyr)
                 aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                 aoiCoors.push(lyr.getGeometry().getCoordinates())
+                area = area + lyr.get("areasqM")
             })
 //            selecting the huc 10 aoi
             if(layer.get('name')== 'aoi'){
                 // set state of appcontainer to the current extents and coords of selection areas
                 this.props.setAoiExtentsCoors({"extents":aoiExtents, "coors":aoiCoors})
+                this.props.setAoiArea({"aoiArea":area})
+
             }
 //            otherwise its just a transformation selection
             else{
                 this.props.updateActiveTransProps({"name":'extent', "value":aoiExtents, "type":"reg"})
                 this.props.updateActiveTransProps({"name":'field_coors', "value":aoiCoors, "type":"reg"})
+                this.props.updateActiveTransProps({"name":'area', "value":area, "type":"base"})
+                console.log("area")
+                console.log(area)
+
             }
             console.log("done with add selection")
           });
@@ -798,6 +824,7 @@ class OLMapFragment extends React.Component {
             width: '100%',
             height: '90vh',
             backgroundColor: '#cccccc',
+
 //            position:'absolute',
 //            position: 'fixed'
         }
@@ -805,10 +832,20 @@ class OLMapFragment extends React.Component {
             width: '100%',
             height: '500px',
         }
+        const overlayStyle={
+
+             width: '50%',
+             backgroundColor: 'transparent',
+             hidden: "true"
+        }
         return (
             <div>
 
-			<div id='map' style={style}></div>
+			<div id='map' style={style}>
+
+			</div>
+
+            <div id="overlay2" >hizsfdsfafasdfsadfasdfsadfdf3434343</div>
             </div>
 
         )

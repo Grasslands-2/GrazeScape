@@ -7,6 +7,7 @@
 *.pyc
 
 # secrets
+keys/
 .env
 .env_prod
 certs/
@@ -28,15 +29,22 @@ __pycache__/
 *.asc
 *.dss
 *.tif
+*.zip
 dynamicFiles/
 layerData/
 data_files/
 node_modules/
+Watersheds/
 
+settings_local.py
+local_settings.py
+settings_local_code_dev_server.py
+settings_local_code_local_server.py
 
 # startup helper
 graze
 # database info and keys
 *.ini
+cals-grazescape-files-63e6-4f2fc53201e6.json
 Watersheds/
 Boundaries/

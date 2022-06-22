@@ -97,28 +97,33 @@ def get_selection_raster(request):
 
     """
     data = {}
+    field_coors_formatted = []
     error = ""
     start = time.time()
-    print(" ", time.time()-start)
+    print("downloading rasters in background")
     request_json = js.loads(request.body)
     # folder for all input and outputs
     folder_id = str(uuid.uuid4())
     extents = request_json["geometry"]["extent"]
+    field_coors = request_json["geometry"]["field_coors"]
     region = request_json["region"]
-    base = request_json["baseTrans"]
-    print(base)
-    print(extents)
+    print(field_coors)
+    for val in field_coors:
+        # print("###########################")
+        # print(val)
+        field_coors_formatted.append(val[0][0])
     try:
         geo_data = RasterDataSmartScape(
-                extents, base["selection"]["field_coors"],
+                extents, field_coors_formatted,
                 folder_id,
                 region)
-
+        print("loading layers")
         geo_data.load_layers()
-        # geo_data.create_clip()
+        print("create clip #######################################")
+        geo_data.create_clip()
         print("Clip raster ", time.time() - start)
 
-        # geo_data.clip_rasters()
+        geo_data.clip_rasters(True)
         print("Downloading ", time.time() - start)
         print("Layer loaded ", time.time() - start)
         data = {
@@ -207,7 +212,7 @@ def get_selection_criteria_raster(request):
     geo_data.create_clip()
     print("Clip raster ", time.time() - start)
 
-    geo_data.clip_rasters()
+    geo_data.clip_rasters(False)
     print("done clipping ", time.time() - start)
 
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
@@ -222,13 +227,14 @@ def get_selection_criteria_raster(request):
     # loop here to build a response for all the model types
     return_data = []
     print("Creating png", time.time() - start)
-    model.get_model_png()
+    cell_ratio = model.get_model_png()
     print("Done ", time.time() - start)
 
     data = {
         "extent": extents,
         "url": os.path.join(model.file_name, "selection.png"),
-        "transId": trans_id
+        "transId": trans_id,
+        "cellRatio": cell_ratio
     }
     return_data.append(data)
     return JsonResponse(return_data, safe=False)
@@ -275,7 +281,7 @@ def get_transformed_land(request):
 
     model = SmartScape(request_json, trans_id, folder_id)
     return_data = model.run_models()
-
+    print("done running models")
     #
     # except KeyError as e:
     #     error = str(e) + " while running models for field " + f_name
