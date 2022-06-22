@@ -34,6 +34,7 @@ import {
     OverviewMap,
     defaults as DefaultControls
 } from 'ol/control'
+import Overlay from 'ol/Overlay';
 import {
     Style,
     Fill as FillStyle,
@@ -55,6 +56,7 @@ import {
     get as getProjection
  } from 'ol/proj'
  import {getArea, getLength} from 'ol/sphere';
+ import ol from 'ol'
  import proj4 from 'proj4';
 import {register} from 'ol/proj/proj4';
 import ImageLayer from "ol/layer/Image";
@@ -76,6 +78,7 @@ import{setActiveTrans,setActiveTransOL, updateTransList,updateAreaSelectionType,
 updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps,reset} from '/src/stores/transSlice'
 import configureStore from './stores/store'
 import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea} from '/src/stores/mainSlice'
+import {RotateNorthControl} from '/src/mapControls/controlTransSummary'
 proj4.defs(
   'EPSG:27700',
   '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' +
@@ -87,7 +90,13 @@ proj4.defs(
 'EPSG:3071',"+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs "
 )
 register(proj4);
-
+  var customControl = function(opt_options) {
+    var element = document.createElement('div');
+    element.className = 'custom-control ol-unselectable ol-control';
+    ol.control.Control.call(this, {
+      element: element
+    });
+  };
 // map values from redux store to local props
 const mapStateToProps = state => {
     return{
@@ -612,11 +621,16 @@ class OLMapFragment extends React.Component {
 
 
         ]
+        var overlay2 = new Overlay({
+            position: [-10008338,5525100],
+            element: document.getElementById('overlay2')
+        });
         // Create an Openlayer Map instance
         this.map = new Map({
             //  Display the map in the div with the id of map
             target: 'map',
             layers: this.layers,
+//            overlays: [overlay2],
             // Add in the following map controls
 //            controls: [
 //                new ZoomSlider(),
@@ -810,6 +824,7 @@ class OLMapFragment extends React.Component {
             width: '100%',
             height: '90vh',
             backgroundColor: '#cccccc',
+
 //            position:'absolute',
 //            position: 'fixed'
         }
@@ -817,10 +832,20 @@ class OLMapFragment extends React.Component {
             width: '100%',
             height: '500px',
         }
+        const overlayStyle={
+
+             width: '50%',
+             backgroundColor: 'transparent',
+             hidden: "true"
+        }
         return (
             <div>
 
-			<div id='map' style={style}></div>
+			<div id='map' style={style}>
+
+			</div>
+
+            <div id="overlay2" >hizsfdsfafasdfsadfasdfsadfdf3434343</div>
             </div>
 
         )

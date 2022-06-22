@@ -114,3 +114,14 @@ right: 15px !important;
             color: black;
             opacity: 1; /* Firefox */
 }
+.custom-control {
+  top: 20px;
+  right: 20px;
+  width: 70px;
+  height: 70px;
+  background: no-repeat url('http://openlayers.org/en/latest/examples/resources/logo-70x70.png')
+}
+.wisc_link {
+    color: grey;
+    font-size: 10px
+}

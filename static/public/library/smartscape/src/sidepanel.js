@@ -206,6 +206,19 @@ class SidePanel extends React.Component{
 //        if region is changed show huc 10
         if (prevProps.region != this.props.region){
             if(this.props.region != null){
+                if(this.props.region == "southWestWI"){
+                    this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+                }
+//                clover belt for now
+               else{
+                this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+               }
 
                 this.setState({showHuc10:true})
             }
@@ -474,6 +487,7 @@ class SidePanel extends React.Component{
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
             let cellRatio = responses[0]["cellRatio"]
+//          only works if whole area is selected
             let totalArea = Math.round(this.props.aoiArea* 0.000247105)
             let selectionArea = Math.round(cellRatio * totalArea)
             let perArea = Math.round(selectionArea/totalArea * 100)
@@ -552,7 +566,7 @@ class SidePanel extends React.Component{
   renderModal(){
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number'
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness"
     ]
     console.log(this.state.modelOutputs)
     let model = {
@@ -562,6 +576,7 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
     let base = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -570,6 +585,7 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
     let modelWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -578,6 +594,7 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
     let baseWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -586,16 +603,17 @@ class SidePanel extends React.Component{
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
+        "bird":null,"bird_per_diff":null,
     }
     let areaCalc = 0
     let area = 0
     let areaWatershed = 0
     let areaWatershedCalc = 0
-    let radarData = [[1,1,1,1,1,1],[2,2,2,2,2,2]]
+    let radarData = [[1,1,1,1,1,1,1],[2,2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40])
 
     let dataYield = dataBarPercent
     let dataEro= dataBarPercent
@@ -603,6 +621,7 @@ class SidePanel extends React.Component{
     let dataRun= dataBarPercent
     let dataInsect= dataBarPercent
     let dataCN = dataBarPercent
+    let dataBird = dataBarPercent
 
     let dataYieldWatershed = dataBarPercent
     let dataEroWatershed= dataBarPercent
@@ -610,6 +629,7 @@ class SidePanel extends React.Component{
     let dataRunWatershed= dataBarPercent
     let dataInsectWatershed= dataBarPercent
     let dataCNWatershed = dataBarPercent
+    let dataBirdWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     let optionsYield = optionsBarPercent
@@ -618,6 +638,7 @@ class SidePanel extends React.Component{
     let optionsRun = optionsBarPercent
     let optionsInsect = optionsBarPercent
     let optionsCN = optionsBarPercent
+    let optionsBird= optionsBarPercent
 
 //    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
@@ -632,6 +653,7 @@ class SidePanel extends React.Component{
         model.runoff = this.state.modelOutputs.model.runoff.total_per_area
         model.runoff_total = this.state.modelOutputs.model.runoff.total
         model.insect = this.state.modelOutputs.model.insect.total_per_area
+        model.bird = this.state.modelOutputs.model.bird.total_per_area
 
         base.yield = this.state.modelOutputs.base.yield.total_per_area
         base.yield_total = this.state.modelOutputs.base.yield.total
@@ -644,6 +666,7 @@ class SidePanel extends React.Component{
         base.runoff = this.state.modelOutputs.base.runoff.total_per_area
         base.runoff_total = this.state.modelOutputs.base.runoff.total
         base.insect = this.state.modelOutputs.base.insect.total_per_area
+        base.bird = this.state.modelOutputs.base.bird.total_per_area
 
 
         modelWatershed.yield = this.state.modelOutputs.model.yield.total_per_area_watershed
@@ -657,6 +680,7 @@ class SidePanel extends React.Component{
         modelWatershed.runoff = this.state.modelOutputs.model.runoff.total_per_area_watershed
         modelWatershed.runoff_total = this.state.modelOutputs.model.runoff.total_watershed
         modelWatershed.insect = this.state.modelOutputs.model.insect.total_per_area_watershed
+        modelWatershed.bird = this.state.modelOutputs.model.bird.total_per_area_watershed
 
         baseWatershed.yield = this.state.modelOutputs.base.yield.total_per_area_watershed
         baseWatershed.yield_total = this.state.modelOutputs.base.yield.total_watershed
@@ -669,6 +693,7 @@ class SidePanel extends React.Component{
         baseWatershed.runoff = this.state.modelOutputs.base.runoff.total_per_area_watershed
         baseWatershed.runoff_total = this.state.modelOutputs.base.runoff.total_watershed
         baseWatershed.insect = this.state.modelOutputs.base.insect.total_per_area_watershed
+        baseWatershed.bird = this.state.modelOutputs.base.bird.total_per_area_watershed
 
         area = this.state.modelOutputs.land_stats.area
         areaCalc = this.state.modelOutputs.land_stats.area_calc
@@ -694,6 +719,7 @@ class SidePanel extends React.Component{
                   model.runoff/base.runoff ,
                   model.insect/base.insect,
                   model.cn/base.cn,
+                  model.bird/base.bird,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -720,6 +746,7 @@ class SidePanel extends React.Component{
                   modelWatershed.runoff/baseWatershed.runoff ,
                   modelWatershed.insect/baseWatershed.insect,
                   modelWatershed.cn/baseWatershed.cn,
+                  modelWatershed.bird/baseWatershed.bird,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -730,7 +757,7 @@ class SidePanel extends React.Component{
 
 
 
-        let models = ["yield","ero","ploss","cn","insect","runoff"]
+        let models = ["yield","ero","ploss","cn","insect","runoff","bird"]
         let v1, v2 = 0
         let model_name = ""
 //        calculate percent difference
@@ -789,6 +816,7 @@ class SidePanel extends React.Component{
                 model.runoff_per_diff,
                 model.insect_per_diff,
                 model.cn_per_diff,
+                model.bird_per_diff,
 
             ],
             fill: false,
@@ -799,7 +827,7 @@ class SidePanel extends React.Component{
               'rgba(75, 192, 192, 0.2)',
               'rgba(54, 162, 235, 0.2)',
               'rgba(153, 102, 255, 0.2)',
-              'rgba(201, 203, 207, 0.2)'
+              'rgba(136, 34, 85, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -808,7 +836,7 @@ class SidePanel extends React.Component{
               'rgb(75, 192, 192)',
               'rgb(54, 162, 235)',
               'rgb(153, 102, 255)',
-              'rgb(201, 203, 207)'
+              'rgb(136, 34, 85)',
             ],
             borderWidth: 1
           }]
@@ -825,6 +853,7 @@ class SidePanel extends React.Component{
                 modelWatershed.runoff_per_diff,
                 modelWatershed.insect_per_diff,
                 modelWatershed.cn_per_diff,
+                modelWatershed.bird_per_diff,
 
             ],
             fill: false,
@@ -835,7 +864,7 @@ class SidePanel extends React.Component{
               'rgba(75, 192, 192, 0.2)',
               'rgba(54, 162, 235, 0.2)',
               'rgba(153, 102, 255, 0.2)',
-              'rgba(201, 203, 207, 0.2)'
+              'rgba(136, 34, 85, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -844,7 +873,7 @@ class SidePanel extends React.Component{
               'rgb(75, 192, 192)',
               'rgb(54, 162, 235)',
               'rgb(153, 102, 255)',
-              'rgb(201, 203, 207)'
+              'rgb(136, 34, 85)',
             ],
             borderWidth: 1
           }]
@@ -855,6 +884,7 @@ class SidePanel extends React.Component{
         dataRun= charts.getChartDataBar([base.runoff,null], [null,model.runoff])
         dataInsect= charts.getChartDataBar([base.insect,null], [null,model.insect])
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
+        dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
 
         dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
         dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
@@ -862,6 +892,7 @@ class SidePanel extends React.Component{
         dataRunWatershed= charts.getChartDataBar([baseWatershed.runoff,null], [null,modelWatershed.runoff])
         dataInsectWatershed= charts.getChartDataBar([baseWatershed.insect,null], [null,modelWatershed.insect])
         dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
+        dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
 
         optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
@@ -869,6 +900,7 @@ class SidePanel extends React.Component{
         optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
+        optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
 
     }
     let percentArea = (parseFloat(areaCalc)/parseFloat(areaWatershedCalc) * 100).toFixed(2)
@@ -930,6 +962,14 @@ class SidePanel extends React.Component{
                         <Bar options = {optionsCN} data={dataCN}/>
                     </Col>
                 </Row>
+                 <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsBird} data={dataBird}/>
+                    </Col>
+                    <Col xs={6}>
+
+                    </Col>
+                </Row>
                   <h4>By Watershed</h4>
 
                  <Row>
@@ -954,6 +994,13 @@ class SidePanel extends React.Component{
                     </Col>
                     <Col xs={6}>
                         <Bar options = {optionsCN} data={dataCNWatershed}/>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsBird} data={dataBirdWatershed}/>
+                    </Col>
+                    <Col xs={6}>
                     </Col>
                 </Row>
               </Tab>
@@ -1067,6 +1114,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{model.cn_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>Bird Friendliness</td>
+                      <td className="table-cell-left">{base.bird}</td>
+                      <td>{model.bird}</td>
+                      <td>bird friendliness index</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{model.bird_per_diff}</td>
+                      <td></td>
+                    </tr>
                   </tbody>
                 </Table>
             <h4>By Watershed</h4>
@@ -1158,6 +1216,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{modelWatershed.cn_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>Bird Friendliness</td>
+                      <td className="table-cell-left">{baseWatershed.bird}</td>
+                      <td>{modelWatershed.bird}</td>
+                      <td>bird friendliness index</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.bird_per_diff}</td>
+                      <td></td>
+                    </tr>
                   </tbody>
                 </Table>
               </Tab>
@@ -1247,7 +1316,7 @@ class SidePanel extends React.Component{
                         onChange={(e) => this.handleSelectionChangeLand("grasslandIdle", e)}
                       />
                     </Form>
-                    <sup>*</sup><a target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34">Wiscland 2 Land Categories</a>
+                    <a className = "wisc_link" target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34"><sup>*</sup>From Wiscland 2 (2019)</a>
                 </div>
 
                 <div className = "criteriaSections">
@@ -1271,7 +1340,7 @@ class SidePanel extends React.Component{
                               </Button>*/}
                                <h6> Hold shift to select multiple watersheds. </h6>
                                <h6> Close accordion to stop selection. </h6>
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Clear Selection</Button>
+                                <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Reset Sub Area</Button>
 
                           </Row>
                         </Accordion.Body>
@@ -1342,13 +1411,13 @@ class SidePanel extends React.Component{
                              <Form.Group as={Row}>
 
                                 <Col xs="5">
-                              <Form.Label>Minimum Slope</Form.Label>
+                              <Form.Label>Min Slope</Form.Label>
                                   <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
                                     onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
                                 </Col>
                                 <Col xs="5">
-                            <Form.Label>Maximum Slope</Form.Label>
+                            <Form.Label>Max Slope</Form.Label>
                                   <Form.Control value={this.props.activeTrans.selection.slope2} size='sm'
                                     onChange={(e) => this.handleSelectionChange("slope2", e)}
                                   />
@@ -1356,7 +1425,7 @@ class SidePanel extends React.Component{
                             </Form.Group>
                             <Form.Group as={Row} className="mt-2">
 
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Clear Selection</Button>
+                                <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Reset Slope</Button>
 
                             </Form.Group>
 
@@ -1452,7 +1521,7 @@ class SidePanel extends React.Component{
                                     onClick={(e) => this.handleSelectionChangeUnit("useFt", false, e)}
                                   />
                                   </Form>
-                                <Button className="mt-2" variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Clear Selection</Button>
+                                <Button className="mt-2" variant="primary"  onClick={(e) => this.clearSelection("streamDist")}>Reset Stream Distance</Button>
                             </Form.Group>
 
 
@@ -1476,7 +1545,7 @@ class SidePanel extends React.Component{
                    </Stack>
                     </div>
                     <div className = "criteriaSections">
-                                      <div>Work Area: {Math.round(this.props.aoiArea* 0.000247105).toLocaleString('en-US')} ac</div>
+                      <div>Work Area: {Math.round(this.props.aoiArea* 0.000247105).toLocaleString('en-US')} ac</div>
                       <Table striped bordered hover size="sm" responsive>
                       <thead>
                       <tr style={{textAlign:"center"}}>
