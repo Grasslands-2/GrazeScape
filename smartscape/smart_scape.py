@@ -421,8 +421,7 @@ class SmartScape:
             layer_dic[tran["rank"]]["land_id"] = land_id
 
             layer_area_dic[tran["rank"]] = {}
-            layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(tran["area"] *
-                                                                    (selected_cells / total_cells) * mm_to_ac)
+            layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(float(tran["areaSelected"]))
         # create blank raster that has extents from all transformations
         ds_clip = gdal.Warp(
             # last raster ovrrides it
