@@ -151,11 +151,8 @@ class OLMapFragment extends React.Component {
     }
     // updates when props have been changed
     componentDidUpdate(prevProps) {
-      console.log("components updated")
       let aoiExtents = createEmpty();
       let aoiCoors = []
-      console.log(prevProps)
-      console.log(this.props)
         // if trans extents have been cleared (resetting to aoi)
       if (this.props.activeTrans.selection.extent.length == 0 && this.props.activeTrans.boundaryLayerID != -99){
             this.selectedFeatures.clear()

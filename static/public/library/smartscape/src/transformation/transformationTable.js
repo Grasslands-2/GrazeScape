@@ -15,6 +15,7 @@ import Container from 'react-bootstrap/Container';
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
 import 'regenerator-runtime/runtime'
+import Alert from 'react-bootstrap/Alert'
 
 // reordering the table
 let reorder = (list, startIndex, endIndex) => {
@@ -83,6 +84,7 @@ class TransformationTable extends Component {
         showTillageSN:true,
         showTillageSU:true,
         showTillageSV:false,
+        tillageBlank:true,
     };
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -95,6 +97,7 @@ class TransformationTable extends Component {
 //    this.addTransformation = this.addTransformation.bind(this);
     this.removeTransformation = this.removeTransformation.bind(this);
     this.showModal = this.showModal.bind(this);
+    this.testVisible = this.testVisible.bind(this);
 
     this.rotationType = React.createRef();
     this.cover = React.createRef();
@@ -106,8 +109,7 @@ class TransformationTable extends Component {
     this.rotFreq = React.createRef();
   }
   componentDidUpdate(prevProps) {
-    console.log(prevProps)
-    console.log(this.props)
+
 //    if(prevProps.newTrans == undefined && this.props.newTrans == undefined){
 //        console.log("no new trans")
 //    }
@@ -161,6 +163,7 @@ class TransformationTable extends Component {
             })
 
         this.tillage.current.value = "na"
+         this.setState({tillageBlank:false})
         if (cover == "cc"){
             this.setState({
                 showTillageNT:true,
@@ -169,7 +172,6 @@ class TransformationTable extends Component {
             if (rot == "dairyRotation"){
                 this.setState({
                     showTillageSC:true
-
                 })
             }
             else{
@@ -210,12 +212,17 @@ class TransformationTable extends Component {
 //        if(this.state["showTillage" + currentTill.toUpperCase()] == true){
 //            this.tillage.current.value = currentTill
 //        }
-
       }
 
       handleTransMangement(){
-      //      turn off all pasture options
-
+//      display reminder box if there is no option for till
+        if (this.tillage.current.value == "na"){
+            this.setState({tillageBlank:false})
+        }
+        else{
+             this.setState({tillageBlank:true})
+        }
+//      not pasture
         if(this.rotationType.current.value != "pasture"){
             this.setState({
                 showPastureMang:false,
@@ -226,12 +233,16 @@ class TransformationTable extends Component {
                 showCont:true,
             })
 //            configure tillage options
-
+             if(this.cover.current.value != this.props.activeTrans.management.cover ||
+                this.rotationType.current.value != this.props.activeTrans.management.rotationType){
+                    this.configureTillage()
             }
+        }
 //        turn on pasture options
+//      pasture
         else{
-
-         this.setState({
+            this.fertilizer.current.value = "0_0"
+            this.setState({
                 showPastureMang:true,
                 showGrassYield:true,
                 showCover:false,
@@ -245,14 +256,11 @@ class TransformationTable extends Component {
             else{
                 this.setState({showRotFreq:false})
             }
-//            handle tillage display
-
+            this.setState({tillageBlank:true})
         }
-        if(this.cover.current.value != this.props.activeTrans.management.cover ||
-        this.rotationType.current.value != this.props.activeTrans.management.rotationType){
-            this.configureTillage()
-        }
-
+      }
+      testVisible(){
+        this.setState({tillageBlank:true})
       }
     handleSelectionChange(type, e){
          this.handleTransMangement()
@@ -386,7 +394,7 @@ class TransformationTable extends Component {
                       <option value="pasture">Pasture</option>
                       <option value="contCorn">Continuous Corn</option>
                       <option value="cornGrain">Cash Grain</option>
-                      <option value="dairyRotation">Corn Silage to Corn Grain to Alfalfa(3x)</option>
+                      <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa(3x))</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
 
@@ -424,8 +432,9 @@ class TransformationTable extends Component {
                       <option value="nc">No Cover</option>
                     </Form.Select>
 
+                    <Alert hidden={this.state.tillageBlank} variant="danger">Please Choose a Tillage</Alert>
                     <Form.Label hidden={!this.state.showTillage} >Tillage</Form.Label >
-                    <Form.Select aria-label="Default select example" hidden={!this.state.showTillage} ref={this.tillage}
+                    <Form.Select aria-label="Default select example" validated={"false"} hidden={!this.state.showTillage} ref={this.tillage}
                     onChange={(e) => this.handleSelectionChange("tillage", e)}>
                       <option disabled={!this.state.showTillageFC} value="fc">Fall Chisel</option>
                       <option disabled={!this.state.showTillageFM} value="fm">Fall Moldboard</option>
