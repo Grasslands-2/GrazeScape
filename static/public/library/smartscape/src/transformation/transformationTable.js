@@ -241,7 +241,7 @@ class TransformationTable extends Component {
 //        turn on pasture options
 //      pasture
         else{
-            this.fertilizer.current.value = "0_0"
+//            this.fertilizer.current.value = "0_0"
             this.setState({
                 showPastureMang:true,
                 showGrassYield:true,
@@ -432,9 +432,8 @@ class TransformationTable extends Component {
                       <option value="nc">No Cover</option>
                     </Form.Select>
 
-                    <Alert hidden={this.state.tillageBlank} variant="danger">Please Choose a Tillage</Alert>
                     <Form.Label hidden={!this.state.showTillage} >Tillage</Form.Label >
-                    <Form.Select aria-label="Default select example" validated={"false"} hidden={!this.state.showTillage} ref={this.tillage}
+                    <Form.Select aria-label="Default select examp+le" validated={"false"} hidden={!this.state.showTillage} ref={this.tillage}
                     onChange={(e) => this.handleSelectionChange("tillage", e)}>
                       <option disabled={!this.state.showTillageFC} value="fc">Fall Chisel</option>
                       <option disabled={!this.state.showTillageFM} value="fm">Fall Moldboard</option>
@@ -445,6 +444,7 @@ class TransformationTable extends Component {
                       <option disabled={!this.state.showTillageSV} value="sv">Spring Vertical</option>
                       <option value="na">Please Select a Value</option>
                     </Form.Select>
+                    <Alert hidden={this.state.tillageBlank} variant="danger">Please Choose a Tillage</Alert>
 
                     <Form.Label hidden={!this.state.showCont}>On Contour</Form.Label >
                     <Form.Select aria-label="Default select example" hidden={!this.state.showCont} ref={this.contour}

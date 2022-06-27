@@ -210,14 +210,14 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
                 }
 //                clover belt for now
                else{
                 this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
                 this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                 this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
                }
 
                 this.setState({showHuc10:true})
@@ -402,7 +402,7 @@ class SidePanel extends React.Component{
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
-    newTrans.management.fertilizer = "50_50"
+    newTrans.management.fertilizer = "0_100"
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
     newTrans.management.tillage = "su"
