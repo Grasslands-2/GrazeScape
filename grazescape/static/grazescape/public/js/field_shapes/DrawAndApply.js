@@ -29,7 +29,6 @@ function addFieldAcreage(feature){
 
 }
 function setFeatureAttributes(feature,af,as){
-	console.log(feature)
     console.log(feature.getGeometry().getExtent())
     console.log(feature.getGeometry().getCoordinates()[0])
     data = {
@@ -128,15 +127,9 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	if(DSS.activeRegion == "cloverBeltWI"){
 		console.log("Clover Belt has hit")
 		soilPVal = 40 
-	}if(DSS.activeRegion == "northeastWI"){
-		console.log("Clover Belt has hit")
-		soilPVal = 36 
-	}if(DSS.activeRegion == "uplandsWI"){
-		console.log("Clover Belt has hit")
-		soilPVal = 466
-	}if(DSS.activeRegion == "southWestWI"){
-		console.log("Clover Belt has hit")
-		soilPVal = 466
+	}else{
+		console.log("Else has hit")
+		soilPVal = 35
 	}
 	// DSS.draw = new ol.interaction.Draw({
 	// 	source: source,
@@ -150,10 +143,10 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	// console.log('This is the active scenario#: ');
 
 	DSS.draw.on('drawend', function (e,) {
-		//fieldArea = e.feature.values_.geom.getArea();
+		fieldArea = e.feature.values_.geom.getArea();
+		console.log(fieldArea);
         // get default OM value
         console.log(e)
-		console.log(e.feature)
         e.feature.setProperties({
                 id: af,
                 farm_id: af,

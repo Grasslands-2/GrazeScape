@@ -17,7 +17,7 @@ var fields_1Source = new ol.source.Vector({
 	// 	return geoserverURL + geoServer.geoField_Url
 	// },
 });
-//import {getArea, getDistance} from 'ol/sphere';
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.Main', {
 //------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Ext.define('DSS.map.Main', {
 	style: 'background-color: rgb(75,80,60)',
 	
 	BING_KEY: 'Au_ohpV01b_LnpbMExJmpmUnamgty20v7Cpl1GvNmwzZPOezhtzegaNM0MNaSPoa',
-	OSM_KEY: /*''fBrGdagAiyuEcYIsxr72'*/'cRFDJdDADPOOqUQsdxJT',
+	OSM_KEY: /*'fBrGdagAiyuEcYIsxr72',*/'cRFDJdDADPOOqUQsdxJT',
 	
 	requires: [
 		'DSS.map.DrawAndModify',
@@ -87,14 +87,7 @@ Ext.define('DSS.map.Main', {
 							let rect = c.el.dom.getBoundingClientRect();
 							if(DSS.activeRegion == "cloverBeltWI"){
 								Ext.create('DSS.map.LayerMenuCB').showAt(rect.left-2, rect.top-2);
-							}if(DSS.activeRegion == "northeastWI"){
-								
-								Ext.create('DSS.map.LayerMenuNE').showAt(rect.left-2, rect.top-2);
-							}
-							if(DSS.activeRegion == "uplandsWI"){
-								Ext.create('DSS.map.LayerMenuUL').showAt(rect.left-2, rect.top-2);
-							}
-							if(DSS.activeRegion == "southWestWI"){
+							}else{
 								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
 							}
 						}
@@ -301,44 +294,6 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		//--------------------------------------------------------------	
-		DSS.layer.northeastBorder = new ol.layer.Vector({
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source: new ol.source.Vector({
-				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/northeastWI_boundaries.geojson',
-			}),
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#EE6677',
-					width: 4
-				}),
-				fill: new ol.style.Fill({
-					color: 'rgba(32,96,160,0)'
-				})
-			})
-		});
-		//--------------------------------------------------------------		
-		DSS.layer.uplandBorder = new ol.layer.Vector({
-			visible: true,
-			updateWhileAnimating: true,
-			updateWhileInteracting: true,
-			source: new ol.source.Vector({
-				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/uplandsWI_boundaries.geojson',
-			}),
-			style: new ol.style.Style({
-				stroke: new ol.style.Stroke({
-					color: '#EE6677',
-					width: 4
-				}),
-				fill: new ol.style.Fill({
-					color: 'rgba(32,96,160,0)'
-				})
-			})
-		});
 		//--------------------------------------------------------------		
 		DSS.layer.swwiBorder = new ol.layer.Vector({
 			visible: true,
@@ -422,22 +377,12 @@ Ext.define('DSS.map.Main', {
 			})
 		})
 		// Left, Bottom, Right, Top
-		NEinputextent0 = [-9825688.791937,5501789.532855,-9768598.791937,5571269.532855]
-		NEinputextent1 = [-9771028.791937,5514959.532855,-9726558.791937,5571269.532855]
-		NEinputextent2 = [-9802208.791937,5448659.532855,-9740698.791937,5517769.532855]
-
-		ULinputextent0 = [-10053557.394437,5334019.484104,-9974111.851099,5410245.208065]
-		ULinputextent1 = [-10148009.781571,5236501.745210,-10066003.514031,5344306.838534]
-		ULinputextent2 = [-10066691.882767,5283451.447037,-10000615.033866,5344038.557734]
-		ULinputextent3 = [-10066500.647774,5236913.636176,-10000596.649961,5283867.854421]
-		ULinputextent4 = [-10000868.715991,5236184.341261,-9947751.935464,5290407.799301]
-
 		SWinputextent0 = [ -10168109.314900, 5318375.349200, -10111969.314900, 5386305.349200]
 		SWinputextent1 = [ -10111969.314900, 5318375.349200, -10055829.314900, 5386305.349200]
 		SWinputextent2 = [ -10168109.314900, 5386305.349200, -10111969.314900, 5454235.349200]
 		SWinputextent3 = [ -10111969.314900, 5386305.349200, -10055829.314900, 5454235.349200]
-		
 		CBinputextent0 = [ -10121877.038627, 5624880.297527, -10071577.038627, 5682010.297527]
+
 		CBinputextent1 = [ -9986457.038627, 5569960.297527, -9932247.038627, 5641430.297527]
 		CBinputextent2 = [ -10022377.038627, 5570390.297527, -9986437.038627, 5641140.297527]
 		CBinputextent3 = [ -10121877.038627, 5530940.297527, -10053077.038627, 5570930.297527]
@@ -445,7 +390,6 @@ Ext.define('DSS.map.Main', {
 		CBinputextent5 = [ -10071587.038627, 5570670.297527, -10021207.038627, 5624890.297527]
 		CBinputextent6 = [ -10071667.038627, 5624810.297527, -10022107.038627, 5682010.297527]
 
-		//-------------------SWWI-----------------------------
 		//--------------------DEM-----------------------------
 		DSS.layer.SWDEM_image0 = new ol.layer.Image({
 			visible: false,
@@ -623,367 +567,6 @@ Ext.define('DSS.map.Main', {
 			new ol.source.ImageStatic({
 				url: 'https://storage.googleapis.com/grazescaperasterstorage/southWestWI_sand10m_3.PNG',
 				imageExtent: SWinputextent3,
-				
-			})
-		})
-		//-------------------NEWI-----------------------------
-		//--------------------DEM-----------------------------
-		DSS.layer.NEDEM_image0 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_elev_1.png',
-				imageExtent: NEinputextent0,
-			})
-		}),
-		DSS.layer.NEDEM_image1 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_elev_2.png',
-				imageExtent: NEinputextent1,
-			})
-		}),
-		DSS.layer.NEDEM_image2 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_elev_3.png',
-				imageExtent: NEinputextent2,
-				
-			})
-		}),
-		//----------------------------SLOPE----------------------------------------------------
-		DSS.layer.NESlope0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_slopePer_1.png',
-				imageExtent: NEinputextent0,
-			})
-		}),
-		DSS.layer.NESlope1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_slopePer_2.png',
-				imageExtent: NEinputextent1,
-			})
-		}),
-		DSS.layer.NESlope2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_slopePer_3.png',
-				imageExtent: NEinputextent2,
-				
-			})
-		}),
-		//-------------------------------------------CLAY---------------------------------------------------
-		DSS.layer.NEClay0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_clay_1.png',
-				imageExtent: NEinputextent0,
-			})
-		}),
-		DSS.layer.NEClay1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_clay_2.png',
-				imageExtent: NEinputextent1,
-			})
-		}),
-		DSS.layer.NEClay2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_clay_3.png',
-				imageExtent: NEinputextent2,
-				
-			})
-		}),
-		//-------------------------------------SILT-------------------------------------------
-		DSS.layer.NESilt0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_silt_1.png',
-				imageExtent: NEinputextent0,
-			})
-		}),
-		DSS.layer.NESilt1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_silt_2.png',
-				imageExtent: NEinputextent1,
-			})
-		}),
-		DSS.layer.NESilt2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_silt_3.png',
-				imageExtent: NEinputextent2,
-				
-			})
-		}),
-		//-------------------------------------SAND---------------------------------------
-		DSS.layer.NESand0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_sand_1.png',
-				imageExtent: NEinputextent0,
-			})
-		}),
-		DSS.layer.NESand1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_sand_2.png',
-				imageExtent: NEinputextent1,
-			})
-		}),
-		DSS.layer.NESand2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/northeastWI_sand_3.png',
-				imageExtent: NEinputextent2,
-				
-			})
-		}),
-		//-------------------UPLANDS WI-------------------------
-		//--------------------DEM-----------------------------
-		DSS.layer.ULDEM_image0 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.cloud.google.com/grazescaperasterstorage/ul_elev_1.png',
-				imageExtent: ULinputextent0,
-			})
-		}),
-		DSS.layer.ULDEM_image1 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_elev_2.png',
-				imageExtent: ULinputextent1,
-			})
-		}),
-		DSS.layer.ULDEM_image2 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_elev_3.png',
-				imageExtent: ULinputextent2,
-				
-			})
-		}),
-		DSS.layer.ULDEM_image3 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_elev_4.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		DSS.layer.ULDEM_image4 = new ol.layer.Image({
-			visible: false,
-			opacity: DSS.layer['DEM:opacity'],
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_elev_5.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		//----------------------------SLOPE----------------------------------------------------
-		DSS.layer.ULSlope0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_slope1.png',
-				imageExtent: ULinputextent0,
-			})
-		}),
-		DSS.layer.ULSlope1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_slope2.png',
-				imageExtent: ULinputextent1,
-			})
-		}),
-		DSS.layer.ULSlope2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_slope3.png',
-				imageExtent: ULinputextent2,
-				
-			})
-		}),
-		DSS.layer.ULSlope3 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_slope4.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		DSS.layer.ULSlope4 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_slope5.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		
-		//-------------------------------------------CLAY---------------------------------------------------
-		DSS.layer.ULClay0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_clay_1.png',
-				imageExtent: ULinputextent0,
-			})
-		}),
-		DSS.layer.ULClay1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_clay_2.png',
-				imageExtent: ULinputextent1,
-			})
-		}),
-		DSS.layer.ULClay2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_clay_3.png',
-				imageExtent: ULinputextent2,
-				
-			})
-		}),
-		DSS.layer.ULClay3 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_clay_4.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		DSS.layer.ULClay4 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_clay_5.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		//-------------------------------------SILT-------------------------------------------
-		DSS.layer.ULSilt0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_silt_1.png',
-				imageExtent: ULinputextent0,
-			})
-		}),
-		DSS.layer.ULSilt1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_silt_2.png',
-				imageExtent: ULinputextent1,
-			})
-		}),
-		DSS.layer.ULSilt2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_silt_3.png',
-				imageExtent: ULinputextent2,
-				
-			})
-		}),
-		DSS.layer.ULSilt3 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_silt_4.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		DSS.layer.ULSilt4 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_silt_5.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		//-------------------------------------SAND---------------------------------------
-		DSS.layer.ULSand0 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_sand_1.png',
-				imageExtent: ULinputextent0,
-			})
-		}),
-		DSS.layer.ULSand1 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_sand_2.png',
-				imageExtent: ULinputextent1,
-			})
-		}),
-		DSS.layer.ULSand2 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_sand_3.png',
-				imageExtent: ULinputextent2,
-				
-			})
-		}),
-		DSS.layer.ULSand3 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_sand_4.png',
-				imageExtent: ULinputextent3,
-				
-			})
-		})
-		DSS.layer.ULSand4 = new ol.layer.Image({
-			visible: false,
-			source:
-			new ol.source.ImageStatic({
-				url: 'https://storage.googleapis.com/grazescaperasterstorage/ul_sand_5.png',
-				imageExtent: ULinputextent3,
 				
 			})
 		})
@@ -1584,48 +1167,6 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.SWSand1,
 				DSS.layer.SWSand2,
 				DSS.layer.SWSand3,
-				DSS.layer.NEDEM_image0,
-				DSS.layer.NEDEM_image1,
-				DSS.layer.NEDEM_image2,
-				DSS.layer.NESlope0,
-				DSS.layer.NESlope1,
-				DSS.layer.NESlope2,
-				DSS.layer.NEClay0,
-				DSS.layer.NEClay1,
-				DSS.layer.NEClay2,
-				DSS.layer.NESilt0,
-				DSS.layer.NESilt1,
-				DSS.layer.NESilt2,
-				DSS.layer.NESand0,
-				DSS.layer.NESand1,
-				DSS.layer.NESand2,
-				DSS.layer.ULDEM_image0,
-				DSS.layer.ULDEM_image1,
-				DSS.layer.ULDEM_image2,
-				DSS.layer.ULDEM_image3,
-				DSS.layer.ULDEM_image4,
-				DSS.layer.ULSlope0,
-				DSS.layer.ULSlope1,
-				DSS.layer.ULSlope2,
-				DSS.layer.ULSlope3,
-				DSS.layer.ULSlope4,
-				DSS.layer.ULClay0,
-				DSS.layer.ULClay1,
-				DSS.layer.ULClay2,
-				DSS.layer.ULClay3,
-				DSS.layer.ULClay4,
-				DSS.layer.ULSilt0,
-				DSS.layer.ULSilt1,
-				DSS.layer.ULSilt2,
-				DSS.layer.ULSilt3,
-				DSS.layer.ULSilt4,
-				DSS.layer.ULSand0,
-				DSS.layer.ULSand1,
-				DSS.layer.ULSand2,
-				DSS.layer.ULSand3,
-				DSS.layer.ULSand4,
-				DSS.layer.northeastBorder,
-				DSS.layer.uplandBorder,
 				DSS.layer.cloverBeltBorder,
 				DSS.layer.kickapoowatershed,
 				//DSS.layer.rullandsCouleewshed,

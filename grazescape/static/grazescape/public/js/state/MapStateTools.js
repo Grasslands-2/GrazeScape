@@ -156,20 +156,9 @@ Ext.define('DSS.state.MapStateTools', {
 	showInfrasForFarm: function(farmId, opacity) {
     	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
     },
-	showFieldsAfterImport: async function() {
-		let me = this;
-		console.log(DSS.activeScenario)
-		geoServer. setFieldsAfterImport('&CQL_filter=scenario_id='+DSS.activeScenario)
-		DSS.layer.fields_1.getSource().refresh();
-		DSS.layer.fields_1.setVisible(true);
-		DSS.layer.fieldsLabels.setVisible(true);
-		console.log(DSS.layer.fields_1.getSource().getFeatures().length)
-		console.log("showFieldsAfterImport ran");
-	},
-
 	showFieldsForScenario: async function() {
 		let me = this;
-		console.log(DSS.activeScenario)
+		//console.log(DSS.activeScenario)
 		geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
 		DSS.layer.fields_1.getSource().refresh();
 		DSS.layer.fields_1.setVisible(true);

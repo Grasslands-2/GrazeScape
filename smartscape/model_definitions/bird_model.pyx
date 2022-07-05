@@ -1,3 +1,4 @@
+#This file needs to be compiled on a linux machine with Python 3.9 in order to run on the server
 #cython: boundscheck=False, wraparound=False, nonecheck=False
 from __future__ import print_function
 import numpy as np

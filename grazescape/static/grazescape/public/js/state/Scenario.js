@@ -1,5 +1,3 @@
-//const { listenerCount } = require("process");
-
 var farmArray = [];
 var farmObj = {};
 var scenarioArray = [];
@@ -308,15 +306,12 @@ function runFieldUpdate(){
 };
 async function runScenarioUpdate(){
 	aswValue = 0
-	
 	//await aswCheck(DSS['viewModel'].scenario.data.heifers.breedSize,
 	//DSS['viewModel'].scenario.data.heifers.asw)
 	//reSourcescenarios()
-	console.log('in run scen update')
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
-		console.log(f.values_.gid)
 		var scenarioFeature = f;
-		if(DSS.activeScenario === scenarioFeature.values_.gid){
+		if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
 			//console.log(scenarioArray[i].scenarioName);
 			console.log(scenarioArray[i]);
 			scenarioFeature.setProperties({
@@ -385,7 +380,7 @@ function wfs_update(feat,layer) {
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
 		/*'http://geoserver.org/Farms'*/,
-		Geometry: 'geom',
+		Geom: 'geom',
         featureType: layer,
         srsName: 'EPSG:3857'
     });
@@ -427,9 +422,7 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.field_shapes.FieldApplyPanel',
 		'DSS.infra_shapes.InfraApplyPanel',
 		'DSS.field_shapes.Delete',
-		'DSS.infra_shapes.DeleteLine',
-		'DSS.field_shapes.ShpFieldUpload',
-		'DSS.state.scenario.CostsDialog'
+		'DSS.infra_shapes.DeleteLine'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -470,12 +463,8 @@ Ext.define('DSS.state.Scenario', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: async function(self) {
-									// if (DSS['viewModel'].scenario.data ==null){
-									// 	console.log("No viewModel")
-									// 	await me.initViewModel();
-									// }
 									await gatherScenarioTableData
-									//await runScenarioUpdate();
+									await runScenarioUpdate();
 									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									//geoServer.getWFSScenario()
 									DSS.ApplicationFlow.instance.showManageOperationPage();
@@ -581,13 +570,13 @@ Ext.define('DSS.state.Scenario', {
 								console.log("draw is on");
 								console.log(self)
 								DSS.draw.on('drawend', function (e) {
-									console.log(e)
 									document.body.style.cursor = 'default'
 									fieldArea = e.feature.values_.geom.getArea();
 									console.log(fieldArea);
 									AppEvents.triggerEvent('hide_field_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
-									DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 			
+									DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 				
+									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
 									DSS.dialogs.FieldApplyPanel.show().center().setY(100);
 									inputFieldObj = e
 								})     
@@ -600,13 +589,6 @@ Ext.define('DSS.state.Scenario', {
 								console.log('delete field mode on')
 								AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 								selectFieldDelete()
-							}
-						},
-						{
-							text: 'Upload GeoJSON',
-							handler: function(self) {
-								DSS.dialogs.ShpFieldUpload = Ext.create('DSS.field_shapes.ShpFieldUpload'); 				
-								DSS.dialogs.ShpFieldUpload.show().center().setY(100);
 							}
 						},
 					]
@@ -691,7 +673,8 @@ Ext.define('DSS.state.Scenario', {
 									console.log(infraLength);
 									AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
-									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 	
+									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 				
+									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
 									DSS.dialogs.InfraApplyPanel.show().center().setY(100);
 									inputInfraObj = e
 								})     
@@ -784,7 +767,6 @@ Ext.define('DSS.state.Scenario', {
 					cls: 'information',
 					html: 'Edit Scenario Attributes'
 				},
-				
 				// {
 				// 	xtype: 'button',
 				// 	cls: 'button-text-pad',
@@ -809,7 +791,7 @@ Ext.define('DSS.state.Scenario', {
 				// 	componentCls: 'button-margin',
 				// 	text: 'Animals',
 				// 	handler: async function(self) {
-				// 		//await getWFSScenario()
+				// 		await getWFSScenario()
 						
 				// 		//if (!DSS.dialogs) DSS.dialogs = {};
 				// 		//if (!DSS.dialogs.AnimalDialog) 
@@ -838,7 +820,7 @@ Ext.define('DSS.state.Scenario', {
 							DSS.MapState.removeMapInteractions();
 							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
-							cropAcreage = 0
+							pastAcreage = 0
 							gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
 							AppEvents.triggerEvent('hide_field_shape_mode');
@@ -1091,12 +1073,10 @@ Ext.define('DSS.state.Scenario', {
 
 	//-----------------------------------------------------------------------------
 	initViewModel: function() {
-		console.log("IM INSIDE INITVIEWMODEL!!!!!!!")
-		// if (DSS && DSS.viewModel && DSS.viewModel.scenario)
-		// return;
+		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
+		return;
 		
-		// if (!DSS['viewModel'])
-		console.log("No View Model")
+		if (!DSS['viewModel'])*/ 
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
 //		gatherScenarioTableData()

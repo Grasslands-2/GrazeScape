@@ -153,7 +153,18 @@ Ext.define('DSS.state.Manage', {
 			text: '<p style="font-size:15px;"> Create New Scenario</p>',
 			handler: function(self) {
 				DSS.dialogs.NewScenPickWindow = Ext.create('DSS.state.NewScenPickWindow'); 				
+				//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
 				DSS.dialogs.NewScenPickWindow.show().center().setY(100);
+				//getWFSScenarioSP
+				// gatherScenarioTableData()
+				// DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewDupScenario'); 
+				// DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+				// DSS.dialogs.ScenarioPicker.show().center().setY(100);
+				// reSourcescenarios();
+				// getWFSScenarioSP()
+				// console.log('This is the scenarioArray: ')
+				// console.log(scenarioArray)
+				//DSS.ApplicationFlow.instance.showScenarioPage();
 			}
 		},
 			{ //------------------------------------------
