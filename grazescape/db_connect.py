@@ -5,6 +5,25 @@ import os
 from django.conf import settings
 from psycopg2.errors import UniqueViolation
 
+def multifindcoords(string):
+    values = []
+    # while True:
+    begstring = '"coordinates":[[['
+    endstring = ']]]},"properties":'
+    tmp = string.split(begstring)
+    for par in tmp:
+        if endstring in par:
+            values.append(par.split(endstring)[0])
+        # found = string.find(value, start, stop)
+        # foundtext = string[string.find(begstring)+len(begstring):string.rfind(endstring)]
+        # if found == -1:
+        #     break
+        # print(found)
+        # #print(foundtext)
+        # values.append(foundtext)
+        # start = found + 1
+    print(values)
+    return values
 
 def config(filename='database.ini', section='postgresql'):
     """
