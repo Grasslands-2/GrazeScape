@@ -221,6 +221,16 @@ def download_rasters(request):
     geo_data = RasterData(request.POST.getlist("extent[]"),
                           field_coors, field_id, active_region, True)
     return JsonResponse({"download":"finished"})
+
+#Makes post requests to WEI geoserver
+@login_required
+@csrf_protect
+def outside_geom_field_insert(request):
+    scenario_id = request.POST.get("scenario_id")
+    farm_id = request.POST.get("farm_id")
+    file_data = request.POST.get("file_data")
+    insert_json_coords(scenario_id,farm_id,file_data)
+    return JsonResponse({"Insert":"Complete"})
 #Makes post requests to WEI geoserver
 @login_required
 @csrf_protect
