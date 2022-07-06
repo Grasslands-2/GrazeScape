@@ -1,10 +1,11 @@
+from operator import is_
 import psycopg2
+import re
 # from configparser import ConfigParser
 import configparser
 import os
 from django.conf import settings
 from psycopg2.errors import UniqueViolation
-
 def multifindcoords(string):
     values = []
     # while True:
@@ -533,7 +534,6 @@ def clean_db():
     # print(result)
     cur.close()
     conn.close()
-
 def insert_json_coords(scenario_id,farm_id,file_data):
     # print(scenario_id)
     # print(farm_id)

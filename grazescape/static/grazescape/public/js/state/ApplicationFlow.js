@@ -208,6 +208,10 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.layer.farms_1.setVisible(true);
 		DSS.layer.farms_1.setOpacity(1);
 		DSS.layer.markers.setVisible(false);
+		DSS.layer.cloverBeltBorder.setVisible(true)
+		DSS.layer.swwiBorder.setVisible(true)
+		DSS.layer.northeastBorder.setVisible(true)
+		DSS.layer.uplandBorder.setVisible(true)
 		//Region Picker 
 		
 		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				

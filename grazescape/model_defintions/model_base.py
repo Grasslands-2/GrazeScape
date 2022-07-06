@@ -82,11 +82,18 @@ class ModelBase:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
+        # if active_region == "cloverBeltWI":
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','cloverBeltWI')
+        # else:
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','southWestWI')
         if active_region == "cloverBeltWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','cloverBeltWI')
-        else:
+        if active_region == "southWestWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','southWestWI')
-
+        if active_region == "uplandsWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','uplandsWI')
+        if active_region == "northeastWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','northeastWI')
         #Local Set up                  
         # if active_region == "cloverBeltWI":
         #     self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
@@ -383,6 +390,8 @@ class OutputDataNode:
         self.alternate_units = alternate_units
         self.default_units = default_units
         self.data = []
+        self.P2O5_fert = None
+        self.N_fert = None
 
     def set_data(self, data):
         self.data.append(data)

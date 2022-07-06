@@ -143,7 +143,6 @@ def field_png_lookup(request):
     except AttributeError:
                     pass           
 # Downloads model results from GCS bucket
-
 @csrf_protect
 @login_required
 def heiferFeedBreakDown(data):
@@ -239,7 +238,6 @@ def download_rasters(request):
     geo_data = RasterData(request.POST.getlist("extent[]"),
                           field_coors, field_id, active_region, True)
     return JsonResponse({"download":"finished"})
-
 #Makes post requests to WEI geoserver
 @login_required
 @csrf_protect
@@ -249,9 +247,7 @@ def outside_geom_field_insert(request):
     file_data = request.POST.get("file_data")
     insert_json_coords(scenario_id,farm_id,file_data)
     return JsonResponse({"Insert":"Complete"})
-#Makes post requests to WEI geoserver
-@login_required
-@csrf_protect
+
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
@@ -480,8 +476,7 @@ def get_model_results(request):
     active_scen = request.POST.get('model_parameters[active_scen]')
     active_region = request.POST.get('model_parameters[active_region]')
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
-    print(active_region)
-    print(request)
+    print(request.POST.getlist("field_id"))
     db_has_field(field_id)
     if request.POST.getlist("runModels")[0] == 'false':
         print('model runs = false')

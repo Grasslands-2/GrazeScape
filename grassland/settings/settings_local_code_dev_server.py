@@ -38,6 +38,7 @@ R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
 #container model path
 #MODEL_PATH = /tmp/GrazeScape/grazescape/data_files/input_models
 MODEL_PATH = "C://Users/zjhas/Documents/GrazeScape/grazescape/data_files/input_models"
+
 #new container R path
 #R_PATH = "/opt/conda/envs/gscape/bin/R"
 ALLOWED_HOSTS = ['*']
