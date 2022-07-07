@@ -106,6 +106,9 @@ function populateChartObj(scenList, fieldList, allField, allScen){
 }
 
 function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
+    //Try building in a way to get the scenario specific costs data from each fields scenario.
+    console.log(scenDupArray)
+    console.log(f.scenario_id)
     let runModel = false
     let split = ""
     console.log(DSS.activeRegion)
@@ -159,24 +162,64 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         fert_p_perc:f["perc_fert_p"],
         fert_n_perc:f["perc_fert_n"],
         active_region: DSS.activeRegion,
-        alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
-        alfalfaMachCostY1: scenarioArray[0].alfalfaMachYearOneCost,
-        alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
-        alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
-        cornMachCost: scenarioArray[0].cornMachCost,
-        cornPestCost: scenarioArray[0].cornPestCost,
-        cornSeedCost: scenarioArray[0].cornSeedCost,
-        grassMachCost: scenarioArray[0].grassMachCost,
-        grassPestCost: scenarioArray[0].grassPestCost,
-        grassSeedCost: scenarioArray[0].grassSeedCost,
-        oatMachCost: scenarioArray[0].oatMachCost,
-        oatPestCost: scenarioArray[0].oatPestCost,
-        oatSeedCost: scenarioArray[0].oatSeedCost,
-        soyMachCost: scenarioArray[0].soyMachCost,
-        soyPestCost: scenarioArray[0].soyPestCost,
-        soySeedCost: scenarioArray[0].soySeedCost,
-        fertNCost: scenarioArray[0].fertNCost,
-        fertPCost: scenarioArray[0].fertPCost,
+        // alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
+        // alfalfaMachCostY1: scenarioArray[0].alfalfaMachYearOneCost,
+        // alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
+        // alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
+        // cornMachCost: scenarioArray[0].cornMachCost,
+        // cornPestCost: scenarioArray[0].cornPestCost,
+        // cornSeedCost: scenarioArray[0].cornSeedCost,
+        // grassMachCost: scenarioArray[0].grassMachCost,
+        // grassPestCost: scenarioArray[0].grassPestCost,
+        // grassSeedCost: scenarioArray[0].grassSeedCost,
+        // oatMachCost: scenarioArray[0].oatMachCost,
+        // oatPestCost: scenarioArray[0].oatPestCost,
+        // oatSeedCost: scenarioArray[0].oatSeedCost,
+        // soyMachCost: scenarioArray[0].soyMachCost,
+        // soyPestCost: scenarioArray[0].soyPestCost,
+        // soySeedCost: scenarioArray[0].soySeedCost,
+        // fertNCost: scenarioArray[0].fertNCost,
+        // fertPCost: scenarioArray[0].fertPCost,
+        alfalfaMachCost: 0,
+        alfalfaMachCostY1: 0,
+        alfalfaPestCost: 0,
+        alfalfaSeedCost: 0,
+        cornMachCost: 0,
+        cornPestCost: 0,
+        cornSeedCost: 0,
+        grassMachCost: 0,
+        grassPestCost: 0,
+        grassSeedCost: 0,
+        oatMachCost: 0,
+        oatPestCost: 0,
+        oatSeedCost: 0,
+        soyMachCost: 0,
+        soyPestCost: 0,
+        soySeedCost: 0,
+        fertNCost: 0,
+        fertPCost: 0,
+    }
+    for(s in scenDupArray){
+        if(scenDupArray[s].gid == model_para.f_scen){
+            model_para.alfalfaMachCost = scenDupArray[s].alfalfa_mach_cost
+            model_para.alfalfaMachCostY1 = scenDupArray[s].alfalfa_mach_year_one
+            model_para.alfalfaPestCost = scenDupArray[s].alfalfa_pest_cost
+            model_para.alfalfaSeedCost = scenDupArray[s].alfalfa_seed_cost
+            model_para.cornMachCost = scenDupArray[s].corn_mach_cost
+            model_para.cornPestCost = scenDupArray[s].corn_pest_cost
+            model_para.cornSeedCost = scenDupArray[s].corn_seed_cost
+            model_para.grassMachCost = scenDupArray[s].grass_mach_cost
+            model_para.grassPestCost = scenDupArray[s].grass_pest_cost
+            model_para.grassSeedCost = scenDupArray[s].grass_seed_cost
+            model_para.oatMachCost = scenDupArray[s].oat_mach_cost
+            model_para.oatPestCost = scenDupArray[s].oat_pest_cost
+            model_para.oatSeedCost = scenDupArray[s].oat_seed_cost
+            model_para.soyMachCost = scenDupArray[s].soy_mach_cost
+            model_para.soyPestCost = scenDupArray[s].soy_pest_cost
+            model_para.soySeedCost = scenDupArray[s].soy_seed_cost
+            model_para.fertNCost = scenDupArray[s].fert_n_cost
+            model_para.fertPCost = scenDupArray[s].fert_p_cost
+        }
     }
     model_pack = {
         "farm_id": DSS.activeFarm,

@@ -397,7 +397,7 @@ class SmartScape:
             else:
                 if tran["management"]["rotationType"] == "contCorn":
                     land_id = 4
-                elif tran["management"]["rotationType"] == "cashGrain":
+                elif tran["management"]["rotationType"] == "cornGrain":
                     land_id = 3
                 elif tran["management"]["rotationType"] == "dairyRotation":
                     land_id = 5
@@ -421,8 +421,7 @@ class SmartScape:
             layer_dic[tran["rank"]]["land_id"] = land_id
 
             layer_area_dic[tran["rank"]] = {}
-            layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(tran["area"] *
-                                                                    (selected_cells / total_cells) * mm_to_ac)
+            layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(float(tran["areaSelected"]))
         # create blank raster that has extents from all transformations
         ds_clip = gdal.Warp(
             # last raster ovrrides it
@@ -554,7 +553,6 @@ class SmartScape:
         for layer in layer_dic:
             # yield
             for model in model_list:
-                print("running model ", model)
                 # something besides pasture
                 if model == "yield" and "yield" not in layer_dic[layer]:
                     for tran in trans:
@@ -567,14 +565,13 @@ class SmartScape:
                             continue
                     continue
                 if model == "insect":
-                    print("running insect")
-                    print(insect[tran["management"]["rotationType"]])
-                    model_data[model] = np.where(model_data[model] == layer, insect[tran["management"]["rotationType"]],
-                                                 model_data[model])
+                    for tran in trans:
+                        if tran["rank"] == layer:
+                            model_data[model] = np.where(model_data[model] == layer, insect[tran["management"]["rotationType"]],
+                                                         model_data[model])
                     continue
 
                 model_trans_filepath = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
-                print("trans model file path ", model_trans_filepath)
                 model_image = gdal.Open(model_trans_filepath)
                 model_band = model_image.GetRasterBand(1)
                 model_arr = model_band.ReadAsArray()

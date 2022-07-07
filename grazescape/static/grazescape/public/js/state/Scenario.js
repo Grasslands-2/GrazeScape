@@ -959,6 +959,7 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Run Models',
 					disabled:true,
 					handler: async function(self) {
+						getWFSScenarioSP()
 						if(fieldArray.length <1 ){
 							gatherTableData();
 							console.log("Field Array was empty. Running gatherTableData")
@@ -1003,6 +1004,7 @@ Ext.define('DSS.state.Scenario', {
 							//Ext.create('DSS.map.OutputMenu').showAt(10,10);
                         }
                         else{
+							getWFSScenarioSP()
 							console.log("rerunning update")
 //                            close model to destroy it to rerun models
                             console.log("destroy dashboard")

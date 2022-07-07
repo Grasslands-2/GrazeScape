@@ -136,10 +136,7 @@ globalMap.on('click', function(evt){
 
 Ext.require([
     'GeoExt.component.Map',
-    'Ext.form.field.File',
-    'Ext.form.field.Number',
-    'Ext.form.Panel',
-    'Ext.window.MessageBox',
+    'Ext.panel.Panel',
     'Ext.Viewport'
 ]);
 

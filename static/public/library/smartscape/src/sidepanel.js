@@ -77,7 +77,7 @@ const mapStateToProps = state => {
 
 //const domain = [0, 700];
 const domainSlope = [0, 51];
-const domainStream = [0, 16000];
+let domainStream = [0, 16000];
 const sliderStyle = {  // Give the slider some width
   position: 'relative',
   width: '100%',
@@ -178,8 +178,8 @@ class SidePanel extends React.Component{
     }
     // fires anytime state or props are updated
     componentDidUpdate(prevProps) {
-        console.log("side pannel update")
-        console.log(prevProps)
+//        console.log("side pannel update")
+//        console.log(prevProps)
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
         }
@@ -210,35 +210,35 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
                 }
 //                clover belt for now
                else{
                 this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
                 this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                 this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"150_0", "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
                }
 
                 this.setState({showHuc10:true})
             }
-           console.log(this.state.showHuc10)
+//           console.log(this.state.showHuc10)
         }
     }
 
     sliderChangeSlope(e){
-        console.log("slider change")
-        console.log(e)
+//        console.log("slider change")
+//        console.log(e)
 //        if slope entered in textbox is greater than box domain dont update slider
         if(e[1] != domainSlope[1]){
-            console.log("not updating")
+//            console.log("not updating")
             this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
         }
             this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
     }
     sliderChangeStream(e){
-        console.log("slider change")
-        console.log(e)
+//        console.log("slider change")
+//        console.log(e)
         this.props.updateActiveTransProps({"name":"streamDist1", "value":e[0], "type":"reg"})
         this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
     }
@@ -249,8 +249,8 @@ class SidePanel extends React.Component{
         this.setState({baseModalShow: true})
       }
     showModal(){
-        console.log("showing modal")
-        console.log(this.props)
+//        console.log("showing modal")
+//        console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
         this.cover.current.value = this.props.baseTrans.management.cover
         this.tillage.current.value = this.props.baseTrans.management.tillage
@@ -308,13 +308,26 @@ class SidePanel extends React.Component{
         console.log(this.props)
     }
     handleSelectionChangeLand(type, e){
-        console.log("Selection updated", type, e)
-        console.log(e.currentTarget.value)
-        console.log(e.currentTarget.checked)
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"land"})
-        console.log(this.props)
     }
     handleSelectionChangeUnit(type, useFt, e){
+        console.log("Units")
+        console.log(type)
+        console.log(useFt)
+        let dist = this.props.activeTrans.selection.streamDist2
+        console.log(this.props.activeTrans.selection.streamDist2)
+        if(!useFt && dist == 16000){
+            dist = 4878
+            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
+            domainStream[1] = 4878
+        }
+        else if(useFt && dist == 4878) {
+            dist = 16000
+            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
+            domainStream[1] = 16000
+        }
+//        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
+
         this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
 
     }
@@ -389,10 +402,10 @@ class SidePanel extends React.Component{
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
-    newTrans.management.fertilizer = "50_50"
+    newTrans.management.fertilizer = "0_100"
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
-    newTrans.management.tillage = "nt"
+    newTrans.management.tillage = "su"
     newTrans.management.grassYield = "medium"
     newTrans.management.rotFreq = "1"
     console.log("Adding new trans")
@@ -568,7 +581,7 @@ class SidePanel extends React.Component{
         'Phosphorus Loss', 'Runoff',
         'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness"
     ]
-    console.log(this.state.modelOutputs)
+//    console.log(this.state.modelOutputs)
     let model = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
@@ -705,7 +718,7 @@ class SidePanel extends React.Component{
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -732,7 +745,7 @@ class SidePanel extends React.Component{
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1258,7 +1271,7 @@ class SidePanel extends React.Component{
                  <h6 hidden={!this.state.showHuc10}>  Select at least one large watershed </h6>
                  <div hidden={!this.state.showHuc10}> Hold shift to select multiple watersheds </div>
                   </InputGroup>
-                  <h6>*All land transformations must reside in the work area</h6>
+                  <h6>*All land transformations will reside in the work area</h6>
                    <Button hidden={!this.state.showHuc10} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>
 
               </Row>
