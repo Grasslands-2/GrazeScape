@@ -96,6 +96,14 @@ const App = (props) => (
         <Button type="submit" variant="outline-success"><DoorOpen/> Logout</Button>
         </Form>
     </Nav>
+    <Navbar.Brand className="justify-content-left " href="https://grasslandag.org/" target="_blank">
+            <img
+              alt=""
+              src="static/public/library/images/Maptiler1.png"
+              width="50%"
+              className="d-inline-block align-top"
+            />{' '}
+          </Navbar.Brand>
     </Container>
   </Navbar>
 
@@ -181,7 +189,7 @@ const App = (props) => (
             <Col xs='3'>
             </Col>
             <Col xs='6'className="appRegion">
-                <h5 className="header">Please select an app to begin</h5>
+                <h5 className="header">Please select an app to begin hi</h5>
                 <Row className="appSelect">
                   <a href="/grazescape"><Image  className = "shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
                 </Row>

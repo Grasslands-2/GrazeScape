@@ -1,11 +1,36 @@
 
 
+
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
-
+var deleteRecord = {};
 var fieldArray = [];
 var fieldObj = {};
-
+var selectInteraction = new ol.interaction.Select({
+	features: new ol.Collection(),
+	toggleCondition: ol.events.condition.never,
+	//layers: [DSS.layer.fields_1],
+		style: new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: 'white',
+				width: 4
+			}),
+			fill: new ol.style.Fill({
+				color: 'rgba(0,0,0,0.1)'
+			}),
+			text: new ol.style.Text({
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 2,
+				}),
+			}),
+		})
+});
 // keep track of what fields have had values changed
 var fieldChangeList= []
 var fieldUrl =""
@@ -295,6 +320,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
     //  */
     // isRows: true,
 });
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.field_grid.FieldGrid', {
 	//------------------------------------------------------------------------------
@@ -325,11 +351,22 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		update: function (me, record) {
 		    console.log(me, record)
 		},
-		rowclick: function(self){
+		rowclick: function(self,record){
 			console.log(self)
+			console.log(record)
+			deleteRecord = record;
+			DSS.map.addInteraction(selectInteraction);
 			console.log("ROWcd d CLICK")
+			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
+			for(f in fieldFeatures){
+				if(fieldFeatures[f].id_ == record.id){
+					selectInteraction.getFeatures().clear()
+					selectInteraction.getFeatures().push(fieldFeatures[f]);
+					//DSS.map.removeInteraction(selectInteraction);
+					break;
+				}
+			}
 		}
-
 	},
 	//requires: ['DSS.map.Main'],
 
@@ -895,9 +932,70 @@ Ext.define('DSS.field_grid.FieldGrid', {
         let area_Column = {
 			xtype: 'numbercolumn', format: '0.0',/*editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false,
-			},*/ text: 'Area(acre)', dataIndex: 'area', width: 80,editable: false,
+			},*/ text: 'Area(acre)', dataIndex: 'area', width: 90,editable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
+		let delete_Column = 
+		//{
+		// 	text: 'Delete Field',
+		// 	align: 'center',
+		// 	//stopSelection: true,
+		// 	xtype: 'widgetcolumn',
+		// 	width: 165,
+		// 	minWidth: 24,
+		// 	widget: {
+		// 		   xtype: 'button',
+		// 		   width: 160,
+		// 		   _btnText: "Delete",
+		// 		   defaultBindProperty: null, //important
+		// 	// 	   listeners: {
+		// 	// 		beforerender: function(widgetColumn){
+		// 	// 			console.log(widgetColumn)
+		// 	// 			var recordWid = widgetColumn.getWidgetRecord();
+		// 	// 			widgetColumn.setText( widgetColumn._btnText + " " + recordWid.data.name ); //can be mixed with the row data if needed
+		// 	// 		}
+		// 	//    },
+		// 		   handler: function(/*widgetColumn*/) {
+		// 			//DSS.map.removeInteraction(selectInteraction);
+		// 			//var recordWid = widgetColumn.getWidgetRecord();
+		// 			//console.log("Got data!", recordWid);
+		// 			console.log("CLICKED DELETE")
+		// 		   },
+				   
+		// 	 }
+		// },
+		{
+			xtype: 'actioncolumn',
+			width: 110,
+			text: 'Delete Field',
+			scale: 'large',
+			align: 'center',
+			items: [{
+				icon: '/static/grazescape/public/images/remove-icon-png-7116.png',
+				text:'Delete Field',
+				tooltip: 'Delete',
+				handler: function(grid, rowIndex) {
+					setTimeout(function(){
+						let deleteRecID = deleteRecord.id
+						console.log(deleteRecID)
+						DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+							console.log(f)
+							if(deleteRecID == f.id_){
+								console.log("hit delete field by grid",f)
+								selectedField = f
+								console.log(selectedField);
+								DSS.dialogs.FieldDeletePanel = Ext.create('DSS.field_shapes.Delete'); 		
+								DSS.dialogs.FieldDeletePanel.show().center().setY(100);
+							}
+						})
+						//grid.getStore().removeAt(rowIndex);
+					}, 500);//wait 2 seconds
+					
+
+				},
+				scope: this
+			}]
+		}
 		
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
@@ -925,6 +1023,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				//manurePasturesColumn,
 				grazeDensityColumn,
 				//perimeter_Column
+				delete_Column
 
 			],
 			
