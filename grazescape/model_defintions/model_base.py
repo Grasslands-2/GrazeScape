@@ -173,6 +173,8 @@ class ModelBase:
             "tillage": request.POST.getlist("model_parameters[tillage]")[0],
             "fert": request.POST.getlist("model_parameters[fert]")[0],
             "manure": request.POST.getlist("model_parameters[manure]")[0],
+            "fertN": request.POST.getlist("model_parameters[fert_n]")[0],
+            "manureN": request.POST.getlist("model_parameters[manure_n]")[0],
             "crop": request.POST.getlist("model_parameters[crop]")[0],
             "crop_cover": request.POST.getlist("model_parameters[crop_cover]")[0],
             "rotation": request.POST.getlist("model_parameters[rotation]")[0],

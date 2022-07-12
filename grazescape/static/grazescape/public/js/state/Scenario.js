@@ -851,6 +851,8 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
+							selectInteraction.getFeatures().clear()
+							DSS.map.removeInteraction(selectInteraction);
 							runFieldUpdate()
 						}
 					}

@@ -289,7 +289,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 						flex: 0.75,
 						//height: 60,
 						defaults: {
-							xtype: 'currencyfield',
+							xtype: 'numberfield',
 							minValue: 0,
 							step: 3,
 							labelAlign: 'left',
