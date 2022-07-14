@@ -151,12 +151,12 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 						},
 						items: [
 						{
-							fieldLabel: 'P2O5 Fertilizer per lb',
+							fieldLabel: 'P2O5 Fertilizer Price per lb',
 							value: scenarioArray[0].fertPCost,
 							bind: '{costs.fertPCost}'
 						},
 						{
-							fieldLabel: 'N Fertilizer per lb',
+							fieldLabel: 'N Fertilizer Price per lb',
 							value: scenarioArray[0].fertNCost,
 							bind: '{costs.fertNCost}'
 						},
