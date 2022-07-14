@@ -418,12 +418,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, eOpts){
+					select: function(combo, value, rec, eOpts){
 						var record = combo.getWidgetRecord();
 						record.set('rotationVal', value.get('value'));
 						record.set('rotationDisp', value.get('display'));
 						me.getView().refresh();
-					}
+					},
 				}
 			}
 		};
@@ -580,34 +580,86 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//use a checkbox widget to get this done properly.  Very frustrating task, eventually
 		//figured out how to decouple the local value setting from the onContour array value
 		//will test more when i get back from vaca. 05202021
+
+		//------------------------------------------------------------------------------
+		//Change to fertpercP
+		// let PfertPerc_Column = {
+		// 	xtype: 'widgetcolumn', format: '0.0',editor: {
+		// 		xtype:'numberfield', maxValue: 100, step: 5, minValue: 0,
+		// 	}, dataIndex: 'fertPercP',
+		// 	text: 'Percent<br>Fert P', dataIndex: 'fertPercP', width: 80, tooltip: 'Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+		// 	hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+		// 	onWidgetAttach: function(col, widget, rec) {
+		// 		if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'dl') {
+		// 			widget.setDisabled(false);
+		// 		} else {
+		// 			widget.setDisabled(true);
+		// 		}
+		// 	},
+		// 	widget: {
+		// 		xtype: 'numbercolumn',
+		// 		// queryMode: 'local',
+		// 		// dataIndex: 'fertPercP',
+		// 		// format: '0.0',
+		// 		// hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+		// 		// editor: {
+		// 		// 	xtype:'numberfield', maxValue: 100, step: 5, minValue: 0,
+		// 		// }
+		// 	}
+		// };
+		//------------------------------------------------------------------------------
+
+
 		//------------------------------------------------------------------------------
 		//Change to fertpercP
 		let PfertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 100, step: 5
-			}, text: 'Percent<br>Fert P', dataIndex: 'fertPercP', width: 80, 
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Fert P', dataIndex: 'fertPercP', width: 80, tooltip: 'Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			listeners:{
+				// initialize: function(combo, value, eOpts,rec){
+				// 	console.log("Pfert_click")
+				// 	console.log(combo)
+				// 	console.log(value)
+				// 	console.log(rec)
+				// 	// var record = combo.getWidgetRecord();
+				// 	// record.set('grazeDensityVal', value.get('value'));
+				// 	// record.set('grazeDensityDisp', value.get('display'));
+				// },
+				// click: function(combo, value, eOpts,rec){
+				// 	console.log("Pfert_click")
+				// 	console.log(combo)
+				// 	console.log(value)
+				// 	console.log(rec)
+				// 	// var record = combo.getWidgetRecord();
+				// 	// record.set('grazeDensityVal', value.get('value'));
+				// 	// record.set('grazeDensityDisp', value.get('display'));
+				// }
+			}
 		};
 		//------------------------------------------------------------------------------
+
+
 		//Change to manupercP
 		let PmanuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 200, step: 5
-			}, text: 'Percent<br>Manure P', dataIndex: 'manuPercP', width: 80, 
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Manure P', dataIndex: 'manuPercP', width: 80, tooltip: 'Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		let NfertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 100, step: 5
-			}, text: 'Percent<br>Fert N', dataIndex: 'fertPercN', width: 80, 
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Fert N', dataIndex: 'fertPercN', width: 80, tooltip: 'Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		//Change to manupercP
 		let NmanuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 200, step: 5
-			}, text: 'Percent<br>Manure N', dataIndex: 'manuPercN', width: 80, 
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Manure N', dataIndex: 'manuPercN', width: 80, tooltip: 'Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
