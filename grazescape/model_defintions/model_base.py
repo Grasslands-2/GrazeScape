@@ -22,6 +22,31 @@ class ModelBase:
         f_name = request.POST.get('model_parameters[f_name]')
         scen = request.POST.get('model_parameters[scen]')
         active_region = request.POST.get('model_parameters[active_region]')
+        alfalfaMachCost = request.POST.get("model_parameters[alfalfaMachCost]")
+        alfalfaMachCostY1 = request.POST.get("model_parameters[alfalfaMachCostY1]")
+        alfalfaPestCost = request.POST.get("model_parameters[alfalfaPestCost]")
+        alfalfaSeedCost = request.POST.get("model_parameters[alfalfaSeedCost]")
+        cornMachCost = request.POST.get("model_parameters[cornMachCost]")
+        cornPestCost = request.POST.get("model_parameters[cornPestCost]")
+        cornSeedCost = request.POST.get("model_parameters[cornSeedCost]")
+        grassMachCost = request.POST.get("model_parameters[grassMachCost]")
+        grassPestCost = request.POST.get("model_parameters[grassPestCost]")
+        grassSeedCost = request.POST.get("model_parameters[grassSeedCost]")
+        oatMachCost = request.POST.get("model_parameters[oatMachCost]")
+        oatPestCost = request.POST.get("model_parameters[oatPestCost]")
+        oatSeedCost = request.POST.get("model_parameters[oatSeedCost]")
+        soyMachCost = request.POST.get("model_parameters[soyMachCost]")
+        soyPestCost = request.POST.get("model_parameters[soyPestCost]")
+        soySeedCost = request.POST.get("model_parameters[soySeedCost]")
+        fertNCost = request.POST.get("model_parameters[fertNCost]")
+        fertPCost = request.POST.get("model_parameters[fertPCost]")
+        #field variables
+        land_area = request.POST.get("model_parameters[land_area]")
+        land_cost = request.POST.get("model_parameters[land_cost]")
+        rotation = request.POST.get("model_parameters[rotation_econ]")
+        cover_crop = request.POST.get("model_parameters[crop_cover]")
+        fert_p_perc = request.POST.get("model_parameters[fert_p_perc]")
+        fert_n_perc = request.POST.get("model_parameters[fert_n_perc]")
 
         if file_name is None:
             file_name = model_type + field_id +'_' + model_run_timestamp ##+'_'+ str(uuid.uuid1())##
@@ -57,11 +82,18 @@ class ModelBase:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
+        # if active_region == "cloverBeltWI":
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','cloverBeltWI')
+        # else:
+        #     self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','southWestWI')
         if active_region == "cloverBeltWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','cloverBeltWI')
-        else:
+        if active_region == "southWestWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','southWestWI')
-
+        if active_region == "uplandsWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','uplandsWI')
+        if active_region == "northeastWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape','northeastWI')
         #Local Set up                  
         # if active_region == "cloverBeltWI":
         #     self.model_file_path = os.path.join(settings.BASE_DIR, 'grazescape',
@@ -81,54 +113,57 @@ class ModelBase:
 
     def parse_model_parameters(self, request):
         # crop, crop cover, rotation, densit
-        nutrient_dict = {"ccgcdsnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
+        #add Nneeds to these rotational averages when Elissa gets them to you.
+        nutrient_dict = {"ccgcdsnana": {"Pneeds": 65,"Nneeds": 120,"grazed_DM_lbs": 196.8,
                                         "grazed_P2O5_lbs": 2.46},
-                         "ccgcisnana": {"Pneeds": 65, "grazed_DM_lbs": 196.8,
+                         "ccgcisnana": {"Pneeds": 65,"Nneeds": 120, "grazed_DM_lbs": 196.8,
                                         "grazed_P2O5_lbs": 2.46},
-                         "ccncnana": {"Pneeds": 60, "grazed_DM_lbs": 0,
+                         "ccncnana": {"Pneeds": 60,"Nneeds": 120, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-                         "ccccnana": {"Pneeds": 60, "grazed_DM_lbs": 0,
+                         "ccccnana": {"Pneeds": 60,"Nneeds": 120, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-                         "cggcdsnana": {"Pneeds": 47.5, "grazed_DM_lbs": 196.8,
+                         "cggcdsnana": {"Pneeds": 47.5,"Nneeds": 60, "grazed_DM_lbs": 196.8,
                                         "grazed_P2O5_lbs": 2.46},
-                         "cggcisnana": {"Pneeds": 47.5, "grazed_DM_lbs": 196.8,
+                         "cggcisnana": {"Pneeds": 47.5,"Nneeds": 60, "grazed_DM_lbs": 196.8,
                                         "grazed_P2O5_lbs": 2.46},
-                         "cgncnana": {"Pneeds": 50, "grazed_DM_lbs": 0,
+                         "cgncnana": {"Pneeds": 50,"Nneeds": 60, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-                         "cgccnana": {"Pneeds": 50, "grazed_DM_lbs": 0,
+                         "cgccnana": {"Pneeds": 50,"Nneeds": 60, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-                         "drgcdsnana": {"Pneeds": 49, "grazed_DM_lbs": 38.4,
+                         "drgcdsnana": {"Pneeds": 49,"Nneeds": 52, "grazed_DM_lbs": 38.4,
                                         "grazed_P2O5_lbs": 0.48},
-                         "drgcisnana": {"Pneeds": 49, "grazed_DM_lbs": 38.4,
+                         "drgcisnana": {"Pneeds": 49,"Nneeds": 52, "grazed_DM_lbs": 38.4,
                                         "grazed_P2O5_lbs": 0.48},
-                         "drncnana": {"Pneeds": 49, "grazed_DM_lbs": 0,
+                         "drncnana": {"Pneeds": 49,"Nneeds": 52, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-                         "drccnana": {"Pneeds": 49, "grazed_DM_lbs": 0,
+                         "drccnana": {"Pneeds": 49,"Nneeds": 52, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-                         "csogcdsnana": {"Pneeds": 46.67,
+                         "csogcdsnana": {"Pneeds": 46.67,"Nneeds": 60,
                                          "grazed_DM_lbs": 64.8,
                                          "grazed_P2O5_lbs": 0.81},
-                         "csogcisnana": {"Pneeds": 46.67,
+                         "csogcisnana": {"Pneeds": 46.67,"Nneeds": 60,
                                          "grazed_DM_lbs": 64.8,
                                          "grazed_P2O5_lbs": 0.81},
-                         "csoncnana": {"Pneeds": 46.67, "grazed_DM_lbs": 0,
+                         "csoncnana": {"Pneeds": 46.67,"Nneeds": 60, "grazed_DM_lbs": 0,
                                        "grazed_P2O5_lbs": 0},
-                         "csoccnana": {"Pneeds": 46.67, "grazed_DM_lbs": 0,
+                         "csoccnana": {"Pneeds": 46.67,"Nneeds": 60, "grazed_DM_lbs": 0,
                                        "grazed_P2O5_lbs": 0},
-                         "dlntnalo": {"Pneeds": 0, "grazed_DM_lbs": 4802.4,
+                         "dlntnalo": {"Pneeds": 0,"Nneeds": 0, "grazed_DM_lbs": 4802.4,
                                       "grazed_P2O5_lbs": 60.03},
-                         "dlntnahi": {"Pneeds": 0, "grazed_DM_lbs": 24009.6,
+                         "dlntnahi": {"Pneeds": 0,"Nneeds": 0, "grazed_DM_lbs": 24009.6,
                                       "grazed_P2O5_lbs": 300.12},
-                         "ptntcnhi": {"Pneeds": 40, "grazed_DM_lbs": 3602.4,
+                         "ptntcnhi": {"Pneeds": 40,"Nneeds": 2, "grazed_DM_lbs": 3602.4,
                                       "grazed_P2O5_lbs": 45.03},
-                         "ptntcnlo": {"Pneeds": 40, "grazed_DM_lbs": 1200,
+                         "ptntcnlo": {"Pneeds": 40,"Nneeds": 2, "grazed_DM_lbs": 1200,
                                       "grazed_P2O5_lbs": 15},
-                         "ptntrtna": {"Pneeds": 40, "grazed_DM_lbs": 2400,
+                         "ptntrtna": {"Pneeds": 40,"Nneeds": 2, "grazed_DM_lbs": 2400,
                                       "grazed_P2O5_lbs": 30},
-                         "psntnana": {"Pneeds": 15, "grazed_DM_lbs": 0,
+                         "psntnana": {"Pneeds": 15,"Nneeds": 2, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
                          }
         # convert area from sq m to acres
+        print('REQUEST RIGHT BEFORE PUT INTO PARAS')
+        print(request.POST)
         parameters = {
             "f_name": request.POST.getlist("model_parameters[f_name]")[0],
             "grass_type": request.POST.getlist("model_parameters[grass_type]")[
@@ -138,15 +173,42 @@ class ModelBase:
             "tillage": request.POST.getlist("model_parameters[tillage]")[0],
             "fert": request.POST.getlist("model_parameters[fert]")[0],
             "manure": request.POST.getlist("model_parameters[manure]")[0],
+            "fertN": request.POST.getlist("model_parameters[fert_n]")[0],
+            "manureN": request.POST.getlist("model_parameters[manure_n]")[0],
             "crop": request.POST.getlist("model_parameters[crop]")[0],
-            "crop_cover": request.POST.getlist("model_parameters[crop_cover]")[
-                0],
+            "crop_cover": request.POST.getlist("model_parameters[crop_cover]")[0],
             "rotation": request.POST.getlist("model_parameters[rotation]")[0],
             "density": request.POST.getlist("model_parameters[density]")[0],
             "graze_factor": request.POST.getlist("model_parameters[graze_factor]")[0],
             "area": "",
             "om": request.POST.getlist("model_parameters[om]")[0],
+            "alfalfaMachCost": request.POST.getlist("model_parameters[alfalfaMachCost]")[0],
+            "alfalfaMachCostY1": request.POST.getlist("model_parameters[alfalfaMachCostY1]")[0],
+            "alfalfaPestCost": request.POST.getlist("model_parameters[alfalfaPestCost]")[0],
+            "alfalfaSeedCost": request.POST.getlist("model_parameters[alfalfaSeedCost]")[0],
+            "cornMachCost": request.POST.getlist("model_parameters[cornMachCost]")[0],
+            "cornPestCost": request.POST.getlist("model_parameters[cornPestCost]")[0],
+            "cornSeedCost": request.POST.getlist("model_parameters[cornSeedCost]")[0],
+            "grassMachCost": request.POST.getlist("model_parameters[grassMachCost]")[0],
+            "grassPestCost": request.POST.getlist("model_parameters[grassPestCost]")[0],
+            "grassSeedCost": request.POST.getlist("model_parameters[grassSeedCost]")[0],
+            "oatMachCost": request.POST.getlist("model_parameters[oatMachCost]")[0],
+            "oatPestCost": request.POST.getlist("model_parameters[oatPestCost]")[0],
+            "oatSeedCost": request.POST.getlist("model_parameters[oatSeedCost]")[0],
+            "soyMachCost": request.POST.getlist("model_parameters[soyMachCost]")[0],
+            "soyPestCost": request.POST.getlist("model_parameters[soyPestCost]")[0],
+            "soySeedCost": request.POST.getlist("model_parameters[soySeedCost]")[0],
+            "fertNCost": request.POST.getlist("model_parameters[fertNCost]")[0],
+            "fertPCost": request.POST.getlist("model_parameters[fertPCost]")[0],
+            #field variables
+            "land_area": request.POST.getlist("model_parameters[land_area]")[0],
+            "land_cost": request.POST.getlist("model_parameters[land_cost]")[0],
+            #"rotation_econ": request.POST.getlist("model_parameters[rotation_econ]"),
+            "fert_p_perc": request.POST.getlist("model_parameters[fert_p_perc]")[0],
+            "fert_n_perc": request.POST.getlist("model_parameters[fert_n_perc]")[0],
         }
+        print("MODEL PARAMS IN MODEL_BASE!!!!!")
+        print(parameters)
         numeric_para = ["soil_p", "fert", "manure"]
         # soil_p, fert, manure
 
@@ -330,6 +392,8 @@ class OutputDataNode:
         self.alternate_units = alternate_units
         self.default_units = default_units
         self.data = []
+        self.P2O5_fert = None
+        self.N_fert = None
 
     def set_data(self, data):
         self.data.append(data)

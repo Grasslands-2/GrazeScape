@@ -1,3 +1,4 @@
+var barLabels = []
 modelResult = {}
 var mfieldID = ''
 var modelError = false
@@ -23,8 +24,13 @@ function gatherArrayForYieldAdjustment(mdobj) {
 function populateChartObj(scenList, fieldList, allField, allScen){
 // need to get a list of scenarios here
 //    list of every chart currently in app
+    console.log(scenList)
+    console.log(fieldList)
+    console.log(allField)
+    console.log(allScen)
     for (chart in chartList){
         chartName = chartList[chart]
+        console.log(chartName)
         if(chartName.includes('field')){
             node = new ChartData()
             node.chartData =  {
@@ -92,17 +98,17 @@ function populateChartObj(scenList, fieldList, allField, allScen){
                 node.areaSum[scen] = []
             }
             node.chartData.chartDataOri = new Array(scenList.length).fill(null)
-
         }
-
         chartObj[chartName] = node
         chartObj[chartName].chart = null
         chartObj[chartName].show = false
-
     }
 }
 
 function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
+    //Try building in a way to get the scenario specific costs data from each fields scenario.
+    console.log(scenDupArray)
+    console.log(f.scenario_id)
     let runModel = false
     let split = ""
     console.log(DSS.activeRegion)
@@ -134,8 +140,10 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         contour: f["on_contour"]?1:0,
         soil_p: f["soil_p"],
         tillage: f["tillage"],
-        fert: f["fertilizerpercent"],
-        manure: f["manurepercent"],
+        fert: f["perc_fert_p"],
+        manure: f["perc_manure_p"],
+        fert_n: f["perc_fert_n"],
+        manure_n: f["perc_manure_n"],
         crop:crop,
         area:f["area"],
         om: f["om"],
@@ -151,7 +159,51 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         model_run_timestamp: modelruntimeOrig,
         active_scen: activeScenario,
         f_scen: f["scenario_id"],
-        active_region: DSS.activeRegion
+        land_area: f["area"],
+        land_cost: f["land_cost"],
+        fert_p_perc:f["perc_fert_p"],
+        fert_n_perc:f["perc_fert_n"],
+        active_region: DSS.activeRegion,
+        alfalfaMachCost: 0,
+        alfalfaMachCostY1: 0,
+        alfalfaPestCost: 0,
+        alfalfaSeedCost: 0,
+        cornMachCost: 0,
+        cornPestCost: 0,
+        cornSeedCost: 0,
+        grassMachCost: 0,
+        grassPestCost: 0,
+        grassSeedCost: 0,
+        oatMachCost: 0,
+        oatPestCost: 0,
+        oatSeedCost: 0,
+        soyMachCost: 0,
+        soyPestCost: 0,
+        soySeedCost: 0,
+        fertNCost: 0,
+        fertPCost: 0,
+    }
+    for(s in scenDupArray){
+        if(scenDupArray[s].gid == model_para.f_scen){
+            model_para.alfalfaMachCost = scenDupArray[s].alfalfa_mach_cost
+            model_para.alfalfaMachCostY1 = scenDupArray[s].alfalfa_mach_year_one
+            model_para.alfalfaPestCost = scenDupArray[s].alfalfa_pest_cost
+            model_para.alfalfaSeedCost = scenDupArray[s].alfalfa_seed_cost
+            model_para.cornMachCost = scenDupArray[s].corn_mach_cost
+            model_para.cornPestCost = scenDupArray[s].corn_pest_cost
+            model_para.cornSeedCost = scenDupArray[s].corn_seed_cost
+            model_para.grassMachCost = scenDupArray[s].grass_mach_cost
+            model_para.grassPestCost = scenDupArray[s].grass_pest_cost
+            model_para.grassSeedCost = scenDupArray[s].grass_seed_cost
+            model_para.oatMachCost = scenDupArray[s].oat_mach_cost
+            model_para.oatPestCost = scenDupArray[s].oat_pest_cost
+            model_para.oatSeedCost = scenDupArray[s].oat_seed_cost
+            model_para.soyMachCost = scenDupArray[s].soy_mach_cost
+            model_para.soyPestCost = scenDupArray[s].soy_pest_cost
+            model_para.soySeedCost = scenDupArray[s].soy_seed_cost
+            model_para.fertNCost = scenDupArray[s].fert_n_cost
+            model_para.fertPCost = scenDupArray[s].fert_p_cost
+        }
     }
     model_pack = {
         "farm_id": DSS.activeFarm,
@@ -160,6 +212,7 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         "runModels": runModel,
         "model_parameters":model_para
     }
+    console.log(model_pack)
     return model_pack
 }
 function format_chart_data(model_data){
@@ -423,6 +476,8 @@ function format_chart_data(model_data){
             chartTypeFarm = chartObj.insecticide_farm
             break
         case 'econ':
+            chartTypeField = chartObj.econ_field
+            chartTypeFarm = chartObj.econ_farm
             break
         case 'feed breakdown':
             chartTypeField = chartObj.feed_breakdown
@@ -434,8 +489,18 @@ function format_chart_data(model_data){
         chartTypeField.units_alternate = model_data.units_alternate
         let chartVal = null
         if(model_data.sum_cells != null){
+            //if econ dont do this
+            if(chartTypeField == chartObj.econ_field){
+                console.log(chartTypeField)
+                console.log(model_data.sum_cells)
+                console.log(model_data.counted_cells)
+                chartVal = +((model_data.sum_cells).toFixed(2))
+                chartTypeField.units_alternate_2 = model_data.units_alternate_2
+            chartTypeField.show = true
+            }else{
             chartVal = +((model_data.sum_cells/model_data.counted_cells).toFixed(2))
             chartTypeField.show = true
+            }
 
         }
         else{
@@ -465,24 +530,47 @@ function format_chart_data(model_data){
     let chartArea = null
     if(model_data.sum_cells != null){
         chartTypeFarm.show = true
+        if(chartTypeFarm == chartObj.econ_farm){
+            console.log(model_data)
+            console.log(model_data.sum_cells)
+            console.log(model_data.counted_cells)
+            chartVal = model_data.sum_cells * model_data.counted_cells
+            console.log(chartVal)
+            chartCells = model_data.counted_cells
+            chartArea = model_data.area
+            chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
+            chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? /*model_data.sum_cells*/chartVal:chartTypeFarm.sum[scenIndex] + chartVal
+            chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
-        chartVal = model_data.sum_cells
-        chartCells = model_data.counted_cells
-        chartArea = model_data.area
-        chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
-        chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
-        chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
+
+            chartTypeFarm.units = model_data.units
+            chartTypeFarm.units_alternate = model_data.units_alternate
+            chartTypeFarm.units_alternate_2 = model_data.units_alternate_2
+
+            chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells * model_data.counted_cells
+            chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
+
+            chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex),null]
+            chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex),null]
+        }else{
+            chartVal = model_data.sum_cells
+            chartCells = model_data.counted_cells
+            chartArea = model_data.area
+            chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + chartCells
+            chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
+            chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
 
-        chartTypeFarm.units = model_data.units
-        chartTypeFarm.units_alternate = model_data.units_alternate
+            chartTypeFarm.units = model_data.units
+            chartTypeFarm.units_alternate = model_data.units_alternate
 
-        chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
-        chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
+            chartTypeFarm.fieldSum[scenIndex][fieldIndex] =  model_data.sum_cells
+            chartTypeFarm.areaSum[scenIndex][fieldIndex] = model_data.area
 
-        chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex),null]
-        chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex),null]
-
+            chartTypeFarm.chartData.datasets[scenIndex].data =[chartTypeFarm.get_avg(scenIndex),null]
+            chartTypeFarm.chartData.chartDataOri[scenIndex]=[chartTypeFarm.get_avg(scenIndex),null]
+        }
+        
         if(chartTypeFarm.chart !== null){
             chartTypeFarm.chart.update()
             chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
@@ -577,6 +665,7 @@ function calcHeiferFeedBreakdown(data){
 )}
 // calls to the python to run get_model_results function which either collects data from the model results table, or runs the models on the fields, if they are dirty/new
 function get_model_data(data){
+    console.log(data)
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
     $.ajaxSetup({
@@ -589,6 +678,7 @@ function get_model_data(data){
     'timeout':0,
         success: async function(responses, opts) {
             delete $.ajaxSetup().headers
+            console.log(responses)
             if(responses == null){
                 resolve([]);
             }
@@ -620,6 +710,48 @@ function get_model_data(data){
     });
     })
 	}
+    // function run_econ_model(data){
+    //     return new Promise(function(resolve) {
+    //     var csrftoken = Cookies.get('csrftoken');
+    //     $.ajaxSetup({
+    //             headers: { "X-CSRFToken": csrftoken }
+    //         });
+    //     $.ajax({
+    //     'url' : '/grazescape/run_econ_model',
+    //     'type' : 'POST',
+    //     'data' : data,
+    //     'timeout':0,
+    //         success: async function(responses, opts) {
+    //             console.log(responses)
+    //             delete $.ajaxSetup().headers
+    //             // if(responses == null){
+    //             //     resolve([]);
+    //             // }
+    //             // for (response in responses){
+    //             //     obj = responses[response];
+    //             //     if(obj.error || response == null){
+    //             //         console.log("model did not run")
+    //             //         console.log(obj.error)
+    //             //         if(!modelError){
+    //             //             alert(obj.error);
+    //             //             modelErrorMessages.push(obj.error)
+    //             //             modelError = true
+    //             //         }
+    //             //         continue
+    //             //     }
+    //             //     let e = obj.extent;
+    //             // }
+    //             resolve(responses);
+    //         },
+    
+    //         failure: function(response, opts) {
+    //             console.log(responses)
+    //             me.stopWorkerAnimation();
+    //         },
+    //         //timeout:50
+    //     });
+    //     })
+    // }
 //validates images?  Not sure, Havent worked with 
 function validateImageOL(json, layer, tryCount) {
     var me = this;
@@ -656,15 +788,17 @@ function validateImageOL(json, layer, tryCount) {
  * @inputString {String} inputString - The input acronym
  */
 // Creates graphs for each model result for the dashboard
-function create_graph(chart,title,element){
 
+function create_graph(chart,title,element){
     units = chart.units
     data = chart.chartData
-    console.log(element)
-    console.log(data)
+    //console.log(element)
+    //console.log(chartObj)
+    //console.log(data)
     let barchart = new Chart(element, {
         type: 'bar',
         data: data,
+        plugins: [ChartDataLabels],
         options: {
             responsive: true,
             skipNull:true,
@@ -674,6 +808,31 @@ function create_graph(chart,title,element){
               },
 //            maintainAspectRatio: false,
             plugins:{
+                //ChartDataLabels:
+                datalabels:
+                {
+                    formatter: function(value, context) {
+                        //console.log(data)
+                        //console.log(value)
+                        //console.log(chartObj)
+                        //console.log(context)
+                        //console.log(context.dataset)
+                        if(value !== null){
+                            return context.dataset.label//"hi there!"//context.chart.data.datasets[context.dataIndex].label
+                        ;}//context.dataset.label
+                    },
+                    anchor: 'start',
+                    align: 'end',
+                    offset: 10,
+                    color: 'black',
+                    rotation: -70,
+                    font: {
+                        weight: 'bold',
+                        size: 13
+                      },
+                    textStrokeColor: 'white',
+                    textStrokeWidth: 1
+                },
                 title:
                 {
                     display: true,
@@ -706,6 +865,7 @@ function create_graph(chart,title,element){
                     }
                 },
                 legend: {
+                    display: false,
                     position: 'top',
                     test1: "Hi everyone!",
                     onClick: function (event, legendItem, legend){
@@ -1027,6 +1187,143 @@ function displayAlternate(chartName, btnId){
     }
     chartData.chart.update()
 }
+// toggle between displaying data between yearly total vs total per area vs total per dm TON
+function displayAlternateEcon(chartName,oldValue,newValue){
+    fieldYieldDatasets = chartObj.rotation_yield_field.chartData.datasets
+    farmYieldDatasets = chartObj.rotation_yield_farm.chartData.datasets
+    console.log(chartName)
+    console.log(fieldYieldDatasets)
+    console.log(farmYieldDatasets)
+    console.log(oldValue)
+    console.log(newValue)
+    chartDatasets = chartObj[chartName].chartData.datasets
+    chartData = chartObj[chartName]
+
+//    btnObject = Ext.getCmp(btnId)
+    divideArea = true
+//    switch back to yield by area
+    if(newValue == 'a'){
+//        btnObject.setText('Average Yield')
+        chartData.chart.options.scales.y.title.text = chartData.units;
+        chartData.useAlternate = false
+        //divideArea = true
+//        conv = 1/area
+    }
+    if (newValue == 't'){
+//        btnObject.setText('Average Yield / Area')
+        chartData.chart.options.scales.y.title.text= chartData.units_alternate;
+        chartData.useAlternate = true
+//        conv = area
+        //divideArea = false
+    }
+    if (newValue == 'd'){
+        //        btnObject.setText('Average Yield / Area')
+                chartData.chart.options.scales.y.title.text= "Costs (dollars/Tons DM)";
+                chartData.useAlternate = true
+        //        conv = area
+                //divideArea = false
+            }
+    //where recalc goes
+    if(chartName = "econ_field"){
+        for(set in chartDatasets){
+           for(yset in fieldYieldDatasets){
+               if(chartDatasets[set].dbID == fieldYieldDatasets[yset].dbID){
+                   console.log("field match")
+                   let yieldDataPerAcre = fieldYieldDatasets[yset].fieldData
+                   for(value in chartDatasets[set].data){
+                      let v = chartDatasets[set].data[value]
+                      let acreage = chartData.area[set]
+                      console.log(chartDatasets[set].data[value])
+                      console.log(acreage)
+                      console.log(yieldDataPerAcre)
+                      if(chartDatasets[set].data[value] !== null){
+                        if(oldValue == 'a' && newValue == 't'){
+                            console.log("a and t")
+                           chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * acreage)).toFixed(2)
+                           console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 'a' && newValue == 'd'){
+                            console.log("a and d")
+                            chartDatasets[set].data[value] = (chartDatasets[set].data[value] / yieldDataPerAcre).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 't' && newValue == 'a'){
+                            console.log("t and a")
+                            chartDatasets[set].data[value] = (chartDatasets[set].data[value] / acreage).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 't' && newValue == 'd'){
+                            console.log("t and d")
+                            chartDatasets[set].data[value] = ((chartDatasets[set].data[value] / acreage) / yieldDataPerAcre).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 'd' && newValue == 'a'){
+                            console.log("d and a")
+                            chartDatasets[set].data[value] = (chartDatasets[set].data[value] * yieldDataPerAcre).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                        if(oldValue == 'd' && newValue == 't'){
+                            console.log("d and t")
+                            chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * yieldDataPerAcre) * acreage).toFixed(2)
+                            console.log(chartDatasets[set].data[value])
+                        }
+                    }
+                    }
+               }
+           }
+        }
+    }
+    if(chartName = "econ_farm"){
+        for(set in chartDatasets){
+           for(yset in farmYieldDatasets){
+               if(chartDatasets[set].dbID == farmYieldDatasets[yset].dbID){
+                   console.log("field match")
+                   let yieldDataPerAcre = chartObj.rotation_yield_farm.sum[set]/chartObj.rotation_yield_farm.count[set]
+                   for(value in chartDatasets[set].data){
+                      let v = chartDatasets[set].data[value]
+                      acreage = chartObj.rotation_yield_farm.area[set]
+                      console.log(chartDatasets[set].data[value])
+                      console.log(acreage)
+                      console.log(yieldDataPerAcre)
+                       if(chartDatasets[set].data[value] !== null){
+                            if(oldValue == 'a' && newValue == 't'){
+                                console.log("a and t")
+                               chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * acreage)).toFixed(2)
+                               console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 'a' && newValue == 'd'){
+                                console.log("a and d")
+                                chartDatasets[set].data[value] = (chartDatasets[set].data[value] / yieldDataPerAcre).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 't' && newValue == 'a'){
+                                console.log("t and a")
+                                chartDatasets[set].data[value] = (chartDatasets[set].data[value] / acreage).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 't' && newValue == 'd'){
+                                console.log("t and d")
+                                chartDatasets[set].data[value] = ((chartDatasets[set].data[value] / acreage) / yieldDataPerAcre).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 'd' && newValue == 'a'){
+                                console.log("d and a")
+                                chartDatasets[set].data[value] = (chartDatasets[set].data[value] * yieldDataPerAcre).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                            if(oldValue == 'd' && newValue == 't'){
+                                console.log("d and t")
+                                chartDatasets[set].data[value] = ((chartDatasets[set].data[value] * yieldDataPerAcre) * acreage).toFixed(2)
+                                console.log(chartDatasets[set].data[value])
+                            }
+                        }
+                    }
+               }
+           }
+        }
+    }
+    chartData.chart.update()
+}
 // organzies all fields and scenarios so that they show in order and with the same colors
 //across charts
 function compareChartCheckBox(){
@@ -1064,6 +1361,8 @@ function compareChartCheckBox(){
         ["Runoff from 5 in storm","runoff_farm", false, false]
      ],
      insectVar: [["Honey Bee Toxicity", 'insecticide_farm', false, false]],
+     costVar:  [
+        ["Farm Production Costs  " , 'econ_farm', false, false]],
      infraVar : [
 //     "Total Fence Length", "Total Fence Cost",
 //     "Total Water Line Distance", "Total Water Line Cost", "Total Lane Distance",
@@ -1115,9 +1414,10 @@ function populateRadarChart(){
     let checkNutrients = Ext.getCmp('checkNutrients').getChecked()
     let checkRunoff = Ext.getCmp('checkRunoff').getChecked()
     let checkInsecticide = Ext.getCmp('checkInsecticide').getChecked()
+    let checkCosts = Ext.getCmp('checkCosts').getChecked()
     checkBoxArr = []
 //  combine all the checkbox section into one array
-    checkBoxArr = checkYield.concat(checkErosion,checkNutrients,checkRunoff,checkInsecticide)
+    checkBoxArr = checkYield.concat(checkErosion,checkNutrients,checkRunoff,checkInsecticide,checkCosts)
     checkBoxArr.concat(checkYield)
     if(checkBoxArr.length<0){
         return
@@ -1646,6 +1946,20 @@ class ChartDatasetContainer{
 
         this.colorIndex = 0
         this.getScenarios().then(returnData =>{
+            //added by ZJH to reorder this.scenarios
+            this.scenarios.sort(function(a, b){return a.dbID - b.dbID})
+
+            for(let scen in this.scenarios){
+                 console.log(this.scenarios[scen])
+                 
+                 if(this.scenarios[scen].dbID == DSS.activeScenario){
+                    console.log("Active Scenario Hit")
+                    var first = this.scenarios[scen]
+                    this.scenarios.sort(function(x,y){ return x.dbID == first.dbID ? -1 : y.dbID == first.dbID ? 1 : 0; });
+                    console.log(this.scenarios)
+                 }
+             }
+            //End addition
             this.getFields().then(returnData =>{
                 populateChartObj(this.getScenarioList(), this.getFieldList(),this.fields, this.scenarios)
                 this.setCheckBoxes()
@@ -1699,7 +2013,7 @@ class ChartDatasetContainer{
                 console.log(results)
                 let {fieldList, fieldIdList, scenIdList,geomList} = results
                 for (let scen in fieldList){
-                    this.addSet(fieldList[scen] + " ("+ this.getScenName(scenIdList[scen])+ ")",'field',fieldIdList[scen], scen, geomList[scen])
+                    this.addSet(fieldList[scen] /*+ " ("+ this.getScenName(scenIdList[scen])+ ")" */,'field',fieldIdList[scen], scen, geomList[scen],scenIdList[scen])
                 }
                 resolve()
             })
@@ -1717,7 +2031,7 @@ class ChartDatasetContainer{
         //        let scenList = ['Scenario 2','Scenario 1','Scenario 3']
         //        scenList.sort()
                 for (let scen in scenList){
-                    this.addSet(scenList[scen], 'scen',scenIdList[scen], scen)
+                    this.addSet(scenList[scen], 'scen',scenIdList[scen], scen,"",scenIdList[scen])
                     // populating scenario picker combobox for the compare chart
                     scenariosStore.loadData([[scenList[scen],scenIdList[scen]]],true)
                     scenariosStore.sort('name', 'ASC');
@@ -1730,8 +2044,7 @@ class ChartDatasetContainer{
     }
     // fields that are the same across scenarios should have the same color
     // right now we are looking at geometry to tie fields between scenarios
-    fieldDuplicate(geom, index){
-        console.log(geom)
+    fieldDuplicate(geom, index,scenId,type){
         let match = null
         let foundMatch = true
         // loop through all fields
@@ -1739,8 +2052,6 @@ class ChartDatasetContainer{
             // loop through all fields' geometry
             foundMatch = true
             for(let point in this.fields[field].geom){
-//                console.log(geom[point])
-//                console.log(this.fields[field].geom[point])
                 if(geom[point] == undefined){
                     foundMatch = false
                     break
@@ -1750,30 +2061,61 @@ class ChartDatasetContainer{
                     break
                 }
             }
-            if(foundMatch){
-
-                match = this.fields[field]
-            }
+            // if(foundMatch){
+            //     match = this.fields[field]
+            // }
         }
-        if (match != null){
-            return match.color
+        // if (match != null){
+        //     return match.color
+        // }
+        if(scenId === DSS.activeScenario && type === 'field'){
+            console.log('HIT ACTIVE SCENARIO AND FIELD')
+            console.log(index)
+            console.log(geom)
+            console.log(scenId)
+            console.log(type)
+            return chartColorsAS[index % chartColorsAS.length]
         }
-        return chartColors[index % chartColors.length]
+        if(scenId != DSS.activeScenario && type === 'field'){
+            console.log(index)
+            console.log(geom)
+            console.log(scenId)
+            console.log(type)
+            return chartColors[index % chartColors.length]
+        }
+        if(scenId === DSS.activeScenario && type === 'scen'){
+            console.log('HIT ACTIVE SCENARIO AND SCENARIO')
+            console.log(index)
+            console.log(geom)
+            console.log(scenId)
+            console.log(type)
+            return chartColorsAS[index % chartColorsAS.length]
+        }
+        if(scenId != DSS.activeScenario && type === 'scen'){
+            console.log(index)
+            console.log(geom)
+            console.log(scenId)
+            console.log(type)
+            return chartColors[index % chartColors.length]
+        }
     }
 //    sort fields alphabetically(so they show in same order on each graph) and choose color.
 //@ param setName Name of scenario
 //@ type field or scen
 //@ id primary key of the scenario or field
 // return index of field
-    addSet(setName, type, id, index, geom=""){
+    addSet(setName, type, id, index, geom="",scenId){
+        console.log(type)
+        console.log(scenId)
         let sets = null
         if (type == "field"){
             sets  = this.fields
+            console.log(this.fields)
         }
         else if (type == "scen"){
             sets  = this.scenarios
         }
-        let color = this.fieldDuplicate(geom, index)
+        let color = this.fieldDuplicate(geom, index,scenId,type)
         let currField = new DatasetNode(setName, color, id, geom)
         if (sets.length < 1){
             sets.push(currField)
@@ -1840,18 +2182,21 @@ class ChartDatasetContainer{
         let counter = 0
         for (let field in this.fields){
             field_list.push(this.fields[field].name)
-
-
         }
         return field_list
 
     }
     getScenarioList(){
         let scen_list = []
-
+        console.log(this.scenarios)
+        let scenariosList2 = this.scenarios
         for (let scen in this.scenarios){
+            console.log(this.scenarios[scen])
+            //if(this.scenarios[scen].dbID == DSS.activeScenario){
+            //    scen_list.unshift(this.scenarios[scen].name)
+            //}else{
             scen_list.push(this.scenarios[scen].name)
-
+           // }
         }
         return scen_list
     }

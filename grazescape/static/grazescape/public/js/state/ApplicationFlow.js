@@ -118,12 +118,14 @@ Ext.define('DSS.state.ApplicationFlow', {
 							});
 						}
 					}					
-				},{
+				},
+				{
 					xtype: 'component',
 					flex: 1,
 					height: 114, margin: '8 8 0 -12',
 					style: 'background-image: url("/static/grazescape/public/images/graze_logo.png"); background-size: contain; background-repeat: no-repeat',
-				}]
+				},
+			]
 			},{
 				// Container for controls necessary at each step in the application flow
 				//----------------------------------------------------------------------------------
@@ -133,7 +135,15 @@ Ext.define('DSS.state.ApplicationFlow', {
 				listeners: {
 					afterrender: function(self) { me.DSS_App['FlowContainer'] = self }
 				}			
-			},{
+			},
+			// {
+			// 	xtype: 'component',
+			// 	flex: 1,
+			// 	cls:'footer',
+			// 	height: 114, margin: '8 8 0 -12',
+			// 	style: 'background-image: url("/static/grazescape/public/images/Maptiler1.png"); background-size: contain; background-repeat: no-repeat',
+			// },
+			{
 				// Footer, possibly should hide when not on the "landing" portion of the grazescape application 
 				//----------------------------------------------------------------------------------
 				xtype: 'component',
@@ -208,6 +218,10 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.layer.farms_1.setVisible(true);
 		DSS.layer.farms_1.setOpacity(1);
 		DSS.layer.markers.setVisible(false);
+		DSS.layer.cloverBeltBorder.setVisible(true)
+		DSS.layer.swwiBorder.setVisible(true)
+		DSS.layer.northeastBorder.setVisible(true)
+		DSS.layer.uplandBorder.setVisible(true)
 		//Region Picker 
 		
 		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				

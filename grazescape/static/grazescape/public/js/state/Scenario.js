@@ -1,3 +1,5 @@
+//const { listenerCount } = require("process");
+
 var farmArray = [];
 var farmObj = {};
 var scenarioArray = [];
@@ -181,7 +183,25 @@ function popScenarioArray(obj) {
 		heiferDaysOnPasture: obj[i].properties.heifer_days_on_pasture,
 		heiferFeedFromPasturePerHeadDay: obj[i].properties.heifer_feed_from_pasture_per_head_day,
 		heiferFeedFromPasturePerDayHerd: obj[i].properties.heifer_feed_from_pasture_per_herd_day,
-		heiferDMIDemandPerSeason: obj[i].properties.heifer_dmi_demand_per_season
+		heiferDMIDemandPerSeason: obj[i].properties.heifer_dmi_demand_per_season,
+		cornSeedCost: obj[i].properties.corn_seed_cost,
+		cornPestCost: obj[i].properties.corn_pest_cost,
+		cornMachCost: obj[i].properties.corn_mach_cost,
+		soySeedCost: obj[i].properties.soy_seed_cost,
+		soyPestCost: obj[i].properties.soy_pest_cost,
+		soyMachCost: obj[i].properties.soy_mach_cost,
+		grassSeedCost: obj[i].properties.grass_seed_cost,
+		grassPestCost: obj[i].properties.grass_pest_cost,
+		grassMachCost: obj[i].properties.grass_mach_cost,
+		oatSeedCost: obj[i].properties.oat_seed_cost,
+		oatPestCost: obj[i].properties.oat_pest_cost,
+		oatMachCost: obj[i].properties.oat_mach_cost,
+		alfalfaSeedCost: obj[i].properties.alfalfa_seed_cost,
+		alfalfaPestCost: obj[i].properties.alfalfa_pest_cost,
+		alfalfaMachCost: obj[i].properties.alfalfa_mach_cost,
+		alfalfaMachYearOneCost: obj[i].properties.alfalfa_mach_year_one,
+		fertPCost: obj[i].properties.fert_p_cost,
+		fertNCost: obj[i].properties.fert_n_cost,
 	});
 	console.log("gatherTableData for scenarios ran");
 	console.log(scenarioArray);
@@ -257,8 +277,8 @@ function runFieldUpdate(){
 					cover_crop: fieldArray[i].coverCropVal,
 					cover_crop_disp: fieldArray[i].coverCropDisp,
 					on_contour: fieldArray[i].onContour,
-					fertilizerpercent:fieldArray[i].fertPerc,
-					manurepercent: fieldArray[i].manuPerc,
+					perc_fert_p:fieldArray[i].fertPerc,
+					perc_manure_p: fieldArray[i].manuPerc,
 					grass_speciesval: fieldArray[i].grassSpeciesVal,
 					grass_speciesdisp: fieldArray[i].grassSpeciesDisp,
 					interseeded_clover: fieldArray[i].interseededClover,
@@ -275,6 +295,10 @@ function runFieldUpdate(){
 					fence_type: fieldArray[i].fence_type,
 					fence_cost: fieldArray[i].fence_cost,
 					fence_unit_cost: fieldArray[i].fence_unit_cost,
+					perc_fert_p: fieldArray[i].fertPercP,
+					perc_fert_n: fieldArray[i].fertPercN,
+					perc_manure_p: fieldArray[i].manuPercP,
+					perc_manure_n: fieldArray[i].manuPercN,
 				});
 				wfs_update(feildFeature,'field_2');
 				break;
@@ -284,45 +308,70 @@ function runFieldUpdate(){
 };
 async function runScenarioUpdate(){
 	aswValue = 0
+	
 	//await aswCheck(DSS['viewModel'].scenario.data.heifers.breedSize,
 	//DSS['viewModel'].scenario.data.heifers.asw)
 	//reSourcescenarios()
+	console.log('in run scen update')
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
+		console.log(f.values_.gid)
 		var scenarioFeature = f;
-		if(DSS.activeScenario === scenarioFeature.values_.scenario_id){
+		if(DSS.activeScenario === scenarioFeature.values_.gid){
 			//console.log(scenarioArray[i].scenarioName);
 			console.log(scenarioArray[i]);
 			scenarioFeature.setProperties({
-				lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
-				dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
-				youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
-				beef_cows: DSS['viewModel'].scenario.data.beef.cows,
-				stockers: DSS['viewModel'].scenario.data.beef.stockers,
-				finishers: DSS['viewModel'].scenario.data.beef.finishers,
-				ave_milk_yield: DSS['viewModel'].scenario.data.dairy.dailyYield,
-				lac_confined_mos: DSS['viewModel'].scenario.data.dairy.lactatingConfined,
-				dry_confined_mos: DSS['viewModel'].scenario.data.dairy.nonLactatingConfined,
-				beef_confined_mos: DSS['viewModel'].scenario.data.beef.confined,
-				lac_graze_time: DSS['viewModel'].scenario.data.dairy.lactatingGrazeTime,
-				dry_graze_time: DSS['viewModel'].scenario.data.dairy.nonLactatingGrazeTime,
-				beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
-				lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
-				dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
-				perc_residual_on_pasture: DSS['viewModel'].scenario.data.percResidualOnPasture,
-				beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
-				heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.rotationFreqVal,
-				pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
-				crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
-				pasture_rot_freq: DSS['viewModel'].scenario.data.pastRotationFreq,
-				heifers: DSS['viewModel'].scenario.data.heifers.heifers,
-				heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
-				heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
-				heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,
-				heifer_starting_weight: aswValue,
-				heifer_days_on_pasture: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
-				heifer_feed_from_pasture_per_head_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerHeadDay,
-				heifer_feed_from_pasture_per_herd_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerDayHerd,
-				heifer_dmi_demand_per_season: DSS['viewModel'].scenario.data.heifers.dmiDemandPerSeason,
+
+				//Animal variables commented out for now, until needed by later development
+				//ZJH 05252022
+
+				// lac_cows: DSS['viewModel'].scenario.data.dairy.lactating,
+				// dry_cows: DSS['viewModel'].scenario.data.dairy.dry,
+				// youngstock: DSS['viewModel'].scenario.data.dairy.youngstock,
+				// beef_cows: DSS['viewModel'].scenario.data.beef.cows,
+				// stockers: DSS['viewModel'].scenario.data.beef.stockers,
+				// finishers: DSS['viewModel'].scenario.data.beef.finishers,
+				// ave_milk_yield: DSS['viewModel'].scenario.data.dairy.dailyYield,
+				// lac_confined_mos: DSS['viewModel'].scenario.data.dairy.lactatingConfined,
+				// dry_confined_mos: DSS['viewModel'].scenario.data.dairy.nonLactatingConfined,
+				// beef_confined_mos: DSS['viewModel'].scenario.data.beef.confined,
+				// lac_graze_time: DSS['viewModel'].scenario.data.dairy.lactatingGrazeTime,
+				// dry_graze_time: DSS['viewModel'].scenario.data.dairy.nonLactatingGrazeTime,
+				// beef_graze_time: DSS['viewModel'].scenario.data.beef.grazeTime,
+				// lac_rotate_freq: DSS['viewModel'].scenario.data.dairy.lactatingRotationFreq,
+				// dry_rotate_freq: DSS['viewModel'].scenario.data.dairy.nonLactatingRotationFreq,
+				// perc_residual_on_pasture: DSS['viewModel'].scenario.data.percResidualOnPasture,
+				// beef_rotate_freq: DSS['viewModel'].scenario.data.beef.rotationFreq,
+				// heifers_on_pasture: DSS['viewModel'].scenario.data.heifers.rotationFreqVal,
+				// pasture_acreage: DSS['viewModel'].scenario.data.acreage.pasture,
+				// crop_acreage: DSS['viewModel'].scenario.data.acreage.crop,
+				// pasture_rot_freq: DSS['viewModel'].scenario.data.pastRotationFreq,
+				// heifers: DSS['viewModel'].scenario.data.heifers.heifers,
+				// heifer_breed_size: DSS['viewModel'].scenario.data.heifers.breedSize,
+				// heifer_bred_unbred: DSS['viewModel'].scenario.data.heifers.bred,
+				// heifer_target_weight_gain: DSS['viewModel'].scenario.data.heifers.tdwg,
+				// heifer_starting_weight: aswValue,
+				// heifer_days_on_pasture: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
+				// heifer_feed_from_pasture_per_head_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerHeadDay,
+				// heifer_feed_from_pasture_per_herd_day: DSS['viewModel'].scenario.data.heifers.forageFromPasturePerDayHerd,
+				// heifer_dmi_demand_per_season: DSS['viewModel'].scenario.data.heifers.dmiDemandPerSeason,
+				corn_seed_cost: DSS['viewModel'].scenario.data.costs.cornSeedCost,
+				corn_pest_cost: DSS['viewModel'].scenario.data.costs.cornPestCost,
+				corn_mach_cost: DSS['viewModel'].scenario.data.costs.cornMachCost,
+				soy_seed_cost: DSS['viewModel'].scenario.data.costs.soySeedCost,
+				soy_pest_cost: DSS['viewModel'].scenario.data.costs.soyPestCost,
+				soy_mach_cost: DSS['viewModel'].scenario.data.costs.soyMachCost,
+				grass_seed_cost: DSS['viewModel'].scenario.data.costs.grassSeedCost,
+				grass_pest_cost: DSS['viewModel'].scenario.data.costs.grassPestCost,
+				grass_mach_cost: DSS['viewModel'].scenario.data.costs.grassMachCost,
+				oat_seed_cost: DSS['viewModel'].scenario.data.costs.oatSeedCost,
+				oat_pest_cost: DSS['viewModel'].scenario.data.costs.oatPestCost,
+				oat_mach_cost: DSS['viewModel'].scenario.data.costs.oatMachCost,
+				alfalfa_seed_cost: DSS['viewModel'].scenario.data.costs.alfalfaSeedCost,
+				alfalfa_pest_cost: DSS['viewModel'].scenario.data.costs.alfalfaPestCost,
+				alfalfa_mach_cost: DSS['viewModel'].scenario.data.costs.alfalfaMachCost,
+				alfalfa_mach_year_one: DSS['viewModel'].scenario.data.costs.alfalfaMachYearOneCost,
+				fert_p_cost: DSS['viewModel'].scenario.data.costs.fertPCost,
+				fert_n_cost: DSS['viewModel'].scenario.data.costs.fertNCost
 			});
 			wfs_update(scenarioFeature,'scenarios_2');
 		}						
@@ -336,7 +385,7 @@ function wfs_update(feat,layer) {
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
 		/*'http://geoserver.org/Farms'*/,
-		Geom: 'geom',
+		Geometry: 'geom',
         featureType: layer,
         srsName: 'EPSG:3857'
     });
@@ -378,7 +427,9 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.field_shapes.FieldApplyPanel',
 		'DSS.infra_shapes.InfraApplyPanel',
 		'DSS.field_shapes.Delete',
-		'DSS.infra_shapes.DeleteLine'
+		'DSS.infra_shapes.DeleteLine',
+		'DSS.field_shapes.ShpFieldUpload',
+		'DSS.state.scenario.CostsDialog'
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -397,6 +448,10 @@ Ext.define('DSS.state.Scenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
+		if(Ext.getCmp("CostDialog")){
+			Ext.getCmp("CostDialog").destroy()
+			console.log("cost dialog destroyed")
+		}
 		//DSS.MapState.hideFieldsandInfra()
 
 		Ext.applyIf(me, {
@@ -415,8 +470,12 @@ Ext.define('DSS.state.Scenario', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: async function(self) {
+									// if (DSS['viewModel'].scenario.data ==null){
+									// 	console.log("No viewModel")
+									// 	await me.initViewModel();
+									// }
 									await gatherScenarioTableData
-									await runScenarioUpdate();
+									//await runScenarioUpdate();
 									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									//geoServer.getWFSScenario()
 									DSS.ApplicationFlow.instance.showManageOperationPage();
@@ -522,13 +581,13 @@ Ext.define('DSS.state.Scenario', {
 								console.log("draw is on");
 								console.log(self)
 								DSS.draw.on('drawend', function (e) {
+									console.log(e)
 									document.body.style.cursor = 'default'
 									fieldArea = e.feature.values_.geom.getArea();
 									console.log(fieldArea);
 									AppEvents.triggerEvent('hide_field_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
-									DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 				
-									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
+									DSS.dialogs.FieldApplyPanel = Ext.create('DSS.field_shapes.FieldApplyPanel'); 			
 									DSS.dialogs.FieldApplyPanel.show().center().setY(100);
 									inputFieldObj = e
 								})     
@@ -541,6 +600,13 @@ Ext.define('DSS.state.Scenario', {
 								console.log('delete field mode on')
 								AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 								selectFieldDelete()
+							}
+						},
+						{
+							text: 'Upload GeoJSON',
+							handler: function(self) {
+								DSS.dialogs.ShpFieldUpload = Ext.create('DSS.field_shapes.ShpFieldUpload'); 				
+								DSS.dialogs.ShpFieldUpload.show().center().setY(100);
 							}
 						},
 					]
@@ -625,8 +691,7 @@ Ext.define('DSS.state.Scenario', {
 									console.log(infraLength);
 									AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
-									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 				
-									//DSS.dialogs.FieldApplyPanel.setViewModel(DSS.viewModel.scenario);
+									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 	
 									DSS.dialogs.InfraApplyPanel.show().center().setY(100);
 									inputInfraObj = e
 								})     
@@ -719,6 +784,7 @@ Ext.define('DSS.state.Scenario', {
 					cls: 'information',
 					html: 'Edit Scenario Attributes'
 				},
+				
 				// {
 				// 	xtype: 'button',
 				// 	cls: 'button-text-pad',
@@ -743,7 +809,7 @@ Ext.define('DSS.state.Scenario', {
 				// 	componentCls: 'button-margin',
 				// 	text: 'Animals',
 				// 	handler: async function(self) {
-				// 		await getWFSScenario()
+				// 		//await getWFSScenario()
 						
 				// 		//if (!DSS.dialogs) DSS.dialogs = {};
 				// 		//if (!DSS.dialogs.AnimalDialog) 
@@ -772,7 +838,7 @@ Ext.define('DSS.state.Scenario', {
 							DSS.MapState.removeMapInteractions();
 							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
-							pastAcreage = 0
+							cropAcreage = 0
 							gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
 							AppEvents.triggerEvent('hide_field_shape_mode');
@@ -785,6 +851,8 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
+							selectInteraction.getFeatures().clear()
+							DSS.map.removeInteraction(selectInteraction);
 							runFieldUpdate()
 						}
 					}
@@ -815,6 +883,46 @@ Ext.define('DSS.state.Scenario', {
 						}
 					}
 				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Edit Scenario Costs',
+					allowDepress: false,
+					handler: function(self) {
+					if(Ext.getCmp("CostDialog")){
+						DSS.dialogs.CostsDialog = Ext.getCmp("CostDialog").show()
+						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
+						DSS.dialogs.CostsDialog.show().center().setY(25);
+						console.log("cost dialog destroyed")
+					}else{
+					// setTimeout(() => {
+						DSS.dialogs.CostsDialog = Ext.create('DSS.state.scenario.CostsDialog');
+						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
+						DSS.dialogs.CostsDialog.show().center().setY(25);
+					}
+					//}, 1000);
+					}
+					
+				},
+				// {
+				// 	xtype: 'button',
+				// 	cls: 'button-text-pad',
+				// 	componentCls: 'button-margin',
+				// 	text: 'run econ model',
+				// 	allowDepress: false,
+				// 	handler: function(self) {
+				// 		//console.log(fieldArray)
+				// 		econPact = {
+				// 			"fieldCount": fieldArray.length,
+				// 			"fieldArray": fieldArray,
+				// 			"scenArray": scenarioArray
+				// 		}
+				// 		console.log(econPact)
+				// 		//run econ model calcs
+				// 		run_econ_model(econPact)
+				// 	}
+				// },
 				//------------------------------------------
 				// {
 				// 	xtype: 'button',
@@ -853,6 +961,7 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Run Models',
 					disabled:true,
 					handler: async function(self) {
+						getWFSScenarioSP()
 						if(fieldArray.length <1 ){
 							gatherTableData();
 							console.log("Field Array was empty. Running gatherTableData")
@@ -897,6 +1006,7 @@ Ext.define('DSS.state.Scenario', {
 							//Ext.create('DSS.map.OutputMenu').showAt(10,10);
                         }
                         else{
+							getWFSScenarioSP()
 							console.log("rerunning update")
 //                            close model to destroy it to rerun models
                             console.log("destroy dashboard")
@@ -985,10 +1095,12 @@ Ext.define('DSS.state.Scenario', {
 
 	//-----------------------------------------------------------------------------
 	initViewModel: function() {
-		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
-		return;
+		console.log("IM INSIDE INITVIEWMODEL!!!!!!!")
+		// if (DSS && DSS.viewModel && DSS.viewModel.scenario)
+		// return;
 		
-		if (!DSS['viewModel'])*/ 
+		// if (!DSS['viewModel'])
+		console.log("No View Model")
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
 //		gatherScenarioTableData()
@@ -1048,6 +1160,26 @@ Ext.define('DSS.state.Scenario', {
 				acreage: {
 					pasture:scenarioArray[0].pasture_acreage,
 					crop:scenarioArray[0].crop_acreage
+				},
+				costs:{
+					fertPCost: scenarioArray[0].fertPCost,
+					fertNCost: scenarioArray[0].fertNCost,
+					cornSeedCost: scenarioArray[0].cornSeedCost,
+					cornPestCost: scenarioArray[0].cornPestCost,
+					cornMachCost: scenarioArray[0].cornMachCost,
+					soySeedCost: scenarioArray[0].soySeedCost,
+					soyPestCost: scenarioArray[0].soyPestCost,
+					soyMachCost: scenarioArray[0].soyMachCost,
+					grassSeedCost: scenarioArray[0].grassSeedCost,
+					grassPestCost: scenarioArray[0].grassPestCost,
+					grassMachCost: scenarioArray[0].grassMachCost,
+					oatSeedCost: scenarioArray[0].oatSeedCost,
+					oatPestCost: scenarioArray[0].oatPestCost,
+					oatMachCost: scenarioArray[0].oatMachCost,
+					alfalfaSeedCost: scenarioArray[0].alfalfaSeedCost,
+					alfalfaPestCost: scenarioArray[0].alfalfaPestCost,
+					alfalfaMachCost: scenarioArray[0].alfalfaMachCost,
+					alfalfaMachYearOneCost: scenarioArray[0].alfalfaMachYearOneCost,
 				}
 			}
 		})

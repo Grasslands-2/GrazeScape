@@ -510,9 +510,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion)//.then(model_request_return)
-                    //build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return => {
-                    get_model_data(model_request_return).then(returnData =>{
+                    model_request = build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion)
+                    get_model_data(model_request).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                         console.log(returnData[0])
                         console.log(f)
@@ -619,7 +618,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                         Ext.getCmp('mainTab').update()
                     })
-                   // })
+                    
                 }
             }
         }

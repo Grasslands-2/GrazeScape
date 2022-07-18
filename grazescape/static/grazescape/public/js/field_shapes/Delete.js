@@ -123,6 +123,21 @@ Ext.define('DSS.field_shapes.Delete', {
 						DSS.MapState.removeMapInteractions()
 						AppEvents.triggerEvent('hide_field_draw_mode_indicator')
 						this.up('window').destroy();
+						if(DSS.field_grid.FieldGrid.store){
+							console.log('grid present')
+							AppEvents.triggerEvent('hide_field_grid')
+							AppEvents.triggerEvent('hide_infra_grid')
+							DSS.field_grid.FieldGrid.store.clearData();
+							selectInteraction.getFeatures().clear()
+							DSS.map.removeInteraction(selectInteraction);
+							setTimeout(function(){
+								pastAcreage = 0
+								cropAcreage = 0
+								gatherTableData();
+								AppEvents.triggerEvent('show_field_grid');
+							}, 2000);
+
+						}
 					}
 			    },
 				{

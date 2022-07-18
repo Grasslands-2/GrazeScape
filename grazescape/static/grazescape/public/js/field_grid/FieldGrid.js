@@ -1,11 +1,36 @@
 
 
+
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
-
+var deleteRecord = {};
 var fieldArray = [];
 var fieldObj = {};
-
+var selectInteraction = new ol.interaction.Select({
+	features: new ol.Collection(),
+	toggleCondition: ol.events.condition.never,
+	//layers: [DSS.layer.fields_1],
+		style: new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color: 'white',
+				width: 4
+			}),
+			fill: new ol.style.Fill({
+				color: 'rgba(0,0,0,0.1)'
+			}),
+			text: new ol.style.Text({
+				font: '12px Calibri,sans-serif',
+				overflow: true,
+				fill: new ol.style.Fill({
+				  color: '#000',
+				}),
+				stroke: new ol.style.Stroke({
+				  color: '#fff',
+				  width: 2,
+				}),
+			}),
+		})
+});
 // keep track of what fields have had values changed
 var fieldChangeList= []
 var fieldUrl =""
@@ -31,8 +56,10 @@ function popFieldsArray(obj) {
 		coverCropVal: obj[i].properties.cover_crop,
 		coverCropDisp: obj[i].properties.cover_crop_disp,
 		onContour: obj[i].properties.on_contour,
-		fertPerc:obj[i].properties.fertilizerpercent,
-		manuPerc:obj[i].properties.manurepercent,
+		fertPercP:obj[i].properties.perc_fert_p,
+		manuPercP:obj[i].properties.perc_manure_p,
+		fertPercN:obj[i].properties.perc_fert_n,
+		manuPercN:obj[i].properties.perc_manure_n,
 		grassSpeciesVal:obj[i].properties.grass_speciesval,
 		grassSpeciesDisp:obj[i].properties.grass_speciesdisp,
 		interseededClover: obj[i].properties.interseeded_clover,
@@ -47,7 +74,8 @@ function popFieldsArray(obj) {
         area: obj[i].properties.area,
         fence_type: obj[i].properties.fence_type,
         fence_cost: obj[i].properties.fence_cost,
-        fence_unit_cost:obj[i].properties.fence_unit_cost
+        fence_unit_cost:obj[i].properties.fence_unit_cost,
+		landCost: obj[i].properties.land_cost
 	});
 	console.log("DOne with popping fields")
 }
@@ -270,12 +298,27 @@ Ext.create('Ext.data.Store', {
 	alternateClassName: 'DSS.FieldStore',
 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
 	'tillageDisp', 'coverCropDisp', 'coverCropVal',
-		'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp',
+		'onContour','fertPercP','manuPercP','fertPercN','manuPercN','grassSpeciesVal','grassSpeciesDisp',
 		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
 		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
-        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp'],
+        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp','landCost'],
 		sorters: ['name'],
 	data: fieldArray
+});
+Ext.define('DSS.field_grid.FieldGrid', {
+    extend: 'Ext.grid.selection.Selection',
+    requires: [
+        'Ext.util.Collection'
+    ],
+ 
+    type: 'rows',
+ 
+    // /**
+    //  * @property {Boolean} isRows 
+    //  * This property indicates the this selection represents selected rows.
+    //  * @readonly
+    //  */
+    // isRows: true,
 });
 
 //------------------------------------------------------------------------------
@@ -307,8 +350,23 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		},
 		update: function (me, record) {
 		    console.log(me, record)
+		},
+		rowclick: function(self,record){
+			console.log(self)
+			console.log(record)
+			deleteRecord = record;
+			DSS.map.addInteraction(selectInteraction);
+			console.log("ROWcd d CLICK")
+			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
+			for(f in fieldFeatures){
+				if(fieldFeatures[f].id_ == record.id){
+					selectInteraction.getFeatures().clear()
+					selectInteraction.getFeatures().push(fieldFeatures[f]);
+					//DSS.map.removeInteraction(selectInteraction);
+					break;
+				}
+			}
 		}
-
 	},
 	//requires: ['DSS.map.Main'],
 
@@ -320,8 +378,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		
 		//------------------------------------------------------------------------------
 		let fieldNameColumn = { 
-			/*editor: 'textfield', */text: 'Field', dataIndex: 'name', width: 120, 
-			locked: true, draggable: false, editable: false,
+			editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
+			locked: true, draggable: false, editable: true,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 
 		};
@@ -330,6 +388,13 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
 			}, text: 'Soil-P', dataIndex: 'soilP', width: 80, 
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+		};
+		//------------------------------------------------------------------------------
+		let landCost_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5
+			}, text: 'Land Cost(acre)', dataIndex: 'landCost', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
@@ -353,12 +418,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, eOpts){
+					select: function(combo, value, rec, eOpts){
 						var record = combo.getWidgetRecord();
 						record.set('rotationVal', value.get('value'));
 						record.set('rotationDisp', value.get('display'));
 						me.getView().refresh();
-					}
+					},
 				}
 			}
 		};
@@ -515,22 +580,92 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//use a checkbox widget to get this done properly.  Very frustrating task, eventually
 		//figured out how to decouple the local value setting from the onContour array value
 		//will test more when i get back from vaca. 05202021
+
 		//------------------------------------------------------------------------------
-		let fertPerc_Column = {
+		//Change to fertpercP
+		// let PfertPerc_Column = {
+		// 	xtype: 'widgetcolumn', format: '0.0',editor: {
+		// 		xtype:'numberfield', maxValue: 100, step: 5, minValue: 0,
+		// 	}, dataIndex: 'fertPercP',
+		// 	text: 'Percent<br>Fert P', dataIndex: 'fertPercP', width: 80, tooltip: 'Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+		// 	hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+		// 	onWidgetAttach: function(col, widget, rec) {
+		// 		if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'dl') {
+		// 			widget.setDisabled(false);
+		// 		} else {
+		// 			widget.setDisabled(true);
+		// 		}
+		// 	},
+		// 	widget: {
+		// 		xtype: 'numbercolumn',
+		// 		// queryMode: 'local',
+		// 		// dataIndex: 'fertPercP',
+		// 		// format: '0.0',
+		// 		// hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+		// 		// editor: {
+		// 		// 	xtype:'numberfield', maxValue: 100, step: 5, minValue: 0,
+		// 		// }
+		// 	}
+		// };
+		//------------------------------------------------------------------------------
+
+
+		//------------------------------------------------------------------------------
+		//Change to fertpercP
+		let PfertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 100, step: 5
-			}, text: 'Percent<br>Fertilizer', dataIndex: 'fertPerc', width: 80, 
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Fert P', dataIndex: 'fertPercP', width: 80, tooltip: 'Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			listeners:{
+				// initialize: function(combo, value, eOpts,rec){
+				// 	console.log("Pfert_click")
+				// 	console.log(combo)
+				// 	console.log(value)
+				// 	console.log(rec)
+				// 	// var record = combo.getWidgetRecord();
+				// 	// record.set('grazeDensityVal', value.get('value'));
+				// 	// record.set('grazeDensityDisp', value.get('display'));
+				// },
+				// click: function(combo, value, eOpts,rec){
+				// 	console.log("Pfert_click")
+				// 	console.log(combo)
+				// 	console.log(value)
+				// 	console.log(rec)
+				// 	// var record = combo.getWidgetRecord();
+				// 	// record.set('grazeDensityVal', value.get('value'));
+				// 	// record.set('grazeDensityDisp', value.get('display'));
+				// }
+			}
+		};
+		//------------------------------------------------------------------------------
+
+
+		//Change to manupercP
+		let PmanuPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Manure P', dataIndex: 'manuPercP', width: 80, tooltip: 'Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
+			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
+		};
+		let NfertPerc_Column = {
+			xtype: 'numbercolumn', format: '0.0',editor: {
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Fert N', dataIndex: 'fertPercN', width: 80, tooltip: 'Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
-		let manuPerc_Column = {
+		//Change to manupercP
+		let NmanuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 200, step: 5
-			}, text: 'Percent<br>Manure', dataIndex: 'manuPerc', width: 80, 
+				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+			}, text: 'Percent<br>Manure N', dataIndex: 'manuPercN', width: 80, tooltip: 'Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
+		//Add fertpectN and manuPercN 
+		//fertpectN maxValue to 200
 		let grazeDairyLactatingColumn = {
 			xtype: 'widgetcolumn', text: 'Graze Dairy<br>Lactating', dataIndex: 'grazeDairyLactating', width: 100, editor:{},
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
@@ -849,9 +984,70 @@ Ext.define('DSS.field_grid.FieldGrid', {
         let area_Column = {
 			xtype: 'numbercolumn', format: '0.0',/*editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false,
-			},*/ text: 'Area(acre)', dataIndex: 'area', width: 80,editable: false,
+			},*/ text: 'Area(acre)', dataIndex: 'area', width: 90,editable: false,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
+		let delete_Column = 
+		//{
+		// 	text: 'Delete Field',
+		// 	align: 'center',
+		// 	//stopSelection: true,
+		// 	xtype: 'widgetcolumn',
+		// 	width: 165,
+		// 	minWidth: 24,
+		// 	widget: {
+		// 		   xtype: 'button',
+		// 		   width: 160,
+		// 		   _btnText: "Delete",
+		// 		   defaultBindProperty: null, //important
+		// 	// 	   listeners: {
+		// 	// 		beforerender: function(widgetColumn){
+		// 	// 			console.log(widgetColumn)
+		// 	// 			var recordWid = widgetColumn.getWidgetRecord();
+		// 	// 			widgetColumn.setText( widgetColumn._btnText + " " + recordWid.data.name ); //can be mixed with the row data if needed
+		// 	// 		}
+		// 	//    },
+		// 		   handler: function(/*widgetColumn*/) {
+		// 			//DSS.map.removeInteraction(selectInteraction);
+		// 			//var recordWid = widgetColumn.getWidgetRecord();
+		// 			//console.log("Got data!", recordWid);
+		// 			console.log("CLICKED DELETE")
+		// 		   },
+				   
+		// 	 }
+		// },
+		{
+			xtype: 'actioncolumn',
+			width: 110,
+			text: 'Delete Field',
+			scale: 'large',
+			align: 'center',
+			items: [{
+				icon: '/static/grazescape/public/images/remove-icon-png-7116.png',
+				text:'Delete Field',
+				tooltip: 'Delete',
+				handler: function(grid, rowIndex) {
+					setTimeout(function(){
+						let deleteRecID = deleteRecord.id
+						console.log(deleteRecID)
+						DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+							console.log(f)
+							if(deleteRecID == f.id_){
+								console.log("hit delete field by grid",f)
+								selectedField = f
+								console.log(selectedField);
+								DSS.dialogs.FieldDeletePanel = Ext.create('DSS.field_shapes.Delete'); 		
+								DSS.dialogs.FieldDeletePanel.show().center().setY(100);
+							}
+						})
+						//grid.getStore().removeAt(rowIndex);
+					}, 500);//wait 2 seconds
+					
+
+				},
+				scope: this
+			}]
+		}
 		
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
@@ -859,14 +1055,17 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			columns: [
 				fieldNameColumn,
 				area_Column,
+				landCost_Column,
 				soilP_Column,
 				soilOM_Column,
 				cropRotationColumn,
 				coverCropColumn,
 				tillageColumn,
 				onContourColumn,
-				fertPerc_Column,
-				manuPerc_Column,
+				PfertPerc_Column,
+				PmanuPerc_Column,
+				NfertPerc_Column,
+				NmanuPerc_Column,
 				//grazeDairyLactatingColumn,
 				//grazeDairyNonLactatingColumn,
 				//grazeBeefCattleColumn,
@@ -876,6 +1075,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				//manurePasturesColumn,
 				grazeDensityColumn,
 				//perimeter_Column
+				delete_Column
 
 			],
 			

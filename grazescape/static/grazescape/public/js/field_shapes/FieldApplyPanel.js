@@ -77,8 +77,14 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 	if(DSS.activeRegion == "cloverBeltWI"){
 		console.log("Clover Belt has hit")
 		soil_pInput = 40 
-	}else{
-		console.log("Else has hit")
+	}if(DSS.activeRegion == "northeastWI"){
+		console.log("northeastWI has hit")
+		soil_pInput = 36 
+	}if(DSS.activeRegion == "uplandsWI"){
+		console.log("uplandsWI has hit")
+		soil_pInput = 46
+	}if(DSS.activeRegion == "southWestWI"){
+		console.log("southWestWI has hit")
 		soil_pInput = 35
 	}
 	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput)
@@ -102,6 +108,7 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 	console.log(fieldArea);
 	// get default OM value
 	console.log(e)
+	console.log(e.feature)
 	e.feature.setProperties({
 			id: DSS.activeFarm,
 			farm_id: DSS.activeFarm,
@@ -120,19 +127,24 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 			rotational_density:0,
 			area:fieldArea * 0.000247105,
 			//this changes the square meters to acres
-			fertilizerpercent:0,
-			manurepercent:0,
+			perc_fert_p:0,
+			perc_manure_p:0,
 			spread_confined_manure_on_pastures: false,
 			on_contour: false,
 			interseeded_clover: false,
 			pasture_grazing_rot_cont:false,
 			grass_speciesval: grassVal,
-			 grass_speciesdisp: grassDisp,
+			grass_speciesdisp: grassDisp,
 			rotational_freq_val: rotationFreqVal,
 			rotational_freq_disp: rotationFreqdisp,
 			grazingdensityval: grazeDensityVal,
 			grazingdensitydisp: grazeDensityDisp,
-			is_dirty:true
+			perc_fert_n:0,
+			perc_fert_p:0,
+			perc_manure_n:0,
+			perc_manure_p:0,
+			is_dirty:true,
+			land_cost:140
 		})
 	setFeatureAttributes(e.feature)
 	addFieldAcreage(e.feature)

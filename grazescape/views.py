@@ -1,3 +1,4 @@
+from gettext import NullTranslations
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -19,6 +20,7 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 # from grassland_core.raster_data import RasterData
 from grazescape.raster_data import RasterData
 from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
+from grazescape.model_defintions.econ import Econ
 from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown
 from grazescape.model_defintions.manage_raster_visuals import retreiveRaster
 import json
@@ -123,7 +125,24 @@ def delete_gcs_model_result_blob(field_id):
         except:
             print("There was an error")
             pass
-# Used to set up heifer feed break down calculations 
+# Used to set up heifer feed break down calculations
+def field_png_lookup(request):
+    print("POST!!!!!!!!!!!")
+    print(request.POST.getlist('model_field[]')[0])
+    try:
+        #starts_with = 'ploss791'
+        starts_with = request.POST.getlist('model_field[]')[0]
+        print(starts_with)
+        source_folder = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
+        for file in os.listdir(source_folder):
+            if file.startswith(starts_with):
+                print("FOUND MODELFILE!!!!!!!")
+                filestr = str(file)
+                print(filestr)
+                return(JsonResponse([filestr], safe = False))
+    except AttributeError:
+                    pass           
+# Downloads model results from GCS bucket
 @csrf_protect
 @login_required
 def heiferFeedBreakDown(data):
@@ -222,6 +241,13 @@ def download_rasters(request):
 #Makes post requests to WEI geoserver
 @login_required
 @csrf_protect
+def outside_geom_field_insert(request):
+    scenario_id = request.POST.get("scenario_id")
+    farm_id = request.POST.get("farm_id")
+    file_data = request.POST.get("file_data")
+    insert_json_coords(scenario_id,farm_id,file_data)
+    return JsonResponse({"Insert":"Complete"})
+
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
@@ -325,7 +351,120 @@ def get_default_om(request):
 #This gets the model results from the model results table
 @login_required
 @csrf_protect
+# def run_econ_model(request):
+#     print("RUN ECON MODELS!!!")
+#     total_operations_cost = 0
+#     fields_data_array = []
+#     field_count =  request.POST.get('fieldCount')
+#     alfalfaMachCost = float(request.POST.get("scenArray[0][alfalfaMachCost]"))
+#     alfalfaMachCostY1 = float(request.POST.get("scenArray[0][alfalfaMachYearOneCost]"))
+#     alfalfaPestCost = float(request.POST.get("scenArray[0][alfalfaPestCost]"))
+#     alfalfaSeedCost = float(request.POST.get("scenArray[0][alfalfaSeedCost]"))
+#     cornMachCost = float(request.POST.get("scenArray[0][cornMachCost]"))
+#     cornPestCost = float(request.POST.get("scenArray[0][cornPestCost]"))
+#     cornSeedCost = float(request.POST.get("scenArray[0][cornSeedCost]"))
+#     grassMachCost = float(request.POST.get("scenArray[0][grassMachCost]"))
+#     grassPestCost = float(request.POST.get("scenArray[0][grassPestCost]"))
+#     grassSeedCost = float(request.POST.get("scenArray[0][grassSeedCost]"))
+#     oatMachCost = float(request.POST.get("scenArray[0][oatMachCost]"))
+#     oatPestCost = float(request.POST.get("scenArray[0][oatPestCost]"))
+#     oatSeedCost = float(request.POST.get("scenArray[0][oatSeedCost]"))
+#     soyMachCost = float(request.POST.get("scenArray[0][soyMachCost]"))
+#     soyPestCost = float(request.POST.get("scenArray[0][soyPestCost]"))
+#     soySeedCost = float(request.POST.get("scenArray[0][soySeedCost]"))
+#     fertNCost = float(request.POST.get("scenArray[0][fertNCost]"))
+#     fertPCost = float(request.POST.get("scenArray[0][fertPCost]"))
+#     #print(request.POST)
+#     for i in range(int(field_count)):
+#         count_string = str(i)
+#         cost_of_field = 0
+#         cost_per_arce = 0
+#         cost_of_fert = 0
+#         fertp_cost = 0
+#         fertn_cost = 0
+#         data_array = []
+#         land_area = float(request.POST.get("fieldArray["+ count_string + "][area]"))
+#         land_cost = float(request.POST.get("fieldArray["+ count_string + "][landCost]")) * land_area
+#         rotation = request.POST.get("fieldArray["+ count_string + "][rotationVal]")
+#         cover_crop = request.POST.get("fieldArray["+ count_string + "][coverCropVal]")
+#         fert_p_perc = float(request.POST.get("fieldArray["+ count_string + "][fertPercP]"))/100
+#         fert_n_perc = float(request.POST.get("fieldArray["+ count_string + "][fertPercN]"))/100
+#         #fertp = fertPCost * fert_p_perc
+#         #fertn = fertNCost * fert_n_perc
+#         if rotation == 'cc':
+#             cost_seed = cornSeedCost
+#             cost_pest = cornPestCost
+#             cost_mach = cornMachCost
+#             if cover_crop == 'cc':
+#                 fertp_cost = fertPCost * 60 # 60 from cropcover needs table.  results is $/acre in P fertilizer
+#                 fertn_cost = fertNCost * 0 # 0 from cropcover needs table.  results is $/acre in N fertilizer
+#             if cover_crop == 'gcis' or cover_crop == 'gcds':
+#                 fertp_cost = fertPCost * 60  # 60 from cropcover needs table.  results is $/acre in P fertilizer
+#                 fertn_cost = fertNCost * 0 # 0 from cropcover needs table.  results is $/acre in N fertilizer
+#             if cover_crop == 'nc' or None:
+#                 fertp_cost = fertPCost * 60  # 60 from cropcover needs table.  results is $/acre in P fertilizer
+#                 fertn_cost = fertNCost * 0 # 0 from cropcover needs table.  results is $/acre in N fertilizer
+#             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
+#         if rotation == 'cg':
+#             cost_seed = (cornSeedCost + soySeedCost)/2
+#             cost_pest = (cornPestCost + soyPestCost)/2
+#             cost_mach = (cornMachCost + soyMachCost)/2
+#             if cover_crop == 'cc':
+#                 fertp_cost = fertPCost * 50  
+#                 fertn_cost = fertNCost * 0 
+#             if cover_crop == 'gcis' or cover_crop == 'gcds':
+#                 fertp_cost = fertPCost * 47.5  
+#                 fertn_cost = fertNCost * 60 
+#             if cover_crop == 'nc' or None:
+#                 fertp_cost = fertPCost * 50  
+#                 fertn_cost = fertNCost * 60 
+#             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
+#         if rotation == 'cso':
+#             cost_seed = (cornSeedCost + soySeedCost + oatSeedCost)/3
+#             cost_pest = (cornPestCost + soyPestCost + oatPestCost)/3
+#             cost_mach = (cornMachCost + soyMachCost + oatMachCost)/3
+#             fertp_cost = fertPCost * 46.67  # 46.67 from cropcover needs table.  results is $/acre in P fertilizer
+#             fertn_cost = fertNCost * 60 # 60 from cropcover needs table.  results is $/acre in N fertilizer
+#         if rotation == 'dl':
+#             cost_seed = 0
+#             cost_pest = 0
+#             cost_mach = 0
+#             fertp_cost = 0
+#             fertn_cost = 0
+#         if rotation == 'dr':
+#             cost_seed = ((cornSeedCost*2) + alfalfaSeedCost)/5
+#             cost_pest = ((cornPestCost*2) + (alfalfaPestCost*3))/5
+#             cost_mach = ((cornMachCost*2) + (alfalfaMachCost*2 + alfalfaMachCostY1))/5 # +89 to account for the extra cost in the planting alfalfa year
+#             fertp_cost = fertPCost * 49  # 49 from cropcover needs table.  results is $/acre in P fertilizer
+#             fertn_cost = fertNCost * 52 #  52 from cropcover needs table.  results is $/acre in N fertilizer
+#             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
+#         if rotation == 'pt-cn' or rotation == 'pt-rt':
+#             cost_seed = grassSeedCost
+#             cost_pest = grassPestCost
+#             cost_mach = grassMachCost
+#             fertp_cost = 40
+#             fertn_cost = 2
+#         #Final summations for field
+        
+#         cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
+#         cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + land_cost)
+#         cost_per_arce = cost_of_field/land_area
+#         total_operations_cost = total_operations_cost + cost_of_field
+#         data_array.append(cost_of_field)
+#         data_array.append(cost_per_arce)
+#         print(cost_of_fert)
+#         print(cost_of_field)
+#         print(cost_per_arce)
+#         fields_data_array.append(data_array)
+#     print("OPERATION TOTAL!")
+#     print(total_operations_cost)
+#     fields_data_array.append(total_operations_cost)
+#     print(fields_data_array)
+#     return JsonResponse(fields_data_array, safe=False)
+
 def get_model_results(request):
+    print(request.POST.getlist("field_id"))
+    print(request.POST)
     field_id = request.POST.getlist("field_id")[0]
     scenario_id = request.POST.getlist("scenario_id")[0]
     farm_id = request.POST.getlist("farm_id")[0]
@@ -337,11 +476,10 @@ def get_model_results(request):
     active_scen = request.POST.get('model_parameters[active_scen]')
     active_region = request.POST.get('model_parameters[active_region]')
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
-    print(active_region)
-    print(request)
+    print(request.POST.getlist("field_id"))
     db_has_field(field_id)
     if request.POST.getlist("runModels")[0] == 'false':
-        print("not active scenario")
+        print('model runs = false')
         download_gcs_model_result_blob(field_id,field_scen_id,active_scen,model_run_timestamp)
         """Downloads a blob from the bucket."""
         # model_Types = ['yield', 'ploss','runoff']
@@ -367,6 +505,17 @@ def get_model_results(request):
             #             print("There was an error while downloading from GCS")
             #             pass
         return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request,model_run_timestamp), safe=False)
+    
+    
+    # if model_type == 'econ':
+    #     print('econ hit!!!')
+    #     print(f_name)
+    #     print(field_id)
+    #     model = Econ(request)
+    #     print("ECON BACK IN VIEWS!!!!")
+    #     #print(model)
+
+
     field_coors = []
     if model_type == 'ploss':
         remove_old_pngs_from_local('ploss',field_id)
@@ -408,6 +557,13 @@ def get_model_results(request):
             model = Runoff(request,active_region)
         elif model_type == 'bio':
             model = Insecticide(request)
+        elif model_type == 'econ':
+            # print("Request in views")
+            # print(request.POST)
+            model = Econ(request)
+            print("REQUEST GOING INTO ECON!!!")
+            print(request.POST)
+        # Use Yield results as a basis for filling in missing values
         else:
             model = GenericModel(request, model_type)
 
@@ -424,7 +580,11 @@ def get_model_results(request):
         # convert area from sq meters to acres
         area = float(request.POST.getlist("model_parameters[area]")[0])
         for result in results:
-            if result.model_type == "insect":
+            print('RESULTS HERE!!!')
+            print(result)
+            if result.model_type == "insect" or result.model_type == "econ":
+                print('RESULTS HERE!!!')
+                print(result)
                 sum = result.data[0]
                 avg = sum
                 count = 1
@@ -477,6 +637,7 @@ def get_model_results(request):
                 "values": values_legend,
                 "units": result.default_units,
                 "units_alternate": result.alternate_units,
+                #"units_alternate_2": result.alternate_units_2,
                 # overall model type crop, ploss, bio, runoff
                 "model_type": model_type,
                 # specific model for runs with multiple models like corn silage
@@ -507,7 +668,7 @@ def get_model_results(request):
             
             return_data.append(data)
             
-
+# THIS IS WHERE THINGS RETURN IF MODEL RUN WORKED!!!!!
         return JsonResponse(return_data, safe=False)
     except KeyError as e:
         error = str(e) + " while running models for field " + f_name

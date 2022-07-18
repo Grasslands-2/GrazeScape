@@ -129,6 +129,24 @@ function createNewScenario(sname,sdescript){
 					//scenario_id: snewhighID,
 					farm_id: DSS.activeFarm,
 					farm_name:DSS.farmName,
+					corn_seed_cost: 80.5,
+					corn_pest_cost: 55.64,
+					corn_mach_cost: 123,
+					soy_seed_cost: 54,
+					soy_pest_cost: 40,
+					soy_mach_cost: 62,
+					grass_seed_cost: 28.44,
+					grass_pest_cost: 5.00,
+					grass_mach_cost: 19.70,
+					oat_seed_cost: 30,
+					oat_pest_cost: 20,
+					oat_mach_cost: 63.5,
+					alfalfa_seed_cost: 60,
+					alfalfa_pest_cost: 32,
+					alfalfa_mach_cost: 136.5,
+					alfalfa_mach_year_one: 225.50,
+					fert_n_cost: 1.0,
+					fert_p_cost: 1.0,
 				})
 				var geomType = 'point'
 				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')
@@ -138,6 +156,7 @@ function createNewScenario(sname,sdescript){
 		
 	}else{
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
+		console.log(f.values_.gid)
 	//DSS.layer.scenarios.getSource().forEachFeature(function(f) {
 		var newScenarioFeature = f;
 		f.values_.geom = f.values_.geometry;
@@ -155,6 +174,8 @@ function createNewScenario(sname,sdescript){
 						scenario_desp:sdescript,
 						//scenario_id: 9999,
 						//scenario_id: snewhighID,
+						//geom: scenarioArray[i].geom,
+						//geometry: scenarioArray[i].geom,
 						farm_id: DSS.activeFarm,
 						farm_name:DSS.farmName,
 						lac_cows:scenarioArray[i].lacCows,
@@ -174,7 +195,22 @@ function createNewScenario(sname,sdescript){
 						beef_graze_time: scenarioArray[i].beefGrazeTime,
 						lac_rotate_freq: scenarioArray[i].lacRotateFreq,
 						dry_rotate_freq: scenarioArray[i].dryRotateFreq,
-						beef_rotate_freq: scenarioArray[i].beefRotateFreq
+						beef_rotate_freq: scenarioArray[i].beefRotateFreq,
+						// corn_seed_cost: scenarioArray[i].cornSeedCost,
+						// corn_pest_cost: scenarioArray[i].cornPestCost,
+						// corn_mach_cost: scenarioArray[i].cornMachCost,
+						// soy_seed_cost: scenarioArray[i].soySeedCost,
+						// soy_pest_cost: scenarioArray[i].soyPestCost,
+						// soy_mach_cost: scenarioArray[i].soyMachCost,
+						// grass_seed_cost: scenarioArray[i].grassSeedCost,
+						// grass_pest_cost: scenarioArray[i].grassPestCost,
+						// grass_mach_cost: scenarioArray[i].grassMachCost,
+						// oat_seed_cost: scenarioArray[i].oatSeedCost,
+						// oat_pest_cost: scenarioArray[i].oatPestCost,
+						// oat_mach_cost: scenarioArray[i].oatMachCost,
+						// alfalfa_seed_cost: scenarioArray[i].alfalfaSeedCost,
+						// alfalfa_pest_cost: scenarioArray[i].alfalfaPestCost,
+						// alfalfa_mach_cost: scenarioArray[i].alfalfaMachCost,
 					});
 					console.log('Object to be inserted:');
 					console.log(newScenarioFeature)
