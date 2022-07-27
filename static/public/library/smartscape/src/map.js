@@ -79,6 +79,8 @@ updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps,reset} from 
 import configureStore from './stores/store'
 import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea} from '/src/stores/mainSlice'
 import {RotateNorthControl} from '/src/mapControls/controlTransSummary'
+import { BallTriangle,RotatingLines } from  'react-loader-spinner'
+
 proj4.defs(
   'EPSG:27700',
   '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' +
@@ -244,7 +246,7 @@ class OLMapFragment extends React.Component {
                 this.map.addInteraction(this.select);
                 this.props.setVisibilityTransAcc(true)
                 this.map.getView().setCenter([-10008338,5525100]);
-                this.map.getView().setZoom(8);
+                this.map.getView().setZoom(7);
                 return
             }
 
@@ -562,11 +564,11 @@ class OLMapFragment extends React.Component {
 //            operation: olSourceRasterOperationCropInner
         });
        // show borders of our three work areas
-        this.southCentral = new VectorLayer({
+        this.northEast = new VectorLayer({
           renderMode: 'image',
-          name: "southCentral",
+          name: "northEast",
           source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/LearningHubs/southCentralWI.geojson',
+              url: static_global_folder + 'smartscape/gis/LearningHubs/northEastWI.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
@@ -575,11 +577,10 @@ class OLMapFragment extends React.Component {
         this.southWest = new VectorLayer({
             renderMode: 'image',
             name: "southWest",
-//            opacity: .2,
-          source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/LearningHubs/southWestWI.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3857',
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/southWestWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
             }),
             style: styles,
         });
@@ -590,6 +591,16 @@ class OLMapFragment extends React.Component {
               url: static_global_folder + 'smartscape/gis/LearningHubs/cloverBelt.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
+            }),
+            style: styles,
+        });
+        this.uplands = new VectorLayer({
+            renderMode: 'image',
+            name: "uplands",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/uplandsWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
             }),
             style: styles,
         });
@@ -606,8 +617,9 @@ class OLMapFragment extends React.Component {
             }),
 
             this.cloverBelt,
-//            this.southCentral,
+            this.northEast,
             this.southWest,
+            this.uplands,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
@@ -647,8 +659,8 @@ class OLMapFragment extends React.Component {
                 center: [-10008338,5525100],
                 // centered at kickapoo
 //                center: [-10107218.88240181,5404739.54256515],
-				zoom: 8,
-				maxZoom: 19,
+				zoom: 7,
+				maxZoom: 15,
 				minZoom: 3,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
@@ -669,8 +681,10 @@ class OLMapFragment extends React.Component {
 //                    return false
 //                }
                 if (layer.get('name') == "subHuc12" || layer.get('name') == "huc10" ||
-                layer.get('name') == "southWest"||layer.get('name') == "southCentral"||
-                layer.get('name') == "cloverBelt"){
+                layer.get('name') == "southWest"||
+                layer.get('name') == "cloverBelt"||
+                layer.get('name') == "northEast"||
+                layer.get('name') == "uplands"){
                     return true
                 }
 //                console.log(layer)
@@ -727,6 +741,12 @@ class OLMapFragment extends React.Component {
                 }
                 else if (f.target.item(0).get("NAME") == "Clark"){
                     region = "CloverBeltWI"
+                }
+                else if (f.target.item(0).get("NAME") == "Kewaunee"){
+                    region = "northeastWI"
+                }
+                else if (f.target.item(0).get("NAME") == "Grant"){
+                    region = "uplandsWI"
                 }
                 this.setActiveRegion(region)
 
@@ -817,6 +837,15 @@ class OLMapFragment extends React.Component {
     this.map.addInteraction(this.select);
     }
     render(){
+//        size of loader
+        let loaderSize = 400
+        let windowHeight = window.innerHeight
+        let windowWidth = window.innerWidth
+
+        let loaderHeight = (windowHeight/2 - loaderSize/2) / windowHeight * 100
+        console.log(loaderHeight)
+        let heightString = String(loaderHeight) + "%"
+        console.log(heightString)
         const style = {
             width: '100%',
             height: '90vh',
@@ -835,9 +864,25 @@ class OLMapFragment extends React.Component {
              backgroundColor: 'transparent',
              hidden: "true"
         }
+        const loaderStyle={
+            position: "absolute",
+            zIndex: "100",
+            top: heightString,
+            left: "50%"
+        }
         return (
             <div>
+            <div id = "loaderDiv" style = {loaderStyle} hidden={true}>
+                <BallTriangle
+                  height={loaderSize}
+                  width={loaderSize}
+                  radius={5}
+                  color="#8b32a8"
+                  ariaLabel="ball-triangle-loading"
+                  wrapperStyle=""
 
+                />
+                </div>
 			<div id='map' style={style}>
 
 			</div>

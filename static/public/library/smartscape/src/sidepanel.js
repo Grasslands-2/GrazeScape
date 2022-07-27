@@ -60,6 +60,7 @@ ChartJS.register(
 )
 import { useSelector, useDispatch, connect  } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
+import jsPDF from 'jspdf'
 
 const mapStateToProps = state => {
     return{
@@ -74,7 +75,7 @@ const mapStateToProps = state => {
     aoiCoors:state.main.aoiCoors,
     aoiArea:state.main.aoiArea,
 }}
-
+var selectionTime = 0
 //const domain = [0, 700];
 const domainSlope = [0, 51];
 let domainStream = [0, 16000];
@@ -92,6 +93,8 @@ const railStyle = {
   borderRadius: 5,
   backgroundColor: '#8B9CB6',
 }
+let chartList = []
+
 const mapDispatchToProps = (dispatch) => {
     return{
         setActiveTrans: (value)=> dispatch(setActiveTrans(value)),
@@ -110,12 +113,14 @@ const mapDispatchToProps = (dispatch) => {
 
     }
 };
+let rasterDownloaded = false
 
 class SidePanel extends React.Component{
     constructor(props){
         super(props)
         this.user = props.user
         this.runModels = this.runModels.bind(this);
+        this.downloadBase = this.downloadBase.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
         this.tabControl = this.tabControl.bind(this);
         this.subAreaSelection = this.subAreaSelection.bind(this);
@@ -126,6 +131,7 @@ class SidePanel extends React.Component{
         this.handleCloseModalBase = this.handleCloseModalBase.bind(this);
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.renderModal = this.renderModal.bind(this);
+        this.printSummary = this.printSummary.bind(this);
         this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
         this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
         this.clearSelection = this.clearSelection.bind(this);
@@ -143,6 +149,25 @@ class SidePanel extends React.Component{
         this.pasture = React.createRef();
         this.grasslandIdle = React.createRef();
 
+        this.land1 = React.createRef();
+        this.land2 = React.createRef();
+        this.land3 = React.createRef();
+        this.land4 = React.createRef();
+        this.land5 = React.createRef();
+        this.land6 = React.createRef();
+        this.land7 = React.createRef();
+        this.land8 = React.createRef();
+//        this.landErosion = React.createRef();
+//        this.landRoot = React.createRef();
+//        this.landWater = React.createRef();
+
+        this.prime = React.createRef();
+        this.stateFarm = React.createRef();
+        this.notPrime = React.createRef();
+        this.prime1 = React.createRef();
+        this.prime2 = React.createRef();
+        this.prime3 = React.createRef();
+
         this.feet = React.createRef();
         this.meters = React.createRef();
 
@@ -152,6 +177,30 @@ class SidePanel extends React.Component{
         this.density = React.createRef();
         this.contour = React.createRef();
         this.fertilizer = React.createRef();
+
+        this.p2o5 = React.createRef();
+        this.nFert = React.createRef();
+        this.cornSeed = React.createRef();
+        this.cornPest = React.createRef();
+        this.cornMach = React.createRef();
+        this.soySeed = React.createRef();
+        this.soyPest = React.createRef();
+        this.soyMach = React.createRef();
+        this.alfaSeed = React.createRef();
+        this.alfaPest = React.createRef();
+        this.alfaMach = React.createRef();
+        this.alfaFirstYear = React.createRef();
+        this.oatSeed = React.createRef();
+        this.oatPest = React.createRef();
+        this.oatMach = React.createRef();
+        this.pastSeed = React.createRef();
+        this.pastPest = React.createRef();
+        this.pastMach = React.createRef();
+
+        this.chartYield = React.createRef();
+
+
+
         this.slopeMax = 700;
         this.distStreamMax = 16000;
         this.selectWatershed = React.createRef();
@@ -173,13 +222,12 @@ class SidePanel extends React.Component{
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
-            slopeSliderValues:[0,700]
         }
     }
     // fires anytime state or props are updated
     componentDidUpdate(prevProps) {
-//        console.log("side pannel update")
 //        console.log(prevProps)
+        document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
         }
@@ -194,6 +242,26 @@ class SidePanel extends React.Component{
         this.hay.current.checked = this.props.activeTrans.selection.landCover.hay
         this.pasture.current.checked = this.props.activeTrans.selection.landCover.pasture
         this.grasslandIdle.current.checked = this.props.activeTrans.selection.landCover.grasslandIdle
+
+        this.land1.current.checked = this.props.activeTrans.selection.landClass.land1
+        this.land2.current.checked = this.props.activeTrans.selection.landClass.land2
+        this.land3.current.checked = this.props.activeTrans.selection.landClass.land3
+        this.land4.current.checked = this.props.activeTrans.selection.landClass.land4
+        this.land5.current.checked = this.props.activeTrans.selection.landClass.land5
+        this.land6.current.checked = this.props.activeTrans.selection.landClass.land6
+        this.land7.current.checked = this.props.activeTrans.selection.landClass.land7
+        this.land8.current.checked = this.props.activeTrans.selection.landClass.land8
+//        this.landErosion = React.createRef();
+//        this.landRoot = React.createRef();
+//        this.landWater = React.createRef();
+
+        this.prime.current.checked = this.props.activeTrans.selection.farmClass.prime
+        this.stateFarm.current.checked = this.props.activeTrans.selection.farmClass.stateFarm
+        this.notPrime.current.checked = this.props.activeTrans.selection.farmClass.notPrime
+        this.prime1.current.checked = this.props.activeTrans.selection.farmClass.prime1
+        this.prime2.current.checked = this.props.activeTrans.selection.farmClass.prime2
+        this.prime3.current.checked = this.props.activeTrans.selection.farmClass.prime3
+
 //       which unit to use for steam distance
         if (this.props.activeTrans.selection.useFt){
             this.feet.current.checked = true
@@ -226,23 +294,33 @@ class SidePanel extends React.Component{
         }
     }
 
+
     sliderChangeSlope(e){
 //        console.log("slider change")
 //        console.log(e)
 //        if slope entered in textbox is greater than box domain dont update slider
         if(e[1] != domainSlope[1]){
 //            console.log("not updating")
-            this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
+//            this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", e[1])
+
+
         }
-            this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
+//            this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
+            this.handleSelectionChangeGeneralNumeric("slope1", "reg", e[0])
     }
     sliderChangeStream(e){
 //        console.log("slider change")
 //        console.log(e)
-        this.props.updateActiveTransProps({"name":"streamDist1", "value":e[0], "type":"reg"})
-        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
+//        this.props.updateActiveTransProps({"name":"streamDist1", "value":e[0], "type":"reg"})
+        this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", e[0])
+
+//        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
+        this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", e[1])
+
     }
       handleCloseModalBase(){
+        this.downloadBase()
         this.setState({baseModalShow: false})
       }
       handleOpenModalBase(){
@@ -257,6 +335,27 @@ class SidePanel extends React.Component{
 //        this.density.current.value = this.props.baseTrans.management.density
         this.contour.current.value = this.props.baseTrans.management.contour
         this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
+
+        this.p2o5.current.value = this.props.baseTrans.econ.p2o5
+        this.nFert.current.value = this.props.baseTrans.econ.nFert
+        this.cornSeed.current.value = this.props.baseTrans.econ.cornSeed
+        this.cornPest.current.value = this.props.baseTrans.econ.cornPest
+        this.cornMach.current.value = this.props.baseTrans.econ.cornMach
+        this.soySeed.current.value = this.props.baseTrans.econ.soySeed
+        this.soyPest.current.value = this.props.baseTrans.econ.soyPest
+        this.soyMach.current.value = this.props.baseTrans.econ.soyMach
+        this.alfaSeed.current.value = this.props.baseTrans.econ.alfaSeed
+        this.alfaPest.current.value = this.props.baseTrans.econ.alfaPest
+        this.alfaMach.current.value = this.props.baseTrans.econ.alfaMach
+        this.alfaFirstYear.current.value = this.props.baseTrans.econ.alfaFirstYear
+        this.oatSeed.current.value = this.props.baseTrans.econ.oatSeed
+        this.oatPest.current.value = this.props.baseTrans.econ.oatPest
+        this.oatMach.current.value = this.props.baseTrans.econ.oatMach
+        this.pastSeed.current.value = this.props.baseTrans.econ.pastSeed
+        this.pastPest.current.value = this.props.baseTrans.econ.pastPest
+        this.pastMach.current.value = this.props.baseTrans.econ.pastMach
+
+
 
       }
     clearSelection(selectionType){
@@ -297,38 +396,84 @@ class SidePanel extends React.Component{
     }
     // type needs to match the selection name in transformation
     handleSelectionChange(type, e){
-        console.log("Selection updated", type, e)
-        console.log(e.currentTarget.value)
-        console.log(e.currentTarget.checked)
-        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"reg"})
-        console.log(this.props)
+//        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"reg"})
+        this.handleSelectionChangeGeneral(type, "reg", e)
     }
     updateActiveBaseProps(type, e){
         this.props.updateActiveBaseProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
         console.log(this.props)
     }
+    updateActiveBaseEcon(type, e){
+        this.props.updateActiveBaseProps({"name":type, "value":e.currentTarget.value, "type":"econ"})
+
+    }
     handleSelectionChangeLand(type, e){
-        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"land"})
+//        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"land"})
+        this.handleSelectionChangeGeneral(type, "land", e)
+    }
+    handleSelectionChangeGeneral(name, type, e){
+        this.setState({aoiOrDisplayLoading:false})
+        this.setState({aoiOrDisplayLoading:true})
+
+        console.log(name, type)
+        this.props.updateActiveTransProps({"name":name, "value":e.currentTarget.checked, "type":type})
+        selectionTime = new Date();
+        setTimeout(function(){
+            if (new Date() - selectionTime >= 2000 && rasterDownloaded){
+                console.log("active trans ",this.props.activeTrans)
+                this.displaySelectionCriteria()
+            }
+
+        }.bind(this), 2000)
+    }
+    handleSelectionChangeGeneralNumeric(name, type, e){
+//        this is a hack. slope1 is being triggered at the beginning of the app
+        if (name == "slope1" && this.props.listTrans.length < 1){return}
+
+        this.setState({aoiOrDisplayLoading:false})
+        this.setState({aoiOrDisplayLoading:true})
+
+
+        this.props.updateActiveTransProps({"name":name, "value":e, "type":type})
+        this.setState({aoiOrDisplayLoading:false})
+        this.setState({aoiOrDisplayLoading:true})
+        selectionTime = new Date();
+        setTimeout(function(){
+            if (new Date() - selectionTime >= 2000 && rasterDownloaded){
+                console.log(name)
+                this.displaySelectionCriteria()
+            }
+
+        }.bind(this), 2000)
+
     }
     handleSelectionChangeUnit(type, useFt, e){
-        console.log("Units")
         console.log(type)
         console.log(useFt)
         let dist = this.props.activeTrans.selection.streamDist2
         console.log(this.props.activeTrans.selection.streamDist2)
+        console.log(!useFt)
+        console.log(dist == 16000)
+//        converting to meters or feet
         if(!useFt && dist == 16000){
+            console.log("converting to meters")
             dist = 4878
-            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
+//            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist)
             domainStream[1] = 4878
         }
         else if(useFt && dist == 4878) {
             dist = 16000
-            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
+//            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist)
             domainStream[1] = 16000
         }
 //        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
 
-        this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
+//        this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
+        console.log(domainStream)
+        this.handleSelectionChangeGeneralNumeric(type, "reg", useFt)
+
 
     }
     reset(){
@@ -348,6 +493,7 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
+        this.setState({aoiOrDisplayLoading:false})
 //        remove all transformations
 // remove activate transformation
 // display all learning hubs
@@ -357,7 +503,7 @@ class SidePanel extends React.Component{
   tabControl(e){
     if(e == "selection"){
         // get bounds of current selection method and start downloading
-        this.setState({aoiOrDisplayLoading:true})
+
         this.loadSelectionRaster()
 
         // turn off huc 10
@@ -423,10 +569,11 @@ class SidePanel extends React.Component{
 //    this.basePloss.current.value = "hello world"
   }
     // load rasters for aoi in background
-  loadSelectionRaster(){
+ loadSelectionRaster(){
     if (this.props.listTrans.length < 1){
        this.addTrans()
     }
+    rasterDownloaded = false
     console.log(this.props)
      if (this.props.extents.length == 0){
         return
@@ -437,6 +584,7 @@ class SidePanel extends React.Component{
     });
     console.log("coordsa")
     console.log(this.state.aoiCoors)
+    this.setState({aoiOrDisplayLoading:true})
     $.ajax({
         url : '/smartscape/get_selection_raster',
         type : 'POST',
@@ -458,6 +606,9 @@ class SidePanel extends React.Component{
             console.log(this.state)
 //            alert("Raster loaded")
             this.setState({aoiOrDisplayLoading:false})
+            rasterDownloaded = true
+            this.displaySelectionCriteria()
+
         },
 
         failure: function(response, opts) {
@@ -469,9 +620,7 @@ class SidePanel extends React.Component{
   displaySelectionCriteria(){
     this.setState({aoiOrDisplayLoading:true})
     // ajax call with selection criteria
-    console.log(this.props.activeTrans)
     let transPayload = JSON.parse(JSON.stringify(this.props.activeTrans))
-    console.log(transPayload)
     var csrftoken = Cookies.get('csrftoken');
     $.ajaxSetup({
         headers: { "X-CSRFToken": csrftoken }
@@ -515,6 +664,30 @@ class SidePanel extends React.Component{
     // return url to image of raster
     // put image into raster layer
   }
+  downloadBase(){
+    var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+        let payload = {
+                baseTrans:this.props.baseTrans,
+                folderId: this.props.aoiFolderId,
+                region: this.props.region,
+            }
+        console.log(payload)
+        payload = JSON.stringify(payload)
+        $.ajax({
+            url : '/smartscape/download_base_rasters',
+            type : 'POST',
+            data : payload,
+            success: (responses, opts) => {
+                delete $.ajaxSetup().headers
+                console.log("base loaded")
+            },
+            failure: function(response, opts) {
+            }
+        })
+  }
    runModels(){
         // ajax call with selection criteria
         this.setState({modelsLoading:true})
@@ -534,17 +707,21 @@ class SidePanel extends React.Component{
         $.ajaxSetup({
             headers: { "X-CSRFToken": csrftoken }
         });
-        $.ajax({
-            url : '/smartscape/get_transformed_land',
-            type : 'POST',
-            data : JSON.stringify({
+        let payload = {
                 trans: transPayload,
                 base:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 region: this.props.region,
                 aoiArea: this.props.aoiArea,
-                aoiExtents: this.props.extents
-            }),
+                aoiExtents: this.props.extents,
+                baseLoaded:true
+            }
+        console.log(payload)
+        payload = JSON.stringify(payload)
+        $.ajax({
+            url : '/smartscape/get_transformed_land',
+            type : 'POST',
+            data : payload,
             success: (responses, opts) => {
                 delete $.ajaxSetup().headers
                 console.log("done with model runs")
@@ -576,16 +753,49 @@ class SidePanel extends React.Component{
             }
         })
     }
-  renderModal(){
+    printSummary(){
+        var canvas = document.getElementById("test1");
+        var ctx = canvas.getContext("2d");
+        var newCanvas = canvas.cloneNode(true);
+        var ctx = newCanvas.getContext('2d');
+        let ratio = window.devicePixelRatio;
+
+
+
+
+        console.log(newCanvas.width, newCanvas.height)
+        console.log(canvas)
+        ctx.scale(2,2);
+        ctx.fillStyle = "#FFF";
+        ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+        console.log(newCanvas.width, newCanvas.height)
+        console.log(ctx)
+        ctx.drawImage(canvas, 0, 0);
+
+        var pdf = new jsPDF('l', 'pt',"letter" )
+        var imgData = newCanvas.toDataURL("image/png");
+        var ctx2 = newCanvas.getContext('2d');
+        console.log(pdf)
+        console.log(pdf.getCurrentPageInfo().pageContext.mediaBox)
+        pdf.addImage(imgData, 'png', 0, 0,0,0);
+        pdf.addPage(imgData,'landscape')
+
+
+
+        pdf.save("test_Charts.pdf");
+
+    }
+    renderModal(){
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness"
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics"
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "econ":null, "econ_total":null,"econ_per_diff":null,
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -595,6 +805,7 @@ class SidePanel extends React.Component{
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+         "econ":null, "econ_total":null,"econ_per_diff":null,
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -604,6 +815,7 @@ class SidePanel extends React.Component{
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+         "econ":null, "econ_total":null,"econ_per_diff":null,
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -613,6 +825,7 @@ class SidePanel extends React.Component{
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+         "econ":null, "econ_total":null,"econ_per_diff":null,
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -622,11 +835,11 @@ class SidePanel extends React.Component{
     let area = 0
     let areaWatershed = 0
     let areaWatershedCalc = 0
-    let radarData = [[1,1,1,1,1,1,1],[2,2,2,2,2,2,2]]
+    let radarData = [[1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40])
 
     let dataYield = dataBarPercent
     let dataEro= dataBarPercent
@@ -635,6 +848,7 @@ class SidePanel extends React.Component{
     let dataInsect= dataBarPercent
     let dataCN = dataBarPercent
     let dataBird = dataBarPercent
+    let dataEcon = dataBarPercent
 
     let dataYieldWatershed = dataBarPercent
     let dataEroWatershed= dataBarPercent
@@ -643,6 +857,7 @@ class SidePanel extends React.Component{
     let dataInsectWatershed= dataBarPercent
     let dataCNWatershed = dataBarPercent
     let dataBirdWatershed = dataBarPercent
+    let dataEconWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     let optionsYield = optionsBarPercent
@@ -652,7 +867,7 @@ class SidePanel extends React.Component{
     let optionsInsect = optionsBarPercent
     let optionsCN = optionsBarPercent
     let optionsBird= optionsBarPercent
-
+    let optionsEcon= optionsBarPercent
 //    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
         model.yield = this.state.modelOutputs.model.yield.total_per_area
@@ -661,6 +876,8 @@ class SidePanel extends React.Component{
         model.ero_total = this.state.modelOutputs.model.ero.total
         model.ploss = this.state.modelOutputs.model.ploss.total_per_area
         model.ploss_total = this.state.modelOutputs.model.ploss.total
+        model.econ = this.state.modelOutputs.model.econ.total_per_area
+        model.econ_total = this.state.modelOutputs.model.econ.total
 
         model.cn = this.state.modelOutputs.model.cn.total_per_area
         model.runoff = this.state.modelOutputs.model.runoff.total_per_area
@@ -674,6 +891,8 @@ class SidePanel extends React.Component{
         base.ero_total = this.state.modelOutputs.base.ero.total
         base.ploss = this.state.modelOutputs.base.ploss.total_per_area
         base.ploss_total = this.state.modelOutputs.base.ploss.total
+        base.econ = this.state.modelOutputs.base.econ.total_per_area
+        base.econ_total = this.state.modelOutputs.base.econ.total
 
         base.cn = this.state.modelOutputs.base.cn.total_per_area
         base.runoff = this.state.modelOutputs.base.runoff.total_per_area
@@ -688,6 +907,8 @@ class SidePanel extends React.Component{
         modelWatershed.ero_total = this.state.modelOutputs.model.ero.total_watershed
         modelWatershed.ploss = this.state.modelOutputs.model.ploss.total_per_area_watershed
         modelWatershed.ploss_total = this.state.modelOutputs.model.ploss.total_watershed
+        modelWatershed.econ = this.state.modelOutputs.model.econ.total_per_area_watershed
+        modelWatershed.econ_total = this.state.modelOutputs.model.econ.total_watershed
 
         modelWatershed.cn = this.state.modelOutputs.model.cn.total_per_area_watershed
         modelWatershed.runoff = this.state.modelOutputs.model.runoff.total_per_area_watershed
@@ -701,6 +922,8 @@ class SidePanel extends React.Component{
         baseWatershed.ero_total = this.state.modelOutputs.base.ero.total_watershed
         baseWatershed.ploss = this.state.modelOutputs.base.ploss.total_per_area_watershed
         baseWatershed.ploss_total = this.state.modelOutputs.base.ploss.total_watershed
+        baseWatershed.econ = this.state.modelOutputs.base.econ.total_per_area_watershed
+        baseWatershed.econ_total = this.state.modelOutputs.base.econ.total_watershed
 
         baseWatershed.cn = this.state.modelOutputs.base.cn.total_per_area_watershed
         baseWatershed.runoff = this.state.modelOutputs.base.runoff.total_per_area_watershed
@@ -718,7 +941,7 @@ class SidePanel extends React.Component{
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -733,6 +956,7 @@ class SidePanel extends React.Component{
                   model.insect/base.insect,
                   model.cn/base.cn,
                   model.bird/base.bird,
+                  model.econ/base.econ,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -745,7 +969,7 @@ class SidePanel extends React.Component{
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -760,6 +984,7 @@ class SidePanel extends React.Component{
                   modelWatershed.insect/baseWatershed.insect,
                   modelWatershed.cn/baseWatershed.cn,
                   modelWatershed.bird/baseWatershed.bird,
+                  modelWatershed.econ/baseWatershed.econ,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -770,7 +995,7 @@ class SidePanel extends React.Component{
 
 
 
-        let models = ["yield","ero","ploss","cn","insect","runoff","bird"]
+        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ"]
         let v1, v2 = 0
         let model_name = ""
 //        calculate percent difference
@@ -830,6 +1055,7 @@ class SidePanel extends React.Component{
                 model.insect_per_diff,
                 model.cn_per_diff,
                 model.bird_per_diff,
+                model.econ_per_diff,
 
             ],
             fill: false,
@@ -841,6 +1067,7 @@ class SidePanel extends React.Component{
               'rgba(54, 162, 235, 0.2)',
               'rgba(153, 102, 255, 0.2)',
               'rgba(136, 34, 85, 0.2)',
+              'rgba(153, 153, 51, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -850,6 +1077,7 @@ class SidePanel extends React.Component{
               'rgb(54, 162, 235)',
               'rgb(153, 102, 255)',
               'rgb(136, 34, 85)',
+              'rgb(153, 153, 51)',
             ],
             borderWidth: 1
           }]
@@ -867,6 +1095,7 @@ class SidePanel extends React.Component{
                 modelWatershed.insect_per_diff,
                 modelWatershed.cn_per_diff,
                 modelWatershed.bird_per_diff,
+                modelWatershed.econ_per_diff,
 
             ],
             fill: false,
@@ -878,6 +1107,7 @@ class SidePanel extends React.Component{
               'rgba(54, 162, 235, 0.2)',
               'rgba(153, 102, 255, 0.2)',
               'rgba(136, 34, 85, 0.2)',
+              'rgba(153, 153, 51, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -887,6 +1117,7 @@ class SidePanel extends React.Component{
               'rgb(54, 162, 235)',
               'rgb(153, 102, 255)',
               'rgb(136, 34, 85)',
+              'rgb(153, 153, 51)',
             ],
             borderWidth: 1
           }]
@@ -898,7 +1129,7 @@ class SidePanel extends React.Component{
         dataInsect= charts.getChartDataBar([base.insect,null], [null,model.insect])
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
         dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
-
+        dataEcon = charts.getChartDataBar([base.econ,null], [null,model.econ])
         dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
         dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
         dataPlossWatershed= charts.getChartDataBar([baseWatershed.ploss,null], [null,modelWatershed.ploss])
@@ -906,6 +1137,7 @@ class SidePanel extends React.Component{
         dataInsectWatershed= charts.getChartDataBar([baseWatershed.insect,null], [null,modelWatershed.insect])
         dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
         dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
+        dataEconWatershed = charts.getChartDataBar([baseWatershed.econ,null], [null,modelWatershed.econ])
 
         optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
@@ -914,10 +1146,10 @@ class SidePanel extends React.Component{
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
+        optionsEcon = charts.getOptionsBar("Economic Cost", "$acre/year")
 
     }
     let percentArea = (parseFloat(areaCalc)/parseFloat(areaWatershedCalc) * 100).toFixed(2)
-
     return(
             <div>
             <Accordion defaultActiveKey="0">
@@ -945,6 +1177,9 @@ class SidePanel extends React.Component{
                        </tbody>
                         ))}
                     </Table>
+                    <Button variant="secondary" onClick={this.printSummary}>
+                        Print Summary
+                  </Button>
                 </Accordion.Body>
             </Accordion.Item>
             </Accordion>
@@ -953,7 +1188,7 @@ class SidePanel extends React.Component{
               <h4>By Selection</h4>
                  <Row>
                     <Col xs={6}>
-                        <Bar options = {optionsYield} data={dataYield}/>
+                        <Bar id = "test1" ref={this.chartYield} options = {optionsYield} data={dataYield}/>
                     </Col>
                     <Col xs={6}>
                         <Bar options = {optionsEro} data={dataEro}/>
@@ -980,8 +1215,9 @@ class SidePanel extends React.Component{
                         <Bar options = {optionsBird} data={dataBird}/>
                     </Col>
                     <Col xs={6}>
-
+                        <Bar options = {optionsEcon} data={dataEcon}/>
                     </Col>
+
                 </Row>
                   <h4>By Watershed</h4>
 
@@ -1014,6 +1250,7 @@ class SidePanel extends React.Component{
                         <Bar options = {optionsBird} data={dataBirdWatershed}/>
                     </Col>
                     <Col xs={6}>
+                        <Bar options = {optionsEcon} data={dataEconWatershed}/>
                     </Col>
                 </Row>
               </Tab>
@@ -1138,6 +1375,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{model.bird_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>Economic Cost</td>
+                      <td className="table-cell-left">{base.econ}</td>
+                      <td>{model.econ}</td>
+                      <td>$/acre/year</td>
+                      <td className="table-cell-left">{base.econ_total}</td>
+                      <td>{model.econ_total}</td>
+                      <td>$/year</td>
+                      <td className="table-cell-left">{model.econ_per_diff}</td>
+                      <td></td>
+                    </tr>
                   </tbody>
                 </Table>
             <h4>By Watershed</h4>
@@ -1239,11 +1487,22 @@ class SidePanel extends React.Component{
                       <td>NA</td>
                       <td className="table-cell-left">{modelWatershed.bird_per_diff}</td>
                       <td></td>
+
+                    </tr>
+                    <tr>
+                      <td>Economic Cost</td>
+                      <td className="table-cell-left">{baseWatershed.econ}</td>
+                      <td>{modelWatershed.econ}</td>
+                      <td>$/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.econ_total}</td>
+                      <td>{modelWatershed.econ_total}</td>
+                      <td>$/year</td>
+                      <td className="table-cell-left">{modelWatershed.econ_per_diff}</td>
+                      <td></td>
                     </tr>
                   </tbody>
                 </Table>
               </Tab>
-
             </Tabs>
             </div>
     )
@@ -1286,6 +1545,7 @@ class SidePanel extends React.Component{
                   <Accordion.Header>Build Scenario</Accordion.Header>
 
               <Accordion.Body>
+
 
                 <div className = "criteriaSections">
                 <Form.Label>1) Select at least one Land Type<sup>*</sup></Form.Label>
@@ -1334,6 +1594,78 @@ class SidePanel extends React.Component{
 
                 <div className = "criteriaSections">
                     <Form.Label>2) Optional Selection Options</Form.Label>
+                     <Accordion>
+                      <Accordion.Item eventKey="4">
+                        <Accordion.Header>Land Classification</Accordion.Header>
+                        <Accordion.Body>
+                             <Form.Check
+                                ref={this.land1} type="switch" label="Well Suited for Cropland I (Best)"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land1","landClass", e)}
+                             />
+                             <Form.Check
+                                ref={this.land2} type="switch" label="Well Suited for Cropland II"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land2","landClass", e)}
+                             />
+                             <Form.Check
+                                ref={this.land3} type="switch" label="Well Suited for Cropland III"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land3","landClass", e)}
+                             />
+                             <Form.Check
+                                ref={this.land4} type="switch" label="Well Suited for Cropland IV"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land4","landClass", e)}
+                             />
+                             <Form.Check
+                                ref={this.land5} type="switch" label="Generally Unsuited for Agriculture I"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land5","landClass", e)}
+                             />
+                             <Form.Check
+                                ref={this.land6} type="switch" label="Generally Unsuited for Agriculture II"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land6","landClass", e)}
+                             />
+                             <Form.Check
+                                ref={this.land7} type="switch" label="Generally Unsuited for Agriculture III"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land7","landClass", e)}
+                             />
+                             <Form.Check
+                                ref={this.land8} type="switch" label="Generally Unsuited for Agriculture IV (Worst)"
+                                onChange={(e) => this.handleSelectionChangeGeneral("land8","landClass", e)}
+                             />
+                        </Accordion.Body>
+                      </Accordion.Item>
+                    </Accordion>
+
+                    <Accordion>
+                      <Accordion.Item eventKey="5">
+                        <Accordion.Header>Farm Classification</Accordion.Header>
+                        <Accordion.Body>
+                            <Form.Check
+                                ref={this.prime} type="switch" label="All Areas are Prime Farmland"
+                                onChange={(e) => this.handleSelectionChangeGeneral("prime", "farmClass", e)}
+                            />
+                            <Form.Check
+                                ref={this.stateFarm} type="switch" label="Farmland of Statewide Importance"
+                                onChange={(e) => this.handleSelectionChangeGeneral("stateFarm", "farmClass", e)}
+                            />
+                            <Form.Check
+                                ref={this.notPrime} type="switch" label="Not Prime Farmland"
+                                onChange={(e) => this.handleSelectionChangeGeneral("notPrime", "farmClass", e)}
+                            />
+                            <Form.Check
+                                ref={this.prime1} type="switch" label="Prime Farmland if Modified I"
+                                onChange={(e) => this.handleSelectionChangeGeneral("prime1", "farmClass", e)}
+                            />
+                            <Form.Check
+                                ref={this.prime2} type="switch" label="Prime Farmland if Modified II"
+                                onChange={(e) => this.handleSelectionChangeGeneral("prime2", "farmClass", e)}
+                            />
+                            <Form.Check
+                                ref={this.prime3} type="switch" label="Prime Farmland if Modified III"
+                                onChange={(e) => this.handleSelectionChangeGeneral("prime3", "farmClass", e)}
+                            />
+                        </Accordion.Body>
+                      </Accordion.Item>
+                    </Accordion>
+
                     <Accordion onSelect={(e) => this.subAreaSelection(e)}>
                       <Accordion.Item eventKey="2">
                         <Accordion.Header>Sub Area</Accordion.Header>
@@ -1424,7 +1756,7 @@ class SidePanel extends React.Component{
                              <Form.Group as={Row}>
 
                                 <Col xs="5">
-                              <Form.Label>Min Slope</Form.Label>
+                                <Form.Label>Min Slope</Form.Label>
                                   <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
                                     onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
@@ -1453,7 +1785,7 @@ class SidePanel extends React.Component{
                     </Accordion>
                     <Accordion>
 
-                      <Accordion.Item eventKey="4">
+                      <Accordion.Item eventKey="4" >
                         <Accordion.Header>Distance to Stream</Accordion.Header>
                         <Accordion.Body>
                             <Form.Group as={Row}>
@@ -1550,11 +1882,7 @@ class SidePanel extends React.Component{
                     min={0}
                   />
                    <Stack gap={3}>
-                   <Button onClick={this.displaySelectionCriteria} variant="primary" hidden={this.state.aoiOrDisplayLoading}>View and Save Selection</Button>
-                    <Button id="btnModelsLoading" variant="primary" disabled hidden={!this.state.aoiOrDisplayLoading}>
-                        <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
-                        Loading...
-                     </Button>
+
                    </Stack>
                     </div>
                     <div className = "criteriaSections">
@@ -1597,6 +1925,7 @@ class SidePanel extends React.Component{
                         Loading...
                      </Button>
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
+
                      </Stack>
               </Accordion.Body>
               </Accordion.Item>
@@ -1615,6 +1944,8 @@ class SidePanel extends React.Component{
                     manure and fertilizier
                   */}
 
+                <Tabs defaultActiveKey="mange" id="uncontrolled-tab-example" className="mb-3">
+                  <Tab eventKey="mange" title="Land Management">
                     <Form.Label>Cover Crop</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.cover}
                       onChange={(e) => this.updateActiveBaseProps("cover", e)}>
@@ -1661,6 +1992,35 @@ class SidePanel extends React.Component{
                       <option value="25_50">25/	50</option>
                       <option value="50_50">50/	50</option>
                     </Form.Select>
+                 </Tab>
+                 <Tab eventKey="economics" title="Economics">
+
+                       <Form.Label>P2O5 per lb:</Form.Label><Form.Control type="number" ref={this.p2o5} onChange={(e) => this.updateActiveBaseEcon("p2o5", e)}/>
+                       <Form.Label>N per lb:</Form.Label><Form.Control type="number" ref={this.nFert} onChange={(e) => this.updateActiveBaseEcon("nFert", e)}/>
+
+                       <Form.Label>Corn Seed Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.cornSeed} onChange={(e) => this.updateActiveBaseEcon("cornSeed", e)}/>
+                       <Form.Label>Corn Pesticide Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.cornPest} onChange={(e) => this.updateActiveBaseEcon("cornPest", e)}/>
+                       <Form.Label>Corn Machinery Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.cornMach} onChange={(e) => this.updateActiveBaseEcon("cornMach", e)}/>
+
+                       <Form.Label>Soy Seed Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.soySeed} onChange={(e) => this.updateActiveBaseEcon("soySeed", e)}/>
+                       <Form.Label>Soy Pesticide Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.soyPest} onChange={(e) => this.updateActiveBaseEcon("soyPest", e)}/>
+                       <Form.Label>Soy Machinery Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.soyMach} onChange={(e) => this.updateActiveBaseEcon("soyMach", e)}/>
+
+                       <Form.Label>Alfalfa Seed Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.alfaSeed} onChange={(e) => this.updateActiveBaseEcon("alfaSeed", e)}/>
+                       <Form.Label>Alfalfa Pesticide Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.alfaPest} onChange={(e) => this.updateActiveBaseEcon("alfaPest", e)}/>
+                       <Form.Label>Alfalfa Machinery Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.alfaMach} onChange={(e) => this.updateActiveBaseEcon("alfaMach", e)}/>
+                       <Form.Label>Alfalfa Machinery Cost First Year:</Form.Label><Form.Control type="number" ref={this.alfaFirstYear} onChange={(e) => this.updateActiveBaseEcon("alfaFirstYear", e)}/>
+
+                       <Form.Label>Oat Seed Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.oatSeed} onChange={(e) => this.updateActiveBaseEcon("oatSeed", e)}/>
+                       <Form.Label>Oat Pesticide Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.oatPest} onChange={(e) => this.updateActiveBaseEcon("oatPest", e)}/>
+                       <Form.Label>Oat Machinery Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.oatMach} onChange={(e) => this.updateActiveBaseEcon("oatMach", e)}/>
+
+                       <Form.Label>Pasture Seed Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.pastSeed} onChange={(e) => this.updateActiveBaseEcon("pastSeed", e)}/>
+                       <Form.Label>Pasture Pesticide Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.pastPest} onChange={(e) => this.updateActiveBaseEcon("pastPest", e)}/>
+                       <Form.Label>Pasture Machinery Cost Per Acre:</Form.Label><Form.Control type="number" ref={this.pastMach} onChange={(e) => this.updateActiveBaseEcon("pastMach", e)}/>
+
+                      </Tab>
+                </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModalBase}>
