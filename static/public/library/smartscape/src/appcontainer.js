@@ -146,6 +146,7 @@ componentDidUpdate(prevProps) {
 
                   </Col>
                   <Col xs='9' className = "sidePanelCol">
+
                     <OLMapFragment
                         rasterUrl={this.state.rasterUrl}
                         rasterExtents = {this.state.rasterExtents}

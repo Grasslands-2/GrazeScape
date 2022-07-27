@@ -128,8 +128,12 @@ export const transSlice = createSlice({
                     items[trans][value.name] = value.value
                 }
                 // land cover is being updated
-                else{
+                else if(action.payload.type === "land"){
                     items[trans].selection.landCover[value.name] = value.value
+                }
+                else{
+                    items[trans].selection[value.type][value.name] = value.value
+
                 }
                 // reset active transformation so we get the new values
                 state.activeTrans = items[trans]
@@ -149,6 +153,9 @@ export const transSlice = createSlice({
         // mangement style is being changed
         else if(action.payload.type === "mang"){
             base.management[value.name] = value.value
+        }
+        else if (action.payload.type === "econ"){
+            base.econ[value.name] = value.value
         }
         // land cover is being updated
         else{
