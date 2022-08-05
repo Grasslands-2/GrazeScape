@@ -26,7 +26,7 @@ else:
 SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# DEBUG = False
 
 GEOSERVER_URL = "http://geoserver:8080"
 #container R path.
