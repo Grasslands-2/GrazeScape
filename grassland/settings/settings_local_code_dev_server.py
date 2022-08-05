@@ -29,7 +29,7 @@ SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080/"
+GEOSERVER_URL = "http://grazescape-dev1.glbrc.org:8080/"
 #GEOSERVER_URL = "http://geoserver:8080"
 #container R path.
 #R_PATH = "/opt/conda/envs/gscape/bin/R"

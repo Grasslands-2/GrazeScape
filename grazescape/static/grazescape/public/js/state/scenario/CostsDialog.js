@@ -104,6 +104,28 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 	initComponent: function() {
 		let me = this;
 		
+		if(Ext.getCmp("P205")){
+			console.log("destroy")
+			Ext.getCmp("P205").destroy()
+			Ext.getCmp("N").destroy()
+			Ext.getCmp("cornSeedCost").destroy()
+			Ext.getCmp("cornPestCost").destroy()
+			Ext.getCmp("cornMachCost").destroy()
+			Ext.getCmp("soySeedCost").destroy()
+			Ext.getCmp("soyPestCost").destroy()
+			Ext.getCmp("soyMachCost").destroy()
+			Ext.getCmp("alfalfaSeedCost").destroy()
+			Ext.getCmp("alfalfaPestCost").destroy()
+			Ext.getCmp("alfalfaMachCost").destroy()
+			Ext.getCmp("alfalfaMachYearOneCost").destroy()
+			Ext.getCmp("oatSeedCost").destroy()
+			Ext.getCmp("oatPestCost").destroy()
+			Ext.getCmp("oatMachCost").destroy()
+			Ext.getCmp("grassSeedCost").destroy()
+			Ext.getCmp("grassPestCost").destroy()
+			Ext.getCmp("grassMachCost").destroy()
+		}
+
 		//--------------------------------------------
 		// Dairy Container
 		//--------------------------------------------
@@ -149,7 +171,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 						style:{
 									fontsize: 12,
 								},
-						html: 'Note: These costs represent those associated with feed/crop production and are broken out into the following categories: fertilizer (P2O5 and N), seed, pesticide, and machinery (fixed and variable). Land rent is not included. Default values are based on Iowa State Extension and University of Wisconsin Extension estimated crop budgets.'
+						html: 'Note: These costs represent those associated with feed/crop production and are broken out into the following categories: fertilizer (P2O5 and N), seed, pesticide, and machinery (fixed and variable). Land costs are specified in the Field Attribute table. Default values are based on Iowa State Extension and University of Wisconsin Extension estimated crop budgets.'
 					},
 					// {
                     //     xtype: 'label',
@@ -377,32 +399,32 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 					this.up('window').close();
 				}
 			},
-			// {
-			// 	xtype: 'button',
-			// 	cls: 'button-text-pad',
-			// 	componentCls: 'button-margin',
-			// 	text: 'Reset Costs',
-			// 	handler: async function(self) {
-			// 		Ext.getCmp("P205").setValue(1);
-			// 		Ext.getCmp("N").setValue(1);
-			// 		Ext.getCmp("cornSeedCost").setValue(80.5);
-			// 		Ext.getCmp("cornPestCost").setValue(55.64);
-			// 		Ext.getCmp("cornMachCost").setValue(123);
-			// 		Ext.getCmp("soySeedCost").setValue(54);
-			// 		Ext.getCmp("soyPestCost").setValue(40);
-			// 		Ext.getCmp("soyMachCost").setValue(62);
-			// 		Ext.getCmp("alfalfaSeedCost").setValue(60);
-			// 		Ext.getCmp("alfalfaPestCost").setValue(32);
-			// 		Ext.getCmp("alfalfaMachCost").setValue(136.5);
-			// 		Ext.getCmp("alfalfaMachYearOneCost").setValue(225.50);
-			// 		Ext.getCmp("oatSeedCost").setValue(30);
-			// 		Ext.getCmp("oatPestCost").setValue(20);
-			// 		Ext.getCmp("oatMachCost").setValue(63.5);
-			// 		Ext.getCmp("grassSeedCost").setValue(28.44);
-			// 		Ext.getCmp("grassPestCost").setValue(5);
-			// 		Ext.getCmp("grassMachCost").setValue(19.70);
-			// 	}
-			// },
+			{
+				xtype: 'button',
+				cls: 'button-text-pad',
+				componentCls: 'button-margin',
+				text: 'Reset Costs',
+				handler: async function(self) {
+					Ext.getCmp("P205").setValue(1);
+					Ext.getCmp("N").setValue(1);
+					Ext.getCmp("cornSeedCost").setValue(80.5);
+					Ext.getCmp("cornPestCost").setValue(55.64);
+					Ext.getCmp("cornMachCost").setValue(123);
+					Ext.getCmp("soySeedCost").setValue(54);
+					Ext.getCmp("soyPestCost").setValue(40);
+					Ext.getCmp("soyMachCost").setValue(62);
+					Ext.getCmp("alfalfaSeedCost").setValue(60);
+					Ext.getCmp("alfalfaPestCost").setValue(32);
+					Ext.getCmp("alfalfaMachCost").setValue(136.5);
+					Ext.getCmp("alfalfaMachYearOneCost").setValue(225.50);
+					Ext.getCmp("oatSeedCost").setValue(30);
+					Ext.getCmp("oatPestCost").setValue(20);
+					Ext.getCmp("oatMachCost").setValue(63.5);
+					Ext.getCmp("grassSeedCost").setValue(28.44);
+					Ext.getCmp("grassPestCost").setValue(5);
+					Ext.getCmp("grassMachCost").setValue(19.70);
+				}
+			},
 		]
 		});
 		

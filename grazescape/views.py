@@ -6,6 +6,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.conf.urls.static import static
+from django.core.files.storage import FileSystemStorage
+from django.core.files.base import ContentFile
+from django.http import JsonResponse
+from .filemodels import FileModel
+import base64
+
 import re
 import json
 from django.http import FileResponse
@@ -14,6 +22,7 @@ import uuid
 from django.core.files import File
 from django.conf import settings
 import os
+import numpy as np
 credential_path = os.path.join(settings.BASE_DIR,'keys','cals-grazescape-files-63e6-4f2fc53201e6.json')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 # Create your views here.
@@ -34,6 +43,9 @@ from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
 from grazescape.users import *
 from google.cloud import storage
+import pandas as pd
+import geopandas as gpd
+import fiona as fiona
 import sys
 import time
 import sys
@@ -46,6 +58,43 @@ dt_string = now.strftime("%d/%m/%Y%H:%M:%S")
 
 #------------------------------------------
 raster_data = None
+
+def uploadindex(request):
+    return render(template_name = "uploadindex.html", request = request)
+def upload_file(request):
+    file1 = request.FILES.get("shapefile1")
+    file2 = request.FILES.get("shapefile2")
+    filename = file1.name
+    scenario_id = request.POST.get("scenario_id")
+    farm_id = request.POST.get("farm_id")
+    print("INSIDEUPLOAD!")
+    print("scenario_id: " + scenario_id)
+    print("farm_id: " + farm_id)
+    #data = ContentFile(base64.b64decode(file), name= file.name)
+    #FileModel.objects.create(doc=data)
+    FileModel.objects.create(doc=file1)
+    FileModel.objects.create(doc=file2)
+    outside_shpfile_coord_pull(filename,scenario_id,farm_id)
+    #print(data)
+    #return JsonResponse({"link": data})
+    # FileModel.objects.create(doc=file)
+    # print(file)
+    return JsonResponse({"Insert":"Complete"})
+
+def upload_file_test(request):
+    if request.method == "POST":
+        post = request.POST
+        file_data = request.POST.get("file")
+        filetest = request.FILES.get("file")
+        #farm_id = request.POST.get("farm_id")
+        print(filetest)
+        #print(farm_id)
+        uploaded_file = request.FILES
+        print(file_data)
+        #print(uploaded_file.size)
+    #return render(request, 'upload.html')
+    return JsonResponse({"Insert":"Complete"})
+    
 
 def remove_old_pngs_from_local(model_type,field_id):
     images_folder_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images')
@@ -241,12 +290,34 @@ def download_rasters(request):
 #Makes post requests to WEI geoserver
 @login_required
 @csrf_protect
-def outside_geom_field_insert(request):
+def outside_geojson_coord_pull(request):
     scenario_id = request.POST.get("scenario_id")
     farm_id = request.POST.get("farm_id")
     file_data = request.POST.get("file_data")
+    print(file_data)
     insert_json_coords(scenario_id,farm_id,file_data)
     return JsonResponse({"Insert":"Complete"})
+
+def outside_shpfile_coord_pull(filename,scenario_id,farm_id):
+    filename_fixed = filename[:-3] + 'shx'
+    print("IN COORD PULL SHAPEFILE!!!!!!")
+    print(filename_fixed)
+    shp_file_name = os.path.join(settings.BASE_DIR,'media','media',filename_fixed)
+    shape = fiona.open(shp_file_name)
+    print(scenario_id)
+    print(farm_id)
+    print("FIONA SCHEMA!!!!!!")
+    #print(shape.schema)
+    coords = [np.array(poly['geometry']['coordinates'])
+                for poly in shape.values()]
+    insert_shpfile_coords(scenario_id,farm_id,coords)
+    #scenario_id = request.POST.get("scenario_id")
+    # farm_id = request.POST.get("farm_id")
+    #file_data = request.POST.get("file_data")
+    #file_data = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','shapeFiles','TestField.shp')
+    #readfile = gpd.read_file(os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','shapeFiles','TestField.dbf'))
+    return JsonResponse({"Insert":"Complete"})
+    
 
 def geoserver_request(request):
     request_type = request.POST.get("request_type")

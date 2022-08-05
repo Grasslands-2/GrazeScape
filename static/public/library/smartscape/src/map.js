@@ -541,7 +541,7 @@ class OLMapFragment extends React.Component {
 
 //          source:new VectorSource({
 //              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
-////              url: "http://geoserver-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
+////              url: "http://grazescape-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
 //              format: new GeoJSON(),
 //               projection: 'EPSG:3857',
 //            }),

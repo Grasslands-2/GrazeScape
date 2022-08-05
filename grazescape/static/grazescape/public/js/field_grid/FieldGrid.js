@@ -394,7 +394,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let landCost_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5
-			}, text: 'Land Cost(acre)', dataIndex: 'landCost', width: 80, 
+			}, text: 'Land Cost ($/ac)', dataIndex: 'landCost', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------

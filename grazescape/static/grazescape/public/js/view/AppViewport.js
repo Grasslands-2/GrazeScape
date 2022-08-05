@@ -11,7 +11,7 @@ var changedScenarios = []
 var DSS_isDataLoaded = false;
 var DSS_chart_data = 1;
 var DSS_dataLoadAjax;
-//var geoserverURL = "http://geoserver-dev1.glbrc.org:8080"
+//var geoserverURL = "http://grazescape-dev1.glbrc.org:8080"
 //var geoserverURL = "https://geoserver:8443"
 
 
