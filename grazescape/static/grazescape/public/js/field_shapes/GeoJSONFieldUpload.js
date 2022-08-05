@@ -29,11 +29,11 @@ async function getNewFieldArea(){
 };
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.field_shapes.ShpFieldUpload', {
+Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
 	alias: 'widget.field_apply_panel',
-	id: "ShpFieldUpload",
+	id: "GeoJSONFieldUpload",
 //	autoDestroy: false,
 //	closeAction: 'hide',
 	constrain: false,
@@ -51,8 +51,8 @@ Ext.define('DSS.field_shapes.ShpFieldUpload', {
 	initComponent: function() {
 
 		let me = this;
-		if(Ext.getCmp('Shpfilepath')){
-			Ext.getCmp('Shpfilepath').destroy()
+		if(Ext.getCmp('GeoJSONpath')){
+			Ext.getCmp('GeoJSONpath').destroy()
 		}
 		Ext.applyIf(me, {
 			items: [{
@@ -80,7 +80,8 @@ Ext.define('DSS.field_shapes.ShpFieldUpload', {
 						width: 450,
                         label: "Find GeoJSON",
                         name: 'GeoJSON'
-                    },{
+                     },
+					 {
                         xtype: 'button',
                         text: 'Upload Field Boundaries',
                         handler: async function(){
@@ -96,7 +97,7 @@ Ext.define('DSS.field_shapes.ShpFieldUpload', {
 												headers: { "X-CSRFToken": csrftoken }
 										});
 										$.ajax({
-											'url' : '/grazescape/outside_geom_field_insert',
+											'url' : '/grazescape/outside_geojson_coord_pull',
 											'type' : 'POST',
 											'data' : {
 												scenario_id:DSS.activeScenario,
@@ -130,6 +131,29 @@ Ext.define('DSS.field_shapes.ShpFieldUpload', {
                 ]
             }
 			]
+					 //{
+            //             xtype: 'button',
+            //             text: 'Upload Field Boundaries',
+            //             handler: async function(){
+            //                 let file = this.up().down('filefield').el.down('input[type=file]').dom.files[0];
+            //                 var reader = new FileReader();
+            //                 console.log(file)
+			// 				reader.onload = (function(theFile) {
+            //                     return async function(e) {
+			// 						console.log(e)
+			// 						readerData = e.target.result
+			// 						console.log(readerData)
+            //                     };
+            //                 })(file);
+			// 				//console.log(file)
+            //                 reader.readAsBinaryString(file);
+			// 				//reader.readAsDataURL(file);
+			// 				this.up('window').destroy();
+            //             }
+            //         }
+            //     ]
+            // }
+			// ]
 		});
 		me.callParent(arguments);
 		AppEvents.registerListener("viewport_resize", function(opts) {

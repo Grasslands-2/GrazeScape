@@ -428,7 +428,7 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.infra_shapes.InfraApplyPanel',
 		'DSS.field_shapes.Delete',
 		'DSS.infra_shapes.DeleteLine',
-		'DSS.field_shapes.ShpFieldUpload',
+		'DSS.field_shapes.GeoJSONFieldUpload',
 		'DSS.state.scenario.CostsDialog'
 	],
 	
@@ -605,8 +605,16 @@ Ext.define('DSS.state.Scenario', {
 						{
 							text: 'Upload GeoJSON',
 							handler: function(self) {
-								DSS.dialogs.ShpFieldUpload = Ext.create('DSS.field_shapes.ShpFieldUpload'); 				
-								DSS.dialogs.ShpFieldUpload.show().center().setY(100);
+								DSS.dialogs.GeoJSONFieldUpload = Ext.create('DSS.field_shapes.GeoJSONFieldUpload'); 				
+								DSS.dialogs.GeoJSONFieldUpload.show().center().setY(100);
+							}
+						},
+						{
+							text: 'Upload Shapefile',
+							handler: function(self) {
+								console.log("Upload Shapefiles clicked")
+								DSS.dialogs.ShpFileFieldUpload = Ext.create('DSS.field_shapes.ShpFileFieldUpload'); 				
+								DSS.dialogs.ShpFileFieldUpload.show().center().setY(100);
 							}
 						},
 					]
