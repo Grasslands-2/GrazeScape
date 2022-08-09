@@ -62,24 +62,54 @@ raster_data = None
 def uploadindex(request):
     return render(template_name = "uploadindex.html", request = request)
 def upload_file(request):
-    file1 = request.FILES.get("shapefile1")
-    file2 = request.FILES.get("shapefile2")
-    filename = file1.name
-    scenario_id = request.POST.get("scenario_id")
-    farm_id = request.POST.get("farm_id")
-    print("INSIDEUPLOAD!")
-    print("scenario_id: " + scenario_id)
-    print("farm_id: " + farm_id)
-    #data = ContentFile(base64.b64decode(file), name= file.name)
-    #FileModel.objects.create(doc=data)
-    FileModel.objects.create(doc=file1)
-    FileModel.objects.create(doc=file2)
-    outside_shpfile_coord_pull(filename,scenario_id,farm_id)
-    #print(data)
-    #return JsonResponse({"link": data})
-    # FileModel.objects.create(doc=file)
-    # print(file)
-    return JsonResponse({"Insert":"Complete"})
+    print("FILES")
+    files = request.FILES
+    print(len(files))
+    print(files)
+    file1 = request.FILES.get("shapefile0")
+    #file2 = request.FILES.get("shapefile2")
+    try:
+        filename = file1.name
+        scenario_id = request.POST.get("scenario_id")
+        farm_id = request.POST.get("farm_id")
+        print("INSIDEUPLOAD!")
+        print("scenario_id: " + scenario_id)
+        print("farm_id: " + farm_id)
+        #data = ContentFile(base64.b64decode(file), name= file.name)
+        #FileModel.objects.create(doc=data)
+        for count, file in enumerate(files):
+            FileModel.objects.create(doc=request.FILES.get("shapefile"+str(count+1)))
+        #FileModel.objects.create(doc=file1)
+       
+        #outside_shpfile_coord_pull(filename,scenario_id,farm_id)
+       
+        #print(data)
+        #return JsonResponse({"link": data})
+        # FileModel.objects.create(doc=file)
+        # print(file)
+
+        filename_fixed = filename[:-3] + 'shx'
+        print("IN COORD PULL SHAPEFILE!!!!!!")
+        print(filename_fixed)
+        print(scenario_id)
+        print(farm_id)
+        #try:
+        shp_file_name = os.path.join(settings.BASE_DIR,'media','media',filename_fixed)
+        shape = fiona.open(shp_file_name)
+        print("FIONA SCHEMA!!!!!!")
+        #print(shape.schema)
+        coords = [np.array(poly['geometry']['coordinates'])
+                    for poly in shape.values()]
+        insert_shpfile_coords(scenario_id,farm_id,coords)
+        return JsonResponse({"Insert":"Upload Complete upload_file"})
+        
+    except:
+        print("in upload error handling")
+        #message = "The request is not valid.  upload_files"
+          # what is the most appropriate way to pass both error status and custom message
+          # How do I list all possible error types here (instead of ExpectedError to make the exception handling block as DRY and reusable as possible
+        return JsonResponse({'status':'false'})
+        #return('message')
 
 def upload_file_test(request):
     if request.method == "POST":
@@ -296,27 +326,33 @@ def outside_geojson_coord_pull(request):
     file_data = request.POST.get("file_data")
     print(file_data)
     insert_json_coords(scenario_id,farm_id,file_data)
-    return JsonResponse({"Insert":"Complete"})
+    return JsonResponse({"Insert":"Complete outside_geojson_coord_pull"})
 
 def outside_shpfile_coord_pull(filename,scenario_id,farm_id):
     filename_fixed = filename[:-3] + 'shx'
     print("IN COORD PULL SHAPEFILE!!!!!!")
     print(filename_fixed)
-    shp_file_name = os.path.join(settings.BASE_DIR,'media','media',filename_fixed)
-    shape = fiona.open(shp_file_name)
     print(scenario_id)
     print(farm_id)
-    print("FIONA SCHEMA!!!!!!")
-    #print(shape.schema)
-    coords = [np.array(poly['geometry']['coordinates'])
-                for poly in shape.values()]
-    insert_shpfile_coords(scenario_id,farm_id,coords)
+    try:
+        shp_file_name = os.path.join(settings.BASE_DIR,'media','media',filename_fixed)
+        shape = fiona.open(shp_file_name)
+        print("FIONA SCHEMA!!!!!!")
+        #print(shape.schema)
+        coords = [np.array(poly['geometry']['coordinates'])
+                    for poly in shape.values()]
+        insert_shpfile_coords(scenario_id,farm_id,coords)
+        return JsonResponse({"Insert":"shp Coord pull Complete"})
+    except:
+        print("I will print this line of code if an error is encountered outside_shpfile_coord_pull")
+        message = "The request is not valid."
+        return JsonResponse({'status':'false','message':message}, status=500)
     #scenario_id = request.POST.get("scenario_id")
     # farm_id = request.POST.get("farm_id")
     #file_data = request.POST.get("file_data")
     #file_data = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','shapeFiles','TestField.shp')
     #readfile = gpd.read_file(os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','shapeFiles','TestField.dbf'))
-    return JsonResponse({"Insert":"Complete"})
+    
     
 
 def geoserver_request(request):

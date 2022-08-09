@@ -611,6 +611,7 @@ def insert_json_coords(scenario_id,farm_id,file_data):
             print(type(e).__name__)
 
             error = str(e)
+            print("GEOJSON UPLOAD FAILED IN db_connect!!")
             print(error)
             raise
         # close the communication with the PostgreSQL
@@ -699,6 +700,7 @@ def insert_shpfile_coords(scenario_id,farm_id,file_data):
             print(type(e).__name__)
 
             error = str(e)
+            print("SHAPEFILE UPLOAD FAILED IN db_connect!!")
             print(error)
             raise
         # close the communication with the PostgreSQL
