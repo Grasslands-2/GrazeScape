@@ -87,40 +87,49 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
                         handler: async function(){
                             let file = this.up().down('filefield').el.down('input[type=file]').dom.files[0];
                             var reader = new FileReader();
+							reader.fileName = file.name
                             reader.onload = (function(theFile) {
                                 return async function(e) {
 									readerData = e.target.result
+									readerFileName = e.target.fileName
 									console.log(readerData)
-									return new Promise(await function(resolve) {
-										var csrftoken = Cookies.get('csrftoken');
-										$.ajaxSetup({
-												headers: { "X-CSRFToken": csrftoken }
-										});
-										$.ajax({
-											'url' : '/grazescape/outside_geojson_coord_pull',
-											'type' : 'POST',
-											'data' : {
-												scenario_id:DSS.activeScenario,
-												farm_id :DSS.activeFarm,
-												file_data: readerData
-												//coords_array : JSON.stringify(dummyData)
-											},
-											success: async function(responses, opts) {
-												console.log(responses)
-												delete $.ajaxSetup().headers
-												await resolve({geojson:responses.data})
+									console.log(readerFileName)
+									if(readerFileName.indexOf("geojson") !== -1){
+										return new Promise(await function(resolve) {
+											var csrftoken = Cookies.get('csrftoken');
+											$.ajaxSetup({
+													headers: { "X-CSRFToken": csrftoken }
+											});
+											$.ajax({
+												'url' : '/grazescape/outside_geojson_coord_pull',
+												'type' : 'POST',
+												'data' : {
+													scenario_id:DSS.activeScenario,
+													farm_id :DSS.activeFarm,
+													file_data: readerData
+													//coords_array : JSON.stringify(dummyData)
+												},
+												success: async function(responses, opts) {
+													console.log(responses)
+													delete $.ajaxSetup().headers
+													await resolve({geojson:responses.data})
+													
+													getNewFieldArea()
+													DSS.layer.fields_1.getSource().refresh();
+													DSS.layer.fieldsLabels.getSource().refresh();
 												
-												getNewFieldArea()
-												DSS.layer.fields_1.getSource().refresh();
-												DSS.layer.fieldsLabels.getSource().refresh();
-											
-											},
-											failure: function(response, opts) {
-												console.log(responses)
-												me.stopWorkerAnimation();
-											}
+												},
+												failure: function(response, opts) {
+													console.log(responses)
+													me.stopWorkerAnimation();
+												}
+											})
 										})
-									})
+									}else{
+										console.log("Shapefile upload FAILED!")
+										alert("You choose the wrong file format.  You need to use an unprojected geojson.");
+									}
+									
                                 };
                             })(file);
 							//console.log(file)

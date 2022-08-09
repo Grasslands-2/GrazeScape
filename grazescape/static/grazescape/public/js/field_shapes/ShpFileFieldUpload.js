@@ -100,13 +100,16 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 							
 							var file1 = this.up().down('filefield').el.down('input[type=file]').dom.files[0];
 							var file2 = this.up().down('filefield').el.down('input[type=file]').dom.files[1];
-
-							formData.append('shapefile1',file1)
-							formData.append('shapefile2',file2)
+							var files = this.up().down('filefield').el.down('input[type=file]').dom.files
+							for(f in files){
+								formData.append('shapefile'+ [f],files[f])
+							}
+							// formData.append('shapefile1',file1)
+							// formData.append('shapefile2',file2)
 							formData.append('scenario_id', DSS.activeScenario);
 							formData.append('farm_id', DSS.activeFarm);
-							console.log(file1)
-							console.log(file2)
+							// console.log(file1)
+							// console.log(file2)
 							var csrftoken = Cookies.get('csrftoken');
 							$.ajaxSetup({
 								headers: { "X-CSRFToken": csrftoken }
@@ -122,16 +125,23 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 								'processData': false, // NEEDED, DON'T OMIT THIS
 								success: async function(responses, opts) {
 									console.log(responses)
-									console.log("SUCCESS!")
-									delete $.ajaxSetup().headers
-									//await resolve({shpfile:responses.data})
-									
-									getNewFieldArea()
-									DSS.layer.fields_1.getSource().refresh();
-									DSS.layer.fieldsLabels.getSource().refresh();
-								
+									console.log(responses[2])
+									if(responses[2] == 's'){
+										console.log("Shapefile upload FAILED!")
+										alert("Your shapefile did not upload!  Please double check your shapefile and try again.");
+									}
+									else{
+										console.log("Shapefile upload SUCCESS!")
+										delete $.ajaxSetup().headers
+										//await resolve({shpfile:responses.data})
+										
+										getNewFieldArea()
+										DSS.layer.fields_1.getSource().refresh();
+										DSS.layer.fieldsLabels.getSource().refresh();
+									}
 								},
 								failure: function(response, opts) {
+									console.log("ERROR!")
 									console.log(responses)
 									me.stopWorkerAnimation();
 								}

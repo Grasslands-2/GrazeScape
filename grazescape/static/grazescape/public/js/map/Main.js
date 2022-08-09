@@ -27,7 +27,7 @@ Ext.define('DSS.map.Main', {
 	
 	style: 'background-color: rgb(75,80,60)',
 	
-	BING_KEY: 'Au_ohpV01b_LnpbMExJmpmUnamgty20v7Cpl1GvNmwzZPOezhtzegaNM0MNaSPoa',
+	BING_KEY: 'Anug_v1v0dwJiJPxdyrRWz0BBv_p2sm5XA72OW-ypA064_JoUViwpDXZl3v7KZC1',
 	OSM_KEY: /*''fBrGdagAiyuEcYIsxr72'*/'cRFDJdDADPOOqUQsdxJT',
 	
 	requires: [
@@ -197,13 +197,13 @@ Ext.define('DSS.map.Main', {
 		
 		//---------------------------------------------------------
 		DSS.layer.bingAerial = new ol.layer.Tile({
-			visible: false,
+			visible: true,
 			source: new ol.source.BingMaps({
 				key: me.BING_KEY,
-				imagerySet: 'AerialWithLabels',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey
-				hidpi:true,
-				maxZoom:18,
-				minZoom:11,
+				imagerySet: 'AerialWithLabelsOnDemand',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey
+				//hidpi:true,
+				//maxZoom:18,
+				//minZoom:11,
 			})
 		});
 		//---------------------------------------------------------
@@ -255,10 +255,10 @@ Ext.define('DSS.map.Main', {
 		//---------------------------Region Label Layer-----------------
 		let regionLabel = new ol.style.Style({
 			text: new ol.style.Text({
-				font: '22px Calibri,sans-serif',
+				font: '26px Calibri,sans-serif',
 				overflow: true,
 				fill: new ol.style.Fill({
-				  color: 'rgba(204,187,68, 1)',
+				  color: 'rgba(0,0,0,1)',
 				}),
 				stroke: new ol.style.Stroke({
 				  color: 'rgba(255, 255, 255, 0.7)',
@@ -1397,7 +1397,7 @@ Ext.define('DSS.map.Main', {
 		var scenStyle1 = new ol.style.Style({
 			stroke: new ol.style.Stroke({
 				color: 'rgba(255, 255, 255, 1)',
-				width: 10,
+				width: 40,
 			})
 		})
 		//------------------------------------infra styles and layer-----------------------
@@ -1441,6 +1441,15 @@ Ext.define('DSS.map.Main', {
 				return infraDefaultStyle
 			}
 		};
+		let iconStyle = new ol.style.Style({
+			image: new ol.style.Icon({
+				size: 100000,
+				//anchor: [0,0],
+				//anchorXUnits: 'fraction',
+				//anchorYUnits: 'pixels',
+				src: '/static/grazescape/public/images/NicePng_barn-silhouette-png_7969174.png',
+			}),
+		  });
 		DEMExtent = [-10177440, 5490396, -10040090, 5310186]
 		console.log("setFieldSource in Main")
 		geoServer.setFieldSource()
@@ -1467,8 +1476,9 @@ Ext.define('DSS.map.Main', {
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: farms_1Source,
+			//style: iconStyle
 			style: function(feature, resolution) {
-				let r = 1.0 - resolution / 94.0;
+				let r = 4.0 - resolution / 94.0;
 				if (r < 0) r = 0
 				else if (r > 1) r = 1
 				// value from 3 to 16
@@ -1516,6 +1526,11 @@ Ext.define('DSS.map.Main', {
 				}
 			}
 		});	
+		DSS.test_terrian = new ol.layer.Tile({
+			source: new ol.source.Stamen({
+				layer: 'terrain'//-background' // terrain/ terrain-labels / terrain-lines
+			}),
+		}),
 		DSS.layer.fieldsLabels
 		DSS.map.RotationLayer;
 
@@ -1525,7 +1540,8 @@ Ext.define('DSS.map.Main', {
 			interactions : ol.interaction.defaults({doubleClickZoom :false}),
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
-				DSS.layer.osm_hybrid,
+				DSS.layer.bingAerial,
+				//DSS.layer.osm_hybrid,
 				DSS.layer.osm_satellite,
 				DSS.layer.osm_streets,
 				DSS.layer.osm_topo,
@@ -1643,8 +1659,9 @@ Ext.define('DSS.map.Main', {
 				],
 				//------------------------------------------------------------------------
 			view: new ol.View({
-				center: [-10000312.33,5506092.31],
+				center: [-9941844.56,5428891.48],
 				//10000312.33 5506092.31 
+				//9,941,844.56W 5,428,891.48N m 
 				zoom: 8,
 				maxZoom: 30,
 				minZoom: 4,//10,
@@ -1652,7 +1669,8 @@ Ext.define('DSS.map.Main', {
 			//	rotation: 0.009,
 				//constrainOnlyCenter: false,
 				//extent:[-10155160, 5323674, -10065237, 5450767]
-				extent:[ -10168100, 5318380, -10055830, 5454227]
+				//extent:[ -10168100, 5318380, -10055830, 5454227]
+				extent:[-10132000, 5353000, -10103000, 5397000]
 			})
 		});
 
@@ -1778,7 +1796,7 @@ Ext.define('DSS.map.Main', {
 		
 		let spotStyle = new ol.style.Style({
 			image: new ol.style.Circle({
-				radius: 8,
+				radius: 14,
 			    stroke: new ol.style.Stroke({
 			        color: 'white',
 			        width: 2
