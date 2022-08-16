@@ -346,7 +346,7 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/SW_WI_Border.geojson',
+				url: '/static/grazescape/public/shapeFiles/southWestWI2.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
