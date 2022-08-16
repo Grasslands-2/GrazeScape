@@ -1,6 +1,6 @@
 
-
-
+var selectedFields = []
+var rotfreqcount = 0
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
 var deleteRecord = {};
@@ -102,8 +102,7 @@ Ext.create('Ext.data.Store', {
 	},{
 		value: 'pt-rt',
 		display: 'Rotational Pasture'
-	},
-	{
+	},{
 		value: 'dl',
 		display: 'Dry Lot'
 	},{ 
@@ -331,6 +330,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	autoDestroy: false,
 	id: "fieldTable",
 	hidden: true,
+	selModel: {
+		selType: 'rowmodel', // rowmodel is the default selection model
+		mode: 'MULTI'
+	},
 	
 	height: 0,
 	internalHeight: 200,
@@ -348,24 +351,45 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		resize: function(self, newW, newH, oldW, oldH) {
 			if (!self.isAnimating) self.internalHeight = newH;
 		},
-		update: function (me, record) {
-		    console.log(me, record)
+		update: function (self,record) {
+		    console.log(self,record)
+			this.getView().refresh()
+		},
+		select: function (self,record) {
+			selectedFields = []
+			var selectedRecords = self.selected.items
+			console.log("Record Selected")
+			console.log(self)
+		    console.log(selectedRecords)
+			for(r in selectedRecords){
+				selectedFields.push(selectedRecords[r].id)
+			}
+			console.log(selectedFields)
+			this.getView().refresh()
+			//console.log(record)
+		},
+		deselect: function (self,record) {
+			console.log("Record DESelected")
+			console.log(self)
+		    //console.log(self.selected.items[0].id)
+			console.log(record)
+			this.getView().refresh()
 		},
 		rowclick: function(self,record){
-			console.log(self)
-			console.log(record)
+			//console.log(self.selected.items[0].id)
+			console.log(record.id)
 			deleteRecord = record;
-			DSS.map.addInteraction(selectInteraction);
+			//DSS.map.addInteraction(selectInteraction);
 			console.log("ROWcd d CLICK")
 			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
-			for(f in fieldFeatures){
-				if(fieldFeatures[f].id_ == record.id){
-					selectInteraction.getFeatures().clear()
-					selectInteraction.getFeatures().push(fieldFeatures[f]);
-					//DSS.map.removeInteraction(selectInteraction);
-					break;
-				}
-			}
+			// for(f in fieldFeatures){
+			// 	if(fieldFeatures[f].id_ == record.id){
+			// 		selectInteraction.getFeatures().clear()
+			// 		selectInteraction.getFeatures().push(fieldFeatures[f]);
+			// 		//DSS.map.removeInteraction(selectInteraction);
+			// 		break;
+			// 	}
+			// }
 		}
 	},
 	//requires: ['DSS.map.Main'],
@@ -386,21 +410,96 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		//------------------------------------------------------------------------------
 		let soilP_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5
+				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5,
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on landCost")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.soilP = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
+					}
+				}
 			}, text: 'Soil-P', dataIndex: 'soilP', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let landCost_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5
+				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5,
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on landCost")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.landCost = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
+					}
+				}
 			}, text: 'Land Cost ($/ac)', dataIndex: 'landCost', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let soilOM_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: false
+			xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: false,
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on soilOM")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.soilOM = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
+					}
+				}
 			}, text: 'Soil-OM', dataIndex: 'soilOM', width: 80, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
@@ -419,14 +518,104 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
 					select: function(combo, value, rec, eOpts){
+						console.log("cropRot Selected")
 						var record = combo.getWidgetRecord();
 						record.set('rotationVal', value.get('value'));
 						record.set('rotationDisp', value.get('display'));
 						me.getView().refresh();
 					},
+					change: function(widget,newValue,oldValue,record){
+						var record = widget.getWidgetRecord();
+						var dbval = ""
+						console.log(selectedFields)
+						console.log("newValue: " + newValue)
+						console.log("oldValue: " + oldValue)
+						console.log("you've changed man on Crop Rot")
+						//console.log(rotfreqcount)
+						console.log(record)
+						var store = me.getStore()
+						var storeDataObjArray = store.data.items
+						var view = me.getView()
+						switch(newValue){
+							case 'Continuous Pasture': dbval = 'pt-cn'
+							break;
+							case 'Rotational Pasture': dbval = 'pt-rt'
+							break;
+							case 'Dry Lot': dbval = 'dl'
+							break;
+							case 'Continuous Corn': dbval = 'cc'
+							break;
+							case 'Cash Grain (cg/sb)': dbval = 'cg'
+							break;
+							case 'Corn Silage to Corn Grain to Alfalfa(3x)': dbval = 'dr'
+							break;
+							case 'Corn Silage to Soybeans to Oats': dbval = 'cso'
+							break;
+
+							case 'pt-cn': dbval = 'pt-cn'
+							break;
+							case 'pt-rt': dbval = 'pt-rt'
+							break;
+							case 'dl': dbval = 'dl'
+							break;
+							case 'cc': dbval = 'cc'
+							break;
+							case 'cg': dbval = 'cg'
+							break;
+							case 'dr': dbval = 'dr'
+							break;
+							case 'cso': dbval = 'cso'
+							break;
+							default: dbval = 'No Rotation fROM SWITCH!'
+						}
+						console.log("dbval: " + dbval)
+						if(selectedFields.length > 0 ){
+							for(r in selectedFields){
+								for(f in storeDataObjArray){
+									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+										console.log("newValue: " + newValue)
+										console.log("dbval: " + dbval)
+										console.log(storeDataObjArray[f].id)
+										console.log(selectedFields[r])
+										storeDataObjArray[f].dirty = true
+										storeDataObjArray[f].data.rotationDisp = newValue
+										storeDataObjArray[f].data.rotationVal = dbval
+									}
+								}
+							}
+						}
+						console.log(store)
+						selectedFields = []
+						
+					}
 				}
 			}
 		};
+		// console.log(me.view.dataSource.config.data[0].rotationDisp)
+						// if(newValue == 'Continuous Pasture'){
+						// 	dbval = 'pt-cn'
+						// }
+						// if(newValue == 'Rotational Pasture'){
+						// 	dbval = 'pt-rt'
+						// }
+						// if(newValue == 'Dry Lot'){
+						// 	dbval = 'dl'
+						// }
+						// if(newValue == 'Continuous Corn'){
+						// 	dbval = 'cc'
+						// }
+						// if(newValue == 'Cash Grain (cg/sb)'){
+						// 	dbval = 'cg'
+						// }
+						// if(newValue == 'Corn Silage to Corn Grain to Alfalfa(3x)'){
+						// 	dbval = 'dr'
+						// }
+						// if(newValue == 'Corn Silage to Soybeans to Oats'){
+						// 	dbval = 'cso'
+						// }
+
+						//if(rotfreqcount > storeDataObjArray.length){
+
 		//------------------------------------------------------------------------------
 		let coverCropColumn = {
 			xtype: 'widgetcolumn',
@@ -454,6 +643,60 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						record.set('coverCropVal', value.get('value'));
 						record.set('coverCropDisp', value.get('display'));
 						me.getView().refresh();
+					},
+					change: function(widget,newValue,oldValue,record){
+						var record = widget.getWidgetRecord();
+						var dbval = ""
+						console.log(selectedFields)
+						console.log("newValue: " + newValue)
+						console.log("oldValue: " + oldValue)
+						console.log("you've changed man on Crop Rot")
+						//console.log(rotfreqcount)
+						console.log(record)
+						var store = me.getStore()
+						var storeDataObjArray = store.data.items
+						var view = me.getView()
+						switch(newValue){
+							case 'Small Grain': dbval = 'cc'
+							break;
+							case 'Grazed/Interseeded': dbval = 'gcis'
+							break;
+							case 'Grazed/Direct Seeded': dbval = 'gcds'
+							break;
+							case 'No Cover': dbval = 'nc'
+							break;
+							
+
+							case 'cc': dbval = 'cc'
+							break;
+							case 'gcis': dbval = 'gcis'
+							break;
+							case 'gcds': dbval = 'gcds'
+							break;
+							case 'nc': dbval = 'nc'
+							break;
+							
+							default: dbval = 'No Cover Crop fROM SWITCH!'
+						}
+						console.log("dbval: " + dbval)
+						if(selectedFields.length > 0 ){
+							for(r in selectedFields){
+								for(f in storeDataObjArray){
+									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+										console.log("newValue: " + newValue)
+										console.log("dbval: " + dbval)
+										console.log(storeDataObjArray[f].id)
+										console.log(selectedFields[r])
+										storeDataObjArray[f].dirty = true
+										storeDataObjArray[f].data.coverCropDisp = newValue
+										storeDataObjArray[f].data.coverCropVal = dbval
+									}
+								}
+							}
+						}
+						console.log(store)
+						selectedFields = []
+						
 					}
 				}
 			}
@@ -527,6 +770,70 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						record.set('tillageVal', value.get('value'));
 						record.set('tillageDisp', value.get('display'));
 						//me.getView().refresh();
+					},
+					change: function(widget,newValue,oldValue,record){
+						var record = widget.getWidgetRecord();
+						var dbval = ""
+						console.log(selectedFields)
+						console.log("newValue: " + newValue)
+						console.log("oldValue: " + oldValue)
+						console.log("you've changed man on Crop Rot")
+						//console.log(rotfreqcount)
+						console.log(record)
+						var store = me.getStore()
+						var storeDataObjArray = store.data.items
+						var view = me.getView()
+						switch(newValue){
+							case 'No-Till': dbval = 'nt'
+							break;
+							case 'Spring Cultivation': dbval = 'su'
+							break;
+							case 'Spring Chisel + Disk': dbval = 'sc'
+							break;
+							case 'Spring Chisel No Disk': dbval = 'sn'
+							break;
+							case 'Spring Vertical': dbval = 'sv'
+							break;
+							case 'Fall Chisel + Disk': dbval = 'fc'
+							break;
+							case 'Fall Moldboard Plow': dbval = 'fm'
+							break;
+							
+							case 'nt': dbval = 'nt'
+							break;
+							case 'su': dbval = 'su'
+							break;
+							case 'sc': dbval = 'sc'
+							break;
+							case 'sn': dbval = 'sn'
+							break;
+							case 'sv': dbval = 'sv'
+							break;
+							case 'fc': dbval = 'fc'
+							break;
+							case 'fm': dbval = 'fm'
+							break;
+							
+							default: dbval = 'No Tillage fROM SWITCH!'
+						}
+						console.log("dbval: " + dbval)
+						if(selectedFields.length > 0 ){
+							for(r in selectedFields){
+								for(f in storeDataObjArray){
+									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+										console.log("newValue: " + newValue)
+										console.log("dbval: " + dbval)
+										console.log(storeDataObjArray[f].id)
+										console.log(selectedFields[r])
+										storeDataObjArray[f].dirty = true
+										storeDataObjArray[f].data.coverCropDisp = newValue
+										storeDataObjArray[f].data.coverCropVal = dbval
+									}
+								}
+							}
+						}
+						console.log(store)
+						selectedFields = []
 					}
 				}
 			}
@@ -557,21 +864,31 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype: 'checkbox',
 				defaultBindProperty: 'onContour',
 				queryMode: 'local',
-				listeners: {
-					change: function(widget,value){
-					console.log("you've changed man")
-					var record = widget.getWidgetRecord();
-					
-					if (value == true){
-						record.set('onContour',true)
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on soilOM")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.onContour = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
 					}
-					else if(value == false){
-						record.set('onContour',false)
-					}
-					console.log(record.get('onContour'))
-					//me.getView().refresh();
 				}
-			}
 			}
 		};
 		//still need to find a way to turn off on contour for dry lot and pasture crop rotations
@@ -615,28 +932,33 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let PfertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on soilOM")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.fertPercP = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
+					}
+				}
 			}, text: 'Percent<br>Fert P', dataIndex: 'fertPercP', width: 80, tooltip: 'Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
-			listeners:{
-				// initialize: function(combo, value, eOpts,rec){
-				// 	console.log("Pfert_click")
-				// 	console.log(combo)
-				// 	console.log(value)
-				// 	console.log(rec)
-				// 	// var record = combo.getWidgetRecord();
-				// 	// record.set('grazeDensityVal', value.get('value'));
-				// 	// record.set('grazeDensityDisp', value.get('display'));
-				// },
-				// click: function(combo, value, eOpts,rec){
-				// 	console.log("Pfert_click")
-				// 	console.log(combo)
-				// 	console.log(value)
-				// 	console.log(rec)
-				// 	// var record = combo.getWidgetRecord();
-				// 	// record.set('grazeDensityVal', value.get('value'));
-				// 	// record.set('grazeDensityDisp', value.get('display'));
-				// }
-			}
 		};
 		//------------------------------------------------------------------------------
 
@@ -645,12 +967,62 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let PmanuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on soilOM")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.manuPercP = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
+					}
+				}
 			}, text: 'Percent<br>Manure P', dataIndex: 'manuPercP', width: 80, tooltip: 'Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		let NfertPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on soilOM")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.fertPercN = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
+					}
+				}
 			}, text: 'Percent<br>Fert N', dataIndex: 'fertPercN', width: 80, tooltip: 'Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
@@ -659,6 +1031,31 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let NmanuPerc_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+				listeners:{
+					change: function(field,newValue,oldValue,record){
+							console.log(selectedFields)
+							console.log("newValue: " + newValue)
+							console.log("oldValue: " + oldValue)
+							console.log("you've changed man on soilOM")
+							var store = me.getStore()
+							var storeDataObjArray = store.data.items
+							if(selectedFields.length > 0 ){
+								for(r in selectedFields){
+									for(f in storeDataObjArray){
+										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+											console.log("newValue: " + newValue)
+											console.log(storeDataObjArray[f].id)
+											console.log(selectedFields[r])
+											storeDataObjArray[f].dirty = true
+											storeDataObjArray[f].data.manuPercN = newValue
+										}
+									}
+								}
+							}
+							var view = me.getView()
+							//view.refresh()
+					}
+				}
 			}, text: 'Percent<br>Manure N', dataIndex: 'manuPercN', width: 80, tooltip: 'Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
@@ -737,7 +1134,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				queryMode: 'local',
 				listeners: {
 					change: function(widget,value){
-					console.log("you've changed man graze lac")
+					console.log("you've changed man graze non lac")
 					var record = widget.getWidgetRecord();
 					
 					if (value == true){
@@ -783,7 +1180,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				queryMode: 'local',
 				listeners: {
 					change: function(widget,value){
-					console.log("you've changed man graze lac")
+					console.log("you've changed man graze beef")
 					var record = widget.getWidgetRecord();
 					
 					if (value == true){
@@ -829,7 +1226,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				queryMode: 'local',
 				listeners: {
 					change: function(widget,value){
-					console.log("you've changed man graze lac")
+					console.log("you've changed man graze manure")
 					var record = widget.getWidgetRecord();
 					
 					if (value == true){
@@ -871,6 +1268,55 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('grassSpeciesVal', value.get('value'));
 						record.set('grassSpeciesDisp', value.get('display'));
+					},
+					change: function(widget,newValue,oldValue,record){
+						var record = widget.getWidgetRecord();
+						var dbval = ""
+						console.log(selectedFields)
+						console.log("newValue: " + newValue)
+						console.log("oldValue: " + oldValue)
+						console.log("you've changed man on Crop Rot")
+						//console.log(rotfreqcount)
+						console.log(record)
+						var store = me.getStore()
+						var storeDataObjArray = store.data.items
+						var view = me.getView()
+						switch(newValue){
+							case 'Low Yielding': dbval = 'Bluegrass-clover'
+							break;
+							case 'Medium Yielding': dbval = 'Timothy-clover'
+							break;
+							case 'High Yielding': dbval = 'Orchardgrass-clover'
+							break;
+
+							case 'Bluegrass-clover': dbval = 'Bluegrass-clover'
+							break;
+							case 'Timothy-clover': dbval = 'Timothy-clover'
+							break;
+							case 'Spring Chisel + Disk': dbval = 'Orchardgrass-clover'
+							break;
+							
+							default: dbval = 'No Tillage fROM SWITCH!'
+						}
+						console.log("dbval: " + dbval)
+						if(selectedFields.length > 0 ){
+							for(r in selectedFields){
+								for(f in storeDataObjArray){
+									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+										console.log("newValue: " + newValue)
+										console.log("dbval: " + dbval)
+										console.log(storeDataObjArray[f].id)
+										console.log(selectedFields[r])
+										storeDataObjArray[f].dirty = true
+										storeDataObjArray[f].data.grassSpeciesDisp = newValue
+										storeDataObjArray[f].data.grassSpeciesVal = dbval
+									}
+								}
+							}
+						}
+						console.log(store)
+						selectedFields = []
+						
 					}
 				}
 			}
@@ -895,12 +1341,71 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				displayField: 'display',
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
+				queryMode: 'local',
 				listeners:{
 					select: function(combo, value, eOpts){
+						console.log("rotationFreq selected")
 						var record = combo.getWidgetRecord();
 						record.set('rotationFreqVal', value.get('value'));
 						record.set('rotationFreqDisp', value.get('display'));
 						//me.getView().refresh();
+					},
+					change: function(widget,newValue,oldValue,record){
+						var record = widget.getWidgetRecord();
+						var dbval = ""
+						console.log(selectedFields)
+						console.log("newValue: " + newValue)
+						console.log("oldValue: " + oldValue)
+						console.log("you've changed man on Crop Rot")
+						//console.log(rotfreqcount)
+						console.log(record)
+						var store = me.getStore()
+						var storeDataObjArray = store.data.items
+						var view = me.getView()
+						switch(newValue){
+							case 'More then once a day': dbval = '1.2'
+							break;
+							case 'Once a day': dbval = '1'
+							break;
+							case 'Every 3 days': dbval = '0.95'
+							break;
+							case 'Every 7 days': dbval = '0.75'
+							break;
+							case 'Continuous': dbval = '0.65'
+							break;
+
+							case '1.2': dbval = '1.2'
+							break;
+							case '1': dbval = '1'
+							break;
+							case '0.95': dbval = '0.95'
+							break;
+							case '0.75': dbval = '0.75'
+							break;
+							case '0.65': dbval = '0.65'
+							break;
+							
+							default: dbval = 'No Rot Freq fROM SWITCH!'
+						}
+						console.log("dbval: " + dbval)
+						if(selectedFields.length > 0 ){
+							for(r in selectedFields){
+								for(f in storeDataObjArray){
+									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+										console.log("newValue: " + newValue)
+										console.log("dbval: " + dbval)
+										console.log(storeDataObjArray[f].id)
+										console.log(selectedFields[r])
+										storeDataObjArray[f].dirty = true
+										storeDataObjArray[f].data.rotationFreqDisp = newValue
+										storeDataObjArray[f].data.rotationFreqVal = dbval
+									}
+								}
+							}
+						}
+						console.log(store)
+						selectedFields = []
+						
 					}
 				}
 			}
@@ -936,7 +1441,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				queryMode: 'local',
 				listeners: {
 					change: function(widget,value){
-					console.log("you've changed man graze lac")
+					console.log("you've changed man graze clover")
 					var record = widget.getWidgetRecord();
 					
 					if (value == true){
@@ -977,6 +1482,55 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('grazeDensityVal', value.get('value'));
 						record.set('grazeDensityDisp', value.get('display'));
+					},
+					change: function(widget,newValue,oldValue,record){
+						var record = widget.getWidgetRecord();
+						var dbval = ""
+						console.log(selectedFields)
+						console.log("newValue: " + newValue)
+						console.log("oldValue: " + oldValue)
+						console.log("you've changed man on Crop Rot")
+						//console.log(rotfreqcount)
+						console.log(record)
+						var store = me.getStore()
+						var storeDataObjArray = store.data.items
+						var view = me.getView()
+						switch(newValue){
+							case 'high': dbval = 'hi'
+							break;
+							case 'low': dbval = 'lo'
+							break;
+							case 'Not Applicable': dbval = 'na'
+							break;
+
+							case 'hi': dbval = 'hi'
+							break;
+							case 'lo': dbval = 'lo'
+							break;
+							case 'na': dbval = 'na'
+							break;
+							
+							default: dbval = 'No GrazeDensity fROM SWITCH!'
+						}
+						console.log("dbval: " + dbval)
+						if(selectedFields.length > 0 ){
+							for(r in selectedFields){
+								for(f in storeDataObjArray){
+									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+										console.log("newValue: " + newValue)
+										console.log("dbval: " + dbval)
+										console.log(storeDataObjArray[f].id)
+										console.log(selectedFields[r])
+										storeDataObjArray[f].dirty = true
+										storeDataObjArray[f].data.grazeDensityDisp = newValue
+										storeDataObjArray[f].data.grazeDensityVal = dbval
+									}
+								}
+							}
+						}
+						console.log(store)
+						selectedFields = []
+						
 					}
 				}
 			}
@@ -988,34 +1542,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		let delete_Column = 
-		//{
-		// 	text: 'Delete Field',
-		// 	align: 'center',
-		// 	//stopSelection: true,
-		// 	xtype: 'widgetcolumn',
-		// 	width: 165,
-		// 	minWidth: 24,
-		// 	widget: {
-		// 		   xtype: 'button',
-		// 		   width: 160,
-		// 		   _btnText: "Delete",
-		// 		   defaultBindProperty: null, //important
-		// 	// 	   listeners: {
-		// 	// 		beforerender: function(widgetColumn){
-		// 	// 			console.log(widgetColumn)
-		// 	// 			var recordWid = widgetColumn.getWidgetRecord();
-		// 	// 			widgetColumn.setText( widgetColumn._btnText + " " + recordWid.data.name ); //can be mixed with the row data if needed
-		// 	// 		}
-		// 	//    },
-		// 		   handler: function(/*widgetColumn*/) {
-		// 			//DSS.map.removeInteraction(selectInteraction);
-		// 			//var recordWid = widgetColumn.getWidgetRecord();
-		// 			//console.log("Got data!", recordWid);
-		// 			console.log("CLICKED DELETE")
-		// 		   },
-				   
-		// 	 }
-		// },
 		{
 			xtype: 'actioncolumn',
 			width: 110,

@@ -856,11 +856,13 @@ Ext.define('DSS.state.Scenario', {
 						    console.log("running update")
 						    fieldChangeList = []
 						    fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
+							console.log(fieldChangeList)
 							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
 							selectInteraction.getFeatures().clear()
 							DSS.map.removeInteraction(selectInteraction);
+							selectedFields = []
 							runFieldUpdate()
 						}
 					}
