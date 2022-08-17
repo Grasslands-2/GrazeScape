@@ -96,14 +96,7 @@ const App = (props) => (
         </Form>
 
     </Nav>
-    <Navbar.Brand className="justify-content-left " href="https://grasslandag.org/" target="_blank">
-            <img
-              alt=""
-              src="static/public/library/images/Maptiler1.png"
-              width="50%"
-              className="d-inline-block align-top"
-            />{' '}
-          </Navbar.Brand>
+
     </Container>
   </Navbar>
 

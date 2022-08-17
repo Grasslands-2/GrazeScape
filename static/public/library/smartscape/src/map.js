@@ -743,7 +743,7 @@ class OLMapFragment extends React.Component {
                     region = "CloverBeltWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Kewaunee"){
-                    region = "northeastWI"
+                    region = "northEastWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Grant"){
                     region = "uplandsWI"
@@ -843,9 +843,9 @@ class OLMapFragment extends React.Component {
         let windowWidth = window.innerWidth
 
         let loaderHeight = (windowHeight/2 - loaderSize/2) / windowHeight * 100
-        console.log(loaderHeight)
+//        console.log(loaderHeight)
         let heightString = String(loaderHeight) + "%"
-        console.log(heightString)
+//        console.log(heightString)
         const style = {
             width: '100%',
             height: '90vh',
@@ -870,6 +870,7 @@ class OLMapFragment extends React.Component {
             top: heightString,
             left: "50%"
         }
+
         return (
             <div>
             <div id = "loaderDiv" style = {loaderStyle} hidden={true}>
