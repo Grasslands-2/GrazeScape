@@ -743,7 +743,7 @@ class OLMapFragment extends React.Component {
                     region = "CloverBeltWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Kewaunee"){
-                    region = "northEastWI"
+                    region = "northeastWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Grant"){
                     region = "uplandsWI"
