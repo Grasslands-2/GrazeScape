@@ -61,7 +61,9 @@ ChartJS.register(
 import { useSelector, useDispatch, connect  } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 import jsPDF from 'jspdf'
-
+import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas';
+import ReactSpeedometer from "react-d3-speedometer"
 const mapStateToProps = state => {
     return{
     activeTrans: state.transformation.activeTrans,
@@ -123,6 +125,7 @@ class SidePanel extends React.Component{
         this.downloadBase = this.downloadBase.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
         this.tabControl = this.tabControl.bind(this);
+        this.tabControlResults = this.tabControlResults.bind(this);
         this.subAreaSelection = this.subAreaSelection.bind(this);
         this.addTrans = this.addTrans.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -197,7 +200,6 @@ class SidePanel extends React.Component{
         this.pastPest = React.createRef();
         this.pastMach = React.createRef();
 
-        this.chartYield = React.createRef();
 
 
 
@@ -222,6 +224,9 @@ class SidePanel extends React.Component{
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
+            printingPDF:false,
+            speedometerWidth:window.innerWidth*.7/2,
+            speedometerHeight:window.innerWidth*.7/2/2
         }
     }
     // fires anytime state or props are updated
@@ -293,6 +298,34 @@ class SidePanel extends React.Component{
 //           console.log(this.state.showHuc10)
         }
     }
+
+    componentDidMount() {
+        window.addEventListener('resize', this.updateDimensions);
+    }
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateDimensions);
+    }
+    tabControlResults(tabName){
+        console.log(tabName)
+        if (tabName == "gauges"){
+            setTimeout(function(){
+                let width = document.getElementById("modalResults").offsetWidth
+                this.setState({ speedometerWidth: width, speedometerHeight:width/2});
+            }.bind(this), 1)
+        }
+    }
+    updateDimensions = () => {
+        console.log("dimensions updated", window.innerWidth, window.innerHeight)
+        let width = 0
+        if(document.getElementById("modalResults") != null){
+            width = document.getElementById("modalResults").offsetWidth
+        }
+        else{
+            width = window.innerWidth*.7/2
+        }
+        console.log(width)
+        this.setState({ speedometerWidth: width, speedometerHeight:width/2});
+    };
 
 
     sliderChangeSlope(e){
@@ -439,12 +472,12 @@ class SidePanel extends React.Component{
         this.setState({aoiOrDisplayLoading:true})
         selectionTime = new Date();
         setTimeout(function(){
-            if (new Date() - selectionTime >= 2000 && rasterDownloaded){
+            if (new Date() - selectionTime >= 1000 && rasterDownloaded){
                 console.log(name)
                 this.displaySelectionCriteria()
             }
 
-        }.bind(this), 2000)
+        }.bind(this), 1000)
 
     }
     handleSelectionChangeUnit(type, useFt, e){
@@ -608,9 +641,7 @@ class SidePanel extends React.Component{
             this.setState({aoiOrDisplayLoading:false})
             rasterDownloaded = true
             this.displaySelectionCriteria()
-
         },
-
         failure: function(response, opts) {
         }
     });
@@ -692,14 +723,25 @@ class SidePanel extends React.Component{
         // ajax call with selection criteria
         this.setState({modelsLoading:true})
         console.log("Running models!!")
-        let transPayload = JSON.parse(JSON.stringify(this.props.listTrans))
-        let lengthTrans = transPayload.length
+        let transPayload = {}
+        let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
+        let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
+        let lengthTrans = transValues.length
 //        give the transformations the correct ranking
-        for(let trans in transPayload){
-            transPayload[trans].rank = lengthTrans;
+        for(let trans in transValues){
+            transValues[trans].rank = lengthTrans;
+            transValues1[trans].rank = lengthTrans;
+            transValues[trans].selection.field_coors = []
+            transPayload[lengthTrans] = transValues[trans]
             lengthTrans--;
         }
-        this.props.updateTransList(transPayload);
+        this.props.updateTransList(transValues1);
+//        let transPayload1 = JSON.parse(JSON.stringify(this.props.listTrans))
+//
+//        for(let trans in transPayload1){
+//            console.log( transPayload1[trans])
+//
+//        }
         console.log(transPayload)
         console.log(this.props.baseTrans)
         // add method to only grab required trans data and get the rank based on list order
@@ -754,38 +796,158 @@ class SidePanel extends React.Component{
         })
     }
     printSummary(){
-        var canvas = document.getElementById("test1");
-        var ctx = canvas.getContext("2d");
-        var newCanvas = canvas.cloneNode(true);
-        var ctx = newCanvas.getContext('2d');
-        let ratio = window.devicePixelRatio;
+        var doc = new jsPDF();
+//        var node = document.getElementById("map")
+//        var clone = node.cloneNode(true);
+//        doc.html(document.getElementById("map"), {
+//           callback: function (doc) {
+//             doc.save("test1.pdf");
+//           }
+//        });
 
 
+        this.setState({printingPDF:true})
+        var pdf = new jsPDF('p', 'pt',"letter" )
+//        var pdf = new jsPDF('p', 'pt',[4000, 4000] )
 
 
-        console.log(newCanvas.width, newCanvas.height)
-        console.log(canvas)
-        ctx.scale(2,2);
-        ctx.fillStyle = "#FFF";
-        ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-        console.log(newCanvas.width, newCanvas.height)
-        console.log(ctx)
-        ctx.drawImage(canvas, 0, 0);
-
-        var pdf = new jsPDF('l', 'pt',"letter" )
-        var imgData = newCanvas.toDataURL("image/png");
-        var ctx2 = newCanvas.getContext('2d');
         console.log(pdf)
         console.log(pdf.getCurrentPageInfo().pageContext.mediaBox)
-        pdf.addImage(imgData, 'png', 0, 0,0,0);
-        pdf.addPage(imgData,'landscape')
+        var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
+        var pageHeight = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightY
+        console.log("page width ", pageWidth,pageHeight)
+
+        var canvas = document.getElementById("selChart1");
+        var div = document.getElementById("chartPrintDiv");
+        var rowNum = 0
+        div.hidden = false
+        setTimeout(function(){
+    //        canvas.width = 830
+    //        canvas.height = 414
+//            var ctx = canvas.getContext("2d");
+//            pdf.html(document.getElementById("selChart1")).then(() => pdf.save('fileName.pdf'));
+          var width = document.getElementById("map").offsetWidth
+          var scale = (pageWidth / width)
+            console.log(width, scale)
+//            html2canvas(document.getElementById("map"),{scale:0.25}).then(function(canvasMap) {
+//                pdf.addPage(imgData,'l')
+                pdf.autoTable({
+                    html: '#transResultsTable',
+                    styles: {
+                    fillColor: [0, 0, 0,0],
+                     textColor:[0, 0, 0],
+                     lineColor:[0, 0, 0],
+                     lineWidth:1
+                     }
+                })
+
+//
+//                var newCanvas = canvasMap.cloneNode(true);
+//                var ctx = newCanvas.getContext('2d');
+//                console.log(newCanvas.width)
+//                var ratio1 = (pageWidth / newCanvas.width)
+//                var ratio1 = 2
+//                console.log(ratio1)
+//                console.log(newCanvas)
+//                newCanvas.width =pageWidth;
+//                newCanvas.height = pageHeight;
+//                newCanvas.style.width = pageWidth+ "px";
+//                newCanvas.style.height = pageHeight+ "px";
+////                ctx.setTransform(ratio1,0,0,ratio1,0,0);
+//                console.log(newCanvas)
+//                var imgData = canvasMap.toDataURL("image/png", 1);
+//                pdf.addPage("letter",'p')
+//                pdf.addImage(imgData, 'png', 0, 0,0,0);
+//
+////                document.body.appendChild(canvas);
+//
+                pdf.addPage("p",'p')
+                pdf.text("By Selection", 20, 20)
+                for (let i = 1; i <= 8; i++) {
+//                    console.log("loop ", i)
+                    canvas = document.getElementById("selChart" + i);
+                    var newCanvas = canvas.cloneNode(true);
+                    var ctx = newCanvas.getContext('2d');
+                    var ratio1 = (pageWidth / newCanvas.width)/2
+                    newCanvas.width = newCanvas.width * ratio1;
+                    newCanvas.height = newCanvas.height * ratio1;
+                    newCanvas.style.width = (newCanvas.width)+ "px";
+                    newCanvas.style.height = (newCanvas.height)+ "px";
+                    ctx.setTransform(ratio1,0,0,ratio1,0,0);
+
+                    ctx.fillStyle = "#FFF";
+                    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+                    ctx.drawImage(canvas, 0, 0);
+                    var imgData = newCanvas.toDataURL("image/png", 1);
+//                    console.log("row ", newCanvas.width * ((i-1)%2), " column ", newCanvas.height * (Math.floor(i / 2) + i%2 -1))
+                    pdf.addImage(imgData, 'png', newCanvas.width * ((i-1)%2), 40 + newCanvas.height * (Math.floor(i / 2) + i%2 -1),0,0);
+                }
+                 pdf.addPage(imgData,'p')
+                 pdf.text("By Watershed", 20, 20)
+                for (let i = 1; i <= 8; i++) {
+//                    console.log("loop ", i)
+                    canvas = document.getElementById("watChart" + i);
+                    var newCanvas = canvas.cloneNode(true);
+                    var ctx = newCanvas.getContext('2d');
+                    var ratio1 = (pageWidth / newCanvas.width)/2
+                    newCanvas.width = newCanvas.width * ratio1;
+                    newCanvas.height = newCanvas.height * ratio1;
+                    newCanvas.style.width = (newCanvas.width)+ "px";
+                    newCanvas.style.height = (newCanvas.height)+ "px";
+                    ctx.setTransform(ratio1,0,0,ratio1,0,0);
+
+                    ctx.fillStyle = "#FFF";
+                    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+                    ctx.drawImage(canvas, 0, 0);
+                    var imgData = newCanvas.toDataURL("image/png", 1);
+//                    console.log("row ", newCanvas.width * ((i-1)%2), " column ", newCanvas.height * (Math.floor(i / 2) + i%2 -1))
+                    pdf.addImage(imgData, 'png', newCanvas.width * ((i-1)%2), 40 + newCanvas.height * (Math.floor(i / 2) + i%2 -1),0,0);
+                }
+                pdf.addPage(imgData,'p')
+                pdf.text("Comparison Charts", 20, 20)
+                for (let i = 1; i <= 4; i++) {
+//                    console.log("loop ", i)
+                    canvas = document.getElementById("comChart" + i);
+                    var newCanvas = canvas.cloneNode(true);
+                    var ctx = newCanvas.getContext('2d');
+                    var ratio1 = (pageWidth / newCanvas.width)/2
+                    newCanvas.width = newCanvas.width * ratio1;
+                    newCanvas.height = newCanvas.height * ratio1;
+                    newCanvas.style.width = (newCanvas.width)+ "px";
+                    newCanvas.style.height = (newCanvas.height)+ "px";
+                    ctx.setTransform(ratio1,0,0,ratio1,0,0);
+
+                    ctx.fillStyle = "#FFF";
+                    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+                    ctx.drawImage(canvas, 0, 0);
+                    var imgData = newCanvas.toDataURL("image/png", 1);
+//                    console.log("row ", newCanvas.width * ((i-1)%2), " column ", newCanvas.height * (Math.floor(i / 2) + i%2 -1))
+                    pdf.addImage(imgData, 'png', newCanvas.width * ((i-1)%2), 40 + newCanvas.height * (Math.floor(i / 2) + i%2 -1),0,0);
+                }
 
 
-
-        pdf.save("test_Charts.pdf");
+                pdf.addPage(imgData,'l')
+                pdf.autoTable({
+                    html: '#summaryTable',
+                    styles: {
+                    fillColor: [0, 0, 0,0],
+                     textColor:[0, 0, 0],
+                     lineColor:[0, 0, 0],
+                     lineWidth:1
+                     }
+                })
+                pdf.save("SmartScape.pdf");
+                div.hidden = true
+//            })
+        this.setState({printingPDF:false})
+        }.bind(this), 3000)
 
     }
     renderModal(){
+//     let width = document.getElementById("modalResults").offsetWidth
+//     this.setState({ speedometerWidth: width});
+    var pdf = new jsPDF('p', 'pt',"letter" )
+    var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
         'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics"
@@ -841,7 +1003,7 @@ class SidePanel extends React.Component{
     let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40])
     let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40])
 
-    let dataYield = dataBarPercent
+    this.dataYield = charts.getChartDataBar([1,null], [null,5])
     let dataEro= dataBarPercent
     let dataPloss= dataBarPercent
     let dataRun= dataBarPercent
@@ -860,7 +1022,7 @@ class SidePanel extends React.Component{
     let dataEconWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
-    let optionsYield = optionsBarPercent
+    this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
     let optionsEro = optionsBarPercent
     let optionsPloss = optionsBarPercent
     let optionsRun = optionsBarPercent
@@ -1122,7 +1284,7 @@ class SidePanel extends React.Component{
             borderWidth: 1
           }]
         };
-        dataYield = charts.getChartDataBar([base.yield,null], [null,model.yield])
+        this.dataYield = charts.getChartDataBar([base.yield,null], [null,model.yield])
         dataEro= charts.getChartDataBar([base.ero,null],[ null,model.ero])
         dataPloss= charts.getChartDataBar([base.ploss,null], [null,model.ploss])
         dataRun= charts.getChartDataBar([base.runoff,null], [null,model.runoff])
@@ -1139,7 +1301,7 @@ class SidePanel extends React.Component{
         dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
         dataEconWatershed = charts.getChartDataBar([baseWatershed.econ,null], [null,modelWatershed.econ])
 
-        optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
+        this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
         optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/acre/year")
         optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
@@ -1158,7 +1320,7 @@ class SidePanel extends React.Component{
                 <Accordion.Body>
                     <div> Total area Transformed: {area} acres ({percentArea}%)</div>
                     <div> Total area in Work Area: {areaWatershed} acres</div>
-                    <Table striped bordered hover size="sm" responsive>
+                    <Table id = "transResultsTable" striped bordered hover size="sm" responsive>
                       <thead>
                       <tr style={{textAlign:"center"}}>
                           <th>Priority</th>
@@ -1168,7 +1330,7 @@ class SidePanel extends React.Component{
                       </thead>
                         {this.props.listTrans.map((trans, index) => (
 
-                      <tbody>
+                      <tbody >
                         <tr>
                           <td>{index + 1}</td>
                           <td>{trans.name}</td>
@@ -1177,18 +1339,20 @@ class SidePanel extends React.Component{
                        </tbody>
                         ))}
                     </Table>
-                    <Button variant="secondary" onClick={this.printSummary}>
-                        Print Summary
-                  </Button>
+                    <Button variant="success" onClick={this.printSummary} hidden={this.state.printingPDF}>Print PDF</Button>
+                    <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.printingPDF}>
+                        <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
+                        Loading...
+                     </Button>
                 </Accordion.Body>
             </Accordion.Item>
             </Accordion>
-            <Tabs defaultActiveKey="chartsBar" id="uncontrolled-tab-example" className="mb-3">
+            <Tabs defaultActiveKey="chartsBar" id="uncontrolled-tab-example" className="mb-3" onSelect={(k) => this.tabControlResults(k)}>
               <Tab eventKey="chartsBar" title="Bar Charts">
               <h4>By Selection</h4>
                  <Row>
                     <Col xs={6}>
-                        <Bar id = "test1" ref={this.chartYield} options = {optionsYield} data={dataYield}/>
+                        <Bar options = {this.optionsYield} data={this.dataYield}/>
                     </Col>
                     <Col xs={6}>
                         <Bar options = {optionsEro} data={dataEro}/>
@@ -1223,7 +1387,7 @@ class SidePanel extends React.Component{
 
                  <Row>
                     <Col xs={6}>
-                        <Bar options = {optionsYield} data={dataYieldWatershed}/>
+                        <Bar options = {this.optionsYield} data={dataYieldWatershed}/>
                     </Col>
                     <Col xs={6}>
                         <Bar options = {optionsEro} data={dataEroWatershed}/>
@@ -1277,7 +1441,7 @@ class SidePanel extends React.Component{
             </Tab>
               <Tab eventKey="tabular" title="Tabular">
                   <h4>By Selection</h4>
-                <Table striped bordered hover size="sm" responsive>
+                <Table id = "summaryTable" striped bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
                       <th></th>
@@ -1503,8 +1667,127 @@ class SidePanel extends React.Component{
                   </tbody>
                 </Table>
               </Tab>
+              <Tab eventKey="gauges" title="Gauges">
+                   <Row>
+                    <Col xs={6} id = "modalResults">
+
+
+
+                  <ReactSpeedometer
+                    width={this.state.speedometerWidth}
+                    height={this.state.speedometerHeight}
+                    forceRender={true}
+                    needleHeightRatio={0.7}
+                    value={777}
+                    currentValueText="Erosion"
+                    customSegmentLabels={[
+                      {
+                        text: 'Very Bad',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                      {
+                        text: 'Bad',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                      {
+                        text: 'Ok',
+                        position: 'INSIDE',
+                        color: '#555',
+                        fontSize: '19px',
+                      },
+                      {
+                        text: 'Good',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                      {
+                        text: 'Very Good',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                    ]}
+                    ringWidth={47}
+                    needleTransitionDuration={3333}
+                    needleTransition="easeElastic"
+                    needleColor={'#90f2ff'}
+                    textColor={'#020712'}
+                  />
+                    </Col>
+                    <Col xs={6}>
+
+                   <ReactSpeedometer
+                    width={this.state.speedometerWidth}
+                    height={this.state.speedometerHeight}
+                    forceRender={true}
+                    needleHeightRatio={0.7}
+                    value={200}
+                    currentValueText="Bee Friendliness"
+                    customSegmentLabels={[
+                      {
+                        text: 'Very Bad',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                      {
+                        text: 'Bad',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                      {
+                        text: 'Ok',
+                        position: 'INSIDE',
+                        color: '#555',
+                        fontSize: '19px',
+                      },
+                      {
+                        text: 'Good',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                      {
+                        text: 'Very Good',
+                        position: 'INSIDE',
+                        color: '#555',
+                      },
+                    ]}
+                    ringWidth={47}
+                    needleTransitionDuration={3333}
+                    needleTransition="easeElastic"
+                    needleColor={'#90f2ff'}
+                    textColor={'#020712'}
+                  />
+                </Col>
+                 </Row>
+              </Tab>
             </Tabs>
+            <div id = "chartPrintDiv" style = {{width:pageWidth/2}} hidden={true}>
+                <Bar id = "selChart1" options = {this.optionsYield} data={this.dataYield}/>
+                <Bar id = "selChart2" options = {optionsEro} data={dataEro}/>
+                <Bar id = "selChart3" options = {optionsPloss} data={dataPloss}/>
+                <Bar id = "selChart4" options = {optionsRun} data={dataRun}/>
+                <Bar id = "selChart5" options = {optionsInsect} data={dataInsect}/>
+                <Bar id = "selChart6" options = {optionsCN} data={dataCN}/>
+                <Bar id = "selChart7" options = {optionsBird} data={dataBird}/>
+                <Bar id = "selChart8" options = {optionsEcon} data={dataEcon}/>
+
+                <Bar id = "watChart1" options = {this.optionsYield} data={dataYieldWatershed}/>
+                <Bar id = "watChart2" options = {optionsEro} data={dataEroWatershed}/>
+                <Bar id = "watChart3" options = {optionsPloss} data={dataPlossWatershed}/>
+                <Bar id = "watChart4" options = {optionsRun} data={dataRunWatershed}/>
+                <Bar id = "watChart5" options = {optionsInsect} data={dataInsectWatershed}/>
+                <Bar id = "watChart6" options = {optionsCN} data={dataCNWatershed}/>
+                <Bar id = "watChart7" options = {optionsBird} data={dataBirdWatershed}/>
+                <Bar id = "watChart8" options = {optionsEcon} data={dataEconWatershed}/>
+
+                <Radar id = "comChart1" data={dataRadar}/>
+                <Bar id = "comChart2" options = {optionsBarPercent} data={dataBarPercent}/>
+                <Radar id = "comChart3" data={dataRadarWatershed}/>
+                <Bar id = "comChart4" options = {optionsBarPercent} data={dataBarPercentWatershed}/>
             </div>
+
+        </div>
     )
   }
     render(){
@@ -1591,7 +1874,6 @@ class SidePanel extends React.Component{
                     </Form>
                     <a className = "wisc_link" target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34"><sup>*</sup>From Wiscland 2 (2019)</a>
                 </div>
-
                 <div className = "criteriaSections">
                     <Form.Label>2) Optional Selection Options</Form.Label>
                      <Accordion>
@@ -1633,7 +1915,6 @@ class SidePanel extends React.Component{
                         </Accordion.Body>
                       </Accordion.Item>
                     </Accordion>
-
                     <Accordion>
                       <Accordion.Item eventKey="5">
                         <Accordion.Header>Farm Classification</Accordion.Header>
@@ -1919,6 +2200,10 @@ class SidePanel extends React.Component{
                       <Form.Label>4) Assess Your Scenario</Form.Label>
 
                      <Stack gap={3}>
+                     {/*
+
+                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+                     */}
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
@@ -1930,6 +2215,10 @@ class SidePanel extends React.Component{
               </Accordion.Body>
               </Accordion.Item>
             </Accordion>
+            {/*
+
+                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
+            */}
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>

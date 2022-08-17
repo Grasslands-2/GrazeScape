@@ -138,6 +138,7 @@ export function getOptionsBar(title, yaxisLabel){
               borderWidth: 1,
             },
           },
+          devicePixelRatio:1.5,
           scales: {
             y: {
             title:{

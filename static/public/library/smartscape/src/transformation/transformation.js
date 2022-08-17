@@ -34,6 +34,7 @@ function Transformation(name, id, rank){
             useFt:true,
             extent:[],
             field_coors:[],
+            adoptionRate:100,
             landCover:{
                 contCorn:false,
                 cashGrain:false,

@@ -1,4 +1,5 @@
 #This file needs to be compiled on a linux machine with Python 3.9 in order to run on the server
+#https://cython.readthedocs.io/en/latest/src/quickstart/build.html
 #cython: boundscheck=False, wraparound=False, nonecheck=False
 from __future__ import print_function
 import numpy as np
@@ -8,15 +9,24 @@ cimport numpy
 cimport cython
 @cython.boundscheck(False) # turn off bounds-checking for entire function
 @cython.wraparound(False)  # turn off negative index wrapping for entire function
-def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data, numpy.ndarray[numpy.float32_t, ndim=2] selection,
-                                                                                                     int padding_size):
+def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
+                                                  numpy.ndarray[numpy.float32_t, ndim=2] selection,
+                                                 int padding_size,
+                                                 numpy.ndarray[numpy.float32_t, ndim=2] selected_landuse,
+                                                 int num_trans):
     print("starting window")
+    results_holder = []
+    cdef int count
+    for count in range(num_trans + 1):
+        results_holder.append(0)
+    print(results_holder)
     window_size = padding_size * 2 + 1
     no_data = -9999
     total_window_cells = window_size * window_size
     padded = np.pad(np.copy(input_data), (padding_size, padding_size),
                     'constant', constant_values=(-9999, -9999))
-    cdef numpy.ndarray[numpy.float32_t, ndim=4] window_raster = np.lib.stride_tricks.sliding_window_view(padded, window_shape=(window_size, window_size))
+    cdef numpy.ndarray[numpy.float32_t, ndim=4] window_raster = \
+    np.lib.stride_tricks.sliding_window_view(padded, window_shape=(window_size, window_size))
     # cdef numpy.ndarray[numpy.float32_t, ndim=4] window_raster = create_window_raster(input_array)
     # window_raster = create_window_raster()
     # get the center
@@ -38,6 +48,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data, numpy.ndarray[nump
     cdef double calc_lambda
     cdef double inner1, inner2, inner3, outer
     cdef int iy, ix
+    cdef int land_code
     cdef int num_1, num_2, num_3
     cdef double bb, cc
     cdef int valid_cells
@@ -68,6 +79,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data, numpy.ndarray[nump
             # check if center cell is valid
             cc = selection[iy, ix]
             if arr_is_9999[iy, ix] != 1:
+
                 if cc > 0:
                     index_count = index_count + 1
                     valid_cells = total_window_cells - arr_9999[iy, ix]
@@ -78,7 +90,12 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data, numpy.ndarray[nump
                     inner2 = (1/inner1) + 1
                     inner3 = 1/inner2
                     arr_index[iy, ix] = inner3 / 0.67
-                    index_sum = index_sum + inner3 / 0.67
+
+                    land_code = int(selected_landuse[iy, ix])
+                    if land_code> 0:
+                        results_holder[land_code] = results_holder[land_code] + arr_index[iy, ix]
+                    else:
+                        index_sum = index_sum + inner3 / 0.67
                     # print(arr_index[iy, ix])
                     # print("######")
 
@@ -90,4 +107,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data, numpy.ndarray[nump
     # print(arr_index)
     # print(index_sum/index_count)
     # print("done with bird")
-    return index_sum/index_count
+    print("results new ", results_holder)
+    print("results old ", index_sum)
+    print(index_count)
+    return [index_sum,results_holder]
