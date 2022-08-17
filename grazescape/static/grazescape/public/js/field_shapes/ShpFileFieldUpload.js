@@ -1,31 +1,8 @@
 var readerData=''
 
-//var shapefile = require("shapefile");
 async function getNewFieldArea(){
 	console.log("HI FROM GET NEW FIELD AREA!")
-	//await DSS.MapState.showFieldsForScenario();
 	await DSS.MapState.showFieldsAfterImport();
-	// console.log(DSS.activeScenario)
-	// await geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-	// DSS.layer.fields_1.getSource().refresh();
-	// DSS.layer.fields_1.setVisible(true);
-	// DSS.layer.fieldsLabels.setVisible(true);
-	// console.log(DSS.layer.fields_1.getSource().getFeatures().length)
-	// console.log("showfieldsforscenario ran");
-// 	setTimeout(() => {
-// 	console.log("Right before the plunge!")
-// 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-// 		console.log(f)
-// 		if (f.values_.field_name == "(imported field)"){
-// 			//f.values_.area = ol.sphere.getArea(f.values_.geometry)* 0.000247105
-// 			f.setProperties({
-// 				area: ol.sphere.getArea(f.values_.geometry)* 0.000247105
-// 			})
-// 			console.log(f)
-// 			wfs_update(f,'field_2');
-// 		}		
-// 	})
-// }, "5000")
 };
 
 //------------------------------------------------------------------------------
@@ -49,7 +26,6 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	//--------------------------------------------------------------------------
 	initComponent: function() {
-
 		let me = this;
 		if(Ext.getCmp('GeoJSONpath')){
 			Ext.getCmp('GeoJSONpath').destroy()
@@ -84,6 +60,7 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 						listeners:{
 							afterrender:function(cmp){
 								cmp.fileInputEl.set({
+									//Allows for more then one file to be selected.  Important for shapefiles
 									multiple:'multiple'
 								});
 							}
@@ -92,32 +69,23 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
                         xtype: 'button',
                         text: 'Upload Shapefile',
                         handler: async function(){
-							//var form = $('form')[0]
 							const formData = new FormData();
-							//formData.append('scenario_id', DSS.activeScenario);
-							//formData.append('farm_id', DSS.activeFarm);
-							//var file = [this.up().down('filefield').el.down('input[type=file]').dom.files[0]];
-							
 							var file1 = this.up().down('filefield').el.down('input[type=file]').dom.files[0];
 							var file2 = this.up().down('filefield').el.down('input[type=file]').dom.files[1];
 							var files = this.up().down('filefield').el.down('input[type=file]').dom.files
+							//sets up file names for backend to work with
 							for(f in files){
 								formData.append('shapefile'+ [f],files[f])
 							}
-							// formData.append('shapefile1',file1)
-							// formData.append('shapefile2',file2)
 							formData.append('scenario_id', DSS.activeScenario);
 							formData.append('farm_id', DSS.activeFarm);
-							// console.log(file1)
-							// console.log(file2)
 							var csrftoken = Cookies.get('csrftoken');
 							$.ajaxSetup({
 								headers: { "X-CSRFToken": csrftoken }
 							});
+							//sends shapefile data to back end
 							$.ajax({
 								'url':'/grazescape/upload/',
-								//'url':'/grazescape/upload_file',
-								//'url' : '/grazescape/outside_shpfile_field_insert',
 								'type' : 'POST',
 								'data' : formData,
 								'mimeType': "multipart/form-data",
@@ -127,15 +95,15 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 									console.log(responses)
 									console.log(responses[2])
 									if(responses[2] == 's'){
+										//fires if there is an issue with the shapefiles
 										console.log("Shapefile upload FAILED!")
 										alert("Your shapefile did not upload!  Please double check your shapefile and try again.");
 									}
 									else{
 										console.log("Shapefile upload SUCCESS!")
 										delete $.ajaxSetup().headers
-										//await resolve({shpfile:responses.data})
-										
 										getNewFieldArea()
+										//After the fields go into the db, this calculates their area, then updates the record again.
 										DSS.layer.fields_1.getSource().refresh();
 										DSS.layer.fieldsLabels.getSource().refresh();
 									}
@@ -194,9 +162,6 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 							// var csrftoken = Cookies.get('csrftoken');
 							
 							this.up('window').destroy();
-
-
-							
             			}
 					}
 				]

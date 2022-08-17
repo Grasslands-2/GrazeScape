@@ -365,6 +365,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				selectedFields.push(selectedRecords[r].id)
 			}
 			console.log(selectedFields)
+			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
+			// for(f in fieldFeatures){
+			// 	console.log(fieldFeatures[f].id_)
+			// 	for(r in selectedFields){
+			// 		if(fieldFeatures[f].id_ == selectedFields[r]){
+			// 			selectInteraction.getFeatures().clear()
+			// 			selectInteraction.getFeatures().push(fieldFeatures[f]);
+			// 			//DSS.map.removeInteraction(selectInteraction);
+			// 			//break;
+			// 		}
+			// 	}
+			// }
 			this.getView().refresh()
 			//console.log(record)
 		},
@@ -379,17 +391,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			//console.log(self.selected.items[0].id)
 			console.log(record.id)
 			deleteRecord = record;
-			//DSS.map.addInteraction(selectInteraction);
+			DSS.map.addInteraction(selectInteraction);
 			console.log("ROWcd d CLICK")
 			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
-			// for(f in fieldFeatures){
-			// 	if(fieldFeatures[f].id_ == record.id){
-			// 		selectInteraction.getFeatures().clear()
-			// 		selectInteraction.getFeatures().push(fieldFeatures[f]);
-			// 		//DSS.map.removeInteraction(selectInteraction);
-			// 		break;
-			// 	}
-			// }
+			for(f in fieldFeatures){
+				console.log(fieldFeatures[f].id_)
+				if(fieldFeatures[f].id_ == record.id){
+					selectInteraction.getFeatures().clear()
+					selectInteraction.getFeatures().push(fieldFeatures[f]);
+					DSS.map.removeInteraction(selectInteraction);
+					break;
+				}
+			}
 		}
 	},
 	//requires: ['DSS.map.Main'],
