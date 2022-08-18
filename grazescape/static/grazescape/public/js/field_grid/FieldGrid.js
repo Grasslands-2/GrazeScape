@@ -366,25 +366,31 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}
 			console.log(selectedFields)
 			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
-			// for(f in fieldFeatures){
-			// 	console.log(fieldFeatures[f].id_)
-			// 	for(r in selectedFields){
-			// 		if(fieldFeatures[f].id_ == selectedFields[r]){
-			// 			selectInteraction.getFeatures().clear()
-			// 			selectInteraction.getFeatures().push(fieldFeatures[f]);
-			// 			//DSS.map.removeInteraction(selectInteraction);
-			// 			//break;
-			// 		}
-			// 	}
-			// }
+			selectInteraction.getFeatures().clear()
+			for(f in fieldFeatures){
+				console.log(fieldFeatures[f].id_)
+				for(r in selectedFields){
+					if(fieldFeatures[f].id_ == selectedFields[r]){
+						selectInteraction.getFeatures().push(fieldFeatures[f]);
+					}
+				}
+			}
 			this.getView().refresh()
-			//console.log(record)
 		},
 		deselect: function (self,record) {
 			console.log("Record DESelected")
-			console.log(self)
+			//console.log(self)
 		    //console.log(self.selected.items[0].id)
-			console.log(record)
+			console.log(record.id)
+			// selectionArray = selectInteraction.getFeatures()
+			// console.log(selectionArray)
+			// for(s in selectionArray){
+			// 	if(selectionArray[s].array_.id_=== record.id){
+			// 		removeIndex = selectionArray.indexOf(selectionArray[s])
+			// 		selectionArray.splice(removeIndex,1);
+			// 		//selectInteraction.getFeatures().splice(removeIndex,1);
+			// 	}
+			// }
 			this.getView().refresh()
 		},
 		rowclick: function(self,record){
@@ -393,17 +399,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			deleteRecord = record;
 			DSS.map.addInteraction(selectInteraction);
 			console.log("ROWcd d CLICK")
-			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
-			for(f in fieldFeatures){
-				console.log(fieldFeatures[f].id_)
-				if(fieldFeatures[f].id_ == record.id){
-					selectInteraction.getFeatures().clear()
-					selectInteraction.getFeatures().push(fieldFeatures[f]);
-					DSS.map.removeInteraction(selectInteraction);
-					break;
-				}
-			}
-		}
+			// var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
+			// for(f in fieldFeatures){
+			// 	console.log(fieldFeatures[f].id_)
+			// 	if(fieldFeatures[f].id_ == record.id){
+			// 		selectInteraction.getFeatures().clear()
+			// 		selectInteraction.getFeatures().push(fieldFeatures[f]);
+			// 		console.log(selectInteraction.getFeatures())
+			// 		//DSS.map.removeInteraction(selectInteraction);
+			// 		//break;
+			// 	}
+			// }
+		},
 	},
 	//requires: ['DSS.map.Main'],
 

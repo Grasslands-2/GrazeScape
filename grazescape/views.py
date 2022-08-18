@@ -319,6 +319,7 @@ def outside_geojson_coord_pull(request):
     farm_id = request.POST.get("farm_id")
     file_data = request.POST.get("file_data")
     print(file_data)
+    #Sends data to the insert json coords function in db_connect.py
     insert_json_coords(scenario_id,farm_id,file_data)
     return JsonResponse({"Insert":"Complete outside_geojson_coord_pull"})
 

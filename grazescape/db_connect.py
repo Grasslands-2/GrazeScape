@@ -541,9 +541,6 @@ def clean_db():
     cur.close()
     conn.close()
 def insert_json_coords(scenario_id,farm_id,file_data):
-    # print(scenario_id)
-    # print(farm_id)
-    # print(file_data)
     tillage = "su"
     tillage_disp = "Spring Cultivation"
     grass_speciesdisp = "Low Yielding"
@@ -567,6 +564,7 @@ def insert_json_coords(scenario_id,farm_id,file_data):
     coord_strings = multifindcoordsJson(file_data)
     print(coord_strings)
 
+#This is how the data looks when it comes into this function.
 #[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]
 #-10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405
 # VALUES(%s,%s,%s,ST_GeomFromText('MULTIPOLYGON(((%s)))'))""",
@@ -574,6 +572,7 @@ def insert_json_coords(scenario_id,farm_id,file_data):
 #,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
 #,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
 
+#This goes through the coords string, and sets it up to get pushed into the GeoServer db.
     for coord in coord_strings:
         coord = "["+coord+"]"
         coord = coord.replace(',',' ')
@@ -587,24 +586,22 @@ def insert_json_coords(scenario_id,farm_id,file_data):
         postgreSQL_select_Query = "SELECT MAX(gid) FROM field_2;"
         cur, conn = get_db_conn()
         try:
+            #first get highest GID value
             print("GETTING LAST GID!!!!!!!!!!")
             cur.execute(postgreSQL_select_Query)
             lastGID = cur.fetchall()
-            #print(lastGID[0][0] + 1)
-            #update_gid = int(lastGID[0][0])
-            #print(update_gid)
+            #Pushes largest GID +1 for new field
             next_gid = lastGID[0][0] + 1
             cur.execute("""INSERT INTO field_2 
             (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost)
             VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
             (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost))
             
+            #Resets the GID counter for the fields_2 field in the db
             cur.execute("""SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
             #for ref
             #SELECT setval(pg_get_serial_sequence('table_name', 'id'), coalesce(max(id), 0)+1 , false) FROM table_name;
             #cur.execute("""ALTER SEQUENCE field_2_gid_seq RESTART WITH %s;"""
-
-            
 
         except Exception as e:
             print(e)

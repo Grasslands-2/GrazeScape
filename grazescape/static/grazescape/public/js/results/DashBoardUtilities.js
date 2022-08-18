@@ -1674,6 +1674,7 @@ function printSummary(){
 //        });;
     setTimeout(() => {
         for (chart in chartList){
+            console.log(chart)
             canvas = document.getElementById(chartList[chart])
             console.log(canvas)
             if(canvas == null){
@@ -1689,8 +1690,8 @@ function printSummary(){
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
-            pdf.addImage(imgData, 'JPEG', 0, 0,8, 4.4);
-            pdf.addPage(imgData,'landscape')
+            pdf.addImage(imgData, 'JPEG', 1,1,8,6);
+            pdf.addPage("letter",'landscape')
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
     }, 1000);

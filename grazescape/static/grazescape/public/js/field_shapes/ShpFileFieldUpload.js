@@ -114,7 +114,6 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 									me.stopWorkerAnimation();
 								}
 							})
-						
 							//var reader = new FileReader();
 							// reader.onload = (function(theFile) {
                                 // return async function(e) {
