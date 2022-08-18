@@ -893,6 +893,7 @@ Ext.define('DSS.state.Scenario', {
 						}
 					}
 				},
+				//--------------------------------------------------------
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',

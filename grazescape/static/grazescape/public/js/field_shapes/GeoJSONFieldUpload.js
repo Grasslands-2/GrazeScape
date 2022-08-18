@@ -3,29 +3,7 @@ var readerData=''
 
 async function getNewFieldArea(){
 	console.log("HI FROM GET NEW FIELD AREA!")
-	//await DSS.MapState.showFieldsForScenario();
 	await DSS.MapState.showFieldsAfterImport();
-	// console.log(DSS.activeScenario)
-	// await geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-	// DSS.layer.fields_1.getSource().refresh();
-	// DSS.layer.fields_1.setVisible(true);
-	// DSS.layer.fieldsLabels.setVisible(true);
-	// console.log(DSS.layer.fields_1.getSource().getFeatures().length)
-	// console.log("showfieldsforscenario ran");
-// 	setTimeout(() => {
-// 	console.log("Right before the plunge!")
-// 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-// 		console.log(f)
-// 		if (f.values_.field_name == "(imported field)"){
-// 			//f.values_.area = ol.sphere.getArea(f.values_.geometry)* 0.000247105
-// 			f.setProperties({
-// 				area: ol.sphere.getArea(f.values_.geometry)* 0.000247105
-// 			})
-// 			console.log(f)
-// 			wfs_update(f,'field_2');
-// 		}		
-// 	})
-// }, "5000")
 };
 
 //------------------------------------------------------------------------------
@@ -49,7 +27,6 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	//--------------------------------------------------------------------------
 	initComponent: function() {
-
 		let me = this;
 		if(Ext.getCmp('GeoJSONpath')){
 			Ext.getCmp('GeoJSONpath').destroy()
@@ -62,9 +39,9 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 				width: '100%',
 				height: 40,
 				style:{
-							fontsize: 45,
-							color: '#4477AA'
-						},
+					fontsize: 45,
+					color: '#4477AA'
+				},
 				html: "Imported file must be a GeoJSON!",
 			},{ //------------------------------------------
 				xtype: 'component',
@@ -85,6 +62,7 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
                         xtype: 'button',
                         text: 'Upload Field Boundaries',
                         handler: async function(){
+							//Isolates geojson file for upload
                             let file = this.up().down('filefield').el.down('input[type=file]').dom.files[0];
                             var reader = new FileReader();
 							reader.fileName = file.name
@@ -94,12 +72,14 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 									readerFileName = e.target.fileName
 									console.log(readerData)
 									console.log(readerFileName)
+									//Checks to make sure that the file is a geojson.
 									if(readerFileName.indexOf("geojson") !== -1){
 										return new Promise(await function(resolve) {
 											var csrftoken = Cookies.get('csrftoken');
 											$.ajaxSetup({
 													headers: { "X-CSRFToken": csrftoken }
 											});
+											//Sends the read data from the geojson.  
 											$.ajax({
 												'url' : '/grazescape/outside_geojson_coord_pull',
 												'type' : 'POST',
@@ -107,13 +87,12 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 													scenario_id:DSS.activeScenario,
 													farm_id :DSS.activeFarm,
 													file_data: readerData
-													//coords_array : JSON.stringify(dummyData)
 												},
 												success: async function(responses, opts) {
 													console.log(responses)
 													delete $.ajaxSetup().headers
 													await resolve({geojson:responses.data})
-													
+													//
 													getNewFieldArea()
 													DSS.layer.fields_1.getSource().refresh();
 													DSS.layer.fieldsLabels.getSource().refresh();
@@ -126,7 +105,8 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 											})
 										})
 									}else{
-										console.log("Shapefile upload FAILED!")
+										//Upload Fail warning 
+										console.log("GeoJSON upload FAILED!")
 										alert("You choose the wrong file format.  You need to use an unprojected geojson.");
 									}
 									

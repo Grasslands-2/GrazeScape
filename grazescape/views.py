@@ -77,29 +77,23 @@ def upload_file(request):
         print("farm_id: " + farm_id)
         #data = ContentFile(base64.b64decode(file), name= file.name)
         #FileModel.objects.create(doc=data)
+
+        #enumeartes the incoming shpfiles file titles.
         for count, file in enumerate(files):
             FileModel.objects.create(doc=request.FILES.get("shapefile"+str(count+1)))
-        #FileModel.objects.create(doc=file1)
-       
-        #outside_shpfile_coord_pull(filename,scenario_id,farm_id)
-       
-        #print(data)
-        #return JsonResponse({"link": data})
-        # FileModel.objects.create(doc=file)
-        # print(file)
 
         filename_fixed = filename[:-3] + 'shx'
         print("IN COORD PULL SHAPEFILE!!!!!!")
         print(filename_fixed)
         print(scenario_id)
         print(farm_id)
-        #try:
         shp_file_name = os.path.join(settings.BASE_DIR,'media','media',filename_fixed)
+        #opens uploaded shapefile using GDAL module fiona
         shape = fiona.open(shp_file_name)
-        print("FIONA SCHEMA!!!!!!")
-        #print(shape.schema)
+        #pulls out coordinates from shapefile fiona read
         coords = [np.array(poly['geometry']['coordinates'])
                     for poly in shape.values()]
+        #sends coords to the backend insert function in db_connect.py
         insert_shpfile_coords(scenario_id,farm_id,coords)
         return JsonResponse({"Insert":"Upload Complete upload_file"})
         
@@ -325,6 +319,7 @@ def outside_geojson_coord_pull(request):
     farm_id = request.POST.get("farm_id")
     file_data = request.POST.get("file_data")
     print(file_data)
+    #Sends data to the insert json coords function in db_connect.py
     insert_json_coords(scenario_id,farm_id,file_data)
     return JsonResponse({"Insert":"Complete outside_geojson_coord_pull"})
 

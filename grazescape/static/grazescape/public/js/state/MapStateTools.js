@@ -156,10 +156,11 @@ Ext.define('DSS.state.MapStateTools', {
 	showInfrasForFarm: function(farmId, opacity) {
     	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
     },
+	//Refreshes fields after imports from geojson or shapefile.
 	showFieldsAfterImport: async function() {
 		let me = this;
 		console.log(DSS.activeScenario)
-		geoServer. setFieldsAfterImport('&CQL_filter=scenario_id='+DSS.activeScenario)
+		geoServer.setFieldsAfterImport('&CQL_filter=scenario_id='+DSS.activeScenario)
 		DSS.layer.fields_1.getSource().refresh();
 		DSS.layer.fields_1.setVisible(true);
 		DSS.layer.fieldsLabels.setVisible(true);

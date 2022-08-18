@@ -1,4 +1,4 @@
-
+//Used to dirty the fields for the active scenario to make sure that the models run on every field, after costs are adjusted.
 function dirtyUpFields(){
     // let changedFieldsList = []
     // for (field in fieldChangeList){
@@ -29,24 +29,18 @@ Ext.define('CurrencyField', {
 				console.log("afterrender")
 			}, 200)
 		},
-		// render: function (cmp) {
-		// 	cmp.showCurrency(cmp);
-		// 	console.log("render")
-		// },
 		blur: function (cmp) {setTimeout(function(){
 			cmp.showCurrency(cmp);
 			console.log("blur")
 		}, 200)
 		},
 		focus: function (cmp) {
-			//cmp.setRawValue(cmp.valueToRaw(cmp.getValue()));
 			setTimeout(function(){
 				cmp.showCurrency(cmp);
 				console.log("focus")
 			}, 200)
 		},
 		change: function (cmp) {
-			//cmp.setRawValue(cmp.valueToRaw(cmp.getValue()));
 			setTimeout(function(){
 				cmp.showCurrency(cmp);
 				console.log("change")
@@ -103,7 +97,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		
+		//Deletes any of the costs comps that already exist of this dialoag, before recreating them.
 		if(Ext.getCmp("P205")){
 			console.log("destroy")
 			Ext.getCmp("P205").destroy()
@@ -125,20 +119,10 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 			Ext.getCmp("grassPestCost").destroy()
 			Ext.getCmp("grassMachCost").destroy()
 		}
-
-		//--------------------------------------------
-		// Dairy Container
-		//--------------------------------------------
 			
 		Ext.applyIf(me, {
 
 			items: [
-			// 	{
-			// 	xtype: 'component',
-			// 	cls: 'information accent-text box-underline',
-			// 	//html: 'Configure the <b>size of the dairy herd</b>',
-			// 	margin: '0 32',
-			// },
 			{
 				xtype: 'container',
 				//layout: DSS.utils.layout('hbox', 'start', 'left'),
@@ -173,11 +157,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 								},
 						html: 'Note: These costs represent those associated with feed/crop production and are broken out into the following categories: fertilizer (P2O5 and N), seed, pesticide, and machinery (fixed and variable). Land costs are specified in the Field Attribute table. Default values are based on Iowa State Extension and University of Wisconsin Extension estimated crop budgets.'
 					},
-					// {
-                    //     xtype: 'label',
-                    //     cls: 'information med-text',
-                    //     html: 'Note: These costs represent those associated with feed/crop production and are broken out into the following categories: fertilizer (P2O5 and N), seed, pesticide, and machinery (fixed and variable). Land rent is not included. Default values are based on Iowa State Extension and University of Wisconsin Extension estimated crop budgets.'
-                    // },
+					//containers set up each costs dialog
 					{
 						xtype: 'container',
 						flex: 0.62,
@@ -381,6 +361,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 					
 				]
 			},
+			//Pushes changes from all dialogs to scenario table in db.
 			{
 				xtype: 'button',
 				cls: 'button-text-pad',
@@ -399,6 +380,7 @@ Ext.define('DSS.state.scenario.CostsDialog', {
 					this.up('window').close();
 				}
 			},
+			//Resets costs values to default values.
 			{
 				xtype: 'button',
 				cls: 'button-text-pad',
