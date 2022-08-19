@@ -51,7 +51,7 @@ def index(request):
     # download the watersheds for the learning hubs
     file_names = [
         "southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12",
-        "uplandsWI_Huc10", "uplandsWI_Huc12", "northEastWI_Huc10", "northEastWI_Huc12",
+        "uplandsWI_Huc10", "uplandsWI_Huc12", "northeastWI_Huc10", "northeastWI_Huc12",
     ]
     for name in file_names:
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A"+name+"&outputFormat=application%2Fjson"
