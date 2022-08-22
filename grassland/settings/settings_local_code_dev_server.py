@@ -10,6 +10,14 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 import configparser
+import logging
+
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# USE THIS 
+logger.debug('hello')
 from grassland.settings.settings import *
 if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     params = parser.items("captcha_google")
