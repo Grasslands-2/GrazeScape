@@ -348,6 +348,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	minHeight: 40,
 	maxHeight: 600,
 	listeners: {
+		hide: function(self, newW, newH, oldW, oldH) {
+			console.log("Field Grid hide")
+		},
 		resize: function(self, newW, newH, oldW, oldH) {
 			if (!self.isAnimating) self.internalHeight = newH;
 		},
@@ -382,6 +385,11 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			//console.log(self)
 		    //console.log(self.selected.items[0].id)
 			console.log(record.id)
+			grid.saveDocumentAs({
+				type: 'xlsx',
+				title: 'My export',
+				fileName: 'myExport.xlsx'
+			});
 			// selectionArray = selectInteraction.getFeatures()
 			// console.log(selectionArray)
 			// for(s in selectionArray){

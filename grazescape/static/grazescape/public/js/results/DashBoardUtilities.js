@@ -1647,6 +1647,12 @@ function retrieveAllFieldsDataGeoserver(){
 //runs the print summary in the dashboard
 function printSummary(){
     var pdf = new jsPDF();
+    pdf.setFontSize(22);
+    pdf.text(20, 20, 'This is a title');
+
+    pdf.setFontSize(16);
+    pdf.text(20, 30, 'This is some normal sized text underneath.');
+    pdf.addPage("letter",'landscape')
     let activeTab = Ext.getCmp("mainTab").getActiveTab()
     scenName = chartDatasetContainer.getScenName(DSS.activeScenario)
     let mainTabLength = Ext.getCmp("mainTab").items.length
@@ -1673,6 +1679,7 @@ function printSummary(){
 //            format:'a4'
 //        });;
     setTimeout(() => {
+
         for (chart in chartList){
             console.log(chart)
             canvas = document.getElementById(chartList[chart])
