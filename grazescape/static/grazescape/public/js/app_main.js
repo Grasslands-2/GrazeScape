@@ -5,15 +5,18 @@ Ext.Loader.setConfig({
 //	disableCaching:false,
 	paths: {
 //		'GeoExt': '/assets/javascripts/vendor/geo-ext',
+        'Ext.ux': '/static/grazescape/public/vendor/extjs/ux' //Should be the path to the ux folder.
 	}
 });
+Ext.require('Ext.ux.ExportableGrid');
 //--------------------------------------------
 Ext.application({
 	name: 'DSS',
 	appFolder: '/static/grazescape/public/js',
 
     views: [
-		'AppViewport'
+		'AppViewport',
+        //'field_grid.exporter'
 	],
 	mainView: 'DSS.view.AppViewport',
 	init: function() {
