@@ -79,7 +79,7 @@ updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps,reset} from 
 import configureStore from './stores/store'
 import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea} from '/src/stores/mainSlice'
 import {RotateNorthControl} from '/src/mapControls/controlTransSummary'
-import { BallTriangle,RotatingLines } from  'react-loader-spinner'
+import { BallTriangle,RotatingLines, } from  'react-loader-spinner'
 
 proj4.defs(
   'EPSG:27700',
@@ -145,7 +145,7 @@ class OLMapFragment extends React.Component {
 //        this.drawRectangleBoundary = this.drawRectangleBoundary.bind(this)
         // binding function to class so they share scope
         this.updateAreaSelectionType = this.updateAreaSelectionType.bind(this)
-        this.getHuc12FromHuc10 = this.getHuc12FromHuc10.bind(this)
+//        this.getHuc12FromHuc10 = this.getHuc12FromHuc10.bind(this)
         this.addLayer = this.addLayer.bind(this)
         this.getMapLayer = this.getMapLayer.bind(this)
 
@@ -227,10 +227,10 @@ class OLMapFragment extends React.Component {
                 }
             }
             if(this.props.layerVisible[0].name == "subHuc12" && this.props.layerVisible[0].visible == true){
-                this.getHuc12FromHuc10()
+//                this.getHuc12FromHuc10()
             }
     //        zoomm in on aoi
-            if(this.props.layerVisible[0].name == "huc10" && this.props.layerVisible[0].visible == false){
+            if(this.props.layerVisible[0].name == "huc12" && this.props.layerVisible[0].visible == false){
                     var extent = this.boundaryLayerAOI.getSource().getExtent()
                     extent = this.add10PerExtent(extent)
                     this.map.getView().fit(extent,{"duration":500});
@@ -241,7 +241,8 @@ class OLMapFragment extends React.Component {
                 console.log("resetting to beginning")
                 this.props.reset();
                 this.selectedFeatures.clear();
-                this.huc10.getSource().clear()
+//                this.huc10.getSource().clear()
+                this.huc12.getSource().clear()
                 this.boundaryLayerAOI.setVisible(false)
                 this.map.addInteraction(this.select);
                 this.props.setVisibilityTransAcc(true)
@@ -540,6 +541,7 @@ class OLMapFragment extends React.Component {
          this.huc10 = new VectorLayer({
             name:'huc10',
             renderMode: 'image',
+            visible: false,
 
 //          source:new VectorSource({
 //              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
@@ -559,7 +561,7 @@ class OLMapFragment extends React.Component {
               format: new GeoJSON(),
                projection: 'EPSG:3071',
             }),
-            style: this.nullStyle,
+            style: styles,
             visible: true,
 //            operation: olSourceRasterOperationCropInner
         });
@@ -681,10 +683,11 @@ class OLMapFragment extends React.Component {
 //                    return false
 //                }
                 if (layer.get('name') == "subHuc12" || layer.get('name') == "huc10" ||
-                layer.get('name') == "southWest"||
-                layer.get('name') == "cloverBelt"||
-                layer.get('name') == "northEast"||
-                layer.get('name') == "uplands"){
+                    layer.get('name') == "huc12"||
+                    layer.get('name') == "southWest"||
+                    layer.get('name') == "cloverBelt"||
+                    layer.get('name') == "northEast"||
+                    layer.get('name') == "uplands"){
                     return true
                 }
 //                console.log(layer)
@@ -838,13 +841,24 @@ class OLMapFragment extends React.Component {
     }
     render(){
 //        size of loader
-        let loaderSize = 400
+        let loaderSize = 100
         let windowHeight = window.innerHeight
         let windowWidth = window.innerWidth
 
         let loaderHeight = (windowHeight/2 - loaderSize/2) / windowHeight * 100
 //        console.log(loaderHeight)
         let heightString = String(loaderHeight) + "%"
+        let loaderRight = null
+        console.log(document.getElementById("map"))
+        if (document.getElementById("map") != null){
+
+            loaderRight = document.getElementById("map").offsetWidth/2
+        }
+        else{
+            loaderRight = windowWidth *(9/12)/2
+        }
+        console.log(loaderRight)
+        let widthString = String(loaderRight-loaderSize) + "px"
 //        console.log(heightString)
         const style = {
             width: '100%',
@@ -854,6 +868,7 @@ class OLMapFragment extends React.Component {
 //            position:'absolute',
 //            position: 'fixed'
         }
+
         const style1 ={
             width: '100%',
             height: '500px',
@@ -868,21 +883,25 @@ class OLMapFragment extends React.Component {
             position: "absolute",
             zIndex: "100",
             top: heightString,
-            left: "50%"
+            right: widthString,
+            color:"#8b32a8",
+            fontSize: "40px",
+            textAlign: "center",
+            fontWeight: "bold"
         }
 
         return (
             <div>
             <div id = "loaderDiv" style = {loaderStyle} hidden={true}>
-                <BallTriangle
-                  height={loaderSize}
+                <RotatingLines
                   width={loaderSize}
-                  radius={5}
-                  color="#8b32a8"
-                  ariaLabel="ball-triangle-loading"
-                  wrapperStyle=""
+                  strokeWidth={5}
+                  strokeColor="#8b32a8"
+                  ariaLabel="loading"
 
                 />
+                <p></p>
+                Loading
                 </div>
 			<div id='map' style={style}>
 

@@ -224,6 +224,7 @@ class SidePanel extends React.Component{
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
+            showHuc12:false,
             printingPDF:false,
             speedometerWidth:window.innerWidth*.7/2,
             speedometerHeight:window.innerWidth*.7/2/2
@@ -293,7 +294,8 @@ class SidePanel extends React.Component{
                 this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
                }
 
-                this.setState({showHuc10:true})
+//                this.setState({showHuc10:true})
+                this.setState({showHuc12:true})
             }
 //           console.log(this.state.showHuc10)
         }
@@ -315,7 +317,7 @@ class SidePanel extends React.Component{
         }
     }
     updateDimensions = () => {
-        console.log("dimensions updated", window.innerWidth, window.innerHeight)
+//        console.log("dimensions updated", window.innerWidth, window.innerHeight)
         let width = 0
         if(document.getElementById("modalResults") != null){
             width = document.getElementById("modalResults").offsetWidth
@@ -452,12 +454,12 @@ class SidePanel extends React.Component{
         this.props.updateActiveTransProps({"name":name, "value":e.currentTarget.checked, "type":type})
         selectionTime = new Date();
         setTimeout(function(){
-            if (new Date() - selectionTime >= 2000 && rasterDownloaded){
+            if (new Date() - selectionTime >= 1000 && rasterDownloaded){
                 console.log("active trans ",this.props.activeTrans)
                 this.displaySelectionCriteria()
             }
 
-        }.bind(this), 2000)
+        }.bind(this), 1000)
     }
     handleSelectionChangeGeneralNumeric(name, type, e){
 //        this is a hack. slope1 is being triggered at the beginning of the app
@@ -512,14 +514,16 @@ class SidePanel extends React.Component{
     reset(){
 //      clear any selection criteria
         this.clearSelection("all")
-        this.setState({showHuc10:false})
+//        this.setState({showHuc10:false})
+        this.setState({showHuc12:false})
         this.props.setActiveRegion(null)
         this.props.setVisibilityMapLayer([
             {'name':'southWest', 'visible':true},
             {'name':'southCentral', 'visible':true},
             {'name':'cloverBelt', 'visible':true},
             {'name':'subHuc12', 'visible':false},
-            {'name':'huc10', 'visible':true}
+//            {'name':'huc10', 'visible':true},
+            {'name':'huc12', 'visible':true}
             ])
         this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
@@ -527,6 +531,8 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
         this.setState({aoiOrDisplayLoading:false})
+//        document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
+
 //        remove all transformations
 // remove activate transformation
 // display all learning hubs
@@ -541,7 +547,8 @@ class SidePanel extends React.Component{
 
         // turn off huc 10
         this.props.setVisibilityMapLayer([
-            {'name':'huc10', 'visible':false},
+//            {'name':'huc10', 'visible':false},
+            {'name':'huc12', 'visible':false},
             {'name':'southWest', 'visible':false},
             {'name':'southCentral', 'visible':false},
             {'name':'cloverBelt', 'visible':false}
@@ -550,7 +557,7 @@ class SidePanel extends React.Component{
 //        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':true})
     }
     else if (e == "aoi"){
-        this.props.setVisibilityMapLayer([{'name':'huc10', 'visible':true}])
+        this.props.setVisibilityMapLayer([{'name':'huc12', 'visible':true}])
 //        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':false})
     }
     else{}
@@ -653,6 +660,11 @@ class SidePanel extends React.Component{
     // ajax call with selection criteria
     let transPayload = JSON.parse(JSON.stringify(this.props.activeTrans))
     var csrftoken = Cookies.get('csrftoken');
+    if(this.props.region == null){
+            this.setState({aoiOrDisplayLoading:false})
+
+        return
+    }
     $.ajaxSetup({
         headers: { "X-CSRFToken": csrftoken }
     });
@@ -1809,12 +1821,12 @@ class SidePanel extends React.Component{
                   <h5>Select a work area<sup>*</sup></h5>
                   <h5>(by clicking on the map)</h5>
                  <InputGroup size="sm" className="mb-3">
-                 <h6 hidden={this.state.showHuc10}> Please select a region</h6>
-                 <h6 hidden={!this.state.showHuc10}>  Select at least one large watershed </h6>
-                 <div hidden={!this.state.showHuc10}> Hold shift to select multiple watersheds </div>
+                 <h6 hidden={this.state.showHuc12}> Please select a region</h6>
+                 <h6 hidden={!this.state.showHuc12}>  Select at least one large watershed </h6>
+                 <div hidden={!this.state.showHuc12}> Hold shift to select multiple watersheds </div>
                   </InputGroup>
                   <h6>*All land transformations will reside in the work area</h6>
-                   <Button hidden={!this.state.showHuc10} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>
+                   <Button hidden={!this.state.showHuc12} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>
 
               </Row>
 
@@ -1946,13 +1958,13 @@ class SidePanel extends React.Component{
                         </Accordion.Body>
                       </Accordion.Item>
                     </Accordion>
-
+{/*
                     <Accordion onSelect={(e) => this.subAreaSelection(e)}>
                       <Accordion.Item eventKey="2">
                         <Accordion.Header>Sub Area</Accordion.Header>
                         <Accordion.Body>
                           <Row>
-                               {/*<Form.Check
+                               <Form.Check
                                 inline
                                 label="Select Sub Watersheds"
                                 ref={this.selectWatershed}
@@ -1963,7 +1975,7 @@ class SidePanel extends React.Component{
                               />*
                                 <Button variant="secondary" onClick={(e) => this.handleAreaSelectionType("none", e)}>
                                 Stop Selection
-                              </Button>*/}
+                              </Button>
                                <h6> Hold shift to select multiple watersheds. </h6>
                                <h6> Close accordion to stop selection. </h6>
                                 <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Reset Sub Area</Button>
@@ -1972,6 +1984,7 @@ class SidePanel extends React.Component{
                         </Accordion.Body>
                       </Accordion.Item>
                     </Accordion>
+                    */}
                     <Accordion>
                       <Accordion.Item eventKey="3">
                         <Accordion.Header>Slope</Accordion.Header>
