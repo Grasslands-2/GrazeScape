@@ -245,6 +245,7 @@ function runInfraUpdate(){
 	})
 };
 function runFieldUpdate(){
+	console.log("IN runFieldUpdate");
     let changedFieldsList = []
     for (field in fieldChangeList){
         changedFieldsList.push(fieldChangeList[field].id)
