@@ -37,30 +37,30 @@ var fieldUrl =""
 
 function refreshSelectedFields(self, record, eOpts){
 	selectedFields = []
-			selectInteraction.getFeatures().clear()
-			DSS.map.removeInteraction(selectInteraction);
-			console.log(self)
-			console.log(record)
-			console.log(eOpts)
-			console.log(record.id)
-			var selectedRecords = self.selected.items
-			console.log(selectedRecords)
-			for(r in selectedRecords){
-				var pushedR = selectedRecords[r].id
-				selectedFields.push(pushedR)
-			}
-			console.log(selectedFields)
-			DSS.map.addInteraction(selectInteraction);
-			var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
-			for(f in fieldFeatures){
-				console.log(fieldFeatures[f].id_)
-				for(r in selectedFields){
-					if(fieldFeatures[f].id_ == selectedFields[r]){
-						selectInteraction.getFeatures().push(fieldFeatures[f]);
-					}
+		selectInteraction.getFeatures().clear()
+		DSS.map.removeInteraction(selectInteraction);
+		console.log(self)
+		console.log(record)
+		console.log(eOpts)
+		console.log(record.id)
+		var selectedRecords = self.selected.items
+		console.log(selectedRecords)
+		for(r in selectedRecords){
+			var pushedR = selectedRecords[r].id
+			selectedFields.push(pushedR)
+		}
+		console.log(selectedFields)
+		DSS.map.addInteraction(selectInteraction);
+		var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
+		for(f in fieldFeatures){
+			console.log(fieldFeatures[f].id_)
+			for(r in selectedFields){
+				if(fieldFeatures[f].id_ == selectedFields[r]){
+					selectInteraction.getFeatures().push(fieldFeatures[f]);
 				}
 			}
-			Ext.getCmp("fieldTable").getView().refresh();
+		}
+	Ext.getCmp("fieldTable").getView().refresh();
 }
 
 function getWFSfields(parameter = '') {
@@ -378,7 +378,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	hidden: true,
 	selModel: {
 		allowDeselect: true,
-		selType: "rowmodel",//'checkboxmodel', // rowmodel is the default selection model
+		selType: 'checkboxmodel',//"rowmodel",//'checkboxmodel', // rowmodel is the default selection model
 		mode: 'MULTI'
 	},
 	
@@ -394,24 +394,32 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		xtype: 'toolbar',
 		dock: 'bottom',
 		items: [
-		// 	{
-		// 	xtype: 'button',
-		// 	text: 'Deselect All Fields',
-		// 	handler: function (self) {
-		// 		selectedFields = []
-		// 		console.log(Ext.getCmp("fieldTable").selected.items)
-		// 		Ext.getCmp("fieldTable").selected.items.length = 0
-		// 		selectInteraction.getFeatures().clear()
-		// 		DSS.map.removeInteraction(selectInteraction);
-		// 		Ext.getCmp("fieldTable").getView().refresh();
-		// 	}
-		// },
+			{
+				xtype: 'button',
+				text: 'Select All Fields',
+				handler: function (self) {
+					selectedFields = []
+					Ext.getCmp("fieldTable").getView().refresh();
+					Ext.getCmp("fieldTable").getSelectionModel().selectAll();
+				}
+			},
+			{
+			xtype: 'button',
+			text: 'Deselect All Fields',
+			handler: function (self) {
+				selectedFields = []
+				Ext.getCmp("fieldTable").getView().refresh();
+				Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
+			}
+		},
 		{
 			xtype: 'button',
 			text: 'Save Changes',
 			handler: function (self) {
 				runFieldUpdate()
+				selectedFields = []
 				Ext.getCmp("fieldTable").getView().refresh();
+				Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
 			}
 		},
 		{
@@ -420,6 +428,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			handler: function (self) {
 				console.log("field table exported")
 				Ext.getCmp("fieldTable").export('Field Table');
+				selectedFields = []
+				Ext.getCmp("fieldTable").getView().refresh();
+				Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
 			}
 		}]
 	},
@@ -677,12 +688,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 									}
 								}
 							}
+							selectedFields = []
+							me.getView().refresh();
+							me.getSelectionModel().deselectAll();
 						}
 						console.log("End of Rot Crop change event")
 						//runFieldUpdate()
-						setTimeout(() => {
-							me.getView().refresh()
-					}, "250")
+						//setTimeout(() => {
+							// selectedFields = []
+							// me.getView().refresh();
+							// Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
+						//}, "250")
+					
 						//console.log(store)
 						
 					}
@@ -795,9 +812,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 									}
 								}
 							}
-							setTimeout(() => {
-								me.getView().refresh()
-						}, "250")
+							selectedFields = []
+							me.getView().refresh();
+							me.getSelectionModel().deselectAll();
+						// 	setTimeout(() => {
+						// 		me.getView().refresh()
+						// }, "250")
 						}
 						//console.log(store)
 						
@@ -877,7 +897,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('tillageVal', value.get('value'));
 						record.set('tillageDisp', value.get('display'));
-						//me.getView().refresh();
+						me.getView().refresh();
 					},
 				change: function(widget,newValue,oldValue,record){
 					var record = widget.getWidgetRecord();
@@ -940,9 +960,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 								}
 							}
 						}
-						setTimeout(() => {
-							me.getView().refresh()
-					}, "250")
+						selectedFields = []
+						me.getView().refresh();
+						me.getSelectionModel().deselectAll();
+					// 	setTimeout(() => {
+					// 		me.getView().refresh()
+					// }, "250")
 					}
 					//console.log(store)
 					
@@ -1735,8 +1758,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						})
 						//grid.getStore().removeAt(rowIndex);
 					}, 500);//wait 2 seconds
-					
-
 				},
 				scope: this
 			}]
