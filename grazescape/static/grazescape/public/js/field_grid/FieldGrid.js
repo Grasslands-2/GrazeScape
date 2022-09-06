@@ -144,10 +144,10 @@ Ext.create('Ext.data.Store', {
 		display: 'Continuous Corn'
 	},{ 
 		value: 'cg',
-		display: 'Cash Grain (cg/sb)'
+		display: 'Cash Grain (corn/soy)'
 	},{ 
 		value: 'dr',
-		display: 'Corn Silage to Corn Grain to Alfalfa(3x)'
+		display: 'Corn Silage to Corn Grain to Alfalfa 3 yrs'
 	},{ 
 		value: 'cso',
 		display: 'Corn Silage to Soybeans to Oats'
@@ -494,7 +494,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
 			locked: true, draggable: false, editable: true,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-
+			tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
 		};
 		//------------------------------------------------------------------------------
 		let soilP_Column = {
@@ -528,13 +528,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							//view.refresh()
 					}
 				}
-			}, text: 'Soil-P', dataIndex: 'soilP', width: 80, 
+			}, text: 'Soil-P (PPM)', dataIndex: 'soilP', width: 100, 
+			tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let landCost_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5,
+				
 				listeners:{
 					change: function(field,newValue,oldValue,record){
 							console.log(selectedFields)
@@ -561,7 +563,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						}
 					}
 				}
-			}, text: 'Land Cost ($/ac)', dataIndex: 'landCost', width: 80, 
+			}, text: 'Land Cost ($/ac)', dataIndex: 'landCost', width: 110,
+			tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
@@ -596,16 +599,17 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							//view.refresh()
 					}
 				}
-			}, text: 'Soil-OM', dataIndex: 'soilOM', width: 80, 
+			}, text: 'Soil-OM (%)', dataIndex: 'soilOM', width: 90, 
+			tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
 		let cropRotationColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			
 			text: 'Crop Rotation', dataIndex: 'rotationDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
 			exportable: true, exportConverter: function(self){
 				console.log(self)
 				return self
@@ -649,9 +653,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							break;
 							case 'Continuous Corn': dbvalCR = 'cc'
 							break;
-							case 'Cash Grain (cg/sb)': dbvalCR = 'cg'
+							case 'Cash Grain (corn/soy)': dbvalCR = 'cg'
 							break;
-							case 'Corn Silage to Corn Grain to Alfalfa(3x)': dbvalCR = 'dr'
+							case 'Corn Silage to Corn Grain to Alfalfa 3 yrs': dbvalCR = 'dr'
 							break;
 							case 'Corn Silage to Soybeans to Oats': dbvalCR = 'cso'
 							break;
@@ -693,15 +697,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							me.getSelectionModel().deselectAll();
 						}
 						console.log("End of Rot Crop change event")
-						//runFieldUpdate()
-						//setTimeout(() => {
-							// selectedFields = []
-							// me.getView().refresh();
-							// Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
-						//}, "250")
-					
-						//console.log(store)
-						
 					}
 				}
 			}
@@ -719,10 +714,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						// if(newValue == 'Continuous Corn'){
 						// 	dbval = 'cc'
 						// }
-						// if(newValue == 'Cash Grain (cg/sb)'){
+						// if(newValue == 'Cash Grain (corn/soy)'){
 						// 	dbval = 'cg'
 						// }
-						// if(newValue == 'Corn Silage to Corn Grain to Alfalfa(3x)'){
+						// if(newValue == 'Corn Silage to Corn Grain to Alfalfa 3 yrs'){
 						// 	dbval = 'dr'
 						// }
 						// if(newValue == 'Corn Silage to Soybeans to Oats'){
@@ -737,6 +732,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor: {}, // workaround for exception
 			text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Cover Crop</b> Which cover crop is being grown on each field during the none growing season',
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('rotationVal') == 'ps' || rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt' || rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
@@ -833,6 +829,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor: {}, // workaround for exception
 			text: 'Tillage', dataIndex: 'tillageDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Tillage</b> Which tillage practice is being used on each field',
 			onWidgetAttach: function(col, widget, rec) {
 				//console.log(rec)
 				//widget turned off
@@ -845,12 +842,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					widget.setDisabled(false);
 					widget.setStore('tillageList_newPasture')
 				}
-				//widget gets grazing store options
-				// else if ((rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt') && (rec.get('coverCropVal') == 'gcis' || rec.get('coverCropVal') == 'gcds')) {
-				// 	widget.setDisabled(false);
-				// 	widget.setStore('tillageList_crop_grazing')
-				// }
-				//widget gets cashcrop options
 				else if((rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg') 
 				&& (rec.get('coverCropVal') == 'cc')
 				){
@@ -977,7 +968,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 
 		let onContourColumn = {
 			xtype: 'widgetcolumn', text: 'On Contour', dataIndex: 'onContour', width: 100,
-			editor:{}, 
+			editor:{},
+			tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
@@ -1100,7 +1092,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							//view.refresh()
 					}
 				}
-			}, text: '% Fert P', dataIndex: 'fertPercP', width: 80, tooltip: 'Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+			}, text: '% Fert P', dataIndex: 'fertPercP', width: 80, tooltip: '<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
 		};
 		//------------------------------------------------------------------------------
@@ -1138,7 +1130,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							//view.refresh()
 					}
 				}
-			}, text: '% Manure P', dataIndex: 'manuPercP', width: 110, tooltip: 'Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
+			}, text: '% Manure P', dataIndex: 'manuPercP', width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		let NfertPerc_Column = {
@@ -1172,7 +1164,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							//view.refresh()
 					}
 				}
-			}, text: '% Fert N', dataIndex: 'fertPercN', width: 80, tooltip: 'Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
+			}, text: '% Fert N', dataIndex: 'fertPercN', width: 80, tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
@@ -1208,7 +1200,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							//view.refresh()
 					}
 				}
-			}, text: '% Manure N', dataIndex: 'manuPercN', width: 110, tooltip: 'Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
+			}, text: '% Manure N', dataIndex: 'manuPercN', width: 110, tooltip: '<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
 		//------------------------------------------------------------------------------
@@ -1499,6 +1491,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor: {}, // workaround for exception
 			text: 'Rotational Frequency', dataIndex: 'rotationFreqDisp', width: 150, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Pasture Rotational Frequency</b> How often are animals rotated on and off any given pasture',
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('rotationVal') == 'pt-rt') {
 					widget.setDisabled(false);
@@ -1645,6 +1638,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor: {}, // workaround for exception
 			text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
 			onWidgetAttach: function(col, widget, rec) {
 
 				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'dl') {
@@ -1729,7 +1723,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			xtype: 'numbercolumn', format: '0.0',/*editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false,
 			},*/ text: 'Area(acre)', dataIndex: 'area', width: 90,editable: false,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			tooltip: '<b>Area:</b> Area in acres',
 		};
 		let delete_Column = 
 		{
@@ -1738,6 +1733,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			text: 'Delete Field',
 			scale: 'large',
 			align: 'center',
+			tooltip: '<b>Delete Field:</b> Click the button to delete a field',
 			items: [{
 				icon: '/static/grazescape/public/images/remove-icon-png-7116.png',
 				text:'Delete Field',

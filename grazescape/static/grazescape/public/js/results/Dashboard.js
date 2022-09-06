@@ -220,7 +220,7 @@ function gatherYieldTableData() {
             break;
             case 'cg': fieldYieldArray[i].rotationDisp = 'Cash Grain'
             break;
-            case 'dr': fieldYieldArray[i].rotationDisp = 'Silage/Corn/Alfalfa(3x)'
+            case 'dr': fieldYieldArray[i].rotationDisp = 'Silage/Corn/Alfalfa 3 yrs'
             break;
             case 'cso': fieldYieldArray[i].rotationDisp = 'Silage/Soy Beans/Oats'
             break;
