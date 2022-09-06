@@ -920,7 +920,7 @@ function farmAccMapping(inputString){
      'dl':'Dry Lot',
      'cc':'Continuous Corn',
      'cg':'Cash Grain',
-     'dr':'Corn Silage to Corn Grain to Alfalfa(3x)',
+     'dr':'Corn Silage to Corn Grain to Alfalfa 3 yrs',
      'cso':'Corn Silage to Soybeans to Oats'
      }
      return mapping[inputString]

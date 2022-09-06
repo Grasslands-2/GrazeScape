@@ -1,5 +1,5 @@
 
-var regionsList = [{text: "Kickapoo Valley"}, {text: "Cloverbelt"},{text: "Uplands"},{text: "Northeast"}]
+var regionsList = [{text: "Ridge and Valley"}, {text: "Clover Belt"},{text: "Driftless"},{text: "Northeast"}]
 DSS.activeRegion = "southWestWI";
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.RegionPickerPanel', {
@@ -59,7 +59,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 							DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
 							DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
 							console.log(DSS.map.getView())
-							if(item.text == "Cloverbelt"){
+							if(item.text == "Clover Belt"){
 								DSS.activeRegion = "cloverBeltWI";
 								DSS.map.un('pointermove', regionHighlighter)
 								AppEvents.triggerEvent('hide_region_picker_indicator')
@@ -78,7 +78,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								let extent = [-10221386, 5467295, -9843661, 5750901]
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
-							if(item.text == "Kickapoo Valley"){
+							if(item.text == "Ridge and Valley"){
 								DSS.activeRegion = "southWestWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -118,7 +118,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								let extent = [-9841119, 5448671, -9726548, 5571254]
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
-							if(item.text == "Uplands"){
+							if(item.text == "Driftless"){
 								DSS.activeRegion = "uplandsWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)

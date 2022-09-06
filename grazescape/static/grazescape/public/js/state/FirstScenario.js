@@ -333,7 +333,7 @@ Ext.define('DSS.state.FirstScenario', {
 					xtype: 'component',
 					//id: 'scenIDpanel',
 					cls: 'information',
-					html: "Name and describe your first scenario. We recommend that this scenario reflect your current operation so that you can validate model results. We also recommend that you draw as many field boundaries as you may want to compare in future scenarios.",
+					html: "Name and describe your first scenario. We recommend that your first scenario reflect your farms current operation so that you can easily compare other scenarios against the current layout of your farm.",
 				},
 				{
 					xtype: 'form',
@@ -369,7 +369,7 @@ Ext.define('DSS.state.FirstScenario', {
 						xtype: 'button',
 						cls: 'button-text-pad',
 						componentCls: 'button-margin',
-						text: 'Create New Scenario',
+						text: 'Create First Scenario',
 						formBind: true,
 						handler: async function() { 
 							console.log('new scenario button pushed')
@@ -391,6 +391,10 @@ Ext.define('DSS.state.FirstScenario', {
 								//DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
 							}
+							DSS.dialogs.firstScenarioPopup = Ext.create('DSS.state.FirstScenarioPopup');
+							DSS.dialogs.firstScenarioPopup.setViewModel(DSS.viewModel.scenario);
+							DSS.dialogs.firstScenarioPopup.show().center().setY(100);	
+							
 						}
 					}],
 				}]

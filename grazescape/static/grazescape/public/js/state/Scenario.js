@@ -432,10 +432,8 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.field_shapes.GeoJSONFieldUpload',
 		'DSS.state.scenario.CostsDialog'
 	],
-	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
 	cls: 'section',
-
 	statics: {
 		get: function() {
 			let def = {
@@ -445,7 +443,6 @@ Ext.define('DSS.state.Scenario', {
 			return def;
 		}
 	},
-	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
@@ -454,7 +451,6 @@ Ext.define('DSS.state.Scenario', {
 			console.log("cost dialog destroyed")
 		}
 		//DSS.MapState.hideFieldsandInfra()
-
 		Ext.applyIf(me, {
 			defaults: {
 				margin: '1rem',
@@ -518,7 +514,7 @@ Ext.define('DSS.state.Scenario', {
 				{//------------------------------------------
 					xtype: 'component',
 					cls: 'information',
-					html: 'Draw or Delete Fields<br>and Infrastructure'
+					html: 'Draw or Delete Features'
 				},
 				{
 					xtype: 'button',
@@ -1081,7 +1077,28 @@ Ext.define('DSS.state.Scenario', {
 						// DSS.layer.yieldGroup.values_.layers.array_ = [];
 						// DSS.layer.runoffGroup.values_.layers.array_ = [];
 				 	}
-				 }
+				 },
+				 {
+					xtype: 'component',
+					cls: 'information',
+					html: 'Create a New Scenario'
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					toggleGroup: 'create-scenario',
+					//id: 'dupCurScen',
+					//disabled: true,
+					//padding: 1,
+					//margin: '4 2 2 4',
+					//componentCls: 'button-margin-large',
+					text: 'Create New Scenario',
+					handler: function(self) {
+						DSS.dialogs.NewScenPickWindow = Ext.create('DSS.state.NewScenPickWindow'); 				
+						DSS.dialogs.NewScenPickWindow.show().center().setY(100);
+					}
+				},
 				]
 			}]
 		});

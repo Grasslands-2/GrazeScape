@@ -213,46 +213,6 @@ class GeoServer{
             DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
             DSS.dialogs.ScenarioPicker.show().center().setY(100);
             DSS.MapState.showNewFarm();
-            //DSS.ApplicationFlow.instance.showManageOperationPage();
-            //DSS.ApplicationFlow.instance.showScenarioPage();
-
-            // var formatWFS = new ol.format.WFS();
-            // var formatGML = new ol.format.GML({
-            //     featureNS: 'http://geoserver.org/GrazeScape_Vector',
-            //     featureType: 'scenarios_2',
-            //     srsName: 'EPSG:3857'
-            // });
-            // feat.setProperties({farm_id:DSS.activeFarm})
-            // console.log(feat)
-
-            // node = formatWFS.writeTransaction([feat], null, null, formatGML);
-            // console.log(node);
-            // s = new XMLSerializer();
-            // str = s.serializeToString(node);
-            // console.log(str);
-            // //geoServer.insertFarm(str, feat,fType)
-            // geoServer.makeRequest(geoServer.geoUpdate_Url, "insert_farm", str, this).then(function(returnData){
-            //     var scenGeojsonString = String(returnData.geojson)
-            //     var sgid = scenGeojsonString.substring(scenGeojsonString.indexOf('scenarios_2.') + 12,scenGeojsonString.lastIndexOf('"/>'));
-            //     console.log(intSgid);
-            //     var intSgid = parseInt(sgid);
-            //     console.log(intSgid);
-            //     DSS.activeScenario = sgid
-            //     DSS.MapState.showNewFarm(DSS.activeFarm);
-            //     gatherScenarioTableData();
-            //     runScenarioUpdate();
-            //     DSS.ApplicationFlow.instance.showScenarioPage();
-            //     showInfraForScenario()
-            //     showFieldsForScenario()
-            //     // DSS.MapState.showFieldsForFarm();
-            //     // DSS.MapState.showInfrasForFarm();
-            //     // DSS.layer.fields_1.setVisible(true);
-		    //     // DSS.layer.infrastructure.setVisible(true);
-		    //     // DSS.layer.fieldsLabels.setVisible(true);
-		    //     //console.log("HI! WFS farm Insert ran!")
-            // })
-
-           
         })
     }
 // used to insert fields into geoserver

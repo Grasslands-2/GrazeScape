@@ -303,10 +303,10 @@ Ext.define('DSS.results.YieldAdjustment', {
 				display: 'Continuous Corn'
 			},{ 
 				value: 'cg',
-				display: 'Cash Grain (cg/sb)'
+				display: 'Cash Grain (corn/soy)'
 			},{ 
 				value: 'dr',
-				display: 'Corn Silage to Corn Grain to Alfalfa(3x)'
+				display: 'Corn Silage to Corn Grain to Alfalfa 3 yrs'
 			},{ 
 				value: 'cso',
 				display: 'Corn Silage to Soybeans to Oats'
