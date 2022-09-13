@@ -1678,18 +1678,75 @@ function printSummary(){
 //            unit:'px',
 //            format:'a4'
 //        });;
+fieldTotals = 0
     setTimeout(() => {
-
+        noChartDataList = []
+        chartObjList = Object.keys(chartObj)
+        console.log(chartObjList)
+        for(i in chartObj){
+            if(i.includes("_field")){
+                fieldTotals = 0
+                fieldDataSets = chartObj[i].chartData.datasets
+                console.log(fieldDataSets)
+                if(fieldDataSets == 'undefined'){
+                    console.log(i)
+                    continue
+                }
+                for(f in fieldDataSets){
+                    console.log(fieldDataSets[f].fieldData)
+                    if(fieldDataSets[f].fieldData === null){
+                        fieldTotals += 1
+                        console.log(fieldTotals)
+                    }
+                }
+                if(fieldTotals == fieldDataSets.length){
+                    console.log("HIT NO CHART DATA!")
+                    console.log(i)
+                    noChartDataList.push(i)
+                    //chartPresent = false
+                }
+            }
+            if(i.includes("_farm")){
+                farmTotals = 0
+                farmDataSets = chartObj[i].chartData.datasets
+                console.log(farmDataSets)
+                if(farmDataSets == 'undefined'){
+                    console.log(i)
+                    continue
+                }
+                for(f in farmDataSets){
+                    farmDataArray = farmDataSets[f].data
+                    console.log(farmDataArray)
+                    for(fd in farmDataArray){
+                        if(farmDataArray[fd] === null){
+                            farmTotals += 1
+                            console.log(farmTotals)
+                        }
+                    }
+                }
+                if(farmTotals == farmDataArray.length){
+                    console.log("HIT NO CHART DATA!")
+                    console.log(i)
+                    noChartDataList.push(i)
+                    //chartPresent = false
+                }
+            }
+        }
+        
         for (chart in chartList){
-            console.log(chart)
+            chartPresent = true
             canvas = document.getElementById(chartList[chart])
             console.log(canvas)
             if(canvas == null){
                 continue
             }
+            if(noChartDataList.includes(canvas.id)){
+                continue
+            }
 //            if(chartList[chart]) == ""){
 //                continue
 //            }
+            fieldTotals = 0
             var newCanvas = canvas.cloneNode(true);
             var ctx = newCanvas.getContext('2d');
             ctx.fillStyle = "#FFF";
@@ -1699,6 +1756,7 @@ function printSummary(){
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
             pdf.addImage(imgData, 'JPEG', 1,1,8,6);
             pdf.addPage("letter",'landscape')
+            
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
     }, 1000);

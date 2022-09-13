@@ -550,8 +550,8 @@ def insert_json_coords(scenario_id,farm_id,file_data):
     field_name = "(imported field)"
     rotation = "cc"
     rotation_disp = "Continuous Corn"
-    rotational_freq_val = 1
-    rotational_freq_disp = "Once a day"
+    rotational_freq_val = 0.65
+    rotational_freq_disp = 'Continuous'
     grazingdensityval = "lo"
     grazingdensitydisp = "low"
     spread_confined_manure_on_pastures = False
@@ -632,8 +632,8 @@ def insert_shpfile_coords(scenario_id,farm_id,file_data):
     field_name = "(imported field)"
     rotation = "cc"
     rotation_disp = "Continuous Corn"
-    rotational_freq_val = 1
-    rotational_freq_disp = "Once a day"
+    rotational_freq_val = 0.65
+    rotational_freq_disp = 'Continuous'
     grazingdensityval = "lo"
     grazingdensitydisp = "low"
     spread_confined_manure_on_pastures = False

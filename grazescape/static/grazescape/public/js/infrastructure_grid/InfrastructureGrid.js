@@ -268,7 +268,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			editor: 'textfield', text: 'Label', dataIndex: 'name', width: 120, 
 			locked: true, draggable: false, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-
+			tooltip: '<b>Infra Name:</b> Can be editted.',
 		};
 		//------------------------------------------------------------------------------
 		let infraTypeColumn = {
@@ -276,6 +276,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			editor: {}, // workaround for exception
 			text: 'Infrastructure Type', dataIndex: 'infraTypeDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Infra Type:</b> Edit what class of infrastructure you have placed.',
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
@@ -351,6 +352,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			editor: {}, // workaround for exception
 			text: 'Fence Material', dataIndex: 'fenceMaterialDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Fence Material:</b> Whats the fencing material for this fence.',
 			exportable: true, exportConverter: function(self){
 				console.log(self)
 				return self
@@ -440,6 +442,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			editor: {}, // workaround for exception
 			text: 'Water Pipe Type', dataIndex: 'waterPipeDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Water Pipe Type:</b> What kind of water pipe is this.',
 			exportable: true, exportConverter: function(self){
 				console.log(self)
 				return self
@@ -523,6 +526,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			editor: {}, // workaround for exception
 			text: 'Lane Line Material', dataIndex: 'laneMaterialDisp', width: 200, 
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			tooltip: '<b>Lane Line Material:</b> What material is this lane made out of.',
 			exportable: true, exportConverter: function(self){
 				console.log(self)
 				return self
@@ -596,7 +600,6 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 						me.getView().refresh();
 						me.getSelectionModel().deselectAll();
 					}
-					console.log("End of Rot Crop change event")
 				}
 			}
 		};
@@ -604,14 +607,16 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		let widthColumn = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
-			}, text: 'Lane<br>Width [ft]', dataIndex: 'laneWidth', width: 80,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			}, text: 'Lane Width (ft)', dataIndex: 'laneWidth', width: 120,
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			tooltip: '<b>Lane Width:</b> How wide is this lane?  This will be used to calculate the total cost of the lane.',
 		};
 		let lengthColumn = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
 			}, text: 'Length [ft]', dataIndex: 'infraLength', width: 80,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			tooltip: '<b>Infrastructure Length:</b> Used in cost calculation.',
 		};
 		//------------------------------------------------------------------------------
 		let costPerFootColumn = {
@@ -650,6 +655,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			    },
 			    text: 'Cost Per<br>Foot', dataIndex: 'costPerFoot', width: 90,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			tooltip: '<b>Cost per Square foot of lane material:</b> Based on Material choosen, can be editted.',
 
 		};
 		//------------------------------------------------------------------------------
@@ -666,7 +672,8 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				}
 				}
 			}, text: 'Total<br>Cost', dataIndex: 'totalCost', width: 80, formatter: 'usMoney',
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			tooltip: '<b>Total Cost of Infrastructure:</b> Calculated based on length and material of infrastructure.',
 		};
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
