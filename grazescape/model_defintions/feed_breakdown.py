@@ -1,3 +1,8 @@
+#09082022  Make sure all outputs are in tons of dry matter.  Try to bring the data in from
+#views.py and crop_yield
+
+
+
 import os
 import sys
 import csv

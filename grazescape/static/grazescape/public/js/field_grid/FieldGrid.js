@@ -1,4 +1,3 @@
-
 var selectedFields = []
 var rotfreqcount = 0
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
@@ -536,7 +535,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		let landCost_Column = {
 			xtype: 'numbercolumn', format: '0.0',editor: {
 				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5,
-				
 				listeners:{
 					change: function(field,newValue,oldValue,record){
 							console.log(selectedFields)
@@ -563,9 +561,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						}
 					}
 				}
-			}, text: 'Land Cost ($/ac)', dataIndex: 'landCost', width: 110,
+			}, text: 'Land Cost ($/ac)', dataIndex: 'landCost', width: 120,
 			tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			formatter: 'usMoney',
 		};
 		//------------------------------------------------------------------------------
 		let soilOM_Column = {
@@ -599,7 +598,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							//view.refresh()
 					}
 				}
-			}, text: 'Soil-OM (%)', dataIndex: 'soilOM', width: 90, 
+			}, text: 'Soil-OM (%)', dataIndex: 'soilOM', width: 100, 
 			tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		};
@@ -986,6 +985,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				else{
 					widget.setDisabled(false);
 				}
+				var alignVals = widget.getAlignToXY(widget)
+				widget.setX(alignVals[0] + 13)
+				//console.log(widget.getAlignToXY(widget))
+				//console.log(widget.getAlignToXY(col))
 			},
 			exportable: true, exportConverter: function(self){
 				console.log(self)
@@ -1589,7 +1592,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		// 	hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
 		// };
 		let interseededCloverColumn = {
-			xtype: 'widgetcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 100, editor:{},
+			xtype: 'widgetcolumn', text: 'Interseeded Legume', dataIndex: 'interseededClover', width: 145, editor:{},
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
 			onWidgetAttach: function(col,widget,rec) {
 				if (rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
@@ -1606,6 +1609,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				else{
 					widget.setDisabled(false);
 				}
+				var alignVals = widget.getAlignToXY(widget)
+				widget.setX(alignVals[0] + 25)
 			},
 			exportable: true, exportConverter: function(self){
 				console.log(self)
@@ -1630,7 +1635,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					//me.getView().refresh();
 				}
 			}
-			}
+			},
+			tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
 		};
 		//------------------------------------------------------------------------------
 		let grazeDensityColumn = {
@@ -1781,7 +1787,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				//grazeBeefCattleColumn,
 				grassSpeciesColumn,
 				rotationalFreqColumn,
-				//interseededCloverColumn,
+				interseededCloverColumn,
 				//manurePasturesColumn,
 				grazeDensityColumn,
 				//perimeter_Column
@@ -1842,6 +1848,3 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		})
 	},
 });
-
-
-
