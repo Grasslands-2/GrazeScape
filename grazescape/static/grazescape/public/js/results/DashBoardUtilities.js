@@ -920,7 +920,7 @@ function farmAccMapping(inputString){
      'dl':'Dry Lot',
      'cc':'Continuous Corn',
      'cg':'Cash Grain',
-     'dr':'Corn Silage to Corn Grain to Alfalfa(3x)',
+     'dr':'Corn Silage to Corn Grain to Alfalfa 3 yrs',
      'cso':'Corn Silage to Soybeans to Oats'
      }
      return mapping[inputString]
@@ -1647,6 +1647,12 @@ function retrieveAllFieldsDataGeoserver(){
 //runs the print summary in the dashboard
 function printSummary(){
     var pdf = new jsPDF();
+    pdf.setFontSize(22);
+    pdf.text(20, 20, 'This is a title');
+
+    pdf.setFontSize(16);
+    pdf.text(20, 30, 'This is some normal sized text underneath.');
+    pdf.addPage("letter",'landscape')
     let activeTab = Ext.getCmp("mainTab").getActiveTab()
     scenName = chartDatasetContainer.getScenName(DSS.activeScenario)
     let mainTabLength = Ext.getCmp("mainTab").items.length
@@ -1672,16 +1678,75 @@ function printSummary(){
 //            unit:'px',
 //            format:'a4'
 //        });;
+fieldTotals = 0
     setTimeout(() => {
+        noChartDataList = []
+        chartObjList = Object.keys(chartObj)
+        console.log(chartObjList)
+        for(i in chartObj){
+            if(i.includes("_field")){
+                fieldTotals = 0
+                fieldDataSets = chartObj[i].chartData.datasets
+                console.log(fieldDataSets)
+                if(fieldDataSets == 'undefined'){
+                    console.log(i)
+                    continue
+                }
+                for(f in fieldDataSets){
+                    console.log(fieldDataSets[f].fieldData)
+                    if(fieldDataSets[f].fieldData === null){
+                        fieldTotals += 1
+                        console.log(fieldTotals)
+                    }
+                }
+                if(fieldTotals == fieldDataSets.length){
+                    console.log("HIT NO CHART DATA!")
+                    console.log(i)
+                    noChartDataList.push(i)
+                    //chartPresent = false
+                }
+            }
+            if(i.includes("_farm")){
+                farmTotals = 0
+                farmDataSets = chartObj[i].chartData.datasets
+                console.log(farmDataSets)
+                if(farmDataSets == 'undefined'){
+                    console.log(i)
+                    continue
+                }
+                for(f in farmDataSets){
+                    farmDataArray = farmDataSets[f].data
+                    console.log(farmDataArray)
+                    for(fd in farmDataArray){
+                        if(farmDataArray[fd] === null){
+                            farmTotals += 1
+                            console.log(farmTotals)
+                        }
+                    }
+                }
+                if(farmTotals == farmDataArray.length){
+                    console.log("HIT NO CHART DATA!")
+                    console.log(i)
+                    noChartDataList.push(i)
+                    //chartPresent = false
+                }
+            }
+        }
+        
         for (chart in chartList){
+            chartPresent = true
             canvas = document.getElementById(chartList[chart])
             console.log(canvas)
             if(canvas == null){
                 continue
             }
+            if(noChartDataList.includes(canvas.id)){
+                continue
+            }
 //            if(chartList[chart]) == ""){
 //                continue
 //            }
+            fieldTotals = 0
             var newCanvas = canvas.cloneNode(true);
             var ctx = newCanvas.getContext('2d');
             ctx.fillStyle = "#FFF";
@@ -1689,8 +1754,9 @@ function printSummary(){
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
-            pdf.addImage(imgData, 'JPEG', 0, 0,8, 4.4);
-            pdf.addPage(imgData,'landscape')
+            pdf.addImage(imgData, 'JPEG', 1,1,8,6);
+            pdf.addPage("letter",'landscape')
+            
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
     }, 1000);

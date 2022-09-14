@@ -77,29 +77,23 @@ def upload_file(request):
         print("farm_id: " + farm_id)
         #data = ContentFile(base64.b64decode(file), name= file.name)
         #FileModel.objects.create(doc=data)
+
+        #enumeartes the incoming shpfiles file titles.
         for count, file in enumerate(files):
             FileModel.objects.create(doc=request.FILES.get("shapefile"+str(count+1)))
-        #FileModel.objects.create(doc=file1)
-       
-        #outside_shpfile_coord_pull(filename,scenario_id,farm_id)
-       
-        #print(data)
-        #return JsonResponse({"link": data})
-        # FileModel.objects.create(doc=file)
-        # print(file)
 
         filename_fixed = filename[:-3] + 'shx'
         print("IN COORD PULL SHAPEFILE!!!!!!")
         print(filename_fixed)
         print(scenario_id)
         print(farm_id)
-        #try:
         shp_file_name = os.path.join(settings.BASE_DIR,'media','media',filename_fixed)
+        #opens uploaded shapefile using GDAL module fiona
         shape = fiona.open(shp_file_name)
-        print("FIONA SCHEMA!!!!!!")
-        #print(shape.schema)
+        #pulls out coordinates from shapefile fiona read
         coords = [np.array(poly['geometry']['coordinates'])
                     for poly in shape.values()]
+        #sends coords to the backend insert function in db_connect.py
         insert_shpfile_coords(scenario_id,farm_id,coords)
         return JsonResponse({"Insert":"Upload Complete upload_file"})
         
@@ -325,6 +319,7 @@ def outside_geojson_coord_pull(request):
     farm_id = request.POST.get("farm_id")
     file_data = request.POST.get("file_data")
     print(file_data)
+    #Sends data to the insert json coords function in db_connect.py
     insert_json_coords(scenario_id,farm_id,file_data)
     return JsonResponse({"Insert":"Complete outside_geojson_coord_pull"})
 
@@ -855,47 +850,47 @@ def adjust_field_yields(yield_data):
     if data.get("crop_ro") == 'cg': #corn, soy
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
-        corn_yield_kgDMha = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
+        corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
-        soy_yield_kgDMha = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
+        soy_yield_tonDMac = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-        rotation_avg_cg = 0.5 * corn_yield_kgDMha + 0.5 * soy_yield_kgDMha
+        rotation_avg_cg = 0.5 * corn_yield_tonDMac + 0.5 * soy_yield_tonDMac
         data2['sum_cells'] =str(rotation_avg_cg)
         data2['value_type'] = 'Rotational Average'
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
     if data.get("crop_ro") == 'dr': #corn, silage, alfalfa
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
-        corn_yield_kgDMha = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
+        corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
-        silage_yield_kgDMha = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
+        silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][2])
         data2['sum_cells'] = str(data['sum_cells'][2])
-        alfalfa_yield_kgDMha = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
+        alfalfa_yield_tonDMac = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-        rotation_avg_dr = 1 / 5 * silage_yield_kgDMha + 1 / 5 * corn_yield_kgDMha + 3 / 5 * alfalfa_yield_kgDMha
+        rotation_avg_dr = 1 / 5 * silage_yield_tonDMac + 1 / 5 * corn_yield_tonDMac + 3 / 5 * alfalfa_yield_tonDMac
         data2['sum_cells'] =str(rotation_avg_dr)
         data2['value_type'] = 'Rotational Average'
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
     if data.get("crop_ro") == 'cso': #soy, silage, oats
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
-        soy_yield_kgDMha = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
+        soy_yield_tonDMac = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
-        silage_yield_kgDMha = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
+        silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][2])
         data2['sum_cells'] = str(data['sum_cells'][2])
-        oat_yield_kgDMha = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
+        oat_yield_tonDMac = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-        rotation_avg_cso = 1 / 3 * silage_yield_kgDMha + 1 / 3 * soy_yield_kgDMha + 1 / 3 * oat_yield_kgDMha
+        rotation_avg_cso = 1 / 3 * silage_yield_tonDMac + 1 / 3 * soy_yield_tonDMac + 1 / 3 * oat_yield_tonDMac
         data2['sum_cells'] =str(rotation_avg_cso)
         data2['value_type'] = 'Rotational Average'
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)

@@ -220,7 +220,7 @@ function gatherYieldTableData() {
             break;
             case 'cg': fieldYieldArray[i].rotationDisp = 'Cash Grain'
             break;
-            case 'dr': fieldYieldArray[i].rotationDisp = 'Silage/Corn/Alfalfa(3x)'
+            case 'dr': fieldYieldArray[i].rotationDisp = 'Silage/Corn/Alfalfa 3 yrs'
             break;
             case 'cso': fieldYieldArray[i].rotationDisp = 'Silage/Soy Beans/Oats'
             break;
@@ -1931,7 +1931,122 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         style: 'padding:10px; ',
                         border:0,
                     },
-                    items:[{
+                    items:[
+                        {
+                            title: "Yield",
+                            xtype: 'panel',
+                            width: chart_width,
+                            collapsible: true,
+                            items:[,
+                            {
+                             id: 'checkYieldSummary',
+                               xtype: 'checkboxgroup',
+                                layout: {
+                                    type: 'table',
+                                    // The total column count must be specified here
+                                    columns: 2
+                                },
+                                // listeners:{change: function(box, newVal, oldVal, e) {
+                                //     populateRadarChart()
+                                // }},
+                                items:compCheckBoxes.yieldVar
+                            }]
+                        },
+                        {
+                            title: "Erosion",
+                            xtype: 'panel',
+                            width: chart_width,
+                            collapsible: true,
+                            scrollable: true,
+                            items:[{
+                                  id: 'checkErosionSummary',
+                          xtype: 'checkboxgroup',
+                                layout: {
+                                    type: 'table',
+                                    // The total column count must be specified here
+                                    columns: 2
+                                },
+                                listeners:{change: function(box, newVal, oldVal, e) {
+                                    populateRadarChart()
+                                }},
+                                items:compCheckBoxes.erosionVar
+                            }]
+                        },{
+                            title: "Nutrients",
+                            xtype: 'panel',
+                            width: chart_width,
+                            scrollable: true,
+                            collapsible: true,
+                            items:[{
+                                xtype: 'checkboxgroup',
+                             id: 'checkNutrientsSummary',
+                               layout: {
+                                    type: 'table',
+                                    // The total column count must be specified here
+                                    columns: 2
+                                },
+                                listeners:{change: function(box, newVal, oldVal, e) {
+                                    populateRadarChart()
+                                }},
+                                items:compCheckBoxes.nutrientsVar
+                            }]
+                        },{
+                            title: "Runoff",
+                            xtype: 'panel',
+                            width: chart_width,
+                            collapsible: true,
+                            items:[{
+                                xtype: 'checkboxgroup',
+                             id: 'checkRunoffSummary',
+                               layout: {
+                                    type: 'table',
+                                    // The total column count must be specified here
+                                    columns: 1
+                                },
+                                listeners:{change: function(box, newVal, oldVal, e) {
+                                    populateRadarChart()
+                                }},
+                                items:compCheckBoxes.runoffVar
+                            }]
+                        },{
+                            title: "Insecticide",
+                            xtype: 'panel',
+                            width: chart_width,
+                            collapsible: true,
+                            items:[{
+                              id: 'checkInsecticideSummary',
+                              xtype: 'checkboxgroup',
+                                layout: {
+                                    type: 'table',
+                                    // The total column count must be specified here
+                                    columns: 1
+                                },
+                                listeners:{change: function(box, newVal, oldVal, e) {
+                                    populateRadarChart()
+                                }},
+                                items:compCheckBoxes.insectVar
+                            }]
+                        },
+                        {
+                            title: "Production Costs",
+                            xtype: 'panel',
+                            width: chart_width,
+                            collapsible: true,
+                            items:[{
+                              id: 'checkCostsSummary',
+                              xtype: 'checkboxgroup',
+                                layout: {
+                                    type: 'table',
+                                    // The total column count must be specified here
+                                    columns: 1
+                                },
+                                listeners:{change: function(box, newVal, oldVal, e) {
+                                    console.log(box, newVal, oldVal, e)
+                                }},
+                                items:compCheckBoxes.costVar
+                            }]
+                        },
+                    {
                         xtype: 'button',
                         text: 'Download Summary Report',
                         id: 'downloadSummaryBtn',

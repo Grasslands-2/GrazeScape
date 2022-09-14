@@ -19,8 +19,8 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 	tillageDisp='';
 	grassDisp='Low Yielding';
 	grassVal='Bluegrass-clover';
-	rotationFreqVal = 1;
-	rotationFreqdisp = 'Once a day';
+	rotationFreqVal = 0.65;
+	rotationFreqdisp = 'Continuous',
 	grazeDensityVal = 'lo',
 	grazeDensityDisp = 'low'
 	//--------------------Setting Display Values------------------
@@ -28,8 +28,8 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 		cropDisp ='Continuous Pasture';
 		grassDisp='Low Yielding';
 		grassVal='Bluegrass-clover';
-		rotationFreqVal = 1
-		rotationFreqdisp = 'Once a day',
+		rotationFreqVal = 0.65;
+		rotationFreqdisp = 'Continuous',
 		grazeDensityVal = 'lo',
 		grazeDensityDisp = 'low'
 
@@ -39,8 +39,8 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 		grassDisp='Bluegrass-clover';
 		grassVal='Bluegrass';
 
-		rotationFreqVal = 1;
-		rotationFreqdisp = 'Once a day';
+		rotationFreqVal = 0.65;
+		rotationFreqdisp = 'Continuous';
 	}
 	else if(crop=='ps'){
 		cropDisp ='New Pasture'}
@@ -49,9 +49,9 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 	else if(crop=='cc'){
 		cropDisp ='Continuous Corn'}
 	else if(crop=='cg'){
-		cropDisp ='Cash Grain (cg/sb)'}
+		cropDisp ='Cash Grain (corn/soy)'}
 	else if(crop=='dr'){
-		cropDisp ='Corn Silage to Corn Grain to Alfalfa(3x)'}
+		cropDisp ='Corn Silage to Corn Grain to Alfalfa 3 yrs'}
 	else if(crop=='cso'){
 		cropDisp ='Corn Silage to Soybeans to Oats'}
 

@@ -598,7 +598,7 @@ class OLMapFragment extends React.Component {
         });
         this.uplands = new VectorLayer({
             renderMode: 'image',
-            name: "uplands",
+            name: "Driftless",
             source:new VectorSource({
                 url: static_global_folder + 'smartscape/gis/LearningHubs/uplandsWI.geojson',
                 format: new GeoJSON(),
@@ -687,7 +687,7 @@ class OLMapFragment extends React.Component {
                     layer.get('name') == "southWest"||
                     layer.get('name') == "cloverBelt"||
                     layer.get('name') == "northEast"||
-                    layer.get('name') == "uplands"){
+                    layer.get('name') == "Driftless"){
                     return true
                 }
 //                console.log(layer)

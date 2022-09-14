@@ -42,6 +42,7 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.infra_shapes.SplitLine',
 		'DSS.infra_shapes.JoinLine',
 		'DSS.infra_shapes.DeleteLine',
+		//'DSS.view.exporter',
 		
 //		'DSS.state.scenario.PerimeterDialog',
 		//'DSS.field_shapes.ModelRunning',

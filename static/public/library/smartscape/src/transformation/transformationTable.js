@@ -400,7 +400,7 @@ class TransformationTable extends Component {
                       <option value="pasture">Pasture</option>
                       <option value="contCorn">Continuous Corn</option>
                       <option value="cornGrain">Cash Grain</option>
-                      <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa(3x))</option>
+                      <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa 3 yrs)</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
 
