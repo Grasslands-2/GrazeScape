@@ -826,6 +826,7 @@ class SmartScape:
                 base_watershed_bird_sum = base_watershed_bird_sum + val
             bird_counter = bird_counter + 1
         print("done with cython ", time.time() - start)
+        print("base watershed sum", base_watershed_bird_sum)
         # model_data_gross[layer]["base_watershed"]["bird"] = model_data_gross[layer]["base_watershed"][
         #                                                         "bird"] / total_cells
 
@@ -951,7 +952,6 @@ class SmartScape:
             base_data_watershed["econ"] = np.where(base_data_watershed["econ"] == land_type,
                                                    watershed_total[land_type]["econ"],
                                                    base_data_watershed["econ"])
-
             base_data_watershed["runoff"] = self.get_runoff_vectorized(base_data_watershed["cn"], 3)
 
         model_data_watershed = {
@@ -988,47 +988,7 @@ class SmartScape:
                 np.logical_or(base_data_watershed[model] == self.no_data, base_data_watershed[model] < 0),
                 0, base_data_watershed[model])
         print(model_data_gross)
-        # self.create_tif(base_data_watershed["runoff"], watershed_land_use_image, "zzzbase_watershed_runoff")
-        # self.create_tif(model_data_watershed["runoff"], watershed_land_use_image, "zzzmodel_watershed_runoff")
-        # self.create_tif(base_data_watershed["cn"], watershed_land_use_image, "zzzbase_watershed_cn")
-        # self.create_tif(model_data_watershed["cn"], watershed_land_use_image, "zzzmodel_watershed_cn")
-        # self.create_tif(model_data["runoff"], watershed_land_use_image, "zzzmodel_runoff")
-        # self.create_tif(model_data["cn"], watershed_land_use_image, "zzzmodel_cn")
-        # self.create_tif(model_data["insect"], watershed_land_use_image, "zzzmodel_insect")
-        # self.create_tif(sum_base_insect["insect"], watershed_land_use_image, "zzzbase_insect")
 
-        # # we are setting models less than zero to zero (effects mostly ero and ploss)
-        # # this needs to come after whole watershed calcs so that we can capture no data cells
-        # model = np.where(
-        #     np.logical_or(model_data["yield"] == self.no_data, model_data["yield"] < 0),
-        #     0, (model_data["yield"]))
-        # sum_model_yield = np.sum(model)
-        # model = np.where(
-        #     np.logical_or(model_data["ero"] == self.no_data, model_data["ero"] < 0),
-        #     0, (model_data["ero"]))
-        # sum_model_ero = np.sum(model)
-        # model = np.where(
-        #     np.logical_or(model_data["ploss"] == self.no_data, model_data["ploss"] < 0),
-        #     0, (model_data["ploss"]))
-        # sum_model_ploss = np.sum(model)
-        # model = np.where(
-        #     np.logical_or(model_data["cn"] == self.no_data, model_data["cn"] < 0),
-        #     0, (model_data["cn"]))
-        # sum_model_cn = np.sum(model)
-        # model = np.where(
-        #     np.logical_or(model_data["runoff"] == self.no_data, model_data["runoff"] < 0),
-        #     0, (model_data["runoff"]))
-        # sum_model_runoff = np.sum(model)
-        # model = np.where(
-        #     np.logical_or(model_data["insect"] == self.no_data, model_data["insect"] < 0),
-        #     0, (model_data["insect"]))
-        # sum_model_insect = np.sum(model)
-        # model = np.where(
-        #     np.logical_or(model_data["econ"] == self.no_data, model_data["econ"] < 0),
-        #     0, (model_data["econ"]))
-        # sum_model_econ = np.sum(model)
-        # print(np.sum(model_data_watershed["cn"]))
-        # print(np.sum(sum_model_cn))
 
         area_selected = area_selected_total * mm_to_ac
         area_watershed = aoi_area_total * mm_to_ac
@@ -1051,12 +1011,20 @@ class SmartScape:
         sum_model_insect_watershed = 0
         sum_model_econ_watershed = 0
         sum_model_bird_watershed = 0
+
+        layer_count = 0
+        trans_adoption_total = 0
+        base_adoption_total = 0
         for trans_layer in model_data_gross:
+            layer_count = layer_count + 1
             print(trans_layer)
             # print(trans)
             tran = trans[str(trans_layer)]
             trans_adpotion = int(tran["selection"]["adoptionRate"]) / 100
             base_adpotion = 1 - trans_adpotion
+            trans_adoption_total = trans_adoption_total + trans_adpotion
+            base_adoption_total = base_adoption_total + base_adpotion
+
             print("adoption rate ", trans_adpotion)
             print("base adoption rate ", base_adpotion)
 
@@ -1068,8 +1036,7 @@ class SmartScape:
             sum_model_insect = sum_model_insect + (model_data_gross[trans_layer]["selection"]["insect"] * trans_adpotion + model_data_gross[trans_layer]["base"]["insect"] * base_adpotion)
             sum_model_econ = sum_model_econ + (model_data_gross[trans_layer]["selection"]["econ"] * trans_adpotion + model_data_gross[trans_layer]["base"]["econ"] * base_adpotion)
             sum_model_bird = sum_model_bird + (model_data_gross[trans_layer]["selection"]["bird"] * trans_adpotion + model_data_gross[trans_layer]["base"]["bird"] * base_adpotion)
-            print(model_data_gross[trans_layer]["selection"]["bird"])
-            print(model_data_gross[trans_layer]["base"]["bird"])
+
             # These are really just the base scenario values with zero values where the model results will go
             sum_model_yield_watershed = sum_model_yield_watershed + \
                                         model_data_gross[trans_layer]["selection_watershed"]["yield"]
@@ -1084,9 +1051,8 @@ class SmartScape:
                                          model_data_gross[trans_layer]["selection_watershed"]["insect"]
             sum_model_econ_watershed = sum_model_econ_watershed + model_data_gross[trans_layer]["selection_watershed"][
                 "econ"]
-            sum_model_bird_watershed = sum_model_bird_watershed + model_data_gross[trans_layer]["selection_watershed"][
-                "bird"]
-        print("model yield sum ", sum_model_yield)
+            # sum_model_bird_watershed = sum_model_bird_watershed + model_data_gross[trans_layer]["selection_watershed"][
+            #     "bird"]
         sum_model_yield_watershed = sum_model_yield_watershed + sum_model_yield
         sum_model_ero_watershed = sum_model_ero_watershed + sum_model_ero
         sum_model_ploss_watershed = sum_model_ploss_watershed + sum_model_ploss
@@ -1094,10 +1060,13 @@ class SmartScape:
         sum_model_runoff_watershed = sum_model_runoff_watershed + sum_model_runoff
         sum_model_insect_watershed = sum_model_insect_watershed + sum_model_insect
         sum_model_econ_watershed = sum_model_econ_watershed + sum_model_econ
-        print(sum_model_bird_watershed)
-        print(model_data_gross[1]["base_watershed"]["bird"])
-        sum_model_bird_watershed = sum_model_bird_watershed + model_data_gross[1]["base_watershed"]["bird"] + sum_model_bird
-
+        # the base bird value for the watershed is different then the model bird value for the watershed
+        # base_watershed_bird_sum_base_value
+        sum_model_bird_watershed = sum_model_bird_watershed + model_data_gross[1]["base_watershed"]["bird"] * (trans_adoption_total/layer_count) + base_watershed_bird_sum_base_value * (base_adoption_total/layer_count) + sum_model_bird
+        print("bird model outputs")
+        print(model_data_gross[1]["base_watershed"]["bird"],trans_adoption_total/layer_count)
+        print(base_watershed_bird_sum_base_value,base_adoption_total/layer_count)
+        print(sum_model_bird)
         print(sum_model_bird_watershed)
 
         # sum_base_yield =sum_base_yield
@@ -1153,10 +1122,10 @@ class SmartScape:
                         "units": "Erosion (tons/year)"
                         },
                 "econ": {
-                    "total": "{:,.2f}".format(base_econ * area_selected),
-                    "total_per_area": str("%.2f" % base_econ),
-                    "total_watershed": "{:,.2f}".format(base_econ_water * area_watershed),
-                    "total_per_area_watershed": str("%.2f" % base_econ_water),
+                    "total": "{:,.0f}".format(base_econ * area_selected),
+                    "total_per_area": str("%.0f" % base_econ),
+                    "total_watershed": "{:,.0f}".format(base_econ_water * area_watershed),
+                    "total_per_area_watershed": str("%.0f" % base_econ_water),
                     "units": ""
                 },
                 "yield": {"total": "{:,.2f}".format(sum_base_yield / selected_cells * area_selected),
@@ -1213,10 +1182,10 @@ class SmartScape:
                     "units": "Erosion (tons/year)"
                 },
                 "econ": {
-                    "total": "{:,.2f}".format(model_econ * area_selected),
-                    "total_per_area": str("%.2f" % model_econ),
-                    "total_watershed": "{:,.2f}".format(model_econ_water * area_watershed),
-                    "total_per_area_watershed": str("%.2f" % model_econ_water),
+                    "total": "{:,.0f}".format(model_econ * area_selected),
+                    "total_per_area": str("%.0f" % model_econ),
+                    "total_watershed": "{:,.0f}".format(model_econ_water * area_watershed),
+                    "total_per_area_watershed": str("%.0f" % model_econ_water),
                     "units": "Erosion (tons/year)"
                 },
                 "yield": {
@@ -1400,11 +1369,9 @@ class SmartScape:
                                       "grazed_P2O5_lbs": 0},
                          "drccnana": {"Pneeds": 49, "Nneeds": 52, "grazed_DM_lbs": 0,
                                       "grazed_P2O5_lbs": 0},
-                         "csogcdsnana": {"Pneeds": 46.67, "Nneeds": 60,
-                                         "grazed_DM_lbs": 64.8,
+                         "csogcdsnana": {"Pneeds": 46.67, "Nneeds": 60,"grazed_DM_lbs": 64.8,
                                          "grazed_P2O5_lbs": 0.81},
-                         "csogcisnana": {"Pneeds": 46.67, "Nneeds": 60,
-                                         "grazed_DM_lbs": 64.8,
+                         "csogcisnana": {"Pneeds": 46.67, "Nneeds": 60,"grazed_DM_lbs": 64.8,
                                          "grazed_P2O5_lbs": 0.81},
                          "csoncnana": {"Pneeds": 46.67, "Nneeds": 60, "grazed_DM_lbs": 0,
                                        "grazed_P2O5_lbs": 0},

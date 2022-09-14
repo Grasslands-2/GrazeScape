@@ -64,6 +64,8 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import ReactSpeedometer from "react-d3-speedometer"
+import ZingChart from 'zingchart-react';
+import "zingchart/es6";
 const mapStateToProps = state => {
     return{
     activeTrans: state.transformation.activeTrans,
@@ -1042,6 +1044,70 @@ class SidePanel extends React.Component{
     let optionsCN = optionsBarPercent
     let optionsBird= optionsBarPercent
     let optionsEcon= optionsBarPercent
+    let configErosionGauge = {
+      type: "gauge",
+      legend: {
+
+        },
+        title: {
+          text: "Erosion"
+        },
+
+      'scale-r': {
+        aperture: 200,     //Specify your scale range.
+        values: "0:20:5", //Provide min/max/step scale values.
+        ring: {
+          size:10,
+           rules: [
+        {
+          rule: "%v >= 0 && %v <= 5",
+          'background-color': "green red"
+        },
+        {
+          rule: "%v >= 5 && %v <= 10",
+          'background-color': "yellow"
+        },
+        {
+          rule: "%v >= 10 && %v <= 15",
+          'background-color': "rgb(245, 117, 66)"
+        },
+        {
+          rule: "%v >= 15 && %v <= 20",
+          'background-color': "red"
+        },
+
+      ],
+
+        },
+//        labels: [ "0", "Poor", "Fair", "Good", "Great", "100" ],  //Scale Labels
+        labels: [ "Great", "Good", "Fair", "Poor", "Worst"],  //Scale Labels
+        item: {    //Scale Label Styling
+          'font-color': "purple",
+          'font-family': "Georgia, serif",
+          'font-size':12,
+          'font-weight': "bold",     //or "normal"
+          'font-style': "normal",    //or "italic"
+          'offset-r': -50,    //To adjust the placement of your scale labels.
+          angle: "auto"    //To adjust the angle of your scale labels.
+        }
+      },
+        tooltip: { //Tooltips
+          text: "%t - %v",
+          'font-color': "black",
+          'font-family': "Georgia",
+          'background-color': "white",
+          alpha:0.7,
+          'border-color': "none"
+        },
+          series: [
+            { values: [13], text: "Base",'background-color': '#be5dc2 '},
+            { values: [2], text: "Transformation",'background-color': 'rgba(0, 119, 187,1)'},
+          ]
+    }
+    let configPhosGauge =  structuredClone(configErosionGauge)
+    configPhosGauge.title.text = "Phosphorus Loss"
+    configPhosGauge.series[1].values[0] = 5
+
 //    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
         model.yield = this.state.modelOutputs.model.yield.total_per_area
@@ -1320,7 +1386,17 @@ class SidePanel extends React.Component{
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
-        optionsEcon = charts.getOptionsBar("Economic Cost", "$acre/year")
+        optionsEcon = charts.getOptionsBar("Production Cost", "$acre/year")
+        configErosionGauge = {
+  type: "gauge",
+  'scale-r': {
+    aperture: 200,     //Specify your scale range.
+    values: "0:100:20" //Provide min/max/step scale values.
+  },
+  series: [
+    { values: [87]}
+  ]
+}
 
     }
     let percentArea = (parseFloat(areaCalc)/parseFloat(areaWatershedCalc) * 100).toFixed(2)
@@ -1552,7 +1628,7 @@ class SidePanel extends React.Component{
                       <td></td>
                     </tr>
                     <tr>
-                      <td>Economic Cost</td>
+                      <td>Production Cost</td>
                       <td className="table-cell-left">{base.econ}</td>
                       <td>{model.econ}</td>
                       <td>$/acre/year</td>
@@ -1666,7 +1742,7 @@ class SidePanel extends React.Component{
 
                     </tr>
                     <tr>
-                      <td>Economic Cost</td>
+                      <td>Production Cost</td>
                       <td className="table-cell-left">{baseWatershed.econ}</td>
                       <td>{modelWatershed.econ}</td>
                       <td>$/acre/year</td>
@@ -1680,97 +1756,16 @@ class SidePanel extends React.Component{
                 </Table>
               </Tab>
               <Tab eventKey="gauges" title="Gauges">
-                   <Row>
-                    <Col xs={6} id = "modalResults">
+               <Row>
+               <h4>By Selection</h4>
+                <Col xs={6} id = "modalResults">
 
+                        <ZingChart data={configErosionGauge}/>
 
-
-                  <ReactSpeedometer
-                    width={this.state.speedometerWidth}
-                    height={this.state.speedometerHeight}
-                    forceRender={true}
-                    needleHeightRatio={0.7}
-                    value={777}
-                    currentValueText="Erosion"
-                    customSegmentLabels={[
-                      {
-                        text: 'Very Bad',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                      {
-                        text: 'Bad',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                      {
-                        text: 'Ok',
-                        position: 'INSIDE',
-                        color: '#555',
-                        fontSize: '19px',
-                      },
-                      {
-                        text: 'Good',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                      {
-                        text: 'Very Good',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                    ]}
-                    ringWidth={47}
-                    needleTransitionDuration={3333}
-                    needleTransition="easeElastic"
-                    needleColor={'#90f2ff'}
-                    textColor={'#020712'}
-                  />
                     </Col>
-                    <Col xs={6}>
-
-                   <ReactSpeedometer
-                    width={this.state.speedometerWidth}
-                    height={this.state.speedometerHeight}
-                    forceRender={true}
-                    needleHeightRatio={0.7}
-                    value={200}
-                    currentValueText="Bee Friendliness"
-                    customSegmentLabels={[
-                      {
-                        text: 'Very Bad',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                      {
-                        text: 'Bad',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                      {
-                        text: 'Ok',
-                        position: 'INSIDE',
-                        color: '#555',
-                        fontSize: '19px',
-                      },
-                      {
-                        text: 'Good',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                      {
-                        text: 'Very Good',
-                        position: 'INSIDE',
-                        color: '#555',
-                      },
-                    ]}
-                    ringWidth={47}
-                    needleTransitionDuration={3333}
-                    needleTransition="easeElastic"
-                    needleColor={'#90f2ff'}
-                    textColor={'#020712'}
-                  />
-                </Col>
+                     <Col xs={6}>
+                        <ZingChart data={configPhosGauge}/>
+                     </Col>
                  </Row>
               </Tab>
             </Tabs>
@@ -1909,19 +1904,19 @@ class SidePanel extends React.Component{
                                 onChange={(e) => this.handleSelectionChangeGeneral("land4","landClass", e)}
                              />
                              <Form.Check
-                                ref={this.land5} type="switch" label="Generally Unsuited for Agriculture I"
+                                ref={this.land5} type="switch" label="Generally Unsuited for Agriculture V"
                                 onChange={(e) => this.handleSelectionChangeGeneral("land5","landClass", e)}
                              />
                              <Form.Check
-                                ref={this.land6} type="switch" label="Generally Unsuited for Agriculture II"
+                                ref={this.land6} type="switch" label="Generally Unsuited for Agriculture VI"
                                 onChange={(e) => this.handleSelectionChangeGeneral("land6","landClass", e)}
                              />
                              <Form.Check
-                                ref={this.land7} type="switch" label="Generally Unsuited for Agriculture III"
+                                ref={this.land7} type="switch" label="Generally Unsuited for Agriculture VII"
                                 onChange={(e) => this.handleSelectionChangeGeneral("land7","landClass", e)}
                              />
                              <Form.Check
-                                ref={this.land8} type="switch" label="Generally Unsuited for Agriculture IV (Worst)"
+                                ref={this.land8} type="switch" label="Generally Unsuited for Agriculture VIII (Worst)"
                                 onChange={(e) => this.handleSelectionChangeGeneral("land8","landClass", e)}
                              />
                         </Accordion.Body>
@@ -1929,7 +1924,7 @@ class SidePanel extends React.Component{
                     </Accordion>
                     <Accordion>
                       <Accordion.Item eventKey="5">
-                        <Accordion.Header>Farm Classification</Accordion.Header>
+                        <Accordion.Header>Farmland Classification</Accordion.Header>
                         <Accordion.Body>
                             <Form.Check
                                 ref={this.prime} type="switch" label="All Areas are Prime Farmland"
