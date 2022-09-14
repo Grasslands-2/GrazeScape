@@ -483,7 +483,7 @@ class OLMapFragment extends React.Component {
         const styles = [new Style({
             stroke: new Stroke({
               color: '#BBBBBB',
-              width: 3,
+              width: 1,
             }),
             fill: new Fill({
               color: 'rgba(0, 0, 255, 0.0)',
@@ -502,8 +502,8 @@ class OLMapFragment extends React.Component {
           this.stylesBoundary = [new Style({
             stroke: new Stroke({
 //              color: 'red',
-              color: '#AA3377',
-              width: 4,
+              color: '#BBBBBB',
+              width: 3,
             }),
             fill: new Fill({
               color: 'rgba(0, 0, 255, 0.0)',
@@ -574,7 +574,7 @@ class OLMapFragment extends React.Component {
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
-            style: styles,
+            style: this.stylesBoundary,
         });
         this.southWest = new VectorLayer({
             renderMode: 'image',
@@ -584,7 +584,7 @@ class OLMapFragment extends React.Component {
                 format: new GeoJSON(),
                 projection: 'EPSG:3857',
             }),
-            style: styles,
+            style: this.stylesBoundary,
         });
         this.cloverBelt = new VectorLayer({
             renderMode: 'image',
@@ -594,7 +594,7 @@ class OLMapFragment extends React.Component {
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
-            style: styles,
+            style: this.stylesBoundary,
         });
         this.uplands = new VectorLayer({
             renderMode: 'image',
@@ -604,7 +604,7 @@ class OLMapFragment extends React.Component {
                 format: new GeoJSON(),
                 projection: 'EPSG:3857',
             }),
-            style: styles,
+            style: this.stylesBoundary,
         });
         // base map
         this.layers = [
