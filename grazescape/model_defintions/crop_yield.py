@@ -62,8 +62,6 @@ class CropYield(ModelBase):
                 # [bushels/acre x 10] original units
                 corn_yield_raw = self.raster_inputs["corn"][y][x] / 10
                 soy_yield_raw = self.raster_inputs["soy"][y][x] / 10
-                print("corn_yield_raw !!!")
-                print(corn_yield_raw)
 
                 # cont corn
                 if crop_ro == "cc":

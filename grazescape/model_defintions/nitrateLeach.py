@@ -1,39 +1,39 @@
-from abc import ABC
-import os
-import sys
-import csv
-sys.path.append('/grazescape/model_defintions')
-from osgeo import gdal
-from osgeo import gdalconst as gc
-from osgeo import ogr
-import matplotlib.pyplot as plt
-import requests
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Polygon
-from django.conf import settings
-from pyper import R
-from django.conf import settings
+# from abc import ABC
+# import os
+# import sys
+# import csv
+# sys.path.append('/grazescape/model_defintions')
+# from osgeo import gdal
+# from osgeo import gdalconst as gc
+# from osgeo import ogr
+# import matplotlib.pyplot as plt
+# import requests
+# import numpy as np
+# import pandas as pd
+# import geopandas as gpd
+# from shapely.geometry import Polygon
+# from django.conf import settings
+# from pyper import R
+# from django.conf import settings
 
-from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import *
-import numpy as np
-import math
+# from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
+# from pyper import *
+# import numpy as np
+# import math
 
 
-class NitrateLeeching(ModelBase):
-    def __init__(self, request, file_name=None):
-        super().__init__(request, file_name)
-        # original units are in  [bushels/acre x 10]
-        # (to keep values in integer)
-        # self.units = "Dry Mass tons/ac"
-        # list of CropYieldDataNode
-        self.crop_list = []
-def run_model(self):
-        # conversion rate between lb/ac to kg/ha
-        print('NITRATE LEECHING MODEL PARAS!!!!!!')
-        print(self.model_parameters)
+# class NitrateLeeching(ModelBase):
+#     def __init__(self, request, file_name=None):
+#         super().__init__(request, file_name)
+#         # original units are in  [bushels/acre x 10]
+#         # (to keep values in integer)
+#         # self.units = "Dry Mass tons/ac"
+#         # list of CropYieldDataNode
+#         self.crop_list = []
+# def run_model(self):
+#         # conversion rate between lb/ac to kg/ha
+#         print('NITRATE LEECHING MODEL PARAS!!!!!!')
+#         print(self.model_parameters)
 
 ## this script logic is meant to go through the process of calculating
 ## rotational average potential nitrate leaching rate for a given grid cell.

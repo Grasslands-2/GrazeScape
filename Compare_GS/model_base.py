@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from PIL import Image
 import numpy as np
-#np.set_printoptions(threshold=np.inf)
 from pyper import R
 from django.conf import settings
 import os
@@ -311,7 +310,6 @@ class ModelBase:
 
     def reshape_model_output(self, data, bounds):
         data = np.reshape(data, (bounds["y"], bounds["x"]))
-
         return data
 
     def min_max_avg(self, data, no_data_array):
@@ -360,21 +358,10 @@ class ModelBase:
             return 0, sum, float(count)
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
-        # if result.model_type == 'ero':
-        #     print("ERO data before color assignment!")
-        #     print(data)
-        #     print("ERO datanm before color assignment!")
-        #     print(datanm)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v,result)
         for y in range(0, rows):
             for x in range(0, cols):
-                # if(result.model_type == 'ero'):
-                #     print("ERO datanm[y][x] before color assignment!")
-                #     print(datanm[y][x])
-                    # print("ERO data[y][x] before color assignment!")
-                    # print(data[y][x])
-                
                 color = self.calculate_color(color_ramp, datanm[y][x])
                 three_d[y][x][0] = color[0]
                 three_d[y][x][1] = color[1]

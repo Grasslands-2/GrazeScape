@@ -38,7 +38,6 @@ from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.crop_yield import CropYield
 from grazescape.model_defintions.runoff import Runoff
-#from grazescape.model_defintions.nitrateLeach import Nitrate
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
@@ -626,8 +625,6 @@ def get_model_results(request):
         remove_old_pngs_from_local('Rotational Average',field_id)
     if model_type == 'runoff':
         remove_old_pngs_from_local('ero',field_id)
-    # if model_type == 'nitrate':
-    #     remove_old_pngs_from_local('nitrate',field_id)
     # format field geometry
     for input in request.POST:
         if "field_coors" in input:
@@ -669,8 +666,6 @@ def get_model_results(request):
             print("REQUEST GOING INTO ECON!!!")
             print(request.POST)
         # Use Yield results as a basis for filling in missing values
-        # elif model_type == 'nitrate':
-        #     model = Nitrate(request)
         else:
             model = GenericModel(request, model_type)
 
@@ -705,9 +700,6 @@ def get_model_results(request):
                 if result.model_type == 'ero':
                 #model_type == 'ero':
                     print('UPLOADING ERO FOR FIELD: '+field_id)
-                    # print(result)
-                    # print(geo_data.bounds)
-                    # print(geo_data.no_data_aray)
                     remove_old_pngs_gcs_storage_bucket("ero",field_id)
                     upload_gcs_model_result_blob("ero",field_id,model_run_timestamp)
                 if result.model_type == 'ploss':
@@ -858,47 +850,47 @@ def adjust_field_yields(yield_data):
     if data.get("crop_ro") == 'cg': #corn, soy
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
-        corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
+        corn_yield_kgDMha = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
-        soy_yield_tonDMac = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
+        soy_yield_kgDMha = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-        rotation_avg_cg = 0.5 * corn_yield_tonDMac + 0.5 * soy_yield_tonDMac
+        rotation_avg_cg = 0.5 * corn_yield_kgDMha + 0.5 * soy_yield_kgDMha
         data2['sum_cells'] =str(rotation_avg_cg)
         data2['value_type'] = 'Rotational Average'
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
     if data.get("crop_ro") == 'dr': #corn, silage, alfalfa
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
-        corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
+        corn_yield_kgDMha = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
-        silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
+        silage_yield_kgDMha = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][2])
         data2['sum_cells'] = str(data['sum_cells'][2])
-        alfalfa_yield_tonDMac = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
+        alfalfa_yield_kgDMha = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-        rotation_avg_dr = 1 / 5 * silage_yield_tonDMac + 1 / 5 * corn_yield_tonDMac + 3 / 5 * alfalfa_yield_tonDMac
+        rotation_avg_dr = 1 / 5 * silage_yield_kgDMha + 1 / 5 * corn_yield_kgDMha + 3 / 5 * alfalfa_yield_kgDMha
         data2['sum_cells'] =str(rotation_avg_dr)
         data2['value_type'] = 'Rotational Average'
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
     if data.get("crop_ro") == 'cso': #soy, silage, oats
         data2['value_type'] = str(data['value_type'][0])
         data2['sum_cells'] = str(data['sum_cells'][0])
-        soy_yield_tonDMac = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
+        soy_yield_kgDMha = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][1])
         data2['sum_cells'] = str(data['sum_cells'][1])
-        silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
+        silage_yield_kgDMha = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
         data2['value_type'] = str(data['value_type'][2])
         data2['sum_cells'] = str(data['sum_cells'][2])
-        oat_yield_tonDMac = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
+        oat_yield_kgDMha = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
-        rotation_avg_cso = 1 / 3 * silage_yield_tonDMac + 1 / 3 * soy_yield_tonDMac + 1 / 3 * oat_yield_tonDMac
+        rotation_avg_cso = 1 / 3 * silage_yield_kgDMha + 1 / 3 * soy_yield_kgDMha + 1 / 3 * oat_yield_kgDMha
         data2['sum_cells'] =str(rotation_avg_cso)
         data2['value_type'] = 'Rotational Average'
         update_field_results(data2["field_id"],data2['scen_id'],data2['farm_id'],data2,False)
