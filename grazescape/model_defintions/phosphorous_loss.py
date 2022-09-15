@@ -9,7 +9,9 @@ class PhosphorousLoss(ModelBase):
         super().__init__(request,active_region, file_name)
 
     def run_model(self,active_region):
+
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+        print(self)
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
         slope = self.raster_inputs["slope"].flatten()
@@ -339,6 +341,8 @@ class PhosphorousLoss(ModelBase):
         erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
         pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
         ero = r.get("erosion").to_numpy()
+        print("PRINTED ERO!!")
+        print(ero)
         ploss = r.get("final_pi").to_numpy()
         pl.P2O5_fert = r.get("P2O5_fert")
         pl.N_fert = r.get("N_fert")

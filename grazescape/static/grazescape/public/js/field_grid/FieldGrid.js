@@ -519,9 +519,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 										}
 									}
 								}
-							// 	setTimeout(() => {
-							// 		me.getView().refresh()
-							// }, "250")
+								setTimeout(() => {
+									me.getView().refresh()
+							}, "250")
 							}
 							var view = me.getView()
 							//view.refresh()
@@ -590,9 +590,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 										}
 									}
 								}
-							// 	setTimeout(() => {
-							// 		me.getView().refresh()
-							// }, "250")
+								setTimeout(() => {
+									me.getView().refresh()
+							}, "250")
 							}
 							var view = me.getView()
 							//view.refresh()

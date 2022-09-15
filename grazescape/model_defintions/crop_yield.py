@@ -5,7 +5,7 @@ import math
 class CropYield(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
-        # original units are in  [bushels/acre x 10]
+        # original units are in  [bushels/acre x 10]0
         # (to keep values in integer)
         # self.units = "Dry Mass tons/ac"
         # list of CropYieldDataNode

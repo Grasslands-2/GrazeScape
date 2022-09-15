@@ -1,8 +1,39 @@
 from abc import ABC
+import os
+import sys
+import csv
+sys.path.append('/grazescape/model_defintions')
+from osgeo import gdal
+from osgeo import gdalconst as gc
+from osgeo import ogr
+import matplotlib.pyplot as plt
+import requests
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Polygon
+from django.conf import settings
+from pyper import R
+from django.conf import settings
 
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 from pyper import *
 import numpy as np
+import math
+
+
+class NitrateLeeching(ModelBase):
+    def __init__(self, request, file_name=None):
+        super().__init__(request, file_name)
+        # original units are in  [bushels/acre x 10]
+        # (to keep values in integer)
+        # self.units = "Dry Mass tons/ac"
+        # list of CropYieldDataNode
+        self.crop_list = []
+def run_model(self):
+        # conversion rate between lb/ac to kg/ha
+        print('NITRATE LEECHING MODEL PARAS!!!!!!')
+        print(self.model_parameters)
 
 ## this script logic is meant to go through the process of calculating
 ## rotational average potential nitrate leaching rate for a given grid cell.
@@ -10,6 +41,8 @@ import numpy as np
 ## for each grid cell, retrieve the soil yield potential class (1-3), organic matter,
 ##      drainage class (1-4), calculated cropYield (bushels for corn/soy/wheat, tons for other),
 ##      calculated erosion rate
+
+#erosion rate calc is all happening in R with the .rds files from input models folders...
 
 ## if-then statement to go through each rotation type
 
@@ -70,6 +103,8 @@ self.NRC = pd.read_csv(r"grazescape\model_defintions\NRC_2001.csv")
 #raster is read between the ranges of x and y, dispite what the field looks like.  if no value -999 is returned
 
 #feed_breakdown.py will make a good example of how to work with excel files.
+
+#Next question.  How does Ploss use erosion output in ints calcs
 
 #To do these calcs per cell, and end up with an array of values for each cell.  Then add up
 #Where exactly should this fall?  set up triggers for when errosion and yeilds are finished
