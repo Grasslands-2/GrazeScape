@@ -129,6 +129,8 @@ class RasterData:
                 "corn": "InputRasters:northeastWI_corn_10m",
                 "soy": "InputRasters:northeastWI_soy_10m",
                 "hydgrp":"InputRasters:northeastWI_hydgrp_10m",
+                # "drain_class": "InputRasters:northeastWI_drainClass10m",
+                # "Nresponse":"InputRasters:northeastWI_nResponse_10m",
             }
         if self.active_region == "uplandsWI":
             self.layer_dic = {

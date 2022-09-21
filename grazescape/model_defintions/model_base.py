@@ -11,7 +11,7 @@ import grazescape.model_defintions.utilities as ut
 import pickle
 from pyper import R
 
-
+eroDatum = []
 class ModelBase:
 
     def __init__(self, request,active_region, file_name=None):
@@ -360,18 +360,19 @@ class ModelBase:
             return 0, sum, float(count)
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
-        # if result.model_type == 'ero':
-        #     print("ERO data before color assignment!")
-        #     print(data)
-        #     print("ERO datanm before color assignment!")
-        #     print(datanm)
+        if result.model_type == 'ero':
+            print("ERO data before color assignment!")
+            print(data)
+            print("ERO datanm before color assignment!")
+            print(datanm)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v,result)
         for y in range(0, rows):
             for x in range(0, cols):
-                # if(result.model_type == 'ero'):
-                #     print("ERO datanm[y][x] before color assignment!")
-                #     print(datanm[y][x])
+                if(result.model_type == 'ero'):
+                    print("ERO datanm[y][x] before color assignment!")
+                    print(datanm[y][x])
+                    eroDatum = datanm[y][x]
                     # print("ERO data[y][x] before color assignment!")
                     # print(data[y][x])
                 

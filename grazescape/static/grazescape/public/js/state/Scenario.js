@@ -861,6 +861,9 @@ Ext.define('DSS.state.Scenario', {
 							DSS.map.removeInteraction(selectInteraction);
 							selectedFields = []
 							runFieldUpdate()
+							// setTimeout(() => {
+							// 	Ext.getCmp('fieldTable').destroy()
+							// }, "500")
 						}
 					}
 				},

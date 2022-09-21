@@ -163,6 +163,7 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         land_cost: f["land_cost"],
         fert_p_perc:f["perc_fert_p"],
         fert_n_perc:f["perc_fert_n"],
+        legume:f["interseeded_clover"],
         active_region: DSS.activeRegion,
         alfalfaMachCost: 0,
         alfalfaMachCostY1: 0,
@@ -481,6 +482,10 @@ function format_chart_data(model_data){
             break
         case 'feed breakdown':
             chartTypeField = chartObj.feed_breakdown
+        case 'nitrate':
+            chartTypeField = chartObj.nitrate_field
+            chartTypeFarm = chartObj.nitrate_farm
+            break
     }
 //      field level
 // some charts don't have a field level

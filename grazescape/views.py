@@ -38,7 +38,7 @@ from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.crop_yield import CropYield
 from grazescape.model_defintions.runoff import Runoff
-#from grazescape.model_defintions.nitrateLeach import Nitrate
+from grazescape.model_defintions.nitrateLeach import NitrateLeeching
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
@@ -566,8 +566,8 @@ def get_default_om(request):
 #     return JsonResponse(fields_data_array, safe=False)
 
 def get_model_results(request):
-    print(request.POST.getlist("field_id"))
-    print(request.POST)
+    print("MODEL PARAMETERS!!!!!!!!")
+    print(request.POST.get('model_parameters'))
     field_id = request.POST.getlist("field_id")[0]
     scenario_id = request.POST.getlist("scenario_id")[0]
     farm_id = request.POST.getlist("farm_id")[0]
@@ -662,6 +662,8 @@ def get_model_results(request):
             model = Runoff(request,active_region)
         elif model_type == 'bio':
             model = Insecticide(request)
+        elif model_type == 'nitrate':
+            model = NitrateLeeching(request)
         elif model_type == 'econ':
             # print("Request in views")
             # print(request.POST)
@@ -670,7 +672,7 @@ def get_model_results(request):
             print(request.POST)
         # Use Yield results as a basis for filling in missing values
         # elif model_type == 'nitrate':
-        #     model = Nitrate(request)
+        #     model = Nitrate(request,active_region,ero_datanm)
         else:
             model = GenericModel(request, model_type)
 
