@@ -301,7 +301,9 @@ function runFieldUpdate(){
 					perc_manure_p: fieldArray[i].manuPercP,
 					perc_manure_n: fieldArray[i].manuPercN,
 				});
-				wfs_update(feildFeature,'field_2');
+				setTimeout(function(){
+					wfs_update(feildFeature,'field_2');
+				}, 1000);
 				break;
 			}				
 		}				
