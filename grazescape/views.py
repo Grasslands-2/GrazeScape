@@ -355,8 +355,15 @@ def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
-    #feature_id = request.POST.get("feature_id")
-    feature_id = 9999
+    print("def geoserver_request REQUEST!!!")
+    print(request.POST)
+    #request_type = 'update'
+    print("Request type REQUEST!!!")
+    print(request_type)
+    print(pay_load)
+    print(url)
+    feature_id = request.POST.get("feature_id")
+    #feature_id = 9999
     current_user = request.user
     farm_ids = get_user_farms(current_user.id)
     #farm_2 = False
