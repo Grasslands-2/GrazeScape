@@ -16,8 +16,6 @@ class GeoServer:
         print("SELF IN GEOSERVER")
         print(self)
         r = requests.post(self.request_url, data=data)
-        print("R IN GEOSERVER")
-        print(r)
         return r.text
     def makeRasterRequest(self, data=""):
         r = requests.post(self.request_url, data=data)

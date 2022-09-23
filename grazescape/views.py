@@ -355,13 +355,6 @@ def geoserver_request(request):
     request_type = request.POST.get("request_type")
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
-    print("def geoserver_request REQUEST!!!")
-    print(request.POST)
-    #request_type = 'update'
-    print("Request type REQUEST!!!")
-    print(request_type)
-    print(pay_load)
-    print(url)
     feature_id = request.POST.get("feature_id")
     #feature_id = 9999
     current_user = request.user
@@ -671,6 +664,7 @@ def get_model_results(request):
             model = Insecticide(request)
         elif model_type == 'nitrate':
             model = NitrateLeeching(request)
+            print("NITRATE MODEL HIT!")
         elif model_type == 'econ':
             # print("Request in views")
             # print(request.POST)
@@ -682,16 +676,20 @@ def get_model_results(request):
         #     model = Nitrate(request,active_region,ero_datanm)
         else:
             model = GenericModel(request, model_type)
-
+        
         model.bounds["x"] = geo_data.bounds["x"]
         model.bounds["y"] = geo_data.bounds["y"]
 
+        print("BOUNDS MADE!")
+
         model.raster_inputs = clipped_rasters
+        print("CLIPPED RASTERS MADE!")
         # loop here to build a response for all the model types
         if model_type == 'runoff' or model_type == 'ploss':
             results = model.run_model(active_region)
         else:
             results = model.run_model()
+            print("MODEL RAN!!!!")
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.getlist("model_parameters[area]")[0])

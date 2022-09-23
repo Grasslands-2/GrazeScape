@@ -163,6 +163,8 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         land_cost: f["land_cost"],
         fert_p_perc:f["perc_fert_p"],
         fert_n_perc:f["perc_fert_n"],
+        manure_p_perc:f["perc_manure_p"],
+        manure_n_perc:f["perc_manure_n"],
         legume:f["interseeded_clover"],
         active_region: DSS.activeRegion,
         alfalfaMachCost: 0,

@@ -48,6 +48,8 @@ class ModelBase:
         cover_crop = request.POST.get("model_parameters[crop_cover]")
         fert_p_perc = request.POST.get("model_parameters[fert_p_perc]")
         fert_n_perc = request.POST.get("model_parameters[fert_n_perc]")
+        manure_p_perc = request.POST.get("model_parameters[manure_p_perc]")
+        manure_n_perc = request.POST.get("model_parameters[manure_n_perc]")
 
         if file_name is None:
             file_name = model_type + field_id +'_' + model_run_timestamp ##+'_'+ str(uuid.uuid1())##
@@ -183,6 +185,7 @@ class ModelBase:
             "graze_factor": request.POST.getlist("model_parameters[graze_factor]")[0],
             "area": "",
             "om": request.POST.getlist("model_parameters[om]")[0],
+            "legume": request.POST.getlist("model_parameters[legume]")[0],
             "alfalfaMachCost": request.POST.getlist("model_parameters[alfalfaMachCost]")[0],
             "alfalfaMachCostY1": request.POST.getlist("model_parameters[alfalfaMachCostY1]")[0],
             "alfalfaPestCost": request.POST.getlist("model_parameters[alfalfaPestCost]")[0],
@@ -207,6 +210,8 @@ class ModelBase:
             #"rotation_econ": request.POST.getlist("model_parameters[rotation_econ]"),
             "fert_p_perc": request.POST.getlist("model_parameters[fert_p_perc]")[0],
             "fert_n_perc": request.POST.getlist("model_parameters[fert_n_perc]")[0],
+            "manure_p_perc": request.POST.getlist("model_parameters[manure_p_perc]")[0],
+            "manure_n_perc": request.POST.getlist("model_parameters[manure_n_perc]")[0],
         }
         print("MODEL PARAMS IN MODEL_BASE!!!!!")
         print(parameters)
