@@ -663,7 +663,7 @@ def get_model_results(request):
         elif model_type == 'bio':
             model = Insecticide(request)
         elif model_type == 'nitrate':
-            model = NitrateLeeching(request)
+            model = NitrateLeeching(request)##eroDatum)
             print("NITRATE MODEL HIT!")
         elif model_type == 'econ':
             # print("Request in views")

@@ -366,18 +366,23 @@ class ModelBase:
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
         if result.model_type == 'ero':
-            print("ERO data before color assignment!")
+            print("ERO data before color assignment Length!")
             print(data)
+            print("ERO data before color assignment Length!")
+            print(len(data[0]))
             print("ERO datanm before color assignment!")
             print(datanm)
+            eroDatum = datanm
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v,result)
         for y in range(0, rows):
             for x in range(0, cols):
                 if(result.model_type == 'ero'):
                     print("ERO datanm[y][x] before color assignment!")
+                    print(x)
+                    print(y)
                     print(datanm[y][x])
-                    eroDatum = datanm[y][x]
+                    
                     # print("ERO data[y][x] before color assignment!")
                     # print(data[y][x])
                 

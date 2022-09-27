@@ -69,21 +69,6 @@ dry lot-high,dl-hi,pasture_ dry lot_ high,dl_hi,nResponse,3,150
 dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,1,150
 dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,2,150
 dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,3,150
-continuous corn,cc,corn grain,cn,nResponse,1,165
-continuous corn,cc,corn grain,cn,nResponse,2,125
-continuous corn,cc,corn grain,cn,nResponse,3,200
-cash grain,cg,corn grain,cn,nResponse,1,120
-cash grain,cg,corn grain,cn,nResponse,2,100
-cash grain,cg,corn grain,cn,nResponse,3,130
-cash grain,cg,soybeans,sb,nResponse,1,0
-cash grain,cg,soybeans,sb,nResponse,2,0
-cash grain,cg,soybeans,sb,nResponse,3,0
-corn silage-soy-oats,cso,corn silage,cs,nResponse,1,165
-corn silage-soy-oats,cso,corn silage,cs,nResponse,2,125
-corn silage-soy-oats,cso,corn silage,cs,nResponse,3,200
-corn silage-soy-oats,cso,soybeans,sb,nResponse,1,0
-corn silage-soy-oats,cso,soybeans,sb,nResponse,2,0
-corn silage-soy-oats,cso,soybeans,sb,nResponse,3,0
 dairy rotation,dr,corn silage,cs,nResponse,1,45
 dairy rotation,dr,corn silage,cs,nResponse,2,5
 dairy rotation,dr,corn silage,cs,nResponse,3,80

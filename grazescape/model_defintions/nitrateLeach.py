@@ -66,14 +66,17 @@ class NitrateLeeching(ModelBase):
         else: 
             return "nl"
     def getRotText(self,crop,legume_text,animal_density_text):
+        print("in getRotText")
+        print(crop)
         if crop == 'pt-rt':
             return crop + '_'+ legume_text
-        if crop == 'pt-cn':
+        elif crop == 'pt-cn':
             return crop + '_'+ animal_density_text + '_'+legume_text
-        if crop == 'dl':
+        elif crop == 'dl':
             return crop + '_' + legume_text
         else:
-            return crop
+            print("getRotText else hit")
+            return str(crop)
     def getRotYers(self,crop):
         print("in getRotYers")
         if crop == 'pt-rt':
@@ -87,7 +90,7 @@ class NitrateLeeching(ModelBase):
             rot_yrs_crop = ['cc']
         if crop == 'cg':
             rot_yrs = 2
-            rot_yrs_crop = ['cc','sb']
+            rot_yrs_crop = ['cn','sb']
         if crop == 'cso':
             rot_yrs = 3
             rot_yrs_crop = ['cs','sb','ot']
@@ -95,47 +98,59 @@ class NitrateLeeching(ModelBase):
             rot_yrs = 5
             rot_yrs_crop = ['cs','cc','af','af','af']
         return [rot_yrs,rot_yrs_crop]
-    def getNFertRecs(self,i,rot_yrs_crop,crop,legume_text,animal_density_text,fertNrec,om_text,nResponse_raw):
+    def getNFertRecs(self,rot_yrs_crop,crop,legume_text,animal_density_text,fertNrec,om_text,nResponse_raw):
         print("in getNFertRecs")
-        print(rot_yrs_crop[i])
+        nrecValue_array = []
         RotationAbbr = self.getRotText(crop,legume_text,animal_density_text)
-        CropAbbr = ''
-        rasterLookUp = ''
-        if rot_yrs_crop[i] == 'pt_rt':
-            CropAbbr = rot_yrs_crop[i] + '_' + legume_text
-            rasterLookUp = 'om'
-            rasterVal = om_text
-        if rot_yrs_crop[i] == 'pt_cn':
-            CropAbbr = rot_yrs_crop[i] + '_' + animal_density_text + '_' + legume_text
-            rasterLookUp = 'om'
-            rasterVal = om_text
-        if rot_yrs_crop[i] == 'dl':
-            CropAbbr = rot_yrs_crop[i] + '_' + animal_density_text
-            rasterLookUp = 'nResponse'
-            rasterVal = nResponse_raw
-        else:
-            CropAbbr = rot_yrs_crop[i]
-            if rot_yrs_crop[i] == 'ot' or rot_yrs_crop[i] == 'as':
+        print("RotationAbbr: "+RotationAbbr)
+        NFertRecs_RotationAbbr = self.fertNrec[self.fertNrec["RotationAbbr"] == RotationAbbr]
+        print(NFertRecs_RotationAbbr)
+        for i in rot_yrs_crop:
+            print("in the rot years crop loop")
+            print("rot_yrs_crop[i]: "+ i)
+            
+            CropAbbr = ''
+            rasterLookUp = ''
+            print("in raster look")
+            if i == 'pt_rt':
+                CropAbbr = i + '_' + legume_text
                 rasterLookUp = 'om'
                 rasterVal = om_text
-            else: 
+            elif i == 'pt_cn':
+                CropAbbr = i + '_' + animal_density_text + '_' + legume_text
+                rasterLookUp = 'om'
+                rasterVal = om_text
+            elif i == 'dl':
+                CropAbbr = i + '_' + animal_density_text
                 rasterLookUp = 'nResponse'
                 rasterVal = nResponse_raw
+            else:
+                print("in raster look up else")
+                CropAbbr = i
+                print(CropAbbr)
+                if i == 'ot' or i == 'as':
+                    rasterLookUp = 'om'
+                    rasterVal = om_text
+                else: 
+                    rasterLookUp = 'nResponse'
+                    rasterVal = str(nResponse_raw)
 
-        #You need to account for rotation, since the legumes and especially SOY can effect the Nrec results
-        #Of other crops for that year.
-
-        NFertRecs_RotationAbbr = fertNrec[["RotationAbbr"] == RotationAbbr]
-        print(NFertRecs_RotationAbbr)
-        NFertRecs_CropAbbr = NFertRecs_RotationAbbr[["CropAbbr"] == CropAbbr]
-        print(NFertRecs_CropAbbr)
-        NFertRecs_RasterLookup = NFertRecs_CropAbbr[["rasterLookup"] == rasterLookUp]
-        print(NFertRecs_RasterLookup)
-        #NFertRecs_Row = pd.concat([NFertRecs_RasterLookup["rasterVals"] == rasterVal])
-        NFertRecs_Row = NFertRecs_RasterLookup["rasterVals"] == rasterVal
-        print(NFertRecs_Row)
-        print(NFertRecs_Row["Nrec"][0])
-        return (NFertRecs_Row["Nrec"][0])
+            #You need to account for rotation, since the legumes and especially SOY can effect the Nrec results
+            #Of other crops for that year.
+            
+            NFertRecs_CropAbbr = NFertRecs_RotationAbbr[NFertRecs_RotationAbbr["CropAbbr"] == str(CropAbbr)]
+            print(NFertRecs_CropAbbr)
+            NFertRecs_RasterLookup = NFertRecs_CropAbbr[NFertRecs_CropAbbr["rasterLookup"] == rasterLookUp]
+            print(NFertRecs_RasterLookup)
+            print(rasterVal)
+            NFertRecs_Row = pd.concat([NFertRecs_RasterLookup[NFertRecs_RasterLookup["rasterVals"] == rasterVal]])
+            #NFertRecs_Row = NFertRecs_RasterLookup[NFertRecs_RasterLookup["rasterVals"]== rasterVal]
+            print(NFertRecs_Row)
+            nrecValue = str(NFertRecs_Row["Nrec"].values[0])
+            print(nrecValue)
+            nrecValue_array.append(str(NFertRecs_Row["Nrec"].values[0]))
+            print(nrecValue_array)
+        return (nrecValue_array)
     def run_model(self):
         print('NITRATE LEECHING MODEL PARAS!!!!!!')
         print(self.model_parameters)
@@ -150,7 +165,6 @@ class NitrateLeeching(ModelBase):
         print(rot_yrs)
         print("rot_yrs_crop: ")
         print(rot_yrs_crop)
-
         legume = self.model_parameters["legume"]
         legume_text = self.getLegumeTest(legume)
 
@@ -163,28 +177,39 @@ class NitrateLeeching(ModelBase):
         Pneeds = self.model_parameters["p_need"]
         # raster defined variables
         om_raster = self.raster_inputs["om"].flatten()
+        drain_class = self.raster_inputs["drain_class"].flatten()
+        Nresponse = self.raster_inputs["Nresponse"].flatten()
         #place holder for raster gathered value
         om_raw = 1
-
-        #drain_class_raster = self.raster_inputs["drain_class"].flatten()
         
         #place holder for raster gathered value
+        
         drain_class_raw = 1
 
-        #Nresponse_raster = self.raster_inputs["Nresponse"].flatten()
-
         #place holder for raster gathered value
-        nResponse_raw = 0
+        nResponse_raw = 1
         
         #Model result defined variables
         #erosion = self.erodatmn[0]
+
+        for y in range(0, self.bounds["y"]):
+            for x in range(0, self.bounds["x"]):
+                # [bushels/acre x 10] original units
+                print(self.raster_inputs["om"][y][x] / 10)
+                print(self.raster_inputs["drain_class"][y][x])
+                print(self.raster_inputs["Nresponse"][y][x])
+
+        
         #fetched variables from csvs
         #self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NitrogenFertRecs_zjh_edits.csv")
-
-        for i in range(0, rot_yrs-1):
-            print(i)
-            fertNrec_Value = self.getNFertRecs(i,rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,self.getOMText(om_raw,"Nrec"),nResponse_raw)
-            print("Nrec VALUE: " + fertNrec_Value)
+        
+        fertNrec_Values_Array = self.getNFertRecs(rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,self.getOMText(om_raw,"Nrec"),nResponse_raw)
+        # for i in range(0, rot_yrs-1):
+        #     fertNrec_Value = self.getNFertRecs(i,rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,self.getOMText(om_raw,"Nrec"),nResponse_raw)
+        #     print("in for loop through rot_yrs")
+        #     print(i)  
+        #     print("Nrec VALUE: " + fertNrec_Value)
+        print(fertNrec_Values_Array)
         #used for denitloss
         print("start denitlossDC read")
         #print(self.denitLoss)
@@ -201,19 +226,19 @@ class NitrateLeeching(ModelBase):
         print("DENITR VALUE: " + str(Denitr_Value))
         
         #used for NfixPct and NH3loss
-        # for i in range(0, rot_yrs-1):
-        #     NvarsRot = self.Nvars[self.Nvars['RotationAbbr'] == self.getRotText(crop_ro,legume_text,animal_density_text)]
-        #     NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
-        #     #Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == rot_yrs_crop[i]]])
-        #     Nvars_Row = NvarsCover[NvarsCover["CropAbbr"] == rot_yrs_crop[i]]
-        #     NfixPct = eval(Nvars_Row["NfixPct"])
-        #     NH3loss = eval(Nvars_Row["NH3loss"])
-        #     Nharv_content = eval(Nvars_Row["Nharv_content"])
-        #     grazed_manureN =eval(Nvars_Row["grazedManureN"])
-        #     print("NfixPct VALUE: " + NfixPct)
-        #     print("NH3loss VALUE: " + NH3loss)
-        #     print("Nharv_content VALUE: " + Nharv_content)
-        #     print("grazed_manureN VALUE: " + grazed_manureN)
+        for i in range(0, rot_yrs-1):
+            NvarsRot = self.Nvars[self.Nvars['RotationAbbr'] == self.getRotText(crop_ro,legume_text,animal_density_text)]
+            NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
+            #Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == rot_yrs_crop[i]]])
+            Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == rot_yrs_crop[i]]])
+            NfixPct = str(Nvars_Row["NfixPct"].values[0])
+            NH3loss = str(Nvars_Row["NH3loss"].values[0])
+            Nharv_content = str(Nvars_Row["Nharv_content"].values[0])
+            grazed_manureN = str(Nvars_Row["grazedManureN"].values[0])
+            print("NfixPct VALUE: " + NfixPct)
+            print("NH3loss VALUE: " + NH3loss)
+            print("Nharv_content VALUE: " + Nharv_content)
+            print("grazed_manureN VALUE: " + grazed_manureN)
         #NfixPct # (Nvars.csv)
         #NH3loss # (Nvars.csv)
         #Nharv_content # (Nvars.csv)

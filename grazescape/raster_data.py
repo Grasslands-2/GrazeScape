@@ -69,6 +69,8 @@ class RasterData:
                 "corn": "InputRasters:cloverBelt_corn_10m_v2",
                 "soy": "InputRasters:cloverBelt_soy_10m_v2",
                 "hydgrp":"InputRasters:cloverBelt_hydgrp_10m_v2",
+                "drain_class": "InputRasters:CloverBeltWI_drainClass_10m",
+                "Nresponse":"InputRasters:CloverBeltWI_nResponse_10m",
             }
         # else:
         #     self.layer_dic = {
@@ -109,6 +111,8 @@ class RasterData:
                 "corn": "InputRasters:southWestWIcorn_10m2",
                 "soy": "InputRasters:southWestWIsoy_10m2",
                 "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
+                "drain_class": "InputRasters:southWestWI_drainClass_10m",
+                "Nresponse":"InputRasters:southWestWI_nResponse_10m",
             }
         if self.active_region == "northeastWI":
             self.layer_dic = {
@@ -129,8 +133,8 @@ class RasterData:
                 "corn": "InputRasters:northeastWI_corn_10m",
                 "soy": "InputRasters:northeastWI_soy_10m",
                 "hydgrp":"InputRasters:northeastWI_hydgrp_10m",
-                # "drain_class": "InputRasters:northeastWI_drainClass10m",
-                # "Nresponse":"InputRasters:northeastWI_nResponse_10m",
+                "drain_class": "InputRasters:northeastWI_drainClass_10m",
+                "Nresponse":"InputRasters:northeastWI_nResponse_10m",
             }
         if self.active_region == "uplandsWI":
             self.layer_dic = {
@@ -151,6 +155,8 @@ class RasterData:
                 "corn": "InputRasters:uplandsWI_corn_10m",
                 "soy": "InputRasters:uplandsWI_soy_10m",
                 "hydgrp":"InputRasters:uplandsWI_hydgrp_10m",
+                "drain_class": "InputRasters:uplandsWI_drainClass_10m",
+                "Nresponse":"InputRasters:uplandsWI_nResponse_10m",
             }
          # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
