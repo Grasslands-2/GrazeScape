@@ -59,6 +59,7 @@ dt_string = now.strftime("%d/%m/%Y%H:%M:%S")
 
 #------------------------------------------
 raster_data = None
+eroDatum = []
 
 def uploadindex(request):
     return render(template_name = "uploadindex.html", request = request)
@@ -452,118 +453,6 @@ def get_default_om(request):
     print("average om is ", round(sum / count,2))
     return JsonResponse({"om": round(sum / count,2)}, safe=False)
 #This gets the model results from the model results table
-@login_required
-@csrf_protect
-# def run_econ_model(request):
-#     print("RUN ECON MODELS!!!")
-#     total_operations_cost = 0
-#     fields_data_array = []
-#     field_count =  request.POST.get('fieldCount')
-#     alfalfaMachCost = float(request.POST.get("scenArray[0][alfalfaMachCost]"))
-#     alfalfaMachCostY1 = float(request.POST.get("scenArray[0][alfalfaMachYearOneCost]"))
-#     alfalfaPestCost = float(request.POST.get("scenArray[0][alfalfaPestCost]"))
-#     alfalfaSeedCost = float(request.POST.get("scenArray[0][alfalfaSeedCost]"))
-#     cornMachCost = float(request.POST.get("scenArray[0][cornMachCost]"))
-#     cornPestCost = float(request.POST.get("scenArray[0][cornPestCost]"))
-#     cornSeedCost = float(request.POST.get("scenArray[0][cornSeedCost]"))
-#     grassMachCost = float(request.POST.get("scenArray[0][grassMachCost]"))
-#     grassPestCost = float(request.POST.get("scenArray[0][grassPestCost]"))
-#     grassSeedCost = float(request.POST.get("scenArray[0][grassSeedCost]"))
-#     oatMachCost = float(request.POST.get("scenArray[0][oatMachCost]"))
-#     oatPestCost = float(request.POST.get("scenArray[0][oatPestCost]"))
-#     oatSeedCost = float(request.POST.get("scenArray[0][oatSeedCost]"))
-#     soyMachCost = float(request.POST.get("scenArray[0][soyMachCost]"))
-#     soyPestCost = float(request.POST.get("scenArray[0][soyPestCost]"))
-#     soySeedCost = float(request.POST.get("scenArray[0][soySeedCost]"))
-#     fertNCost = float(request.POST.get("scenArray[0][fertNCost]"))
-#     fertPCost = float(request.POST.get("scenArray[0][fertPCost]"))
-#     #print(request.POST)
-#     for i in range(int(field_count)):
-#         count_string = str(i)
-#         cost_of_field = 0
-#         cost_per_arce = 0
-#         cost_of_fert = 0
-#         fertp_cost = 0
-#         fertn_cost = 0
-#         data_array = []
-#         land_area = float(request.POST.get("fieldArray["+ count_string + "][area]"))
-#         land_cost = float(request.POST.get("fieldArray["+ count_string + "][landCost]")) * land_area
-#         rotation = request.POST.get("fieldArray["+ count_string + "][rotationVal]")
-#         cover_crop = request.POST.get("fieldArray["+ count_string + "][coverCropVal]")
-#         fert_p_perc = float(request.POST.get("fieldArray["+ count_string + "][fertPercP]"))/100
-#         fert_n_perc = float(request.POST.get("fieldArray["+ count_string + "][fertPercN]"))/100
-#         #fertp = fertPCost * fert_p_perc
-#         #fertn = fertNCost * fert_n_perc
-#         if rotation == 'cc':
-#             cost_seed = cornSeedCost
-#             cost_pest = cornPestCost
-#             cost_mach = cornMachCost
-#             if cover_crop == 'cc':
-#                 fertp_cost = fertPCost * 60 # 60 from cropcover needs table.  results is $/acre in P fertilizer
-#                 fertn_cost = fertNCost * 0 # 0 from cropcover needs table.  results is $/acre in N fertilizer
-#             if cover_crop == 'gcis' or cover_crop == 'gcds':
-#                 fertp_cost = fertPCost * 60  # 60 from cropcover needs table.  results is $/acre in P fertilizer
-#                 fertn_cost = fertNCost * 0 # 0 from cropcover needs table.  results is $/acre in N fertilizer
-#             if cover_crop == 'nc' or None:
-#                 fertp_cost = fertPCost * 60  # 60 from cropcover needs table.  results is $/acre in P fertilizer
-#                 fertn_cost = fertNCost * 0 # 0 from cropcover needs table.  results is $/acre in N fertilizer
-#             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-#         if rotation == 'cg':
-#             cost_seed = (cornSeedCost + soySeedCost)/2
-#             cost_pest = (cornPestCost + soyPestCost)/2
-#             cost_mach = (cornMachCost + soyMachCost)/2
-#             if cover_crop == 'cc':
-#                 fertp_cost = fertPCost * 50  
-#                 fertn_cost = fertNCost * 0 
-#             if cover_crop == 'gcis' or cover_crop == 'gcds':
-#                 fertp_cost = fertPCost * 47.5  
-#                 fertn_cost = fertNCost * 60 
-#             if cover_crop == 'nc' or None:
-#                 fertp_cost = fertPCost * 50  
-#                 fertn_cost = fertNCost * 60 
-#             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-#         if rotation == 'cso':
-#             cost_seed = (cornSeedCost + soySeedCost + oatSeedCost)/3
-#             cost_pest = (cornPestCost + soyPestCost + oatPestCost)/3
-#             cost_mach = (cornMachCost + soyMachCost + oatMachCost)/3
-#             fertp_cost = fertPCost * 46.67  # 46.67 from cropcover needs table.  results is $/acre in P fertilizer
-#             fertn_cost = fertNCost * 60 # 60 from cropcover needs table.  results is $/acre in N fertilizer
-#         if rotation == 'dl':
-#             cost_seed = 0
-#             cost_pest = 0
-#             cost_mach = 0
-#             fertp_cost = 0
-#             fertn_cost = 0
-#         if rotation == 'dr':
-#             cost_seed = ((cornSeedCost*2) + alfalfaSeedCost)/5
-#             cost_pest = ((cornPestCost*2) + (alfalfaPestCost*3))/5
-#             cost_mach = ((cornMachCost*2) + (alfalfaMachCost*2 + alfalfaMachCostY1))/5 # +89 to account for the extra cost in the planting alfalfa year
-#             fertp_cost = fertPCost * 49  # 49 from cropcover needs table.  results is $/acre in P fertilizer
-#             fertn_cost = fertNCost * 52 #  52 from cropcover needs table.  results is $/acre in N fertilizer
-#             #cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-#         if rotation == 'pt-cn' or rotation == 'pt-rt':
-#             cost_seed = grassSeedCost
-#             cost_pest = grassPestCost
-#             cost_mach = grassMachCost
-#             fertp_cost = 40
-#             fertn_cost = 2
-#         #Final summations for field
-        
-#         cost_of_fert = ((fertp_cost * fert_p_perc) + (fertn_cost * fert_n_perc))
-#         cost_of_field = (cost_of_fert + cost_seed + cost_pest + cost_mach + land_cost)
-#         cost_per_arce = cost_of_field/land_area
-#         total_operations_cost = total_operations_cost + cost_of_field
-#         data_array.append(cost_of_field)
-#         data_array.append(cost_per_arce)
-#         print(cost_of_fert)
-#         print(cost_of_field)
-#         print(cost_per_arce)
-#         fields_data_array.append(data_array)
-#     print("OPERATION TOTAL!")
-#     print(total_operations_cost)
-#     fields_data_array.append(total_operations_cost)
-#     print(fields_data_array)
-#     return JsonResponse(fields_data_array, safe=False)
 
 def get_model_results(request):
     print("MODEL PARAMETERS!!!!!!!!")
@@ -640,7 +529,7 @@ def get_model_results(request):
             #call row yeilds nulling function here!!!
             crop_ro = request.POST.getlist("model_parameters[crop]")[0]
             if crop_ro == 'pt' or crop_ro == 'ps':
-                model = GrassYield(request)
+                model = GrassYield(request,active_region)
             elif crop_ro == 'dl':
                 data = {
                     # overall model type crop, ploss, bio, runoff
@@ -655,16 +544,16 @@ def get_model_results(request):
                 return JsonResponse([data], safe=False)
                 # pass
             else:
-                model = CropYield(request)
+                model = CropYield(request,active_region)
         elif model_type == 'ploss':
             model = PhosphorousLoss(request,active_region)
         elif model_type == 'runoff':
             model = Runoff(request,active_region)
         elif model_type == 'bio':
             model = Insecticide(request)
-        elif model_type == 'nitrate':
-            model = NitrateLeeching(request)##eroDatum)
-            print("NITRATE MODEL HIT!")
+        # elif model_type == 'nitrate':
+        #     model = NitrateLeeching(request)##eroDatum)
+        #     print("NITRATE MODEL HIT!")
         elif model_type == 'econ':
             # print("Request in views")
             # print(request.POST)
@@ -687,6 +576,11 @@ def get_model_results(request):
         # loop here to build a response for all the model types
         if model_type == 'runoff' or model_type == 'ploss':
             results = model.run_model(active_region)
+        # elif model_type == 'nitrate':
+        #     results = model.run_model(eroDatum)
+        elif model_type == 'yield':
+            results = model.run_model(active_region)
+            print("YIELD MODEL RAN!!!!")
         else:
             results = model.run_model()
             print("MODEL RAN!!!!")
@@ -710,11 +604,12 @@ def get_model_results(request):
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
                 if result.model_type == 'ero':
-                #model_type == 'ero':
                     print('UPLOADING ERO FOR FIELD: '+field_id)
-                    # print(result)
+                    eroDatum = model.get_ero_datum(result,geo_data.bounds)
                     # print(geo_data.bounds)
                     # print(geo_data.no_data_aray)
+                    print("eroDatum")
+                    print(eroDatum)
                     remove_old_pngs_gcs_storage_bucket("ero",field_id)
                     upload_gcs_model_result_blob("ero",field_id,model_run_timestamp)
                 if result.model_type == 'ploss':
@@ -725,6 +620,8 @@ def get_model_results(request):
                     #like if result.model_type == 'grass_yeild'/'soy_yield'/ ext ext
                 if model_type == 'yield':
                     print('UPLOADING YIELD FOR FIELD: '+field_id)
+                    print("YIELD RESULTS!")
+                    print(result)
                     #yield_types = ['Rotational Average','Corn Grain','Soy','Grass','Corn Silage','Alfalfa','Oats']
                     # for y in yield_types:
                     #     print(y)
@@ -773,6 +670,19 @@ def get_model_results(request):
                 "till": model.model_parameters["tillage"],
                 "model_run_timestamp": model_run_timestamp
             }
+            #You might be able to use this to NOT call nutrients until yeild is done
+            #if not here you might have to take the nutrient calls out of the front end 
+            #list of models to call, and set up the yield return to call the nutrient 
+            #models.  Then place them inside the chartobj from there.
+            #Another thought is to return the yield and nutrient models at the same time, 
+            #then disect the response in the front end.
+            if model_type == "yield":
+                print("RETUNR DATA AT END OF MODEL RUN!")
+                print("")
+                print(return_data)
+                print("")
+                #Trying to rerun models with ploss after yield to see if we can 
+                #capture the yield output data.
             if db_has_field(field_id):
             # if db_has_field(field_id, scenario_id, farm_id):
                 # if model_type == 'ploss':
@@ -784,8 +694,12 @@ def get_model_results(request):
             update_field_dirty(field_id, scenario_id, farm_id)
             
             return_data.append(data)
+            #I THink I can grab the yield data from these results and save them
+            #for the nitrate model run.  
+            #Now I need to delay the nitrate model run until after yield completes
             
-# THIS IS WHERE THINGS RETURN IF MODEL RUN WORKED!!!!!
+    # THIS IS WHERE THINGS RETURN IF MODEL RUN WORKED!!!!!
+
         return JsonResponse(return_data, safe=False)
     except KeyError as e:
         error = str(e) + " while running models for field " + f_name

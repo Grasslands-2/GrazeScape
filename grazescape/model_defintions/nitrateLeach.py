@@ -151,9 +151,11 @@ class NitrateLeeching(ModelBase):
             nrecValue_array.append(str(NFertRecs_Row["Nrec"].values[0]))
             print(nrecValue_array)
         return (nrecValue_array)
-    def run_model(self):
+    def run_model(self,):
+        
         print('NITRATE LEECHING MODEL PARAS!!!!!!')
         print(self.model_parameters)
+        #print(erodatanm)
         # user defined variables
         crop_ro = self.model_parameters["crop"]
         rot_yrs = 0
@@ -191,13 +193,17 @@ class NitrateLeeching(ModelBase):
         
         #Model result defined variables
         #erosion = self.erodatmn[0]
-
+        print("ERO datanm[y][x] In nitrate model")
+        print("")
         for y in range(0, self.bounds["y"]):
             for x in range(0, self.bounds["x"]):
                 # [bushels/acre x 10] original units
-                print(self.raster_inputs["om"][y][x] / 10)
-                print(self.raster_inputs["drain_class"][y][x])
-                print(self.raster_inputs["Nresponse"][y][x])
+                #print(self.raster_inputs["om"][y][x] / 10)
+                #print(self.raster_inputs["drain_class"][y][x])
+                #print(self.raster_inputs["Nresponse"][y][x])
+                #print(erodatanm[y][x])
+                print(x)
+                print(y)
 
         
         #fetched variables from csvs
