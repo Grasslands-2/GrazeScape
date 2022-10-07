@@ -203,7 +203,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		},
 		{
 			xtype: 'button',
-			text: 'Save Changes',
+			text: 'Refresh',
 			handler: function (self) {
 				runInfraUpdate()
 				selectedInfra = []

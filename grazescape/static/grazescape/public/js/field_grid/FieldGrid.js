@@ -377,7 +377,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	hidden: true,
 	selModel: {
 		allowDeselect: true,
-		selType: 'checkboxmodel',//"rowmodel",//'checkboxmodel', // rowmodel is the default selection model
+		selType: "rowmodel",//'checkboxmodel', // rowmodel is the default selection model
 		mode: 'MULTI'
 	},
 	
@@ -413,7 +413,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		},
 		{
 			xtype: 'button',
-			text: 'Save Changes',
+			text: 'Refresh',
 			handler: function (self) {
 				runFieldUpdate()
 				selectedFields = []
@@ -444,12 +444,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		resize: function(self, newW, newH, oldW, oldH) {
 			if (!self.isAnimating) self.internalHeight = newH;
 		},
-		update: function (self,record) {
+		change: function (self,record) {
 			console.log("UPDATE HAPPENED!")
 		    console.log(self,record)
 			setTimeout(() => {
 				this.getView().refresh()
-		}, "1000")
+		}, "250")
 		},
 		select: function (self,record,eOpts) {
 			console.log("Record Selected")
@@ -465,6 +465,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			//console.log(self.selected.items[0].id)
 			//console.log(record.id)
 			deleteRecord = record;
+		// 	setTimeout(() => {
+		// 		this.getView().refresh()
+		// }, "250")
 			// DSS.map.addInteraction(selectInteraction);
 			// console.log("ROWcd d CLICK")
 			// var fieldFeatures = DSS.layer.fields_1.getSource().getFeatures();
@@ -504,7 +507,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							console.log(selectedFields)
 							console.log("newValue: " + newValue)
 							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on landCost")
+							console.log("you've changed man on soilP")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
@@ -519,11 +522,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 										}
 									}
 								}
-							// 	setTimeout(() => {
-							// 		me.getView().refresh()
+								//WHY DOES THIS BREAK THE STYLE FOR CHART DASHBOARD< SO THAT yOU CAN CLOSE THE DASHBOARD????????
+								// setTimeout(() => {
+								// Ext.getCmp("fieldTable").getView().refresh();
+							// 		let view = me.getView()
+							// 		view.refresh()
+							// 		//me.getView().refresh()
 							// }, "250")
 							}
-							var view = me.getView()
+							let view = me.getView()
 							//view.refresh()
 					}
 				}
@@ -1018,9 +1025,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 										}
 									}
 								}
-								setTimeout(() => {
-									me.getView().refresh()
-							}, "250")
+							// 	setTimeout(() => {
+							// 		me.getView().refresh()
+							// }, "250")
 							}
 					}
 				}
@@ -1480,9 +1487,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 									}
 								}
 							}
-							setTimeout(() => {
-								me.getView().refresh()
-						}, "250")
+						// 	setTimeout(() => {
+						// 		me.getView().refresh()
+						// }, "250")
 						}
 						//console.log(store)
 					}
@@ -1575,9 +1582,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 									}
 								}
 							}
-							setTimeout(() => {
-								me.getView().refresh()
-						}, "250")
+						// 	setTimeout(() => {
+						// 		me.getView().refresh()
+						// }, "250")
 						}
 						//console.log(store)
 						
@@ -1714,9 +1721,9 @@ Ext.define('DSS.field_grid.FieldGrid', {
 									}
 								}
 							}
-							setTimeout(() => {
-								me.getView().refresh()
-						}, "250")
+						// 	setTimeout(() => {
+						// 		me.getView().refresh()
+						// }, "250")
 						}
 						//console.log(store)
 						selectedFields = []

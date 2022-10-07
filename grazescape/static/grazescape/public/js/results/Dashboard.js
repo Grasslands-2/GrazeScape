@@ -238,7 +238,7 @@ function turnOffMappedResults() {
 }
     
 var fieldYieldArray = [];
-var modelTypes = ['yield', 'ploss','runoff', 'bio','econ']
+var modelTypes = ['yield', /*'ploss','runoff', 'bio','econ','nitrate'*/]
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -428,6 +428,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 bio_pb = document.getElementById("bio_pb");
                 runoff_pb = document.getElementById("runoff_pb");
                 econ_pb = document.getElementById("econ_pb");
+                nitrate_pb = document.getElementById("nitrate_pb");
 
                 // show progress bars when models run
                 econ_pb.hidden = false
@@ -436,6 +437,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff_pb.hidden = false
                 yield_pb.hidden = false
                 nut_pb.hidden = false
+                nitrate_pb.hidden = false
                 Ext.getCmp("erosionFarmConvert").setDisabled(true)
                 Ext.getCmp("erosionFieldConvert").setDisabled(true)
                 Ext.getCmp("yieldFarmConvert").setDisabled(true)
@@ -487,6 +489,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     case 'econ':
                         econ_pb.max = numbFields
                         break
+                    case 'nitrate':
+                        //set up a call to a python function to run the nitrate model.  well worry abuot
+                        //presentation after the model works.
+                        nitrate_pb.max = numbFields
+                        break
                 }
             }
             console.log(fieldIter)
@@ -512,6 +519,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 for (model in modelTypes){
                     let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion)//.then(model_request_return)
                     //build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return => {
+                    console.log(model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                         console.log(returnData[0])
@@ -602,6 +610,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("econTab").setDisabled(false)
                                     Ext.getCmp("econFarmConvert").setDisabled(false)
                                     Ext.getCmp("econFieldConvert").setDisabled(false)
+                                }
+                                break
+                            case 'nitrate':
+                                nitrate_pb.value = nitrate_pb.value + 1
+                                if(nitrate_pb.value == nitrate_pb.max){
+                                    nitrate_pb.hidden = true
+                                    Ext.getCmp("nitrateTab").setDisabled(false)
+                                    Ext.getCmp("nitrateFarmConvert").setDisabled(false)
+                                    Ext.getCmp("nitrateFieldConvert").setDisabled(false)
                                 }
                                 break
                         }
@@ -1284,6 +1301,151 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
             }
             //TODO update
+            var nitrate = {
+                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nitrate_pb >50%</progress>',
+                plain: true,
+                id:"nitrateTab",
+                disabled:true,
+                tabBar : {
+                    layout: {
+                        pack: 'center',
+                            //background: '#C81820',
+                     }
+                 },
+                xtype: 'tabpanel',
+                style: 'background-color: #377338;',
+
+                defaults: {
+                   border:false,
+                    bodyBorder: false
+                },
+                scrollable: true,
+//                inner tabs for farm and field scale
+                items:[
+                    { xtype: 'panel',
+                    title: '<i class="fas fa-seedling"></i></i>  Field',
+                     border: false,
+//                   disabled: true,
+                    id: 'nitrateFieldTab',
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'nitrateFieldConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'nitrate / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total nitrate',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("ploss_field", e.id)
+                         }},
+                    },
+                    {
+
+                        xtype: 'container',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="ploss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+//                    {
+//                        xtype: 'container',
+//                    },{
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    }
+                    ],
+                         listeners:{activate: function() {
+                            if (chartObj["ploss_field"].chart !== null){
+//                                chartObj["ploss_field"].chart.destroy()
+//                                chartObj["soil_loss_field"].chart.destroy()
+                                return
+                            }
+                            chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
+//                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
+
+                    }}
+                },
+                {
+                    xtype: 'container',
+                    title: '<i class="fas fa-warehouse"></i>  Farm',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'nitrateFarmConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Nutrients / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total Nutrients',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("ploss_farm", e.id)
+                         }},
+                    },
+                   {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="canvas2" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    },{
+//
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="canvas3" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    }
+                    ],
+                        listeners:{activate: function() {
+                           if (chartObj["ploss_farm"].chart !== null){
+                                return
+                            }
+                            chartObj.ploss_farm.chart = create_graph(chartObj.ploss_farm, 'Phosphorus Loss', document.getElementById('ploss_farm').getContext('2d'));
+                    }}
+
+                },
+            ],
+
+            }
         var nutrients = {
                 title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nut_pb >50%</progress>',
                 plain: true,
@@ -2889,6 +3051,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 yield,
                 erosion,
                 nutrients,
+                nitrate,
                 runoff,
                 //feedoutput,
                 bio,
