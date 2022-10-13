@@ -482,12 +482,14 @@ Ext.define('DSS.state.Scenario', {
 									//DSS.layer.PLossGroup.setVisible(false);
 									DSS.MapState.destroyLegend();
 									DSS.layer.erosionGroup.setVisible(false);
+									DSS.layer.nleachingGroup.setVisible(false);
 									DSS.layer.yieldGroup.setVisible(false);
 									DSS.MapState.hideFieldsandInfra()
 									AppEvents.triggerEvent('hide_field_grid')
 									AppEvents.triggerEvent('hide_infra_grid')
 									DSS.layer.PLossGroup.values_.layers.array_ = [];
 									DSS.layer.erosionGroup.values_.layers.array_ = [];
+									DSS.layer.nleachingGroup.values_.layers.array_ = [];
 									DSS.layer.yieldGroup.values_.layers.array_ = [];
 								}
 							});
@@ -981,9 +983,11 @@ Ext.define('DSS.state.Scenario', {
 						}
 						//DSS.layer.PLossGroup.setVisible(false);
 						DSS.layer.erosionGroup.setVisible(false);
+						DSS.layer.nleachingGroup.setVisible(false);
 						DSS.layer.yieldGroup.setVisible(false);
 						DSS.layer.PLossGroup.values_.layers.array_ = [];
 						DSS.layer.erosionGroup.values_.layers.array_ = [];
+						DSS.layer.nleachingGroup.values_.layers.array_ = [];
 						DSS.layer.yieldGroup.values_.layers.array_ = [];
 						console.log("running update")
 						fieldChangeList = []
@@ -1045,10 +1049,12 @@ Ext.define('DSS.state.Scenario', {
 							DSS.MapState.destroyLegend();
 							DSS.layer.yieldGroup.setVisible(false);
 							DSS.layer.erosionGroup.setVisible(false);
+							DSS.layer.nleachingGroup.setVisible(false);
 							DSS.layer.runoffGroup.setVisible(false);
 							DSS.layer.PLossGroup.setVisible(false);
 							DSS.layer.PLossGroup.values_.layers.array_ = [];
 							DSS.layer.erosionGroup.values_.layers.array_ = [];
+							DSS.layer.nleachingGroup.values_.layers.array_ = [];
 							DSS.layer.yieldGroup.values_.layers.array_ = [];
 							DSS.layer.runoffGroup.values_.layers.array_ = [];
                             let dash = Ext.create('DSS.results.Dashboard', {
@@ -1072,15 +1078,16 @@ Ext.define('DSS.state.Scenario', {
 //				 	disabled: false,
 				 	handler: function(self) {
 		                Ext.getCmp("dashboardWindow").show()
-						// DSS.MapState.destroyLegend();
-            			// DSS.layer.yieldGroup.setVisible(false);
-						// DSS.layer.erosionGroup.setVisible(false);
-						// DSS.layer.runoffGroup.setVisible(false);
-						// DSS.layer.PLossGroup.setVisible(false);
-						// DSS.layer.PLossGroup.values_.layers.array_ = [];
-						// DSS.layer.erosionGroup.values_.layers.array_ = [];
-						// DSS.layer.yieldGroup.values_.layers.array_ = [];
-						// DSS.layer.runoffGroup.values_.layers.array_ = [];
+						DSS.layer.yieldGroup.setVisible(false);
+							// DSS.layer.erosionGroup.setVisible(false);
+							// DSS.layer.nleachingGroup.setVisible(false);
+							// DSS.layer.runoffGroup.setVisible(false);
+							// DSS.layer.PLossGroup.setVisible(false);
+							// DSS.layer.PLossGroup.values_.layers.array_ = [];
+							// DSS.layer.erosionGroup.values_.layers.array_ = [];
+							// DSS.layer.nleachingGroup.values_.layers.array_ = [];
+							// DSS.layer.yieldGroup.values_.layers.array_ = [];
+							// DSS.layer.runoffGroup.values_.layers.array_ = [];
 				 	}
 				 },
 				 {
