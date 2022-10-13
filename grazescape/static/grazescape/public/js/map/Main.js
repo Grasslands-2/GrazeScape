@@ -1316,6 +1316,10 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
+		DSS.layer.nleachingGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
 		DSS.layer.runoffGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
@@ -1652,6 +1656,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.regionLabels,
 				DSS.layer.fields_1,
 				DSS.layer.erosionGroup,
+				DSS.layer.nleachingGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.runoffGroup,
 				DSS.layer.yieldGroup

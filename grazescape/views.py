@@ -587,12 +587,11 @@ def get_model_results(request):
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.getlist("model_parameters[area]")[0])
+        print('RESULTS PRINTED HERE!!!')
         for result in results:
-            print('RESULTS HERE!!!')
-            print(result)
+            print('RESULT HERE!!!')
+            print(result.model_type)
             if result.model_type == "insect" or result.model_type == "econ":
-                print('RESULTS HERE!!!')
-                print(result)
                 sum = result.data[0]
                 avg = sum
                 count = 1
@@ -600,7 +599,7 @@ def get_model_results(request):
                 values_legend = []
             else:
                 print(geo_data.bounds)
-                print(result)
+                #print(result.data)
                 avg, sum, count = model.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model.get_legend()
                 if result.model_type == 'ero':
@@ -618,6 +617,10 @@ def get_model_results(request):
                     upload_gcs_model_result_blob("ploss",field_id,model_run_timestamp)
                     #If you want to break out yield results by type, you will have to do if statements
                     #like if result.model_type == 'grass_yeild'/'soy_yield'/ ext ext
+                if result.model_type == 'nleaching':
+                    print('UPLOADING NITRATE FOR FIELD: '+field_id)
+                    remove_old_pngs_gcs_storage_bucket("nleaching",field_id)
+                    upload_gcs_model_result_blob("nleaching",field_id,model_run_timestamp)
                 if model_type == 'yield':
                     print('UPLOADING YIELD FOR FIELD: '+field_id)
                     print("YIELD RESULTS!")
