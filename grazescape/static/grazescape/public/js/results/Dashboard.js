@@ -466,7 +466,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("nutrientsFarmConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
                 //Ext.getCmp("nitrateFarmConvert").setDisabled(true)
-                Ext.getCmp("nitrateFieldConvert").setDisabled(true)
+                //Ext.getCmp("nitrateFieldConvert").setDisabled(true)
                 Ext.getCmp('mainTab').update()
             }, 10);
             createDashBoard(me)
