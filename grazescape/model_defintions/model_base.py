@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from PIL import Image
 import numpy as np
+#np.set_printoptions(threshold=np.inf)
 from pyper import R
 from django.conf import settings
 import os
@@ -10,7 +11,7 @@ import grazescape.model_defintions.utilities as ut
 import pickle
 from pyper import R
 
-
+eroDatum = []
 class ModelBase:
 
     def __init__(self, request,active_region, file_name=None):
@@ -47,6 +48,8 @@ class ModelBase:
         cover_crop = request.POST.get("model_parameters[crop_cover]")
         fert_p_perc = request.POST.get("model_parameters[fert_p_perc]")
         fert_n_perc = request.POST.get("model_parameters[fert_n_perc]")
+        manure_p_perc = request.POST.get("model_parameters[manure_p_perc]")
+        manure_n_perc = request.POST.get("model_parameters[manure_n_perc]")
 
         if file_name is None:
             file_name = model_type + field_id +'_' + model_run_timestamp ##+'_'+ str(uuid.uuid1())##
@@ -182,6 +185,7 @@ class ModelBase:
             "graze_factor": request.POST.getlist("model_parameters[graze_factor]")[0],
             "area": "",
             "om": request.POST.getlist("model_parameters[om]")[0],
+            "legume": request.POST.getlist("model_parameters[legume]")[0],
             "alfalfaMachCost": request.POST.getlist("model_parameters[alfalfaMachCost]")[0],
             "alfalfaMachCostY1": request.POST.getlist("model_parameters[alfalfaMachCostY1]")[0],
             "alfalfaPestCost": request.POST.getlist("model_parameters[alfalfaPestCost]")[0],
@@ -206,6 +210,8 @@ class ModelBase:
             #"rotation_econ": request.POST.getlist("model_parameters[rotation_econ]"),
             "fert_p_perc": request.POST.getlist("model_parameters[fert_p_perc]")[0],
             "fert_n_perc": request.POST.getlist("model_parameters[fert_n_perc]")[0],
+            "manure_p_perc": request.POST.getlist("model_parameters[manure_p_perc]")[0],
+            "manure_n_perc": request.POST.getlist("model_parameters[manure_n_perc]")[0],
         }
         print("MODEL PARAMS IN MODEL_BASE!!!!!")
         print(parameters)
@@ -310,6 +316,7 @@ class ModelBase:
 
     def reshape_model_output(self, data, bounds):
         data = np.reshape(data, (bounds["y"], bounds["x"]))
+
         return data
 
     def min_max_avg(self, data, no_data_array):
@@ -346,7 +353,10 @@ class ModelBase:
                     count = count + 1
         sum_val = [float(round(elem, 2)) for elem in sum_val]
         return sum_val, valid_count
-
+    def get_ero_datum(self,result,bounds):
+        data = result.data
+        erodatanm = self.reshape_model_output(data, bounds)
+        return erodatanm
     def get_model_png(self, result, bounds, no_data_array):
         file_name = result.model_type + self.field_id + '_' + self.model_run_timestamp
         raster_image_file_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',file_name + ".png")
@@ -358,10 +368,28 @@ class ModelBase:
             return 0, sum, float(count)
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
+        # if result.model_type == 'ero':
+        #     print("ERO data before color assignment Length!")
+        #     print(data)
+        #     print("ERO data before color assignment Length!")
+        #     print(len(data[0]))
+        #     print("ERO datanm before color assignment!")
+        #     print(datanm)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v,result)
+        print("ERO datanm[y][x] before color assignment!")
         for y in range(0, rows):
             for x in range(0, cols):
+                #if(result.model_type == 'ero'):
+                    #print("")
+                    # print("ERO datanm[y][x] before color assignment!")
+                    # print(x)
+                    # print(y)
+                    # print(datanm[y][x])
+                    
+                    # print("ERO data[y][x] before color assignment!")
+                    # print(data[y][x])
+                
                 color = self.calculate_color(color_ramp, datanm[y][x])
                 three_d[y][x][0] = color[0]
                 three_d[y][x][1] = color[1]

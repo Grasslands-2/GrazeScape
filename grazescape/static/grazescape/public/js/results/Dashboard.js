@@ -58,6 +58,22 @@ function field_png_lookup(data,layer,extents){
             erosionGroupLayers.push(DSS.layer.erosion_field);
             DSS.map.removeLayer(DSS.layer.erosion_field)
         }
+        if(layer == 'nleaching'){
+            nleachingPNGFile = responses[0]
+            DSS.layer.nleaching_field = new ol.layer.Image({
+                visible: false,
+                updateWhileAnimating: true,
+                updateWhileInteracting: true,
+                source: new ol.source.ImageStatic({
+                //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                url: '/static/grazescape/public/images/' + nleachingPNGFile,
+                imageExtent: extents
+                })
+            })
+            var nleachingGroupLayers = DSS.layer.nleachingGroup.getLayers().getArray();
+            nleachingGroupLayers.push(DSS.layer.nleaching_field);
+            DSS.map.removeLayer(DSS.layer.nleaching_field)
+        }
         if(layer == 'yield'){
             yieldPNGFile = responses[0]
             DSS.layer.yield_field = new ol.layer.Image({
@@ -114,6 +130,7 @@ function timeout(){
 var pLossColorArray = ["#204484","#3e75b2","#90b9e4","#d2f0fa","#fcffd8","#ffdaa0","#eb9159","#d25c34","#a52d18"]
 var pLossValueArray =['0',1.5,3,4.5,6,7.5,9.6,11.2,12.8,'15+']
 DSS.plossBol = false
+DSS.nleachBol = false
 DSS.eroBol = false
 DSS.runoffBol = false
 DSS.yieldBol = false
@@ -233,12 +250,13 @@ function turnOffMappedResults() {
     DSS.MapState.destroyLegend();
     DSS.layer.yieldGroup.setVisible(false);
     DSS.layer.erosionGroup.setVisible(false);
+    DSS.layer.nleachingGroup.setVisible(false);
     DSS.layer.runoffGroup.setVisible(false);
     DSS.layer.PLossGroup.setVisible(false);
 }
     
 var fieldYieldArray = [];
-var modelTypes = ['yield', 'ploss','runoff', 'bio','econ']
+var modelTypes = ['yield', /*'ploss',*/'runoff', 'bio','econ']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -248,6 +266,7 @@ var chartList = [
 //    "nitrogen_farm",
     "ploss_farm", "ploss_field",
     "soil_loss_farm", "soil_loss_field",
+    "nleaching_farm", "nleaching_field",
 //    "bio_farm",
     "cn_num_farm",
     "runoff_farm",
@@ -428,6 +447,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 bio_pb = document.getElementById("bio_pb");
                 runoff_pb = document.getElementById("runoff_pb");
                 econ_pb = document.getElementById("econ_pb");
+                nitrate_pb = document.getElementById("nitrate_pb");
 
                 // show progress bars when models run
                 econ_pb.hidden = false
@@ -436,6 +456,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff_pb.hidden = false
                 yield_pb.hidden = false
                 nut_pb.hidden = false
+                //nitrate_pb.hidden = false
                 Ext.getCmp("erosionFarmConvert").setDisabled(true)
                 Ext.getCmp("erosionFieldConvert").setDisabled(true)
                 Ext.getCmp("yieldFarmConvert").setDisabled(true)
@@ -444,8 +465,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("econFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFarmConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
-                Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
-                Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
+                //Ext.getCmp("nitrateFarmConvert").setDisabled(true)
+                //Ext.getCmp("nitrateFieldConvert").setDisabled(true)
                 Ext.getCmp('mainTab').update()
             }, 10);
             createDashBoard(me)
@@ -470,6 +491,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                  switch (modelTypes[model]){
                     case 'yield':
                         yield_pb.max = numbFields
+                        nut_pb.max = numbFields
+                        ero_pb.max = numbFields
                         break
                     case 'ploss':
                          nut_pb.max = numbFields
@@ -486,6 +509,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         break
                     case 'econ':
                         econ_pb.max = numbFields
+                        break
+                    case 'nitrate':
+                        //set up a call to a python function to run the nitrate model.  well worry abuot
+                        //presentation after the model works.
+                        nitrate_pb.max = numbFields
                         break
                 }
             }
@@ -512,6 +540,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 for (model in modelTypes){
                     let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion)//.then(model_request_return)
                     //build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return => {
+                    console.log(model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                         console.log(returnData[0])
@@ -535,6 +564,18 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
+                                    // nitrate_pb.hidden = true
+                                    // Ext.getCmp("nitrateTab").setDisabled(false)
+                                    // Ext.getCmp("nitrateFarmConvert").setDisabled(false)
+                                    // Ext.getCmp("nitrateFieldConvert").setDisabled(false)
+                                    ero_pb.hidden = true
+                                    Ext.getCmp("eroTab").setDisabled(false)
+                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
+                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
+                                    nut_pb.hidden = true
+                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
+                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
+                                    Ext.getCmp("nutTab").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
@@ -604,6 +645,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("econFieldConvert").setDisabled(false)
                                 }
                                 break
+                            // case 'nitrate':
+                            //     nitrate_pb.value = nitrate_pb.value + 1
+                            //     if(nitrate_pb.value == nitrate_pb.max){
+                            //         nitrate_pb.hidden = true
+                            //         Ext.getCmp("nitrateTab").setDisabled(false)
+                            //         Ext.getCmp("nitrateFarmConvert").setDisabled(false)
+                            //         Ext.getCmp("nitrateFieldConvert").setDisabled(false)
+                            //     }
+                            //     break
                         }
                         totalFields = totalFields - 1
                         if(totalFields == 0){
@@ -730,6 +780,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         var erosion = {
 
                 title: '<i class="fas fa-mountain"></i>  Erosion <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=ero_pb >50%</progress>',
+                //title: '<i class="fas fa-mountain"></i>  Erosion <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=yield_pb >50%</progress>',
                 plain: true,
                 id:"eroTab",
                 disabled:true,
@@ -1284,8 +1335,154 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
             }
             //TODO update
+            var nitrate = {
+                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nitrate_pb >50%</progress>',
+                plain: true,
+                id:"nitrateTab",
+                disabled:true,
+                tabBar : {
+                    layout: {
+                        pack: 'center',
+                            //background: '#C81820',
+                     }
+                 },
+                xtype: 'tabpanel',
+                style: 'background-color: #377338;',
+
+                defaults: {
+                   border:false,
+                    bodyBorder: false
+                },
+                scrollable: true,
+//                inner tabs for farm and field scale
+                items:[
+                    { xtype: 'panel',
+                    title: '<i class="fas fa-seedling"></i></i>  Field',
+                     border: false,
+//                   disabled: true,
+                    id: 'nitrateFieldTab',
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'nitrateFieldConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'nitrate / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total nitrate',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("nleaching_field", e.id)
+                         }},
+                    },
+                    {
+
+                        xtype: 'container',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+//                    {
+//                        xtype: 'container',
+//                    },{
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    }
+                    ],
+                         listeners:{activate: function() {
+                            if (chartObj["nleaching_field"].chart !== null){
+//                                chartObj["ploss_field"].chart.destroy()
+//                                chartObj["soil_loss_field"].chart.destroy()
+                                return
+                            }
+                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
+//                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
+
+                    }}
+                },
+                {
+                    xtype: 'container',
+                    title: '<i class="fas fa-warehouse"></i>  Farm',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'nitrateFarmConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Nutrients / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total Nutrients',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("ploss_farm", e.id)
+                         }},
+                    },
+                   {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="canvas2" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    },{
+//
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="canvas3" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    }
+                    ],
+                        listeners:{activate: function() {
+                           if (chartObj["ploss_farm"].chart !== null){
+                                return
+                            }
+                            chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
+                    }}
+
+                },
+            ],
+
+            }
         var nutrients = {
                 title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nut_pb >50%</progress>',
+                //title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=yield_pb >50%</progress>',
                 plain: true,
                 id:"nutTab",
                 disabled:true,
@@ -1310,6 +1507,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                      border: false,
 //                   disabled: true,
                     id: 'nutFieldTab',
+                    scrollable: true,
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
@@ -1346,6 +1544,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="ploss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
 //                    {
 //                        xtype: 'container',
 //                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
@@ -1364,6 +1566,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 return
                             }
                             chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
+                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
 //                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
 
                     }}
@@ -1405,6 +1608,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nleaching_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
 //                    {
 //                        xtype: 'container',
 //                        html: '<div id="container"><canvas  id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
@@ -1423,6 +1630,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 return
                             }
                             chartObj.ploss_farm.chart = create_graph(chartObj.ploss_farm, 'Phosphorus Loss', document.getElementById('ploss_farm').getContext('2d'));
+                            chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_farm, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
                     }}
 
                 },
@@ -2250,104 +2458,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         field_png_lookup({model_field:['ploss'+ String(fArray[i].values_.gid)]},'ploss',fExtentsNum)
                         field_png_lookup({model_field:['ero'+ String(fArray[i].values_.gid)]},'ero',fExtentsNum)
                         field_png_lookup({model_field:['Rotational Average'+ String(fArray[i].values_.gid)]},'yield',fExtentsNum)
+                        field_png_lookup({model_field:['nleaching'+ String(fArray[i].values_.gid)]},'nleaching',fExtentsNum)
                         setTimeout(() => {console.log('sup')},100)
 
-                        //MOVED TO field_png_lookup!! Delete after June 1st 2022 if things are working
-                    //     setTimeout(() => {
-                    //     console.log(plossPNGFile)
-                    //     //-------------------------------------Ploss--------------------------------------
-                    //     DSS.layer.ploss_field = new ol.layer.Image({
-                    //         visible: false,
-                    //         opacity: 1,
-                    //         updateWhileAnimating: true,
-                    //         updateWhileInteracting: true,
-                    //         source: new ol.source.ImageStatic({
-                    //         //url:'/static/grazescape/public/images/ploss'+ plossPNGFile[0]/*'String(fId) + '_' + modelruntimeFromDB + */'.png',
-                    //         url:'/static/grazescape/public/images/'+ plossPNGFile/*'String(fId) + '_' + modelruntimeFromDB + */,
-                    //         imageExtent: fExtentsNum
-                    //         })
-                    //     })
-                    //     //DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
-                    //     DSS.layer.ploss_field.getSource().refresh();
-                    //     DSS.layer.ploss_field.getSource().changed();
-                    //     DSS.map.addLayer(DSS.layer.ploss_field)
-                    //     var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                    //     plossGroupLayers.push(DSS.layer.ploss_field);
-                    //     DSS.map.removeLayer(DSS.layer.ploss_field)
-                    // },500)
-                    //     //--------------------Erosion_---------------------------------------
-                    //     field_png_lookup({model_field:['ero'+ String(fId)]},'ero')
-                    //     setTimeout(() => {
-                    //     console.log(eroPNGFile)
-                    //     DSS.layer.erosion_field = new ol.layer.Image({
-                    //         visible: false,
-                    //         updateWhileAnimating: true,
-                    //         updateWhileInteracting: true,
-                    //         source: new ol.source.ImageStatic({
-                    //         //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                    //         url: '/static/grazescape/public/images/' + eroPNGFile,
-                    //         imageExtent: fExtentsNum
-                    //         })
-                    //     })
-                    //     DSS.layer.erosion_field.set('name', 'ero'+ String(fId));
-                    //     var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
-                    //     erosionGroupLayers.push(DSS.layer.erosion_field);
-                    //     DSS.map.removeLayer(DSS.layer.erosion_field)
-                    // },100)
-                    //     //--------------------Runoff_---------------------------------------
-                    //     DSS.layer.runoff_field = new ol.layer.Image({
-                    //         visible: false,
-                    //         updateWhileAnimating: true,
-                    //         updateWhileInteracting: true,
-                    //         source: new ol.source.ImageStatic({
-                    //         url: '/static/grazescape/public/images/Curve Number'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                    //         imageExtent: fExtentsNum
-                    //         })
-                    //     })
-                    //     DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
-                    //     var runoffGroupLayers =DSS.layer.runoffGroup.getLayers().getArray();
-                    //     runoffGroupLayers.push(DSS.layer.runoff_field);
-                    //     DSS.map.removeLayer(DSS.layer.runoff_field)
-                    // //--------------------Yield_---------------------------------------
-                    //     field_png_lookup({model_field:['Rotational Average'+ String(fId)]},'yield')
-                    //     setTimeout(() => {
-                    //         console.log(yieldPNGFile)
-                    //         DSS.layer.yield_field = new ol.layer.Image({
-                    //             visible: false,
-                    //             updateWhileAnimating: true,
-                    //             updateWhileInteracting: true,
-                    //             source: new ol.source.ImageStatic({
-                    //             //url: '/static/grazescape/public/images/Rotational Average'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                    //             url: '/static/grazescape/public/images/'+ yieldPNGFile,
-                    //             imageExtent: fExtentsNum
-                    //             })
-                    //         })
-                    //         DSS.layer.yield_field.set('name', 'Rotational Average'+ String(fId));
-                    //         var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                    //         yieldGroupLayers.push(DSS.layer.yield_field);
-                    //         DSS.map.removeLayer(DSS.layer.yield_field)
-                    //     },100)
-
                     }
-
-                    //OLD LEGACY CODE KEEP PLOSS EXAMPLE FOR REFERENCE!!!!!!!!
-                    //---------------------------------------------------------------------------
-                    // DSS.map.removeLayer(DSS.layer.PLossGroup);
-				    // DSS.map.addLayer(DSS.layer.PLossGroup)
-                    // //DSS.layer.PLossGroup.setVisible(true)
-                    // DSS.layer.PLossGroup.getLayers().forEach(function(layer){
-                    //     layer.setVisible(true)
-                    //     var extents = layer.values_.source.imageExtent_
-                    //     //Use this form when you have unique model run ids.
-                    //     layer.setSource(new ol.source.ImageStatic({
-                    //         url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                    //         imageExtent: extents
-                    //     }))
-                    //     layer.getSource().refresh();
-                    //     layer.getSource().changed();
-                    //     layer.setVisible(false)
-                    // })
-                    
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('40%')
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('60%')
 
@@ -2367,6 +2481,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     DSS.map.addLayer(DSS.layer.PLossGroup)
                     DSS.map.removeLayer(DSS.layer.erosionGroup);
                     DSS.map.addLayer(DSS.layer.erosionGroup)
+                    DSS.map.removeLayer(DSS.layer.nleachingGroup);
+                    DSS.map.addLayer(DSS.layer.nleachingGroup)
                     DSS.map.removeLayer(DSS.layer.runoffGroup);
                     DSS.map.addLayer(DSS.layer.runoffGroup)
                     DSS.map.removeLayer(DSS.layer.yieldGroup);
@@ -2432,6 +2548,72 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 plossGroupLayers.push(DSS.layer.ploss_field);
                                 }
                                 DSS.map.removeLayer(DSS.layer.ploss_field)
+                            }
+                        })
+                    }
+                    for (i in fArray){
+                        console.log("IN NLEACHING LOOK THROUGH LAYERS")
+                        DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
+                            console.log(layer)
+                            var gidFromName = layer.values_.name.slice(9)
+                            console.log(gidFromName)
+                            modelruntime = fArray[i].values_.model_time_stamp
+                            console.log(modelruntime)
+                            if (String(fArray[i].values_.gid)==gidFromName){
+                                var extents = layer.values_.source.imageExtent_
+
+                                //Use this form when you have unique model run ids.
+                                layer.setSource(new ol.source.ImageStatic({
+                                    url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                                    imageExtent: extents
+                                }))
+                                layer.getSource().changed();
+                            }else{
+                                modelruntimeFromDB = fArray[i].values_.model_time_stamp
+                                fExtents = fArray[i].values_.geometry.extent_
+                                for(e in fExtents){
+                                    console.log(fExtents[e])
+                                    console.log(typeof fExtents[e])
+                                    fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
+                                }
+                                fExtentsNum = fExtents.map(Number);
+                                var fId = fArray[i].values_.gid
+                                console.log(fExtentsNum)
+                                console.log(fId)
+                                DSS.layer.nleaching_field = new ol.layer.Image({
+                                    visible: false,
+                                    opacity: 1,
+                                    updateWhileAnimating: true,
+                                    updateWhileInteracting: true,
+                                    source: new ol.source.ImageStatic({
+                                    url:'/static/grazescape/public/images/nleaching'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                                    imageExtent: fExtentsNum
+                                    })
+                                })
+                                DSS.layer.nleaching_field.set('name', 'nleaching'+ String(fId));
+                                DSS.layer.nleaching_field.getSource().refresh();
+                                DSS.layer.nleaching_field.getSource().changed();
+                                DSS.map.addLayer(DSS.layer.nleaching_field)
+                                var nleachingGroupLayers = DSS.layer.nleachingGroup.getLayers().getArray();
+                                if(nleachingGroupLayers.length == 0){
+                                    nleachingGroupLayers.push(DSS.layer.nleaching_field);
+                                }
+                                else{
+                                    for(l in nleachingGroupLayers){
+                                        console.log(nleachingGroupLayers[l].values_.name)
+                                        console.log(DSS.layer.nleaching_field.values_.name)
+                                        if(nleachingGroupLayers[l].values_.name == DSS.layer.nleaching_field.values_.name){
+                                            const index = nleachingGroupLayers.indexOf(nleachingGroupLayers[l]);
+                                            if(index > -1) {
+                                                nleachingGroupLayers.splice(index,1);
+                                                console.log("SPLICED :" + DSS.layer.nleaching_field.values_.name)
+                                            }
+                                            nleachingGroupLayers.push(DSS.layer.nleaching_field);
+                                        }
+                                    }
+                                nleachingGroupLayers.push(DSS.layer.nleaching_field);
+                                }
+                                DSS.map.removeLayer(DSS.layer.nleaching_field)
                             }
                         })
                     }
@@ -2656,6 +2838,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     layer.setVisible(false)
                     //layer.setSource(null)
                 })
+                DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    //layer.setSource(null)
+                })
                 DSS.layer.runoffGroup.getLayers().forEach(function(layer){
                     layer.setVisible(false)
                     //layer.setSource(null)
@@ -2666,10 +2852,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 })
                 DSS.layer.yieldGroup.setVisible(false);
                 DSS.layer.erosionGroup.setVisible(false);
+                DSS.layer.nleachingGroup.setVisible(false);
                 DSS.layer.runoffGroup.setVisible(false);
                 DSS.layer.PLossGroup.setVisible(false);
                 DSS.layer.PLossGroup.values_.layers.array_ = [];
 				DSS.layer.erosionGroup.values_.layers.array_ = [];
+                DSS.layer.nleachingGroup.values_.layers.array_ = [];
 				DSS.layer.yieldGroup.values_.layers.array_ = [];
 				DSS.layer.runoffGroup.values_.layers.array_ = [];
             }},
@@ -2731,6 +2919,29 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 									}
 									else{
 										DSS.layer.erosionGroup.setVisible(false);
+									}
+								}
+							}
+						},
+                        {
+							boxLabel: 'Nitrate Leaching',
+							listeners:{change: async function(checked)
+								{
+									if(this.checked){
+										console.log('Nitrate clicked')
+                                        DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray,'lbs/acre');
+                                        await DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
+                                            layer.setVisible(true);
+                                            layer.getSource().changed();
+                                            layer.getSource().refresh();
+                                        })
+                                        DSS.layer.nleachingGroup.setVisible(true);
+                                        //To FORCE a redraw of the map
+                                        DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
+                                        setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90);
+									}
+									else{
+										DSS.layer.nleachingGroup.setVisible(false);
 									}
 								}
 							}
@@ -2889,6 +3100,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 yield,
                 erosion,
                 nutrients,
+                //nitrate,
                 runoff,
                 //feedoutput,
                 bio,

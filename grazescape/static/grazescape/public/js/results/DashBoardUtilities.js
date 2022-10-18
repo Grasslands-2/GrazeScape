@@ -163,6 +163,9 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         land_cost: f["land_cost"],
         fert_p_perc:f["perc_fert_p"],
         fert_n_perc:f["perc_fert_n"],
+        manure_p_perc:f["perc_manure_p"],
+        manure_n_perc:f["perc_manure_n"],
+        legume:f["interseeded_clover"],
         active_region: DSS.activeRegion,
         alfalfaMachCost: 0,
         alfalfaMachCostY1: 0,
@@ -284,47 +287,8 @@ function format_chart_data(model_data){
                     gatherArrayForYieldAdjustment(model_data)
                 }
                 break
-            }
-            if(model_data.scen_id == DSS.activeScenario){
-                console.log(model_data.extent)
-                if(model_data.extent !== undefined){
-                    DSS.yieldBol = false
-                    var plextent = model_data.extent
-                    DSS.layer.yield_field = new ol.layer.Image({
-                        visible: false,
-                        source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/Rotational Average'+ model_data.field_id + '.png',
-                        imageExtent: plextent
-                        })
-                    })
-                    DSS.layer.yield_field.set('name', 'Rotational Average'+ model_data.field_id);
-                    var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                    console.log(yieldGroupLayers);
-                    // if(yieldGroupLayers.length == 0){
-                    //     yieldGroupLayers.push(DSS.layer.yield_field);
-                    // }
-                    // else{
-                    //     for(l in yieldGroupLayers){
-                    //         //console.log(yieldGroupLayers[l].values_.name)
-                    //         //console.log(DSS.layer.yield_field.values_.name)
-                    //         if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
-                    //             const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
-                    //             if(index > -1) {
-                    //                 yieldGroupLayers.splice(index,1);
-                    //                 console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
-                    //             }
-                    //             yieldGroupLayers.push(DSS.layer.yield_field);
-                    //         }
-                    //     }
-                    // yieldGroupLayers.push(DSS.layer.yield_field);
-                    // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                    // }
-                }
-            }
-            break;
-
-        case 'ploss':
-            if (model_data.value_type == 'ploss'){
+            case 'ploss':
+            
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
                 if(model_data.scen_id == DSS.activeScenario){
@@ -363,8 +327,8 @@ function format_chart_data(model_data){
                         // }
                     }
                 }
-            }
-            else if (model_data.value_type == 'ero'){
+                break
+            case 'ero':
                 chartTypeField = chartObj.soil_loss_field
                 chartTypeFarm = chartObj.soil_loss_farm
                 if(model_data.scen_id == DSS.activeScenario){
@@ -403,8 +367,52 @@ function format_chart_data(model_data){
                         // }
                     }
                 }
+                break
+            case 'nleaching':
+                console.log("IN NLEACHING IN CHART FORMATION")
+                chartTypeField = chartObj.nleaching_field
+                chartTypeFarm = chartObj.nleaching_farm
+                if(model_data.scen_id == DSS.activeScenario){
+                    console.log(model_data.extent)
+                    if(model_data.extent !== undefined){
+                        DSS.nleachingBol = false
+                        var plextent = model_data.extent
+                        DSS.layer.nleaching_field = new ol.layer.Image({
+                            visible: false,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/nleaching'+ model_data.field_id + '.png',
+                            imageExtent: plextent
+                            })
+                        })
+                        DSS.layer.nleaching_field.set('name', 'nleaching'+ model_data.field_id);
+                        var nleachingGroupLayers = DSS.layer.nleachingGroup.getLayers().getArray();
+                        console.log(nleachingGroupLayers);
+                        
+                    }
+                }
+                break
+            }
+            if(model_data.scen_id == DSS.activeScenario){
+                console.log(model_data.extent)
+                if(model_data.extent !== undefined){
+                    DSS.yieldBol = false
+                    var plextent = model_data.extent
+                    DSS.layer.yield_field = new ol.layer.Image({
+                        visible: false,
+                        source: new ol.source.ImageStatic({
+                        url: '/static/grazescape/public/images/Rotational Average'+ model_data.field_id + '.png',
+                        imageExtent: plextent
+                        })
+                    })
+                    DSS.layer.yield_field.set('name', 'Rotational Average'+ model_data.field_id);
+                    var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+                    console.log(yieldGroupLayers);
+                    
+                }
             }
             break;
+
+        
         case 'runoff':
             console.log("runoff")
             console.log(model_data)
@@ -481,6 +489,10 @@ function format_chart_data(model_data){
             break
         case 'feed breakdown':
             chartTypeField = chartObj.feed_breakdown
+        case 'nitrate':
+            chartTypeField = chartObj.nitrate_field
+            chartTypeFarm = chartObj.nitrate_farm
+            break
     }
 //      field level
 // some charts don't have a field level
@@ -696,7 +708,9 @@ function get_model_data(data){
                 }
                 let e = obj.extent;
                 if(responses[response].value_type != "dry lot"){
-                    //console.log(obj)
+                    console.log("response type in dashboard utilites")
+                    console.log(responses[response].value_type)
+                    console.log(obj)
                     format_chart_data(obj)
                 }
             }

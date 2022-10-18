@@ -202,6 +202,7 @@ function createFirstScenario(sname,sdescript){
 		DSS.layer.farms_1.getSource().getFeatures().forEach(function(f) {
 			var newScenarioFeature = f;
 			f.values_.geom = f.values_.geometry;
+			console.log(newScenarioFeature.values_.gid)
 			if(newScenarioFeature.values_.gid == DSS.activeFarm){
 				console.log("found actuve farm object!");
 				newScenarioFeature.setProperties({
@@ -233,7 +234,7 @@ function createFirstScenario(sname,sdescript){
 				var geomType = 'point'
 				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')
 				console.log("HI! NEW BLANK SCENARIO CREATED!!!!!!")
-			}else{}
+			}//else{}
 		})
 		
 	}else{
@@ -313,8 +314,9 @@ Ext.define('DSS.state.FirstScenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		getWFSScenarioSP()
-		//getWFSScenarioNS()
+		//geoServer.setFarmSource()
+		//getWFSScenarioSP()
+		getWFSScenarioNS()
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',
