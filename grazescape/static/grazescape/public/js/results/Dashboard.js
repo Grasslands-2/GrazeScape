@@ -447,7 +447,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 bio_pb = document.getElementById("bio_pb");
                 runoff_pb = document.getElementById("runoff_pb");
                 econ_pb = document.getElementById("econ_pb");
-                nitrate_pb = document.getElementById("nitrate_pb");
+                nleaching_pb = document.getElementById("nleaching_pb");
 
                 // show progress bars when models run
                 econ_pb.hidden = false
@@ -456,7 +456,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff_pb.hidden = false
                 yield_pb.hidden = false
                 nut_pb.hidden = false
-                //nitrate_pb.hidden = false
+                //nleaching_pb.hidden = false
                 Ext.getCmp("erosionFarmConvert").setDisabled(true)
                 Ext.getCmp("erosionFieldConvert").setDisabled(true)
                 Ext.getCmp("yieldFarmConvert").setDisabled(true)
@@ -513,7 +513,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     case 'nitrate':
                         //set up a call to a python function to run the nitrate model.  well worry abuot
                         //presentation after the model works.
-                        nitrate_pb.max = numbFields
+                        nleaching_pb.max = numbFields
                         break
                 }
             }
@@ -564,10 +564,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
-                                    // nitrate_pb.hidden = true
+                                    // nleaching_pb.hidden = true
                                     // Ext.getCmp("nitrateTab").setDisabled(false)
-                                    // Ext.getCmp("nitrateFarmConvert").setDisabled(false)
-                                    // Ext.getCmp("nitrateFieldConvert").setDisabled(false)
+                                    //Ext.getCmp("nitrateFarmConvert").setDisabled(false)
+                                    //Ext.getCmp("nitrateFieldConvert").setDisabled(false)
                                     ero_pb.hidden = true
                                     Ext.getCmp("eroTab").setDisabled(false)
                                     Ext.getCmp("erosionFarmConvert").setDisabled(false)
@@ -646,9 +646,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 }
                                 break
                             // case 'nitrate':
-                            //     nitrate_pb.value = nitrate_pb.value + 1
-                            //     if(nitrate_pb.value == nitrate_pb.max){
-                            //         nitrate_pb.hidden = true
+                            //     nleaching_pb.value = nleaching_pb.value + 1
+                            //     if(nleaching_pb.value == nleaching_pb.max){
+                            //         nleaching_pb.hidden = true
                             //         Ext.getCmp("nitrateTab").setDisabled(false)
                             //         Ext.getCmp("nitrateFarmConvert").setDisabled(false)
                             //         Ext.getCmp("nitrateFieldConvert").setDisabled(false)
@@ -992,6 +992,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         },
                     ],
                      listeners:{change: function(e, newValue, oldValue, eOpts) {
+                        console.log("yield alternate pushed")
                         displayAlternate("grass_yield_field", e.id)
                         displayAlternate("corn_yield_field", e.id)
                         displayAlternate("corn_silage_yield_field", e.id)
@@ -1336,7 +1337,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             }
             //TODO update
             var nitrate = {
-                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nitrate_pb >50%</progress>',
+                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nleaching_pb >50%</progress>',
                 plain: true,
                 id:"nitrateTab",
                 disabled:true,
@@ -1450,6 +1451,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_farm", e.id)
+                            displayAlternate("ploss_farm", e.id)
                          }},
                     },
                    {
@@ -1535,6 +1537,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_field", e.id)
+                            displayAlternate("nleaching_field", e.id)
                          }},
                     },
                     {
@@ -1602,6 +1605,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_farm", e.id)
+                            displayAlternate("nleaching_farm", e.id)
                          }},
                     },
                    {
