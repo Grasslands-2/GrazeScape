@@ -74,7 +74,7 @@ def getRotYers(crop):
 def getNFertRecs(rot_yrs_crop,crop,legume_text,animal_density_text,fertNrec,om_text,cell_nresponse):
     nrecValue_array = []
     RotationAbbr = getRotText(crop,legume_text,animal_density_text)
-    print("RotationAbbr: "+RotationAbbr)
+    # print("RotationAbbr: "+RotationAbbr)
     NFertRecs_RotationAbbr = fertNrec[fertNrec["RotationAbbr"] == RotationAbbr]
     # print(NFertRecs_RotationAbbr)
     for i in rot_yrs_crop:
@@ -197,9 +197,9 @@ class GrassYield(ModelBase):
         return_data = []
         return_data.append(erosion)
         return_data.append(pl)
-        return_data.append(nitrate)
         return_data.append(grass_yield)
         return_data.append(rotation_avg)
+        return_data.append(nitrate)
         # path to R instance
         grass = ''
         # print("self.model_parameters")
@@ -643,7 +643,8 @@ class GrassYield(ModelBase):
           leached_N_Total = 0
         #   print(pred2[y][0])
           if drain_class_flattened[y] < 0:
-            nitrate_array.append(drain_class_flattened[y])
+            nitrate_array.append(-9999)
+            nitrate.set_data([-9999])
         #   if pred2[y][0] < 0:
         #     nitrate_array.append(pred2[y][0])
           else:
@@ -682,6 +683,11 @@ class GrassYield(ModelBase):
             leached_N_Total = [leachN_Calced]
             if leached_N_Total[0] < 0:
                 leached_N_Total[0] = 0
+            #print(leached_N_Total)
             nitrate.set_data(leached_N_Total)
-
+            nitrate_array.append(leached_N_Total)
+        print(len(nitrate.data))
+        print(len(pl.data))
+        print(nitrate.data)
+        print(pl.data)
         return return_data

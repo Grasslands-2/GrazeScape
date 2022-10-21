@@ -947,4 +947,8 @@ class CropYield(ModelBase):
             # #return_data.append(nitrate_array)
            
           nitrate_array.append(leached_N_Total)
+        print(len(nitrate.data))
+        print(len(pl.data))
+        print(nitrate.data)
+        print(pl.data)
         return return_data

@@ -2812,18 +2812,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 DSS.map.removeLayer(DSS.layer.yield_field)
                             }
                         })
-                        // DSS.layer.erosionGroup.getLayers().forEach(function(layer){
-                        //     layer.setVisible(true)
-                        //     var extents = layer.values_.source.imageExtent_
-                        //     //Use this form when you have unique model run ids.
-                        //     //layer.getSource().clear()
-                        //     layer.setSource(new ol.source.ImageStatic({
-                        //         url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                        //         imageExtent: extents
-                        //     }))
-                        //     layer.getSource().changed();
-                        // })
-                        
                     }
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('40%')
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('60%')
