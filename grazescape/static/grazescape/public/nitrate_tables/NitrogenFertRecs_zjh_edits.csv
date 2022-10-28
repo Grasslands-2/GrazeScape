@@ -1,80 +1,80 @@
-RotationName,RotationAbbr,CropName,CropAbbr,rasterLookup,rasterVals,Nrec,ManureN,Pneeds
-pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,<2,30,30,15
-pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,2-9.9,10,10,15
-pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,10-20.0,0,0,15
-pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,>20,0,0,15
-pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,<2,40,40,15
-pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,2-9.9,20,130,40
-pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,10-20.0,0,0,15
-pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,>20,0,0,15
-pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,<2,0,115,40
-pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,2-9.9,0,93,40
-pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,10-20.0,0,72,40
-pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,>20,0,36,40
-pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,<2,160,160,40
-pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,2-9.9,130,130,40
-pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,10-20.0,100,100,40
-pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,>20,50,50,40
-pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,<2,0,115,40
-pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,2-9.9,0,93,40
-pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,10-20.0,0,72,40
-pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,>20,0,36,40
-pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,<2,160,160,40
-pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,2-9.9,130,130,40
-pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,10-20.0,100,100,40
-pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,>20,50,50,40
-pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,<2,0,115,40
-pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,2-9.9,0,93,40
-pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,10-20.0,0,72,40
-pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,>20,0,36,40
-pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,<2,160,160,40
-pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,2-9.9,130,130,40
-pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,10-20.0,100,100,40
-pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,>20,50,50,40
-corn silage-soy-oats,cso,oats,ot,om,<2,60,60,20
-corn silage-soy-oats,cso,oats,ot,om,2-9.9,40,40,20
-corn silage-soy-oats,cso,oats,ot,om,10-20.0,20,20,20
-corn silage-soy-oats,cso,oats,ot,om,>20,0,0,20
-dairy rotation,dr,alfalfa seeding spring,as,om,<2,30,100,25
-dairy rotation,dr,alfalfa seeding spring,as,om,2-9.9,0,100,25
-dairy rotation,dr,alfalfa seeding spring,as,om,10-20.0,0,100,25
-dairy rotation,dr,alfalfa seeding spring,as,om,>20,0,100,25
-continuous corn,cc,corn grain,cn,nResponse,1,165,165,65
-continuous corn,cc,corn grain,cn,nResponse,2,125,125,65
-continuous corn,cc,corn grain,cn,nResponse,3,200,200,65
-cash grain,cg,corn grain,cn,nResponse,1,120,120,65
-cash grain,cg,corn grain,cn,nResponse,2,100,100,65
-cash grain,cg,corn grain,cn,nResponse,3,130,130,65
-cash grain,cg,soybeans,sb,nResponse,1,0,155,40
-cash grain,cg,soybeans,sb,nResponse,2,0,155,40
-cash grain,cg,soybeans,sb,nResponse,3,0,155,40
-corn silage-soy-oats,cso,corn silage,cs,nResponse,1,165,165,80
-corn silage-soy-oats,cso,corn silage,cs,nResponse,2,125,125,80
-corn silage-soy-oats,cso,corn silage,cs,nResponse,3,200,200,80
-corn silage-soy-oats,cso,soybeans,sb,nResponse,1,0,155,40
-corn silage-soy-oats,cso,soybeans,sb,nResponse,2,0,155,40
-corn silage-soy-oats,cso,soybeans,sb,nResponse,3,0,155,40
-dairy rotation,dr,corn silage,cs,nResponse,1,45,45,80
-dairy rotation,dr,corn silage,cs,nResponse,2,5,5,80
-dairy rotation,dr,corn silage,cs,nResponse,3,80,80,80
-dairy rotation,dr,corn grain,cn,nResponse,1,115,115,80
-dairy rotation,dr,corn grain,cn,nResponse,2,75,75,80
-dairy rotation,dr,corn grain,cn,nResponse,3,150,150,80
-dairy rotation,dr,alfalfa,af,nResponse,1,0,155,40
-dairy rotation,dr,alfalfa,af,nResponse,2,0,155,40
-dairy rotation,dr,alfalfa,af,nResponse,3,0,155,40
-dry lot-high,dl-hi,pasture_ dry lot_ high,dl_hi,nResponse,1,150,150,0
-dry lot-high,dl-hi,pasture_ dry lot_ high,dl_hi,nResponse,2,150,150,0
-dry lot-high,dl-hi,pasture_ dry lot_ high,dl_hi,nResponse,3,150,150,0
-dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,1,150,150,0
-dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,2,150,150,0
-dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,3,150,150,0
-dairy rotation,dr,corn silage,cs,nResponse,1,45,45,80
-dairy rotation,dr,corn silage,cs,nResponse,2,5,5,80
-dairy rotation,dr,corn silage,cs,nResponse,3,80,80,80
-dairy rotation,dr,corn grain,cn,nResponse,1,115,115,80
-dairy rotation,dr,corn grain,cn,nResponse,2,75,75,80
-dairy rotation,dr,corn grain,cn,nResponse,3,150,150,80
-dairy rotation,dr,alfalfa,af,nResponse,1,0,155,40
-dairy rotation,dr,alfalfa,af,nResponse,2,0,155,40
-dairy rotation,dr,alfalfa,af,nResponse,3,0,155,40
+RotationName,RotationAbbr,CropName,CropAbbr,rasterLookup,rasterVals,Nrec,ManureN,Pneeds,grazed_DM_lbs,grazed_P2O5_lbs
+pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,<2,30,30,15,,
+pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,2-9.9,10,10,15,,
+pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,10-20.0,0,0,15,,
+pasture seeding_ legume,ps_lg,pasture seeding_ legume,ps_lg,om,>20,0,0,15,,
+pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,<2,40,40,15,,
+pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,2-9.9,20,130,40,,
+pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,10-20.0,0,0,15,,
+pasture seeding_ no legume,ps_nl,pasture seeding_ no legume,ps_nl,om,>20,0,0,15,,
+pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,<2,0,115,40,,
+pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,2-9.9,0,93,40,,
+pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,10-20.0,0,72,40,,
+pasture_ rotational_ legume,pt_rt_lg,pasture_ rotational,pt_rt_lg,om,>20,0,36,40,,
+pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,<2,160,160,40,,
+pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,2-9.9,130,130,40,,
+pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,10-20.0,100,100,40,,
+pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,pt_rt_nl,om,>20,50,50,40,,
+pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,<2,0,115,40,,
+pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,2-9.9,0,93,40,,
+pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,10-20.0,0,72,40,,
+pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,pt_cn_hi_lg,om,>20,0,36,40,,
+pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,<2,160,160,40,,
+pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,2-9.9,130,130,40,,
+pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,10-20.0,100,100,40,,
+pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,pt_cn_hi_nl,om,>20,50,50,40,,
+pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,<2,0,115,40,,
+pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,2-9.9,0,93,40,,
+pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,10-20.0,0,72,40,,
+pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,pt_cn_lo_lg,om,>20,0,36,40,,
+pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,<2,160,160,40,,
+pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,2-9.9,130,130,40,,
+pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,10-20.0,100,100,40,,
+pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,pt_cn_lo_nl,om,>20,50,50,40,,
+corn silage-soy-oats,cso,oats,ot,om,<2,60,60,20,,
+corn silage-soy-oats,cso,oats,ot,om,2-9.9,40,40,20,,
+corn silage-soy-oats,cso,oats,ot,om,10-20.0,20,20,20,,
+corn silage-soy-oats,cso,oats,ot,om,>20,0,0,20,,
+dairy rotation,dr,alfalfa seeding spring,as,om,<2,30,100,25,,
+dairy rotation,dr,alfalfa seeding spring,as,om,2-9.9,0,100,25,,
+dairy rotation,dr,alfalfa seeding spring,as,om,10-20.0,0,100,25,,
+dairy rotation,dr,alfalfa seeding spring,as,om,>20,0,100,25,,
+continuous corn,cc,corn grain,cn,nResponse,1,165,165,65,0,0
+continuous corn,cc,corn grain,cn,nResponse,2,125,125,65,0,0
+continuous corn,cc,corn grain,cn,nResponse,3,200,200,65,0,0
+cash grain,cg,corn grain,cn,nResponse,1,120,120,65,,
+cash grain,cg,corn grain,cn,nResponse,2,100,100,65,,
+cash grain,cg,corn grain,cn,nResponse,3,130,130,65,,
+cash grain,cg,soybeans,sb,nResponse,1,0,155,40,,
+cash grain,cg,soybeans,sb,nResponse,2,0,155,40,,
+cash grain,cg,soybeans,sb,nResponse,3,0,155,40,,
+corn silage-soy-oats,cso,corn silage,cs,nResponse,1,165,165,80,,
+corn silage-soy-oats,cso,corn silage,cs,nResponse,2,125,125,80,,
+corn silage-soy-oats,cso,corn silage,cs,nResponse,3,200,200,80,,
+corn silage-soy-oats,cso,soybeans,sb,nResponse,1,0,155,40,,
+corn silage-soy-oats,cso,soybeans,sb,nResponse,2,0,155,40,,
+corn silage-soy-oats,cso,soybeans,sb,nResponse,3,0,155,40,,
+dairy rotation,dr,corn silage,cs,nResponse,1,45,45,80,,
+dairy rotation,dr,corn silage,cs,nResponse,2,5,5,80,,
+dairy rotation,dr,corn silage,cs,nResponse,3,80,80,80,,
+dairy rotation,dr,corn grain,cn,nResponse,1,115,115,80,,
+dairy rotation,dr,corn grain,cn,nResponse,2,75,75,80,,
+dairy rotation,dr,corn grain,cn,nResponse,3,150,150,80,,
+dairy rotation,dr,alfalfa,af,nResponse,1,0,155,40,,
+dairy rotation,dr,alfalfa,af,nResponse,2,0,155,40,,
+dairy rotation,dr,alfalfa,af,nResponse,3,0,155,40,,
+dry lot-high,dl-hi,pasture_ dry lot_ high,dl_hi,nResponse,1,150,150,0,,
+dry lot-high,dl-hi,pasture_ dry lot_ high,dl_hi,nResponse,2,150,150,0,,
+dry lot-high,dl-hi,pasture_ dry lot_ high,dl_hi,nResponse,3,150,150,0,,
+dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,1,150,150,0,,
+dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,2,150,150,0,,
+dry lot-low,dl-lo,pasture_ dry lot_ low,dl_lo,nResponse,3,150,150,0,,
+dairy rotation,dr,corn silage,cs,nResponse,1,45,45,80,,
+dairy rotation,dr,corn silage,cs,nResponse,2,5,5,80,,
+dairy rotation,dr,corn silage,cs,nResponse,3,80,80,80,,
+dairy rotation,dr,corn grain,cn,nResponse,1,115,115,80,,
+dairy rotation,dr,corn grain,cn,nResponse,2,75,75,80,,
+dairy rotation,dr,corn grain,cn,nResponse,3,150,150,80,,
+dairy rotation,dr,alfalfa,af,nResponse,1,0,155,40,,
+dairy rotation,dr,alfalfa,af,nResponse,2,0,155,40,,
+dairy rotation,dr,alfalfa,af,nResponse,3,0,155,40,,

@@ -6,7 +6,7 @@ pasture_ rotational_ no legume,pt_rt_nl,pasture_ rotational,na,pt_rt_nl,1,0,0.01
 pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture_ cont_ high,na,pt_csh_lg,1,70,0.021,5,54
 pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture_ cont_ high,na,pt_csh_nl,1,0,0.0176,5,54
 pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture_ cont_ low,na,pt_csl_lg,1,70,0.021,5,18
-pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,na,pt_csl_nl,1,0,0.0176,5,18
+pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture_ cont_ low,na,pt_cn_lo_nl,1,0,0.0176,5,18
 continuous corn,cc,corn grain,cc,cn,1,0,0.0155,5,0
 cash grain,cg,corn grain,cc,cn,2,0,0.0155,5,0
 cash grain,cg,soybeans,cc,sb,2,50,0.065,5,0

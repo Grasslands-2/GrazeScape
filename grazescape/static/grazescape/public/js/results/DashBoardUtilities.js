@@ -490,8 +490,8 @@ function format_chart_data(model_data){
         case 'feed breakdown':
             chartTypeField = chartObj.feed_breakdown
         case 'nitrate':
-            chartTypeField = chartObj.nitrate_field
-            chartTypeFarm = chartObj.nitrate_farm
+            chartTypeField = chartObj.nleaching_field
+            chartTypeFarm = chartObj.nleaching_farm
             break
     }
 //      field level

@@ -377,7 +377,7 @@ class ModelBase:
         #     print(datanm)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v,result)
-        print("ERO datanm[y][x] before color assignment!")
+        #print("ERO datanm[y][x] before color assignment!")
         for y in range(0, rows):
             for x in range(0, cols):
                 #if(result.model_type == 'ero'):

@@ -26,7 +26,7 @@ class Runoff(ModelBase):
         }
         return hyro_dic[group_num]
 
-    def run_model(self,active_region):
+    def run_model(self,active_region,manure_p_perc):
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
@@ -73,10 +73,11 @@ class Runoff(ModelBase):
         r.assign("ls", ls)
         r.assign("hydgrp", hydrp_letter)
 
-        r.assign("p_need", self.model_parameters["p_need"])
-        r.assign("dm", self.model_parameters["dm"])
-        r.assign("p205", self.model_parameters["p205"])
-        r.assign("manure", self.model_parameters["manure"])
+        r.assign("p_need", manure_p_perc[1])
+        r.assign("manure", manure_p_perc[2])
+        r.assign("dm", manure_p_perc[3])
+        r.assign("p205", manure_p_perc[4])
+        # r.assign("manure", self.model_parameters["manure"])
         r.assign("fert", self.model_parameters["fert"])
         r.assign("crop", self.model_parameters["crop"])
         r.assign("cover", self.model_parameters["crop_cover"])

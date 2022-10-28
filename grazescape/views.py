@@ -37,6 +37,7 @@ from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.crop_yield import CropYield
+from grazescape.model_defintions.calc_manure_p import CalcManureP
 from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.nitrateLeach import NitrateLeeching
 from grazescape.model_defintions.insecticide import Insecticide
@@ -467,6 +468,7 @@ def get_model_results(request):
     model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
     active_scen = request.POST.get('model_parameters[active_scen]')
     active_region = request.POST.get('model_parameters[active_region]')
+    
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
     print(request.POST.getlist("field_id"))
     db_has_field(field_id)
@@ -515,6 +517,8 @@ def get_model_results(request):
         remove_old_pngs_from_local('Rotational Average',field_id)
     if model_type == 'runoff':
         remove_old_pngs_from_local('ero',field_id)
+    if model_type == 'nleaching':
+        remove_old_pngs_from_local('nleaching',field_id)
     # if model_type == 'nitrate':
     #     remove_old_pngs_from_local('nitrate',field_id)
     # format field geometry
@@ -525,7 +529,9 @@ def get_model_results(request):
         geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, active_region, False)
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
+        model2 = CalcManureP(request)
         if model_type == 'yield':
+            
             #call row yeilds nulling function here!!!
             crop_ro = request.POST.getlist("model_parameters[crop]")[0]
             if crop_ro == 'pt' or crop_ro == 'ps':
@@ -572,18 +578,23 @@ def get_model_results(request):
         print("BOUNDS MADE!")
 
         model.raster_inputs = clipped_rasters
+        model2.raster_inputs = clipped_rasters
         print("CLIPPED RASTERS MADE!")
+        manure_p_perc = model2.run_model()
+        # manure_p_perc = CalcManureP(request).run_model()
+        # print("CALC MANURE P!")
+        # print(manure_p_perc)
         # loop here to build a response for all the model types
         if model_type == 'runoff' or model_type == 'ploss':
-            results = model.run_model(active_region)
+            results = model.run_model(active_region,manure_p_perc)
         # elif model_type == 'nitrate':
         #     results = model.run_model(eroDatum)
         elif model_type == 'yield':
-            results = model.run_model(active_region)
+            #manure_p_perc = model2.run_model()
+            results = model.run_model(active_region,manure_p_perc)
             print("YIELD MODEL RAN!!!!")
         else:
             results = model.run_model()
-            print("MODEL RAN!!!!")
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.getlist("model_parameters[area]")[0])
@@ -607,8 +618,8 @@ def get_model_results(request):
                     eroDatum = model.get_ero_datum(result,geo_data.bounds)
                     # print(geo_data.bounds)
                     # print(geo_data.no_data_aray)
-                    print("eroDatum")
-                    print(eroDatum)
+                    # print("eroDatum")
+                    # print(eroDatum)
                     remove_old_pngs_gcs_storage_bucket("ero",field_id)
                     upload_gcs_model_result_blob("ero",field_id,model_run_timestamp)
                 if result.model_type == 'ploss':
@@ -623,8 +634,8 @@ def get_model_results(request):
                     upload_gcs_model_result_blob("nleaching",field_id,model_run_timestamp)
                 if model_type == 'yield':
                     print('UPLOADING YIELD FOR FIELD: '+field_id)
-                    print("YIELD RESULTS!")
-                    print(result)
+                    # print("YIELD RESULTS!")
+                    # print(result)
                     #yield_types = ['Rotational Average','Corn Grain','Soy','Grass','Corn Silage','Alfalfa','Oats']
                     # for y in yield_types:
                     #     print(y)
@@ -679,11 +690,11 @@ def get_model_results(request):
             #models.  Then place them inside the chartobj from there.
             #Another thought is to return the yield and nutrient models at the same time, 
             #then disect the response in the front end.
-            if model_type == "yield":
-                print("RETUNR DATA AT END OF MODEL RUN!")
-                print("")
-                print(return_data)
-                print("")
+            # if model_type == "yield":
+            #     print("RETUNR DATA AT END OF MODEL RUN!")
+            #     print("")
+            #     print(return_data)
+            #     print("")
                 #Trying to rerun models with ploss after yield to see if we can 
                 #capture the yield output data.
             if db_has_field(field_id):
