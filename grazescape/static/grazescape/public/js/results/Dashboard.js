@@ -136,6 +136,19 @@ DSS.runoffBol = false
 DSS.yieldBol = false
 // unique model time stamp holder
 
+
+Ext.create('Ext.data.Store', {
+    storeId: 'simpsonsStore',
+    fields:[ 'name', 'email', 'phone'],
+    data: [
+        { name: 'Lisa', email: 'lisa@simpsons.com', phone: '555-111-1224' },
+        { name: 'Bart', email: 'bart@simpsons.com', phone: '555-222-1234' },
+        { name: 'Homer', email: 'homer@simpsons.com', phone: '555-222-1244' },
+        { name: 'Marge', email: 'marge@simpsons.com', phone: '555-222-1254' }
+    ]
+});
+
+
 //This function gathers the yield data from the active scnearios fields for the yield adjustment table
 function gatherYieldTableData() {
     fieldYieldArray = []
@@ -2130,6 +2143,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                inner tabs for farm and field scale
 
                 items:[{
+                    
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
                     border: false,
@@ -2273,7 +2287,71 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                 }]
             }
-        var options = {
+        var summaryTable = {
+                title: '<i class="fas fa-globe"></i>  Summary Table',
+                plain: true,
+                tabConfig:{
+                    tooltip: "Control options and visibility of charts",
+//                    cls: "myBar"
+                },
+                tabBar : {
+                    layout: {
+                        pack: 'center',
+                            //background: '#C81820',
+                     }
+                 },
+                xtype: 'tabpanel',
+                style: 'background-color: #377338;',
+
+                defaults: {
+                   border:false,
+                    bodyBorder: false
+                },
+                scrollable: true,
+                listeners:{activate: function() {
+                    console.log("options")
+                    if(Ext.getCmp('fieldLegend').items.length<1){
+
+                        Ext.getCmp('fieldLegend').add(checkBoxField)
+                        Ext.getCmp('scenLegend').add(checkBoxScen)
+                    }
+                }},
+
+//                inner tabs for farm and field scale
+                items:[{
+                    xtype: 'container',
+                    title: '<i class="fas fa-tasks"></i>  Data Selection',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 2
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+
+
+                items:[
+                    {
+                        xtype: 'label',
+                        cls: 'information med-text',
+                        html: 'Summary Table'
+                    },
+                   
+                ],
+                scope: this,
+                listeners:{activate: function() {
+
+                }}
+
+                },
+                ],
+
+            }
+            var options = {
                 title: '<i class="fas fa-globe"></i>  Options',
                 plain: true,
                 tabConfig:{
@@ -2396,7 +2474,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 ],
 
             }
-            var outputLayers =  { 
+            var outputLayers =  {
             title: 'Mapped Results',
             disabled:true,
             id:"mappedResultsTab",
@@ -3088,6 +3166,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                inner tabs for farm and field scale
             items: [
                 phantom,
+                summaryTable,
                 //summary,
                 yield,
                 erosion,
@@ -3125,7 +3204,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                        html: 'Fence Settings',
                     },
                         tabs
-
                 ]
 			}]
 

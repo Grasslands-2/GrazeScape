@@ -113,22 +113,22 @@ dairy rotation,dr,corn silage,cs,gcis,nResponse,3,80,NA,NA,NA,5,0,0.0125,5,3,2,8
 dairy rotation,dr,corn grain,cn,gcis,nResponse,3,150,NA,NA,NA,5,0,0.0155,5,0,1,150,60
 dairy rotation,dr,alfalfa,af,gcis,nResponse,3,0,NA,NA,NA,5,70,0.029,5,0,4,155,40
 dairy rotation,dr,alfalfa,af,gcis,nResponse,3,0,NA,NA,NA,5,70,0.029,5,0,5,155,40
-pasture seeding_ legume,ps,pasture,ps,NA,om,20-Oct,0,NA,NA,yes,1,70,0.021,5,0,1,0,15
-pasture seeding_ no legume,ps,pasture,ps,NA,om,20-Oct,0,NA,NA,no,1,0,0.0176,5,0,1,0,15
-pasture_ rotational_ legume,pt,pasture,pt,NA,om,20-Oct,0,rt,NA,yes,1,70,0.021,5,36,1,72,40
-pasture_ rotational_ no legume,pt,pasture,pt,NA,om,20-Oct,100,rt,NA,no,1,0,0.0176,5,36,1,100,40
-pasture_ cont_ high_ legume,pt,pasture,pt,NA,om,20-Oct,0,cn,high,yes,1,70,0.021,5,54,1,72,40
-pasture_ cont_ high_ no legume,pt,pasture,pt,NA,om,20-Oct,100,cn,high,no,1,0,0.0176,5,54,1,100,40
-pasture_ cont_ low_ legume,pt,pasture,pt,NA,om,20-Oct,0,cn,low,yes,1,70,0.021,5,18,1,72,40
-pasture_ cont_ low_ no legume,pt,pasture,pt,NA,om,20-Oct,100,cn,low,no,1,0,0.0176,5,18,1,100,40
-corn silage-soy-oats,cso,oats,ot,nc,om,20-Oct,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
-dairy rotation,dr,alfalfa seeding spring,as,nc,om,20-Oct,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
-corn silage-soy-oats,cso,oats,ot,gcds,om,20-Oct,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
-dairy rotation,dr,alfalfa seeding spring,as,gcds,om,20-Oct,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
-corn silage-soy-oats,cso,oats,ot,cc,om,20-Oct,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
-dairy rotation,dr,alfalfa seeding spring,as,cc,om,20-Oct,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
-corn silage-soy-oats,cso,oats,ot,gcis,om,20-Oct,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
-dairy rotation,dr,alfalfa seeding spring,as,gcis,om,20-Oct,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
+pasture seeding_ legume,ps,pasture,ps,NA,om,10-20,0,NA,NA,yes,1,70,0.021,5,0,1,0,15
+pasture seeding_ no legume,ps,pasture,ps,NA,om,10-20,0,NA,NA,no,1,0,0.0176,5,0,1,0,15
+pasture_ rotational_ legume,pt,pasture,pt,NA,om,10-20,0,rt,NA,yes,1,70,0.021,5,36,1,72,40
+pasture_ rotational_ no legume,pt,pasture,pt,NA,om,10-20,100,rt,NA,no,1,0,0.0176,5,36,1,100,40
+pasture_ cont_ high_ legume,pt,pasture,pt,NA,om,10-20,0,cn,high,yes,1,70,0.021,5,54,1,72,40
+pasture_ cont_ high_ no legume,pt,pasture,pt,NA,om,10-20,100,cn,high,no,1,0,0.0176,5,54,1,100,40
+pasture_ cont_ low_ legume,pt,pasture,pt,NA,om,10-20,0,cn,low,yes,1,70,0.021,5,18,1,72,40
+pasture_ cont_ low_ no legume,pt,pasture,pt,NA,om,10-20,100,cn,low,no,1,0,0.0176,5,18,1,100,40
+corn silage-soy-oats,cso,oats,ot,nc,om,10-20,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
+dairy rotation,dr,alfalfa seeding spring,as,nc,om,10-20,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
+corn silage-soy-oats,cso,oats,ot,gcds,om,10-20,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
+dairy rotation,dr,alfalfa seeding spring,as,gcds,om,10-20,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
+corn silage-soy-oats,cso,oats,ot,cc,om,10-20,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
+dairy rotation,dr,alfalfa seeding spring,as,cc,om,10-20,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
+corn silage-soy-oats,cso,oats,ot,gcis,om,10-20,20,NA,NA,NA,3,0,0.022,5,0,3,20,20
+dairy rotation,dr,alfalfa seeding spring,as,gcis,om,10-20,0,NA,NA,NA,5,70,0.029,5,0,3,100,25
 pasture seeding_ legume,ps,pasture,ps,NA,om,<2,30,NA,NA,yes,1,70,0.021,5,0,1,30,15
 pasture seeding_ no legume,ps,pasture,ps,NA,om,<2,40,NA,NA,no,1,0,0.0176,5,0,1,40,15
 pasture_ rotational_ legume,pt,pasture,pt,NA,om,<2,0,rt,NA,yes,1,70,0.021,5,36,1,115,40

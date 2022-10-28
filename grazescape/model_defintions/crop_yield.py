@@ -177,7 +177,7 @@ class CropYield(ModelBase):
         self.crop_list = []
         
 
-    def run_model(self,active_region):
+    def run_model(self,active_region,manure_p_perc):
         nitrate_array = []
         crop_ro = self.model_parameters["crop"]
         return_data = []
@@ -282,10 +282,11 @@ class CropYield(ModelBase):
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
 
-        r.assign("p_need", self.model_parameters["p_need"])
-        r.assign("dm", self.model_parameters["dm"])
-        r.assign("p205", self.model_parameters["p205"])
-        r.assign("manure", self.model_parameters["manure"])
+        r.assign("p_need", manure_p_perc[1])
+        r.assign("manure", manure_p_perc[2])
+        r.assign("dm", manure_p_perc[3])
+        r.assign("p205", manure_p_perc[4])
+        # r.assign("manure", self.model_parameters["manure"])
         r.assign("fert", self.model_parameters["fert"])
         r.assign("crop", self.model_parameters["crop"])
         r.assign("cover", self.model_parameters["crop_cover"])
@@ -567,10 +568,6 @@ class CropYield(ModelBase):
 
           """
                 )
-
-        print("ERO BEFORE tonumpy")
-        print(r.get("erosion"))
-        print(r.get("final_pi"))
         ero = r.get("erosion").to_numpy()
         ploss = r.get("final_pi").to_numpy()
         pl.P2O5_fert = r.get("P2O5_fert")
@@ -662,7 +659,7 @@ class CropYield(ModelBase):
             Denitr_Row = pd.concat([denitlossDC[denitlossDC["OM"] == OM_texts_denit]])
             # print(Denitr_Row)
             Denitr_Value = float(Denitr_Row["Denitr"].values[0])
-            fertNrec_Values_Array = getNFertRecs(rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,getOMText(cell_om,"Nrec"),cell_nresponse)
+            #fertNrec_Values_Array = getNFertRecs(rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,getOMText(cell_om,"Nrec"),cell_nresponse)
             NvarsRot = self.Nvars[self.Nvars['RotationAbbr'] == getRotText_Value]
             NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
             #Nvar variabels can be collected on a crop year basis not by cell.
@@ -688,8 +685,10 @@ class CropYield(ModelBase):
               #corn_DM_yield = corn_yield_tonDMac_array[y]
               #print("CN")
               yeild_crop_data = corn_yield_tonDMac
-              fertN = PctFertN * fertNrec_Values_Array[0][0]
-              manrN = PctManrN * fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+              # print(manure_p_perc[5][y][0])
+              # print(manure_p_perc[5][y][1])
+              fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+              manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
               Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == "cn"]])
               NfixPct = float(Nvars_Row["NfixPct"].values[0])
               NH3loss = float(Nvars_Row["NH3loss"].values[0])
@@ -708,8 +707,8 @@ class CropYield(ModelBase):
               #corn_DM_yield = corn_yield_tonDMac_array[y]
               #print("CN")
               yeild_crop_data = corn_yield_tonDMac
-              fertN = PctFertN * fertNrec_Values_Array[0][0]
-              manrN = PctManrN * fertNrec_Values_Array[0][1]  ## actual manure N applied in lb/ac
+              fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+              manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
               #print("RIGHT BEFORE NvarsCover")
               Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == "dl"+ '_' + animal_density_text]])
               NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -749,8 +748,8 @@ class CropYield(ModelBase):
                 if i == 'cn':
                   #print("CN")
                   yeild_crop_data = corn_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * fertNrec_Values_Array[0][1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -763,8 +762,8 @@ class CropYield(ModelBase):
                   leached_N_Total = leached_N_Total + leachN_Calced
                 else:
                   yeild_crop_data = soy_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[1][0]
-                  manrN = PctManrN * fertNrec_Values_Array[1][1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -816,8 +815,8 @@ class CropYield(ModelBase):
                 if i == 'cn':
                   #print("CN")
                   yeild_crop_data = corn_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * fertNrec_Values_Array[0][1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -831,8 +830,9 @@ class CropYield(ModelBase):
                 elif i == 'cs':
                   #print("CN")
                   yeild_crop_data = silage_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[1]
-                  manrN = PctManrN * fertNrec_Values_Array[1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -845,8 +845,8 @@ class CropYield(ModelBase):
                   leached_N_Total = leached_N_Total + leachN_Calced
                 else:
                   yeild_crop_data = alfalfa_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[2][0]
-                  manrN = PctManrN * fertNrec_Values_Array[2][1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -896,8 +896,8 @@ class CropYield(ModelBase):
                 if i == 'cs':
                   #print("CS")
                   yeild_crop_data = silage_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * fertNrec_Values_Array[0][1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -911,8 +911,8 @@ class CropYield(ModelBase):
                 elif i == 'sb':
                   #print("SB")
                   yeild_crop_data = silage_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[1][0]
-                  manrN = PctManrN * fertNrec_Values_Array[1][1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -925,8 +925,8 @@ class CropYield(ModelBase):
                   leached_N_Total = leached_N_Total + leachN_Calced
                 else:
                   yeild_crop_data = oat_DM_yield
-                  fertN = PctFertN * fertNrec_Values_Array[2][0]
-                  manrN = PctManrN * fertNrec_Values_Array[2][1]  ## actual manure N applied in lb/ac
+                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])

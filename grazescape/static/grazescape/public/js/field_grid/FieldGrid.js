@@ -1786,7 +1786,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				tillageColumn,
 				onContourColumn,
 				NmanuPerc_Column,
-				PmanuPerc_Column,
+				//PmanuPerc_Column,
 				NfertPerc_Column,
 				PfertPerc_Column,
 				//grazeDairyLactatingColumn,

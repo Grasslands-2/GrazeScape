@@ -185,7 +185,7 @@ class GrassYield(ModelBase):
         self.grass_type = self.model_parameters['grass_type']
         # self.units = "Dry Mass tons/ac"
 
-    def run_model(self,active_region):
+    def run_model(self,active_region,manure_p_perc):
         grass_yield = OutputDataNode("Grass", "Yield (tons/acre)", 'Total Yield (tons/year')
         rotation_avg = OutputDataNode("Rotational Average", "Yield (tons-Dry Matter/ac/year)", "Yield (tons-Dry Matter/year)")
         nitrate = OutputDataNode("nleaching", "Nitrate Leaching (lb/acre/year)", "Nitrate Leaching (lb/year)")
@@ -279,10 +279,12 @@ class GrassYield(ModelBase):
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
 
-        r.assign("p_need", self.model_parameters["p_need"])
-        r.assign("dm", self.model_parameters["dm"])
-        r.assign("p205", self.model_parameters["p205"])
-        r.assign("manure", self.model_parameters["manure"])
+        r.assign("p_need", manure_p_perc[1])
+        r.assign("manure", manure_p_perc[2])
+        r.assign("dm", manure_p_perc[3])
+        r.assign("p205", manure_p_perc[4])
+        # r.assign("manure", self.model_parameters["manure"])
+        
         r.assign("fert", self.model_parameters["fert"])
         r.assign("crop", self.model_parameters["crop"])
         r.assign("cover", self.model_parameters["crop_cover"])
@@ -661,7 +663,7 @@ class GrassYield(ModelBase):
             Denitr_Row = pd.concat([denitlossDC[denitlossDC["OM"] == OM_texts_denit]])
             # print(Denitr_Row)
             Denitr_Value = float(Denitr_Row["Denitr"].values[0])
-            fertNrec_Values_Array = getNFertRecs(rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,getOMText(cell_om,"Nrec"),cell_nresponse)
+            #fertNrec_Values_Array = getNFertRecs(rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,getOMText(cell_om,"Nrec"),cell_nresponse)
             Nvars_Row = pd.concat([self.Nvars[self.Nvars['RotationAbbr'] == getRotText_Value]])
             # print(NvarsRot)
             # NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
@@ -669,8 +671,8 @@ class GrassYield(ModelBase):
             #Nvar variabels can be collected on a crop year basis not by cell.
 
             yeild_crop_data = pred2[y][0]
-            fertN = PctFertN * fertNrec_Values_Array[0][0]
-            manrN = PctManrN * fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+            fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+            manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
             # Nvars_Row = pd.concat([NvarsCover[NvarsCover["RotationAbbr"] == getRotText_Value]])
             # print(Nvars_Row)
             NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -686,8 +688,8 @@ class GrassYield(ModelBase):
             #print(leached_N_Total)
             nitrate.set_data(leached_N_Total)
             nitrate_array.append(leached_N_Total)
-        print(len(nitrate.data))
-        print(len(pl.data))
-        print(nitrate.data)
-        print(pl.data)
+        # print(len(nitrate.data))
+        # print(len(pl.data))
+        # print(nitrate.data)
+        # print(pl.data)
         return return_data
