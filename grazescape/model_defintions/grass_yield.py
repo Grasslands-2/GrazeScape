@@ -178,10 +178,10 @@ class GrassYield(ModelBase):
         #                                     self.model_name)
         self.model_file_path = os.path.join(settings.MODEL_PATH,'GrazeScape',self.model_name)
         self.model_file_path2 = os.path.join(settings.MODEL_PATH,'GrazeScape',active_region)
-        self.fertNrec = pd.read_csv(r"grazescape\static\grazescape\public\nitrate_tables\NitrogenFertRecs_zjh_edits.csv")
+        self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
         #self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NmodelInputs_final.csv")
-        self.denitLoss = pd.read_csv(r"grazescape\static\grazescape\public\nitrate_tables\denitr.csv")
-        self.Nvars = pd.read_csv(r"grazescape\static\grazescape\public\nitrate_tables\Nvars.csv")
+        self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
         self.grass_type = self.model_parameters['grass_type']
         # self.units = "Dry Mass tons/ac"
 
