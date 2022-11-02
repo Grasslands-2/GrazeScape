@@ -108,6 +108,7 @@ def get_user_farms(user_id):
     return farm_id
 # updates the users list of farms when they add or delete an operation.
 def update_user_farms(user_id, farm_id):
+    print("IN UPDATE USER FARMS")
     cur, conn = get_db_conn()
     try:
         cur.execute("""INSERT INTO farm_user 
@@ -376,7 +377,20 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
         "rotation_dry_matter_yield_kg-DM/ac/year": {
             "units": "Yield (tons-Dry Matter/ac/year)",
             "units_alternate": "Yield (tons-Dry Matter/year)",
-            "type": "Rotational Average"}
+            "type": "Rotational Average"},
+        "P_runoff_lbs_per_acre": {
+                "units": "Phosphorus Runoff (lb/acre/year)",
+                "units_alternate": "Phosphorus Runoff (lb/year)",
+                "type": "ploss"},
+        "N_runoff_lbs_per_acre": {
+                "units": "Nitrate Leaching (lb/acre/year)",
+                "units_alternate": "Nitrate Leaching (lb/year)",
+                "type": "nleaching"},
+            "soil_erosion_tons_per_acre": {
+                "units": "Soil Erosion (ton/acre/year)",
+                "units_alternate": "Soil Erosion (tons of soil/year",
+                "type": "ero"}
+            
     },
         'ploss': {
             "P_runoff_lbs_per_acre": {

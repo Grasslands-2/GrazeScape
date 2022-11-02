@@ -26,6 +26,7 @@ class GeoServer{
 //    returns a geojson of the farms
     setFarmSource(parameter = ""){
         console.log("IN SET FARM!!!")
+        console.log(parameter)
         this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
             console.log(geoJson)
             DSS.layer.farms_1.getSource().clear()
@@ -200,7 +201,8 @@ class GeoServer{
             var farmGeojsonString = String(returnData.geojson)
             console.log(farmGeojsonString);
             let currObj = returnData.current
-            currObj.setFarmSource()
+            //currObj.setFarmSource()
+            //geoServer.setFarmSource()
 			DSS.MapState.removeMapInteractions()
             var fgid = farmGeojsonString.substring(farmGeojsonString.indexOf('farm_2.') + 7,farmGeojsonString.lastIndexOf('"/>'));
             var intFgid = parseInt(fgid);
@@ -270,6 +272,8 @@ class GeoServer{
 			});
 			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
 			DSS.field_grid.FieldGrid.store.reload();
+            DSS.Field_Summary_Table.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
+			DSS.Field_Summary_Table.store.reload();
         })
     }
     //Used to populate the infra grid for a scenario

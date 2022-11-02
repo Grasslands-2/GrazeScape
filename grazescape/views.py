@@ -355,10 +355,15 @@ def outside_shpfile_coord_pull(filename,scenario_id,farm_id):
 
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
+    print("GEOSERVER REQUEST TYPE")
+    print(request_type)
+    print(request.POST)
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
     feature_id = request.POST.get("feature_id")
     #feature_id = 9999
+    print("GEOSERVER feature_id")
+    print(feature_id)
     current_user = request.user
     farm_ids = get_user_farms(current_user.id)
     #farm_2 = False
@@ -382,7 +387,8 @@ def geoserver_request(request):
         delete_gcs_model_result_blob(resultdel.group(1))
     #if request_type == "insert_farm" and feature_id != "" and "farm_2" in url :
     #if "farm_2" in str(url):
-    if request_type == "insert_farm" and feature_id != "":
+
+    if request_type == "insert_farm":
         
         #print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         
@@ -391,13 +397,15 @@ def geoserver_request(request):
         #print(str(url))
     #if "farm_2" in str(url):
         #print('IN INSERT FARM!!!!!! MAKEREQUEST RESULTS RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print("RESULT AND resultstr in insert farm backend")
         print(result)
-        
         resultstr = str(result)
         if "farm_2" in resultstr:
             pattern = 'farm_2.(.*?)"/>'
             feature_id = re.search(pattern,resultstr).group(1)
+            print("feature_id in insert_farm geoserver request")
             print(feature_id)
+            print(request.user.id)
         #feature_id = 9675
 
         #pull gid from the results text.  Also, find a way to limit the update_user_farms to only farm_2 inserts
@@ -405,6 +413,34 @@ def geoserver_request(request):
         #once you have that figured out you can find out how to see your farms when you open the app.
         #print(request.POST)
             update_user_farms(request.user.id, feature_id)
+
+
+
+    # if request_type == "insert_farm" and feature_id != "":
+        
+    #     #print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
+    #     #if request_type == "insert_farm":
+    #     print('IN INSERT FARM!!!!!#######################!')
+    #     #print(str(url))
+    # #if "farm_2" in str(url):
+    #     #print('IN INSERT FARM!!!!!! MAKEREQUEST RESULTS RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    #     print("RESULT AND resultstr in insert farm backend")
+    #     print(result)
+    #     resultstr = str(result)
+    #     if "farm_2" in resultstr:
+    #         pattern = 'farm_2.(.*?)"/>'
+    #         feature_id = re.search(pattern,resultstr).group(1)
+    #         print("feature_id in insert_farm geoserver request")
+    #         print(feature_id)
+    #         print(request.user.id)
+    #     #feature_id = 9675
+
+    #     #pull gid from the results text.  Also, find a way to limit the update_user_farms to only farm_2 inserts
+    #     #currently gettin scenarios_2 as well.  After you get this right you should be able to see new farm
+    #     #once you have that figured out you can find out how to see your farms when you open the app.
+    #     #print(request.POST)
+    #         update_user_farms(request.user.id, feature_id)
 
     if request_type == "source_farm":
         print("source Farm result!!!!!!!!")
