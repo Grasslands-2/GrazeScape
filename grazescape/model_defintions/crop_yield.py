@@ -166,10 +166,10 @@ class CropYield(ModelBase):
     def __init__(self, request,active_region, file_name=None):
         super().__init__(request,active_region, file_name)
         #C:\Users\zjhas\Documents\GrazeScape\grazescape\static\grazescape\public
-        self.fertNrec = pd.read_csv(r"grazescape\static\grazescape\public\nitrate_tables\NitrogenFertRecs_zjh_edits.csv")
+        self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
         #self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NmodelInputs_final.csv")
-        self.denitLoss = pd.read_csv(r"grazescape\static\grazescape\public\nitrate_tables\denitr.csv")
-        self.Nvars = pd.read_csv(r"grazescape\static\grazescape\public\nitrate_tables\Nvars.csv")
+        self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
         # original units are in  [bushels/acre x 10]0
         # (to keep values in integer)
         # self.units = "Dry Mass tons/ac"
