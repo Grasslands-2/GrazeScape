@@ -198,7 +198,9 @@ function createFirstScenario(sname,sdescript){
 	console.log('current active scenario #: '+ DSS.activeScenario);
 	if (typeof DSS.activeScenario == 'undefined' || DSS.activeScenario == null){
 		console.log("in active scenario undefined if");
+		//DSS.layer.farms_1.getSource().refresh()
 		//set up the active farm geom to be the geom for this new scenario
+		setTimeout(function(){
 		DSS.layer.farms_1.getSource().getFeatures().forEach(function(f) {
 			var newScenarioFeature = f;
 			f.values_.geom = f.values_.geometry;
@@ -235,7 +237,7 @@ function createFirstScenario(sname,sdescript){
 				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')
 				console.log("HI! NEW BLANK SCENARIO CREATED!!!!!!")
 			}//else{}
-		})
+		})}, 2000);
 		
 	}else{
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {

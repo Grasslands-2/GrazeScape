@@ -1,7 +1,3 @@
-//const { stringify } = require("querystring")
-// const path = require('path');
-// const fs = require('fs');
-// ploss scale bar values
 
 function field_png_lookup(data,layer,extents){
     return new Promise(function(resolve) {
@@ -135,18 +131,6 @@ DSS.eroBol = false
 DSS.runoffBol = false
 DSS.yieldBol = false
 // unique model time stamp holder
-
-
-Ext.create('Ext.data.Store', {
-    storeId: 'simpsonsStore',
-    fields:[ 'name', 'email', 'phone'],
-    data: [
-        { name: 'Lisa', email: 'lisa@simpsons.com', phone: '555-111-1224' },
-        { name: 'Bart', email: 'bart@simpsons.com', phone: '555-222-1234' },
-        { name: 'Homer', email: 'homer@simpsons.com', phone: '555-222-1244' },
-        { name: 'Marge', email: 'marge@simpsons.com', phone: '555-222-1254' }
-    ]
-});
 
 
 //This function gathers the yield data from the active scnearios fields for the yield adjustment table
@@ -341,7 +325,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	alias: 'widget.state_perimeter_dialog',
     requires: [
 		'DSS.map.LayerMenu',
-        'DSS.map.OutputMenu'
+        'DSS.map.OutputMenu',
+        'DSS.Field_Summary_Table'
 	],
     name: "dashboardWindow",
 	alternateClassName: 'DSS.Dashboard',
@@ -2309,6 +2294,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                 scrollable: true,
                 listeners:{activate: function() {
+                    Ext.getCmp('SummaryTable').setHidden(false);
+                    Ext.getCmp('SummaryTable').show();
                     console.log("options")
                     if(Ext.getCmp('fieldLegend').items.length<1){
 
@@ -2335,16 +2322,26 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 
                 items:[
-                    {
-                        xtype: 'label',
-                        cls: 'information med-text',
-                        html: 'Summary Table'
-                    },
-                   
+                    
+                    // {
+                    //     xtype: 'label',
+                    //     cls: 'information med-text',
+                    //     html: 'Summary Table Dashboard'
+                    // },
+                    Ext.getCmp('SummaryTable')
+                    
                 ],
                 scope: this,
                 listeners:{activate: function() {
+                    
 
+                //     setTimeout(() => {
+                //         //Ext.getCmp('SummaryTable').getView().refresh()
+                //         Ext.getCmp('fieldTable').getView().refresh()
+                         //Ext.getCmp('fieldTable').setHidden(false)
+                //         console.log(ModelSummaryData)
+                // }, "250")
+                    //AppEvents.triggerEvent('show_field_grid');
                 }}
 
                 },

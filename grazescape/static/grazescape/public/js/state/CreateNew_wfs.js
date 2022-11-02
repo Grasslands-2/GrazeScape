@@ -8,14 +8,14 @@ DSS.utils.addStyle('.right-pad { padding-right: 32px }')
 var scenarioObj = {};
 var farmUrl = 
 
-function showNewFarm() {
-    geoServer.setFarmSource()
-	console.log("setFarmSource in CreateNew_wfs within showNewFarm")
-	DSS.layer.farms_1.setOpacity(1);
-	DSS.layer.farms_1.getSource().refresh();
-	console.log(DSS.activeFarm)
-	console.log("show new farm ran");
-}
+// function showNewFarm() {
+//     geoServer.setFarmSource()
+// 	console.log("setFarmSource in CreateNew_wfs within showNewFarm")
+// 	DSS.layer.farms_1.setOpacity(1);
+// 	DSS.layer.farms_1.getSource().refresh();
+// 	console.log(DSS.activeFarm)
+// 	console.log("show new farm ran");
+// }
 //bring in farm layer table as object for iteration
 //bring in farm layer table as object for iteration
 //empty array to catch feature objects
