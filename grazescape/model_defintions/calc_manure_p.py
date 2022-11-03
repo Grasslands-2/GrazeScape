@@ -9,7 +9,7 @@ def getRotText(crop,legume_text,animal_density_text):
     elif crop == 'pt_cn':
         return crop + '_'+ animal_density_text + '_'+legume_text
     elif crop == 'dl':
-        return crop + '_' + legume_text
+        return crop + '_'+ animal_density_text
     else:
         #print("getRotText else hit")
         return crop
@@ -31,7 +31,7 @@ def getfertNrec_values(rot_yrs_crop,crop,legume_text,animal_density_text,fertNre
       elif i == 'dl':
           CropAbbr = i + '_' + animal_density_text
           rasterLookUp = 'nResponse'
-          rasterVal = cell_nresponse
+          rasterVal = int(cell_nresponse)
       else:
         #   print("in raster look up else")
           CropAbbr = i
@@ -46,15 +46,15 @@ def getfertNrec_values(rot_yrs_crop,crop,legume_text,animal_density_text,fertNre
       #You need to account for rotation, since the legumes and especially SOY can effect the Nrec results
       #Of other crops for that year.
       RotationAbbr = getRotText(crop,legume_text,animal_density_text)
-    #   print("RotationAbbr: "+RotationAbbr)
+      # print("RotationAbbr: "+RotationAbbr)
       NFertRecs_RotationAbbr = fertNrec[fertNrec["RotationAbbr"] == RotationAbbr]
-    #   print("NFertRecs_RotationAbbr")
-    #   print(NFertRecs_RotationAbbr)
-    #   print("variables")
-    #   print(CropAbbr)
-    #   print(rasterLookUp)
-    #   print(rasterVal)
-    #   print(cover_crop)
+      # print("NFertRecs_RotationAbbr")
+      # print(NFertRecs_RotationAbbr)
+      # print("variables")
+      # print(CropAbbr)
+      # print(rasterLookUp)
+      # print(rasterVal)
+      # print(cover_crop)
       NFertRecs_CropAbbr = NFertRecs_RotationAbbr[NFertRecs_RotationAbbr["CropAbbr"] == str(CropAbbr)]
       NFertRecs_CoverAbbr = NFertRecs_CropAbbr[NFertRecs_CropAbbr["coverAbbr"] == str(cover_crop)]
     #   print(NFertRecs_CoverAbbr)
@@ -94,6 +94,9 @@ def getRotYers(crop):
     if crop == 'pt_cn':
         rot_yrs = 1
         rot_yrs_crop = ['pt_cn']
+    if crop == 'dl':
+        rot_yrs = 1
+        rot_yrs_crop = ['dl']
     if crop == 'cc':
         rot_yrs = 1
         rot_yrs_crop = ['cn']
@@ -135,7 +138,7 @@ class CalcManureP(ModelBase):
       grazedDMlbs_total = 0
       grazedp205_total = 0
       cover_crop = ''
-      if self.model_parameters["crop"] == "pt":
+      if self.model_parameters["crop"] == "pt" or self.model_parameters["crop"] == "dl":
         cover_crop = 'nc'
       else:
         cover_crop = self.model_parameters["crop_cover"]
@@ -180,6 +183,6 @@ class CalcManureP(ModelBase):
       manureP = appliedManureN/3
       manurePpercent = 100*(manureP/Pneeds)
       return_data = [ManureN,Pneeds,manurePpercent,grazedDMlbs,grazedp205,fertNrec_Values_Array_Flat]
-      print("CALC MANURE RETURNDATA!")
-      print(return_data)
+      #print("CALC MANURE RETURNDATA!")
+      #print(return_data)
       return return_data
