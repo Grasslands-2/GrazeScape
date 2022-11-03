@@ -253,7 +253,7 @@ function turnOffMappedResults() {
 }
     
 var fieldYieldArray = [];
-var modelTypes = [ /*'ploss',*/'runoff', 'bio','econ','yield']
+var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
