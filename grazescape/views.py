@@ -616,17 +616,22 @@ def get_model_results(request):
         model.raster_inputs = clipped_rasters
         model2.raster_inputs = clipped_rasters
         print("CLIPPED RASTERS MADE!")
-        manure_p_perc = model2.run_model()
+        #manure_p_perc = model2.run_model()
         # manure_p_perc = CalcManureP(request).run_model()
         # print("CALC MANURE P!")
         # print(manure_p_perc)
         # loop here to build a response for all the model types
         if model_type == 'runoff' or model_type == 'ploss':
+            model2 = CalcManureP(request)
+            model2.raster_inputs = clipped_rasters
+            manure_p_perc = model2.run_model()
             results = model.run_model(active_region,manure_p_perc)
         # elif model_type == 'nitrate':
         #     results = model.run_model(eroDatum)
         elif model_type == 'yield':
-            #manure_p_perc = model2.run_model()
+            model2 = CalcManureP(request)
+            model2.raster_inputs = clipped_rasters
+            manure_p_perc = model2.run_model()
             results = model.run_model(active_region,manure_p_perc)
             print("YIELD MODEL RAN!!!!")
         else:
