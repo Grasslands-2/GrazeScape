@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
+import time
 def getOMText(omraw,text_needed):
         #print(omraw)
         if omraw < 2:
@@ -186,6 +187,7 @@ class GrassYield(ModelBase):
         # self.units = "Dry Mass tons/ac"
 
     def run_model(self,active_region,manure_p_perc):
+        start = time.time()
         grass_yield = OutputDataNode("Grass", "Yield (tons/acre)", 'Total Yield (tons/year')
         rotation_avg = OutputDataNode("Rotational Average", "Yield (tons-Dry Matter/ac/year)", "Yield (tons-Dry Matter/year)")
         nitrate = OutputDataNode("nleaching", "Nitrate Leaching (lb/acre/year)", "Nitrate Leaching (lb/year)")
@@ -251,7 +253,7 @@ class GrassYield(ModelBase):
         r.assign("awc", awc)
         r.assign("total_depth", total_depth)
         # print("assigning om")
-        r.assign("om", float(self.model_parameters["om"]))
+        r.assign("om", float(float(self.model_parameters["om"])))
         ContCornErosion = "cc_erosion_"
         cornGrainErosion = "cg_erosion_"
         cornSoyOatErosion = "cso_erosion_"
@@ -293,7 +295,7 @@ class GrassYield(ModelBase):
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
-        r.assign("om", float(self.model_parameters["om"]))
+        r.assign("om", float(float(self.model_parameters["om"])))
         print("assigning om done")
 
         print(r("library(randomForest)"))
@@ -315,19 +317,19 @@ class GrassYield(ModelBase):
         print(r("pred <- predict(savedRF, pred_df)"))
         pred = r.get("pred")
         
-        print("Model Results")
-        print("$$$$$$$$$$$$$$$")
+        # print("Model Results")
+        # print("$$$$$$$$$$$$$$$")
         pred = pred * float(self.model_parameters["graze_factor"])
         pred2 = np.where(pred < 0.01, .01, pred)
-        print("GRASS PRED Flattened")
-        print(pred2)
+        # print("GRASS PRED Flattened")
+        # print(pred2)
         grass_yield.set_data(pred)
         rotation_avg.set_data(pred)
-        #print(self.model_parameters["om"])
+        #print(float(self.model_parameters["om"]))
         # r.assign("om", 2.56)
-        print("MODEL PATH 2 ")
-        print(self.model_file_path2)
-        print(regionRDS)
+        # print("MODEL PATH 2 ")
+        # print(self.model_file_path2)
+        # print(regionRDS)
         r.assign("cc_erosion_file", os.path.join(self.model_file_path2,ContCornErosion + regionRDS))
         r.assign("cg_erosion_file", os.path.join(self.model_file_path2,cornGrainErosion + regionRDS))
         r.assign("cso_erosion_file", os.path.join(self.model_file_path2,cornSoyOatErosion + regionRDS))
@@ -345,7 +347,7 @@ class GrassYield(ModelBase):
         r.assign("dl_pi_file", os.path.join(self.model_file_path2,dryLotTidyploss + regionRDS))
         
 
-        print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+        # print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
 
         r(f"""
         #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
@@ -612,6 +614,9 @@ class GrassYield(ModelBase):
         ploss=  np.where(ploss < 0.01, .01, ploss)
         erosion.set_data(ero)
         pl.set_data(ploss)
+        EroPLend = time.time()
+        print("EroPLend Time for Grass")
+        print(EroPLend - start)
 
         rot_yrs_crop = []
         # print("CROP_RO")
@@ -650,7 +655,7 @@ class GrassYield(ModelBase):
         #   if pred2[y][0] < 0:
         #     nitrate_array.append(pred2[y][0])
           else:
-            cell_om = om_flattened[y] / 10
+            cell_om = float(self.model_parameters["om"])
             cell_drain_class = drain_class_flattened[y]
             cell_nresponse = nResponse_flattened[y]
             cell_erosion = ero[y][0]
@@ -692,4 +697,7 @@ class GrassYield(ModelBase):
         # print(len(pl.data))
         # print(nitrate.data)
         # print(pl.data)
+        YNend = time.time()
+        print("YNend Time for Grass")
+        print(YNend - start)
         return return_data

@@ -3,6 +3,7 @@ import math
 from pyper import *
 import numpy as np
 import pandas as pd
+import time
 def getRotText(crop,legume_text,animal_density_text):
     if crop == 'pt_rt':
         return crop + '_'+ legume_text
@@ -15,7 +16,11 @@ def getRotText(crop,legume_text,animal_density_text):
         return crop
 def getfertNrec_values(rot_yrs_crop,crop,legume_text,animal_density_text,fertNrec,om_text,cell_nresponse,cover_crop):
     nrecValue_array = []
-    
+    nrecValue = 0
+    nManureValue = 0
+    pNeedsValue = 0
+    grazedDMlbs = 0
+    grazedP2O5lbs = 0
     for i in rot_yrs_crop:
       CropAbbr = ''
       rasterLookUp = ''
@@ -62,13 +67,26 @@ def getfertNrec_values(rot_yrs_crop,crop,legume_text,animal_density_text,fertNre
     #   print(NFertRecs_RasterLookup)
       NFertRecs_Row = pd.concat([NFertRecs_RasterLookup[NFertRecs_RasterLookup["rasterVals"] == str(rasterVal)]])
     #   print(NFertRecs_Row)
-      nrecValue = float(NFertRecs_Row["Nrec"].values[0])
-      nManureValue = float(NFertRecs_Row["ManureN"].values[0])
-      pNeedsValue = float(NFertRecs_Row["Pneeds"].values[0])
-      grazedDMlbs = float(NFertRecs_Row["grazed_DM_lbs"].values[0])
-      grazedP2O5lbs = float(NFertRecs_Row["grazed_P2O5_lbs"].values[0])
-      NfertRecs_values = [nrecValue,nManureValue,pNeedsValue,grazedDMlbs,grazedP2O5lbs]
-      #nrecValue_array.append(NfertRecs_values)
+      if i == "af":
+        nrecValue = float(NFertRecs_Row["Nrec"].values[0])*2 + nrecValue
+        nManureValue = float(NFertRecs_Row["ManureN"].values[0])*2 + nManureValue
+        pNeedsValue = float(NFertRecs_Row["Pneeds"].values[0])*2 + pNeedsValue
+        grazedDMlbs = float(NFertRecs_Row["grazed_DM_lbs"].values[0])*2 + grazedDMlbs
+        grazedP2O5lbs = float(NFertRecs_Row["grazed_P2O5_lbs"].values[0])*2 + grazedP2O5lbs
+      else:
+        nrecValue = float(NFertRecs_Row["Nrec"].values[0]) + nrecValue
+        nManureValue = float(NFertRecs_Row["ManureN"].values[0]) + nManureValue
+        pNeedsValue = float(NFertRecs_Row["Pneeds"].values[0]) + pNeedsValue
+        grazedDMlbs = float(NFertRecs_Row["grazed_DM_lbs"].values[0]) + grazedDMlbs
+        grazedP2O5lbs = float(NFertRecs_Row["grazed_P2O5_lbs"].values[0]) + grazedP2O5lbs
+
+    nrecValue = nrecValue / len(rot_yrs_crop)
+    nManureValue = nManureValue / len(rot_yrs_crop)
+    pNeedsValue = pNeedsValue / len(rot_yrs_crop)
+    grazedDMlbs = grazedDMlbs / len(rot_yrs_crop)
+    grazedP2O5lbs = grazedP2O5lbs / len(rot_yrs_crop)
+    NfertRecs_values = [nrecValue,nManureValue,pNeedsValue,grazedDMlbs,grazedP2O5lbs]
+      # nrecValue_array.append(NfertRecs_values)
 
     return (NfertRecs_values)
 def getOMText(omraw):
@@ -108,7 +126,8 @@ def getRotYers(crop):
         rot_yrs_crop = ['cs','sb','ot']
     if crop == 'dr':
         rot_yrs = 5
-        rot_yrs_crop = ['cs','cn','af','af','af']
+        # 'af','af','af' is redundent and wasting time.  stream line it with a conditional
+        rot_yrs_crop = ['cs','cn','as','af']
     return [rot_yrs,rot_yrs_crop]
 def getAnimaleDensity(animal_density):
     if animal_density == 'lo':
@@ -131,6 +150,7 @@ class CalcManureP(ModelBase):
       self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
     def run_model(self):
       print("Calc Manure P Running!")
+      start = time.time()
     #   print(self.model_parameters["crop"])
       index = 0
       Pneeds_total = 0
@@ -155,18 +175,22 @@ class CalcManureP(ModelBase):
         crop_ro = self.model_parameters["crop"]
       om_flattened = self.raster_inputs["om"].flatten()
       nResponse_flattened = self.raster_inputs["Nresponse"].flatten()
-      drain_class_flattened = self.raster_inputs["drain_class"].flatten()
       rot_yrs_crop = getRotYers(crop_ro)[1]
-      
-      for y in range(0, len(nResponse_flattened)):
-      # for y in range(0, len(drain_class_flattened)):
-        if nResponse_flattened[y] < 0:
-          fertNrec_Values_Array_Flat.append([nResponse_flattened[y],nResponse_flattened[y],nResponse_flattened[y],nResponse_flattened[y],nResponse_flattened[y]])
+      array_counter = 0
+
+      for y in np.nditer(nResponse_flattened):
+      # for y in range(0, len(nResponse_flattened)):
+        # if nResponse_flattened[y] < 0:
+        if y < 0:
+          fertNrec_Values_Array_Flat.append([-9999,-9999,-9999,-9999,-9999])
+          #fertNrec_Values_Array_Flat.append([nResponse_flattened[y],nResponse_flattened[y],nResponse_flattened[y],nResponse_flattened[y],nResponse_flattened[y]])
         else:
             #fertNrec_Values_Array_Flat[Nrec,nManure,pNeeds,grazedDMlbs,grazedP2O5lbs]
           index +=1
-          cell_om = om_flattened[y] / 10
-          cell_nresponse = nResponse_flattened[y]
+          # cell_om = om_flattened[y] / 10
+          # cell_nresponse = nResponse_flattened[y]
+          cell_om = om_flattened[array_counter] / 10
+          cell_nresponse = y
           fertNrec_Values_Array = getfertNrec_values(rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,getOMText(cell_om),cell_nresponse,cover_crop)
         #   print("fertNrec_Values_Array in calc P")
         #   print(fertNrec_Values_Array)
@@ -175,6 +199,7 @@ class CalcManureP(ModelBase):
           grazedDMlbs_total = grazedDMlbs_total + fertNrec_Values_Array[3]          
           grazedp205_total = grazedp205_total + fertNrec_Values_Array[4]
           fertNrec_Values_Array_Flat.append(fertNrec_Values_Array)
+        array_counter += 1
       Pneeds = Pneeds_total/index
       ManureN = (ManureN_total/index) * PctManrN
       grazedDMlbs = grazedDMlbs_total/index
@@ -185,4 +210,7 @@ class CalcManureP(ModelBase):
       return_data = [ManureN,Pneeds,manurePpercent,grazedDMlbs,grazedp205,fertNrec_Values_Array_Flat]
       #print("CALC MANURE RETURNDATA!")
       #print(return_data)
+      print("p mamnure finished")
+      end = time.time()
+      print(end - start)
       return return_data

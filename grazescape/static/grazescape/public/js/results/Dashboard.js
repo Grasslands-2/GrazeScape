@@ -253,7 +253,7 @@ function turnOffMappedResults() {
 }
     
 var fieldYieldArray = [];
-var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
+var modelTypes = [ /*'ploss','bio','econ',*/'yield',/*'runoff'*/]
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -533,10 +533,19 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                     })
                 }
-                
+                let model_request_return1 = await build_model_request(f.properties, f,'pmanure',modelruntime,DSS.activeScenario,[],[])
+                let pManureResults = await get_P_Manure_Results(model_request_return1)
+                // pManureResults = await pManureResults
+                // console.log(pManureResults)
+                let pManureResultsArray = pManureResults.p_manure_array
+                // console.log(pManureResults.p_manure_array)
+                let pMcellData = pManureResults.p_manure_array[5]
+                let pManureResultspop = pManureResultsArray.pop()
+                // console.log(pManureResultspop)
+                // console.log(pMcellData)
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion)//.then(model_request_return)
+                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,pManureResultsArray,pManureResultspop)//.then(model_request_return)
                     //build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return => {
                     console.log(model_request_return)
                     get_model_data(model_request_return).then(returnData =>{

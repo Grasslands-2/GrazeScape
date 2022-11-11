@@ -46,6 +46,7 @@ from grazescape.db_connect import *
 from grazescape.users import *
 from google.cloud import storage
 import pandas as pd
+import json as js
 import geopandas as gpd
 import fiona as fiona
 import sys
@@ -491,24 +492,90 @@ def get_default_om(request):
     return JsonResponse({"om": round(sum / count,2)}, safe=False)
 #This gets the model results from the model results table
 
+def get_P_Manure_Results(request):
+    request_json = js.loads(request.body)
+    print(" in pmanure")
+    print(request_json)
+    active_region = request_json["model_parameters"]["active_region"]
+    field_id = str(request_json["field_id"])
+    field_coors = []
+    field_coors.append(request_json["model_parameters"]["field_coors"])
+    print(active_region)
+    print(field_id)
+    try:
+        print("right before goedata in pmanure")
+        geo_data = RasterData(request_json["model_parameters"]["extent"], field_coors, field_id, active_region, False)
+        print("right after goedata in pmanure")
+        print(geo_data)
+        clipped_rasters, bounds = geo_data.get_clipped_rasters()
+        print("right before goedata in pmanure")
+        P_Manure_Model = CalcManureP(request)
+        P_Manure_Model.raster_inputs = clipped_rasters
+        p_Manure_Results = P_Manure_Model.run_model()
+        # print("p_Manure_Results")
+        # print(p_Manure_Results)
+        return JsonResponse({"p_manure_array": p_Manure_Results}, safe=False)
+        # return p_Manure_Results
+    except KeyError as e:
+        error = str(e) + " while running models for field " 
+    except ValueError as e:
+        error = str(e) + " while running models for field " 
+    except TypeError as e:
+        print("type error")
+        error = str(e) + " while running models for field " 
+    except FileNotFoundError as e:
+        error = str(e)
+
+    except Exception as e:
+        error = str(e) + " while running models for field " 
+        print(type(e).__name__)
+        traceback.print_exc()
+    print(error)
+    data = {
+        # overall model type crop, ploss, bio, runoff
+        "error": error
+    }
+    return JsonResponse([data], safe=False)
 def get_model_results(request):
-    print("MODEL PARAMETERS!!!!!!!!")
-    print(request.POST.get('model_parameters'))
-    field_id = request.POST.getlist("field_id")[0]
-    scenario_id = request.POST.getlist("scenario_id")[0]
-    farm_id = request.POST.getlist("farm_id")[0]
-    model_type = request.POST.get('model_parameters[model_type]')
-    f_name = request.POST.get('model_parameters[f_name]')
-    scen = request.POST.get('model_parameters[scen]')
-    field_scen_id = request.POST.get('model_parameters[f_scen]')
-    model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
-    active_scen = request.POST.get('model_parameters[active_scen]')
-    active_region = request.POST.get('model_parameters[active_region]')
-    
+    print("MODEL PARAMETERS IN GET MODEL RESULTS!!!!!!!!")
+    #print(request.POST.get('model_parameters'))
+    # print(request.POST)
+    request_json = js.loads(request.body)
+    # print(request_json)
+
+    field_id = str(request_json["field_id"])
+    scenario_id = request_json["scenario_id"]
+    farm_id = request_json["farm_id"] #request.POST.getlist("farm_id")[0]
+    model_type = request_json["model_parameters"]["model_type"]#request.POST.get('model_parameters[model_type]')
+    f_name = request_json["model_parameters"]["f_name"] #request.POST.get('model_parameters[f_name]')
+    scen = request_json["model_parameters"]["scen"]#request.POST.get('model_parameters[scen]')
+    field_scen_id = request_json["model_parameters"]["f_scen"]#request.POST.get('model_parameters[f_scen]')
+    model_run_timestamp = request_json["model_parameters"]["model_run_timestamp"]#request.POST.get('model_parameters[model_run_timestamp]')
+    active_scen = request_json["model_parameters"]["active_scen"]#request.POST.get('model_parameters[active_scen]')
+    active_region = request_json["model_parameters"]["active_region"]#request.POST.get('model_parameters[active_region]')
+    p_manure_Results = request_json["model_parameters"]["pManureResults"]#request.POST.getlist('model_parameters[pManureResults][]')
+    pM_cell_Data = request_json["model_parameters"]["pMcellData"]#request.POST.getlist('model_parameters[pManureResults][]')
+
+    # field_id = request.POST.getlist("field_id")[0]
+    # scenario_id = request.POST.getlist("scenario_id")[0]
+    # farm_id = request.POST.getlist("farm_id")[0]
+    # model_type = request.POST.get('model_parameters[model_type]')
+    # f_name = request.POST.get('model_parameters[f_name]')
+    # scen = request.POST.get('model_parameters[scen]')
+    # field_scen_id = request.POST.get('model_parameters[f_scen]')
+    # model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
+    # active_scen = request.POST.get('model_parameters[active_scen]')
+    # active_region = request.POST.get('model_parameters[active_region]')
+    # p_manure_Results = request.POST.getlist('model_parameters[pManureResults][]')
+    # pM_cell_Data = request.POST.getlist('model_parameters[pManureResults][]')
+    # print("p_manure_Results")
+    # print(p_manure_Results)
+    # print(pM_cell_Data)
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
-    print(request.POST.getlist("field_id"))
+    print(field_id)
     db_has_field(field_id)
-    if request.POST.getlist("runModels")[0] == 'false':
+    if request_json["runModels"] == 'false':
+    # if request.POST.getlist("runModels")[0] == 'false':
         print('model runs = false')
         download_gcs_model_result_blob(field_id,field_scen_id,active_scen,model_run_timestamp)
         """Downloads a blob from the bucket."""
@@ -523,53 +590,36 @@ def get_model_results(request):
                 model_run_timestamp = blob.name[-17:-4]
                 #runtimecollect = True
                 print("this is the Model Runtime for the downloaded pngs: " + model_run_timestamp)
-            #print(blob.name)
-            # for model in model_Types:
-            #     if str(model+str(field_id)) in blob.name:
-            #         destination_file_name = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',blob.name)
-            #         blob = bucket.blob(model+field_id+'.png')
-            #         try:
-            #             blob.download_to_filename(destination_file_name)
-            #             print("Blob {} downloaded.".format(field_id))
-            #         except:
-            #             print("There was an error while downloading from GCS")
-            #             pass
+            
         return JsonResponse(get_values_db(field_id,scenario_id,farm_id,request,model_run_timestamp), safe=False)
-    
-    
-    # if model_type == 'econ':
-    #     print('econ hit!!!')
-    #     print(f_name)
-    #     print(field_id)
-    #     model = Econ(request)
-    #     print("ECON BACK IN VIEWS!!!!")
-    #     #print(model)
-
 
     field_coors = []
     if model_type == 'ploss':
-        remove_old_pngs_from_local('ploss',field_id)
+        remove_old_pngs_from_local('ploss',str(field_id))
     if model_type == 'yield':
-        remove_old_pngs_from_local('Rotational Average',field_id)
+        remove_old_pngs_from_local('Rotational Average',str(field_id))
     if model_type == 'runoff':
-        remove_old_pngs_from_local('ero',field_id)
+        remove_old_pngs_from_local('ero',str(field_id))
     if model_type == 'nleaching':
-        remove_old_pngs_from_local('nleaching',field_id)
+        remove_old_pngs_from_local('nleaching',str(field_id))
     # if model_type == 'nitrate':
     #     remove_old_pngs_from_local('nitrate',field_id)
     # format field geometry
-    for input in request.POST:
-        if "field_coors" in input:
-            field_coors.append(request.POST.getlist(input))
+    field_coors.append(request_json["model_parameters"]["field_coors"])
+    # for input in request.POST:
+    #     if "field_coors" in input:
+    #         field_coors.append(request.POST.getlist(input))
     try:
-        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, active_region, False)
+        print("")
+        geo_data = RasterData(request_json["model_parameters"]["extent"], field_coors, field_id, active_region, False)
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
-        model2 = CalcManureP(request)
+        # model2 = CalcManureP(request)
+        # model2.raster_inputs = clipped_rasters
+        # manure_p_perc = model2.run_model()
         if model_type == 'yield':
-            
             #call row yeilds nulling function here!!!
-            crop_ro = request.POST.getlist("model_parameters[crop]")[0]
+            crop_ro = request_json["model_parameters"]["crop"]
             if crop_ro == 'pt' or crop_ro == 'ps':
                 model = GrassYield(request,active_region)
             elif crop_ro == 'dl':
@@ -600,8 +650,7 @@ def get_model_results(request):
             # print("Request in views")
             # print(request.POST)
             model = Econ(request)
-            print("REQUEST GOING INTO ECON!!!")
-            print(request.POST)
+           
         # Use Yield results as a basis for filling in missing values
         # elif model_type == 'nitrate':
         #     model = Nitrate(request,active_region,ero_datanm)
@@ -614,7 +663,7 @@ def get_model_results(request):
         print("BOUNDS MADE!")
 
         model.raster_inputs = clipped_rasters
-        model2.raster_inputs = clipped_rasters
+        # model2.raster_inputs = clipped_rasters
         print("CLIPPED RASTERS MADE!")
         #manure_p_perc = model2.run_model()
         # manure_p_perc = CalcManureP(request).run_model()
@@ -622,23 +671,28 @@ def get_model_results(request):
         # print(manure_p_perc)
         # loop here to build a response for all the model types
         if model_type == 'runoff' or model_type == 'ploss':
-            model2 = CalcManureP(request)
-            model2.raster_inputs = clipped_rasters
-            manure_p_perc = model2.run_model()
-            results = model.run_model(active_region,manure_p_perc)
+            # model2 = CalcManureP(request)
+            # model2.raster_inputs = clipped_rasters
+            # manure_p_perc = model2.run_model()
+            results = model.run_model(active_region,p_manure_Results)
+            # results = model.run_model(active_region,manure_p_perc)
+            # results = model.run_model(active_region)
         # elif model_type == 'nitrate':
         #     results = model.run_model(eroDatum)
         elif model_type == 'yield':
-            model2 = CalcManureP(request)
-            model2.raster_inputs = clipped_rasters
-            manure_p_perc = model2.run_model()
-            results = model.run_model(active_region,manure_p_perc)
+            print("p_manure_Results")
+            print(p_manure_Results)
+            # model2 = CalcManureP(request)
+            # model2.raster_inputs = clipped_rasters
+            # manure_p_perc = model2.run_model()
+            results = model.run_model(request,active_region,p_manure_Results,pM_cell_Data)
+            # results = model.run_model(active_region)
             print("YIELD MODEL RAN!!!!")
         else:
             results = model.run_model()
         return_data = []
         # convert area from sq meters to acres
-        area = float(request.POST.getlist("model_parameters[area]")[0])
+        area = float(request_json["model_parameters"]["area"])
         print('RESULTS PRINTED HERE!!!')
         for result in results:
             print('RESULT HERE!!!')
@@ -692,13 +746,13 @@ def get_model_results(request):
             if type(sum) is not list:
                 sum = round(sum, 2)
             # erosion and ploss should not be less than zero
-            if model_type == 'ploss': #and sum <= 0:
-                print("PLOSS MODEL TYPE HITT!!!!!!!!!!!!!!!")
-                print(f_name)
-                print(result.model_type)
-                print(field_id)
-                print(sum)
-                #sum = 0.01
+            # if model_type == 'ploss': #and sum <= 0:
+            #     print("PLOSS MODEL TYPE HITT!!!!!!!!!!!!!!!")
+            #     print(f_name)
+            #     print(result.model_type)
+            #     print(field_id)
+            #     print(sum)
+            #     #sum = 0.01
             data = {
                 "extent": [*bounds],
                 "palette": palette,

@@ -27,6 +27,7 @@ class Runoff(ModelBase):
         return hyro_dic[group_num]
 
     def run_model(self,active_region,manure_p_perc):
+        print("start runoff")
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
@@ -73,10 +74,10 @@ class Runoff(ModelBase):
         r.assign("ls", ls)
         r.assign("hydgrp", hydrp_letter)
 
-        r.assign("p_need", manure_p_perc[1])
-        r.assign("manure", manure_p_perc[2])
-        r.assign("dm", manure_p_perc[3])
-        r.assign("p205", manure_p_perc[4])
+        r.assign("p_need", float(manure_p_perc[1]))
+        r.assign("manure", float(manure_p_perc[2]))
+        r.assign("dm", float(manure_p_perc[3]))
+        r.assign("p205", float(manure_p_perc[4]))
         # r.assign("manure", self.model_parameters["manure"])
         r.assign("fert", self.model_parameters["fert"])
         r.assign("crop", self.model_parameters["crop"])
@@ -86,7 +87,7 @@ class Runoff(ModelBase):
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
-        r.assign("om", self.model_parameters["om"])
+        r.assign("om", float(self.model_parameters["om"]))
 
         r.assign("cc_erosion_file",os.path.join(self.model_file_path, ContCornErosion + regionRDS))
         r.assign("cg_erosion_file",os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
@@ -145,7 +146,7 @@ class Runoff(ModelBase):
         # run models for different crops
         
         if (full_df$crop == "cc") {{
-            cc_cn <- readRDS(cc_cn_file)
+          cc_cn <- readRDS(cc_cn_file)
 
           #create factor levels
           tillage <- factor(cc_cn$preproc$xlevels$tillage)
@@ -207,7 +208,7 @@ class Runoff(ModelBase):
 
 
         }} else if (full_df$crop == "dr") {{
-            dr_cn <- readRDS(dr_cn_file)
+          dr_cn <- readRDS(dr_cn_file)
 
           cover <- factor(dr_cn$preproc$xlevels$cover)
           tillage <- factor(dr_cn$preproc$xlevels$tillage)
