@@ -153,6 +153,22 @@ class PhosphorousLoss(ModelBase):
         # om = self.raster_inputs["om"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
         ls = self.raster_inputs["ls"].flatten()
+        print("slope")
+        print(slope)
+        print("slope_length")
+        print(slope_length)
+        print("sand")
+        print(sand)
+        print("silt")
+        print(silt)
+        print("clay")
+        print(clay)
+        print("k")
+        print(k)
+        print("total_depth")
+        print(total_depth)
+        print("ls")
+        print(ls)
 
         ContCornErosion = "cc_erosion_"
         cornGrainErosion = "cg_erosion_"

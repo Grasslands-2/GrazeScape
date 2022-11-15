@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
-import time
 
 def getOMText(omraw,text_needed):
         #print(omraw)
@@ -181,7 +180,6 @@ class CropYield(ModelBase):
     def run_model(self,request,active_region,manure_p_perc):
         print("SELF IN CROP")
         print(self.model_parameters)
-        start = time.time()
         nitrate_array = []
         crop_ro = self.model_parameters["crop"]
         return_data = []
@@ -376,6 +374,23 @@ class CropYield(ModelBase):
         # r.assign("om", om)
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
+        print("PLOSS AND ERO RASTERS")
+        print("slope")
+        print(slope)
+        print("slope_length")
+        print(slope_length)
+        print("sand")
+        print(sand)
+        print("silt")
+        print(silt)
+        print("clay")
+        print(clay)
+        print("k")
+        print(k)
+        print("total_depth")
+        print(total_depth)
+        print("ls")
+        print(ls)
 
         r.assign("p_need", float(manure_p_perc[1]))
         r.assign("manure", float(manure_p_perc[2]))
@@ -619,7 +634,6 @@ class CropYield(ModelBase):
           """
                 )
         
-        print("after ero and ploss")
         print(r.get("p_need"))
         print(r.get("manure"))
         print(r.get("dm"))
@@ -631,9 +645,8 @@ class CropYield(ModelBase):
         print(r.get("tillage"))
         print(r.get("rotational"))
         print(r.get("density"))
-        print(r.get("density"))
         print(r.get("initialP"))
-        print(r.get("final_pi"))
+        print(r.get("om"))
         # print(r.get("pi_pred_df$Erosion"))
         # print(r.get("pi_pred_df$cover"))
         # print(r.get("pi_pred_df$tillage"))
@@ -1079,6 +1092,4 @@ class CropYield(ModelBase):
         # print(nitrate.data)
         # print(pl.data)
         print("Yield and Nitrate finished")
-        YNend = time.time()
-        print(YNend - start)
         return return_data
