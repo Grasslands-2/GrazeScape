@@ -633,7 +633,11 @@ class CropYield(ModelBase):
         }}
           """
                 )
-        
+        print("after ero and ploss")
+        print(r.get("cc_erosion_file"))
+        print(r.get("cc_erosion"))
+        print(r.get("cc_pi_file"))
+        print(r.get("cc_pi"))
         print(r.get("p_need"))
         print(r.get("manure"))
         print(r.get("dm"))
@@ -642,11 +646,15 @@ class CropYield(ModelBase):
         print(r.get("crop"))
         print(r.get("cover"))
         print(r.get("contour"))
+        print(r.get("Contour"))
         print(r.get("tillage"))
         print(r.get("rotational"))
         print(r.get("density"))
         print(r.get("initialP"))
         print(r.get("om"))
+        print(r.get("level_df"))
+        print(r.get("pi_pred_df"))
+        print(r.get("pred_df"))
         # print(r.get("pi_pred_df$Erosion"))
         # print(r.get("pi_pred_df$cover"))
         # print(r.get("pi_pred_df$tillage"))
