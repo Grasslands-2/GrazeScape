@@ -223,7 +223,7 @@ class ModelBase:
             "grass_type": request.POST.getlist("model_parameters[grass_type]")[
                 0],
             "contour": request.POST.getlist("model_parameters[contour]")[0],
-            "soil_p": request.POST.getlist("model_parameters[soil_p]")[0],
+            "soil_p": float(request.POST.getlist("model_parameters[soil_p]")[0]),
             "tillage": request.POST.getlist("model_parameters[tillage]")[0],
             "fert": request.POST.getlist("model_parameters[fert]")[0],
             "manure": request.POST.getlist("model_parameters[manure]")[0],

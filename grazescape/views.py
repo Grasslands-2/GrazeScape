@@ -556,8 +556,10 @@ def get_model_results(request):
     model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
     active_scen = request.POST.get('model_parameters[active_scen]')
     active_region = request.POST.get('model_parameters[active_region]')
-    p_manure_Results = request.POST.getlist('model_parameters[pManureResults][]')
-    # pM_cell_Data = request_json["model_parameters"]["pMcellData"]#request.POST.getlist('model_parameters[pManureResults][]')
+    p_manure_Results1 = np.array(request.POST.getlist('model_parameters[pManureResults][]'))
+    p_manure_Results = p_manure_Results1.astype(np.int)
+    print(p_manure_Results)
+    # pM_cell_Data = request.POST.getlist('model_parameters[pManureResults][]')
 
     # field_id = request.POST.getlist("field_id")[0]
     # scenario_id = request.POST.getlist("scenario_id")[0]
