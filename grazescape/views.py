@@ -493,18 +493,21 @@ def get_default_om(request):
 #This gets the model results from the model results table
 
 def get_P_Manure_Results(request):
-    request_json = js.loads(request.body)
+    # request_json = js.loads(request.body)
     print(" in pmanure")
-    print(request_json)
-    active_region = request_json["model_parameters"]["active_region"]
-    field_id = str(request_json["field_id"])
+    # print(request_json)
+    active_region = request.POST.get('model_parameters[active_region]]')#request_json["model_parameters"]["active_region"]
+    field_id = request.POST.getlist("field_id")[0]
     field_coors = []
-    field_coors.append(request_json["model_parameters"]["field_coors"])
+    for input in request.POST:
+        if "field_coors" in input:
+            field_coors.append(request.POST.getlist(input))
+    #field_coors.append(request_json["model_parameters"]["field_coors"])
     print(active_region)
     print(field_id)
     try:
         print("right before goedata in pmanure")
-        geo_data = RasterData(request_json["model_parameters"]["extent"], field_coors, field_id, active_region, False)
+        geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, active_region, False)#geo_data = RasterData(request_json["model_parameters"]["extent"], field_coors, field_id, active_region, False)
         print("right after goedata in pmanure")
         print(geo_data)
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
@@ -538,23 +541,23 @@ def get_P_Manure_Results(request):
     return JsonResponse([data], safe=False)
 def get_model_results(request):
     print("MODEL PARAMETERS IN GET MODEL RESULTS!!!!!!!!")
-    #print(request.POST.get('model_parameters'))
-    # print(request.POST)
-    request_json = js.loads(request.body)
+    # print(request.POST.get('model_parameters'))
+    print(request.POST.get('model_parameters'))
+    # request_json = js.loads(request.body)
     # print(request_json)
 
-    field_id = str(request_json["field_id"])
-    scenario_id = request_json["scenario_id"]
-    farm_id = request_json["farm_id"] #request.POST.getlist("farm_id")[0]
-    model_type = request_json["model_parameters"]["model_type"]#request.POST.get('model_parameters[model_type]')
-    f_name = request_json["model_parameters"]["f_name"] #request.POST.get('model_parameters[f_name]')
-    scen = request_json["model_parameters"]["scen"]#request.POST.get('model_parameters[scen]')
-    field_scen_id = request_json["model_parameters"]["f_scen"]#request.POST.get('model_parameters[f_scen]')
-    model_run_timestamp = request_json["model_parameters"]["model_run_timestamp"]#request.POST.get('model_parameters[model_run_timestamp]')
-    active_scen = request_json["model_parameters"]["active_scen"]#request.POST.get('model_parameters[active_scen]')
-    active_region = request_json["model_parameters"]["active_region"]#request.POST.get('model_parameters[active_region]')
-    p_manure_Results = request_json["model_parameters"]["pManureResults"]#request.POST.getlist('model_parameters[pManureResults][]')
-    pM_cell_Data = request_json["model_parameters"]["pMcellData"]#request.POST.getlist('model_parameters[pManureResults][]')
+    field_id = request.POST.getlist("field_id")[0] #str(request_json["field_id"])
+    scenario_id = request.POST.getlist("scenario_id")[0] #request_json["scenario_id"]
+    farm_id = request.POST.getlist("farm_id")[0]
+    model_type = request.POST.get('model_parameters[model_type]')
+    f_name = request.POST.get('model_parameters[f_name]')
+    scen = request.POST.get('model_parameters[scen]')
+    field_scen_id = request.POST.get('model_parameters[f_scen]')
+    model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
+    active_scen = request.POST.get('model_parameters[active_scen]')
+    active_region = request.POST.get('model_parameters[active_region]')
+    p_manure_Results = request.POST.getlist('model_parameters[pManureResults][]')
+    # pM_cell_Data = request_json["model_parameters"]["pMcellData"]#request.POST.getlist('model_parameters[pManureResults][]')
 
     # field_id = request.POST.getlist("field_id")[0]
     # scenario_id = request.POST.getlist("scenario_id")[0]
@@ -574,8 +577,8 @@ def get_model_results(request):
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
     print(field_id)
     db_has_field(field_id)
-    if request_json["runModels"] == 'false':
-    # if request.POST.getlist("runModels")[0] == 'false':
+    
+    if request.POST.getlist("runModels")[0] == 'false':
         print('model runs = false')
         download_gcs_model_result_blob(field_id,field_scen_id,active_scen,model_run_timestamp)
         """Downloads a blob from the bucket."""
@@ -605,13 +608,13 @@ def get_model_results(request):
     # if model_type == 'nitrate':
     #     remove_old_pngs_from_local('nitrate',field_id)
     # format field geometry
-    field_coors.append(request_json["model_parameters"]["field_coors"])
-    # for input in request.POST:
-    #     if "field_coors" in input:
-    #         field_coors.append(request.POST.getlist(input))
+    # field_coors.append(request_json["model_parameters"]["field_coors"])
+    for input in request.POST:
+        if "field_coors" in input:
+            field_coors.append(request.POST.getlist(input))
     try:
         print("")
-        geo_data = RasterData(request_json["model_parameters"]["extent"], field_coors, field_id, active_region, False)
+        geo_data = RasterData(request.POST.getlist('model_parameters[extent][]'), field_coors, field_id, active_region, False)
         clipped_rasters, bounds = geo_data.get_clipped_rasters()
         # geo_data.clean()
         # model2 = CalcManureP(request)
@@ -619,7 +622,7 @@ def get_model_results(request):
         # manure_p_perc = model2.run_model()
         if model_type == 'yield':
             #call row yeilds nulling function here!!!
-            crop_ro = request_json["model_parameters"]["crop"]
+            crop_ro = request.POST.get('model_parameters[crop]')
             if crop_ro == 'pt' or crop_ro == 'ps':
                 model = GrassYield(request,active_region)
             elif crop_ro == 'dl':
@@ -685,14 +688,14 @@ def get_model_results(request):
             # model2 = CalcManureP(request)
             # model2.raster_inputs = clipped_rasters
             # manure_p_perc = model2.run_model()
-            results = model.run_model(request,active_region,p_manure_Results,pM_cell_Data)
+            results = model.run_model(request,active_region,p_manure_Results)
             # results = model.run_model(active_region)
             print("YIELD MODEL RAN!!!!")
         else:
             results = model.run_model()
         return_data = []
         # convert area from sq meters to acres
-        area = float(request_json["model_parameters"]["area"])
+        area = float(request.POST.get('model_parameters[area]'))
         print('RESULTS PRINTED HERE!!!')
         for result in results:
             print('RESULT HERE!!!')

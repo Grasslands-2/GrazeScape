@@ -976,6 +976,7 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Run Models',
 					disabled:true,
 					handler: async function(self) {
+						console.log("run models clicked 1215")
 						getWFSScenarioSP()
 						if(fieldArray.length <1 ){
 							gatherTableData();

@@ -44,7 +44,7 @@ def getfertNrec_values(rot_yrs_crop,crop,legume_text,animal_density_text,fertNre
           if i == 'ot' or i == 'as':
               rasterLookUp = 'om'
               rasterVal = om_text
-          else: 
+          else:
               rasterLookUp = 'nResponse'
               rasterVal = int(cell_nresponse)
 
@@ -149,7 +149,10 @@ class CalcManureP(ModelBase):
       self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
       self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
     def run_model(self):
-      print("Calc Manure P Running!")
+      print("Calc Manure P Running  True!")
+      print(self.model_parameters)
+      # print(self.raster_inputs["Nresponse"])
+      print(self.model_parameters["crop"])
       start = time.time()
     #   print(self.model_parameters["crop"])
       index = 0
@@ -167,7 +170,7 @@ class CalcManureP(ModelBase):
       animal_density = self.model_parameters["density"]
       animal_density_text = getAnimaleDensity(animal_density)
       legume_text = getLegumeTest(legume)
-      PctManrN = self.model_parameters["manure_n_perc"]/100
+      PctManrN = float(self.model_parameters["manure_n_perc"])/100
       crop_ro = ''
       if self.model_parameters["crop"] == "pt":
         crop_ro = self.model_parameters["crop"] + '_' + self.model_parameters["rotation"]
@@ -177,7 +180,7 @@ class CalcManureP(ModelBase):
       nResponse_flattened = self.raster_inputs["Nresponse"].flatten()
       rot_yrs_crop = getRotYers(crop_ro)[1]
       array_counter = 0
-
+      print("right before pmanure loop")
       for y in np.nditer(nResponse_flattened):
       # for y in range(0, len(nResponse_flattened)):
         # if nResponse_flattened[y] < 0:
@@ -208,8 +211,8 @@ class CalcManureP(ModelBase):
       manureP = appliedManureN/3
       manurePpercent = 100*(manureP/Pneeds)
       return_data = [ManureN,Pneeds,manurePpercent,grazedDMlbs,grazedp205,fertNrec_Values_Array_Flat]
-      #print("CALC MANURE RETURNDATA!")
-      #print(return_data)
+      # print("CALC MANURE RETURNDATA!")
+      # print(return_data)
       print("p mamnure finished")
       end = time.time()
       print(end - start)

@@ -15,42 +15,42 @@ eroDatum = []
 class ModelBase:
 
     def __init__(self, request,active_region, file_name=None):
-        request_json = js.loads(request.body)
-        field_id = str(request_json["field_id"])# field_id = request.POST.getlist("field_id")[0]
-        model_run_timestamp = request_json["model_parameters"]["model_run_timestamp"]# model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
-        scenario_id = request_json["scenario_id"]# scenario_id = request.POST.getlist("scenario_id")[0]
-        farm_id = request_json["farm_id"]# farm_id = request.POST.getlist("farm_id")[0]
-        model_type = request_json["model_parameters"]["model_type"]# model_type = request.POST.get('model_parameters[model_type]')
-        f_name = request_json["model_parameters"]["f_name"]# f_name = request.POST.get('model_parameters[f_name]')
-        scen = request_json["model_parameters"]["scen"]# scen = request.POST.get('model_parameters[scen]')
-        active_region = request_json["model_parameters"]["active_region"]# active_region = request.POST.get('model_parameters[active_region]')
-        alfalfaMachCost = request_json["model_parameters"]["alfalfaMachCost"]
-        alfalfaMachCostY1 = request_json["model_parameters"]["alfalfaMachCostY1"]
-        alfalfaPestCost = request_json["model_parameters"]["alfalfaPestCost"]
-        alfalfaSeedCost = request_json["model_parameters"]["alfalfaSeedCost"]
-        cornMachCost = request_json["model_parameters"]["cornMachCost"]
-        cornPestCost = request_json["model_parameters"]["cornPestCost"]
-        cornSeedCost = request_json["model_parameters"]["cornSeedCost"]
-        grassMachCost = request_json["model_parameters"]["grassMachCost"]
-        grassPestCost = request_json["model_parameters"]["grassPestCost"]
-        grassSeedCost = request_json["model_parameters"]["grassSeedCost"]
-        oatMachCost = request_json["model_parameters"]["oatMachCost"]
-        oatPestCost = request_json["model_parameters"]["oatPestCost"]
-        oatSeedCost = request_json["model_parameters"]["oatSeedCost"]
-        soyMachCost = request_json["model_parameters"]["soyMachCost"]
-        soyPestCost = request_json["model_parameters"]["soyPestCost"]
-        soySeedCost = request_json["model_parameters"]["soySeedCost"]
-        fertNCost = request_json["model_parameters"]["fertNCost"]
-        fertPCost = request_json["model_parameters"]["fertPCost"]
+        #request_json = js.loads(request.body)
+        field_id = request.POST.getlist("field_id")[0]
+        model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
+        scenario_id = request.POST.getlist("scenario_id")[0]
+        farm_id = request.POST.getlist("farm_id")[0]
+        model_type = request.POST.get('model_parameters[model_type]')
+        f_name = request.POST.get('model_parameters[f_name]')
+        scen = request.POST.get('model_parameters[scen]')
+        active_region = request.POST.get('model_parameters[active_region]')
+        alfalfaMachCost = request.POST.get("model_parameters[alfalfaMachCost]")
+        alfalfaMachCostY1 = request.POST.get("model_parameters[alfalfaMachCostY1]")
+        alfalfaPestCost = request.POST.get("model_parameters[alfalfaPestCost]")
+        alfalfaSeedCost = request.POST.get("model_parameters[alfalfaSeedCost]")
+        cornMachCost = request.POST.get("model_parameters[cornMachCost]")
+        cornPestCost = request.POST.get("model_parameters[cornPestCost]")
+        cornSeedCost = request.POST.get("model_parameters[cornSeedCost]")
+        grassMachCost = request.POST.get("model_parameters[grassMachCost]")
+        grassPestCost = request.POST.get("model_parameters[grassPestCost]")
+        grassSeedCost = request.POST.get("model_parameters[grassSeedCost]")
+        oatMachCost = request.POST.get("model_parameters[oatMachCost]")
+        oatPestCost = request.POST.get("model_parameters[oatPestCost]")
+        oatSeedCost = request.POST.get("model_parameters[oatSeedCost]")
+        soyMachCost = request.POST.get("model_parameters[soyMachCost]")
+        soyPestCost = request.POST.get("model_parameters[soyPestCost]")
+        soySeedCost = request.POST.get("model_parameters[soySeedCost]")
+        fertNCost = request.POST.get("model_parameters[fertNCost]")
+        fertPCost = request.POST.get("model_parameters[fertPCost]")
         #field variables
-        land_area = request_json["model_parameters"]["land_area"]
-        land_cost = request_json["model_parameters"]["land_cost"]
-        rotation = request_json["model_parameters"]["rotation"]
-        cover_crop = request_json["model_parameters"]["crop_cover"]
-        fert_p_perc = request_json["model_parameters"]["fert_p_perc"]
-        fert_n_perc = request_json["model_parameters"]["fert_n_perc"]
-        manure_p_perc = request_json["model_parameters"]["manure_p_perc"]
-        manure_n_perc = request_json["model_parameters"]["manure_n_perc"]
+        land_area = request.POST.get("model_parameters[land_area]")
+        land_cost = request.POST.get("model_parameters[land_cost]")
+        rotation = request.POST.get("model_parameters[rotation_econ]")
+        cover_crop = request.POST.get("model_parameters[crop_cover]")
+        fert_p_perc = request.POST.get("model_parameters[fert_p_perc]")
+        fert_n_perc = request.POST.get("model_parameters[fert_n_perc]")
+        manure_p_perc = request.POST.get("model_parameters[manure_p_perc]")
+        manure_n_perc = request.POST.get("model_parameters[manure_n_perc]")
 
         if file_name is None:
             file_name = model_type + field_id +'_' + model_run_timestamp ##+'_'+ str(uuid.uuid1())##
@@ -116,56 +116,56 @@ class ModelBase:
         self.raster_inputs = {}
 
     def parse_model_parameters(self, request):
-        request_json = js.loads(request.body)
-        field_id = str(request_json["field_id"])# field_id = request.POST.getlist("field_id")[0]
-        model_run_timestamp = request_json["model_parameters"]["model_run_timestamp"]# model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
-        scenario_id = request_json["scenario_id"]# scenario_id = request.POST.getlist("scenario_id")[0]
-        farm_id = request_json["farm_id"]# farm_id = request.POST.getlist("farm_id")[0]
-        model_type = request_json["model_parameters"]["model_type"]# model_type = request.POST.get('model_parameters[model_type]')
-        f_name = request_json["model_parameters"]["f_name"]# f_name = request.POST.get('model_parameters[f_name]')
-        scen = request_json["model_parameters"]["scen"]# scen = request.POST.get('model_parameters[scen]')
-        active_region = request_json["model_parameters"]["active_region"]# active_region = request.POST.get('model_parameters[active_region]')
-        grassType = request_json["model_parameters"]["grass_type"]
-        contour = request_json["model_parameters"]["contour"]
-        soil_p = request_json["model_parameters"]["soil_p"]
-        tillage = request_json["model_parameters"]["tillage"]
-        fert = request_json["model_parameters"]["fert"]
-        manure = request_json["model_parameters"]["manure"]
-        fertN = request_json["model_parameters"]["fert_n"]
-        om = request_json["model_parameters"]["om"]
-        area = request_json["model_parameters"]["land_area"]
-        legume = request_json["model_parameters"]["legume"]
-        alfalfaMachCost = request_json["model_parameters"]["alfalfaMachCost"]
-        alfalfaMachCostY1 = request_json["model_parameters"]["alfalfaMachCostY1"]
-        alfalfaPestCost = request_json["model_parameters"]["alfalfaPestCost"]
-        alfalfaSeedCost = request_json["model_parameters"]["alfalfaSeedCost"]
-        cornMachCost = request_json["model_parameters"]["cornMachCost"]
-        cornPestCost = request_json["model_parameters"]["cornPestCost"]
-        cornSeedCost = request_json["model_parameters"]["cornSeedCost"]
-        grassMachCost = request_json["model_parameters"]["grassMachCost"]
-        grassPestCost = request_json["model_parameters"]["grassPestCost"]
-        grassSeedCost = request_json["model_parameters"]["grassSeedCost"]
-        oatMachCost = request_json["model_parameters"]["oatMachCost"]
-        oatPestCost = request_json["model_parameters"]["oatPestCost"]
-        oatSeedCost = request_json["model_parameters"]["oatSeedCost"]
-        soyMachCost = request_json["model_parameters"]["soyMachCost"]
-        soyPestCost = request_json["model_parameters"]["soyPestCost"]
-        soySeedCost = request_json["model_parameters"]["soySeedCost"]
-        fertNCost = request_json["model_parameters"]["fertNCost"]
-        fertPCost = request_json["model_parameters"]["fertPCost"]
-        #field variables
-        land_area = request_json["model_parameters"]["land_area"]
-        land_cost = request_json["model_parameters"]["land_cost"]
-        rotation = request_json["model_parameters"]["rotation"]
-        cover_crop = request_json["model_parameters"]["crop_cover"]
-        fert_p_perc = request_json["model_parameters"]["fert_p_perc"]
-        fert_n_perc = request_json["model_parameters"]["fert_n_perc"]
-        manure_p_perc = request_json["model_parameters"]["manure_p_perc"]
-        manure_n_perc = request_json["model_parameters"]["manure_n_perc"]
-        manure_n = request_json["model_parameters"]["manure_n"]
-        crop = request_json["model_parameters"]["crop"]
-        density = request_json["model_parameters"]["density"]
-        graze_factor = request_json["model_parameters"]["graze_factor"]
+        # request_json = js.loads(request.body)
+        # field_id = str(request_json["field_id"])# field_id = request.POST.getlist("field_id")[0]
+        # model_run_timestamp = request_json["model_parameters"]["model_run_timestamp"]# model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
+        # scenario_id = request_json["scenario_id"]# scenario_id = request.POST.getlist("scenario_id")[0]
+        # farm_id = request_json["farm_id"]# farm_id = request.POST.getlist("farm_id")[0]
+        # model_type = request_json["model_parameters"]["model_type"]# model_type = request.POST.get('model_parameters[model_type]')
+        # f_name = request_json["model_parameters"]["f_name"]# f_name = request.POST.get('model_parameters[f_name]')
+        # scen = request_json["model_parameters"]["scen"]# scen = request.POST.get('model_parameters[scen]')
+        # active_region = request_json["model_parameters"]["active_region"]# active_region = request.POST.get('model_parameters[active_region]')
+        # grassType = request_json["model_parameters"]["grass_type"]
+        # contour = request_json["model_parameters"]["contour"]
+        # soil_p = request_json["model_parameters"]["soil_p"]
+        # tillage = request_json["model_parameters"]["tillage"]
+        # fert = request_json["model_parameters"]["fert"]
+        # manure = request_json["model_parameters"]["manure"]
+        # fertN = request_json["model_parameters"]["fert_n"]
+        # om = request_json["model_parameters"]["om"]
+        # area = request_json["model_parameters"]["land_area"]
+        # legume = request_json["model_parameters"]["legume"]
+        # alfalfaMachCost = request_json["model_parameters"]["alfalfaMachCost"]
+        # alfalfaMachCostY1 = request_json["model_parameters"]["alfalfaMachCostY1"]
+        # alfalfaPestCost = request_json["model_parameters"]["alfalfaPestCost"]
+        # alfalfaSeedCost = request_json["model_parameters"]["alfalfaSeedCost"]
+        # cornMachCost = request_json["model_parameters"]["cornMachCost"]
+        # cornPestCost = request_json["model_parameters"]["cornPestCost"]
+        # cornSeedCost = request_json["model_parameters"]["cornSeedCost"]
+        # grassMachCost = request_json["model_parameters"]["grassMachCost"]
+        # grassPestCost = request_json["model_parameters"]["grassPestCost"]
+        # grassSeedCost = request_json["model_parameters"]["grassSeedCost"]
+        # oatMachCost = request_json["model_parameters"]["oatMachCost"]
+        # oatPestCost = request_json["model_parameters"]["oatPestCost"]
+        # oatSeedCost = request_json["model_parameters"]["oatSeedCost"]
+        # soyMachCost = request_json["model_parameters"]["soyMachCost"]
+        # soyPestCost = request_json["model_parameters"]["soyPestCost"]
+        # soySeedCost = request_json["model_parameters"]["soySeedCost"]
+        # fertNCost = request_json["model_parameters"]["fertNCost"]
+        # fertPCost = request_json["model_parameters"]["fertPCost"]
+        # #field variables
+        # land_area = request_json["model_parameters"]["land_area"]
+        # land_cost = request_json["model_parameters"]["land_cost"]
+        # rotation = request_json["model_parameters"]["rotation"]
+        # cover_crop = request_json["model_parameters"]["crop_cover"]
+        # fert_p_perc = request_json["model_parameters"]["fert_p_perc"]
+        # fert_n_perc = request_json["model_parameters"]["fert_n_perc"]
+        # manure_p_perc = request_json["model_parameters"]["manure_p_perc"]
+        # manure_n_perc = request_json["model_parameters"]["manure_n_perc"]
+        # manure_n = request_json["model_parameters"]["manure_n"]
+        # crop = request_json["model_parameters"]["crop"]
+        # density = request_json["model_parameters"]["density"]
+        # graze_factor = request_json["model_parameters"]["graze_factor"]
         # crop, crop cover, rotation, densit
         #add Nneeds to these rotational averages when Elissa gets them to you.
         nutrient_dict = {"ccgcdsnana": {"Pneeds": 65,"Nneeds": 120,"grazed_DM_lbs": 196.8,
@@ -219,59 +219,105 @@ class ModelBase:
         print('REQUEST RIGHT BEFORE PUT INTO PARAS')
         print(request.POST)
         parameters = {
-            "field_id": field_id,
-            "model_run_timestamp": model_run_timestamp,
-            "scenario_id":scenario_id,
-            "farm_id":farm_id,
-            "model_type": model_type,
-            "scen": scen,
-            "active_region": active_region,
-            "f_name": f_name,
-            "grass_type": grassType,
-            "contour": contour,
-            "soil_p": soil_p,
-            "tillage": tillage,
-            "fert": fert,
-            "manure": manure,
-            "fertN": fertN,
-            "manureN": manure_n,
-            "crop": crop,
-            "crop_cover": cover_crop,
-            "rotation": rotation,
-            "density": density,
-            "graze_factor": graze_factor,
-            "area": "",
-            "om": om,
-            "legume": legume,
-            "rotation": rotation,
-            "cover_crop": cover_crop,
-            "alfalfaMachCost": alfalfaMachCost,
-            "alfalfaMachCostY1": alfalfaMachCostY1,
-            "alfalfaPestCost": alfalfaPestCost,
-            "alfalfaSeedCost": alfalfaSeedCost,
-            "cornMachCost": cornMachCost,
-            "cornPestCost": cornPestCost,
-            "cornSeedCost": cornSeedCost,
-            "grassMachCost": grassMachCost,
-            "grassPestCost": grassPestCost,
-            "grassSeedCost": grassSeedCost,
-            "oatMachCost": oatMachCost,
-            "oatPestCost": oatPestCost,
-            "oatSeedCost": oatSeedCost,
-            "soyMachCost": soyMachCost,
-            "soyPestCost": soyPestCost,
-            "soySeedCost": soySeedCost,
-            "fertNCost": fertNCost,
-            "fertPCost": fertPCost,
+            "f_name": request.POST.getlist("model_parameters[f_name]")[0],
+            "grass_type": request.POST.getlist("model_parameters[grass_type]")[
+                0],
+            "contour": request.POST.getlist("model_parameters[contour]")[0],
+            "soil_p": request.POST.getlist("model_parameters[soil_p]")[0],
+            "tillage": request.POST.getlist("model_parameters[tillage]")[0],
+            "fert": request.POST.getlist("model_parameters[fert]")[0],
+            "manure": request.POST.getlist("model_parameters[manure]")[0],
+            "fertN": request.POST.getlist("model_parameters[fert_n]")[0],
+            "manureN": request.POST.getlist("model_parameters[manure_n]")[0],
+            "crop": request.POST.getlist("model_parameters[crop]")[0],
+            "crop_cover": request.POST.getlist("model_parameters[crop_cover]")[0],
+            "rotation": request.POST.getlist("model_parameters[rotation]")[0],
+            "density": request.POST.getlist("model_parameters[density]")[0],
+            "graze_factor": request.POST.getlist("model_parameters[graze_factor]")[0],
+            "area": request.POST.getlist("model_parameters[land_area]")[0],
+            "om": request.POST.getlist("model_parameters[om]")[0],
+            "legume": request.POST.getlist("model_parameters[legume]")[0],
+            "alfalfaMachCost": request.POST.getlist("model_parameters[alfalfaMachCost]")[0],
+            "alfalfaMachCostY1": request.POST.getlist("model_parameters[alfalfaMachCostY1]")[0],
+            "alfalfaPestCost": request.POST.getlist("model_parameters[alfalfaPestCost]")[0],
+            "alfalfaSeedCost": request.POST.getlist("model_parameters[alfalfaSeedCost]")[0],
+            "cornMachCost": request.POST.getlist("model_parameters[cornMachCost]")[0],
+            "cornPestCost": request.POST.getlist("model_parameters[cornPestCost]")[0],
+            "cornSeedCost": request.POST.getlist("model_parameters[cornSeedCost]")[0],
+            "grassMachCost": request.POST.getlist("model_parameters[grassMachCost]")[0],
+            "grassPestCost": request.POST.getlist("model_parameters[grassPestCost]")[0],
+            "grassSeedCost": request.POST.getlist("model_parameters[grassSeedCost]")[0],
+            "oatMachCost": request.POST.getlist("model_parameters[oatMachCost]")[0],
+            "oatPestCost": request.POST.getlist("model_parameters[oatPestCost]")[0],
+            "oatSeedCost": request.POST.getlist("model_parameters[oatSeedCost]")[0],
+            "soyMachCost": request.POST.getlist("model_parameters[soyMachCost]")[0],
+            "soyPestCost": request.POST.getlist("model_parameters[soyPestCost]")[0],
+            "soySeedCost": request.POST.getlist("model_parameters[soySeedCost]")[0],
+            "fertNCost": request.POST.getlist("model_parameters[fertNCost]")[0],
+            "fertPCost": request.POST.getlist("model_parameters[fertPCost]")[0],
             #field variables
-            "land_area": land_area,
-            "land_cost": land_cost,
+            "land_area": request.POST.getlist("model_parameters[land_area]")[0],
+            "land_cost": request.POST.getlist("model_parameters[land_cost]")[0],
             #"rotation_econ": request.POST.getlist("model_parameters[rotation_econ]"),
-            "fert_p_perc": fert_p_perc,
-            "fert_n_perc": fert_n_perc,
-            "manure_p_perc": manure_p_perc,
-            "manure_n_perc": manure_n_perc,
+            "fert_p_perc": request.POST.getlist("model_parameters[fert_p_perc]")[0],
+            "fert_n_perc": request.POST.getlist("model_parameters[fert_n_perc]")[0],
+            "manure_p_perc": request.POST.getlist("model_parameters[manure_p_perc]")[0],
+            "manure_n_perc": request.POST.getlist("model_parameters[manure_n_perc]")[0],
         }
+        # parameters = {
+        #     "field_id": field_id,
+        #     "model_run_timestamp": model_run_timestamp,
+        #     "scenario_id":scenario_id,
+        #     "farm_id":farm_id,
+        #     "model_type": model_type,
+        #     "scen": scen,
+        #     "active_region": active_region,
+        #     "f_name": f_name,
+        #     "grass_type": grassType,
+        #     "contour": contour,
+        #     "soil_p": soil_p,
+        #     "tillage": tillage,
+        #     "fert": fert,
+        #     "manure": manure,
+        #     "fertN": fertN,
+        #     "manureN": manure_n,
+        #     "crop": crop,
+        #     "crop_cover": cover_crop,
+        #     "rotation": rotation,
+        #     "density": density,
+        #     "graze_factor": graze_factor,
+        #     "area": "",
+        #     "om": om,
+        #     "legume": legume,
+        #     "rotation": rotation,
+        #     "cover_crop": cover_crop,
+        #     "alfalfaMachCost": alfalfaMachCost,
+        #     "alfalfaMachCostY1": alfalfaMachCostY1,
+        #     "alfalfaPestCost": alfalfaPestCost,
+        #     "alfalfaSeedCost": alfalfaSeedCost,
+        #     "cornMachCost": cornMachCost,
+        #     "cornPestCost": cornPestCost,
+        #     "cornSeedCost": cornSeedCost,
+        #     "grassMachCost": grassMachCost,
+        #     "grassPestCost": grassPestCost,
+        #     "grassSeedCost": grassSeedCost,
+        #     "oatMachCost": oatMachCost,
+        #     "oatPestCost": oatPestCost,
+        #     "oatSeedCost": oatSeedCost,
+        #     "soyMachCost": soyMachCost,
+        #     "soyPestCost": soyPestCost,
+        #     "soySeedCost": soySeedCost,
+        #     "fertNCost": fertNCost,
+        #     "fertPCost": fertPCost,
+        #     #field variables
+        #     "land_area": land_area,
+        #     "land_cost": land_cost,
+        #     #"rotation_econ": request.POST.getlist("model_parameters[rotation_econ]"),
+        #     "fert_p_perc": fert_p_perc,
+        #     "fert_n_perc": fert_n_perc,
+        #     "manure_p_perc": manure_p_perc,
+        #     "manure_n_perc": manure_n_perc,
+        # }
         print("MODEL PARAMS IN MODEL_BASE!!!!!")
         print(parameters)
         numeric_para = ["soil_p", "fert", "manure"]
@@ -287,7 +333,7 @@ class ModelBase:
                     parameters[val] = 0
                 else:
                     parameters[val] = "NA"
-        area = float(area) * 0.000247105
+        area = float(request.POST.getlist("model_parameters[area]")[0]) * 0.000247105
         parameters['area'] = area
         crop_cover = parameters["crop_cover"]
         if crop_cover.lower() == 'na':

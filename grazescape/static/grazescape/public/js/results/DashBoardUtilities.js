@@ -105,7 +105,7 @@ function populateChartObj(scenList, fieldList, allField, allScen){
     }
 }
 
-function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,pManureResults,pMcellData){
+function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,pManureResults,/*pMcellData*/){
     //Try building in a way to get the scenario specific costs data from each fields scenario.
     console.log(pManureResults)
     console.log(f.scenario_id)
@@ -176,7 +176,7 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         legume:f["interseeded_clover"],
         active_region: DSS.activeRegion,
         pManureResults: pManureResults,
-        pMcellData: [pMcellData],
+        //pMcellData: [pMcellData],
         alfalfaMachCost: 0,
         alfalfaMachCostY1: 0,
         alfalfaPestCost: 0,
@@ -691,7 +691,7 @@ function get_model_data(data){
     console.log(data)
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
-    data = JSON.stringify(data)
+    // data = JSON.stringify(data)
     $.ajaxSetup({
             headers: { "X-CSRFToken": csrftoken }
         });
@@ -738,9 +738,10 @@ function get_model_data(data){
 	}
 
     function get_P_Manure_Results(data){
+        console.log("in get p manura results")
         return new Promise(function(resolve) {
         var csrftoken = Cookies.get('csrftoken');
-        data = JSON.stringify(data)
+        // data = JSON.stringify(data)
         $.ajaxSetup({
                 headers: { "X-CSRFToken": csrftoken }
             });

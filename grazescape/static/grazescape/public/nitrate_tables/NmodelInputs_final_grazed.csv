@@ -139,12 +139,12 @@ dairy rotation,dr,corn silage,cs,gcis,nResponse,3,80,NA,NA,NA,5,0,0.0125,5,3,2,8
 dairy rotation,dr,corn silage,cs,nc,nResponse,1,45,NA,NA,NA,5,0,0.0125,5,0,2,45,45,No,Corn silage to corn grain to alfalfa (3x),None,80,0,0
 dairy rotation,dr,corn silage,cs,nc,nResponse,2,5,NA,NA,NA,5,0,0.0125,5,0,2,5,5,No,Corn silage to corn grain to alfalfa (3x),None,80,0,0
 dairy rotation,dr,corn silage,cs,nc,nResponse,3,80,NA,NA,NA,5,0,0.0125,5,0,2,80,80,No,Corn silage to corn grain to alfalfa (3x),None,80,0,0
-dry lot-high,dl_hi,dry lot,dl_hi,nc,nResponse,1,150,NA,high,NA,1,0,0,5,360,1,150,150,No,Dry lot,NA,0,24009.6,600.24
-dry lot-high,dl_hi,dry lot,dl_hi,nc,nResponse,2,150,NA,high,NA,1,0,0,5,360,1,150,150,No,Dry lot,NA,0,24009.6,600.24
-dry lot-high,dl_hi,dry lot,dl_hi,nc,nResponse,3,150,NA,high,NA,1,0,0,5,360,1,150,150,No,Dry lot,NA,0,24009.6,600.24
-dry lot-low,dl_lo,dry lot,dl_lo,nc,nResponse,1,150,NA,low,NA,1,0,0,5,72,1,150,150,No,Dry lot,NA,0,4802.4,120.06
-dry lot-low,dl_lo,dry lot,dl_lo,nc,nResponse,2,150,NA,low,NA,1,0,0,5,72,1,150,150,No,Dry lot,NA,0,4802.4,120.06
-dry lot-low,dl_lo,dry lot,dl_lo,nc,nResponse,3,150,NA,low,NA,1,0,0,5,72,1,150,150,No,Dry lot,NA,0,4802.4,120.06
+dry lot-high,dl_hi,dry lot,dl_hi,nc,nResponse,1,0,NA,high,NA,1,0,0,5,360,1,0,0,No,Dry lot,NA,0,24009.6,600.24
+dry lot-high,dl_hi,dry lot,dl_hi,nc,nResponse,2,0,NA,high,NA,1,0,0,5,360,1,0,0,No,Dry lot,NA,0,24009.6,600.24
+dry lot-high,dl_hi,dry lot,dl_hi,nc,nResponse,3,0,NA,high,NA,1,0,0,5,360,1,0,0,No,Dry lot,NA,0,24009.6,600.24
+dry lot-low,dl_lo,dry lot,dl_lo,nc,nResponse,1,0,NA,low,NA,1,0,0,5,72,1,0,0,No,Dry lot,NA,0,4802.4,120.06
+dry lot-low,dl_lo,dry lot,dl_lo,nc,nResponse,2,0,NA,low,NA,1,0,0,5,72,1,0,0,No,Dry lot,NA,0,4802.4,120.06
+dry lot-low,dl_lo,dry lot,dl_lo,nc,nResponse,3,0,NA,low,NA,1,0,0,5,72,1,0,0,No,Dry lot,NA,0,4802.4,120.06
 pasture seeding_ legume,ps_lg,pasture,ps_lg,nc,om,10-20.0,0,NA,NA,yes,1,70,0.021,5,0,1,0,0,Yes,Pasture seeding,NA,15,0,0
 pasture seeding_ legume,ps_lg,pasture,ps_lg,nc,om,<2,30,NA,NA,yes,1,70,0.021,5,0,1,30,30,Yes,Pasture seeding,NA,15,0,0
 pasture seeding_ legume,ps_lg,pasture,ps_lg,nc,om,>20,0,NA,NA,yes,1,70,0.021,5,0,1,0,0,Yes,Pasture seeding,NA,15,0,0
