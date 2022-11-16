@@ -153,6 +153,22 @@ class PhosphorousLoss(ModelBase):
         # om = self.raster_inputs["om"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
         ls = self.raster_inputs["ls"].flatten()
+        print("slope")
+        print(slope)
+        print("slope_length")
+        print(slope_length)
+        print("sand")
+        print(sand)
+        print("silt")
+        print(silt)
+        print("clay")
+        print(clay)
+        print("k")
+        print(k)
+        print("total_depth")
+        print(total_depth)
+        print("ls")
+        print(ls)
 
         ContCornErosion = "cc_erosion_"
         cornGrainErosion = "cg_erosion_"
@@ -196,8 +212,8 @@ class PhosphorousLoss(ModelBase):
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", self.model_parameters["soil_p"])
-        r.assign("om", float(self.model_parameters["om"]))
-        print(self.model_parameters["om"])
+        r.assign("om", float(float(self.model_parameters["om"])))
+        print(float(self.model_parameters["om"]))
         # r.assign("om", 2.56)
 
 

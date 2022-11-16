@@ -46,7 +46,7 @@ def getRotText(crop,legume_text,animal_density_text):
         return crop
         
 def getRotYers(crop):
-    # print("in getRotYers")
+    print("in getRotYers")
     if crop == 'pt-rt':
         rot_yrs = 1
         rot_yrs_crop = ['pt_rt']
@@ -166,7 +166,7 @@ class CropYield(ModelBase):
     def __init__(self, request,active_region, file_name=None):
         super().__init__(request,active_region, file_name)
         #C:\Users\zjhas\Documents\GrazeScape\grazescape\static\grazescape\public
-        self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
+        self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
         #self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NmodelInputs_final.csv")
         self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
         self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
@@ -177,7 +177,9 @@ class CropYield(ModelBase):
         self.crop_list = []
         
 
-    def run_model(self,active_region,manure_p_perc):
+    def run_model(self,request,active_region,manure_p_perc):
+        # print("SELF IN CROP")
+        # print(self.model_parameters)
         nitrate_array = []
         crop_ro = self.model_parameters["crop"]
         return_data = []
@@ -240,7 +242,6 @@ class CropYield(ModelBase):
 
 #_______________START OF NUTRIENT MODELS!!!__________________________________
 
-
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         #print(self)
         r = R(RCMD=self.r_file_path, use_pandas=True)
@@ -254,6 +255,8 @@ class CropYield(ModelBase):
         # om = self.raster_inputs["om"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
         ls = self.raster_inputs["ls"].flatten()
+        # print(slope)
+        # print(sand)
 
         ContCornErosion = "cc_erosion_"
         cornGrainErosion = "cg_erosion_"
@@ -281,21 +284,55 @@ class CropYield(ModelBase):
         # r.assign("om", om)
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
+        # print("PLOSS AND ERO RASTERS")
+        # print("slope")
+        # print(slope)
+        # print("slope_length")
+        # print(slope_length)
+        # print("sand")
+        # print(sand)
+        # print("silt")
+        # print(silt)
+        # print("clay")
+        # print(clay)
+        # print("k")
+        # print(k)
+        # print("total_depth")
+        # print(total_depth)
+        # print("ls")
+        # print(ls)
 
-        r.assign("p_need", manure_p_perc[1])
-        r.assign("manure", manure_p_perc[2])
-        r.assign("dm", manure_p_perc[3])
-        r.assign("p205", manure_p_perc[4])
+        r.assign("p_need", float(manure_p_perc[1]))
+        r.assign("manure", float(manure_p_perc[2]))
+        r.assign("dm", float(manure_p_perc[3]))
+        r.assign("p205", float(manure_p_perc[4]))
+        # r.assign("p_need", 60.0)
+        # r.assign("manure", 0.0)
+        # r.assign("dm", 0.0)
+        # r.assign("p205", 0.0)
         # r.assign("manure", self.model_parameters["manure"])
-        r.assign("fert", self.model_parameters["fert"])
+        # r.assign("fert", 0.0)
+        r.assign("fert", float(self.model_parameters["fert"]))
         r.assign("crop", self.model_parameters["crop"])
         r.assign("cover", self.model_parameters["crop_cover"])
         r.assign("contour", self.model_parameters["contour"])
         r.assign("tillage", self.model_parameters["tillage"])
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
-        r.assign("initialP", self.model_parameters["soil_p"])
+        r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
+        print("ploss modal para variables")
+        print(self.model_file_path)
+        print(manure_p_perc)
+        print(self.model_parameters["fert"])
+        print(self.model_parameters["crop"])
+        print(self.model_parameters["crop_cover"])
+        print(self.model_parameters["contour"])
+        print(self.model_parameters["tillage"])
+        print(self.model_parameters["rotation"])
+        print(self.model_parameters["density"])
+        print(self.model_parameters["soil_p"])
+        print(os.path.join(self.model_file_path,ContCornErosion + regionRDS))
         #print(self.model_parameters["om"])
         # r.assign("om", 2.56)
         # print("MODEL PATH")
@@ -317,6 +354,7 @@ class CropYield(ModelBase):
         r.assign("pt_pi_file", os.path.join(self.model_file_path,pastureTidyploss + regionRDS))
         r.assign("dl_pi_file", os.path.join(self.model_file_path,dryLotTidyploss + regionRDS))
 
+
         r(f"""
         #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
         #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
@@ -324,12 +362,9 @@ class CropYield(ModelBase):
         library(tidyverse)
         library(tidymodels)
         library(randomForest)
-
-
         # load erosion models
         # load PI models
        
-
         # crop = cc, cso ...
         # cover = cc, nc, cgis...
         # tillage = nt, su ... 
@@ -338,7 +373,6 @@ class CropYield(ModelBase):
         # density = hi or lo
         user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), Contour = c(contour), 
         rotational = c(rotational), density = c(density),initialP = c(initialP), OM = c(om))
-
         soil_df <- tibble(slope =  unlist(slope), slopelenusle.r = unlist(slope_length), sand = unlist(sand), silt = unlist(silt), clay = unlist(clay), k = unlist(k),
                            total.depth = unlist(total_depth), LSsurgo = unlist(ls))
         p_needs <- p_need
@@ -349,15 +383,11 @@ class CropYield(ModelBase):
         grazedP2O5 <- p205
         P2O5_applied_lbs = (fert + manure)*(p_needs/100) 
         totalP2O5_lbs = sum(grazedP2O5, P2O5_applied_lbs, na.rm = TRUE)
-
         #P2O5_fert <- (fert)*(p_needs/100)
-
        # N_fert <- 0
         #We will need manure N at some point for a future nitrate leeching model.
         #(fertN)*(n_needs/100)
-
         fert_df <- tibble(total_DM_lbs = total_DM_lbs, totalP2O5_lbs = totalP2O5_lbs)
-
         #create data frame for models
         crop_df <- user_input_df %>%
           select(where(~!all(is.na(.)))) # remove NAs
@@ -372,158 +402,110 @@ class CropYield(ModelBase):
           cover <- factor(cc_erosion$preproc$xlevels$cover)
           Contour <- factor(cc_erosion$preproc$xlevels$Contour)
           level_df <- expand_grid(cover, tillage, Contour)
-
           #remove factor levels from full_df and repeat row as many times as there are level combinations
           df <- full_df %>%
             select(-c(crop, tillage, cover, Contour)) %>% 
             slice(rep(1:n(), each=nrow(level_df)))
-
           #bind all level combinations with df
           df <- cbind(level_df, df)
-
           #subset all combinations data set to just the user input
-
           pred_df <- df %>%
             filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
           #make erosion prediction
           erosion <- round(predict(cc_erosion, pred_df),2)
-
           #bind erosion prediction to prediction data frame
           pi_pred_df <- full_df %>% 
             bind_cols(erosion) %>% 
             mutate(Erosion = .pred)
-
           #make P Loss prediction
          final_pi <- round(predict(cc_pi, pi_pred_df),2)
           # P loss prediction bounds
           pi_CI <- predict(cc_pi, pi_pred_df, type = "pred_int")
-
         }} else if (full_df$crop == "cg") {{
         cg_erosion <- readRDS(cg_erosion_file)
                 cg_pi <- readRDS(cg_pi_file)
-
           cover <- factor(cg_erosion$preproc$xlevels$cover)
           tillage <- factor(cg_erosion$preproc$xlevels$tillage)
           Contour <- factor(cg_erosion$preproc$xlevels$Contour)
-
           level_df <- expand_grid(cover, tillage, Contour)
-
           df <- full_df %>%
   select(c(total_DM_lbs:LSsurgo)) %>% 
   slice(rep(1:n(), each=nrow(level_df)))
-
           df <- cbind(level_df, df)
-
           pred_df <- df %>%
             filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
-
           erosion <- round(predict(cg_erosion, pred_df),2)
-
           pi_pred_df <- full_df %>% 
             bind_cols(erosion) %>% 
             mutate(Erosion = .pred)
-
          final_pi <- round(predict(cg_pi, pi_pred_df),2)
           pi_CI <- predict(cg_pi, pi_pred_df, type = "pred_int")
-
         }} else if (full_df$crop == "cso") {{
         cso_erosion <- readRDS(cso_erosion_file)
         cso_pi <- readRDS(cso_pi_file)
-
           cover <- factor(cso_erosion$preproc$xlevels$cover)
           tillage <- factor(cso_erosion$preproc$xlevels$tillage)
           Contour <- factor(cso_erosion$preproc$xlevels$Contour)
-
           level_df <- expand_grid(cover, tillage, Contour)
-
           df <- full_df %>%
   select(c(total_DM_lbs:LSsurgo)) %>% 
   slice(rep(1:n(), each=nrow(level_df)))
-
           df <- cbind(level_df, df)
-
           pred_df <- df %>%
             filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
-
           erosion <- round(predict(cso_erosion, pred_df),2)
-
           pi_pred_df <- full_df %>%
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
-
          final_pi <- round(predict(cso_pi, pi_pred_df),2)
           pi_CI <- predict(cso_pi, pi_pred_df, type = "pred_int")
-
         }} else if (full_df$crop == "dr") {{
         dr_erosion <- readRDS(dr_erosion_file)
         dr_pi <- readRDS(dr_pi_file)
-
           cover <- factor(dr_erosion$preproc$xlevels$cover)
           tillage <- factor(dr_erosion$preproc$xlevels$tillage)
           Contour <- factor(dr_erosion$preproc$xlevels$Contour)
-
           level_df <- expand_grid(cover, tillage, Contour)
-
          df <- full_df %>%
   select(c(total_DM_lbs:LSsurgo)) %>% 
   slice(rep(1:n(), each=nrow(level_df)))
-
           df <- cbind(level_df, df)
-
           pred_df <- df %>%
             filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
-
           erosion <- round(predict(dr_erosion, pred_df),2)
-
           pi_pred_df <- full_df %>%
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
-
          final_pi <- round(predict(dr_pi, pi_pred_df),2)
           pi_CI <- predict(dr_pi, pi_pred_df, type = "pred_int")
-
         }} else if (full_df$crop == "ps") {{
         ps_erosion <- readRDS(ps_erosion_file)
         ps_pi <- readRDS(ps_pi_file)
-
           tillage <- factor(ps_erosion$preproc$xlevels$tillage)
           Contour <- factor(ps_erosion$preproc$xlevels$Contour)
-
           level_df <- expand_grid(tillage, Contour)
-
           df <- full_df %>%
           select(c(initialP:LSsurgo)) %>% 
           slice(rep(1:n(), each=nrow(level_df)))
-
           df <- cbind(level_df, df)
-
           pred_df <- df %>%
             filter(tillage == full_df$tillage, Contour == full_df$Contour)
-
           erosion <- round(predict(ps_erosion, pred_df),2)
-
           pi_pred_df <- full_df %>%
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
-
          final_pi <- round(predict(ps_pi, pi_pred_df),2)
           pi_CI <- predict(ps_pi, pi_pred_df, type = "pred_int")
-
         }} else if (full_df$crop == "pt") {{
         pt_erosion <- readRDS(pt_erosion_file)
         pt_pi <- readRDS(pt_pi_file)
-
           density <- factor(pt_erosion$preproc$xlevels$density)
           rotational <- factor(pt_erosion$preproc$xlevels$rotational)
-
           level_df <- expand_grid(rotational, density)
-
           df <- full_df %>%
           select(c(initialP:LSsurgo)) %>% 
           slice(rep(1:n(), each=nrow(level_df)))
-
           df <- cbind(level_df, df) 
-
           if(full_df$rotational == "rt"){{
             pred_df <- df %>%
               filter(rotational == full_df$rotational, density == "rt")
@@ -531,22 +513,17 @@ class CropYield(ModelBase):
             pred_df <- df %>%
               filter(rotational == full_df$rotational,  density ==full_df$density)
           }}
-
           erosion <- round(predict(pt_erosion, pred_df),3)
-
           pi_pred_df <- pred_df %>%
             bind_cols(erosion) %>%
             mutate(Erosion = .pred)
-
          final_pi <- round(predict(pt_pi, pi_pred_df),3)
           pi_CI <- predict(pt_pi, pi_pred_df, type = "pred_int")
-
         }} else if (full_df$crop == "dl") {{
         dl_erosion <- readRDS(dl_erosion_file)
         dl_pi <- readRDS(dl_pi_file)
  density <- factor(dl_erosion$preproc$xlevels$density)
     level_df <- expand_grid(density)
-
         df <- full_df %>%
           select(c(initialP:LSsurgo)) %>% 
           slice(rep(1:n(), each=nrow(level_df)))
@@ -563,11 +540,87 @@ class CropYield(ModelBase):
         
         final_pi <- round(predict(dl_pi, pi_pred_df),2)
         pi_CI <- predict(dl_pi, pi_pred_df, type = "pred_int")
-
         }}
-
           """
                 )
+        # print("after ero and ploss")
+        # print(r.get("cc_erosion_file"))
+        # print(r.get("cc_erosion"))
+        # print(r.get("cc_pi_file"))
+        # print(r.get("cc_pi"))
+        # print(r.get("p_need"))
+        # print(r.get("manure"))
+        # print(r.get("dm"))
+        # print(r.get("p205"))
+        # print(r.get("fert"))
+        # print(r.get("crop"))
+        # print(r.get("cover"))
+        # print(r.get("contour"))
+        # print(r.get("Contour"))
+        # print(r.get("tillage"))
+        # print(r.get("rotational"))
+        # print(r.get("density"))
+        # print(r.get("initialP"))
+        # print(r.get("om"))
+        # print(r.get("level_df"))
+        # print(r.get("pi_pred_df"))
+        # print(r.get("pred_df"))
+        # print(r.get("pi_pred_df$Erosion"))
+        # print(r.get("pi_pred_df$cover"))
+        # print(r.get("pi_pred_df$tillage"))
+        # print(r.get("pi_pred_df$Contour"))
+        # print(r.get("pi_pred_df$initialP"))
+        # print(r.get("pi_pred_df$total_DM_lbs"))
+        # print(r.get("pi_pred_df$slope"))
+        # print(r.get("pi_pred_df$slopelenusle.r"))
+        # print(r.get("pi_pred_df$LSsurgo"))
+        # print(r.get("pi_pred_df$total.depth"))
+        # print(r.get("pi_pred_df$OM"))
+        # print(r.get("pi_pred_df$silt"))
+        # print(r.get("pi_pred_df$k"))
+
+        
+
+        # print(r.get("cc_pi_file"))
+        # print(r.get("cc_pi"))
+        # print(r.get("cc_pi$fit"))
+        # print(r.get("cc_pi$spec"))
+        
+
+        # print(r.get("full_df$crop"))
+        # print(r.get("cc_erosion"))
+        # print(r.get("cc_erosion_file"))
+        # print(r.get("tillage"))
+        # print(r.get("cover"))
+        # print(r.get("Contour"))
+        # print(r.get("full_df"))
+        
+        # print(r.get("cc_pi"))
+        # print(r.get("cc_pi_file"))
+        
+        # print(r.get("user_input_df"))
+        # print(r.get("rotational"))
+        # print(r.get("soil_df"))
+        # print(r.get("p_needs"))
+        # print(r.get("grazedManureDM_lbs"))
+        # print(r.get("appliedDM_lbs"))
+        # print(r.get("total_DM_lbs"))
+        # print(r.get("full_df$crop"))
+        # print(r.get("cc_pi"))
+        # print(r.get("final_pi"))
+        # print(r.get("fert_df"))
+        # print(r.get("full_df"))
+        # print(r.get("tillage"))
+        # print(r.get("cover"))
+        # print(r.get("Contour"))
+        # print(r.get("level_df"))
+        # print(r.get("df"))
+        # print(r.get("pi_pred_df"))
+        # print(r.get("cc_erosion_file"))
+        # print(r.get("cg_erosion_file"))
+        # print(r.get("cso_erosion_file"))
+        # print(r.get("cc_pi_file"))
+
         ero = r.get("erosion").to_numpy()
         ploss = r.get("final_pi").to_numpy()
         pl.P2O5_fert = r.get("P2O5_fert")
@@ -576,30 +629,33 @@ class CropYield(ModelBase):
         ploss=  np.where(ploss < 0.01, .01, ploss)
         erosion.set_data(ero)
         pl.set_data(ploss)
+        print(r.get("erosion"))
+        print(r.get("final_pi"))
 #_________YIELD NITRATE COMBO BEGINS!!!______________________________
 
 # initial storage for crop data
-        
+        print("Start Nitrate Combo")
         rot_yrs_crop = []
         rot_yrs_crop = getRotYers(crop_ro)[1]
         legume = self.model_parameters["legume"]
         legume_text = getLegumeTest(legume)
-
+        
         animal_density = self.model_parameters["density"]
         animal_density_text = getAnimaleDensity(animal_density)
-
+        print(rot_yrs_crop, legume_text, animal_density_text)
         cover_crop = self.model_parameters["crop_cover"]
-        PctFertN = self.model_parameters["fert_n_perc"]/100
-        PctManrN = self.model_parameters["manure_n_perc"]/100
+        PctFertN = float(self.model_parameters["fert_n_perc"])/100
+        PctManrN = float(self.model_parameters["manure_n_perc"])/100
         #Pneeds = self.model_parameters["p_need"]
+        print(PctFertN, PctManrN)
         precip = get_region_precip(active_region)
         precN = 0.5 * precip * 0.226  ## precipitation N inputs in lb/ac
         dryN = precN  ## assume dry deposition is equal to precipitation, lb/ac
         om_flattened = self.raster_inputs["om"].flatten()
         nResponse_flattened = self.raster_inputs["Nresponse"].flatten()
         drain_class_flattened = self.raster_inputs["drain_class"].flatten()
-        #print("drain_class_flattened")
-        #print(drain_class_flattened)
+        # print("drain_class_flattened")
+        # print(drain_class_flattened)
         getRotText_Value = getRotText(crop_ro,legume_text,animal_density_text)
 
 
@@ -646,7 +702,7 @@ class CropYield(ModelBase):
           #[bushels/acre x 10] original units
             corn_yield_raw = flat_corn[y] / 10
             soy_yield_raw = flat_soy[y] / 10
-            cell_om = om_flattened[y] / 10
+            cell_om = float(self.model_parameters["om"])
             cell_drain_class = drain_class_flattened[y]
             cell_nresponse = nResponse_flattened[y]
             cell_erosion = ero[y][0]
@@ -654,6 +710,10 @@ class CropYield(ModelBase):
             OM_texts_denit = getOMText(cell_om,"denitr")
             # print("Starting denitr")
             # print(cell_drain_class)
+            # cellpmanurelist = manure_p_perc[5][y]
+            cellpmanurelist = request.POST.getlist('model_parameters[pManureResults][5]['+str(y)+'][]')
+            # print("cellpmanurelist")
+            # print(cellpmanurelist)
             denitlossDC = self.denitLoss[self.denitLoss["DrainClass_num"] == cell_drain_class]
             # print(denitlossDC)
             Denitr_Row = pd.concat([denitlossDC[denitlossDC["OM"] == OM_texts_denit]])
@@ -663,32 +723,18 @@ class CropYield(ModelBase):
             NvarsRot = self.Nvars[self.Nvars['RotationAbbr'] == getRotText_Value]
             NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
             #Nvar variabels can be collected on a crop year basis not by cell.
-            
-            # if flat_corn[y] < 0:
-            #   #print("Bad Value")
-            #   nitrate_array.append(flat_corn[y])
-            #   nitrate.set_data([flat_corn[y]])
-
-            # else:
 
             # cont corn
             if crop_ro == "cc":
               corn_yield = corn_yield_raw
               corn_yield_tonDMac = corn_yield * 56 * (1 - 0.155) / 2000
               rotation_avg_tonDMac = corn_yield_tonDMac
-
               corn.set_data(corn_yield)
-              # corn.set_alternate_data(corn_yield_tonDMac)
-              #corn_yield_tonDMac_array.append(corn_yield_tonDMac)
-
-              #print("INSIDE CC")
-              #corn_DM_yield = corn_yield_tonDMac_array[y]
-              #print("CN")
               yeild_crop_data = corn_yield_tonDMac
-              # print(manure_p_perc[5][y][0])
-              # print(manure_p_perc[5][y][1])
-              fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-              manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+              fertN = PctFertN * float(cellpmanurelist[0])
+              manrN = PctManrN * float(cellpmanurelist[1])
+              # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+              # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
               Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == "cn"]])
               NfixPct = float(Nvars_Row["NfixPct"].values[0])
               NH3loss = float(Nvars_Row["NH3loss"].values[0])
@@ -707,8 +753,10 @@ class CropYield(ModelBase):
               #corn_DM_yield = corn_yield_tonDMac_array[y]
               #print("CN")
               yeild_crop_data = corn_yield_tonDMac
-              fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-              manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+              fertN = PctFertN * float(cellpmanurelist[0])
+              manrN = PctManrN * float(cellpmanurelist[1])
+              # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+              # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
               #print("RIGHT BEFORE NvarsCover")
               Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == "dl"+ '_' + animal_density_text]])
               NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -748,8 +796,10 @@ class CropYield(ModelBase):
                 if i == 'cn':
                   #print("CN")
                   yeild_crop_data = corn_DM_yield
-                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  fertN = PctFertN * float(cellpmanurelist[0])
+                  manrN = PctManrN * float(cellpmanurelist[1])
+                  # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -762,8 +812,10 @@ class CropYield(ModelBase):
                   leached_N_Total = leached_N_Total + leachN_Calced
                 else:
                   yeild_crop_data = soy_DM_yield
-                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  fertN = PctFertN * float(cellpmanurelist[0])
+                  manrN = PctManrN * float(cellpmanurelist[1])
+                  # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -815,8 +867,10 @@ class CropYield(ModelBase):
                 if i == 'cn':
                   #print("CN")
                   yeild_crop_data = corn_DM_yield
-                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  fertN = PctFertN * float(cellpmanurelist[0])
+                  manrN = PctManrN * float(cellpmanurelist[1])
+                  # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -830,8 +884,10 @@ class CropYield(ModelBase):
                 elif i == 'cs':
                   #print("CN")
                   yeild_crop_data = silage_DM_yield
-                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  fertN = PctFertN * float(cellpmanurelist[0])
+                  manrN = PctManrN * float(cellpmanurelist[1])
+                  # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
@@ -845,8 +901,10 @@ class CropYield(ModelBase):
                   leached_N_Total = leached_N_Total + leachN_Calced
                 else:
                   yeild_crop_data = alfalfa_DM_yield
-                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  fertN = PctFertN * float(cellpmanurelist[0])
+                  manrN = PctManrN * float(cellpmanurelist[1])
+                  # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -911,8 +969,10 @@ class CropYield(ModelBase):
                 elif i == 'sb':
                   #print("SB")
                   yeild_crop_data = silage_DM_yield
-                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  fertN = PctFertN * float(cellpmanurelist[0])
+                  manrN = PctManrN * float(cellpmanurelist[1])
+                  # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -925,8 +985,10 @@ class CropYield(ModelBase):
                   leached_N_Total = leached_N_Total + leachN_Calced
                 else:
                   yeild_crop_data = oat_DM_yield
-                  fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-                  manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+                  fertN = PctFertN * float(cellpmanurelist[0])
+                  manrN = PctManrN * float(cellpmanurelist[1])
+                  # fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
+                  # manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
                   #print("RIGHT BEFORE NvarsCover")
                   Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                   NfixPct = float(Nvars_Row["NfixPct"].values[0])
@@ -951,4 +1013,5 @@ class CropYield(ModelBase):
         # print(len(pl.data))
         # print(nitrate.data)
         # print(pl.data)
+        print("Yield and Nitrate finished")
         return return_data
