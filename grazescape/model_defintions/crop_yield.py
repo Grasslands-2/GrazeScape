@@ -46,7 +46,7 @@ def getRotText(crop,legume_text,animal_density_text):
         return crop
         
 def getRotYers(crop):
-    # print("in getRotYers")
+    print("in getRotYers")
     if crop == 'pt-rt':
         rot_yrs = 1
         rot_yrs_crop = ['pt_rt']
@@ -178,8 +178,8 @@ class CropYield(ModelBase):
         
 
     def run_model(self,request,active_region,manure_p_perc):
-        print("SELF IN CROP")
-        print(self.model_parameters)
+        # print("SELF IN CROP")
+        # print(self.model_parameters)
         nitrate_array = []
         crop_ro = self.model_parameters["crop"]
         return_data = []
@@ -242,96 +242,6 @@ class CropYield(ModelBase):
 
 #_______________START OF NUTRIENT MODELS!!!__________________________________
 
-
-        # print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
-        # #print(self)
-        # r = R(RCMD=self.r_file_path, use_pandas=True)
-
-        # slope = self.raster_inputs["slope"].flatten()
-        # slope_length = self.raster_inputs["slope_length"].flatten()
-        # sand = self.raster_inputs["sand"].flatten()
-        # silt = self.raster_inputs["silt"].flatten()
-        # clay = self.raster_inputs["clay"].flatten()
-        # k = self.raster_inputs["k"].flatten()
-        # # print(slope)
-        # # om = self.raster_inputs["om"].flatten()
-        # total_depth = self.raster_inputs["total_depth"].flatten()
-        # ls = self.raster_inputs["ls"].flatten()
-        # newpath = self.model_file_path.replace("/","\\")
-        # print(newpath)
-        # ContCornErosion = "cc_erosion_"
-        # cornGrainErosion = "cg_erosion_"
-        # cornSoyOatErosion = "cso_erosion_"
-        # dairyRotationErosion = "dr_erosion_"
-        # pastureSeedingErosion = "ps_erosion_"
-        # pastureErosion = "pt_erosion_"
-        # dryLotErosion = "dl_erosion_"
-
-        # ContCornTidyploss = "cc_ploss_"
-        # cornGrainTidyploss = "cg_ploss_"
-        # cornSoyOatTidyploss = "cso_ploss_"
-        # dairyRotationTidyploss = "dr_ploss_"
-        # pastureSeedingTidyploss = "ps_ploss_"
-        # pastureTidyploss = "pt_ploss_"
-        # dryLotTidyploss = "dl_ploss_"
-
-        # regionRDS = active_region + '.rds'
-        # r.assign("slope", slope)
-        # r.assign("slope_length", slope_length)
-        # r.assign("sand", sand)
-        # r.assign("silt", silt)
-        # r.assign("clay", clay)
-        # r.assign("k", k)
-        # # r.assign("om", om)
-        # r.assign("total_depth", total_depth)
-        # r.assign("ls", ls)
-        # print("ploss modal para variables")
-        # print(manure_p_perc)
-        # print(self.model_parameters["fert"])
-        # print(self.model_parameters["crop"])
-        # print(self.model_parameters["crop_cover"])
-        # print(self.model_parameters["contour"])
-        # print(self.model_parameters["tillage"])
-        # print(self.model_parameters["rotation"])
-        # print(self.model_parameters["density"])
-        # print(self.model_parameters["soil_p"])
-        # print(os.path.join(self.model_file_path,ContCornErosion + regionRDS))
-        # print(os.path.join(newpath,ContCornErosion + regionRDS))
-        # print(os.path.join(newpath,ContCornTidyploss + regionRDS))
-        # r.assign("p_need", manure_p_perc[1])
-        # r.assign("manure", manure_p_perc[2])
-        # r.assign("dm", manure_p_perc[3])
-        # r.assign("p205", manure_p_perc[4])
-        # # r.assign("manure", self.model_parameters["manure"])
-        # r.assign("fert", float(self.model_parameters["fert"]))
-        # r.assign("crop", self.model_parameters["crop"])
-        # r.assign("cover", self.model_parameters["crop_cover"])
-        # r.assign("contour", int(self.model_parameters["contour"]))
-        # r.assign("tillage", self.model_parameters["tillage"])
-        # r.assign("rotational", self.model_parameters["rotation"])
-        # r.assign("density", self.model_parameters["density"])
-        # r.assign("initialP", float(self.model_parameters["soil_p"]))
-        # r.assign("om", self.model_parameters["om"])
-        # #print(float(self.model_parameters["om"]))
-        # # r.assign("om", 2.56)
-        # # print("MODEL PATH")
-        # # print(self.model_file_path)
-        # # print(regionRDS)
-        # r.assign("cc_erosion_file", os.path.join(self.model_file_path,ContCornErosion + regionRDS))
-        # r.assign("cg_erosion_file", os.path.join(self.model_file_path,cornGrainErosion + regionRDS))
-        # r.assign("cso_erosion_file", os.path.join(self.model_file_path,cornSoyOatErosion + regionRDS))
-        # r.assign("dr_erosion_file", os.path.join(self.model_file_path,dairyRotationErosion + regionRDS))
-        # r.assign("ps_erosion_file", os.path.join(self.model_file_path,pastureSeedingErosion + regionRDS))
-        # r.assign("pt_erosion_file", os.path.join(self.model_file_path,pastureErosion + regionRDS))
-        # r.assign("dl_erosion_file", os.path.join(self.model_file_path,dryLotErosion + regionRDS))
-
-        # r.assign("cc_pi_file", os.path.join(self.model_file_path,ContCornTidyploss + regionRDS))
-        # r.assign("cg_pi_file", os.path.join(self.model_file_path,cornGrainTidyploss + regionRDS))
-        # r.assign("cso_pi_file", os.path.join(self.model_file_path,cornSoyOatTidyploss + regionRDS))
-        # r.assign("dr_pi_file", os.path.join(self.model_file_path,dairyRotationTidyploss + regionRDS))
-        # r.assign("ps_pi_file", os.path.join(self.model_file_path,pastureSeedingTidyploss + regionRDS))
-        # r.assign("pt_pi_file", os.path.join(self.model_file_path,pastureTidyploss + regionRDS))
-        # r.assign("dl_pi_file", os.path.join(self.model_file_path,dryLotTidyploss + regionRDS))
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         #print(self)
         r = R(RCMD=self.r_file_path, use_pandas=True)
@@ -374,23 +284,23 @@ class CropYield(ModelBase):
         # r.assign("om", om)
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
-        print("PLOSS AND ERO RASTERS")
-        print("slope")
-        print(slope)
-        print("slope_length")
-        print(slope_length)
-        print("sand")
-        print(sand)
-        print("silt")
-        print(silt)
-        print("clay")
-        print(clay)
-        print("k")
-        print(k)
-        print("total_depth")
-        print(total_depth)
-        print("ls")
-        print(ls)
+        # print("PLOSS AND ERO RASTERS")
+        # print("slope")
+        # print(slope)
+        # print("slope_length")
+        # print(slope_length)
+        # print("sand")
+        # print(sand)
+        # print("silt")
+        # print(silt)
+        # print("clay")
+        # print(clay)
+        # print("k")
+        # print(k)
+        # print("total_depth")
+        # print(total_depth)
+        # print("ls")
+        # print(ls)
 
         r.assign("p_need", float(manure_p_perc[1]))
         r.assign("manure", float(manure_p_perc[2]))
@@ -405,7 +315,7 @@ class CropYield(ModelBase):
         r.assign("fert", float(self.model_parameters["fert"]))
         r.assign("crop", self.model_parameters["crop"])
         r.assign("cover", self.model_parameters["crop_cover"])
-        r.assign("contour", int(self.model_parameters["contour"]))
+        r.assign("contour", self.model_parameters["contour"])
         r.assign("tillage", self.model_parameters["tillage"])
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
@@ -633,28 +543,28 @@ class CropYield(ModelBase):
         }}
           """
                 )
-        print("after ero and ploss")
-        print(r.get("cc_erosion_file"))
-        print(r.get("cc_erosion"))
-        print(r.get("cc_pi_file"))
-        print(r.get("cc_pi"))
-        print(r.get("p_need"))
-        print(r.get("manure"))
-        print(r.get("dm"))
-        print(r.get("p205"))
-        print(r.get("fert"))
-        print(r.get("crop"))
-        print(r.get("cover"))
-        print(r.get("contour"))
-        print(r.get("Contour"))
-        print(r.get("tillage"))
-        print(r.get("rotational"))
-        print(r.get("density"))
-        print(r.get("initialP"))
-        print(r.get("om"))
-        print(r.get("level_df"))
-        print(r.get("pi_pred_df"))
-        print(r.get("pred_df"))
+        # print("after ero and ploss")
+        # print(r.get("cc_erosion_file"))
+        # print(r.get("cc_erosion"))
+        # print(r.get("cc_pi_file"))
+        # print(r.get("cc_pi"))
+        # print(r.get("p_need"))
+        # print(r.get("manure"))
+        # print(r.get("dm"))
+        # print(r.get("p205"))
+        # print(r.get("fert"))
+        # print(r.get("crop"))
+        # print(r.get("cover"))
+        # print(r.get("contour"))
+        # print(r.get("Contour"))
+        # print(r.get("tillage"))
+        # print(r.get("rotational"))
+        # print(r.get("density"))
+        # print(r.get("initialP"))
+        # print(r.get("om"))
+        # print(r.get("level_df"))
+        # print(r.get("pi_pred_df"))
+        # print(r.get("pred_df"))
         # print(r.get("pi_pred_df$Erosion"))
         # print(r.get("pi_pred_df$cover"))
         # print(r.get("pi_pred_df$tillage"))
@@ -719,30 +629,33 @@ class CropYield(ModelBase):
         ploss=  np.where(ploss < 0.01, .01, ploss)
         erosion.set_data(ero)
         pl.set_data(ploss)
+        print(r.get("erosion"))
+        print(r.get("final_pi"))
 #_________YIELD NITRATE COMBO BEGINS!!!______________________________
 
 # initial storage for crop data
-        
+        print("Start Nitrate Combo")
         rot_yrs_crop = []
         rot_yrs_crop = getRotYers(crop_ro)[1]
         legume = self.model_parameters["legume"]
         legume_text = getLegumeTest(legume)
-
+        
         animal_density = self.model_parameters["density"]
         animal_density_text = getAnimaleDensity(animal_density)
-
+        print(rot_yrs_crop, legume_text, animal_density_text)
         cover_crop = self.model_parameters["crop_cover"]
-        PctFertN = self.model_parameters["fert_n_perc"]/100
-        PctManrN = self.model_parameters["manure_n_perc"]/100
+        PctFertN = float(self.model_parameters["fert_n_perc"])/100
+        PctManrN = float(self.model_parameters["manure_n_perc"])/100
         #Pneeds = self.model_parameters["p_need"]
+        print(PctFertN, PctManrN)
         precip = get_region_precip(active_region)
         precN = 0.5 * precip * 0.226  ## precipitation N inputs in lb/ac
         dryN = precN  ## assume dry deposition is equal to precipitation, lb/ac
         om_flattened = self.raster_inputs["om"].flatten()
         nResponse_flattened = self.raster_inputs["Nresponse"].flatten()
         drain_class_flattened = self.raster_inputs["drain_class"].flatten()
-        #print("drain_class_flattened")
-        #print(drain_class_flattened)
+        # print("drain_class_flattened")
+        # print(drain_class_flattened)
         getRotText_Value = getRotText(crop_ro,legume_text,animal_density_text)
 
 
@@ -795,10 +708,12 @@ class CropYield(ModelBase):
             cell_erosion = ero[y][0]
             erosN = cell_erosion * cell_om * 2
             OM_texts_denit = getOMText(cell_om,"denitr")
-            # cellpmanurelist = manure_p_perc[5][y]
-            cellpmanurelist = request.POST.getlist('model_parameters[pMcellData][0]['+str(y)+'][]')
             # print("Starting denitr")
             # print(cell_drain_class)
+            # cellpmanurelist = manure_p_perc[5][y]
+            cellpmanurelist = request.POST.getlist('model_parameters[pManureResults][5]['+str(y)+'][]')
+            # print("cellpmanurelist")
+            # print(cellpmanurelist)
             denitlossDC = self.denitLoss[self.denitLoss["DrainClass_num"] == cell_drain_class]
             # print(denitlossDC)
             Denitr_Row = pd.concat([denitlossDC[denitlossDC["OM"] == OM_texts_denit]])
@@ -814,7 +729,6 @@ class CropYield(ModelBase):
               corn_yield = corn_yield_raw
               corn_yield_tonDMac = corn_yield * 56 * (1 - 0.155) / 2000
               rotation_avg_tonDMac = corn_yield_tonDMac
-
               corn.set_data(corn_yield)
               yeild_crop_data = corn_yield_tonDMac
               fertN = PctFertN * float(cellpmanurelist[0])

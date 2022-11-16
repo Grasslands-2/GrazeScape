@@ -253,7 +253,7 @@ function turnOffMappedResults() {
 }
     
 var fieldYieldArray = [];
-var modelTypes = [ /*'ploss','bio','econ',*/'yield',/*'runoff'*/]
+var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -3172,7 +3172,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                inner tabs for farm and field scale
             items: [
                 phantom,
-                summaryTable,
+                //summaryTable,
                 //summary,
                 yield,
                 erosion,

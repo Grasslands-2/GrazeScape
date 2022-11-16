@@ -10,7 +10,7 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 import time
 def getOMText(omraw,text_needed):
-        #print(omraw)
+        print(omraw)
         if omraw < 2:
             OM_denitloss = '<2'
             OM_fertrecs = '<2'
@@ -186,7 +186,7 @@ class GrassYield(ModelBase):
         self.grass_type = self.model_parameters['grass_type']
         # self.units = "Dry Mass tons/ac"
 
-    def run_model(self,active_region,manure_p_perc):
+    def run_model(self,request,active_region,manure_p_perc):
         start = time.time()
         grass_yield = OutputDataNode("Grass", "Yield (tons/acre)", 'Total Yield (tons/year')
         rotation_avg = OutputDataNode("Rotational Average", "Yield (tons-Dry Matter/ac/year)", "Yield (tons-Dry Matter/year)")
@@ -281,20 +281,20 @@ class GrassYield(ModelBase):
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
 
-        r.assign("p_need", manure_p_perc[1])
-        r.assign("manure", manure_p_perc[2])
-        r.assign("dm", manure_p_perc[3])
-        r.assign("p205", manure_p_perc[4])
+        r.assign("p_need", float(manure_p_perc[1]))
+        r.assign("manure", float(manure_p_perc[2]))
+        r.assign("dm", float(manure_p_perc[3]))
+        r.assign("p205", float(manure_p_perc[4]))
         # r.assign("manure", self.model_parameters["manure"])
         
-        r.assign("fert", self.model_parameters["fert"])
+        r.assign("fert", float(self.model_parameters["fert"]))
         r.assign("crop", self.model_parameters["crop"])
         r.assign("cover", self.model_parameters["crop_cover"])
         r.assign("contour", self.model_parameters["contour"])
         r.assign("tillage", self.model_parameters["tillage"])
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
-        r.assign("initialP", self.model_parameters["soil_p"])
+        r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(float(self.model_parameters["om"])))
         print("assigning om done")
 
@@ -615,8 +615,8 @@ class GrassYield(ModelBase):
         erosion.set_data(ero)
         pl.set_data(ploss)
         EroPLend = time.time()
-        print("EroPLend Time for Grass")
-        print(EroPLend - start)
+        # print("EroPLend Time for Grass")
+        # print(EroPLend - start)
 
         rot_yrs_crop = []
         # print("CROP_RO")
@@ -629,8 +629,8 @@ class GrassYield(ModelBase):
         animal_density_text = getAnimaleDensity(animal_density)
 
         cover_crop = self.model_parameters["crop_cover"]
-        PctFertN = self.model_parameters["fert_n_perc"]/100
-        PctManrN = self.model_parameters["manure_n_perc"]/100
+        PctFertN = float(self.model_parameters["fert_n_perc"])/100
+        PctManrN = float(self.model_parameters["manure_n_perc"])/100
         #Pneeds = self.model_parameters["p_need"]
         precip = get_region_precip(active_region)
         precN = 0.5 * precip * 0.226  ## precipitation N inputs in lb/ac
@@ -675,9 +675,11 @@ class GrassYield(ModelBase):
             # print(NvarsCover)
             #Nvar variabels can be collected on a crop year basis not by cell.
 
+            cellpmanurelist = request.POST.getlist('model_parameters[pManureResults][5]['+str(y)+'][]')
+
             yeild_crop_data = pred2[y][0]
-            fertN = PctFertN * manure_p_perc[5][y][0]#fertNrec_Values_Array[0][0]
-            manrN = PctManrN * manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
+            fertN = PctFertN * float(cellpmanurelist[0])
+            manrN = PctManrN * float(cellpmanurelist[1])#manure_p_perc[5][y][1]#fertNrec_Values_Array[0][1] ## actual manure N applied in lb/ac
             # Nvars_Row = pd.concat([NvarsCover[NvarsCover["RotationAbbr"] == getRotText_Value]])
             # print(Nvars_Row)
             NfixPct = float(Nvars_Row["NfixPct"].values[0])

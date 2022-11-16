@@ -356,9 +356,9 @@ def outside_shpfile_coord_pull(filename,scenario_id,farm_id):
 
 def geoserver_request(request):
     request_type = request.POST.get("request_type")
-    print("GEOSERVER REQUEST TYPE")
-    print(request_type)
-    print(request.POST)
+    # print("GEOSERVER REQUEST TYPE")
+    # print(request_type)
+    # print(request.POST)
     pay_load = request.POST.get("pay_load")
     url = request.POST.get("url")
     feature_id = request.POST.get("feature_id")
@@ -503,8 +503,8 @@ def get_P_Manure_Results(request):
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
     #field_coors.append(request_json["model_parameters"]["field_coors"])
-    print(active_region)
-    print(field_id)
+    # print(active_region)
+    # print(field_id)
     try:
         print("right before goedata in pmanure")
         geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, active_region, False)#geo_data = RasterData(request_json["model_parameters"]["extent"], field_coors, field_id, active_region, False)
@@ -540,9 +540,9 @@ def get_P_Manure_Results(request):
     }
     return JsonResponse([data], safe=False)
 def get_model_results(request):
-    print("MODEL PARAMETERS IN GET MODEL RESULTS!!!!!!!!")
+    # print("MODEL PARAMETERS IN GET MODEL RESULTS!!!!!!!!")
     # print(request.POST.get('model_parameters'))
-    print(request.POST.get('model_parameters'))
+    # print(request.POST.get('model_parameters'))
     # request_json = js.loads(request.body)
     # print(request_json)
 

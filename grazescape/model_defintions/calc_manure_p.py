@@ -149,8 +149,8 @@ class CalcManureP(ModelBase):
       self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
       self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
     def run_model(self):
-      print("Calc Manure P Running  True!")
-      print(self.model_parameters)
+      # print("Calc Manure P Running  True!")
+      # print(self.model_parameters)
       # print(self.raster_inputs["Nresponse"])
       print(self.model_parameters["crop"])
       start = time.time()

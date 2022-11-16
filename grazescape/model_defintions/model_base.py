@@ -344,20 +344,20 @@ class ModelBase:
         # ignore animal density if the field is not a pasture or a dry lot
         if parameters["crop"] == "pt" or parameters["crop"] == "dl":
             density = parameters["density"]
-        print("parameters[rotation]")
-        print(parameters["crop"])
-        print(crop_cover)
-        print(parameters["rotation"])
-        print(density)
-        # nutrient_key = parameters["crop"] + crop_cover + parameters["rotation"] + density
-        nutrient_key = parameters["crop"] + crop_cover + 'na' + density
-        nutrient_key = nutrient_key.lower()
-        try:
-            parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
-            parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
-            parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
-        except KeyError:
-            raise KeyError("Invalid key: ", nutrient_key)
+        # print("parameters[rotation]")
+        # print(parameters["crop"])
+        # print(crop_cover)
+        # print(parameters["rotation"])
+        # print(density)
+        # # nutrient_key = parameters["crop"] + crop_cover + parameters["rotation"] + density
+        # nutrient_key = parameters["crop"] + crop_cover + 'na' + density
+        # nutrient_key = nutrient_key.lower()
+        # try:
+        #     parameters["p_need"] = nutrient_dict[nutrient_key]["Pneeds"]
+        #     parameters["dm"] = nutrient_dict[nutrient_key]["grazed_DM_lbs"]
+        #     parameters["p205"] = nutrient_dict[nutrient_key]["grazed_P2O5_lbs"]
+        # except KeyError:
+        #     raise KeyError("Invalid key: ", nutrient_key)
 
         return parameters
 
