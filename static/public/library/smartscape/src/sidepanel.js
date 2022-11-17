@@ -591,6 +591,10 @@ class SidePanel extends React.Component{
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
     newTrans.management.fertilizer = "0_100"
+    newTrans.management.nitrogen = "0"
+    newTrans.management.nitrogen_fertilizer = "0"
+    newTrans.management.phos_fertilizer = "0"
+    newTrans.management.legume = false
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
     newTrans.management.tillage = "su"
@@ -2210,8 +2214,8 @@ class SidePanel extends React.Component{
                      <Stack gap={3}>
                      {/*
 
-                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      */}
+                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
@@ -2225,8 +2229,8 @@ class SidePanel extends React.Component{
             </Accordion>
             {/*
 
-                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             */}
+                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>
