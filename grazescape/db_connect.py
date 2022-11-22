@@ -291,7 +291,6 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         col_name.append("area")
         values.append(data['area'])
 
-
     col_name.append("field_id")
     col_name.append("scenario_id")
     col_name.append("farm_id")
@@ -389,7 +388,12 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
             "soil_erosion_tons_per_acre": {
                 "units": "Soil Erosion (ton/acre/year)",
                 "units_alternate": "Soil Erosion (tons of soil/year",
-                "type": "ero"}
+                "type": "ero"},
+        "runoff": {"units": "Runoff (in)",
+                   "units_alternate": "Runoff (in)", "type": "Runoff"},
+        "runoff_curve_number": {"units": "Curve Number",
+                                "units_alternate": "Curve Number",
+                                "type": "Curve Number"}
             
     },
         'ploss': {

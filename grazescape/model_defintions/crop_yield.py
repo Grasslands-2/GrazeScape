@@ -711,7 +711,8 @@ class CropYield(ModelBase):
             # print("Starting denitr")
             # print(cell_drain_class)
             # cellpmanurelist = manure_p_perc[5][y]
-            cellpmanurelist = request.POST.getlist('model_parameters[pManureResults][5]['+str(y)+'][]')
+            # cellpmanurelist = request.POST.getlist('model_parameters[pManureResults][5]['+str(y)+'][]')
+            cellpmanurelist = manure_p_perc[5][y]
             # print("cellpmanurelist")
             # print(cellpmanurelist)
             denitlossDC = self.denitLoss[self.denitLoss["DrainClass_num"] == cell_drain_class]

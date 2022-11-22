@@ -354,6 +354,7 @@ function format_chart_data(model_data){
     }
     //setting up each model run
     modelTypeString = model_data.value_type +'_'+ model_data.crop_ro
+    console.log("value type ", model_data.value_type)
     switch (model_data.model_type) {
         case 'yield':
             switch (model_data.value_type){
@@ -406,6 +407,20 @@ function format_chart_data(model_data){
                     gatherArrayForYieldAdjustment(model_data)
                 }
                 break
+            case 'insect':
+                chartTypeField = chartObj.insecticide_field
+                chartTypeFarm = chartObj.insecticide_farm
+                break
+            case 'econ':
+                chartTypeField = chartObj.econ_field
+                chartTypeFarm = chartObj.econ_farm
+                break
+            case 'feed breakdown':
+                chartTypeField = chartObj.feed_breakdown
+            case 'nitrate':
+                chartTypeField = chartObj.nleaching_field
+                chartTypeFarm = chartObj.nleaching_farm
+                break
             case 'ploss':
             
                 chartTypeField = chartObj.ploss_field
@@ -425,25 +440,7 @@ function format_chart_data(model_data){
                         DSS.layer.ploss_field.set('name', 'ploss'+ model_data.field_id);
                         var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
                         console.log(plossGroupLayers);
-                        // if(plossGroupLayers.length == 0){
-                        //     plossGroupLayers.push(DSS.layer.ploss_field);
-                        // }
-                        // else{
-                        //     for(l in plossGroupLayers){
-                        //         console.log(plossGroupLayers[l].values_.name)
-                        //         console.log(DSS.layer.ploss_field.values_.name)
-                        //         if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
-                        //             const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
-                        //             if(index > -1) {
-                        //                 plossGroupLayers.splice(index,1);
-                        //                 console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
-                        //             }
-                        //             plossGroupLayers.push(DSS.layer.ploss_field);
-                        //         }
-                        //     }
-                        // plossGroupLayers.push(DSS.layer.ploss_field);
-                        // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                        // }
+
                     }
                 }
                 break
@@ -465,25 +462,7 @@ function format_chart_data(model_data){
                         DSS.layer.ero_field.set('name', 'ero'+ model_data.field_id);
                         var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
                         console.log(erosionGroupLayers);
-                        // if(erosionGroupLayers.length == 0){
-                        //     erosionGroupLayers.push(DSS.layer.ero_field);
-                        // }
-                        // else{
-                        //     for(l in erosionGroupLayers){
-                        //         console.log(erosionGroupLayers[l].values_.name)
-                        //         console.log(DSS.layer.ero_field.values_.name)
-                        //         if(erosionGroupLayers[l].values_.name == DSS.layer.ero_field.values_.name){
-                        //             const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
-                        //             if(index > -1) {
-                        //                 erosionGroupLayers.splice(index,1);
-                        //                 console.log("SPLICED :" + DSS.layer.ero_field.values_.name)
-                        //             }
-                        //             erosionGroupLayers.push(DSS.layer.ero_field);
-                        //         }
-                        //     }
-                        // erosionGroupLayers.push(DSS.layer.ero_field);
-                        // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                        // }
+
                     }
                 }
                 break
@@ -510,6 +489,50 @@ function format_chart_data(model_data){
                     }
                 }
                 break
+            case 'Runoff':
+                console.log("runoff")
+                chartTypeFarm = chartObj.runoff_farm
+                chartTypeFarm.units = model_data.units
+    //              loop through each storm event
+                for (let i in model_data.sum_cells){
+                    chartTypeFarm.sum[scenIndex][i] = typeof chartTypeFarm.sum[scenIndex][i] === 'undefined' ? model_data.sum_cells[i]:chartTypeFarm.sum[scenIndex][i] + model_data.sum_cells[i]
+                }
+                chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + model_data.counted_cells
+                chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + model_data.area
+
+                for (let i in model_data.sum_cells){
+                    chartTypeFarm.chartData.datasets[scenIndex].data[i] =  +((chartTypeFarm.sum[scenIndex][i] / chartTypeFarm.count[scenIndex]).toFixed(2))
+                }
+                chartTypeFarm.chartData.datasets[scenIndex].fill = false
+                if(chartTypeFarm.chart !== null){
+                    chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
+                    chartTypeFarm.chart.update()
+                }
+
+                return
+            case 'Curve Number':
+                console.log("curvenumber ")
+                chartTypeFarm = chartObj.cn_num_farm
+    //            have to handle runoff differently because it deals with an array not a single value
+
+                if(model_data.scen_id == DSS.activeScenario){
+                    console.log(model_data.extent)
+                    if(model_data.extent !== undefined){
+                        DSS.runoffBol = false
+                        var plextent = model_data.extent
+                        DSS.layer.runoff_field = new ol.layer.Image({
+                            visible: false,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/Curve Number'+ model_data.field_id + '.png',
+                            imageExtent: plextent
+                            })
+                        })
+                        DSS.layer.runoff_field.set('name', 'Curve Number'+ model_data.field_id);
+                        var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
+                        console.log(runoffGroupLayers);
+                    }
+                }
+            break
             }
             if(model_data.scen_id == DSS.activeScenario){
                 console.log(model_data.extent)
@@ -531,87 +554,6 @@ function format_chart_data(model_data){
             }
             break;
 
-        
-        case 'runoff':
-            console.log("runoff")
-            console.log(model_data)
-            if (model_data.value_type == 'Curve Number'){
-                chartTypeFarm = chartObj.cn_num_farm
-            }
-//            have to handle runoff differently because it deals with an array not a single value
-            else if (model_data.value_type == 'Runoff'){
-
-                chartTypeFarm = chartObj.runoff_farm
-                chartTypeFarm.units = model_data.units
-//              loop through each storm event
-                for (let i in model_data.sum_cells){
-                    chartTypeFarm.sum[scenIndex][i] = typeof chartTypeFarm.sum[scenIndex][i] === 'undefined' ? model_data.sum_cells[i]:chartTypeFarm.sum[scenIndex][i] + model_data.sum_cells[i]
-                }
-                chartTypeFarm.count[scenIndex] = typeof chartTypeFarm.count[scenIndex] === 'undefined' ? model_data.counted_cells:chartTypeFarm.count[scenIndex] + model_data.counted_cells
-                chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + model_data.area
-
-                for (let i in model_data.sum_cells){
-                    chartTypeFarm.chartData.datasets[scenIndex].data[i] =  +((chartTypeFarm.sum[scenIndex][i] / chartTypeFarm.count[scenIndex]).toFixed(2))
-                }
-                chartTypeFarm.chartData.datasets[scenIndex].fill = false
-                if(chartTypeFarm.chart !== null){
-                    chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
-                    chartTypeFarm.chart.update()
-                }
-                
-            return
-            }
-            if(model_data.scen_id == DSS.activeScenario){
-                console.log(model_data.extent)
-                if(model_data.extent !== undefined){
-                    DSS.runoffBol = false
-                    var plextent = model_data.extent
-                    DSS.layer.runoff_field = new ol.layer.Image({
-                        visible: false,
-                        source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/Curve Number'+ model_data.field_id + '.png',
-                        imageExtent: plextent
-                        })
-                    })
-                    DSS.layer.runoff_field.set('name', 'Curve Number'+ model_data.field_id);
-                    var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
-                    console.log(runoffGroupLayers);
-                    // if(runoffGroupLayers.length == 0){
-                    //     runoffGroupLayers.push(DSS.layer.runoff_field);
-                    // }
-                    // else{
-                    //     for(l in runoffGroupLayers){
-                    //         console.log(runoffGroupLayers[l].values_.name)
-                    //         console.log(DSS.layer.runoff_field.values_.name)
-                    //         if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
-                    //             const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
-                    //             if(index > -1) {
-                    //                 runoffGroupLayers.splice(index,1);
-                    //                 console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
-                    //             }
-                    //             runoffGroupLayers.push(DSS.layer.runoff_field);
-                    //         }
-                    //     }
-                    // runoffGroupLayers.push(DSS.layer.runoff_field);
-                    // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                    // }
-                }
-            }
-                break
-        case 'bio':
-            chartTypeField = chartObj.insecticide_field
-            chartTypeFarm = chartObj.insecticide_farm
-            break
-        case 'econ':
-            chartTypeField = chartObj.econ_field
-            chartTypeFarm = chartObj.econ_farm
-            break
-        case 'feed breakdown':
-            chartTypeField = chartObj.feed_breakdown
-        case 'nitrate':
-            chartTypeField = chartObj.nleaching_field
-            chartTypeFarm = chartObj.nleaching_farm
-            break
     }
 //      field level
 // some charts don't have a field level
@@ -845,55 +787,7 @@ function get_model_data(data){
     })
 	}
 
-    function get_P_Manure_Results(data){
-        console.log("in get p manura results")
-        return new Promise(function(resolve) {
-        var csrftoken = Cookies.get('csrftoken');
-        // data = JSON.stringify(data)
-        $.ajaxSetup({
-                headers: { "X-CSRFToken": csrftoken }
-            });
-        $.ajax({
-        'url' : '/grazescape/get_P_Manure_Results',
-        'type' : 'POST',
-        'data' : data,
-        'timeout':0,
-            success: async function(responses, opts) {
-                delete $.ajaxSetup().headers
-                console.log(responses)
-                if(responses == null){
-                    resolve([]);
-                }
-                for (response in responses){
-                    obj = responses[response];
-                    if(obj.error || response == null){
-                        console.log("model did not run")
-                        console.log(obj.error)
-                        if(!modelError){
-                            alert(obj.error);
-                            modelErrorMessages.push(obj.error)
-                            modelError = true
-                        }
-                        continue
-                    }
-                    let e = obj.extent;
-                    if(responses[response].value_type != "dry lot"){
-                        console.log("response type in dashboard utilites")
-                        console.log(responses[response].value_type)
-                        console.log(obj)
-                        format_chart_data(obj)
-                    }
-                }
-                resolve(responses);
-            },
-    
-            failure: function(response, opts) {
-                me.stopWorkerAnimation();
-            },
-            //timeout:50
-        });
-        })
-        }
+
    
 //validates images?  Not sure, Havent worked with 
 function validateImageOL(json, layer, tryCount) {

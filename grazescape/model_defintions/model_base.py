@@ -217,7 +217,7 @@ class ModelBase:
                          }
         # convert area from sq m to acres
         print('REQUEST RIGHT BEFORE PUT INTO PARAS')
-        print(request.POST)
+        # print(request.POST)
         parameters = {
             "f_name": request.POST.getlist("model_parameters[f_name]")[0],
             "grass_type": request.POST.getlist("model_parameters[grass_type]")[
@@ -462,10 +462,7 @@ class ModelBase:
                     count = count + 1
         sum_val = [float(round(elem, 2)) for elem in sum_val]
         return sum_val, valid_count
-    def get_ero_datum(self,result,bounds):
-        data = result.data
-        erodatanm = self.reshape_model_output(data, bounds)
-        return erodatanm
+
     def get_model_png(self, result, bounds, no_data_array):
         file_name = result.model_type + self.field_id + '_' + self.model_run_timestamp
         raster_image_file_path = os.path.join(settings.BASE_DIR,'grazescape','static','grazescape','public','images',file_name + ".png")
@@ -477,28 +474,10 @@ class ModelBase:
             return 0, sum, float(count)
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
-        # if result.model_type == 'ero':
-        #     print("ERO data before color assignment Length!")
-        #     print(data)
-        #     print("ERO data before color assignment Length!")
-        #     print(len(data[0]))
-        #     print("ERO datanm before color assignment!")
-        #     print(datanm)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         color_ramp = self.create_color_ramp(min_v, max_v,result)
-        #print("ERO datanm[y][x] before color assignment!")
         for y in range(0, rows):
             for x in range(0, cols):
-                #if(result.model_type == 'ero'):
-                    #print("")
-                    # print("ERO datanm[y][x] before color assignment!")
-                    # print(x)
-                    # print(y)
-                    # print(datanm[y][x])
-                    
-                    # print("ERO data[y][x] before color assignment!")
-                    # print(data[y][x])
-                
                 color = self.calculate_color(color_ramp, datanm[y][x])
                 three_d[y][x][0] = color[0]
                 three_d[y][x][1] = color[1]

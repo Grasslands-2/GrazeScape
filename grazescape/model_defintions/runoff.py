@@ -9,7 +9,7 @@ import math
 
 
 class Runoff(ModelBase):
-    def __init__(self, request,active_region, file_name=None):
+    def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
     def get_hyro_letter(self, group_num):
@@ -30,8 +30,9 @@ class Runoff(ModelBase):
         print("start runoff")
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
-
+        # print(self.raster_inputs)
         slope = self.raster_inputs["slope"].flatten()
+        # print("slope" ,slope)
         slope_length = self.raster_inputs["slope_length"].flatten()
         sand = self.raster_inputs["sand"].flatten()
         silt = self.raster_inputs["silt"].flatten()
