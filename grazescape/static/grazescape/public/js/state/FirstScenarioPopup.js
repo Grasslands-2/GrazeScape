@@ -39,7 +39,7 @@ Ext.define('DSS.state.FirstScenarioPopup', {
 					xtype: 'component',
 					//id: 'scenIDpanel',
 					cls: 'information',
-					html: "You just created your first scenario for your new farm!  Next step is to add in your fields and infrastructure.  You can do so with the options under the Add/Delete Fields and Add/Delete Infrastructure buttons.  Once you have added your fields and infrastructure you can then edit their attributes in a table format by clicking the 'Edit Field Attributes' and 'Edit Infrastructure Attributes' buttons. You can also adjust your scnearios seed, pesticide, and machinery costs by clicking the 'Edit Scenario Costs' button.  Once you have all of your fields and costs set up properly for your scenario, you can then the models by clicking the 'Run Models' button",
+					html: "You just created your first scenario for your new farm!  Next step is to add in your fields and infrastructure.  You can do so with the options under the Add/Delete Fields and Add/Delete Infrastructure buttons.  Once you have added your fields and infrastructure you can then edit their attributes in a table format by clicking the 'Edit Field Attributes' and 'Edit Infrastructure Attributes' buttons. You can also adjust your scneario's seed, pesticide, and machinery costs by clicking the 'Edit Scenario Costs' button.  Once you have all of your fields and costs set up properly for your scenario, you can then the models by clicking the 'Run Models' button",
 				},
 				{
 					xtype: 'button',

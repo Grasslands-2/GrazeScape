@@ -993,6 +993,7 @@ function create_graph(chart,title,element){
                                 return;
                             }
                             let tooltipPath = dataset.toolTip[context[0].dataIndex]
+                            //console.log(tooltipPath)
                             // all rotations except pasture
                             if(tooltipPath[0] != "pt"){
                                 return ["Rotation: " + farmAccMapping(tooltipPath[0]),
@@ -1000,9 +1001,19 @@ function create_graph(chart,title,element){
                             }
                             // pasture
                             else{
+                                let grassTypeDisplay = ''
+                                if(tooltipPath[2] == 'Bluegrass-clover'){
+                                    grassTypeDisplay = 'Low Yielding'
+                                }
+                                else if(tooltipPath[2] == 'Timothy-clover'){
+                                    grassTypeDisplay = 'Medium Yielding'
+                                }
+                                else{
+                                    grassTypeDisplay = 'High Yielding'
+                                }
                                 return [
                                 "Rotation: " + farmAccMapping(tooltipPath[1]),
-                                "Grass Type: " + tooltipPath[2]]
+                                "Grass Type: " + grassTypeDisplay]
                             }
                         }
                     }
