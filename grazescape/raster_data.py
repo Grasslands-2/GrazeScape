@@ -8,6 +8,7 @@ import os
 from django.conf import settings
 import math
 import shutil
+import threading
 
 """
 This class will manage retrieving data from geoserver and manage the clipping of extents to fields
@@ -48,7 +49,7 @@ class RasterData:
             self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
             self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
         self.crs = "epsg:3857"
-
+        self.threads = []
         self.no_data = -9999
         if self.active_region == "cloverBeltWI":
             self.layer_dic = {
@@ -72,26 +73,7 @@ class RasterData:
                 "drain_class": "InputRasters:CloverBeltWI_drainClass_10m",
                 "Nresponse":"InputRasters:CloverBeltWI_nResponse_10m",
             }
-        # else:
-        #     self.layer_dic = {
-        #         "elevation": "InputRasters:southWestWI_DEM_10m_2",
-        #         "slope": "InputRasters:southWestWI_slopePer_10m_2",
-        #         "sand": "InputRasters:southWestWI_sand10m",
-        #         "silt": "InputRasters:southWestWI_silt_10m",
-        #         "clay": "InputRasters:southWestWI_clay_10m_2",
-        #         "k": "InputRasters:southWestWI_kfact_10m",
-        #         "ksat": "InputRasters:southWestWI_ksat_10m",
-        #         "om": "InputRasters:southWestWI_om_10m",
-        #         #"cec": "InputRasters:southWestWI_cec_10m",
-        #         "ph": "InputRasters:southWestWI_ph_10m_2",
-        #         "total_depth": "InputRasters:southWestWI_depth_10m",
-        #         "slope_length": "InputRasters:southWestWI_slopelen_10m",
-        #         "awc": "InputRasters:southWestWI_awc_10m",
-        #         "ls": "InputRasters:southWestWI_LS_10m_2",
-        #         "corn": "InputRasters:southWestWIcorn_10m2",
-        #         "soy": "InputRasters:southWestWIsoy_10m2",
-        #         "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
-        #     }
+
         if self.active_region == "southWestWI":
             self.layer_dic = {
                 "elevation": "InputRasters:southWestWI_DEM_10m_2",
@@ -168,9 +150,24 @@ class RasterData:
             # if not os.path.exists(self.dir_path):
             os.makedirs(self.dir_path)
             self.load_layers(only_om)
+            print("done loading layers")
             self.create_clip(field_geom_array)
             self.clip_rasters()
 
+    def createNewDownloadThread(self, link, filelocation):
+        download_thread = threading.Thread(target=self.download, args=(link, filelocation))
+        download_thread.start()
+        self.threads.append(download_thread)
+
+    def download(self, link, filelocation):
+        r = requests.get(link, stream=True)
+        with open(filelocation, 'wb') as f:
+            for chunk in r.iter_content(1024):
+                if chunk:
+                    f.write(chunk)
+    def joinThreads(self):
+        for thread in self.threads:
+            thread.join()
     def field_already_loaded(self):
         """
 
@@ -196,13 +193,16 @@ class RasterData:
                     continue
             print("downloading layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
-            r = requests.get(url)
+            # r = requests.get(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            print("done downloading")
-            print("raster_file_path", raster_file_path)
-            with open(raster_file_path, "wb") as f:
-                f.write(r.content)
-            print("done writing")
+            # print("done downloading")
+            # print("raster_file_path", raster_file_path)
+            # with open(raster_file_path, "wb") as f:
+            #     f.write(r.content)
+            self.createNewDownloadThread(url, raster_file_path)
+        self.joinThreads()
+
+        print("done writing")
 
     def create_clip(self, field_geom_array):
         """

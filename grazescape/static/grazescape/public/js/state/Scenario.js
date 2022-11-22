@@ -997,8 +997,11 @@ Ext.define('DSS.state.Scenario', {
 						AppEvents.triggerEvent('hide_infra_grid')
 						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 						DSS.field_grid.FieldGrid.store.clearData();
-						await runFieldUpdate()
-						await runInfraUpdate()
+						runFieldUpdate()
+						runInfraUpdate()
+//						TODO clarifying with zach on why these are sync calls
+//						await runFieldUpdate()
+//						await runInfraUpdate()
 //						cleanDB()
 						//DSS.DrawFieldShapes.addModeControl()
 						if (DSS['viewModel'].scenario.data != null){

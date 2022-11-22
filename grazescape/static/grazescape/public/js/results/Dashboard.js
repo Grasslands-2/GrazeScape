@@ -253,7 +253,9 @@ function turnOffMappedResults() {
 }
     
 var fieldYieldArray = [];
-var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
+//var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
+//var modelTypes = ['bio','econ','yield']
+var modelTypes = ['yield']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -533,20 +535,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                     })
                 }
-                let model_request_return1 = await build_model_request(f.properties, f,'pmanure',modelruntime,DSS.activeScenario,[])
-                let pManureResults = await get_P_Manure_Results(model_request_return1)
-                // pManureResults = await pManureResults
-                console.log(pManureResults)
-                let pManureResultsArray = pManureResults.p_manure_array
-                // console.log(pManureResults.p_manure_array)
-                //let pMcellData = pManureResults.p_manure_array[5]
-                // let pManureResultspop = pManureResultsArray.pop()
-                // console.log(pManureResultspop)
-                // console.log(pMcellData)
+//                let model_request_return1 = await build_model_request(f.properties, f,'pmanure',modelruntime,DSS.activeScenario,[])
+//                let pManureResults = await get_P_Manure_Results(model_request_return1)
+//                console.log(pManureResults)
+//                let pManureResultsArray = pManureResults.p_manure_array
+
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,pManureResultsArray)//.then(model_request_return)
-                    //build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return => {
+                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])//.then(model_request_return)
                     console.log(model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -583,33 +579,18 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
                                     Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
                                     Ext.getCmp("nutTab").setDisabled(false)
+                                    runoff_pb.hidden =true
+                                    Ext.getCmp("runoffTab").setDisabled(false)
+                                    bio_pb.hidden = true
+                                    Ext.getCmp("bioTab").setDisabled(false)
+                                     econ_pb.hidden = true
+                                    Ext.getCmp("econTab").setDisabled(false)
+                                    Ext.getCmp("econFarmConvert").setDisabled(false)
+                                    Ext.getCmp("econFieldConvert").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
-
-                                    // var heiferFeedData = {
-                                    //     pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
-                                    //     cornYield:(chartObj.corn_yield_farm.sum[scenIndexAS]/chartObj.corn_yield_farm.count[scenIndexAS])*chartObj.corn_yield_farm.area[scenIndexAS],
-                                    //     cornSilageYield: (chartObj.corn_silage_yield_farm.sum[scenIndexAS]/chartObj.corn_silage_yield_farm.count[scenIndexAS])*chartObj.corn_silage_yield_farm.area[scenIndexAS],
-                                    //     oatYield: (chartObj.oat_yield_farm.sum[scenIndexAS]/chartObj.oat_yield_farm.count[scenIndexAS])*chartObj.oat_yield_farm.area[scenIndexAS],
-                                    //     alfalfaYield: (chartObj.alfalfa_yield_farm.sum[scenIndexAS]/chartObj.alfalfa_yield_farm.count[scenIndexAS])*chartObj.alfalfa_yield_farm.area[scenIndexAS],
-                                    //     totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
-                                    //     heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
-                                    //     heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
-                                    //     heiferDOP: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
-                                    //     heiferASW: DSS['viewModel'].scenario.data.heifers.asw,
-                                    //     heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
-                                    // }
-                                    // for (const prop in heiferFeedData){
-                                    //     if (heiferFeedData[prop] == undefined || isNaN(heiferFeedData[prop] && typeof(heiferFeedData) !== 'string')){
-                                    //         heiferFeedData[prop] = 0
-                                    //     }
-                                    // }
-                                    // console.log(heiferFeedData)
-                                    //calcHeiferFeedBreakdown(heiferFeedData)
-                                    //gatherYieldTableData()
-                                    //Ext.getCmp("feedTab").setDisabled(false)      
 
                                 }
                                 break
@@ -652,15 +633,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("econFieldConvert").setDisabled(false)
                                 }
                                 break
-                            // case 'nitrate':
-                            //     nleaching_pb.value = nleaching_pb.value + 1
-                            //     if(nleaching_pb.value == nleaching_pb.max){
-                            //         nleaching_pb.hidden = true
-                            //         Ext.getCmp("nitrateTab").setDisabled(false)
-                            //         Ext.getCmp("nitrateFarmConvert").setDisabled(false)
-                            //         Ext.getCmp("nitrateFieldConvert").setDisabled(false)
-                            //     }
-                            //     break
+
                         }
                         totalFields = totalFields - 1
                         if(totalFields == 0){
