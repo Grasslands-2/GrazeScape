@@ -33,6 +33,11 @@ var selectInteraction = new ol.interaction.Select({
 // keep track of what fields have had values changed
 var fieldChangeList= []
 var fieldUrl =""
+function refreshview(){
+	setTimeout(() => {
+		Ext.getCmp("fieldTable").getView().refresh()
+}, "1000")
+}
 
 function refreshSelectedFields(self, record, eOpts){
 	selectedFields = []
@@ -59,7 +64,13 @@ function refreshSelectedFields(self, record, eOpts){
 				}
 			}
 		}
-	Ext.getCmp("fieldTable").getView().refresh();
+	// 	setTimeout(() => {
+	// 		Ext.getCmp("fieldTable").getView().refresh()
+	// }, "250")
+	// 	setTimeout(() => {
+	// 		this.getView().refresh()
+	// }, "250")
+	//Ext.getCmp("fieldTable").getView().refresh();
 }
 
 function getWFSfields(parameter = '') {
@@ -447,24 +458,30 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		change: function (self,record) {
 			console.log("UPDATE HAPPENED!")
 		    console.log(self,record)
-			setTimeout(() => {
-				this.getView().refresh()
-		}, "250")
+			// refreshSelectedFields(self, record, eOpts)
+			//refreshview()
+		// 	setTimeout(() => {
+		// 		this.getView().refresh()
+		// }, "250")
 		},
 		select: function (self,record,eOpts) {
 			console.log("Record Selected")
+			//refreshview()
 			refreshSelectedFields(self, record, eOpts)
 			
 		},
 		deselect: function (self,record,eOpts) {
 			console.log("Record DESelected")
+			//refreshview()
 			refreshSelectedFields(self, record, eOpts)
 		
 		},
-		rowclick: function(self,record){
+		rowclick: function(self,record,eOpts){
 			//console.log(self.selected.items[0].id)
-			//console.log(record.id)
+			console.log(record.id)
 			deleteRecord = record;
+			//refreshview()
+			// refreshSelectedFields(self, record, eOpts)
 		// 	setTimeout(() => {
 		// 		this.getView().refresh()
 		// }, "250")
@@ -482,6 +499,17 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			// 	}
 			// }
 		},
+		// cellclick: function(self,record,eOpts){
+		// 	Ext.getCmp("fieldTable").getView().refresh()
+		// 	// refreshview()
+			
+		// 	//console.log(self.selected.items[0].id)
+		// 	console.log("cell click")
+		// 	console.log(record.id)
+		// 	deleteRecord = record;
+		// 	//refreshSelectedFields(self, record, eOpts)
+		// }
+		
 	},
 	//requires: ['DSS.map.Main'],
 
@@ -530,6 +558,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							// 		//me.getView().refresh()
 							// }, "250")
 							}
+							refreshview()
 							let view = me.getView()
 							//view.refresh()
 					}
@@ -562,9 +591,11 @@ Ext.define('DSS.field_grid.FieldGrid', {
 										}
 									}
 								}
+								
 							// 	setTimeout(() => {
 							// 		me.getView().refresh()
 							// }, "250")
+							refreshview()
 						}
 					}
 				}
@@ -601,6 +632,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							// 		me.getView().refresh()
 							// }, "250")
 							}
+							refreshview()
 							var view = me.getView()
 							//view.refresh()
 					}
@@ -703,6 +735,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							me.getSelectionModel().deselectAll();
 						}
 						console.log("End of Rot Crop change event")
+						refreshview()
 					}
 				}
 			}
@@ -822,7 +855,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						// }, "250")
 						}
 						//console.log(store)
-						
+						refreshview()
 					}
 				}
 			}
@@ -965,7 +998,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					// }, "250")
 					}
 					//console.log(store)
-					
+					refreshview()
 				}
 				}
 			}
@@ -977,6 +1010,17 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			editor:{},
 			tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			// onWidgetRender: function(widget) {
+			// 	widget.center()
+			// 	console.log("oncontour rendered")
+			// },
+			listeners:{
+				afterrender: function(self){
+					console.log("oncontour rendered")
+					console.log(self)
+					//console.log(self.getAlign(self))
+					self.setAlign('center')},
+				},
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
@@ -992,9 +1036,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				else{
 					widget.setDisabled(false);
 				}
-				var alignVals = widget.getAlignToXY(widget)
-				widget.setX(alignVals[0] + 13)
-				//console.log(widget.getAlignToXY(widget))
+				//widget.align('center')
+				// var alignVals = widget.getAlignToXY(widget)
+				// widget.setX(alignVals[0] + 13)
+				//console.log(widget.getAlign())
 				//console.log(widget.getAlignToXY(col))
 			},
 			exportable: true, exportConverter: function(self){
@@ -1005,7 +1050,16 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype: 'checkbox',
 				defaultBindProperty: 'onContour',
 				queryMode: 'local',
+				floating: false,
+				padding: '0 0 0 30',
+				//id: "oncontourcheckbox",
+				//align: 'center',
 				listeners:{
+					// render: function(self){
+					// 	console.log("oncontour rendered")
+					// 	console.log(self)
+					// 	//console.log(self.getAlign(self))
+					// 	self.center()},
 					change: function(field,newValue,oldValue,record){
 							console.log(selectedFields)
 							console.log("newValue: " + newValue)
@@ -1029,6 +1083,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							// 		me.getView().refresh()
 							// }, "250")
 							}
+							refreshview()
 					}
 				}
 			}
@@ -1098,6 +1153,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							// 		me.getView().refresh()
 							// }, "250")
 							}
+							refreshview()
 							var view = me.getView()
 							//view.refresh()
 					}
@@ -1170,6 +1226,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							// 		me.getView().refresh()
 							// }, "250")
 							}
+							refreshview()
 							var view = me.getView()
 							//view.refresh()
 					}
@@ -1206,6 +1263,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							// 		me.getView().refresh()
 							// }, "250")
 							}
+							refreshview()
 							var view = me.getView()
 							//view.refresh()
 					}
@@ -1242,6 +1300,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			},
 			widget: {
 				xtype: 'checkbox',
+				padding: '0 0 0 30',
 				defaultBindProperty: 'grazeDairyLactating',
 				queryMode: 'local',
 				listeners: {
@@ -1292,6 +1351,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			},
 			widget: {
 				xtype: 'checkbox',
+				padding: '0 0 0 30',
 				defaultBindProperty: 'grazeDairyNonLactating',
 				queryMode: 'local',
 				listeners: {
@@ -1342,6 +1402,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			},
 			widget: {
 				xtype: 'checkbox',
+				padding: '0 0 0 30',
 				defaultBindProperty: 'grazeBeefCattle',
 				queryMode: 'local',
 				listeners: {
@@ -1392,6 +1453,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			},
 			widget: {
 				xtype: 'checkbox',
+				padding: '0 0 0 30',
 				defaultBindProperty: 'manurePastures',
 				queryMode: 'local',
 				listeners: {
@@ -1492,6 +1554,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						// }, "250")
 						}
 						//console.log(store)
+						refreshview()
 					}
 				}
 			}
@@ -1586,6 +1649,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						// 		me.getView().refresh()
 						// }, "250")
 						}
+						refreshview()
 						//console.log(store)
 						
 					}
@@ -1616,8 +1680,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				else{
 					widget.setDisabled(false);
 				}
-				var alignVals = widget.getAlignToXY(widget)
-				widget.setX(alignVals[0] + 25)
+				// var alignVals = widget.getAlignToXY(widget)
+				// widget.setX(alignVals[0] + 25)
 			},
 			exportable: true, exportConverter: function(self){
 				console.log(self)
@@ -1625,6 +1689,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			},
 			widget: {
 				xtype: 'checkbox',
+				padding: '0 0 0 50',
 				defaultBindProperty: 'interseededClover',
 				queryMode: 'local',
 				listeners: {
@@ -1727,7 +1792,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						}
 						//console.log(store)
 						selectedFields = []
-						
+						refreshview()
 					}
 				}
 			}
