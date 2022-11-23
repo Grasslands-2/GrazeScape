@@ -14,7 +14,6 @@ def getRotText(crop, legume_text, animal_density_text):
     elif crop == 'dl':
         return crop + '_' + animal_density_text
     else:
-        # print("getRotText else hit")
         return crop
 
 
@@ -25,7 +24,9 @@ def getfertNrec_values(rot_yrs_crop, crop, legume_text, animal_density_text, fer
     pNeedsValue = 0
     grazedDMlbs = 0
     grazedP2O5lbs = 0
+    counter = 0
     for i in rot_yrs_crop:
+
         if i == 'pt_rt':
             CropAbbr = i + '_' + legume_text
             rasterLookUp = 'om'
@@ -49,12 +50,16 @@ def getfertNrec_values(rot_yrs_crop, crop, legume_text, animal_density_text, fer
 
         # You need to account for rotation, since the legumes and especially SOY can effect the Nrec results
         # Of other crops for that year.
+        # if counter == 0:
+        #     print(counter, fertNrec)
+        # counter = counter + 1
         RotationAbbr = getRotText(crop, legume_text, animal_density_text)
         NFertRecs_RotationAbbr = fertNrec[fertNrec["RotationAbbr"] == RotationAbbr]
         NFertRecs_CropAbbr = NFertRecs_RotationAbbr[NFertRecs_RotationAbbr["CropAbbr"] == str(CropAbbr)]
         NFertRecs_CoverAbbr = NFertRecs_CropAbbr[NFertRecs_CropAbbr["coverAbbr"] == str(cover_crop)]
         NFertRecs_RasterLookup = NFertRecs_CoverAbbr[NFertRecs_CoverAbbr["rasterLookup"] == rasterLookUp]
         NFertRecs_Row = pd.concat([NFertRecs_RasterLookup[NFertRecs_RasterLookup["rasterVals"] == str(rasterVal)]])
+        # alfalfa has two rotation years
         if i == "af":
             nrecValue = float(NFertRecs_Row["Nrec"].values[0]) * 2 + nrecValue
             nManureValue = float(NFertRecs_Row["ManureN"].values[0]) * 2 + nManureValue
@@ -138,8 +143,6 @@ class CalcManureP(ModelBase):
         super().__init__(request, file_name)
         # C:\Users\zjhas\Documents\GrazeScape\grazescape\static\grazescape\public
         self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
-        # self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
-        # self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NmodelInputs_final.csv")
         self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
         self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
 
@@ -172,7 +175,7 @@ class CalcManureP(ModelBase):
         nResponse_flattened = self.raster_inputs["Nresponse"].flatten()
         rot_yrs_crop = getRotYers(crop_ro)[1]
         array_counter = 0
-        print("right before pmanure loop")
+        print("right before pmanure loop ", time.time() - start)
         for y in np.nditer(nResponse_flattened):
             if y < 0:
                 fertNrec_Values_Array_Flat.append([-9999, -9999, -9999, -9999, -9999])
@@ -199,4 +202,5 @@ class CalcManureP(ModelBase):
         return_data = [ManureN, Pneeds, manurePpercent, grazedDMlbs, grazedp205, fertNrec_Values_Array_Flat]
 
         print("p mamnure finished", time.time() - start)
+        print(return_data)
         return return_data

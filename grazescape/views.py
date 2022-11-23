@@ -522,20 +522,11 @@ def get_default_om(request):
 
 # This gets the model results from the model results table
 def get_P_Manure_Results(request, clipped_rasters):
-    start = time.time()
-    # request_json = js.loads(request.body)
     print(" in pmanure")
     try:
-        # geo_data = RasterData(request.POST.getlist("model_parameters[extent][]"), field_coors, field_id, active_region,
-        #                       False)
-        # clipped_rasters, bounds = geo_data.get_clipped_rasters()
         P_Manure_Model = CalcManureP(request)
         P_Manure_Model.raster_inputs = clipped_rasters
         p_Manure_Results = P_Manure_Model.run_model()
-        # print("p_Manure_Results")
-        # print(p_Manure_Results)
-        print("Done with pmanure calc ", time.time() - start)
-        # return JsonResponse({"p_manure_array": p_Manure_Results}, safe=False)
         return p_Manure_Results
     except KeyError as e:
         error = str(e) + " while running models for field "
