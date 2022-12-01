@@ -42,13 +42,13 @@ GEOSERVER_URL = "http://grazescape-dev1.glbrc.org:8080/"
 #container R path.
 #R_PATH = "/opt/conda/envs/gscape/bin/R"
 #local R path.
-# R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
-R_PATH = "C://Program Files/R/R-4.1.2/bin/x64/R.exe"
+R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+# R_PATH = "C://Program Files/R/R-4.1.2/bin/x64/R.exe"
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 #container model path
 #MODEL_PATH = /tmp/GrazeScape/grazescape/data_files/input_models
 MODEL_PATH = "C://Users/zjhas/Documents/GrazeScape/grazescape/data_files/input_models"
-MODEL_PATH = "C://Users/mmbay/Work/rds_files/input_models"
+#MODEL_PATH = "C://Users/mmbay/Work/rds_files/input_models"
 
 #new container R path
 #R_PATH = "/opt/conda/envs/gscape/bin/R"

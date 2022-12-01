@@ -564,6 +564,7 @@ class CropYield(ModelBase):
         # print(r.get("om"))
         # print(r.get("level_df"))
         # print(r.get("pi_pred_df"))
+        # print(r.get("cc_erosion"))
         # print(r.get("pred_df"))
         # print(r.get("pi_pred_df$Erosion"))
         # print(r.get("pi_pred_df$cover"))
