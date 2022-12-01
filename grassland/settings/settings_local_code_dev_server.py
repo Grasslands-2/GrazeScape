@@ -48,7 +48,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 #container model path
 #MODEL_PATH = /tmp/GrazeScape/grazescape/data_files/input_models
 MODEL_PATH = "C://Users/zjhas/Documents/GrazeScape/grazescape/data_files/input_models"
-MODEL_PATH = "C://Users/mmbay/Work/rds_files/input_models"
+#MODEL_PATH = "C://Users/mmbay/Work/rds_files/input_models"
 
 #new container R path
 #R_PATH = "/opt/conda/envs/gscape/bin/R"

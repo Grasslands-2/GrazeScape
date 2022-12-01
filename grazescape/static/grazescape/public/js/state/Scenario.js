@@ -267,11 +267,21 @@ function runFieldUpdate(){
 				if (changedFieldsList.includes(fieldArray[i].id)){
 				    feildFeature.setProperties({is_dirty:true})
 				}
+				// checking for correct pasture values based on rotational freq
+				cropRot = ''
+				if (fieldArray[i].rotationDisp == 'Pasture'&& fieldArray[i].rotationFreqDisp == 'Continuous'){
+						cropRot = 'pt-cn'
+				}else if(fieldArray[i].rotationDisp == 'Pasture'&& fieldArray[i].rotationFreqDisp != 'Continuous'){
+						cropRot = 'pt-rt'
+				}else{
+					cropRot = fieldArray[i].rotationVal
+				}
 				feildFeature.setProperties({
 					field_name: fieldArray[i].name,
 					soil_p: fieldArray[i].soilP,
 					om: fieldArray[i].soilOM,
-					rotation: fieldArray[i].rotationVal,
+					rotation: cropRot,
+					//rotation: fieldArray[i].rotationVal,
 					rotation_disp: fieldArray[i].rotationDisp,
 					tillage: fieldArray[i].tillageVal,
 					tillage_disp: fieldArray[i].tillageDisp,

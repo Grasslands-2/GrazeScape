@@ -80,14 +80,28 @@ function getWFSfields(parameter = '') {
 }
 
 function popFieldsArray(obj) {
-	for (i in obj)
+	for (i in obj){
+	console.log(obj[i].properties.rotation_disp)
+	console.log(obj[i].properties.rotational_freq_disp)
+	cropRot = ''
+	if(obj[i].properties.rotation_disp == 'Pasture' && obj[i].properties.rotational_freq_disp == 'Continuous'){
+		
+			cropRot = 'pt-cn'
+	}else if(obj[i].properties.rotation_disp == 'Pasture' && obj[i].properties.rotational_freq_disp != 'Continuous'){
+			cropRot = 'pt-rt'
+	
+	}else{
+		cropRot = obj[i].properties.rotation
+	}
+
 	fieldArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.field_name,
 		owningFarmid: obj[i].properties.owner_id,
 		soilP: obj[i].properties.soil_p,
 		soilOM: obj[i].properties.om,
-		rotationVal: obj[i].properties.rotation,
+		// rotationVal: obj[i].properties.rotation,
+		rotationVal: cropRot,
 		rotationDisp: obj[i].properties.rotation_disp,
 		tillageVal: obj[i].properties.tillage,
 		tillageDisp: obj[i].properties.tillage_disp,
@@ -114,7 +128,7 @@ function popFieldsArray(obj) {
         fence_cost: obj[i].properties.fence_cost,
         fence_unit_cost:obj[i].properties.fence_unit_cost,
 		landCost: obj[i].properties.land_cost
-	});
+	});}
 	console.log("DOne with popping fields")
 }
 
@@ -140,13 +154,19 @@ function gatherTableData() {
 Ext.create('Ext.data.Store', {
 	storeId: 'rotationList',
 	fields:[ 'display', 'value'],
-	data: [{
+	data: [
+	// {
+	// 	value: ' ',
+	// 	display: 'Continuous Pasture'
+	// },{
+	// 	value: 'pt-rt',
+	// 	display: 'Rotational Pasture'
+	// },
+	{
 		value: 'pt-cn',
-		display: 'Continuous Pasture'
-	},{
-		value: 'pt-rt',
-		display: 'Rotational Pasture'
-	},{
+		display: 'Pasture'
+	},
+	{
 		value: 'dl',
 		display: 'Dry Lot'
 	},{ 
@@ -302,7 +322,7 @@ Ext.create('Ext.data.Store', {
 	}]
 });
 Ext.create('Ext.data.Store', {
-	storeId: 'grazingDensity',
+	storeId: 'grazingDensityDL',
 	fields:[ 'display', 'value'],
 	data: [{
 		value: 'hi',
@@ -313,6 +333,17 @@ Ext.create('Ext.data.Store', {
 	},{
 		value: 'na',
 		display: 'Not Applicable'
+	}]
+});
+Ext.create('Ext.data.Store', {
+	storeId: 'grazingDensityPT',
+	fields:[ 'display', 'value'],
+	data: [{
+		value: 'hi',
+		display: 'high'
+	},{ 
+		value: 'lo',
+		display: 'low'
 	}]
 });
 Ext.create('Ext.data.Store', {
@@ -477,6 +508,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		
 		},
 		rowclick: function(self,record,eOpts){
+			console.log("Record rowclick")
 			//console.log(self.selected.items[0].id)
 			console.log(record.id)
 			deleteRecord = record;
@@ -532,19 +564,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5,
 				listeners:{
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on soilP")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on soilP")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.soilP = newValue
 										}
@@ -573,19 +605,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5,
 				listeners:{
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on landCost")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on landCost")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.landCost = newValue
 										}
@@ -610,19 +642,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: false,
 				listeners:{
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on soilOM")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on soilOM")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.soilOM = newValue
 										}
@@ -662,12 +694,31 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				listeners:{
 					select: function(combo, value, rec){
 						console.log("Selected")
-						console.log(value)
+						console.log(value.data.value)
 						console.log(rec)
 						var record = combo.getWidgetRecord();
+						console.log(record)
+						if(value.data.value == 'pt'){
+							console.log('pt hit')
+							if(record.data.rotationFreqDisp == 'Continuous'){
+								record.set('rotationVal','pt-cn')
+								record.set('rotationDisp', value.get('display'));
+								console.log('pt-cn')
+							}else{
+								record.set('rotationVal','pt-rt')
+								record.set('rotationDisp', value.get('display'));
+								console.log('pt-rt')
+							}
+						}else{
+							record.set('rotationVal', 'cc');
+							record.set('rotationDisp', "fake crop");
+							// record.set('rotationVal', value.get('value'));
+							// record.set('rotationDisp', value.get('display'));
+						}
 						record.set('rotationVal', value.get('value'));
 						record.set('rotationDisp', value.get('display'));
 						me.getView().refresh();
+						console.log(record)
 					},
 					change: function(widget,newValueCR,oldValueCR,record){
 						console.log(widget)
@@ -683,10 +734,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var storeDataObjArray = store.data.items
 						var view = me.getView()
 						switch(newValueCR){
-							case 'Continuous Pasture': dbvalCR = 'pt-cn'
+							case 'Pasture': 
+								console.log(record.data.rotationFreqDisp)
+								if(record.data.rotationFreqDisp == 'Continuous'){
+									dbvalCR = 'pt-cn'
+									console.log('pt-cn')
+								}else{
+									dbvalCR = 'pt-rt'
+									console.log('pt-rt')
+								}
 							break;
-							case 'Rotational Pasture': dbvalCR = 'pt-rt'
-							break;
+							// case 'Rotational Pasture': dbvalCR = 'pt-rt'
+							// break;
 							case 'Dry Lot': dbvalCR = 'dl'
 							break;
 							case 'Continuous Corn': dbvalCR = 'cc'
@@ -696,6 +755,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							case 'Corn Silage to Corn Grain to Alfalfa 3 yrs': dbvalCR = 'dr'
 							break;
 							case 'Corn Silage to Soybeans to Oats': dbvalCR = 'cso'
+							break;
+							case 'pt': 
+								if(record.data.rotationFreqDisp == 'Continuous'){
+									dbvalCR = 'pt-cn'
+									//console.log('pt-cn')
+								}else{
+									dbvalCR = 'pt-rt'
+									//console.log('pt-rt')
+								}
 							break;
 
 							case 'pt-cn': dbvalCR = 'pt-cn'
@@ -719,10 +787,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							for(r in selectedFields){
 								for(f in storeDataObjArray){
 									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-										console.log("newValueCR: " + newValueCR)
-										console.log("dbvalCR: " + dbvalCR)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedFields[r])
+										// console.log("newValueCR: " + newValueCR)
+										// console.log("dbvalCR: " + dbvalCR)
+										// console.log(storeDataObjArray[f].id)
+										// console.log(selectedFields[r])
 										storeDataObjArray[f].dirty = true
 										storeDataObjArray[f].data.rotationDisp = newValueCR
 										storeDataObjArray[f].data.rotationVal = dbvalCR
@@ -801,12 +869,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					change: function(widget,newValueCC,oldValueCC,record){
 						var record = widget.getWidgetRecord();
 						var dbvalCC = ""
-						console.log(selectedFields)
-						console.log("newValueCC: " + newValueCC)
-						console.log("oldValueCC: " + oldValueCC)
-						console.log("you've changed man on Crop Rot")
+						//console.log(selectedFields)
+						// console.log("newValueCC: " + newValueCC)
+						// console.log("oldValueCC: " + oldValueCC)
+						// console.log("you've changed man on Cover Crop")
 						//console.log(rotfreqcount)
-						console.log(record)
+						//console.log(record)
 						var store = me.getStore()
 						var storeDataObjArray = store.data.items
 						var view = me.getView()
@@ -832,15 +900,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							
 							default: dbvalCC = 'No Cover Crop fROM SWITCH!'
 						}
-						console.log("dbvalCC: " + dbvalCC)
+						//console.log("dbvalCC: " + dbvalCC)
 						if(selectedFields.length > 0 ){
 							for(r in selectedFields){
 								for(f in storeDataObjArray){
 									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-										console.log("newValueCC: " + newValueCC)
-										console.log("dbvalCC: " + dbvalCC)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedFields[r])
+										// console.log("newValueCC: " + newValueCC)
+										// console.log("dbvalCC: " + dbvalCC)
+										// console.log(storeDataObjArray[f].id)
+										// console.log(selectedFields[r])
 										storeDataObjArray[f].dirty = true
 										storeDataObjArray[f].data.coverCropDisp = newValueCC
 										storeDataObjArray[f].data.coverCropVal = dbvalCC
@@ -932,12 +1000,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				change: function(widget,newValue,oldValue,record){
 					var record = widget.getWidgetRecord();
 					var dbval = ""
-					console.log(selectedFields)
-					console.log("newValue: " + newValue)
-					console.log("oldValue: " + oldValue)
-					console.log("you've changed man on Crop Rot")
+					// console.log(selectedFields)
+					// console.log("newValue: " + newValue)
+					// console.log("oldValue: " + oldValue)
+					// console.log("you've changed man on Crop Rot")
 					//console.log(rotfreqcount)
-					console.log(record)
+					//console.log(record)
 					var store = me.getStore()
 					var storeDataObjArray = store.data.items
 					var view = me.getView()
@@ -975,15 +1043,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						default: dbval = 'No Tillage fROM SWITCH!'
 					}
 
-					console.log("dbval: " + dbval)
+					//console.log("dbval: " + dbval)
 					if(selectedFields.length > 0 ){
 						for(r in selectedFields){
 							for(f in storeDataObjArray){
 								if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-									console.log("newValue: " + newValue)
-									console.log("dbval: " + dbval)
-									console.log(storeDataObjArray[f].id)
-									console.log(selectedFields[r])
+									// console.log("newValue: " + newValue)
+									// console.log("dbval: " + dbval)
+									// console.log(storeDataObjArray[f].id)
+									// console.log(selectedFields[r])
 									storeDataObjArray[f].dirty = true
 									storeDataObjArray[f].data.tillageDisp = newValue
 									storeDataObjArray[f].data.tillageVal = dbval
@@ -1061,19 +1129,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					// 	//console.log(self.getAlign(self))
 					// 	self.center()},
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on soilOM")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on soilOM")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.onContour = newValue
 										}
@@ -1131,19 +1199,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
 				listeners:{
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on soilOM")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on soilOM")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.fertPercP = newValue
 										}
@@ -1170,19 +1238,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
 				listeners:{
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on soilOM")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on soilOM")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.manuPercP = newValue
 										}
@@ -1204,19 +1272,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
 				listeners:{
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on soilOM")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on soilOM")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.fertPercN = newValue
 										}
@@ -1241,19 +1309,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
 				listeners:{
 					change: function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							console.log("newValue: " + newValue)
-							console.log("oldValue: " + oldValue)
-							console.log("you've changed man on soilOM")
+							// console.log(selectedFields)
+							// console.log("newValue: " + newValue)
+							// console.log("oldValue: " + oldValue)
+							// console.log("you've changed man on soilOM")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
 								for(r in selectedFields){
 									for(f in storeDataObjArray){
 										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											console.log("newValue: " + newValue)
-											console.log(storeDataObjArray[f].id)
-											console.log(selectedFields[r])
+											// console.log("newValue: " + newValue)
+											// console.log(storeDataObjArray[f].id)
+											// console.log(selectedFields[r])
 											storeDataObjArray[f].dirty = true
 											storeDataObjArray[f].data.manuPercN = newValue
 										}
@@ -1508,12 +1576,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					change: function(widget,newValue,oldValue,record){
 						var record = widget.getWidgetRecord();
 						var dbval = ""
-						console.log(selectedFields)
-						console.log("newValue: " + newValue)
-						console.log("oldValue: " + oldValue)
-						console.log("you've changed man on grass Species")
+						// console.log(selectedFields)
+						// console.log("newValue: " + newValue)
+						// console.log("oldValue: " + oldValue)
+						// console.log("you've changed man on grass Species")
 						//console.log(rotfreqcount)
-						console.log(record)
+						//console.log(record)
 						var store = me.getStore()
 						var storeDataObjArray = store.data.items
 						var view = me.getView()
@@ -1534,15 +1602,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							
 							default: dbval = 'No Grass Species fROM SWITCH!'
 						}
-						console.log("dbval: " + dbval)
+						//console.log("dbval: " + dbval)
 						if(selectedFields.length > 0 ){
 							for(r in selectedFields){
 								for(f in storeDataObjArray){
 									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-										console.log("newValue: " + newValue)
-										console.log("dbval: " + dbval)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedFields[r])
+										// console.log("newValue: " + newValue)
+										// console.log("dbval: " + dbval)
+										// console.log(storeDataObjArray[f].id)
+										// console.log(selectedFields[r])
 										storeDataObjArray[f].dirty = true
 										storeDataObjArray[f].data.grassSpeciesDisp = newValue
 										storeDataObjArray[f].data.grassSpeciesVal = dbval
@@ -1566,7 +1634,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			tooltip: '<b>Pasture Rotational Frequency</b> How often are animals rotated on and off any given pasture',
 			onWidgetAttach: function(col, widget, rec) {
-				if (rec.get('rotationVal') == 'pt-rt') {
+				if (rec.get('rotationDisp') == 'Pasture' ) {
 					widget.setDisabled(false);
 				}
 				 else {
@@ -1596,12 +1664,12 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					change: function(widget,newValue,oldValue,record){
 						var record = widget.getWidgetRecord();
 						var dbval = ""
-						console.log(selectedFields)
-						console.log("newValue: " + newValue)
-						console.log("oldValue: " + oldValue)
-						console.log("you've changed man on rotationFreq")
+						// console.log(selectedFields)
+						// console.log("newValue: " + newValue)
+						// console.log("oldValue: " + oldValue)
+						// console.log("you've changed man on rotationFreq")
 						//console.log(rotfreqcount)
-						console.log(record)
+						//console.log(record)
 						var store = me.getStore()
 						var storeDataObjArray = store.data.items
 						var view = me.getView()
@@ -1630,15 +1698,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							
 							default: dbval = 'No Rot Freq fROM SWITCH!'
 						}
-						console.log("dbval: " + dbval)
+						//console.log("dbval: " + dbval)
 						if(selectedFields.length > 0 ){
 							for(r in selectedFields){
 								for(f in storeDataObjArray){
 									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-										console.log("newValue: " + newValue)
-										console.log("dbval: " + dbval)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedFields[r])
+										// console.log("newValue: " + newValue)
+										// console.log("dbval: " + dbval)
+										// console.log(storeDataObjArray[f].id)
+										// console.log(selectedFields[r])
 										storeDataObjArray[f].dirty = true
 										storeDataObjArray[f].data.rotationFreqDisp = newValue
 										storeDataObjArray[f].data.rotationFreqVal = dbval
@@ -1718,10 +1786,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
 			tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
 			onWidgetAttach: function(col, widget, rec) {
-
-				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'dl') {
+				//rec.get('rotationVal') == 'dl'
+				if(rec.get('rotationVal') == 'dl' ) {
+					widget.setStore('grazingDensityDL')
 					widget.setDisabled(false);
-				} else {
+				} else if(rec.get('rotationFreqDisp') == 'Continuous' ) {
+					widget.setStore('grazingDensityPT')
+					widget.setDisabled(false);
+				}
+				else {
 					widget.setDisabled(true);
 				}
 			},
@@ -1732,7 +1805,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
-				store: 'grazingDensity',
+				//store: 'grazingDensity',
 				displayField: 'display',
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
@@ -1745,10 +1818,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					change: function(widget,newValue,oldValue,record){
 						var record = widget.getWidgetRecord();
 						var dbval = ""
-						console.log(selectedFields)
-						console.log("newValue: " + newValue)
-						console.log("oldValue: " + oldValue)
-						console.log("you've changed man on Grazing density")
+						// console.log(selectedFields)
+						// console.log("newValue: " + newValue)
+						// console.log("oldValue: " + oldValue)
+						// console.log("you've changed man on Grazing density")
 						//console.log(rotfreqcount)
 						console.log(record)
 						var store = me.getStore()
@@ -1776,10 +1849,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							for(r in selectedFields){
 								for(f in storeDataObjArray){
 									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-										console.log("newValue: " + newValue)
-										console.log("dbval: " + dbval)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedFields[r])
+										// console.log("newValue: " + newValue)
+										// console.log("dbval: " + dbval)
+										// console.log(storeDataObjArray[f].id)
+										// console.log(selectedFields[r])
 										storeDataObjArray[f].dirty = true
 										storeDataObjArray[f].data.grazeDensityDisp = newValue
 										storeDataObjArray[f].data.grazeDensityVal = dbval
