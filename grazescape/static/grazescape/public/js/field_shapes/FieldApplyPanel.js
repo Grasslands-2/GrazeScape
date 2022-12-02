@@ -25,7 +25,7 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 	// }
 	if(crop=='pt' && rotfreq == "0.65"){
 		crop='pt-cn'
-		cropDisp ='Continuous Pasture';
+		cropDisp ='Pasture';
 		grassDisp='Low Yielding';
 		grassVal='Bluegrass-clover';
 		rotationFreqVal = rotfreq;
@@ -36,7 +36,7 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 	}
 	else if(crop=='pt' && rotfreq != "0.65"){
 		crop='pt-rt'
-		cropDisp ='Rotational Pasture'
+		cropDisp ='Pasture'
 		grassDisp='Bluegrass-clover';
 		grassVal='Bluegrass';
 		rotationFreqVal = rotfreq;
@@ -99,7 +99,7 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 		console.log("southWestWI has hit")
 		soil_pInput = 35
 	}
-	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput)
+	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput,)
 	// DSS.draw = new ol.interaction.Draw({
 	// 	source: source,
 	// 	type: 'MultiPolygon',
@@ -114,7 +114,9 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 	// addFieldAcreage(e.feature)
 	// alert('Field Added!')
 }
-function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput) {
+async function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput) {
+	fertDefaultArray = await get_field_rot_defaults({"rotation": crop, "legume":true})
+	console.log(fertDefaultArray.fertDefaults)
 	var geometry = e.feature.values_.geom
 	fieldArea = ol.sphere.getArea(geometry)
 	console.log(fieldArea);
@@ -152,13 +154,14 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 			grazingdensityval: grazeDensityVal,
 			grazingdensitydisp: grazeDensityDisp,
 			// if crop is  set fert to different levels.
-			perc_fert_n:0,
-			perc_fert_p:0,
-			perc_manure_n:0,
+			perc_fert_n:fertDefaultArray.fertDefaults[1],
+			perc_fert_p:fertDefaultArray.fertDefaults[2],
+			perc_manure_n:fertDefaultArray.fertDefaults[0],
 			perc_manure_p:0,
 			is_dirty:true,
 			land_cost:140
 		})
+	
 	setFeatureAttributes(e.feature)
 	addFieldAcreage(e.feature)
 	//alert('Field Added!')
