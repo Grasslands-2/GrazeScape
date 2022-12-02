@@ -1790,7 +1790,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				if(rec.get('rotationVal') == 'dl' ) {
 					widget.setStore('grazingDensityDL')
 					widget.setDisabled(false);
-				} else if(rec.get('rotationFreqDisp') == 'Continuous' ) {
+				} else if(rec.get('rotationFreqDisp') == 'Continuous' && rec.get('rotationDisp') == 'Pasture') {
 					widget.setStore('grazingDensityPT')
 					widget.setDisabled(false);
 				}

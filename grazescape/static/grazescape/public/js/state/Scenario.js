@@ -1,4 +1,48 @@
 //const { listenerCount } = require("process");
+function get_field_rot_defaults(data){
+    console.log(data)
+    return new Promise(function(resolve) {
+    var csrftoken = Cookies.get('csrftoken');
+    // data = JSON.stringify(data)
+    $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+    $.ajax({
+    'url' : '/grazescape/get_field_rot_defaults',
+    'type' : 'POST',
+    'data' : data,
+    'timeout':0,
+        success: async function(responses, opts) {
+            delete $.ajaxSetup().headers
+            console.log(responses)
+            if(responses == null){
+                resolve([]);
+            }
+            for (response in responses){
+                obj = responses[response];
+                if(obj.error || response == null){
+                    console.log("model did not run")
+                    console.log(obj.error)
+                    if(!modelError){
+                        alert(obj.error);
+                        modelErrorMessages.push(obj.error)
+                        modelError = true
+                    }
+                    continue
+                }
+                let e = obj.extent;
+            }
+            resolve(responses);
+        },
+
+        failure: function(response, opts) {
+            me.stopWorkerAnimation();
+        },
+        //timeout:50
+    });
+    })
+	}
+
 
 var farmArray = [];
 var farmObj = {};
