@@ -692,12 +692,15 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, rec){
+					select: async function(combo, value, rec){
 						console.log("Selected")
 						console.log(value.data.value)
 						console.log(rec)
 						var record = combo.getWidgetRecord();
 						console.log(record)
+						console.log(record.data.interseededClover)
+						fertDefaultArray = await get_field_rot_defaults({"rotation": value.get('value'), "legume":record.data.interseededClover})
+						console.log(fertDefaultArray.fertDefaults)
 						if(value.data.value == 'pt'){
 							console.log('pt hit')
 							if(record.data.rotationFreqDisp == 'Continuous'){
@@ -710,13 +713,17 @@ Ext.define('DSS.field_grid.FieldGrid', {
 								console.log('pt-rt')
 							}
 						}else{
-							record.set('rotationVal', 'cc');
-							record.set('rotationDisp', "fake crop");
+							record.set('rotationVal', value.get('value'));
+							record.set('rotationDisp', value.get('display'));
+							
 							// record.set('rotationVal', value.get('value'));
 							// record.set('rotationDisp', value.get('display'));
 						}
-						record.set('rotationVal', value.get('value'));
-						record.set('rotationDisp', value.get('display'));
+						record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+						record.set('fertPercN',fertDefaultArray.fertDefaults[1])
+						record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+						// record.set('rotationVal', value.get('value'));
+						// record.set('rotationDisp', value.get('display'));
 						me.getView().refresh();
 						console.log(record)
 					},
@@ -1761,9 +1768,11 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				defaultBindProperty: 'interseededClover',
 				queryMode: 'local',
 				listeners: {
-					change: function(widget,value){
+					change: async function(widget,value){
 					console.log("you've changed man graze clover")
 					var record = widget.getWidgetRecord();
+					fertDefaultArray = await get_field_rot_defaults({"rotation": record.data.rotationVal, "legume":value})
+					console.log(fertDefaultArray.fertDefaults)
 					
 					if (value == true){
 						record.set('interseededClover',true)
@@ -1772,7 +1781,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						record.set('interseededClover',false)
 					}
 					console.log(record.get('interseededClover'))
-					//me.getView().refresh();
+					record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+					record.set('fertPercN',fertDefaultArray.fertDefaults[1])
+					record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+					me.getView().refresh();
 				}
 			}
 			},
