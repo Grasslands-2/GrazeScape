@@ -216,7 +216,7 @@ class ModelBase:
                                       "grazed_P2O5_lbs": 0},
                          }
         # convert area from sq m to acres
-        print('REQUEST RIGHT BEFORE PUT INTO PARAS')
+        # print('REQUEST RIGHT BEFORE PUT INTO PARAS')
         # print(request.POST)
         parameters = {
             "f_name": request.POST.getlist("model_parameters[f_name]")[0],
@@ -318,8 +318,8 @@ class ModelBase:
         #     "manure_p_perc": manure_p_perc,
         #     "manure_n_perc": manure_n_perc,
         # }
-        print("MODEL PARAMS IN MODEL_BASE!!!!!")
-        print(parameters)
+        # print("MODEL PARAMS IN MODEL_BASE!!!!!")
+        # print(parameters)
         numeric_para = ["soil_p", "fert", "manure"]
         # soil_p, fert, manure
 

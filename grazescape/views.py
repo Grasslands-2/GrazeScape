@@ -550,7 +550,9 @@ def get_P_Manure_Results(request, clipped_rasters):
     # return JsonResponse([data], safe=False)
     return []
 
+
 def get_model_results(request):
+    print("starting model request")
     # print("MODEL PARAMETERS IN GET MODEL RESULTS!!!!!!!!")
     # print(request.POST.get('model_parameters'))
     # print(request.POST.get('model_parameters'))
@@ -575,12 +577,10 @@ def get_model_results(request):
                           False)
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
 
-
     p_manure_Results = get_P_Manure_Results(request, clipped_rasters)
-    # print(p_manure_Results)
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
-    print(field_id)
-    db_has_field(field_id)
+    # print(field_id)
+    # db_has_field(field_id)
 
     if request.POST.getlist("runModels")[0] == 'false':
         print('model runs = false')
@@ -600,7 +600,6 @@ def get_model_results(request):
 
         return JsonResponse(get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp), safe=False)
 
-
     if model_type == 'ploss':
         remove_old_pngs_from_local('ploss', str(field_id))
     if model_type == 'yield':
@@ -610,9 +609,7 @@ def get_model_results(request):
     if model_type == 'nleaching':
         remove_old_pngs_from_local('nleaching', str(field_id))
 
-
     try:
-
         if model_type == 'yield':
             # call row yeilds nulling function here!!!
             crop_ro = request.POST.get('model_parameters[crop]')
@@ -639,22 +636,6 @@ def get_model_results(request):
             model_insect.raster_inputs = clipped_rasters
             model_econ = Econ(request)
             model_econ.raster_inputs = clipped_rasters
-        # elif model_type == 'ploss':
-        #     model = PhosphorousLoss(request,active_region)
-        # elif model_type == 'runoff':
-        #     model = Runoff(request, active_region)
-        # elif model_type == 'bio':
-        #     model = Insecticide(request)
-        #
-        # elif model_type == 'econ':
-        #
-        #     model = Econ(request)
-
-        # Use Yield results as a basis for filling in missing values
-        # elif model_type == 'nitrate':
-        #     model = Nitrate(request,active_region,ero_datanm)
-        # else:
-        #     model = GenericModel(request, model_type)
 
         model.bounds["x"] = geo_data.bounds["x"]
         model.bounds["y"] = geo_data.bounds["y"]
@@ -664,21 +645,20 @@ def get_model_results(request):
         print("CLIPPED RASTERS MADE!")
         # loop here to build a response for all the model types
         print("models start running ", time.time() - start)
-        # if model_type == 'runoff' or model_type == 'ploss':
-        #     results = model.run_model(active_region, p_manure_Results)
-        # currently yield model contains yield, ero, and ploss models
+
         if model_type == 'yield':
-            print("p_manure_Results")
+            start1 = time.time()
             results = model.run_model(request, active_region, p_manure_Results)
-            print("YIELD MODEL RAN!!!!")
+            print("yield model ran", time.time() - start1)
+            start1 = time.time()
             model_rain_results = model_rain.run_model(active_region, p_manure_Results)
+            print("runoff model ran", time.time() - start1)
             results.append(model_rain_results[0])
             results.append(model_rain_results[1])
 
             results.append(model_insect.run_model()[0])
             results.append(model_econ.run_model()[0])
-        # else:
-        #     results = model.run_model()
+
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.get('model_parameters[area]'))
