@@ -1,4 +1,48 @@
 //const { listenerCount } = require("process");
+function get_field_rot_defaults(data){
+    console.log(data)
+    return new Promise(function(resolve) {
+    var csrftoken = Cookies.get('csrftoken');
+    // data = JSON.stringify(data)
+    $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+    $.ajax({
+    'url' : '/grazescape/get_field_rot_defaults',
+    'type' : 'POST',
+    'data' : data,
+    'timeout':0,
+        success: async function(responses, opts) {
+            delete $.ajaxSetup().headers
+            console.log(responses)
+            if(responses == null){
+                resolve([]);
+            }
+            for (response in responses){
+                obj = responses[response];
+                if(obj.error || response == null){
+                    console.log("model did not run")
+                    console.log(obj.error)
+                    if(!modelError){
+                        alert(obj.error);
+                        modelErrorMessages.push(obj.error)
+                        modelError = true
+                    }
+                    continue
+                }
+                let e = obj.extent;
+            }
+            resolve(responses);
+        },
+
+        failure: function(response, opts) {
+            me.stopWorkerAnimation();
+        },
+        //timeout:50
+    });
+    })
+	}
+
 
 var farmArray = [];
 var farmObj = {};
@@ -267,11 +311,21 @@ function runFieldUpdate(){
 				if (changedFieldsList.includes(fieldArray[i].id)){
 				    feildFeature.setProperties({is_dirty:true})
 				}
+				// checking for correct pasture values based on rotational freq
+				cropRot = ''
+				if (fieldArray[i].rotationDisp == 'Pasture'&& fieldArray[i].rotationFreqDisp == 'Continuous'){
+						cropRot = 'pt-cn'
+				}else if(fieldArray[i].rotationDisp == 'Pasture'&& fieldArray[i].rotationFreqDisp != 'Continuous'){
+						cropRot = 'pt-rt'
+				}else{
+					cropRot = fieldArray[i].rotationVal
+				}
 				feildFeature.setProperties({
 					field_name: fieldArray[i].name,
 					soil_p: fieldArray[i].soilP,
 					om: fieldArray[i].soilOM,
-					rotation: fieldArray[i].rotationVal,
+					rotation: cropRot,
+					//rotation: fieldArray[i].rotationVal,
 					rotation_disp: fieldArray[i].rotationDisp,
 					tillage: fieldArray[i].tillageVal,
 					tillage_disp: fieldArray[i].tillageDisp,
@@ -840,7 +894,7 @@ Ext.define('DSS.state.Scenario', {
 					toggleGroup: 'create-scenario',
 					allowDepress: true,
 					text: 'Edit Field Attributes',
-					toggleHandler: function(self, pressed) {
+					toggleHandler: async function(self, pressed) {
 						if (pressed) {
 							DSS.MapState.destroyLegend();
 							//console.log(DSS.field_grid.FieldGrid.getView()); 
@@ -848,7 +902,7 @@ Ext.define('DSS.state.Scenario', {
 							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
 							cropAcreage = 0
-							gatherTableData();
+							await gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
 							AppEvents.triggerEvent('hide_field_shape_mode');
 							AppEvents.triggerEvent('hide_infra_line_mode');
@@ -979,7 +1033,7 @@ Ext.define('DSS.state.Scenario', {
 						console.log("run models clicked 1215")
 						getWFSScenarioSP()
 						if(fieldArray.length <1 ){
-							gatherTableData();
+							await gatherTableData();
 							console.log("Field Array was empty. Running gatherTableData")
 						}
 						//DSS.layer.PLossGroup.setVisible(false);

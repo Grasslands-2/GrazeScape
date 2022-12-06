@@ -888,3 +888,32 @@ def get_results_image(response):
     # img = open(file_path, 'r')
     response = FileResponse(file_path)
     return response
+
+def get_field_rot_defaults(response):
+    default_table = pd.read_csv(r"grazescape/static/grazescape/public/default_reference_tables/fertilzerDefaults.csv")
+    rotation = response.POST.get("rotation")
+    legumeBol = response.POST.get("legume")
+    legume = ''
+    if(legumeBol == 'true'):
+       legume = 'yes'
+    else:
+        legume = 'no'
+    print(response.POST)
+    print(legume)
+    if(rotation == "pt-cn" or rotation == "pt-rt"):
+        default_table_DF = default_table[default_table["rotation"] == "pt"]
+        default_table_row = pd.concat([default_table_DF[default_table["legume"] ==legume]])
+        manureN = float(default_table_row["manureN"])
+        fertN = float(default_table_row["fertN"])
+        fertP = float(default_table_row["fertP"])
+        return JsonResponse({"fertDefaults": [manureN,fertN,fertP]})
+    else:
+        default_table_row = pd.concat([default_table[default_table["rotation"] ==rotation]])
+        manureN = float(default_table_row["manureN"])
+        fertN = float(default_table_row["fertN"])
+        fertP = float(default_table_row["fertP"])
+        return JsonResponse({"fertDefaults": [manureN,fertN,fertP]})
+    # default_table_row = default_table[default_table["rotation"] ==rotation]
+    # # img = open(file_path, 'r')
+    # response = FileResponse(file_path)
+    # return response

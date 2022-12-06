@@ -292,6 +292,7 @@ class CropYield(ModelBase):
         # print("MODEL PATH")
         # print(self.model_file_path)
         # print(regionRDS)
+
         r.assign("cc_erosion_file", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
         r.assign("cg_erosion_file", os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
         r.assign("cso_erosion_file", os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
@@ -494,6 +495,7 @@ class CropYield(ModelBase):
 
                   """
         ))
+
 
         ero = r.get("erosion").to_numpy()
         print("ero", ero)
