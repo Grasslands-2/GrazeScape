@@ -894,7 +894,7 @@ Ext.define('DSS.state.Scenario', {
 					toggleGroup: 'create-scenario',
 					allowDepress: true,
 					text: 'Edit Field Attributes',
-					toggleHandler: function(self, pressed) {
+					toggleHandler: async function(self, pressed) {
 						if (pressed) {
 							DSS.MapState.destroyLegend();
 							//console.log(DSS.field_grid.FieldGrid.getView()); 
@@ -902,7 +902,7 @@ Ext.define('DSS.state.Scenario', {
 							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
 							cropAcreage = 0
-							gatherTableData();
+							await gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
 							AppEvents.triggerEvent('hide_field_shape_mode');
 							AppEvents.triggerEvent('hide_infra_line_mode');
@@ -1033,7 +1033,7 @@ Ext.define('DSS.state.Scenario', {
 						console.log("run models clicked 1215")
 						getWFSScenarioSP()
 						if(fieldArray.length <1 ){
-							gatherTableData();
+							await gatherTableData();
 							console.log("Field Array was empty. Running gatherTableData")
 						}
 						//DSS.layer.PLossGroup.setVisible(false);
