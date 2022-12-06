@@ -26,7 +26,7 @@ class Runoff(ModelBase):
         }
         return hyro_dic[group_num]
 
-    def run_model(self,active_region,manure_p_perc):
+    def run_model(self, active_region, manure_results):
         print("start runoff")
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
@@ -75,10 +75,11 @@ class Runoff(ModelBase):
         r.assign("ls", ls)
         r.assign("hydgrp", hydrp_letter)
 
-        r.assign("p_need", float(manure_p_perc[1]))
-        r.assign("manure", float(manure_p_perc[2]))
-        r.assign("dm", float(manure_p_perc[3]))
-        r.assign("p205", float(manure_p_perc[4]))
+        r.assign("p_need", float(manure_results["avg"]["p_needs"]))
+        r.assign("manure", float(manure_results["avg"]["man_p_per"]))
+        r.assign("dm", float(manure_results["avg"]["grazed_dm"]))
+        r.assign("p205", float(manure_results["avg"]["grazed_p205"]))
+
         # r.assign("manure", self.model_parameters["manure"])
         r.assign("fert", float(self.model_parameters["fert"]))
         r.assign("crop", self.model_parameters["crop"])
@@ -90,20 +91,20 @@ class Runoff(ModelBase):
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
 
-        r.assign("cc_erosion_file",os.path.join(self.model_file_path, ContCornErosion + regionRDS))
-        r.assign("cg_erosion_file",os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
-        r.assign("cso_erosion_file",os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
+        r.assign("cc_erosion_file", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
+        r.assign("cg_erosion_file", os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
+        r.assign("cso_erosion_file", os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
         r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
-        r.assign("ps_erosion_file", os.path.join(self.model_file_path,pastureSeedingErosion + regionRDS))
-        r.assign("pt_erosion_file",os.path.join(self.model_file_path, pastureErosion + regionRDS))
+        r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
+        r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
         r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
 
-        r.assign("cc_cn_file",os.path.join(self.model_file_path, ContCornTidyffcn + regionRDS))
-        r.assign("cg_cn_file",os.path.join(self.model_file_path, cornGrainTidyffcn + regionRDS))
+        r.assign("cc_cn_file", os.path.join(self.model_file_path, ContCornTidyffcn + regionRDS))
+        r.assign("cg_cn_file", os.path.join(self.model_file_path, cornGrainTidyffcn + regionRDS))
         r.assign("cso_cn_file", os.path.join(self.model_file_path, cornSoyOatTidyffcn + regionRDS))
         r.assign("dr_cn_file", os.path.join(self.model_file_path, dairyRotationTidyffcn + regionRDS))
         r.assign("ps_cn_file", os.path.join(self.model_file_path, pastureSeedingTidyffcn + regionRDS))
-        r.assign("pt_cn_file",os.path.join(self.model_file_path, pastureTidyffcn + regionRDS))
+        r.assign("pt_cn_file", os.path.join(self.model_file_path, pastureTidyffcn + regionRDS))
         r.assign("dl_cn_file", os.path.join(self.model_file_path, dryLotTidyffcn + regionRDS))
         r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
@@ -293,12 +294,12 @@ class Runoff(ModelBase):
         }}
 
         """)
-       
+
         pred = r.get("curve_num").to_numpy()
         rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)")
         curve = OutputDataNode("Curve Number", "Curve Number", "Curve Number")
         curve.set_data(pred)
-        cn_adj = {"A":0,"B":0,"C":0,"D":0}
+        cn_adj = {"A": 0, "B": 0, "C": 0, "D": 0}
         crop = self.model_parameters["crop"]
         cover = self.model_parameters["crop_cover"]
         tillage = self.model_parameters["tillage"]

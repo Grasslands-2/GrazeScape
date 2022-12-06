@@ -173,9 +173,9 @@ def null_out_yield_results(data):
         data['sum_cells'] = None
     if data['crop_ro'] == 'cg' and data['value_type'] != 'Corn Grain' or 'Soy':
         data['sum_cells'] = None
-    if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or'Corn Grain' or 'Alfalfa':
+    if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or 'Corn Grain' or 'Alfalfa':
         data['sum_cells'] = None
-    if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or'Soy' or 'Oats':
+    if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or 'Soy' or 'Oats':
         data['sum_cells'] = None
 # Nulls out yeild totals before new models are run.  This is to ensure that no old yield data is being held onto
 def clear_yield_values(field_id):
