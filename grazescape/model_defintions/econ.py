@@ -176,7 +176,7 @@ class Econ(ModelBase):
         #return_data.append(model_type)
         #return_data.append("model_type":'econ')
         #return_data.append({"data":[cost_per_acre]})
-        return_data = OutputDataNode("econ", "Costs (dollars/acre/year)","Costs (Dollars/year)")
+        return_data = OutputDataNode("econ", "Production costs ($/ac/year)","Production costs ($/year)","Production costs","Production costs")
         return_data.set_data(cost_per_acre)
         
         # fields_data_array.append(data_array)

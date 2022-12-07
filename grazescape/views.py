@@ -714,6 +714,8 @@ def get_model_results(request):
                 "values": values_legend,
                 "units": result.default_units,
                 "units_alternate": result.alternate_units,
+                "title": result.default_title,
+                "title_alternate": result.alternate_title,
                 # "units_alternate_2": result.alternate_units_2,
                 # overall model type crop, ploss, bio, runoff
                 "model_type": model_type,

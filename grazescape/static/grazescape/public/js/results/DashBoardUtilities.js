@@ -560,6 +560,8 @@ function format_chart_data(model_data){
     if(chartTypeField !== null){
         chartTypeField.units = model_data.units
         chartTypeField.units_alternate = model_data.units_alternate
+        chartTypeField.title = model_data.title
+        chartTypeField.title_alternate = model_data.title_alternate
         let chartVal = null
         if(model_data.sum_cells != null){
             //if econ dont do this
@@ -615,7 +617,8 @@ function format_chart_data(model_data){
             chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? /*model_data.sum_cells*/chartVal:chartTypeFarm.sum[scenIndex] + chartVal
             chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
-
+            chartTypeFarm.title = model_data.title
+            chartTypeFarm.title_alternate = model_data.title_alternate
             chartTypeFarm.units = model_data.units
             chartTypeFarm.units_alternate = model_data.units_alternate
             chartTypeFarm.units_alternate_2 = model_data.units_alternate_2
@@ -633,6 +636,8 @@ function format_chart_data(model_data){
             chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
             chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
+            chartTypeFarm.title = model_data.title
+            chartTypeFarm.title_alternate = model_data.title_alternate
 
             chartTypeFarm.units = model_data.units
             chartTypeFarm.units_alternate = model_data.units_alternate
@@ -873,7 +878,7 @@ function create_graph(chart,title,element){
                 title:
                 {
                     display: true,
-                    text: title
+                    text: chart.title
                 },
                 tooltip: {
                     footerFont: {weight: 'normal'},
@@ -1200,12 +1205,15 @@ function hideData(chartName, datasetName,dbID){
 function displayAlternate(chartName, btnId){
     chartDatasets = chartObj[chartName].chartData.datasets
     chartData = chartObj[chartName]
+    console.log(chartData)
+    console.log(chartData.chart.options)
 //    btnObject = Ext.getCmp(btnId)
     divideArea = true
 //    switch back to yield by area
     if(chartData.useAlternate){
 //        btnObject.setText('Average Yield')
         chartData.chart.options.scales.y.title.text = chartData.units;
+        chartData.chart.options.plugins.title.text = chartData.title
         chartData.useAlternate = false
         divideArea = true
 //        conv = 1/area
@@ -1213,6 +1221,8 @@ function displayAlternate(chartName, btnId){
     else{
 //        btnObject.setText('Average Yield / Area')
         chartData.chart.options.scales.y.title.text= chartData.units_alternate;
+        chartData.chart.options.plugins.title.text = chartData.title_alternate
+        //chartData.defaults.plugins.title.text = chartData.title_alternate
         chartData.useAlternate = true
 //        conv = area
         divideArea = false
@@ -1260,6 +1270,7 @@ function displayAlternateEcon(chartName,oldValue,newValue){
     if (newValue == 't'){
 //        btnObject.setText('Average Yield / Area')
         chartData.chart.options.scales.y.title.text= chartData.units_alternate;
+        chartData.chart.options.title = chartData.title_alternate
         chartData.useAlternate = true
 //        conv = area
         //divideArea = false
@@ -2333,6 +2344,7 @@ class ChartData{
         this.units = ''
         this.units_alternate = ''
         this.title = ''
+        this.title_alternate = ''
         this.model_type = ''
         this.sum = []
         this.count = []

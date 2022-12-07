@@ -161,55 +161,49 @@ class CropYield(ModelBase):
         crop_ro = self.model_parameters["crop"]
         return_data = []
         if crop_ro == "cc":
-            corn = OutputDataNode("Corn Grain", "Yield (bushels/ac)",
-                                  "Yield (bushels/year)")
-            erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
-            pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
-            nitrate = OutputDataNode("nleaching", "Nitrate Leaching (lb/acre/year)", "Nitrate Leaching (lb/year)")
+            corn = OutputDataNode("Corn Grain", "Corn grain yield [bu/ac/yr]","Corn grain production [bu/yr]","Corn grain yield [bushels/ac/yr]","Corn grain production [bushels/yr]")
+            erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)","Soil loss (tons/ac/yr)","Soil loss (tons/yr)")
+            pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
+            nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)","Nitrate-N leaching (lb/ac/yr)","Nitrate-N leaching (lb/yr)")
             return_data.append(erosion)
             return_data.append(pl)
             return_data.append(nitrate)
             return_data.append(corn)
         elif crop_ro == "cg":
-            corn = OutputDataNode("Corn Grain", "Yield (bushels/ac)",
-                                  "Yield (bushels/year)")
-            soy = OutputDataNode("Soy", "Yield (bushels/ac)", "Total Yield (bushels/year)")
+            corn = OutputDataNode("Corn Grain", "Corn grain yield [bu/ac/yr]","Corn grain production [bu/yr]","Corn grain yield [bushels/ac/yr]","Corn grain production [bushels/yr]")
+            soy = OutputDataNode("Soy", "Soybean yield (bushels/ac/yr)", "Soybean production (bu/yr)",'Soybean yield (bushels/ac/yr)',"Soybean production (bushels/yr)")
             return_data.append(corn)
             return_data.append(soy)
-            erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
-            pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
-            nitrate = OutputDataNode("nleaching", "Nitrate Leaching (lb/acre/year)", "Nitrate Leaching (lb/year)")
+            erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)","Soil loss (tons/ac/yr)","Soil loss (tons/yr)")
+            pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
+            nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)","Nitrate-N leaching (lb/ac/yr)","Nitrate-N leaching (lb/yr)")
             return_data.append(erosion)
             return_data.append(pl)
             return_data.append(nitrate)
         elif crop_ro == "dr":
-            silage = OutputDataNode("Corn Silage",
-                                    "Yield (tons/ac)", "Total Yield (tons/year)")
-            corn = OutputDataNode("Corn Grain", "Yield (bushels/ac)",
-                                  "Total Yield (bushels/year)")
-            alfalfa = OutputDataNode("Alfalfa",
-                                     "Yield (tons/ac)", "Total Yield (tons/year)")
+            silage = OutputDataNode("Corn Silage","Corn silage yield (tons/ac/yr)", "Corn silage production (tons/yr)","Corn silage yield (tons/ac/yr)","Corn silage production (tons/yr)")
+            corn = OutputDataNode("Corn Grain", "Corn grain yield [bu/ac/yr]","Corn grain production [bu/yr]","Corn grain yield [bushels/ac/yr]","Corn grain production [bushels/yr]")
+            alfalfa = OutputDataNode("Alfalfa","Alfalfa yield (tons/ac/yr)", "Alfalfa production (tons/yr)","Alfalfa yield (tons/ac/yr)","Alfalfa production (tons/yr)")
             return_data.append(silage)
             return_data.append(corn)
             return_data.append(alfalfa)
-            erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
-            pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
-            nitrate = OutputDataNode("nleaching", "Nitrate Leaching (lb/acre/year)", "Nitrate Leaching (lb/year)")
+            erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)","Soil loss (tons/ac/yr)","Soil loss (tons/yr)")
+            pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
+            nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)","Nitrate-N leaching (lb/ac/yr)","Nitrate-N leaching (lb/yr)")
             return_data.append(erosion)
             return_data.append(pl)
             return_data.append(nitrate)
 
         elif crop_ro == "cso":
-            silage = OutputDataNode("Corn Silage",
-                                    "Yield (tons/ac)", "Total Yield (tons/year)")
-            soy = OutputDataNode("Soy", "Yield (bushels/ac)", "Total Yield (bushels/year)")
-            oats = OutputDataNode("Oats", "Yield (bushels/ac)", "Total Yield (bushels/year)")
+            silage = OutputDataNode("Corn Silage","Corn silage yield (tons/ac/yr)", "Corn silage production (tons/yr)","Corn silage yield (tons/ac/yr)","Corn silage production (tons/yr)")
+            soy = OutputDataNode("Soy", "Soybean yield (bushels/ac/yr)", "Soybean production (bu/yr)",'Soybean yield (bushels/ac/yr)',"Soybean production (bushels/yr)")
+            oats = OutputDataNode("Oats", "Oat yield (bushels/ac/yr)", "Oat production (bu/yr)","Oat yield (bushels/ac/yr)","Oat production (bushels/yr)")
             return_data.append(silage)
             return_data.append(soy)
             return_data.append(oats)
-            erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
-            pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
-            nitrate = OutputDataNode("nleaching", "Nitrate Leaching (lb/acre/year)", "Nitrate Leaching (lb/year)")
+            erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)","Soil loss (tons/ac/yr)","Soil loss (tons/yr)")
+            pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
+            nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)","Nitrate-N leaching (lb/ac/yr)","Nitrate-N leaching (lb/yr)")
             return_data.append(erosion)
             return_data.append(pl)
             return_data.append(nitrate)
@@ -787,9 +781,7 @@ class CropYield(ModelBase):
 
         getRotText_Value = getRotText(crop_ro, legume_text, animal_density_text)
 
-        rotation_avg = OutputDataNode("Rotational Average",
-                                      "𝗬𝗶𝗲𝗹𝗱 (tons-Dry Matter/ac)",
-                                      "Total Yield (tons-Dry Matter/year)")
+        rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)", "Total dry matter production (tons/yr)","Total dry matter yield (tons/ac/yr)","Total dry matter production (tons/yr)")
         return_data.append(rotation_avg)
         flat_corn = self.raster_inputs["corn"].flatten()
         flat_soy = self.raster_inputs["soy"].flatten()

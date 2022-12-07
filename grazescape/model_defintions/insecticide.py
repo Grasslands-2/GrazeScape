@@ -19,6 +19,6 @@ class Insecticide(ModelBase):
                   "ps": 0,
                   "pt": 0
                   }
-        insect_node = OutputDataNode("insect", "Insecticide Index", "Insecticide Index")
+        insect_node = OutputDataNode("insect", "Insecticide Index", "Insecticide Index","Honey bee toxicity","Honey bee toxicity")
         insect_node.set_data(insect[crop])
         return [insect_node]
