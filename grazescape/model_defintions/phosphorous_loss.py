@@ -484,8 +484,8 @@ class PhosphorousLoss(ModelBase):
 
           """
                 )
-        erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
-        pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
+        erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)","Soil loss (tons/ac/yr)","Soil loss (tons/yr)")
+        pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
         ero = r.get("erosion").to_numpy()
         print("END ERO AND PLOSS MODELS")
         rows = self.bounds["y"]

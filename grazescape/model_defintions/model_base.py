@@ -503,10 +503,12 @@ class OutputDataNode:
     familiar units such as bushels / acre and one with standardized units of
     kg of dry matter / hec
     """
-    def __init__(self, model_type, default_units, alternate_units):
+    def __init__(self, model_type, default_units, alternate_units,default_title,alternate_title):
         self.model_type = model_type
         self.alternate_units = alternate_units
         self.default_units = default_units
+        self.default_title = default_title
+        self.alternate_title = alternate_title
         self.data = []
         self.P2O5_fert = None
         self.N_fert = None

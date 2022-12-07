@@ -164,12 +164,11 @@ class GrassYield(ModelBase):
 
     def run_model(self, request, active_region, manure_results):
         start = time.time()
-        grass_yield = OutputDataNode("Grass", "Yield (tons/acre)", 'Total Yield (tons/year')
-        rotation_avg = OutputDataNode("Rotational Average", "Yield (tons-Dry Matter/ac/year)",
-                                      "Yield (tons-Dry Matter/year)")
-        nitrate = OutputDataNode("nleaching", "Nitrate Leaching (lb/acre/year)", "Nitrate Leaching (lb/year)")
-        erosion = OutputDataNode("ero", "Soil Erosion (tons/acre/year)", "Soil Erosion (tons of soil/year")
-        pl = OutputDataNode("ploss", "Phosphorus Runoff (lb/acre/year)", "Phosphorus Runoff (lb/year)")
+        grass_yield = OutputDataNode("Grass", "Grass yield (tons-dry-matter/ac/yr)", 'Grass production (tons-dry-matter/yr)','Grass yield (tons-dry-matter/ac/yr)','Grass production (tons-dry-matter/yr)')
+        rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)", "Total dry matter production (tons/yr)","Total dry matter yield (tons/ac/yr)","Total dry matter yield (tons/ac/yr)")
+        nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)","Nitrate-N leaching (lb/ac/yr)","Nitrate-N leaching (lb/yr)")
+        erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)","Soil loss (tons/ac/yr)","Soil loss (tons/yr)")
+        pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
 
         nitrate_array = []
         crop_ro = self.model_parameters["crop"] + '-' + self.model_parameters["rotation"]
