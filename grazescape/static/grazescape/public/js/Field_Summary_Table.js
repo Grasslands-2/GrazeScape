@@ -3,32 +3,33 @@
 // const fs = require('fs');
 // ploss scale bar values
 var ModelSummaryData = []
-var store = Ext.create('Ext.data.Store', {
-// 	storeId: 'fieldStore',
-// 	alternateClassName: 'DSS.FieldStore',
-// 	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
-// 	'tillageDisp', 'coverCropDisp', 'coverCropVal',
-// 		'onContour','fertPercP','manuPercP','fertPercN','manuPercN','grassSpeciesVal','grassSpeciesDisp',
-// 		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-// 		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
-//         'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp','landCost'],
-// 		sorters: ['name'],
-// 	data: fieldArray
-// });
+Ext.create('Ext.data.Store', {
+	storeId: 'fieldSummaryStore',
+	alternateClassName: 'DSS.FieldSummaryStore',
+	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
+	'tillageDisp', 'coverCropDisp', 'coverCropVal',
+		'onContour','fertPercP','manuPercP','fertPercN','manuPercN','grassSpeciesVal','grassSpeciesDisp',
+		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
+        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp','landCost'],
+		sorters: ['name'],
+	data: fieldArray
+});
 // Ext.create('Ext.data.Store', {
-    data: fieldArray
-})
+//     data: fieldArray
+// })
 
 Ext.define('DSS.Field_Summary_Table', {
     extend: 'Ext.grid.Panel',
     title: 'Active Scenario Field Summary',
-    store: store,
+    store: Ext.data.StoreManager.lookup('fieldSummaryStore'),
     singleton: true,
 	autoDestroy: false,
     alternateClassName: 'DSS.Field_Summary_Table',
-	id: "SummaryTable",
+	id: "SummaryTableOld",
 	hidden: true,
-    columns: [{
+    columns: [
+        {
                 text: 'Field', dataIndex: 'name', width: 120, 
                 editable: false,
                 hideable: false,  minWidth: 24,
@@ -44,37 +45,37 @@ Ext.define('DSS.Field_Summary_Table', {
                 editable: false,
                 hideable: false,
             },
-            // {
-            //     xtype: 'numbercolumn',
-            //     format: '0.0',
-            //     text: 'Land Cost ($/ac)',
-            //     dataIndex: 'landCost',
-            //     tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
-            //     formatter: 'usMoney',
-            //     minWidth: 24,
-            //     tooltip: '<b>Area:</b> Area in acres',
-            //     editable: false,
-            //     hideable: false,
-            // },
-            // {
-            //     xtype: 'numbercolumn',
-            //     format: '0.0',
-            //     text: 'Soil-P (PPM)', 
-            //     dataIndex: 'soilP',
-            //     width: 100,
-            //     tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
-            //     hideable: false,
-            // },
-            // {
-            //     xtype: 'numbercolumn',
-            //     format: '0.0',
-            //     text: 'Soil-OM (%)', 
-            //     dataIndex: 'soilOM', 
-            //     width: 100, 
-            //     editable: false,
-            //     hideable: false,
-            //     tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
-            // },
+            {
+                xtype: 'numbercolumn',
+                format: '0.0',
+                text: 'Land Cost ($/ac)',
+                dataIndex: 'landCost',
+                tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
+                formatter: 'usMoney',
+                minWidth: 24,
+                tooltip: '<b>Area:</b> Area in acres',
+                editable: false,
+                hideable: false,
+            },
+            {
+                xtype: 'numbercolumn',
+                format: '0.0',
+                text: 'Soil-P (PPM)', 
+                dataIndex: 'soilP',
+                width: 100,
+                tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
+                hideable: false,
+            },
+            {
+                xtype: 'numbercolumn',
+                format: '0.0',
+                text: 'Soil-OM (%)', 
+                dataIndex: 'soilOM', 
+                width: 100, 
+                editable: false,
+                hideable: false,
+                tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
+            },
             {
                 text: 'Crop Rotation', dataIndex: 'rotationDisp', width: 200, 
                 editable: false,
