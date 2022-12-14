@@ -755,6 +755,7 @@ class SmartScape:
         land_use_selected = np.copy(landuse_arr_sel)
         start = time.time()
         bird_counter = 0
+        print("shape of land use ", np.shape(plain_landuse))
         base_sel_bird = window(plain_landuse, land_use_selected, bird_range, arr, length_trans)
         base_bird_sum = 0
         for val in base_sel_bird[1]:

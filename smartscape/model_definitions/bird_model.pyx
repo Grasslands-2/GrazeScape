@@ -10,10 +10,8 @@ cimport cython
 @cython.boundscheck(False) # turn off bounds-checking for entire function
 @cython.wraparound(False)  # turn off negative index wrapping for entire function
 def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
-                                                  numpy.ndarray[numpy.float32_t, ndim=2] selection,
-                                                 int padding_size,
-                                                 numpy.ndarray[numpy.float32_t, ndim=2] selected_landuse,
-                                                 int num_trans):
+                                                  numpy.ndarray[numpy.float32_t, ndim=2] selection, int padding_size,
+                                                 numpy.ndarray[numpy.float32_t, ndim=2] selected_landuse,int num_tr ans):
     print("starting window")
     results_holder = []
     cdef int count
@@ -23,6 +21,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
     window_size = padding_size * 2 + 1
     no_data = -9999
     total_window_cells = window_size * window_size
+    # add no data cells to pad out input raster depending on the size of the computation block
     padded = np.pad(np.copy(input_data), (padding_size, padding_size),
                     'constant', constant_values=(-9999, -9999))
     cdef numpy.ndarray[numpy.float32_t, ndim=4] window_raster = \
@@ -68,6 +67,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
                         bb = b[iy2,ix2]
                         if bb == -9999:
                             arr_9999[iy, ix] = arr_9999[iy, ix] + 1
+                        # these are land use codes
                         elif 3 <= bb <= 7:
                             arr_ag[iy, ix] = arr_ag[iy, ix]+ 1
                         elif 8 <= bb <= 10:
@@ -79,7 +79,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
             # check if center cell is valid
             cc = selection[iy, ix]
             if arr_is_9999[iy, ix] != 1:
-
+                # only calc if the center cell is valid
                 if cc > 0:
                     index_count = index_count + 1
                     valid_cells = total_window_cells - arr_9999[iy, ix]

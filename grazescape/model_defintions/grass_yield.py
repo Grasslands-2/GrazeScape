@@ -157,6 +157,12 @@ class GrassYield(ModelBase):
         # print(inputsN)
         # print("outputsN")
         # print(outputsN)
+        # if yeild_crop_data > 0:
+        #     print("inputs", fertN, manrN, precN, dryN, fixN, grazed_manureN)
+        #     print("inputs2", yeild_crop_data, fertN, manrN, NfixPct, NH3loss, Nharv_content, grazed_manureN,
+        #              Denitr_Value, precN, dryN, erosN)
+        #     print("outputs", harvN, NH3N, denitN, erosN, gasN, NH3senN, runoffN)
+        #     print("sum is", inputsN - outputsN)
         leachN = inputsN - outputsN
         # print("LEACHN")
         # print(leachN)
