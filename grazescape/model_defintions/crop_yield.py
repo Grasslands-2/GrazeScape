@@ -142,10 +142,13 @@ class CropYield(ModelBase):
         # print(gasN)
         NH3senN = 8  ## ammonia loss at senescence
         runoffN = 0
+        outputsN = harvN + NH3N + denitN + erosN + gasN + NH3senN + runoffN
         # if yeild_crop_data > 0:
         #     print("inputs", fertN, manrN, precN, dryN, fixN, grazed_manureN)
+        #     print("inputs2", yeild_crop_data, fertN, manrN, NfixPct, NH3loss, Nharv_content, grazed_manureN,
+        #           Denitr_Value, precN, dryN, erosN)
         #     print("outputs", harvN, NH3N, denitN, erosN, gasN, NH3senN, runoffN)
-        outputsN = harvN + NH3N + denitN + erosN + gasN + NH3senN + runoffN
+        #     print("sum is", inputsN - outputsN)
         # print("inputsN 2")
         # print(inputsN)
         # print("outputsN")
@@ -809,12 +812,13 @@ class CropYield(ModelBase):
         np.where(ploss > self.no_data, ploss, 0)
         print("ploss average", np.sum(ploss) /cell_count)
 
-        erosN = ero * om * 2 / cell_count
+        erosN = np.sum(ero/ cell_count) * om * 2
 
         print("om", om)
         print("drain_class", drain_class_flattened)
         print("corn", flat_corn)
-        print("ero", ero)
+        print("ero", np.sum(ero/ cell_count))
+        print("erosN", erosN)
 
         print("om", np.shape(om))
         print("drain_class", np.shape(drain_class_flattened))
@@ -902,10 +906,7 @@ class CropYield(ModelBase):
             soy_DM_yield = soy_yield_tonDMac
             for i in rot_yrs_crop:
                 if i == 'cn':
-                    # print("CN")
                     yeild_crop_data = corn_DM_yield
-                    # fertN = PctFertN * float(cellpmanurelist[5])
-                    # manrN = PctManrN * float(cellpmanurelist[0])
                     fertN = PctFertN * float(manure_results["cn"]["n_rec"])
                     manrN = PctManrN * float(manure_results["cn"]["n_man"])
                     Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
@@ -913,10 +914,10 @@ class CropYield(ModelBase):
                     NH3loss = float(Nvars_Row["NH3loss"].values[0])
                     Nharv_content = float(Nvars_Row["Nharv_content"].values[0])
                     grazed_manureN = float(Nvars_Row["grazedManureN"].values[0])
+                    print("fert N cn", fertN)
+                    print("man N cn", manrN)
                 else:
                     yeild_crop_data = soy_DM_yield
-                    # fertN = PctFertN * float(cellpmanurelist[5])
-                    # manrN = PctManrN * float(cellpmanurelist[0])
                     fertN = PctFertN * float(manure_results["sb"]["n_rec"])
                     manrN = PctManrN * float(manure_results["sb"]["n_man"])
                     Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
@@ -924,6 +925,8 @@ class CropYield(ModelBase):
                     NH3loss = float(Nvars_Row["NH3loss"].values[0])
                     Nharv_content = float(Nvars_Row["Nharv_content"].values[0])
                     grazed_manureN = float(Nvars_Row["grazedManureN"].values[0])
+                    print("fert N sb", fertN)
+                    print("man N sb", manrN)
                 leachN_Calced = np.where(drain_class_flattened != self.no_data,
                                          Calc_N_Leach_Vector(yeild_crop_data, fertN, manrN, NfixPct, NH3loss,
                                                              Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
@@ -953,9 +956,7 @@ class CropYield(ModelBase):
             alfalfa_yield_tonDMac = alfalfa_yield * 2000 * (1 - 0.13) / 2000
 
             rotation_avg_tonDMac = 1 / 5 * silage_yield_tonDMac + 1 / 5 * corn_yield_tonDMac + 3 / 5 * alfalfa_yield_tonDMac
-            print("about to set data")
             silage.set_data(silage_yield)
-            print("done setting data")
             corn.set_data(corn_yield)
 
             alfalfa.set_data(alfalfa_yield)
@@ -1035,23 +1036,31 @@ class CropYield(ModelBase):
             silage.set_data(silage_yield)
             soy.set_data(soy_yield)
             oats.set_data(oat_yield)
+
             silage_DM_yield = silage_yield_tonDMac
             oat_DM_yield = oat_yield_tonDMac
+            soy_DM_yield = soy_yield_tonDMac
             for i in rot_yrs_crop:
                 if i == 'cs':
                     # print("CS")
                     yeild_crop_data = silage_DM_yield
                     fertN = PctFertN * float(manure_results["cs"]["n_rec"])
                     manrN = PctManrN * float(manure_results["cs"]["n_man"])
+                    # print("fert N cs", fertN, PctFertN, float(manure_results["cs"]["n_rec"]))
+                    # print("man N cs", manrN, PctManrN, float(manure_results["cs"]["n_man"]))
                 elif i == 'sb':
                     # print("SB")
-                    yeild_crop_data = silage_DM_yield
+                    yeild_crop_data = soy_DM_yield
                     fertN = PctFertN * float(manure_results["sb"]["n_rec"])
                     manrN = PctManrN * float(manure_results["sb"]["n_man"])
+                    # print("fert N sb", fertN, PctFertN, float(manure_results["sb"]["n_rec"]))
+                    # print("man N sb", manrN, PctManrN, float(manure_results["sb"]["n_man"]))
                 else:
                     yeild_crop_data = oat_DM_yield
                     fertN = PctFertN * float(manure_results["ot"]["n_rec"])
                     manrN = PctManrN * float(manure_results["ot"]["n_man"])
+                    # print("fert N ot", fertN, PctFertN, float(manure_results["ot"]["n_rec"]))
+                    # print("man N ot", manrN, PctManrN, float(manure_results["ot"]["n_man"]))
                 Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
                 NfixPct = float(Nvars_Row["NfixPct"].values[0])
                 NH3loss = float(Nvars_Row["NH3loss"].values[0])
