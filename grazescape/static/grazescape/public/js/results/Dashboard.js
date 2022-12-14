@@ -963,11 +963,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     columns:2,
                     items: [
                         {
-                            boxLabel  : 'Yield / Area',
+                            boxLabel  : 'Yield  ',
                             inputValue: 'a',
                             checked:true
                         }, {
-                            boxLabel  : 'Total Yield',
+                            boxLabel  : 'Production',
                             inputValue: 't',
                         },
                     ],
@@ -1052,11 +1052,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         columns:2,
                         items: [
                             {
-                                boxLabel  : 'Yield / Area',
+                                boxLabel  : 'Yield',
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Total Yield',
+                                boxLabel  : 'Production',
                                 inputValue: 't',
                             },
                         ],
@@ -1199,7 +1199,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         columns:3,
                         items: [
                             {
-                                boxLabel  : 'Cost / Acre',
+                                boxLabel  : 'Cost / ac',
                                 inputValue: 'a',
                                 checked:true
                             },
@@ -1208,7 +1208,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 't',
                             },
                             {
-                                boxLabel  : 'Cost/Ton DM',
+                                boxLabel  : 'Cost/Ton-DM',
                                 inputValue: 'd',
                             },
                         ],
@@ -2108,6 +2108,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                 scrollable: true,
 //                inner tabs for farm and field scale
+                listeners:{activate: function() {
+                    downloadSummaryCSV(chartObj)
+                }},
 
                 items:[{
                     
@@ -2241,7 +2244,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         },
                     {
                         xtype: 'button',
-                        text: 'Download Summary Report',
+                        text: 'Download Summary Report PDF',
                         id: 'downloadSummaryBtn',
                         tooltip: 'Download charts and csv',
                           handler: function(e) {
@@ -2249,7 +2252,20 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             printSummary()
                           }
 //                        text: 'Yearly Yield'
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Download Summary Report CSV',
+                        id: 'downloadSummaryCSV',
+                        tooltip: 'Download charts and csv',
+                          handler: function(e) {
+                            console.log(e)
+                            
+                            //downloadSummaryCSV(chartObj)
+                          }
+//                        text: 'Yearly Yield'
                     }
+                    
                     ],
 
                 }]
