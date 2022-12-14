@@ -1735,7 +1735,7 @@ function downloadSummaryCSV(chartObj){
     for(s in rotfieldchart.datasets){
         for(d in rotfieldchart.datasets[s].data){
             if(rotfieldchart.datasets[s].data[d] !== null){
-                scentitlearray.push(rotfieldchart.chartDataLabelsOri[d]                )
+                scentitlearray.push(rotfieldchart.chartDataLabelsOri[d])
             }
         }
     }
@@ -1771,16 +1771,13 @@ function downloadSummaryCSV(chartObj){
 
 
         Object.entries(chartObj).forEach(([key,values])=> {
-        console.log(key)
         if(String(key) == String(fieldkeys[m])){
 
             for(i in values.chartData.datasets){
-                console.log(values.chartData.datasets[i].data)
                 if(values.chartData.datasets[i].data.every(d => d === null)){
                     resultsArray.push("NA")
                 }else{
                 for(d in values.chartData.datasets[i].data){
-                    console.log(values.chartData.datasets[i].data[d])
                     if(values.chartData.datasets[i].data[d] !== null){
                         resultsArray.push(values.chartData.datasets[i].data[d])
                     }
@@ -1789,8 +1786,6 @@ function downloadSummaryCSV(chartObj){
                     // }
                 }}
             }
-        console.log(key, values.chartData.datasets[0])
-        console.log(key, values.chartData.datasets)
         refinedData.push(resultsArray)}
 
     })}
@@ -1814,8 +1809,6 @@ function downloadSummaryCSV(chartObj){
 
     for(m in farmkeys){
         resultsArray = []
-        console.log(m)
-        console.log(farmkeys[m])
         resultsArray.push(farmkeys[m])
         charttext = farmkeys[m]
         Object.entries(chartObj).forEach(([key,values])=> {
@@ -1823,12 +1816,10 @@ function downloadSummaryCSV(chartObj){
         if(String(key) == String(farmkeys[m])){
 
             for(i in values.chartData.datasets){
-                console.log(values.chartData.datasets[i].data)
                 if(values.chartData.datasets[i].data.every(d => d === null)){
                     resultsArray.push("NA")
                 }else{
                 for(d in values.chartData.datasets[i].data){
-                    console.log(values.chartData.datasets[i].data[d])
                     if(values.chartData.datasets[i].data[d] !== null){
                         resultsArray.push(values.chartData.datasets[i].data[d])
                     }
