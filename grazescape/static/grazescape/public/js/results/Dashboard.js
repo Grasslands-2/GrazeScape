@@ -2494,7 +2494,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     ],
                     resizable: true,
                     // scrollable: true,
-                    height: 150,
+                    height: 500,
                     width: 700,
                     //renderTo: Ext.getBody(),
                     

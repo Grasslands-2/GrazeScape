@@ -145,7 +145,7 @@ async function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 			perc_manure_p:0,
 			spread_confined_manure_on_pastures: false,
 			on_contour: false,
-			interseeded_clover: false,
+			interseeded_clover: true,
 			pasture_grazing_rot_cont:false,
 			grass_speciesval: grassVal,
 			grass_speciesdisp: grassDisp,
