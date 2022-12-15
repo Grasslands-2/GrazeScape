@@ -38,8 +38,9 @@ async function refreshview(){
 	setTimeout(() => {
 		//selectedFields = []
 		Ext.getCmp("fieldTable").getView().refresh();
+		console.log("refreshview")
 		//Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
-	}, "3000")
+	}, "2000")
 // 	setTimeout(() => {
 // 		//Ext.getCmp("fieldTable").getStore().reload()
 // 		 Ext.getCmp("fieldTable").getView().refresh()
@@ -702,155 +703,48 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						console.log(record)
 						console.log(record.data.interseededClover)
-						fertDefaultArray = await get_field_rot_defaults({"rotation": value.get('value'), "legume":record.data.interseededClover})
+						interseedTrue = true
+						fertDefaultArray = await get_field_rot_defaults({"rotation": value.get('value'),/*interseedTrue*/ "legume":record.data.interseededClover})
 						//console.log(fertDefaultArray.fertDefaults)
-						if(value.data.value == 'pt'){
+						if(value.data.value.includes('pt')){
 							console.log('pt hit')
 							if(record.data.rotationFreqDisp == 'Continuous'){
 								record.set('rotationVal','pt-cn')
 								record.set('rotationDisp', value.get('display'));
-									record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+								record.set('manuPercN',fertDefaultArray.fertDefaults[0])
 								record.set('fertPercN',fertDefaultArray.fertDefaults[1])
 								record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+								record.set('interseededClover',true)
 								console.log('pt-cn')
+								
 							}else{
 								record.set('rotationVal','pt-rt')
 								record.set('rotationDisp', value.get('display'));
 								record.set('manuPercN',fertDefaultArray.fertDefaults[0])
 								record.set('fertPercN',fertDefaultArray.fertDefaults[1])
-								record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+								record.set('fertPercN',fertDefaultArray.fertDefaults[2])
+								record.set('interseededClover',true)
 								console.log('pt-rt')
 							}
+							//refreshview()
+							console.log(record)
 						}else{
 							record.set('rotationVal', value.get('value'));
 							record.set('rotationDisp', value.get('display'));
 							record.set('manuPercN',fertDefaultArray.fertDefaults[0])
 							record.set('fertPercN',fertDefaultArray.fertDefaults[1])
 							record.set('fertPercP',fertDefaultArray.fertDefaults[2])
-							
+							//refreshview()
 							// record.set('rotationVal', value.get('value'));
 							// record.set('rotationDisp', value.get('display'));
 						}
-						// record.set('manuPercN',fertDefaultArray.fertDefaults[0])
-						// record.set('fertPercN',fertDefaultArray.fertDefaults[1])
-						// record.set('fertPercP',fertDefaultArray.fertDefaults[2])
-						// record.set('rotationVal', value.get('value'));
-						// record.set('rotationDisp', value.get('display'));
-						//await refreshview()
-						//console.log(record)
+						refreshview()
 					},
-					// change: function(widget,newValueCR,oldValueCR,record){
-					// 	console.log(widget)
-					// 	var record = widget.getWidgetRecord();
-					// 	var dbvalCR = ""
-					// 	console.log(selectedFields)
-					// 	console.log("newValueCR: " + newValueCR)
-					// 	console.log("oldValueCR: " + oldValueCR)
-					// 	console.log("you've changed man on Crop Rot")
-					// 	//console.log(rotfreqcount)
-					// 	console.log(record)
-					// 	var store = me.getStore()
-					// 	var storeDataObjArray = store.data.items
-					// 	var view = me.getView()
-					// 	switch(newValueCR){
-					// 		case 'Pasture': 
-					// 			console.log(record.data.rotationFreqDisp)
-					// 			if(record.data.rotationFreqDisp == 'Continuous'){
-					// 				dbvalCR = 'pt-cn'
-					// 				console.log('pt-cn')
-					// 			}else{
-					// 				dbvalCR = 'pt-rt'
-					// 				console.log('pt-rt')
-					// 			}
-					// 		break;
-					// 		// case 'Rotational Pasture': dbvalCR = 'pt-rt'
-					// 		// break;
-					// 		case 'Dry Lot': dbvalCR = 'dl'
-					// 		break;
-					// 		case 'Continuous Corn': dbvalCR = 'cc'
-					// 		break;
-					// 		case 'Cash Grain (corn/soy)': dbvalCR = 'cg'
-					// 		break;
-					// 		case 'Corn Silage to Corn Grain to Alfalfa 3 yrs': dbvalCR = 'dr'
-					// 		break;
-					// 		case 'Corn Silage to Soybeans to Oats': dbvalCR = 'cso'
-					// 		break;
-					// 		case 'pt': 
-					// 			if(record.data.rotationFreqDisp == 'Continuous'){
-					// 				dbvalCR = 'pt-cn'
-					// 				//console.log('pt-cn')
-					// 			}else{
-					// 				dbvalCR = 'pt-rt'
-					// 				//console.log('pt-rt')
-					// 			}
-					// 		break;
-
-					// 		case 'pt-cn': dbvalCR = 'pt-cn'
-					// 		break;
-					// 		case 'pt-rt': dbvalCR = 'pt-rt'
-					// 		break;
-					// 		case 'dl': dbvalCR = 'dl'
-					// 		break;
-					// 		case 'cc': dbvalCR = 'cc'
-					// 		break;
-					// 		case 'cg': dbvalCR = 'cg'
-					// 		break;
-					// 		case 'dr': dbvalCR = 'dr'
-					// 		break;
-					// 		case 'cso': dbvalCR = 'cso'
-					// 		break;
-					// 		default: dbvalCR = 'No Rotation fROM SWITCH!'
-					// 	}
-					// 	console.log("dbvalCR: " + dbvalCR)
-					// 	if(selectedFields.length > 0 ){
-					// 		for(r in selectedFields){
-					// 			for(f in storeDataObjArray){
-					// 				if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-					// 					// console.log("newValueCR: " + newValueCR)
-					// 					// console.log("dbvalCR: " + dbvalCR)
-					// 					// console.log(storeDataObjArray[f].id)
-					// 					// console.log(selectedFields[r])
-					// 					storeDataObjArray[f].dirty = true
-					// 					storeDataObjArray[f].data.rotationDisp = newValueCR
-					// 					storeDataObjArray[f].data.rotationVal = dbvalCR
-										
-					// 				}
-					// 			}
-					// 		}
-					// 		selectedFields = []
-					// 		me.getView().refresh();
-					// 		me.getSelectionModel().deselectAll();
-					// 	}
-					// 	console.log("End of Rot Crop change event")
-					// 	//refreshview()
-					// }
+					
 				}
 			}
 		};
-		// console.log(me.view.dataSource.config.data[0].rotationDisp)
-						// if(newValue == 'Continuous Pasture'){
-						// 	dbval = 'pt-cn'
-						// }
-						// if(newValue == 'Rotational Pasture'){
-						// 	dbval = 'pt-rt'
-						// }
-						// if(newValue == 'Dry Lot'){
-						// 	dbval = 'dl'
-						// }
-						// if(newValue == 'Continuous Corn'){
-						// 	dbval = 'cc'
-						// }
-						// if(newValue == 'Cash Grain (corn/soy)'){
-						// 	dbval = 'cg'
-						// }
-						// if(newValue == 'Corn Silage to Corn Grain to Alfalfa 3 yrs'){
-						// 	dbval = 'dr'
-						// }
-						// if(newValue == 'Corn Silage to Soybeans to Oats'){
-						// 	dbval = 'cso'
-						// }
-
-						//if(rotfreqcount > storeDataObjArray.length){
+		
 
 		//------------------------------------------------------------------------------
 		let coverCropColumn = {

@@ -843,7 +843,9 @@ function create_graph(chart,title,element){
         plugins: [ChartDataLabels],
         options: {
             responsive: true,
-            skipNull:true,
+            //responsive: false,
+            //skipNull:true,
+            skipNull:false,
             maxBarThickness: 150,
             interaction:{
               mode:"nearest"
