@@ -4,6 +4,7 @@ var mfieldID = ''
 var modelError = false
 var modelErrorMessages = []
 var yieldmodelsDataArray = []
+var pmanureReturn_array = []
 //gathers data for each model run. called in model type switch statments
 function gatherArrayForYieldAdjustment(mdobj) {
     yieldmodelsDataArray.push({
@@ -776,8 +777,13 @@ function get_model_data(data){
                 let e = obj.extent;
                 if(responses[response].value_type != "dry lot"){
                     console.log("response type in dashboard utilites")
-                    console.log(responses[response].value_type)
-                    console.log(obj)
+                    //console.log(responses[response].value_type)
+                    //console.log(obj)
+                    if(obj.value_type == "Rotational Average"){
+                        console.log(obj)
+                        pmanureReturn_array.push([obj.f_name,obj.field_id,obj.area,obj.crop_ro,obj.p_manure_Results,obj.grass_ro])
+                        //pmanureReturn_array.push(obj)
+                    }
                     format_chart_data(obj)
                 }
             }
@@ -1752,8 +1758,8 @@ function downloadSummaryCSV(chartObj){
 
     for(m in fieldkeys){
         resultsArray = []
-        console.log(m)
-        console.log(fieldkeys[m])
+        //console.log(m)
+        //console.log(fieldkeys[m])
         resultsArray.push(fieldkeys[m])
         charttext = fieldkeys[m]
         // console.log(chartObj.charttext)
@@ -1814,7 +1820,7 @@ function downloadSummaryCSV(chartObj){
         resultsArray.push(farmkeys[m])
         charttext = farmkeys[m]
         Object.entries(chartObj).forEach(([key,values])=> {
-        console.log(key)
+        //console.log(key)
         if(String(key) == String(farmkeys[m])){
 
             for(i in values.chartData.datasets){
