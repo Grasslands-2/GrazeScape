@@ -733,7 +733,8 @@ def get_model_results(request):
                 "grass_ro": model.model_parameters["rotation"],
                 "grass_type": model.model_parameters["grass_type"],
                 "till": model.model_parameters["tillage"],
-                "model_run_timestamp": model_run_timestamp
+                "model_run_timestamp": model_run_timestamp,
+                "p_manure_Results":p_manure_Results
             }
             # move this outside of the loop or make it async
             # if db_has_field(field_id):
