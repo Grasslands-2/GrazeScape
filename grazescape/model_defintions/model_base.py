@@ -475,20 +475,23 @@ class ModelBase:
         three_d = np.empty([rows, cols, 4])
         datanm = self.reshape_model_output(data, bounds)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
-        color_ramp = self.create_color_ramp(min_v, max_v,result)
-        for y in range(0, rows):
-            for x in range(0, cols):
-                color = self.calculate_color(color_ramp, datanm[y][x])
-                three_d[y][x][0] = color[0]
-                three_d[y][x][1] = color[1]
-                three_d[y][x][2] = color[2]
-                three_d[y][x][3] = 255
-                if no_data_array[y][x] == 1:
-                    three_d[y][x][3] = 0
-        three_d = three_d.astype(np.uint8)
-        im = Image.fromarray(three_d)
-        im.convert('RGBA')
-        im.save(raster_image_file_path)
+        # we only want images of these models. The rest are yield models
+        if result.model_type in ["ero", "ploss", "nleaching", "Rotational Average", "Curve Number"]:
+
+            color_ramp = self.create_color_ramp(min_v, max_v,result)
+            for y in range(0, rows):
+                for x in range(0, cols):
+                    color = self.calculate_color(color_ramp, datanm[y][x])
+                    three_d[y][x][0] = color[0]
+                    three_d[y][x][1] = color[1]
+                    three_d[y][x][2] = color[2]
+                    three_d[y][x][3] = 255
+                    if no_data_array[y][x] == 1:
+                        three_d[y][x][3] = 0
+            three_d = three_d.astype(np.uint8)
+            im = Image.fromarray(three_d)
+            im.convert('RGBA')
+            im.save(raster_image_file_path)
         return float(mean), float(sum), float(count)
 
     def get_legend(self):

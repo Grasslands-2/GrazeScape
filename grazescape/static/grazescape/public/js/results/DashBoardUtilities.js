@@ -229,6 +229,7 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
     if(f["is_dirty"] == true){
         runModel = true
     }
+    console.log("the field is dirty ", runModel)
     
 
     let rotation_split = f["rotation"].split("-")
