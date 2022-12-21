@@ -501,7 +501,7 @@ def get_model_results(request):
 
         storage_client.close()
         print("model timestamp ", model_run_timestamp)
-        return JsonResponse(get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp), safe=False)
+        return JsonResponse(get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp,p_manure_Results), safe=False)
 
     try:
         field_exists = db_has_field(field_id)
