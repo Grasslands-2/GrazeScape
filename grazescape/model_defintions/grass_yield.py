@@ -13,7 +13,7 @@ import time
 
 def getOMText(omraw, text_needed):
     # print(omraw)
-    if omraw < 2:
+    if omraw <= 2:
         OM_denitloss = '<2'
         OM_fertrecs = '<2'
     elif 2 < omraw < 5:

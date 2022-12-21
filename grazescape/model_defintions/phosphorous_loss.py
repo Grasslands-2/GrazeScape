@@ -10,7 +10,7 @@ from shapely.geometry import Polygon
 
 def getOMText(omraw,text_needed):
         print(omraw)
-        if omraw < 2:
+        if omraw <= 2:
             OM_denitloss = '<2'
             OM_fertrecs = '<2'
         elif omraw > 2 and omraw < 5:
