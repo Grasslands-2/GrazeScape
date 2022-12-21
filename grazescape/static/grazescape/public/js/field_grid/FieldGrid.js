@@ -728,7 +728,19 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							}
 							//refreshview()
 							console.log(record)
-						}else{
+						} 
+						else if(value.data.value.includes('dl')){
+							record.set('rotationVal', value.get('value'));
+							record.set('rotationDisp', value.get('display'));
+							record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+							record.set('fertPercN',fertDefaultArray.fertDefaults[1])
+							record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+							console.log("DL")
+							console.log(NmanuPerc_Column)
+							//Ext.getCmp("NfertPerc").setDisabled(true)
+							//NmanuPerc_Column.disabled = true
+						}
+						else{
 							record.set('rotationVal', value.get('value'));
 							record.set('rotationDisp', value.get('display'));
 							record.set('manuPercN',fertDefaultArray.fertDefaults[0])
@@ -1181,8 +1193,57 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}, text: '% Manure P', dataIndex: 'manuPercP', width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
+
+	// 	let NfertPerc_Column =  { xtype: 'widgetcolumn', text: '% Fert N', dataIndex: 'fertPercN', width: 80, tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
+	// 	hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+	// 	onWidgetAttach: function(col,widget,rec) {
+	// 		if (rec.get('rotationVal') == 'dl' ) {
+	// 			widget.setDisabled(true);
+	// 		}else{
+	// 			widget.setDisabled(false)
+	// 		}},
+	// 		widget: {
+	// 			// xtype: 'numbercolumn', format: '0.0',editor: {
+	// 			xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
+	// 			listeners:{
+	// 				change: async function(field,newValue,oldValue,record){
+	// 						// console.log(selectedFields)
+	// 						// console.log("newValue: " + newValue)
+	// 						// console.log("oldValue: " + oldValue)
+	// 						// console.log("you've changed man on soilOM")
+	// 						var store = me.getStore()
+	// 						var storeDataObjArray = store.data.items
+	// 						if(selectedFields.length > 0 ){
+	// 							for(r in selectedFields){
+	// 								for(f in storeDataObjArray){
+	// 									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+	// 										// console.log("newValue: " + newValue)
+	// 										// console.log(storeDataObjArray[f].id)
+	// 										// console.log(selectedFields[r])
+	// 										storeDataObjArray[f].dirty = true
+	// 										storeDataObjArray[f].data.fertPercN = newValue
+	// 									}
+	// 								}
+	// 							}
+	// 						// 	setTimeout(() => {
+	// 						// 		me.getView().refresh()
+	// 						// }, "250")
+	// 						}
+	// 						await refreshview()
+	// 						//var view = me.getView()
+	// 						//view.refresh()
+	// 				}
+	// 			//}
+	// 		},
+
+	// 	} 
+	// }
+
+
+
+
 		let NfertPerc_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
+			xtype: 'numbercolumn',id:'NfertPerc', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
 				listeners:{
 					change: async function(field,newValue,oldValue,record){
@@ -1227,6 +1288,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							// console.log("newValue: " + newValue)
 							// console.log("oldValue: " + oldValue)
 							// console.log("you've changed man on soilOM")
+							console.log("MANURE N CHANGE DETECTED")
 							var store = me.getStore()
 							var storeDataObjArray = store.data.items
 							if(selectedFields.length > 0 ){
