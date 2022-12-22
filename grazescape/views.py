@@ -38,6 +38,7 @@ from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.crop_yield import CropYield
+from grazescape.model_defintions.dry_lot import DryLot
 from grazescape.model_defintions.calc_manure_p import CalcManureP
 from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.nitrateLeach import NitrateLeeching
@@ -511,17 +512,18 @@ def get_model_results(request):
             if crop_ro == 'pt' or crop_ro == 'ps':
                 model = GrassYield(request, active_region)
             elif crop_ro == 'dl':
-                data = {
-                    # overall model type crop, ploss, bio, runoff
-                    "model_type": model_type,
-                    # specific model for runs with multiple models like corn silage
-                    "value_type": "dry lot",
-                    "f_name": f_name,
-                    "scen": scen,
-                    "scen_id": scenario_id,
-                    "field_id": field_id
-                }
-                return JsonResponse([data], safe=False)
+                model = DryLot(request, active_region)
+                # data = {
+                #     # overall model type crop, ploss, bio, runoff
+                #     "model_type": model_type,
+                #     # specific model for runs with multiple models like corn silage
+                #     "value_type": "dry lot",
+                #     "f_name": f_name,
+                #     "scen": scen,
+                #     "scen_id": scenario_id,
+                #     "field_id": field_id
+                # }
+                # return JsonResponse([data], safe=False)
                 # pass
             else:
                 model = CropYield(request, active_region)
@@ -608,6 +610,7 @@ def get_model_results(request):
                 "model_run_timestamp": model_run_timestamp,
                 "p_manure_Results":p_manure_Results
             }
+            print("field data ", data)
             # move this outside of the loop or make it async
             if field_exists:
                 update_field_results_async(field_id, scenario_id, farm_id, data, False)

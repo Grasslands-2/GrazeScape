@@ -72,7 +72,9 @@ def getfertNrec_values(rot_yrs_crop, crop, legume_text, animal_density_text, fer
         ManureN_total = nManureValue
         appliedManureN = ManureN_total * manure_n_perc / 0.4
         manureP = appliedManureN / 3
-        manurePpercent = 100 * (manureP / pNeedsValue)
+        manurePpercent = 0
+        if crop != "dl":
+            manurePpercent = 100 * (manureP / pNeedsValue)
 
         n_fert_values[i] = {
             "n_rec": nrecValue,
