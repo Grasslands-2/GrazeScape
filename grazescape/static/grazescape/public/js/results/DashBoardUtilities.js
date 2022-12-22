@@ -367,6 +367,13 @@ function format_chart_data(model_data){
                     gatherArrayForYieldAdjustment(model_data)
                 }
                 break
+            case 'Dry Lot':
+//                chartTypeField = chartObj.grass_yield_field
+//                chartTypeFarm = chartObj.grass_yield_farm
+//                if(model_data.scen_id == DSS.activeScenario){
+//                    gatherArrayForYieldAdjustment(model_data)
+//                }
+                break
             case 'Corn Grain':
                 chartTypeField = chartObj.corn_yield_field
                 chartTypeFarm = chartObj.corn_yield_farm
