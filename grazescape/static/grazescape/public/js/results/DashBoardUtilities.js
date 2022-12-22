@@ -2166,15 +2166,15 @@ function downloadRasters(fieldIter){
         let numFields = fieldIter.length
         for(item in fieldIter){
             f = fieldIter[item].properties
-            if(f["is_dirty"] == false){
-                downloadCount = downloadCount + 1
-                 if(downloadCount==numFields){
-                    console.log(downloadCount, numFields)
-                    console.log("All files downloaded")
-                    resolve(downloadCount)
-                }
-                continue
-            }
+//            if(f["is_dirty"] == false){
+//                downloadCount = downloadCount + 1
+//                 if(downloadCount==numFields){
+//                    console.log(downloadCount, numFields)
+//                    console.log("All files downloaded")
+//                    resolve(downloadCount)
+//                }
+//                continue
+//            }
             geometry = fieldIter[item]
             model_para = {
                 f_name: f["field_name"],

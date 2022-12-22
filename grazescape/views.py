@@ -493,8 +493,10 @@ def get_model_results(request):
     print('ACTIVE REGION IN GET MODEL RESULTS!!!!!!')
     # print(field_id)
     # db_has_field(field_id)
-    print("run models ", request.POST.getlist("runModels")[0])
-    if request.POST.getlist("runModels")[0] == 'false':
+    run_models = request.POST.getlist("runModels")[0]
+    print("run models ", run_models)
+    run_models = "true"
+    if run_models == 'false':
         print('model runs = false')
         model_run_timestamp = png_handler.download_gcs_model_result_blob(field_id, field_scen_id, active_scen, model_run_timestamp)
         """Downloads a blob from the bucket."""
