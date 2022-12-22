@@ -37,8 +37,8 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 	else if(crop=='pt' && rotfreq != "0.65"){
 		crop='pt-rt'
 		cropDisp ='Pasture'
-		grassDisp='Bluegrass-clover';
-		grassVal='Bluegrass';
+		grassDisp='Low Yielding';
+		grassVal='Bluegrass-clover';
 		rotationFreqVal = rotfreq;
 		if(rotfreq == 1){
 			rotationFreqdisp = 'More then once a day'
@@ -218,7 +218,7 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
     autoDestroy: false,
     scrollable: 'y',
 	titleAlign: 'center',
-	title: 'Choose your new Fields Name and Crop Rotation',
+	title: "Choose your new Field's Name and Crop Rotation",
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	requires: ['DSS.field_shapes.apply.RotationalFreq'
 ],
@@ -412,7 +412,7 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 						width: '100%',
 						height: 7,
 						cls: 'information accent-text bold',
-						//html: "Set Rotatonal Frequency",
+						html: "Set Rotatonal Frequency",
 					},
 						//getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
 					]

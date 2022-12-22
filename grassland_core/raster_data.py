@@ -49,9 +49,15 @@ class RasterData:
 
         # self.file_name = str(uuid.uuid4())
         self.file_name = "field_" + field_id
-        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
-                                     'data_files', 'raster_inputs',
-                                     self.file_name)
+        # if os.path.exists(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs', self.file_name):
+        #     print("field raster_input folder exists")
+        #     # self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
+        #     #                          'data_files', 'raster_inputs',
+        #     #                          self.file_name)
+        # else:
+        #     os.mkdir(os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name))
+        
+        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name)
 
         self.extents_string_x = ""
         self.extents_string_y = ""

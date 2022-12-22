@@ -238,13 +238,13 @@ Ext.define('DSS.state.CreateNew_wfs', {
 				},{
 					fieldLabel: 'Owner',
 					name: 'owner',
-					allowBlank: false,
+					allowBlank: true,
 					margin: '10 0',
 					padding: 4,
 				},{
 					fieldLabel: 'Address',
 					name: 'address',
-                    allowBlank: false,
+                    allowBlank: true,
 					margin: '12 0',
 					padding: 4,
             	},
