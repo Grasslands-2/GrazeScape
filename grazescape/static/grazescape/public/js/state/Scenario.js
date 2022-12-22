@@ -529,8 +529,7 @@ Ext.define('DSS.state.Scenario', {
 									// }
 									await gatherScenarioTableData
 									//await runScenarioUpdate();
-									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
-									//geoServer.getWFSScenario()
+									await geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
 									//DSS.layer.PLossGroup.setVisible(false);
@@ -956,7 +955,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Edit Scenario Costs',
+					text: 'Edit Production Costs',
 					allowDepress: false,
 					handler: function(self) {
 					if(Ext.getCmp("CostDialog")){
@@ -1030,7 +1029,7 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Run Models',
 					disabled:true,
 					handler: async function(self) {
-						getWFSScenarioSP()
+						await getWFSScenarioSP()
 						if(fieldArray.length <1 ){
 							await gatherTableData();
 							console.log("Field Array was empty. Running gatherTableData")
@@ -1077,7 +1076,7 @@ Ext.define('DSS.state.Scenario', {
 							//Ext.create('DSS.map.OutputMenu').showAt(10,10);
                         }
                         else{
-							getWFSScenarioSP()
+							await getWFSScenarioSP()
 							console.log("rerunning update")
 //                            close model to destroy it to rerun models
                             console.log("destroy dashboard")
