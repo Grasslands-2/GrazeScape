@@ -426,6 +426,8 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	autoDestroy: false,
 	id: "fieldTable",
 	hidden: true,
+	columnLines: true,
+	rowLines: true,
 	selModel: {
 		allowDeselect: true,
 		selType: "rowmodel",//'checkboxmodel', // rowmodel is the default selection model
@@ -1636,7 +1638,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('rotationFreqVal', value.get('value'));
 						record.set('rotationFreqDisp', value.get('display'));
-						//await refreshview()
+						refreshview()
 					},
 					// change: function(widget,newValue,oldValue,record){
 					// 	var record = widget.getWidgetRecord();
@@ -1797,6 +1799,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('grazeDensityVal', value.get('value'));
 						record.set('grazeDensityDisp', value.get('display'));
+						
 					},
 					// change: function(widget,newValue,oldValue,record){
 					// 	var record = widget.getWidgetRecord();

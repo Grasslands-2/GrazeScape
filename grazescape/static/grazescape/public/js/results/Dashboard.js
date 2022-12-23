@@ -25,8 +25,10 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                 if(slicedId == pmr[1] ){
                     console.log("in if for fieldarray")
                     fieldArrayItem = fieldArray[i]
+                    console.log(fieldArrayItem)
                     var pt_rt = ''
-                    if(fieldArray[i].rotationVal == "pt-cn"){
+                    if(pmr[5] == "cn"){
+                    //if(fieldArray[i].rotationVal == "pt-cn"){
                         assembledArray.push({
                             field_name: pmr[0],
                             crop_ro: "Continuous Pasture",
@@ -55,7 +57,9 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             rotationFreqDisp:fieldArrayItem.rotationFreqDisp,
                             landCost:fieldArrayItem.landCost,
                         })
-                    }else{
+                    }else if(pmr[5] == "rt"){
+                        console.log("in else")
+                        console.log(pmr[4])
                         assembledArray.push({
                             field_name: pmr[0],
                             crop_ro: "Rotational Pasture",
@@ -80,7 +84,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             onContour: "NA",
                             grassSpeciesDisp: fieldArrayItem.grassSpeciesDisp,
                             interseededClover: fieldArrayItem.interseededClover,
-                            grazeDensityDisp: fieldArrayItem.grazeDensityDisp,
+                            grazeDensityDisp: "NA",
                             rotationFreqDisp:fieldArrayItem.rotationFreqDisp,
                             landCost:fieldArrayItem.landCost,
                         })
@@ -132,8 +136,8 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
             case "cg":
             for(i in fieldArray){
                 slicedId = fieldArray[i].id.slice(8)
-                console.log(slicedId)
-                console.log(pmr[1])
+                //console.log(slicedId)
+                //console.log(pmr[1])
                 if(slicedId == pmr[1]){
                     console.log("in if for fieldarray")
                     fieldArrayItem = fieldArray[i]
@@ -2768,7 +2772,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     defaults: {
 
                     style: 'padding:10px; ',
-                    border:0,
+                    border:1,
                 },
 
 
@@ -2781,226 +2785,250 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     alternateClassName: 'DSS.Field_Summary_Table',
                     id: "SummaryTable",
                     hidden: false,
+                    style: 'columnLineColor: Red',
+                    columnLines: true,
+                    rowLines: true,
                     columns: [
-                        {
-                            text: 'Field', dataIndex: 'field_name', width: 80, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            locked: true,
-                            tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
+                        {text: 'Field IDs',editable: false,hideable: false,  minWidth: 24,locked: true, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    text: 'Field', dataIndex: 'field_name', width: 70, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    locked: true,
+                                    tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
+                                },
+                                {
+                                    text: 'Crop Rotation', dataIndex: 'crop_ro', width: 150, 
+                                    editable: false,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                },
+                                {
+                                    text: 'Crop', dataIndex: 'crop', width: 110, 
+                                    editable: false,locked: true,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                },
+                                {
+                                    text: 'Year', dataIndex: 'year', width: 50, 
+                                    editable: false,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                },
+                            ]
                         },
-                        {
-                            text: 'Crop', dataIndex: 'crop', width: 110, 
-                            editable: false,locked: true,
-                            hideable: false, enableColumnHide: false, minWidth: 24,
-                            tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                        {text: 'Nutrient management (N)',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Fert N', 
+                                    dataIndex: 'fertPercN', 
+                                    width: 80, 
+                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Manure N', 
+                                    dataIndex: 'manuPercN', 
+                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'N Recommandation (lb/ac)', 
+                                    dataIndex: 'Nrec', 
+                                    width: 120, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Recommended Nitrogen for Crop/b> Measured as pounds per acre',
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure N allowed (lb/ac)', 
+                                    dataIndex: 'nManure', 
+                                    width:180, 
+                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Fert N Applied (lb/ac)', 
+                                    dataIndex: 'fertAppliedN', 
+                                    width: 160, 
+                                    tooltip: '<b>Applied Nitrogen Fertilizer per Acre</b> Applied amount of N fertilizer per acre',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure N Applied (lb/ac)', 
+                                    dataIndex: 'manuAppliedN', 
+                                    width:180, 
+                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
+                                    editable: false,
+                                },
+                            ]
                         },
-                        {
-                            text: 'Crop Rotation', dataIndex: 'crop_ro', width: 170, 
-                            editable: false,
-                            hideable: false, enableColumnHide: false, minWidth: 24,
-                            tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                        {text: 'Nutrient management (P)',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Fert P', 
+                                    dataIndex: 'fertPercP', 
+                                    width: 80, 
+                                    tooltip: '<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Manure P', 
+                                    dataIndex: 'manuPercP', 
+                                    width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'P removal (lb/ac)', 
+                                    dataIndex: 'pNeeds', 
+                                    width: 80, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Phosphorus Needs of Crop</b> Measured as pounds per acre',
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Fert P Applied (lb/ac)', 
+                                    dataIndex: 'fertAppliedP', 
+                                    width: 160, 
+                                    tooltip: '<b>Applied Phosphorus Fertilizer per Acre</b> Applied amount of P fertilizer per acre',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure P Applied (lb/ac)', 
+                                    dataIndex: 'manuAppliedP', 
+                                    width: 190, 
+                                    tooltip: '<b>Phosphorus Applied via Manure per Acre</b> Applied amount of P coming from spread manure per acre',
+                                    editable: false,
+                                },
+                            ]
                         },
-                       
-                        {
-                            text: 'Rotation Year', dataIndex: 'year', width: 110, 
-                            editable: false,
-                            hideable: false, enableColumnHide: false, minWidth: 24,
-                            tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                        {text: 'Additional Management',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 180, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Cover Crop</b> Which cover crop is being grown on each field during the none growing season',
+                                },
+                                {
+                                    text: 'Tillage', dataIndex: 'tillageDisp', width: 180, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Tillage</b> Which tillage practice is being used on each field',
+                                },
+                                {
+                                    text: 'On Contour', dataIndex: 'onContour', width: 90, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
+                                },
+                                {
+                                    text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 150, 
+                                    tooltip: '<b>Low Yielding:</b> Italian ryegrass, Kentucky bluegrass, Quackgrass, Meadow fescue (older varieties)\n<b>Medium Yielding:</b> Meadow fescue (newer varieties), Smooth bromegrass, Timothy, Perennial ryegrass\n<b>High Yielding:</b> Orchardgrass, Reed canary grass, Tall fescue, Festulolium, Hybrid and Meadow bromegrass',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                                {
+                                    text: 'Rotational Frequency', dataIndex: 'rotationFreqDisp', width: 150,
+                                    tooltip: '<b>Pasture Rotational Frequency</b> How often are animals rotated on and off any given pasture',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                                {
+                                    text: 'Interseeded Legume', dataIndex: 'interseededClover', width: 145,
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
+                                },
+                                {
+                                    text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110,
+                                    tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                            ]
                         },
-                        {
-                            xtype: 'numbercolumn',
-                            width: 60, 
-                            format: '0.0',
-                            text: 'Area',
-                            dataIndex: 'area',
-                            //flex: 1,
-                            editable: false,
-                            hideable: false,
+                        {text: 'Summary stats',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    width: 60, 
+                                    format: '0.0',
+                                    text: 'Area',
+                                    dataIndex: 'area',
+                                    //flex: 1,
+                                    editable: false,
+                                    hideable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Soil-P (PPM)', 
+                                    dataIndex: 'soilP',
+                                    width: 100,
+                                    tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
+                                    hideable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Soil-OM (%)', 
+                                    dataIndex: 'soilOM', 
+                                    width: 100, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
+                                },
+                            ]
                         },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Soil-P (PPM)', 
-                            dataIndex: 'soilP',
-                            width: 100,
-                            tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
-                            hideable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Soil-OM (%)', 
-                            dataIndex: 'soilOM', 
-                            width: 100, 
-                            editable: false,
-                            hideable: false,
-                            tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'P needs', 
-                            dataIndex: 'pNeeds', 
-                            width: 80, 
-                            editable: false,
-                            hideable: false,
-                            tooltip: '<b>Phosphorus Needs of Crop</b> Measured as pounds per acre',
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'N Recommandations', 
-                            dataIndex: 'Nrec', 
-                            width: 120, 
-                            editable: false,
-                            hideable: false,
-                            tooltip: '<b>Recommended Nitrogen for Crop/b> Measured as pounds per acre',
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Manure N', 
-                            dataIndex: 'manuPercN', 
-                            width: 120, tooltip: '<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Manure N Applied (lb/ac)', 
-                            dataIndex: 'manuAppliedN', 
-                            width:180, 
-                            tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Fert N', 
-                            dataIndex: 'fertPercN', 
-                            width: 80, 
-                            tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Manure N Allowed (lb/ac)', 
-                            dataIndex: 'nManure', 
-                            width:180, 
-                            tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Fert N Applied (lb/ac)', 
-                            dataIndex: 'fertAppliedN', 
-                            width: 160, 
-                            tooltip: '<b>Applied Nitrogen Fertilizer per Acre</b> Applied amount of N fertilizer per acre',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Manure P', 
-                            dataIndex: 'manuPercP', 
-                            width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Manure P Applied (lb/ac)', 
-                            dataIndex: 'manuAppliedP', 
-                            width: 190, 
-                            tooltip: '<b>Phosphorus Applied via Manure per Acre</b> Applied amount of P coming from spread manure per acre',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Fert P', 
-                            dataIndex: 'fertPercP', 
-                            width: 80, 
-                            tooltip: '<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Fert P Applied (lb/ac)', 
-                            dataIndex: 'fertAppliedP', 
-                            width: 160, 
-                            tooltip: '<b>Applied Phosphorus Fertilizer per Acre</b> Applied amount of P fertilizer per acre',
-                            editable: false,
-                        },
-                        
-                        {
-                            text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 180, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Cover Crop</b> Which cover crop is being grown on each field during the none growing season',
-                        },
-                        {
-                            text: 'Tillage', dataIndex: 'tillageDisp', width: 180, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Tillage</b> Which tillage practice is being used on each field',
-                        },
-                        {
-                            text: 'On Contour', dataIndex: 'onContour', width: 90, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
-                        },
-                        
-                        {
-                            text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 150, 
-                            tooltip: '<b>Low Yielding:</b> Italian ryegrass, Kentucky bluegrass, Quackgrass, Meadow fescue (older varieties)\n<b>Medium Yielding:</b> Meadow fescue (newer varieties), Smooth bromegrass, Timothy, Perennial ryegrass\n<b>High Yielding:</b> Orchardgrass, Reed canary grass, Tall fescue, Festulolium, Hybrid and Meadow bromegrass',
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            
-                        },
-                        {
-                            text: 'Rotational Frequency', dataIndex: 'rotationFreqDisp', width: 150,
-                            tooltip: '<b>Pasture Rotational Frequency</b> How often are animals rotated on and off any given pasture',
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            
-                        },
-                        {
-                            text: 'Interseeded Legume', dataIndex: 'interseededClover', width: 145,
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
-                        },
-                        {
-                            text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110,
-                            tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Land Cost ($/ac)',
-                            dataIndex: 'landCost',
-                            tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
-                            formatter: 'usMoney',
-                            minWidth: 24,
-                            width: 110,
-                            tooltip: '<b>Area:</b> Area in acres',
-                            editable: false,
-                            hideable: false,
+                        {text: 'Economics',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Land Cost ($/ac)',
+                                    dataIndex: 'landCost',
+                                    tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
+                                    formatter: 'usMoney',
+                                    minWidth: 24,
+                                    width: 110,
+                                    tooltip: '<b>Area:</b> Area in acres',
+                                    editable: false,
+                                    hideable: false,
+                                },
+                            ]
                         },
                     ],
                     resizable: true,
                     scrollable: true,
                     height: 400,
-                    width: 900,
+                    width: 1100,
                     //renderTo: Ext.getBody(),
                     
                 })
