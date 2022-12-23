@@ -464,7 +464,7 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 					},{
 						boxLabel: 'Every 7 days',	inputValue: "0.75",
 					},{
-						boxLabel: 'Continuous',	inputValue: "0.65",
+						boxLabel: 'Never (Continuously grazing)',	inputValue: "0.65",
 					}]
 				},
 
