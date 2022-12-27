@@ -57,12 +57,22 @@ async function selectDeleteScenario(fgid){
 			itemToBeDeleted = delScenarioFeature;
 			delArray = [];
 			delArray.push(itemToBeDeleted)
-			await wfsDeleteItem(delArray,'scenarios_2');
+			console.log(delArray)
+			await deleteOperation(delArray,'scenarios_2');
+			geoServer.setScenariosSource()
+			delItemArrays = await gatherdeleteFeaturesScen(fgid)
+			console.log(delItemArrays)
+			await deleteOperation(delItemArrays[1],'infrastructure_2');
+			await deleteOperation(delItemArrays[0],'field_2');
+            if(feat = 'scenarios_2'){
+                getWFSScenarioSP()
+            }
+			//await wfsDeleteItem(delArray,'scenarios_2');
 		};
 	});
 	//await getWFSScenarioSP
-	await selectDeleteFieldInfra(fgid,fieldArrayDS,DSS.layer.fields_1,'field_2')
-	await selectDeleteFieldInfra(fgid,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
+	// await selectDeleteFieldInfra(fgid,fieldArrayDS,DSS.layer.fields_1,'field_2')
+	// await selectDeleteFieldInfra(fgid,infraArrayDS,DSS.layer.infrastructure,'infrastructure_2')
 	await DSS.ApplicationFlow.instance.showManageOperationPage();
 }
 fieldArrayDS = []
