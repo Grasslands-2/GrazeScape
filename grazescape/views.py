@@ -326,7 +326,8 @@ def geoserver_request(request):
         payloadstr = str(pay_load)
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
         print(resultdel.group(1))
-        png_handler = pgh.PngHandler()
+        #PngHandler seems to be missing from PngHandler script ask Matt about that
+        png_handler = pgh
 
         png_handler.delete_gcs_model_result_blob(resultdel.group(1))
     # if request_type == "insert_farm" and feature_id != "" and "farm_2" in url :

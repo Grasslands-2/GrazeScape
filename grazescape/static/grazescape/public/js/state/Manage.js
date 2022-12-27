@@ -1,4 +1,6 @@
 DSS.utils.addStyle('.information-scenlabel { padding: 0.5rem 0 0.25rem 0; font-size: 1.1rem; text-align: center; font-weight: bold}')
+fieldArrayDO = [];
+infraArrayDO = [];
 function reSourceFields() {
     geoServer.setFieldSource('&CQL_filter=farm_id='+DSS.activeFarm)
 	console.log("reSource Fields ran");
@@ -28,6 +30,24 @@ function deactivateScenButtons(){
 	Ext.getCmp('delCurScen').setDisabled(true)
 }
 var fieldZoom = false
+async function gatherdeleteFeaturesScen(scenIDToDelete){
+	fieldArrayDI = [];
+	infraArrayDI = [];
+	console.log(scenIDToDelete)
+	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+		if(f.values_.scenario_id == scenIDToDelete){
+			fieldArrayDI.push(f)
+		}
+	})
+	DSS.layer.infrastructure.getSource().forEachFeature(function(i) {
+		if(i.values_.scenario_id == scenIDToDelete){
+			infraArrayDI.push(i)
+		}
+	})
+	console.log(fieldArrayDI)
+	console.log(infraArrayDI)
+	return [fieldArrayDI,infraArrayDI]
+}
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.Manage', {
@@ -309,9 +329,14 @@ Ext.define('DSS.state.Manage', {
 							await selectDeleteScenario(DSS.activeScenario)
 							DSS.MapState.hideFieldsandInfra()
 							geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
+							// await gatherdeleteFeaturesScen(DSS.activeScenario)
+							// console.log(fieldArrayDO)
+							// console.log(infraArrayDO)
+							// await deleteOperation(infraArrayDO,'infrastructure_2');
+							// await deleteOperation(fieldArrayDO,'field_2');
 							} else {
 							console.log("NOT DELETED!")
-						  }
+						}
 					}
 				},
 				
