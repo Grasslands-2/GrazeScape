@@ -122,13 +122,6 @@ function popFieldsArray(obj) {
 	console.log("DOne with popping fields")
 }
 function gatherTableData() {
-	// console.log(fieldUrl)
-	// console.log("gatherTableData ran");
-	// console.log(fieldArray);
-	//getRotAcrage(fieldArray);
-	// console.log(pastAcreage);
-	// console.log(cropAcreage);
-
 	getWFSfields('&CQL_filter=scenario_id='+DSS.activeScenario);
 //Data stores are set up to reflect options for fields in the app
 };

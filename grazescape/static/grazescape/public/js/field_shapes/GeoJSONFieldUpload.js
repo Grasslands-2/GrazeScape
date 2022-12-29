@@ -12,14 +12,11 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 	extend: 'Ext.window.Window',
 	alias: 'widget.field_apply_panel',
 	id: "GeoJSONFieldUpload",
-//	autoDestroy: false,
-//	closeAction: 'hide',
 	constrain: false,
 	modal: true,
 	width: 500,
 	resizable: true,
 	bodyPadding: 8,
-	//singleton: true,	
     autoDestroy: false,
     scrollable: 'y',
 	titleAlign: 'center',
@@ -45,7 +42,6 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 				html: "Imported file must be a GeoJSON!",
 			},{ //------------------------------------------
 				xtype: 'component',
-				//id: 'scenIDpanel',
 				cls: 'information',
 				html: 'The GeoJSON needs to be unprojected and in the WGS 84/Pseudo-Mercator CRS (EPSG:3857).  More flexiblty coming to this tool soon.',
 			},{
@@ -120,29 +116,6 @@ Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
                 ]
             }
 			]
-					 //{
-            //             xtype: 'button',
-            //             text: 'Upload Field Boundaries',
-            //             handler: async function(){
-            //                 let file = this.up().down('filefield').el.down('input[type=file]').dom.files[0];
-            //                 var reader = new FileReader();
-            //                 console.log(file)
-			// 				reader.onload = (function(theFile) {
-            //                     return async function(e) {
-			// 						console.log(e)
-			// 						readerData = e.target.result
-			// 						console.log(readerData)
-            //                     };
-            //                 })(file);
-			// 				//console.log(file)
-            //                 reader.readAsBinaryString(file);
-			// 				//reader.readAsDataURL(file);
-			// 				this.up('window').destroy();
-            //             }
-            //         }
-            //     ]
-            // }
-			// ]
 		});
 		me.callParent(arguments);
 		AppEvents.registerListener("viewport_resize", function(opts) {
