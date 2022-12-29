@@ -64,7 +64,6 @@ Ext.define('DSS.state.Manage', {
 		'DSS.state.operation.InfraShapeMode',
 		'DSS.state.operation.FieldShapeMode',
 		'DSS.state.Scenario',
-		
 	],
 	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
@@ -88,8 +87,6 @@ Ext.define('DSS.state.Manage', {
 		console.log("in manage")
 		itemsArray = []
 		getWFSScenarioSP()
-		//deactivateScenButtons()
-		
 		Ext.applyIf(me, {
 			defaults: {
 				margin: '1rem',
@@ -107,13 +104,10 @@ Ext.define('DSS.state.Manage', {
 							c.getEl().getFirstChild().el.on({
 								click: function(self) {
 									fieldZoom = false
-//									reSourceFields()
-//									reSourceinfra()
 									reSourcefarms()
 									reSourcescenarios()
 									DSS.ApplicationFlow.instance.showFarmPickerPage();
 									DSS.MapState.hideFieldsandInfra()
-									//DSS.layer.fields_1.getSource().refresh();
 									DSS.viewModel.scenario = !DSS['viewModel']
 									DSS['viewModel'] = {}
 									DSS.viewModel.scenario = {}
@@ -122,9 +116,6 @@ Ext.define('DSS.state.Manage', {
 									DSS.activeScenario = null;
 									DSS.activeFarm = null;
 									DSS.scenarioName = ''
-									//deactivateScenButtons()
-									// console.log(DSS.activeFarm)
-									// console.log(DSS.activeScenario)
 								}
 							});
 						},
@@ -150,15 +141,6 @@ Ext.define('DSS.state.Manage', {
 					cls: 'information',
 					html: 'Farm: '+ DSS.farmName.bold(),
 				},
-				// { //------------------------------------------
-				// 	xtype: 'component',
-				// 	id: 'farmIDpanel',
-				// 	cls: 'information',
-				// 	style:{
-				// 		color: '#228833'
-				// 	},
-				// 	html: DSS.farmName,
-				// },
 			]
 		},
 		{
@@ -178,7 +160,6 @@ Ext.define('DSS.state.Manage', {
 		},
 			{ //------------------------------------------
 				xtype: 'component',
-				//id: 'scenIDpanel',
 				cls: 'information',
 				html: 'Or',
 			},
@@ -199,38 +180,6 @@ Ext.define('DSS.state.Manage', {
 				xtype: 'container',
 				layout: DSS.utils.layout('vbox', 'center', 'stretch'),
 				items: [
-				// { //------------------------------------------
-				// 	xtype: 'component',
-				// 	cls: 'information',
-				// 	html: 'Current Farm:',
-				// },
-				// { //------------------------------------------
-				// 	xtype: 'component',
-				// 	id: 'farmIDpanel',
-				// 	cls: 'information',
-				// 	style:{
-				// 		color: '#228833'
-				// 	},
-				// 	html: DSS.farmName,
-				// },
-				// { //------------------------------------------
-				// 	xtype: 'component',
-				// 	//id: 'scenIDpanel',
-				// 	cls: 'information',
-				// 	html: 'Selected Scenario: ',
-				// },
-				// { //------------------------------------------
-				// 	xtype: 'component',
-				// 	id: 'scenIDpanel',
-				// 	cls: 'information-scenlabel',
-				// 	style:{
-				// 		fontsize: 45,
-				// 		color: '#EE6677'
-				// 	},
-				// 	html: "No Scenario Selected",
-				// },
-			//------------------------Load Scenario Button-------------
-			
 			Ext.create('Ext.menu.Menu', {
 				width: 80,
 				//height: 140,
@@ -294,28 +243,6 @@ Ext.define('DSS.state.Manage', {
 						DSS.ApplicationFlow.instance.showScenarioPage();
 					}
 				},
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	id: 'dupCurScen',
-				// 	disabled: true,
-				// 	componentCls: 'button-margin',
-				// 	text: 'Duplicate Selected Scenario',
-				// 	handler: function(self) {
-				// 		gatherScenarioTableData()
-				// 		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
-				// 		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-				// 		DSS.dialogs.ScenarioPicker.show().center().setY(100);
-				// 		reSourcescenarios();
-				// 		//reSourceFields()
-				// 		getWFSScenarioSP()
-				// 		//getWFSScenarioNS();
-				// 		// DSS.layer.scenarios.getSource().refresh();
-				// 		console.log('This is the scenarioArray: ')
-				// 		console.log(scenarioArray)
-				// 		//DSS.ApplicationFlow.instance.showScenarioPage();
-				// 	}
-				// },
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -329,70 +256,15 @@ Ext.define('DSS.state.Manage', {
 							await selectDeleteScenario(DSS.activeScenario)
 							DSS.MapState.hideFieldsandInfra()
 							geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
-							// await gatherdeleteFeaturesScen(DSS.activeScenario)
-							// console.log(fieldArrayDO)
-							// console.log(infraArrayDO)
-							// await deleteOperation(infraArrayDO,'infrastructure_2');
-							// await deleteOperation(fieldArrayDO,'field_2');
 							} else {
 							console.log("NOT DELETED!")
 						}
 					}
 				},
-				
-				// {//------------------------------------------
-				// 	xtype: 'component',
-				// 	height: 32
-				// },
-				//---------------------Create New Scenario Button-----------
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'Create New Blank Scenario',
-				// 	handler: function(self) {
-				// 		DSS.activeScenario = null
-				// 		DSS.scenarioName = ''
-				// 		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.NewScenario'); 
-				// 		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-				// 		DSS.dialogs.ScenarioPicker.show().center().setY(100);
-				// 		reSourcescenarios();
-				// 		//reSourceFields()
-				// 		getWFSScenarioNS();
-				// 		// DSS.layer.scenarios.getSource().refresh();
-				// 		console.log('This is the scenarioArray: ')
-				// 		console.log(scenarioArray)
-				// 		getWFSScenarioSP()
-				// 		//DSS.ApplicationFlow.instance.showScenarioPage();
-				// 	}
-				// },
-			//---------------------Delete Scenarios Button-------------
-			// {
-			// 	xtype: 'button',
-			// 	cls: 'button-text-pad',
-			// 	componentCls: 'button-margin',
-			// 	text: 'Delete a Scenario',
-			// 	handler: function(self) {
-			// 		reSourcescenarios()
-			// 		//getWFSScenario()
-			// 		reSourceFields()
-			// 		reSourceinfra()
-			// 		//console.log(itemsArray);
-			// 		//getWFSScenarioDS()
-			// 		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.DeleteScenario'); 
-			// 		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-			// 		DSS.dialogs.ScenarioPicker.show().center().setY(100);
-					
-			// 	}
-			// },
 		]
 		});
 		
 		me.callParent(arguments);
-
-//		Ext.create('DSS.controls.ApplicationState', {id: 'crap-state'}).showAt(400,-4);
-		
 	}
-
 });
 

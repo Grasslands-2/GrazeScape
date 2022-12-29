@@ -11,7 +11,8 @@ Ext.create('Ext.data.Store', {
 		sorters: ['name'],
 	data: fieldArraystandin
 });
-
+//This function is used to create the field summary after the models are run.  it needs the pmanure array of values to completely be filled, 
+//which is why it is run after the models finsih.
 function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
     var assembledArray = []
     var fieldArrayItem = []
@@ -426,7 +427,9 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
     });
     return assembledArray
 }
-
+//Grabs the pngs for a field that has been previously modeled, but is not dirty in the current model run.
+//pngs are stored on Google Cloud, and the url this function calls to uses a function in the Django Python backend
+//to download those pngs into local container storage for use.
 function field_png_lookup(data,layer,extents){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -441,7 +444,6 @@ function field_png_lookup(data,layer,extents){
     'type' : 'POST',
     'data' : data,
     success: function(responses) {
-		//console.log(responses)
         if(layer == 'ploss'){
             plossPNGFile = responses[0]
             console.log(plossPNGFile)
@@ -524,6 +526,7 @@ function field_png_lookup(data,layer,extents){
 	})
 	})
 }
+
 function get_results_image(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -567,7 +570,6 @@ function gatherYieldTableData() {
 	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
 	for(field in chartObjyieldarray){
         console.log(chartObjyieldarray[field])
-        //if(chartObjyieldarray[field].toolTip[0] !== null){
         if(chartObjyieldarray[field].scenDbID == DSS.activeScenario){
             fieldYieldArray.push({
                 id: chartObjyieldarray[field].dbID,
@@ -683,6 +685,7 @@ function turnOffMappedResults() {
 var fieldYieldArray = [];
 //var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
 //var modelTypes = ['bio','econ','yield']
+//Models to run.  Currently only yield since all models got wrapped up into one for the time being for efficency updates.
 var modelTypes = ['yield']
 //list of all the current and future charts
 var chartList = [
@@ -761,9 +764,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
     name: "dashboardWindow",
 	alternateClassName: 'DSS.Dashboard',
     id: "dashboardWindow",
-//	autoDestroy: true,
-//	closeAction: 'destroy',
-//    closable: false,
     closeAction: 'method-hide',
 	constrain: true,
 	modal: false,
@@ -772,20 +772,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	resizable: true,
     maximizable:true,
     minimizable:true,
-//	bodyPadding: 8,
 	titleAlign: 'center',
 	layout : 'fit',
 	plain: true,
-//    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
 	runModel: true,
     scope: this,
-    // tbar: [
-    //     {
-    //         text: 'Close',
-    //         handler: function () { this.up('window').close(); }
-    //     }
-    // ],
+    closable: true,
     listeners:{
         enable: function(){
             console.log("ENABLE")
@@ -799,13 +792,19 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         add: function(){
             console.log("ADD")
         },
-        
+        beforehide: function(){
+            console.log("beforehide")
+            turnOffMappedResults()
+        },
         hide: function(){
             console.log("hide")
             turnOffMappedResults()
         },
-
-        close: function(thisWindow){
+        beforeclose: function(){
+            console.log("beforeclose")
+            turnOffMappedResults()
+        },
+        close: function(){
             console.log("close")
             turnOffMappedResults()
         },
@@ -822,7 +821,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             window.collapse();
             window.setWidth(150);
             window.setHeight(150)
-        }
+        },
+        activate: function(window){
+            console.log("activate")
+        },
     },
     tools: [{
         type: 'restore',
@@ -867,8 +869,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		let me = this;
 		layer = DSS.layer.fields_1
         
-        
-//
         if (this.runModel) {
             var modelruntime = ''
             //assign model run timestamp
@@ -954,7 +954,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         econ_pb.max = numbFields
                         break
                     case 'nitrate':
-                        //set up a call to a python function to run the nitrate model.  well worry abuot
+                        //set up a call to a python function to run the nitrate model.  we'll worry about
                         //presentation after the model works.
                         nleaching_pb.max = numbFields
                         break
@@ -962,7 +962,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             }
             console.log(fieldIter)
             
-//            get parameters for the active scenario fields from the layer display
+//          get parameters for the active scenario fields from the layer display
 //          if fields arent in the active scenario then use the values from the database
 //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
 //          while the inactive fields are just retrieving their models results from the db
@@ -1011,10 +1011,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
-                                    // nleaching_pb.hidden = true
-                                    // Ext.getCmp("nitrateTab").setDisabled(false)
-                                    //Ext.getCmp("nitrateFarmConvert").setDisabled(false)
-                                    //Ext.getCmp("nitrateFieldConvert").setDisabled(false)
                                     ero_pb.hidden = true
                                     Ext.getCmp("eroTab").setDisabled(false)
                                     Ext.getCmp("erosionFarmConvert").setDisabled(false)
@@ -1035,7 +1031,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     console.log(chartObj)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
-                                    Ext.getCmp('mainTab').setActiveTab(summaryTable)
+                                    //At the end of model runs this sets the summary table as the active tab, so that its the first thing the user sees.
+                                    setTimeout(function(){
+                                        Ext.getCmp('mainTab').setActiveTab(summaryTable)
+                                    }, 500);
 
                                 }
                                 break
@@ -1476,8 +1475,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     chartObj.oat_yield_field.chart = create_graph(chartObj.oat_yield_field, 'Oat Yield', document.getElementById('oat_yield_field').getContext('2d'));
                     chartObj.alfalfa_yield_field.chart = create_graph(chartObj.alfalfa_yield_field, 'Alfalfa Yield', document.getElementById('alfalfa_yield_field').getContext('2d'));
                     chartObj.rotation_yield_field.chart = create_graph(chartObj.rotation_yield_field, 'Total Yield', document.getElementById('rotation_yield_field').getContext('2d'));
-
-
                 },
             }
         },
@@ -2704,6 +2701,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             }
     //                        text: 'Yearly Yield'
                         },
+                        //There is a listener set up in DashBoardUtilities that runs when this button is clicked to download summary csv to users machine.
                         {
                             xtype: 'button',
                             text: 'Download Summary Report CSV',
@@ -2711,10 +2709,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             tooltip: 'Download charts and csv',
                             handler: function(e) {
                                 console.log(e)
-                                
-                                //downloadSummaryCSV(chartObj)
                             }
-    //                        text: 'Yearly Yield'
                         }
                     
                     ],
@@ -2742,23 +2737,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     bodyBorder: false
                 },
                 scrollable: true,
-
-                // listeners:{activate: function() {
-                //     if(Ext.getCmp('SummaryTable')){
-                //         Ext.getCmp('SummaryTable').setHidden(false);
-                //         Ext.getCmp('SummaryTable').show();
-                //     }else{
-                //         console.log("no summary table")
-                //     }
-                //     //console.log("options")
-
-                //     // if(Ext.getCmp('fieldLegend').items.length<1){
-
-                //     //     Ext.getCmp('fieldLegend').add(checkBoxField)
-                //     //     Ext.getCmp('scenLegend').add(checkBoxScen)
-                //     // }
-                // }},
-
 //                inner tabs for farm and field scale
                 items:[{
                     xtype: 'container',
@@ -2775,7 +2753,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     border:1,
                 },
 
-
+                //This panel is a field summary of the nutrients and settings for each field in the model run.  
                 items:[
                     Ext.create('Ext.grid.Panel', {
                     title: 'Active Scenario Field Summary',
@@ -2826,7 +2804,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: '% Fert N', 
                                     dataIndex: 'fertPercN', 
                                     width: 80, 
-                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
+                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> % Fert N" column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations',
                                     editable: false,
                                 },
                                 {
@@ -2834,7 +2812,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     format: '0.0',
                                     text: '% Manure N', 
                                     dataIndex: 'manuPercN', 
-                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
+                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b>  Manure N" column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed...',
                                     editable: false,
                                 },
                                 {
@@ -2845,7 +2823,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     width: 120, 
                                     editable: false,
                                     hideable: false,
-                                    tooltip: '<b>Recommended Nitrogen for Crop/b> Measured as pounds per acre',
+                                    tooltip: '<b>Recommended N</b>Recommended N application for crop based on UW-Extension guidelines (A2809)',
                                 },
                                 {
                                     xtype: 'numbercolumn',
@@ -2853,7 +2831,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: 'Manure N allowed (lb/ac)', 
                                     dataIndex: 'nManure', 
                                     width:180, 
-                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
+                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Manure N allowed for legume crops based on allowable units of nitrogen found in the NRCS-WI Conservation Planning Technical Note 1 - Nutrient Management (590) (dated February 2016; Table 2)',
                                     editable: false,
                                 },
                                 {
@@ -3899,7 +3877,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             },
             add: function(){
                 console.log("ADD")
+            },
+            hide: function(){
+                console.log("hide")
+                turnOffMappedResults()
+            },
+            beforehide: function(){
+                console.log("beforehide")
+                turnOffMappedResults()
+            },
+            close: function(){
+                console.log("close")
+                turnOffMappedResults()
             },},
+            beforeclose: function(){
+                console.log("beforeclose")
+                turnOffMappedResults()
+            },
 //                inner tabs for farm and field scale
             items: [
                 phantom,
