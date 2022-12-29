@@ -327,9 +327,13 @@ def geoserver_request(request):
         payloadstr = str(pay_load)
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
         print(resultdel.group(1))
-        png_handler = pgh
 
-        png_handler.delete_gcs_model_result_blob(resultdel.group(1))
+        #PngHandler seems to be missing from PngHandler script ask Matt about that
+        png_handler = pgh
+        try:
+            png_handler.delete_gcs_model_result_blob(resultdel.group(1))
+        except:
+            print("png_handler.delete_gcs_model_result_blob(resultdel.group(1)) failed likely due to no png in cloud for this field")
     # if request_type == "insert_farm" and feature_id != "" and "farm_2" in url :
     # if "farm_2" in str(url):
 

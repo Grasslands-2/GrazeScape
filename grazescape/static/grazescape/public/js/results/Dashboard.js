@@ -11,7 +11,8 @@ Ext.create('Ext.data.Store', {
 		sorters: ['name'],
 	data: fieldArraystandin
 });
-
+//This function is used to create the field summary after the models are run.  it needs the pmanure array of values to completely be filled, 
+//which is why it is run after the models finsih.
 function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
     var assembledArray = []
     var fieldArrayItem = []
@@ -25,8 +26,10 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                 if(slicedId == pmr[1] ){
                     console.log("in if for fieldarray")
                     fieldArrayItem = fieldArray[i]
+                    console.log(fieldArrayItem)
                     var pt_rt = ''
-                    if(fieldArray[i].rotationVal == "pt-cn"){
+                    if(pmr[5] == "cn"){
+                    //if(fieldArray[i].rotationVal == "pt-cn"){
                         assembledArray.push({
                             field_name: pmr[0],
                             crop_ro: "Continuous Pasture",
@@ -42,19 +45,22 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].pt_cn.n_rec,
                             pNeeds: pmr[4].pt_cn.p_needs,
                             manuPercP: pmr[4].pt_cn.man_p_per,
+                            nManure: pmr[4].pt_cn.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].pt_cn.man_p_per/100) * pmr[4].pt_cn.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].pt_cn.p_needs,
                             tillageDisp: "NA",
                             coverCropDisp: "NA",
-                            onContour: false,
+                            onContour: "NA",
                             grassSpeciesDisp: fieldArrayItem.grassSpeciesDisp,
                             interseededClover: fieldArrayItem.interseededClover,
                             grazeDensityDisp: fieldArrayItem.grazeDensityDisp,
                             rotationFreqDisp:fieldArrayItem.rotationFreqDisp,
                             landCost:fieldArrayItem.landCost,
                         })
-                    }else{
+                    }else if(pmr[5] == "rt"){
+                        console.log("in else")
+                        console.log(pmr[4])
                         assembledArray.push({
                             field_name: pmr[0],
                             crop_ro: "Rotational Pasture",
@@ -70,15 +76,16 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].pt_rt.n_rec,
                             pNeeds: pmr[4].pt_rt.p_needs,
                             manuPercP: pmr[4].pt_rt.man_p_per,
+                            nManure: pmr[4].pt_rt.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].pt_rt.man_p_per/100) * pmr[4].pt_rt.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].pt_rt.p_needs,
                             tillageDisp: "NA",
                             coverCropDisp: "NA",
-                            onContour: false,
+                            onContour: "NA",
                             grassSpeciesDisp: fieldArrayItem.grassSpeciesDisp,
                             interseededClover: fieldArrayItem.interseededClover,
-                            grazeDensityDisp: fieldArrayItem.grazeDensityDisp,
+                            grazeDensityDisp: "NA",
                             rotationFreqDisp:fieldArrayItem.rotationFreqDisp,
                             landCost:fieldArrayItem.landCost,
                         })
@@ -110,6 +117,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
                         pNeeds: pmr[4].cn.p_needs,
                         manuPercP: pmr[4].cn.man_p_per,
+                        nManure: pmr[4].cn.n_man,
                         fertPercP: fieldArrayItem.fertPercP,
                         manuAppliedP:(pmr[4].cn.man_p_per/100) * pmr[4].cn.p_needs,
                         fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cn.p_needs,
@@ -117,7 +125,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         coverCropDisp: fieldArrayItem.coverCropDisp,
                         onContour: fieldArrayItem.onContour,
                         grassSpeciesDisp: "NA",
-                        interseededClover: false,
+                        interseededClover: "NA",
                         grazeDensityDisp: "NA",
                         rotationFreqDisp: "NA",
                         landCost:fieldArrayItem.landCost,
@@ -129,8 +137,8 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
             case "cg":
             for(i in fieldArray){
                 slicedId = fieldArray[i].id.slice(8)
-                console.log(slicedId)
-                console.log(pmr[1])
+                //console.log(slicedId)
+                //console.log(pmr[1])
                 if(slicedId == pmr[1]){
                     console.log("in if for fieldarray")
                     fieldArrayItem = fieldArray[i]
@@ -150,13 +158,14 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         pNeeds: pmr[4].sb.p_needs,
                         manuPercP: pmr[4].sb.man_p_per,
                         fertPercP: fieldArrayItem.fertPercP,
+                        nManure: pmr[4].sb.n_man,
                         manuAppliedP:(pmr[4].sb.man_p_per/100) * pmr[4].sb.p_needs,
                         fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].sb.p_needs,
                         tillageDisp: fieldArrayItem.tillageDisp,
                         coverCropDisp: fieldArrayItem.coverCropDisp,
                         onContour: fieldArrayItem.onContour,
                         grassSpeciesDisp: "NA",
-                        interseededClover: false,
+                        interseededClover: "NA",
                         grazeDensityDisp: "NA",
                         rotationFreqDisp: "NA",
                         landCost:fieldArrayItem.landCost,
@@ -176,6 +185,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
                         pNeeds: pmr[4].cn.p_needs,
                         manuPercP: pmr[4].cn.man_p_per,
+                        nManure: pmr[4].cn.n_man,
                         fertPercP: fieldArrayItem.fertPercP,
                         manuAppliedP:(pmr[4].cn.man_p_per/100) * pmr[4].cn.p_needs,
                         fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cn.p_needs,
@@ -183,7 +193,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         coverCropDisp: fieldArrayItem.coverCropDisp,
                         onContour: fieldArrayItem.onContour,
                         grassSpeciesDisp: "NA",
-                        interseededClover: false,
+                        interseededClover: "NA",
                         grazeDensityDisp: "NA",
                         rotationFreqDisp: "NA",
                         landCost:fieldArrayItem.landCost,
@@ -215,6 +225,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
                             pNeeds: pmr[4].cn.p_needs,
                             manuPercP: pmr[4].cn.man_p_per,
+                            nManure: pmr[4].cn.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].cn.man_p_per/100) * pmr[4].cn.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cn.p_needs,
@@ -222,7 +233,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             coverCropDisp: fieldArrayItem.coverCropDisp,
                             onContour: fieldArrayItem.onContour,
                             grassSpeciesDisp: "NA",
-                            interseededClover: false,
+                            interseededClover: "NA",
                             grazeDensityDisp: "NA",
                             rotationFreqDisp: "NA",
                             landCost:fieldArrayItem.landCost,
@@ -242,6 +253,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cs.n_rec,
                             pNeeds: pmr[4].cs.p_needs,
                             manuPercP: pmr[4].cs.man_p_per,
+                            nManure: pmr[4].cs.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].cs.man_p_per/100) * pmr[4].cs.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cs.p_needs,
@@ -249,7 +261,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             coverCropDisp: fieldArrayItem.coverCropDisp,
                             onContour: fieldArrayItem.onContour,
                             grassSpeciesDisp: "NA",
-                            interseededClover: false,
+                            interseededClover: "NA",
                             grazeDensityDisp: "NA",
                             rotationFreqDisp: "NA",
                             landCost:fieldArrayItem.landCost,
@@ -269,6 +281,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].as.n_rec,
                             pNeeds: pmr[4].as.p_needs,
                             manuPercP: pmr[4].as.man_p_per,
+                            nManure: pmr[4].as.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].as.man_p_per/100) * pmr[4].as.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].as.p_needs,
@@ -276,7 +289,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             coverCropDisp: fieldArrayItem.coverCropDisp,
                             onContour: fieldArrayItem.onContour,
                             grassSpeciesDisp: "NA",
-                            interseededClover: false,
+                            interseededClover: "NA",
                             grazeDensityDisp: "NA",
                             rotationFreqDisp: "NA",
                             landCost:fieldArrayItem.landCost,
@@ -296,6 +309,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN) * pmr[4].af.n_rec,
                             pNeeds: pmr[4].af.p_needs,
                             manuPercP: pmr[4].af.man_p_per,
+                            nManure: pmr[4].af.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].af.man_p_per/100) * pmr[4].af.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].af.p_needs,
@@ -303,7 +317,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             coverCropDisp: fieldArrayItem.coverCropDisp,
                             onContour: fieldArrayItem.onContour,
                             grassSpeciesDisp: "NA",
-                            interseededClover: false,
+                            interseededClover: "NA",
                             grazeDensityDisp: "NA",
                             rotationFreqDisp: "NA",
                             landCost:fieldArrayItem.landCost,
@@ -335,6 +349,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cs.n_rec,
                             pNeeds: pmr[4].cs.p_needs,
                             manuPercP: pmr[4].cs.man_p_per,
+                            nManure: pmr[4].cs.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].cs.man_p_per/100) * pmr[4].cs.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cs.p_needs,
@@ -342,7 +357,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             coverCropDisp: fieldArrayItem.coverCropDisp,
                             onContour: fieldArrayItem.onContour,
                             grassSpeciesDisp: "NA",
-                            interseededClover: false,
+                            interseededClover: "NA",
                             grazeDensityDisp: "NA",
                             rotationFreqDisp: "NA",
                             landCost:fieldArrayItem.landCost,
@@ -362,6 +377,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].sb.n_rec,
                             pNeeds: pmr[4].sb.p_needs,
                             manuPercP: pmr[4].sb.man_p_per,
+                            nManure: pmr[4].sb.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].sb.man_p_per/100) * pmr[4].sb.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].sb.p_needs,
@@ -369,7 +385,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             coverCropDisp: fieldArrayItem.coverCropDisp,
                             onContour: fieldArrayItem.onContour,
                             grassSpeciesDisp: "NA",
-                            interseededClover: false,
+                            interseededClover: "NA",
                             grazeDensityDisp: "NA",
                             rotationFreqDisp: "NA",
                             landCost:fieldArrayItem.landCost,
@@ -389,6 +405,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].ot.n_rec,
                             pNeeds: pmr[4].ot.p_needs,
                             manuPercP: pmr[4].ot.man_p_per,
+                            nManure: pmr[4].ot.n_man,
                             fertPercP: fieldArrayItem.fertPercP,
                             manuAppliedP:(pmr[4].ot.man_p_per/100) * pmr[4].ot.p_needs,
                             fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].ot.p_needs,
@@ -396,7 +413,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             coverCropDisp: fieldArrayItem.coverCropDisp,
                             onContour: fieldArrayItem.onContour,
                             grassSpeciesDisp: "NA",
-                            interseededClover: false,
+                            interseededClover: "NA",
                             grazeDensityDisp: "NA",
                             rotationFreqDisp: "NA",
                             landCost:fieldArrayItem.landCost,
@@ -410,7 +427,9 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
     });
     return assembledArray
 }
-
+//Grabs the pngs for a field that has been previously modeled, but is not dirty in the current model run.
+//pngs are stored on Google Cloud, and the url this function calls to uses a function in the Django Python backend
+//to download those pngs into local container storage for use.
 function field_png_lookup(data,layer,extents){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -425,7 +444,6 @@ function field_png_lookup(data,layer,extents){
     'type' : 'POST',
     'data' : data,
     success: function(responses) {
-		//console.log(responses)
         if(layer == 'ploss'){
             plossPNGFile = responses[0]
             console.log(plossPNGFile)
@@ -508,6 +526,7 @@ function field_png_lookup(data,layer,extents){
 	})
 	})
 }
+
 function get_results_image(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -551,7 +570,6 @@ function gatherYieldTableData() {
 	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
 	for(field in chartObjyieldarray){
         console.log(chartObjyieldarray[field])
-        //if(chartObjyieldarray[field].toolTip[0] !== null){
         if(chartObjyieldarray[field].scenDbID == DSS.activeScenario){
             fieldYieldArray.push({
                 id: chartObjyieldarray[field].dbID,
@@ -667,6 +685,7 @@ function turnOffMappedResults() {
 var fieldYieldArray = [];
 //var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
 //var modelTypes = ['bio','econ','yield']
+//Models to run.  Currently only yield since all models got wrapped up into one for the time being for efficency updates.
 var modelTypes = ['yield']
 //list of all the current and future charts
 var chartList = [
@@ -745,9 +764,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
     name: "dashboardWindow",
 	alternateClassName: 'DSS.Dashboard',
     id: "dashboardWindow",
-//	autoDestroy: true,
-//	closeAction: 'destroy',
-//    closable: false,
     closeAction: 'method-hide',
 	constrain: true,
 	modal: false,
@@ -756,20 +772,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	resizable: true,
     maximizable:true,
     minimizable:true,
-//	bodyPadding: 8,
 	titleAlign: 'center',
 	layout : 'fit',
 	plain: true,
-//    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
 	runModel: true,
     scope: this,
-    // tbar: [
-    //     {
-    //         text: 'Close',
-    //         handler: function () { this.up('window').close(); }
-    //     }
-    // ],
+    closable: true,
     listeners:{
         enable: function(){
             console.log("ENABLE")
@@ -783,13 +792,19 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         add: function(){
             console.log("ADD")
         },
-        
+        beforehide: function(){
+            console.log("beforehide")
+            turnOffMappedResults()
+        },
         hide: function(){
             console.log("hide")
             turnOffMappedResults()
         },
-
-        close: function(thisWindow){
+        beforeclose: function(){
+            console.log("beforeclose")
+            turnOffMappedResults()
+        },
+        close: function(){
             console.log("close")
             turnOffMappedResults()
         },
@@ -806,7 +821,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             window.collapse();
             window.setWidth(150);
             window.setHeight(150)
-        }
+        },
+        activate: function(window){
+            console.log("activate")
+        },
     },
     tools: [{
         type: 'restore',
@@ -851,8 +869,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		let me = this;
 		layer = DSS.layer.fields_1
         
-        
-//
         if (this.runModel) {
             var modelruntime = ''
             //assign model run timestamp
@@ -938,7 +954,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         econ_pb.max = numbFields
                         break
                     case 'nitrate':
-                        //set up a call to a python function to run the nitrate model.  well worry abuot
+                        //set up a call to a python function to run the nitrate model.  we'll worry about
                         //presentation after the model works.
                         nleaching_pb.max = numbFields
                         break
@@ -946,7 +962,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             }
             console.log(fieldIter)
             
-//            get parameters for the active scenario fields from the layer display
+//          get parameters for the active scenario fields from the layer display
 //          if fields arent in the active scenario then use the values from the database
 //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
 //          while the inactive fields are just retrieving their models results from the db
@@ -995,10 +1011,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
-                                    // nleaching_pb.hidden = true
-                                    // Ext.getCmp("nitrateTab").setDisabled(false)
-                                    //Ext.getCmp("nitrateFarmConvert").setDisabled(false)
-                                    //Ext.getCmp("nitrateFieldConvert").setDisabled(false)
                                     ero_pb.hidden = true
                                     Ext.getCmp("eroTab").setDisabled(false)
                                     Ext.getCmp("erosionFarmConvert").setDisabled(false)
@@ -1019,7 +1031,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     console.log(chartObj)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
-                                    Ext.getCmp('mainTab').setActiveTab(summaryTable)
+                                    //At the end of model runs this sets the summary table as the active tab, so that its the first thing the user sees.
+                                    setTimeout(function(){
+                                        Ext.getCmp('mainTab').setActiveTab(summaryTable)
+                                    }, 500);
 
                                 }
                                 break
@@ -1460,8 +1475,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     chartObj.oat_yield_field.chart = create_graph(chartObj.oat_yield_field, 'Oat Yield', document.getElementById('oat_yield_field').getContext('2d'));
                     chartObj.alfalfa_yield_field.chart = create_graph(chartObj.alfalfa_yield_field, 'Alfalfa Yield', document.getElementById('alfalfa_yield_field').getContext('2d'));
                     chartObj.rotation_yield_field.chart = create_graph(chartObj.rotation_yield_field, 'Total Yield', document.getElementById('rotation_yield_field').getContext('2d'));
-
-
                 },
             }
         },
@@ -2688,6 +2701,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             }
     //                        text: 'Yearly Yield'
                         },
+                        //There is a listener set up in DashBoardUtilities that runs when this button is clicked to download summary csv to users machine.
                         {
                             xtype: 'button',
                             text: 'Download Summary Report CSV',
@@ -2695,10 +2709,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             tooltip: 'Download charts and csv',
                             handler: function(e) {
                                 console.log(e)
-                                
-                                //downloadSummaryCSV(chartObj)
                             }
-    //                        text: 'Yearly Yield'
                         }
                     
                     ],
@@ -2726,23 +2737,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     bodyBorder: false
                 },
                 scrollable: true,
-
-                // listeners:{activate: function() {
-                //     if(Ext.getCmp('SummaryTable')){
-                //         Ext.getCmp('SummaryTable').setHidden(false);
-                //         Ext.getCmp('SummaryTable').show();
-                //     }else{
-                //         console.log("no summary table")
-                //     }
-                //     //console.log("options")
-
-                //     // if(Ext.getCmp('fieldLegend').items.length<1){
-
-                //     //     Ext.getCmp('fieldLegend').add(checkBoxField)
-                //     //     Ext.getCmp('scenLegend').add(checkBoxScen)
-                //     // }
-                // }},
-
 //                inner tabs for farm and field scale
                 items:[{
                     xtype: 'container',
@@ -2756,10 +2750,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     defaults: {
 
                     style: 'padding:10px; ',
-                    border:0,
+                    border:1,
                 },
 
-
+                //This panel is a field summary of the nutrients and settings for each field in the model run.  
                 items:[
                     Ext.create('Ext.grid.Panel', {
                     title: 'Active Scenario Field Summary',
@@ -2769,217 +2763,250 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     alternateClassName: 'DSS.Field_Summary_Table',
                     id: "SummaryTable",
                     hidden: false,
+                    style: 'columnLineColor: Red',
+                    columnLines: true,
+                    rowLines: true,
                     columns: [
-                        {
-                            text: 'Field', dataIndex: 'field_name', width: 80, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            locked: true,
-                            tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
+                        {text: 'Field IDs',editable: false,hideable: false,  minWidth: 24,locked: true, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    text: 'Field', dataIndex: 'field_name', width: 70, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    locked: true,
+                                    tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
+                                },
+                                {
+                                    text: 'Crop Rotation', dataIndex: 'crop_ro', width: 150, 
+                                    editable: false,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                },
+                                {
+                                    text: 'Crop', dataIndex: 'crop', width: 110, 
+                                    editable: false,locked: true,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                },
+                                {
+                                    text: 'Year', dataIndex: 'year', width: 50, 
+                                    editable: false,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                },
+                            ]
                         },
-                        {
-                            text: 'Crop', dataIndex: 'crop', width: 110, 
-                            editable: false,locked: true,
-                            hideable: false, enableColumnHide: false, minWidth: 24,
-                            tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                        {text: 'Nutrient management (N)',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Fert N', 
+                                    dataIndex: 'fertPercN', 
+                                    width: 80, 
+                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> % Fert N" column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Manure N', 
+                                    dataIndex: 'manuPercN', 
+                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b>  Manure N" column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed...',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'N Recommandation (lb/ac)', 
+                                    dataIndex: 'Nrec', 
+                                    width: 120, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Recommended N</b>Recommended N application for crop based on UW-Extension guidelines (A2809)',
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure N allowed (lb/ac)', 
+                                    dataIndex: 'nManure', 
+                                    width:180, 
+                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Manure N allowed for legume crops based on allowable units of nitrogen found in the NRCS-WI Conservation Planning Technical Note 1 - Nutrient Management (590) (dated February 2016; Table 2)',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Fert N Applied (lb/ac)', 
+                                    dataIndex: 'fertAppliedN', 
+                                    width: 160, 
+                                    tooltip: '<b>Applied Nitrogen Fertilizer per Acre</b> Applied amount of N fertilizer per acre',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure N Applied (lb/ac)', 
+                                    dataIndex: 'manuAppliedN', 
+                                    width:180, 
+                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
+                                    editable: false,
+                                },
+                            ]
                         },
-                        {
-                            text: 'Crop Rotation', dataIndex: 'crop_ro', width: 170, 
-                            editable: false,
-                            hideable: false, enableColumnHide: false, minWidth: 24,
-                            tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                        {text: 'Nutrient management (P)',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Fert P', 
+                                    dataIndex: 'fertPercP', 
+                                    width: 80, 
+                                    tooltip: '<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Manure P', 
+                                    dataIndex: 'manuPercP', 
+                                    width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'P removal (lb/ac)', 
+                                    dataIndex: 'pNeeds', 
+                                    width: 80, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Phosphorus Needs of Crop</b> Measured as pounds per acre',
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Fert P Applied (lb/ac)', 
+                                    dataIndex: 'fertAppliedP', 
+                                    width: 160, 
+                                    tooltip: '<b>Applied Phosphorus Fertilizer per Acre</b> Applied amount of P fertilizer per acre',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure P Applied (lb/ac)', 
+                                    dataIndex: 'manuAppliedP', 
+                                    width: 190, 
+                                    tooltip: '<b>Phosphorus Applied via Manure per Acre</b> Applied amount of P coming from spread manure per acre',
+                                    editable: false,
+                                },
+                            ]
                         },
-                       
-                        {
-                            text: 'Rotation Year', dataIndex: 'year', width: 110, 
-                            editable: false,
-                            hideable: false, enableColumnHide: false, minWidth: 24,
-                            tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                        {text: 'Additional Management',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 180, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Cover Crop</b> Which cover crop is being grown on each field during the none growing season',
+                                },
+                                {
+                                    text: 'Tillage', dataIndex: 'tillageDisp', width: 180, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Tillage</b> Which tillage practice is being used on each field',
+                                },
+                                {
+                                    text: 'On Contour', dataIndex: 'onContour', width: 90, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
+                                },
+                                {
+                                    text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 150, 
+                                    tooltip: '<b>Low Yielding:</b> Italian ryegrass, Kentucky bluegrass, Quackgrass, Meadow fescue (older varieties)\n<b>Medium Yielding:</b> Meadow fescue (newer varieties), Smooth bromegrass, Timothy, Perennial ryegrass\n<b>High Yielding:</b> Orchardgrass, Reed canary grass, Tall fescue, Festulolium, Hybrid and Meadow bromegrass',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                                {
+                                    text: 'Rotational Frequency', dataIndex: 'rotationFreqDisp', width: 150,
+                                    tooltip: '<b>Pasture Rotational Frequency</b> How often are animals rotated on and off any given pasture',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                                {
+                                    text: 'Interseeded Legume', dataIndex: 'interseededClover', width: 145,
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
+                                },
+                                {
+                                    text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110,
+                                    tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                            ]
                         },
-                        {
-                            xtype: 'numbercolumn',
-                            width: 60, 
-                            format: '0.0',
-                            text: 'Area',
-                            dataIndex: 'area',
-                            //flex: 1,
-                            editable: false,
-                            hideable: false,
+                        {text: 'Summary stats',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    width: 60, 
+                                    format: '0.0',
+                                    text: 'Area',
+                                    dataIndex: 'area',
+                                    //flex: 1,
+                                    editable: false,
+                                    hideable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Soil-P (PPM)', 
+                                    dataIndex: 'soilP',
+                                    width: 100,
+                                    tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
+                                    hideable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Soil-OM (%)', 
+                                    dataIndex: 'soilOM', 
+                                    width: 100, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
+                                },
+                            ]
                         },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Soil-P (PPM)', 
-                            dataIndex: 'soilP',
-                            width: 100,
-                            tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
-                            hideable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Soil-OM (%)', 
-                            dataIndex: 'soilOM', 
-                            width: 100, 
-                            editable: false,
-                            hideable: false,
-                            tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'P needs', 
-                            dataIndex: 'pNeeds', 
-                            width: 80, 
-                            editable: false,
-                            hideable: false,
-                            tooltip: '<b>Phosphorus Needs of Crop</b> Measured as pounds per acre',
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'N Recommandations', 
-                            dataIndex: 'Nrec', 
-                            width: 120, 
-                            editable: false,
-                            hideable: false,
-                            tooltip: '<b>Recommended Nitrogen for Crop/b> Measured as pounds per acre',
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Manure N', 
-                            dataIndex: 'manuPercN', 
-                            width: 120, tooltip: '<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced). Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Manure N Applied (lbs/ac)', 
-                            dataIndex: 'manuAppliedN', 
-                            width:180, 
-                            tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Fert N', 
-                            dataIndex: 'fertPercN', 
-                            width: 80, 
-                            tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Fert N Applied (lbs/ac)', 
-                            dataIndex: 'fertAppliedN', 
-                            width: 160, 
-                            tooltip: '<b>Applied Nitrogen Fertilizer per Acre</b> Applied amount of N fertilizer per acre',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Manure P', 
-                            dataIndex: 'manuPercP', 
-                            width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Manure P Applied (lbs/ac)', 
-                            dataIndex: 'manuAppliedP', 
-                            width: 190, 
-                            tooltip: '<b>Phosphorus Applied via Manure per Acre</b> Applied amount of P coming from spread manure per acre',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: '% Fert P', 
-                            dataIndex: 'fertPercP', 
-                            width: 80, 
-                            tooltip: '<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
-                            editable: false,
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Fert P Applied (lbs/ac)', 
-                            dataIndex: 'fertAppliedP', 
-                            width: 160, 
-                            tooltip: '<b>Applied Phosphorus Fertilizer per Acre</b> Applied amount of P fertilizer per acre',
-                            editable: false,
-                        },
-                        
-                        {
-                            text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 180, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Cover Crop</b> Which cover crop is being grown on each field during the none growing season',
-                        },
-                        {
-                            text: 'Tillage', dataIndex: 'tillageDisp', width: 180, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Tillage</b> Which tillage practice is being used on each field',
-                        },
-                        {
-                            text: 'On Contour', dataIndex: 'onContour', width: 90, 
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
-                        },
-                        
-                        {
-                            text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 150, 
-                            tooltip: '<b>Low Yielding:</b> Italian ryegrass, Kentucky bluegrass, Quackgrass, Meadow fescue (older varieties)\n<b>Medium Yielding:</b> Meadow fescue (newer varieties), Smooth bromegrass, Timothy, Perennial ryegrass\n<b>High Yielding:</b> Orchardgrass, Reed canary grass, Tall fescue, Festulolium, Hybrid and Meadow bromegrass',
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            
-                        },
-                        {
-                            text: 'Rotational Frequency', dataIndex: 'rotationFreqDisp', width: 150,
-                            tooltip: '<b>Pasture Rotational Frequency</b> How often are animals rotated on and off any given pasture',
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            
-                        },
-                        {
-                            text: 'Interseeded Legume', dataIndex: 'interseededClover', width: 145,
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
-                        },
-                        {
-                            text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110,
-                            tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
-                            editable: false,
-                            hideable: false,  minWidth: 24,
-                            
-                        },
-                        {
-                            xtype: 'numbercolumn',
-                            format: '0.0',
-                            text: 'Land Cost ($/ac)',
-                            dataIndex: 'landCost',
-                            tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
-                            formatter: 'usMoney',
-                            minWidth: 24,
-                            width: 110,
-                            tooltip: '<b>Area:</b> Area in acres',
-                            editable: false,
-                            hideable: false,
+                        {text: 'Economics',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Land Cost ($/ac)',
+                                    dataIndex: 'landCost',
+                                    tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
+                                    formatter: 'usMoney',
+                                    minWidth: 24,
+                                    width: 110,
+                                    tooltip: '<b>Area:</b> Area in acres',
+                                    editable: false,
+                                    hideable: false,
+                                },
+                            ]
                         },
                     ],
                     resizable: true,
                     scrollable: true,
                     height: 400,
-                    width: 900,
+                    width: 1100,
                     //renderTo: Ext.getBody(),
                     
                 })
@@ -3004,7 +3031,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         storeId: 'fieldSummaryStore1',
                         alternateClassName: 'DSS.FieldStore',
                         fields:[ 'field_name', 'soilP', 'soilOM','area', 'crop_ro', 'crop', 'fertAppliedN', 'fertAppliedP', 
-                            'fertPercP','manuPercP','fertPercN','manuPercN','manuAppliedN','manuAppliedP',
+                            'fertPercP','manuPercP','fertPercN','manuPercN','manuAppliedN','manuAppliedP','nManure',
                             'pNeeds','year','Nrec','grazeDensityDisp','landCost','interseededClover','tillageDisp','coverCropDisp','onContour','grassSpeciesDisp','rotationFreqDisp'],
                             sorters: ['field_name'],
                         data: fieldSummaryArray
@@ -3850,7 +3877,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             },
             add: function(){
                 console.log("ADD")
+            },
+            hide: function(){
+                console.log("hide")
+                turnOffMappedResults()
+            },
+            beforehide: function(){
+                console.log("beforehide")
+                turnOffMappedResults()
+            },
+            close: function(){
+                console.log("close")
+                turnOffMappedResults()
             },},
+            beforeclose: function(){
+                console.log("beforeclose")
+                turnOffMappedResults()
+            },
 //                inner tabs for farm and field scale
             items: [
                 phantom,

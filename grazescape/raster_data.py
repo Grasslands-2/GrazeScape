@@ -257,6 +257,15 @@ class RasterData:
     def get_clipped_rasters(self):
         raster_data_dic = {}
         bounds = 0
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs', self.file_name)):
+            print("field raster_input folder exists")
+            # self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
+            #                          'data_files', 'raster_inputs',
+            #                          self.file_name)
+        else:
+            os.mkdir(os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name))
+        
+        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name)
         for file in os.listdir(self.dir_path):
             if '-clipped.tif' in file:
                 data_name = file.split(".")[0]

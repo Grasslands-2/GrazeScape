@@ -213,7 +213,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
             { 
 				xtype: 'component',
 				cls: 'information',
-				html: 'Fill in operation info in the form below, then select operation location on map'
+				html: 'Fill in operation info in the form below, then select farm location on map'
 			},{
 				xtype: 'form',
 				url: 'create_operation',
@@ -238,13 +238,13 @@ Ext.define('DSS.state.CreateNew_wfs', {
 				},{
 					fieldLabel: 'Owner',
 					name: 'owner',
-					allowBlank: false,
+					allowBlank: true,
 					margin: '10 0',
 					padding: 4,
 				},{
 					fieldLabel: 'Address',
 					name: 'address',
-                    allowBlank: false,
+                    allowBlank: true,
 					margin: '12 0',
 					padding: 4,
             	},

@@ -13,9 +13,6 @@ let context = canvas.getContext('2d');
 
 var fields_1Source = new ol.source.Vector({
 	format: new ol.format.GeoJSON(),
-	// url: function(extent) {
-	// 	return geoserverURL + geoServer.geoField_Url
-	// },
 });
 //import {getArea, getDistance} from 'ol/sphere';
 //------------------------------------------------------------------------------
@@ -191,10 +188,7 @@ Ext.define('DSS.map.Main', {
 		}
 		
 		DSS.layer = {};
-		
-		// Cookie-based settings persistence, when available
 		me.manageMapLayerCookies();
-		
 		//---------------------------------------------------------
 		DSS.layer.bingAerial = new ol.layer.Tile({
 			visible: true,

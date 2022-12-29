@@ -105,119 +105,6 @@ function populateChartObj(scenList, fieldList, allField, allScen){
         chartObj[chartName].show = false
     }
 }
-// function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
-//     //Try building in a way to get the scenario specific costs data from each fields scenario.
-//     console.log(scenDupArray)
-//     console.log(f.scenario_id)
-//     let runModel = false
-//     let split = ""
-//     console.log(DSS.activeRegion)
-//     console.log(f)
-//     if(f["is_dirty"] == true){
-//         runModel = true
-//     }
-//     console.log(runModel)
-
-//     let rotation_split = f["rotation"].split("-")
-//     crop = rotation_split[0]
-//     rotation = rotation_split.length > 1 ?rotation_split[1]:null
-//     let density = f["grazingdensityval"]
-//     let graze_factor = 1
-//     if (rotation == "cn"){
-//         graze_factor = 0.65
-//     }
-//     else if (rotation == "rt" ){
-//         graze_factor = parseFloat(f["rotational_freq_val"])
-//         density = "na"
-//     }
-//     model_para = {
-//         f_name: f["field_name"],
-//         extent: geometry.bbox,
-//         // at this point fields wont have any holes so just get the first entry
-//         field_coors: geometry.geometry.coordinates[0],
-//         grass_type: f["grass_speciesval"],
-// //            need to convert this to integer
-//         contour: f["on_contour"]?1:0,
-//         soil_p: f["soil_p"],
-//         tillage: f["tillage"],
-//         fert: f["perc_fert_p"],
-//         manure: f["perc_manure_p"],
-//         fert_n: f["perc_fert_n"],
-//         manure_n: f["perc_manure_n"],
-//         crop:crop,
-//         area:f["area"],
-//         om: f["om"],
-//         crop_cover: f["cover_crop"],
-// //			doesn't appear to be in the table at this time
-//         rotation: rotation,
-//         rotationFreq:"",
-//         density: density,
-// //      comes from the the looping var in Dashboard.js
-//         model_type: modelChoice,
-//         graze_factor:graze_factor,
-//         scen: chartDatasetContainer.getScenName(f["scenario_id"]),
-//         model_run_timestamp: modelruntimeOrig,
-//         active_scen: activeScenario,
-//         f_scen: f["scenario_id"],
-//         land_area: f["area"],
-//         land_cost: f["land_cost"],
-//         fert_p_perc:f["perc_fert_p"],
-//         fert_n_perc:f["perc_fert_n"],
-//         manure_p_perc:f["perc_manure_p"],
-//         manure_n_perc:f["perc_manure_n"],
-//         legume:f["interseeded_clover"],
-//         active_region: DSS.activeRegion,
-//         alfalfaMachCost: 0,
-//         alfalfaMachCostY1: 0,
-//         alfalfaPestCost: 0,
-//         alfalfaSeedCost: 0,
-//         cornMachCost: 0,
-//         cornPestCost: 0,
-//         cornSeedCost: 0,
-//         grassMachCost: 0,
-//         grassPestCost: 0,
-//         grassSeedCost: 0,
-//         oatMachCost: 0,
-//         oatPestCost: 0,
-//         oatSeedCost: 0,
-//         soyMachCost: 0,
-//         soyPestCost: 0,
-//         soySeedCost: 0,
-//         fertNCost: 0,
-//         fertPCost: 0,
-//     }
-//     for(s in scenDupArray){
-//         if(scenDupArray[s].gid == model_para.f_scen){
-//             model_para.alfalfaMachCost = scenDupArray[s].alfalfa_mach_cost
-//             model_para.alfalfaMachCostY1 = scenDupArray[s].alfalfa_mach_year_one
-//             model_para.alfalfaPestCost = scenDupArray[s].alfalfa_pest_cost
-//             model_para.alfalfaSeedCost = scenDupArray[s].alfalfa_seed_cost
-//             model_para.cornMachCost = scenDupArray[s].corn_mach_cost
-//             model_para.cornPestCost = scenDupArray[s].corn_pest_cost
-//             model_para.cornSeedCost = scenDupArray[s].corn_seed_cost
-//             model_para.grassMachCost = scenDupArray[s].grass_mach_cost
-//             model_para.grassPestCost = scenDupArray[s].grass_pest_cost
-//             model_para.grassSeedCost = scenDupArray[s].grass_seed_cost
-//             model_para.oatMachCost = scenDupArray[s].oat_mach_cost
-//             model_para.oatPestCost = scenDupArray[s].oat_pest_cost
-//             model_para.oatSeedCost = scenDupArray[s].oat_seed_cost
-//             model_para.soyMachCost = scenDupArray[s].soy_mach_cost
-//             model_para.soyPestCost = scenDupArray[s].soy_pest_cost
-//             model_para.soySeedCost = scenDupArray[s].soy_seed_cost
-//             model_para.fertNCost = scenDupArray[s].fert_n_cost
-//             model_para.fertPCost = scenDupArray[s].fert_p_cost
-//         }
-//     }
-//     model_pack = {
-//         "farm_id": DSS.activeFarm,
-//         field_id: f["gid"],
-//         "scenario_id": f["scenario_id"],
-//         "runModels": runModel,
-//         "model_parameters":model_para
-//     }
-//     console.log(model_pack)
-//     return model_pack
-// }
 
 function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,pManureResults,/*pMcellData*/){
     //Try building in a way to get the scenario specific costs data from each fields scenario.
@@ -248,10 +135,8 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
     model_para = {
         f_name: f["field_name"],
         extent: geometry.bbox,
-        // at this point fields wont have any holes so just get the first entry
         field_coors: geometry.geometry.coordinates[0],
         grass_type: f["grass_speciesval"],
-//            need to convert this to integer
         contour: parseInt(f["on_contour"]?1:0),
         soil_p: parseFloat(f["soil_p"]),
         tillage: f["tillage"],

@@ -171,7 +171,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 	hidden: true,
 	selModel: {
 		allowDeselect: true,
-		selType: 'checkboxmodel',//"rowmodel",//'checkboxmodel', // rowmodel is the default selection model
+		selType: "rowmodel",//'checkboxmodel', // rowmodel is the default selection model
 		mode: 'MULTI'
 	},
 

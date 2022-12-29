@@ -302,6 +302,7 @@ class GeoServer{
     }
     //used to delete a farm from geoserver.  Used several times in DeleteOperation.js to remove everthing assocaited with deleted farm
     deleteOperation(payLoad, feat){
+        console.log(payLoad)
          this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
             //let geoJson = returnData.geojson
             //let currObj = returnData.current
