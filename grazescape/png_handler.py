@@ -8,19 +8,18 @@ import threading
 # they should be in a folder similar to the downloaded rasters and then server up by a controller.
 class PngHandler:
     def __init__(self):
-        print("hello")
         credential_path = os.path.join(settings.BASE_DIR, 'keys', 'cals-grazescape-files-63e6-4f2fc53201e6.json')
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
         self.model_list = ["ero", "ploss", "nleaching", "Rotational Average", "Curve Number"]
         self.threads = []
         # self.remove_old_pngs_from_local(bucket, str(field_id))
 
-    def remove_pngs(self, field_id):
+    def remove_pngs(self, field_id, model_run_timestamp):
         for bucket in self.model_list:
-            self.create_delete_thread(bucket, field_id)
+            self.create_delete_thread(bucket, field_id, model_run_timestamp)
 
-        for thread in self.threads:
-            thread.join()
+        # for thread in self.threads:
+        #     thread.join()
 
     def remove_old_pngs_from_local(self, field_id):
         for bucket in self.model_list:
@@ -32,12 +31,12 @@ class PngHandler:
                 else:
                     pass
 
-    def create_delete_thread(self, model_type, field_id):
-        download_thread = threading.Thread(target=self.remove_old_pngs_gcs_storage_bucket, args=(model_type, field_id))
+    def create_delete_thread(self, model_type, field_id, model_run_timestamp):
+        download_thread = threading.Thread(target=self.remove_old_pngs_gcs_storage_bucket, args=(model_type, field_id,model_run_timestamp))
         download_thread.start()
-        self.threads.append(download_thread)
+        # self.threads.append(download_thread)
 
-    def remove_old_pngs_gcs_storage_bucket(self, model_type, field_id):
+    def remove_old_pngs_gcs_storage_bucket(self, model_type, field_id,model_run_timestamp):
         # print('hi there')
         """Lists all the blobs in the bucket."""
         # bucket_name = "your-bucket-name"
@@ -47,14 +46,16 @@ class PngHandler:
         # Note: Client.list_blobs requires at least package version 1.17.0.
         blobs = storage_client.list_blobs(settings.GCS_BUCKET_NAME)
         for blob in blobs:
-            # print(blob.name)
-            if str(model_type + field_id) in blob.name:
+            if str(model_type + field_id) in blob.name and model_run_timestamp not in blob.name:
+                print(blob.name)
+                print("timestamp ", model_run_timestamp)
                 try:
                     blob.delete()
                     print("Blob " + model_type + field_id + " deleted.")
                 except:
                     print("There was an error")
                     pass
+        storage_client.close()
 
     # Deletes model results from GCS bucket
     def delete_gcs_model_result_blob(self, field_id):

@@ -206,9 +206,7 @@ class GrassYield(ModelBase):
         silt = self.raster_inputs["silt"].flatten()
         clay = self.raster_inputs["clay"].flatten()
         ksat = self.raster_inputs["ksat"].flatten()
-        # cec = self.raster_inputs["cec"].flatten()
         ph = self.raster_inputs["ph"].flatten()
-        # om = self.raster_inputs["om"].flatten()
         awc = self.raster_inputs["awc"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
 

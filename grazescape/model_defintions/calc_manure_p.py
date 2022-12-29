@@ -107,6 +107,8 @@ def getOMText(omraw):
         OM_fertrecs = '2-9.9'
     elif omraw > 10 and omraw < 20:
         OM_fertrecs = '10-20.0'
+    elif omraw >= 20:
+        OM_fertrecs = '10-20.0'
     return OM_fertrecs
 
 

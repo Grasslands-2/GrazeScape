@@ -37,11 +37,12 @@ import json
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.generic import GenericModel
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
+from grazescape.model_defintions.erosion import Erosion
 from grazescape.model_defintions.crop_yield import CropYield
 from grazescape.model_defintions.dry_lot import DryLot
 from grazescape.model_defintions.calc_manure_p import CalcManureP
 from grazescape.model_defintions.runoff import Runoff
-from grazescape.model_defintions.nitrateLeach import NitrateLeeching
+from grazescape.model_defintions.nitrate_leach import NitrateLeeching
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.geoserver_connect import GeoServer
 from grazescape.db_connect import *
@@ -326,7 +327,7 @@ def geoserver_request(request):
         payloadstr = str(pay_load)
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
         print(resultdel.group(1))
-        png_handler = pgh.PngHandler()
+        png_handler = pgh
 
         png_handler.delete_gcs_model_result_blob(resultdel.group(1))
     # if request_type == "insert_farm" and feature_id != "" and "farm_2" in url :
@@ -357,32 +358,6 @@ def geoserver_request(request):
             # once you have that figured out you can find out how to see your farms when you open the app.
             # print(request.POST)
             update_user_farms(request.user.id, feature_id)
-
-    # if request_type == "insert_farm" and feature_id != "":
-
-    #     #print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-    #     #if request_type == "insert_farm":
-    #     print('IN INSERT FARM!!!!!#######################!')
-    #     #print(str(url))
-    # #if "farm_2" in str(url):
-    #     #print('IN INSERT FARM!!!!!! MAKEREQUEST RESULTS RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    #     print("RESULT AND resultstr in insert farm backend")
-    #     print(result)
-    #     resultstr = str(result)
-    #     if "farm_2" in resultstr:
-    #         pattern = 'farm_2.(.*?)"/>'
-    #         feature_id = re.search(pattern,resultstr).group(1)
-    #         print("feature_id in insert_farm geoserver request")
-    #         print(feature_id)
-    #         print(request.user.id)
-    #     #feature_id = 9675
-
-    #     #pull gid from the results text.  Also, find a way to limit the update_user_farms to only farm_2 inserts
-    #     #currently gettin scenarios_2 as well.  After you get this right you should be able to see new farm
-    #     #once you have that figured out you can find out how to see your farms when you open the app.
-    #     #print(request.POST)
-    #         update_user_farms(request.user.id, feature_id)
 
     if request_type == "source_farm":
         print("source Farm result!!!!!!!!")
@@ -496,45 +471,30 @@ def get_model_results(request):
     run_models = request.POST.getlist("runModels")[0]
     print("run models ", run_models)
     run_models = "true"
-    if run_models == 'false':
-        print('model runs = false')
-        model_run_timestamp = png_handler.download_gcs_model_result_blob(field_id, field_scen_id, active_scen, model_run_timestamp)
-        """Downloads a blob from the bucket."""
-        storage_client = storage.Client()
-
-        storage_client.close()
-        print("model timestamp ", model_run_timestamp)
-        return JsonResponse(get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp,p_manure_Results), safe=False)
+    # if run_models == 'false': print('model runs = false') model_run_timestamp =
+    # png_handler.download_gcs_model_result_blob(field_id, field_scen_id, active_scen, model_run_timestamp)
+    # """Downloads a blob from the bucket."""
+    #
+    # print("model timestamp ", model_run_timestamp) return JsonResponse(get_values_db(field_id, scenario_id,
+    # farm_id, request, model_run_timestamp,p_manure_Results), safe=False)
 
     try:
         field_exists = db_has_field(field_id)
-        if model_type == 'yield':
-            # call row yeilds nulling function here!!!
-            crop_ro = request.POST.get('model_parameters[crop]')
-            if crop_ro == 'pt' or crop_ro == 'ps':
-                model = GrassYield(request, active_region)
-            elif crop_ro == 'dl':
-                model = DryLot(request, active_region)
-                # data = {
-                #     # overall model type crop, ploss, bio, runoff
-                #     "model_type": model_type,
-                #     # specific model for runs with multiple models like corn silage
-                #     "value_type": "dry lot",
-                #     "f_name": f_name,
-                #     "scen": scen,
-                #     "scen_id": scenario_id,
-                #     "field_id": field_id
-                # }
-                # return JsonResponse([data], safe=False)
-                # pass
-            else:
-                model = CropYield(request, active_region)
-            model_rain = Runoff(request, active_region)
-            model_rain.raster_inputs = clipped_rasters
-            model_insect = Insecticide(request)
-            model_insect.raster_inputs = clipped_rasters
-            model_econ = Econ(request)
-            model_econ.raster_inputs = clipped_rasters
+        # if model_type == 'yield':
+        # call row yeilds nulling function here!!!
+        crop_ro = request.POST.get('model_parameters[crop]')
+        if crop_ro == 'pt' or crop_ro == 'ps':
+            model = GrassYield(request, active_region)
+        elif crop_ro == 'dl':
+            model = DryLot(request, active_region)
+        else:
+            model = CropYield(request, active_region)
+        model_rain = Runoff(request, active_region)
+        model_rain.raster_inputs = clipped_rasters
+        model_insect = Insecticide(request)
+        model_insect.raster_inputs = clipped_rasters
+        model_econ = Econ(request)
+        model_econ.raster_inputs = clipped_rasters
 
         model.bounds["x"] = geo_data.bounds["x"]
         model.bounds["y"] = geo_data.bounds["y"]
@@ -610,18 +570,18 @@ def get_model_results(request):
                 "grass_type": model.model_parameters["grass_type"],
                 "till": model.model_parameters["tillage"],
                 "model_run_timestamp": model_run_timestamp,
-                "p_manure_Results":p_manure_Results
+                "p_manure_Results": p_manure_Results
             }
-            print("field data ", data)
+            # print("field data ", data)
             # move this outside of the loop or make it async
             if field_exists:
                 update_field_results_async(field_id, scenario_id, farm_id, data, False)
             else:
                 update_field_results_async(field_id, scenario_id, farm_id, data, True)
             return_data.append(data)
-
-        png_handler.remove_pngs(field_id)
+        print("Results Loop Done ", time.time() - start)
         update_field_dirty(field_id, scenario_id, farm_id)
+        png_handler.remove_pngs(field_id, model_run_timestamp)
 
         png_handler.upload_gcs_model_result_blob(field_id, model_run_timestamp)
         print("done with models ", time.time() - start)
