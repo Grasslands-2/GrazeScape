@@ -8,7 +8,7 @@ from shapely.geometry import Polygon
 
 
 def getOMText(omraw, text_needed):
-    # print(omraw)
+    print(omraw)
     if omraw <= 2:
         OM_denitloss = '<2'
         OM_fertrecs = '<2'
@@ -22,6 +22,9 @@ def getOMText(omraw, text_needed):
         OM_denitloss = '>5'
         OM_fertrecs = '10-20.0'
     # return [OM_denitloss,OM_fertrecs]
+    elif omraw >= 20:
+        OM_denitloss = '>5'
+        OM_fertrecs = '10-20.0'
     if text_needed == "denitr":
         return OM_denitloss
     else:
@@ -93,7 +96,6 @@ class CropYield(ModelBase):
         super().__init__(request, active_region, file_name)
         # C:\Users\zjhas\Documents\GrazeScape\grazescape\static\grazescape\public
         self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
-        # self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NmodelInputs_final.csv")
         self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
         self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
         # original units are in  [bushels/acre x 10]0
@@ -305,15 +307,21 @@ class CropYield(ModelBase):
         r.assign("ps_pi_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
         r.assign("pt_pi_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
         r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
-
+        start1 = time.time()
         print(r(f"""
                 #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
                 #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
                 #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
                 library(tidyverse)
                 library(tidymodels)
+                library(parallel)
+
                 library(randomForest)
                 # load erosion models
+                cl <- makeCluster(detectCores())
+
+                # Define the function to be parallelized
+               
 
 
 
@@ -425,8 +433,18 @@ class CropYield(ModelBase):
 
                   pred_df <- df %>%
                     filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
-
                   erosion <- round(predict(dr_erosion, pred_df),2)
+                  # input_model = dr_erosion
+                  #  predict_parallel <- function(data) {{
+                  #     return(predict(input_model, data))
+                  #   }}
+                  #clusterExport(cl, c("predict_parallel","input_model"), envir=environment())
+                  #erosion <- parLapply(cl,pred_df,  predict_parallel(pred_df,input_model))
+                # clusterExport(cl, "input_model")
+                
+                  #erosion <- parLapply(cl, pred_df, predict, dr_erosion)
+
+
 
                 }} else if (full_df$crop == "ps") {{
 
@@ -489,10 +507,10 @@ class CropYield(ModelBase):
                     erosion <- round(predict(dl_erosion, pred_df),2)
 
                 }} 
-
+                stopCluster(cl)
                   """
         ))
-
+        print("erosion model ran", time.time() - start1)
 
         ero = r.get("erosion").to_numpy()
         print("ero", ero)

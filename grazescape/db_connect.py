@@ -346,7 +346,6 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         sql_request = sql_request + sql_values + sql_where
     # https://stackoverflow.com/questions/29186112/postgresql-python-ignore-duplicate-key-exception
     try:
-
         cur.execute(sql_request, values)
     except UniqueViolation as e:
         print("field already exists in table")
@@ -378,25 +377,39 @@ def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, 
     model_types = {'yield': {
         "grass_yield_tons_per_ac": {"units": "Yield (tons/acre/year)",
                                     "units_alternate": "'Yield (tons/year'",
+                                    "title": "Grass yield (tons-dry-matter/ac/yr)",
+                                    "title_alternate": "Grass production (tons-dry-matter/yr)",
                                     "type": "Grass"},
         "corn_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
                                    "units_alternate": "Yield (bushels/year)",
+                                   "title": "Corn grain yield [bushels/ac/yr]",
+                                   "title_alternate": "Corn grain production [bushels/yr]",
                                    "type": "Corn Grain"},
         "corn_silage_tons_per_ac": {"units": "Yield (tons/ac/year)",
                                     "units_alternate": "Yield (tons/year)",
+                                    "title": "Corn silage yield (tons/ac/yr)",
+                                    "title_alternate": "Corn silage production (tons/yr)",
                                     "type": "Corn Silage"},
         "soy_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
                                   "units_alternate": "Yield (bushels/year)",
+                                  "title": "Soybean yield (bushels/ac/yr)",
+                                  "title_alternate": "Soybean production (bushels/yr)",
                                   "type": "Soy"},
         "alfalfa_yield_tons_per_acre": {"units": "Yield (tons/ac/year)",
                                         "units_alternate": "Yield (tons/year)",
+                                        "title": "Alfalfa yield (tons/ac/yr)",
+                                        "title_alternate": "Alfalfa production (tons/yr)",
                                         "type": "Alfalfa"},
         "oat_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
                                   "units_alternate": "Yield (bushels/year)",
+                                  "title": "Oat yield (bushels/ac/yr)",
+                                  "title_alternate": "Oat production (bushels/yr)",
                                   "type": "Oats"},
         "rotation_dry_matter_yield_kg-DM/ac/year": {
             "units": "Yield (tons-Dry Matter/ac/year)",
             "units_alternate": "Yield (tons-Dry Matter/year)",
+            "title": "Total dry matter yield (tons/ac/yr)",
+            "title_alternate": "Total dry matter yield (tons/ac/yr)",
             "type": "Rotational Average"},
         "P_runoff_lbs_per_acre": {
             "units": "Phosphorus Runoff (lb/acre/year)",
@@ -405,48 +418,89 @@ def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, 
         "N_runoff_lbs_per_acre": {
             "units": "Nitrate Leaching (lb/acre/year)",
             "units_alternate": "Nitrate Leaching (lb/year)",
+            "title": "Nitrate-N leaching (lb/ac/yr)",
+            "title_alternate": "Nitrate-N leaching (lb/yr)",
             "type": "nleaching"},
         "soil_erosion_tons_per_acre": {
             "units": "Soil Erosion (ton/acre/year)",
             "units_alternate": "Soil Erosion (tons of soil/year",
+            "title": "Soil loss (tons/ac/yr)",
+            "title_alternate": "Soil loss (tons/yr)",
             "type": "ero"},
         "runoff": {"units": "Runoff (in)",
-                   "units_alternate": "Runoff (in)", "type": "Runoff"},
+                   "units_alternate": "Runoff (in)",
+                   "title": "Storm event runoff (inches)",
+                   "title_alternate": "Storm event runoff (inches)",
+                   "type": "Runoff"},
         "runoff_curve_number": {"units": "Curve Number",
                                 "units_alternate": "Curve Number",
-                                "type": "Curve Number"}
-
-    },
-        'ploss': {
-            "P_runoff_lbs_per_acre": {
-                "units": "Phosphorus Runoff (lb/acre/year)",
-                "units_alternate": "Phosphorus Runoff (lb/year)",
-                "type": "ploss"},
-            "soil_erosion_tons_per_acre": {
-                "units": "Soil Erosion (ton/acre/year)",
-                "units_alternate": "Soil Erosion (tons of soil/year",
-                "type": "ero"}
-        },
-        'runoff': {
-            "runoff": {"units": "Runoff (in)",
-                       "units_alternate": "Runoff (in)", "type": "Runoff"},
-            "runoff_curve_number": {"units": "Curve Number",
-                                    "units_alternate": "Curve Number",
-                                    "type": "Curve Number"}
-        },
+                                "title": "Composite curve number",
+                                "title_alternate": "Composite curve number",
+                                "type": "Curve Number"},
         'bio': {
             "honey_bee_toxicity": {"units": "Insecticide Index",
                                    "units_alternate": "Insecticide Index",
+                                   "title": "Honey bee toxicity",
+                                   "title_alternate": "Honey bee toxicity",
                                    "type": "insect"}
         },
         'econ': {
             "costs_per_acre": {"units": "Costs (dollars/acre/year)",
                                "units_alternate": "Costs (dollars/year)",
                                "units_alternate_2": "Costs (dollars/Tons DM)",
+                               "title": "Production costs",
+                               "title_alternate": "Production costs",
                                "type": "econ"},
             # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
             #                            "type": "'costs_per_ton_dm"},
         },
+
+
+
+    },
+        # 'ploss': {
+        #     "P_runoff_lbs_per_acre": {
+        #         "units": "Phosphorus Runoff (lb/acre/year)",
+        #         "units_alternate": "Phosphorus Runoff (lb/year)",
+        #         "title": "Phosphorus runoff (lb/ac/yr)",
+        #         "title_alternate": "Phosphorus runoff (lb/yr)",
+        #         "type": "ploss"},
+        #     "soil_erosion_tons_per_acre": {
+        #         "units": "Soil Erosion (ton/acre/year)",
+        #         "units_alternate": "Soil Erosion (tons of soil/year",
+        #         "title": "Soil loss (tons/ac/yr)",
+        #         "title_alternate": "Soil loss (tons/yr)",
+        #         "type": "ero"}
+        # },
+        # 'runoff': {
+        #     "runoff": {"units": "Runoff (in)",
+        #                "units_alternate": "Runoff (in)",
+        #                "title": "Total dry matter yield (tons/ac/yr)",
+        #                 "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                "type": "Runoff"},
+        #     "runoff_curve_number": {"units": "Curve Number",
+        #                             "units_alternate": "Curve Number",
+        #                             "title": "Total dry matter yield (tons/ac/yr)",
+        #                             "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                             "type": "Curve Number"}
+        # },
+        # 'bio': {
+        #     "honey_bee_toxicity": {"units": "Insecticide Index",
+        #                            "units_alternate": "Insecticide Index",
+        #                            "title": "Total dry matter yield (tons/ac/yr)",
+        #                            "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                            "type": "insect"}
+        # },
+        # 'econ': {
+        #     "costs_per_acre": {"units": "Costs (dollars/acre/year)",
+        #                        "units_alternate": "Costs (dollars/year)",
+        #                        "units_alternate_2": "Costs (dollars/Tons DM)",
+        #                        "title": "Total dry matter yield (tons/ac/yr)",
+        #                        "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                        "type": "econ"},
+        #     # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
+        #     #                            "type": "'costs_per_ton_dm"},
+        # },
     }
 
     return_data = []
@@ -493,6 +547,8 @@ def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, 
                     units = model_types[model][col]["units"]
                     units_alternate = model_types[model][col][
                         "units_alternate"]
+                    title = model_types[model][col]["title"]
+                    alternate_title = model_types[model][col]["alternate_title"]
                     if sum1 is None:
                         sum1 = None
                         units = ""
@@ -530,6 +586,8 @@ def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, 
                         "units_alternate": units_alternate,
                         # overall model type crop, ploss, bio, runoff
                         "model_type": model,
+                        "title": title,
+                        "title_alternate": alternate_title,
                         # specific model for runs with multiple models like corn silage
                         "value_type": model_types[model][col]["type"],
                         "f_name": f_name,
