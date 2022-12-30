@@ -100,19 +100,6 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 		soil_pInput = 35
 	}
 	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput,)
-	// DSS.draw = new ol.interaction.Draw({
-	// 	source: source,
-	// 	type: 'MultiPolygon',
-	// 	geometryName: 'geom'
-	// });
-	// DSS.map.addInteraction(DSS.draw);
-	// console.log("draw is on");
-	// var af = parseInt(DSS.activeFarm,10);
-	// var as = DSS.activeScenario;
-	// console.log('This is the active scenario#: ');
-	// setFeatureAttributes(e.feature)
-	// addFieldAcreage(e.feature)
-	// alert('Field Added!')
 }
 async function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput) {
 	fertDefaultArray = await get_field_rot_defaults({"rotation": crop, "legume":true})

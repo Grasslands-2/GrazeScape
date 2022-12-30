@@ -180,10 +180,6 @@ Ext.define('DSS.state.DeleteOperation', {
 					xtype: 'component',
 					cls: 'information light-text text-drp-20',
 					html: 'Select farm to be deleted then click the "Confirm Deletion" button below.',
-				},{
-					xtype: 'component',
-					cls: 'information light-text text-drp-20',
-					html: 'Click an farm to delete it',
 				},
 				{
 					xtype: 'button',

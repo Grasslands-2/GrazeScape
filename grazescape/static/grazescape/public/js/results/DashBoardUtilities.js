@@ -497,7 +497,8 @@ function format_chart_data(model_data){
     let chartVal = null
     let chartCells = null
     let chartArea = null
-    if(model_data.sum_cells != null){
+    if(model_data.sum_cells != null && model_data.crop_ro != 'dl'){
+        console.log(model_data)
         chartTypeFarm.show = true
         if(chartTypeFarm == chartObj.econ_farm){
             console.log(model_data)
