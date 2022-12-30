@@ -249,14 +249,14 @@ Ext.define('DSS.map.Main', {
 		//---------------------------Region Label Layer-----------------
 		let regionLabel = new ol.style.Style({
 			text: new ol.style.Text({
-				font: '26px Calibri,sans-serif',
+				font: '30px Calibri,sans-serif',
 				overflow: true,
 				fill: new ol.style.Fill({
 				  color: 'rgba(0,0,0,1)',
 				}),
 				stroke: new ol.style.Stroke({
-				  color: 'rgba(255, 255, 255, 0.7)',
-				  width: 1,
+				  color: 'rgba(255, 255, 255, 2.5)',
+				  width: 2,
 				}),
 			  }),
 			zIndex: 0

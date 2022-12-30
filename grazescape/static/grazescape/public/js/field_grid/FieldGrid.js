@@ -832,19 +832,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				//align: 'center',
 				listeners:{
 					change: async function(field,newValue,oldValue,record){
-							var store = me.getStore()
-							var storeDataObjArray = store.data.items
-							if(selectedFields.length > 0 ){
-								for(r in selectedFields){
-									for(f in storeDataObjArray){
-										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											storeDataObjArray[f].dirty = true
-											storeDataObjArray[f].data.onContour = newValue
-										}
+						var store = me.getStore()
+						var storeDataObjArray = store.data.items
+						if(selectedFields.length > 0 ){
+							for(r in selectedFields){
+								for(f in storeDataObjArray){
+									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
+										storeDataObjArray[f].dirty = true
+										storeDataObjArray[f].data.onContour = newValue
 									}
 								}
 							}
-							//await refreshview()
+						}
 					}
 				}
 			}
@@ -902,55 +901,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}, text: '% Manure P', dataIndex: 'manuPercP', width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
 			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
 		};
-
-	// 	let NfertPerc_Column =  { xtype: 'widgetcolumn', text: '% Fert N', dataIndex: 'fertPercN', width: 80, tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N removed by the crop rotation harvest (e.g., value of 100 means that N inputs and outputs are balanced).',
-	// 	hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
-	// 	onWidgetAttach: function(col,widget,rec) {
-	// 		if (rec.get('rotationVal') == 'dl' ) {
-	// 			widget.setDisabled(true);
-	// 		}else{
-	// 			widget.setDisabled(false)
-	// 		}},
-	// 		widget: {
-	// 			// xtype: 'numbercolumn', format: '0.0',editor: {
-	// 			xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
-	// 			listeners:{
-	// 				change: async function(field,newValue,oldValue,record){
-	// 						// console.log(selectedFields)
-	// 						// console.log("newValue: " + newValue)
-	// 						// console.log("oldValue: " + oldValue)
-	// 						// console.log("you've changed man on soilOM")
-	// 						var store = me.getStore()
-	// 						var storeDataObjArray = store.data.items
-	// 						if(selectedFields.length > 0 ){
-	// 							for(r in selectedFields){
-	// 								for(f in storeDataObjArray){
-	// 									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-	// 										// console.log("newValue: " + newValue)
-	// 										// console.log(storeDataObjArray[f].id)
-	// 										// console.log(selectedFields[r])
-	// 										storeDataObjArray[f].dirty = true
-	// 										storeDataObjArray[f].data.fertPercN = newValue
-	// 									}
-	// 								}
-	// 							}
-	// 						// 	setTimeout(() => {
-	// 						// 		me.getView().refresh()
-	// 						// }, "250")
-	// 						}
-	// 						await refreshview()
-	// 						//var view = me.getView()
-	// 						//view.refresh()
-	// 				}
-	// 			//}
-	// 		},
-
-	// 	} 
-	// }
-
-
-
-
 		let NfertPerc_Column = {
 			xtype: 'numbercolumn',id:'NfertPerc', format: '0.0',editor: {
 				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
@@ -1373,60 +1323,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						var record = combo.getWidgetRecord();
 						record.set('grazeDensityVal', value.get('value'));
 						record.set('grazeDensityDisp', value.get('display'));
-						
 					},
-					// change: function(widget,newValue,oldValue,record){
-					// 	var record = widget.getWidgetRecord();
-					// 	var dbval = ""
-					// 	// console.log(selectedFields)
-					// 	// console.log("newValue: " + newValue)
-					// 	// console.log("oldValue: " + oldValue)
-					// 	// console.log("you've changed man on Grazing density")
-					// 	//console.log(rotfreqcount)
-					// 	console.log(record)
-					// 	var store = me.getStore()
-					// 	var storeDataObjArray = store.data.items
-					// 	var view = me.getView()
-					// 	switch(newValue){
-					// 		case 'high': dbval = 'hi'
-					// 		break;
-					// 		case 'low': dbval = 'lo'
-					// 		break;
-					// 		case 'Not Applicable': dbval = 'na'
-					// 		break;
-
-					// 		case 'hi': dbval = 'hi'
-					// 		break;
-					// 		case 'lo': dbval = 'lo'
-					// 		break;
-					// 		case 'na': dbval = 'na'
-					// 		break;
-							
-					// 		default: dbval = 'No GrazeDensity fROM SWITCH!'
-					// 	}
-					// 	console.log("dbval: " + dbval)
-					// 	if(selectedFields.length > 0 ){
-					// 		for(r in selectedFields){
-					// 			for(f in storeDataObjArray){
-					// 				if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-					// 					// console.log("newValue: " + newValue)
-					// 					// console.log("dbval: " + dbval)
-					// 					// console.log(storeDataObjArray[f].id)
-					// 					// console.log(selectedFields[r])
-					// 					storeDataObjArray[f].dirty = true
-					// 					storeDataObjArray[f].data.grazeDensityDisp = newValue
-					// 					storeDataObjArray[f].data.grazeDensityVal = dbval
-					// 				}
-					// 			}
-					// 		}
-					// 	// 	setTimeout(() => {
-					// 	// 		me.getView().refresh()
-					// 	// }, "250")
-					// 	}
-					// 	//console.log(store)
-					// 	selectedFields = []
-					// 	refreshview()
-					// }
 				}
 			}
 		};

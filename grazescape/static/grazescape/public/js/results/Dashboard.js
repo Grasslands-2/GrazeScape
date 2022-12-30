@@ -2786,13 +2786,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: 'Crop', dataIndex: 'crop', width: 110, 
                                     editable: false,locked: true,
                                     hideable: false, enableColumnHide: false, minWidth: 24,
-                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                    tooltip: '<b>Crop</b> Which crop is being grown in a single year within the crop rotation.',
                                 },
                                 {
                                     text: 'Year', dataIndex: 'year', width: 50, 
                                     editable: false,
                                     hideable: false, enableColumnHide: false, minWidth: 24,
-                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                    tooltip: '<b>Year</b> The year inwhich the crop is being grown in the crop rotation',
                                 },
                             ]
                         },
@@ -2804,7 +2804,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: '% Fert N', 
                                     dataIndex: 'fertPercN', 
                                     width: 80, 
-                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> % Fert N" column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations',
+                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> % Fert N column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations',
                                     editable: false,
                                 },
                                 {
@@ -2812,13 +2812,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     format: '0.0',
                                     text: '% Manure N', 
                                     dataIndex: 'manuPercN', 
-                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b>  Manure N" column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed...',
+                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b> % Manure N column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed...',
                                     editable: false,
                                 },
                                 {
                                     xtype: 'numbercolumn',
                                     format: '0.0',
-                                    text: 'N Recommandation (lb/ac)', 
+                                    text: 'N Recommendation (lb/ac)', 
                                     dataIndex: 'Nrec', 
                                     width: 120, 
                                     editable: false,
@@ -2862,7 +2862,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: '% Fert P', 
                                     dataIndex: 'fertPercP', 
                                     width: 80, 
-                                    tooltip: '<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+                                    tooltip: '<b>Percent Phosphorus Fertilizer</b> The amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
                                     editable: false,
                                 },
                                 {
@@ -2870,7 +2870,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     format: '0.0',
                                     text: '% Manure P', 
                                     dataIndex: 'manuPercP', 
-                                    width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
+                                    width: 110, tooltip: '<b>Percent Phosphorus Manure</b> The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
                                     editable: false,
                                 },
                                 {
@@ -2921,7 +2921,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: 'On Contour', dataIndex: 'onContour', width: 90, 
                                     editable: false,
                                     hideable: false,  minWidth: 24,
-                                    tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
+                                    tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not?',
                                 },
                                 {
                                     text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 150, 
@@ -2932,7 +2932,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 },
                                 {
                                     text: 'Rotational Frequency', dataIndex: 'rotationFreqDisp', width: 150,
-                                    tooltip: '<b>Pasture Rotational Frequency</b> How often are animals rotated on and off any given pasture',
+                                    tooltip: '<b>Pasture Rotational Frequency</b> How often the animals are rotated on and off each paddock. For rotated animals, we assume density - 1 AU/ac for 244 grazing days. For continuous pasture, animal density is defined in the animal density column.',
                                     editable: false,
                                     hideable: false,  minWidth: 24,
                                     
@@ -2945,7 +2945,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 },
                                 {
                                     text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110,
-                                    tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
+                                    tooltip: '<b>Grazing Density</b> Pasture continuous high density = 1.5 AU/ac for 244 grazing days; pasture continuous low density = 0.5 AU/ac for 244 grazing days; dry lot low density = 2 AU/ac for 244 days; dry lot high density = 10 AU/ac for 244 days',
                                     editable: false,
                                     hideable: false,  minWidth: 24,
                                     
@@ -2961,6 +2961,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: 'Area',
                                     dataIndex: 'area',
                                     //flex: 1,
+                                    tooltip:"in acres",
                                     editable: false,
                                     hideable: false,
                                 },
@@ -2996,7 +2997,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     formatter: 'usMoney',
                                     minWidth: 24,
                                     width: 110,
-                                    tooltip: '<b>Area:</b> Area in acres',
                                     editable: false,
                                     hideable: false,
                                 },
