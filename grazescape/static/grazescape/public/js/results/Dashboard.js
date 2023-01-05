@@ -2804,7 +2804,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     text: '% Fert N', 
                                     dataIndex: 'fertPercN', 
                                     width: 80, 
-                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> % Fert N column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations',
+                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.',
                                     editable: false,
                                 },
                                 {
@@ -2812,7 +2812,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     format: '0.0',
                                     text: '% Manure N', 
                                     dataIndex: 'manuPercN', 
-                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b> % Manure N column header in both the Field Attribute Table and the Field Summary Table, please change to "...as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed...',
+                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
                                     editable: false,
                                 },
                                 {
@@ -2823,7 +2823,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     width: 120, 
                                     editable: false,
                                     hideable: false,
-                                    tooltip: '<b>Recommended N</b>Recommended N application for crop based on UW-Extension guidelines (A2809)',
+                                    tooltip: '<b>Recommended N</b> recommended N application for crop based on UW-Extension guidelines (A2809)',
                                 },
                                 {
                                     xtype: 'numbercolumn',
