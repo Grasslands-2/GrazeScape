@@ -37,7 +37,8 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Create New',
+					text: 'Create New Farm',
+					tooltip: 'Create a new operation to base scenarios on',
 					handler: function() {
 						geoServer.setScenariosSource()
 						DSS.ApplicationFlow.instance.showNewOperationPage();
@@ -47,13 +48,14 @@ Ext.define('DSS.state.BrowseOrCreate', {
 				{
 					xtype: 'component',
 					cls: 'information med-text',
-					html: 'Delete one of your current operations.'
+					html: 'Delete one of your current farms.'
 				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Delete Operation',
+					text: 'Delete Farm',
+					tooltip: 'Complete delete a farm and all its scenarios',
 					handler: function() {
 						//Make sure all the features are on the table.
 						geoServer.setFieldSource()
@@ -75,6 +77,7 @@ Ext.define('DSS.state.BrowseOrCreate', {
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					text: 'Choose Region',
+					tooltip: 'Go back a step and pick out another region to work in',
 					handler: function() {
 						fieldZoom = false
 						//Region Picker 

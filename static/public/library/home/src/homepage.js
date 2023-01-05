@@ -81,7 +81,6 @@ const App = (props) => (
           <Nav className="justify-content-center ">
               <Nav.Link href="https://github.com/Grasslands-2" target="_blank">Source Code</Nav.Link>
               {/*<Nav.Link href="#pricing">Pricing</Nav.Link>*/}
-
         </Nav>
         <Nav>
     <Navbar.Text>
@@ -89,21 +88,15 @@ const App = (props) => (
       </Navbar.Text>
 
    </Nav>
-   <Nav className="justify-content-right ">
+   <Nav className="justify-content-end ">
        <Form method="POST" className="d-flex">
        <CSRFToken />
         <input type="hidden" name="logout" value="True" />
         <Button type="submit" variant="outline-success"><DoorOpen/> Logout</Button>
         </Form>
+
     </Nav>
-    <Navbar.Brand className="justify-content-left " href="https://grasslandag.org/" target="_blank">
-            <img
-              alt=""
-              src="static/public/library/images/Maptiler1.png"
-              width="50%"
-              className="d-inline-block align-top"
-            />{' '}
-          </Navbar.Brand>
+
     </Container>
   </Navbar>
 
@@ -189,15 +182,24 @@ const App = (props) => (
             <Col xs='3'>
             </Col>
             <Col xs='6'className="appRegion">
-                <h5 className="header">Please select an app to begin hi</h5>
+                <h5 className="header">Please select an app to begin</h5>
                 <Row className="appSelect">
                   <a href="/grazescape"><Image  className = "shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
                 </Row>
 
-                <Row > </Row>
+                <Row className="appInfo">
+                    <Col><a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ"target="_blank">User Manual</a></Col>
+                    <Col><a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a></Col>
+                    <Col><a href="https://forms.gle/4jy4acwjTe2mzJLw7" target="_blank">Feedback Form</a></Col>
+                </Row>
                 <Row > </Row>
                 <Row className="appSelect">
                   <a href="/smartscape"><Image className = "shadow-lg app_click image" fluid src="static/public/library/images/dss_logo.png" rounded /></a>
+                </Row>
+                 <Row className="appInfo">
+                    <Col><a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ"target="_blank">User Manual</a></Col>
+                    <Col><a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a></Col>
+                    <Col><a href="https://forms.gle/4jy4acwjTe2mzJLw7" target="_blank">Feedback Form</a></Col>
                 </Row>
              </Col>
              <Col xs='3'>
@@ -207,23 +209,30 @@ const App = (props) => (
 
 </div>
 
-<div id = 'footer'>
+  <div id = 'footer'>
     <Container>
-    Grassland 2.0 is a collaborative group of farmers, researchers, and public and private sector leaders working to develop pathways for increased farmer profitability, yield stability and nutrient and water efficiency, while improving water quality, soil health, biodiversity, and climate resilience through grassland-based agriculture.
-    <p></p>
-    The University of Wisconsin - Madison respects your privacy and is committed to protecting your privacy through our compliance with <a href="https://drive.google.com/file/d/151_PhFk5h6KrbVz92XHjwPFqXrrv89AY/view" target="_blank">this website privacy policy.</a>
-     <br></br>
-     By using this website and the associated apps, you agree to this privacy policy.
-    <p></p>
-    <a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ"target="_blank">User Manual</a>
-    <p></p>
-    <a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a>
-    <p></p>
-    <a href="https://forms.gle/4jy4acwjTe2mzJLw7" target="_blank">Feedback Form</a>
-    <p></p>*This project is based at UW–Madison and the work is supported by the Sustainable Agriculture Systems Coordinated Agricultural Program grant no. 2019-68012-29852 from the USDA National Institute of Food and Agriculture.
- </Container>
-
+        Grassland 2.0 is a collaborative group of farmers, researchers, and public and private sector leaders working to develop pathways for increased farmer profitability, yield stability and nutrient and water efficiency, while improving water quality, soil health, biodiversity, and climate resilience through grassland-based agriculture.
+        <p></p>
+        The University of Wisconsin - Madison respects your privacy and is committed to protecting your privacy through our compliance with <a href="https://drive.google.com/file/d/151_PhFk5h6KrbVz92XHjwPFqXrrv89AY/view" target="_blank">this website privacy policy.</a>
+         <br></br>
+         By using this website and the associated apps, you agree to this privacy policy.
+        <p></p>*This project is based at UW–Madison and the work is supported by the Sustainable Agriculture Systems Coordinated Agricultural Program grant no. 2019-68012-29852 from the USDA National Institute of Food and Agriculture.
+        <Row >
+            <Col xs={6}>
+            </Col>
+             <Col xs={6}>
+                 <img
+                      alt=""
+                      src="static/public/library/images/Maptiler1.png"
+                      width="30%"
+                      margin-left= "auto"
+                      margin-right= "auto"
+                 />
+             </Col>
+         </Row>
+    </Container>
   </div>
+
 
 </div>
 );

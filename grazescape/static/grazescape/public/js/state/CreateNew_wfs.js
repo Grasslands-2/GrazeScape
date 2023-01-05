@@ -8,14 +8,14 @@ DSS.utils.addStyle('.right-pad { padding-right: 32px }')
 var scenarioObj = {};
 var farmUrl = 
 
-function showNewFarm() {
-    geoServer.setFarmSource()
-	console.log("setFarmSource in CreateNew_wfs within showNewFarm")
-	DSS.layer.farms_1.setOpacity(1);
-	DSS.layer.farms_1.getSource().refresh();
-	console.log(DSS.activeFarm)
-	console.log("show new farm ran");
-}
+// function showNewFarm() {
+//     geoServer.setFarmSource()
+// 	console.log("setFarmSource in CreateNew_wfs within showNewFarm")
+// 	DSS.layer.farms_1.setOpacity(1);
+// 	DSS.layer.farms_1.getSource().refresh();
+// 	console.log(DSS.activeFarm)
+// 	console.log("show new farm ran");
+// }
 //bring in farm layer table as object for iteration
 //bring in farm layer table as object for iteration
 //empty array to catch feature objects
@@ -213,7 +213,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
             { 
 				xtype: 'component',
 				cls: 'information',
-				html: 'Fill in operation info in the form below, then select operation location on map'
+				html: 'Fill in operation info in the form below, then select farm location on map'
 			},{
 				xtype: 'form',
 				url: 'create_operation',
@@ -238,13 +238,13 @@ Ext.define('DSS.state.CreateNew_wfs', {
 				},{
 					fieldLabel: 'Owner',
 					name: 'owner',
-					allowBlank: false,
+					allowBlank: true,
 					margin: '10 0',
 					padding: 4,
 				},{
 					fieldLabel: 'Address',
 					name: 'address',
-                    allowBlank: false,
+                    allowBlank: true,
 					margin: '12 0',
 					padding: 4,
             	},

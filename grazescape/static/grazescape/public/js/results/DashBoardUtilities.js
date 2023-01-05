@@ -4,6 +4,7 @@ var mfieldID = ''
 var modelError = false
 var modelErrorMessages = []
 var yieldmodelsDataArray = []
+var pmanureReturn_array = []
 //gathers data for each model run. called in model type switch statments
 function gatherArrayForYieldAdjustment(mdobj) {
     yieldmodelsDataArray.push({
@@ -105,9 +106,9 @@ function populateChartObj(scenList, fieldList, allField, allScen){
     }
 }
 
-function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,){
+function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,pManureResults,/*pMcellData*/){
     //Try building in a way to get the scenario specific costs data from each fields scenario.
-    console.log(scenDupArray)
+    console.log(pManureResults)
     console.log(f.scenario_id)
     let runModel = false
     let split = ""
@@ -116,7 +117,8 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
     if(f["is_dirty"] == true){
         runModel = true
     }
-    console.log(runModel)
+    console.log("the field is dirty ", runModel)
+    
 
     let rotation_split = f["rotation"].split("-")
     crop = rotation_split[0]
@@ -133,20 +135,19 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
     model_para = {
         f_name: f["field_name"],
         extent: geometry.bbox,
-        // at this point fields wont have any holes so just get the first entry
         field_coors: geometry.geometry.coordinates[0],
         grass_type: f["grass_speciesval"],
-//            need to convert this to integer
-        contour: f["on_contour"]?1:0,
-        soil_p: f["soil_p"],
+        contour: parseInt(f["on_contour"]?1:0),
+        soil_p: parseFloat(f["soil_p"]),
         tillage: f["tillage"],
-        fert: f["perc_fert_p"],
-        manure: f["perc_manure_p"],
-        fert_n: f["perc_fert_n"],
-        manure_n: f["perc_manure_n"],
+        fert: parseFloat(f["perc_fert_p"]),
+        manure: parseFloat(f["perc_manure_p"]),
+        fert_n: parseFloat(f["perc_fert_n"]),
+        manure_n: parseFloat(f["perc_manure_n"]),
+        // crop:crop,
         crop:crop,
-        area:f["area"],
-        om: f["om"],
+        area:parseFloat(f["area"]),
+        om: parseFloat(f["om"]),
         crop_cover: f["cover_crop"],
 //			doesn't appear to be in the table at this time
         rotation: rotation,
@@ -163,7 +164,12 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         land_cost: f["land_cost"],
         fert_p_perc:f["perc_fert_p"],
         fert_n_perc:f["perc_fert_n"],
+        manure_p_perc:f["perc_manure_p"],
+        manure_n_perc:f["perc_manure_n"],
+        legume:f["interseeded_clover"],
         active_region: DSS.activeRegion,
+        pManureResults: pManureResults,
+        //pMcellData: [pMcellData],
         alfalfaMachCost: 0,
         alfalfaMachCostY1: 0,
         alfalfaPestCost: 0,
@@ -210,11 +216,14 @@ function build_model_request(f, geometry, modelChoice,modelruntime,activeScenari
         field_id: f["gid"],
         "scenario_id": f["scenario_id"],
         "runModels": runModel,
-        "model_parameters":model_para
+        "model_parameters":model_para,
+        "pManureResults": pManureResults
     }
     console.log(model_pack)
     return model_pack
 }
+
+
 function format_chart_data(model_data){
     if(typeof model_data.f_name === "undefined" || typeof model_data.scen === "undefined"){
         return
@@ -232,6 +241,7 @@ function format_chart_data(model_data){
     }
     //setting up each model run
     modelTypeString = model_data.value_type +'_'+ model_data.crop_ro
+    console.log("value type ", model_data.value_type)
     switch (model_data.model_type) {
         case 'yield':
             switch (model_data.value_type){
@@ -241,6 +251,13 @@ function format_chart_data(model_data){
                 if(model_data.scen_id == DSS.activeScenario){
                     gatherArrayForYieldAdjustment(model_data)
                 }
+                break
+            case 'Dry Lot':
+//                chartTypeField = chartObj.grass_yield_field
+//                chartTypeFarm = chartObj.grass_yield_farm
+//                if(model_data.scen_id == DSS.activeScenario){
+//                    gatherArrayForYieldAdjustment(model_data)
+//                }
                 break
             case 'Corn Grain':
                 chartTypeField = chartObj.corn_yield_field
@@ -284,47 +301,22 @@ function format_chart_data(model_data){
                     gatherArrayForYieldAdjustment(model_data)
                 }
                 break
-            }
-            if(model_data.scen_id == DSS.activeScenario){
-                console.log(model_data.extent)
-                if(model_data.extent !== undefined){
-                    DSS.yieldBol = false
-                    var plextent = model_data.extent
-                    DSS.layer.yield_field = new ol.layer.Image({
-                        visible: false,
-                        source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/Rotational Average'+ model_data.field_id + '.png',
-                        imageExtent: plextent
-                        })
-                    })
-                    DSS.layer.yield_field.set('name', 'Rotational Average'+ model_data.field_id);
-                    var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                    console.log(yieldGroupLayers);
-                    // if(yieldGroupLayers.length == 0){
-                    //     yieldGroupLayers.push(DSS.layer.yield_field);
-                    // }
-                    // else{
-                    //     for(l in yieldGroupLayers){
-                    //         //console.log(yieldGroupLayers[l].values_.name)
-                    //         //console.log(DSS.layer.yield_field.values_.name)
-                    //         if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
-                    //             const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
-                    //             if(index > -1) {
-                    //                 yieldGroupLayers.splice(index,1);
-                    //                 console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
-                    //             }
-                    //             yieldGroupLayers.push(DSS.layer.yield_field);
-                    //         }
-                    //     }
-                    // yieldGroupLayers.push(DSS.layer.yield_field);
-                    // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                    // }
-                }
-            }
-            break;
-
-        case 'ploss':
-            if (model_data.value_type == 'ploss'){
+            case 'insect':
+                chartTypeField = chartObj.insecticide_field
+                chartTypeFarm = chartObj.insecticide_farm
+                break
+            case 'econ':
+                chartTypeField = chartObj.econ_field
+                chartTypeFarm = chartObj.econ_farm
+                break
+            case 'feed breakdown':
+                chartTypeField = chartObj.feed_breakdown
+            case 'nitrate':
+                chartTypeField = chartObj.nleaching_field
+                chartTypeFarm = chartObj.nleaching_farm
+                break
+            case 'ploss':
+            
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
                 if(model_data.scen_id == DSS.activeScenario){
@@ -342,29 +334,11 @@ function format_chart_data(model_data){
                         DSS.layer.ploss_field.set('name', 'ploss'+ model_data.field_id);
                         var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
                         console.log(plossGroupLayers);
-                        // if(plossGroupLayers.length == 0){
-                        //     plossGroupLayers.push(DSS.layer.ploss_field);
-                        // }
-                        // else{
-                        //     for(l in plossGroupLayers){
-                        //         console.log(plossGroupLayers[l].values_.name)
-                        //         console.log(DSS.layer.ploss_field.values_.name)
-                        //         if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
-                        //             const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
-                        //             if(index > -1) {
-                        //                 plossGroupLayers.splice(index,1);
-                        //                 console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
-                        //             }
-                        //             plossGroupLayers.push(DSS.layer.ploss_field);
-                        //         }
-                        //     }
-                        // plossGroupLayers.push(DSS.layer.ploss_field);
-                        // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                        // }
+
                     }
                 }
-            }
-            else if (model_data.value_type == 'ero'){
+                break
+            case 'ero':
                 chartTypeField = chartObj.soil_loss_field
                 chartTypeFarm = chartObj.soil_loss_farm
                 if(model_data.scen_id == DSS.activeScenario){
@@ -382,41 +356,38 @@ function format_chart_data(model_data){
                         DSS.layer.ero_field.set('name', 'ero'+ model_data.field_id);
                         var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
                         console.log(erosionGroupLayers);
-                        // if(erosionGroupLayers.length == 0){
-                        //     erosionGroupLayers.push(DSS.layer.ero_field);
-                        // }
-                        // else{
-                        //     for(l in erosionGroupLayers){
-                        //         console.log(erosionGroupLayers[l].values_.name)
-                        //         console.log(DSS.layer.ero_field.values_.name)
-                        //         if(erosionGroupLayers[l].values_.name == DSS.layer.ero_field.values_.name){
-                        //             const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
-                        //             if(index > -1) {
-                        //                 erosionGroupLayers.splice(index,1);
-                        //                 console.log("SPLICED :" + DSS.layer.ero_field.values_.name)
-                        //             }
-                        //             erosionGroupLayers.push(DSS.layer.ero_field);
-                        //         }
-                        //     }
-                        // erosionGroupLayers.push(DSS.layer.ero_field);
-                        // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                        // }
+
                     }
                 }
-            }
-            break;
-        case 'runoff':
-            console.log("runoff")
-            console.log(model_data)
-            if (model_data.value_type == 'Curve Number'){
-                chartTypeFarm = chartObj.cn_num_farm
-            }
-//            have to handle runoff differently because it deals with an array not a single value
-            else if (model_data.value_type == 'Runoff'){
-
+                break
+            case 'nleaching':
+                console.log("IN NLEACHING IN CHART FORMATION")
+                chartTypeField = chartObj.nleaching_field
+                chartTypeFarm = chartObj.nleaching_farm
+                if(model_data.scen_id == DSS.activeScenario){
+                    console.log(model_data.extent)
+                    if(model_data.extent !== undefined){
+                        DSS.nleachingBol = false
+                        var plextent = model_data.extent
+                        DSS.layer.nleaching_field = new ol.layer.Image({
+                            visible: false,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/nleaching'+ model_data.field_id + '.png',
+                            imageExtent: plextent
+                            })
+                        })
+                        DSS.layer.nleaching_field.set('name', 'nleaching'+ model_data.field_id);
+                        var nleachingGroupLayers = DSS.layer.nleachingGroup.getLayers().getArray();
+                        console.log(nleachingGroupLayers);
+                        
+                    }
+                }
+                break
+            case 'Runoff':
+                console.log("runoff")
                 chartTypeFarm = chartObj.runoff_farm
                 chartTypeFarm.units = model_data.units
-//              loop through each storm event
+    //              loop through each storm event
                 for (let i in model_data.sum_cells){
                     chartTypeFarm.sum[scenIndex][i] = typeof chartTypeFarm.sum[scenIndex][i] === 'undefined' ? model_data.sum_cells[i]:chartTypeFarm.sum[scenIndex][i] + model_data.sum_cells[i]
                 }
@@ -431,62 +402,60 @@ function format_chart_data(model_data){
                     chartTypeFarm.chart.options.scales.y.title.text = chartTypeFarm.units;
                     chartTypeFarm.chart.update()
                 }
-                
-            return
+
+                return
+            case 'Curve Number':
+                console.log("curvenumber ")
+                chartTypeFarm = chartObj.cn_num_farm
+    //            have to handle runoff differently because it deals with an array not a single value
+
+                if(model_data.scen_id == DSS.activeScenario){
+                    console.log(model_data.extent)
+                    if(model_data.extent !== undefined){
+                        DSS.runoffBol = false
+                        var plextent = model_data.extent
+                        DSS.layer.runoff_field = new ol.layer.Image({
+                            visible: false,
+                            source: new ol.source.ImageStatic({
+                            url: '/static/grazescape/public/images/Curve Number'+ model_data.field_id + '.png',
+                            imageExtent: plextent
+                            })
+                        })
+                        DSS.layer.runoff_field.set('name', 'Curve Number'+ model_data.field_id);
+                        var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
+                        console.log(runoffGroupLayers);
+                    }
+                }
+            break
             }
             if(model_data.scen_id == DSS.activeScenario){
                 console.log(model_data.extent)
                 if(model_data.extent !== undefined){
-                    DSS.runoffBol = false
+                    DSS.yieldBol = false
                     var plextent = model_data.extent
-                    DSS.layer.runoff_field = new ol.layer.Image({
+                    DSS.layer.yield_field = new ol.layer.Image({
                         visible: false,
                         source: new ol.source.ImageStatic({
-                        url: '/static/grazescape/public/images/Curve Number'+ model_data.field_id + '.png',
+                        url: '/static/grazescape/public/images/Rotational Average'+ model_data.field_id + '.png',
                         imageExtent: plextent
                         })
                     })
-                    DSS.layer.runoff_field.set('name', 'Curve Number'+ model_data.field_id);
-                    var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
-                    console.log(runoffGroupLayers);
-                    // if(runoffGroupLayers.length == 0){
-                    //     runoffGroupLayers.push(DSS.layer.runoff_field);
-                    // }
-                    // else{
-                    //     for(l in runoffGroupLayers){
-                    //         console.log(runoffGroupLayers[l].values_.name)
-                    //         console.log(DSS.layer.runoff_field.values_.name)
-                    //         if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
-                    //             const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
-                    //             if(index > -1) {
-                    //                 runoffGroupLayers.splice(index,1);
-                    //                 console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
-                    //             }
-                    //             runoffGroupLayers.push(DSS.layer.runoff_field);
-                    //         }
-                    //     }
-                    // runoffGroupLayers.push(DSS.layer.runoff_field);
-                    // Ext.ComponentQuery.query('tabpanel[name="mappedResultsTab"]')[0].setDisabled(false)
-                    // }
+                    DSS.layer.yield_field.set('name', 'Rotational Average'+ model_data.field_id);
+                    var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
+                    console.log(yieldGroupLayers);
+                    
                 }
             }
-                break
-        case 'bio':
-            chartTypeField = chartObj.insecticide_field
-            chartTypeFarm = chartObj.insecticide_farm
-            break
-        case 'econ':
-            chartTypeField = chartObj.econ_field
-            chartTypeFarm = chartObj.econ_farm
-            break
-        case 'feed breakdown':
-            chartTypeField = chartObj.feed_breakdown
+            break;
+
     }
 //      field level
 // some charts don't have a field level
     if(chartTypeField !== null){
         chartTypeField.units = model_data.units
         chartTypeField.units_alternate = model_data.units_alternate
+        chartTypeField.title = model_data.title
+        chartTypeField.title_alternate = model_data.title_alternate
         let chartVal = null
         if(model_data.sum_cells != null){
             //if econ dont do this
@@ -528,7 +497,8 @@ function format_chart_data(model_data){
     let chartVal = null
     let chartCells = null
     let chartArea = null
-    if(model_data.sum_cells != null){
+    if(model_data.sum_cells != null && model_data.crop_ro != 'dl'){
+        console.log(model_data)
         chartTypeFarm.show = true
         if(chartTypeFarm == chartObj.econ_farm){
             console.log(model_data)
@@ -542,7 +512,8 @@ function format_chart_data(model_data){
             chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? /*model_data.sum_cells*/chartVal:chartTypeFarm.sum[scenIndex] + chartVal
             chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
-
+            chartTypeFarm.title = model_data.title
+            chartTypeFarm.title_alternate = model_data.title_alternate
             chartTypeFarm.units = model_data.units
             chartTypeFarm.units_alternate = model_data.units_alternate
             chartTypeFarm.units_alternate_2 = model_data.units_alternate_2
@@ -560,6 +531,8 @@ function format_chart_data(model_data){
             chartTypeFarm.sum[scenIndex] = typeof chartTypeFarm.sum[scenIndex] === 'undefined' ? model_data.sum_cells:chartTypeFarm.sum[scenIndex] + chartVal
             chartTypeFarm.area[scenIndex] = typeof chartTypeFarm.area[scenIndex] === 'undefined' ? model_data.area:chartTypeFarm.area[scenIndex] + chartArea
 
+            chartTypeFarm.title = model_data.title
+            chartTypeFarm.title_alternate = model_data.title_alternate
 
             chartTypeFarm.units = model_data.units
             chartTypeFarm.units_alternate = model_data.units_alternate
@@ -668,6 +641,7 @@ function get_model_data(data){
     console.log(data)
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
+    // data = JSON.stringify(data)
     $.ajaxSetup({
             headers: { "X-CSRFToken": csrftoken }
         });
@@ -696,7 +670,14 @@ function get_model_data(data){
                 }
                 let e = obj.extent;
                 if(responses[response].value_type != "dry lot"){
+                    console.log("response type in dashboard utilites")
+                    //console.log(responses[response].value_type)
                     //console.log(obj)
+                    if(obj.value_type == "Rotational Average"){
+                        console.log(obj)
+                        pmanureReturn_array.push([obj.f_name,obj.field_id,obj.area,obj.crop_ro,obj.p_manure_Results,obj.grass_ro])
+                        //pmanureReturn_array.push(obj)
+                    }
                     format_chart_data(obj)
                 }
             }
@@ -710,48 +691,9 @@ function get_model_data(data){
     });
     })
 	}
-    // function run_econ_model(data){
-    //     return new Promise(function(resolve) {
-    //     var csrftoken = Cookies.get('csrftoken');
-    //     $.ajaxSetup({
-    //             headers: { "X-CSRFToken": csrftoken }
-    //         });
-    //     $.ajax({
-    //     'url' : '/grazescape/run_econ_model',
-    //     'type' : 'POST',
-    //     'data' : data,
-    //     'timeout':0,
-    //         success: async function(responses, opts) {
-    //             console.log(responses)
-    //             delete $.ajaxSetup().headers
-    //             // if(responses == null){
-    //             //     resolve([]);
-    //             // }
-    //             // for (response in responses){
-    //             //     obj = responses[response];
-    //             //     if(obj.error || response == null){
-    //             //         console.log("model did not run")
-    //             //         console.log(obj.error)
-    //             //         if(!modelError){
-    //             //             alert(obj.error);
-    //             //             modelErrorMessages.push(obj.error)
-    //             //             modelError = true
-    //             //         }
-    //             //         continue
-    //             //     }
-    //             //     let e = obj.extent;
-    //             // }
-    //             resolve(responses);
-    //         },
-    
-    //         failure: function(response, opts) {
-    //             console.log(responses)
-    //             me.stopWorkerAnimation();
-    //         },
-    //         //timeout:50
-    //     });
-    //     })
-    // }
+
+
+   
 //validates images?  Not sure, Havent worked with 
 function validateImageOL(json, layer, tryCount) {
     var me = this;
@@ -801,7 +743,9 @@ function create_graph(chart,title,element){
         plugins: [ChartDataLabels],
         options: {
             responsive: true,
-            skipNull:true,
+            //responsive: false,
+            //skipNull:true,
+            skipNull:false,
             maxBarThickness: 150,
             interaction:{
               mode:"nearest"
@@ -836,7 +780,7 @@ function create_graph(chart,title,element){
                 title:
                 {
                     display: true,
-                    text: title
+                    text: chart.title
                 },
                 tooltip: {
                     footerFont: {weight: 'normal'},
@@ -850,6 +794,7 @@ function create_graph(chart,title,element){
                                 return;
                             }
                             let tooltipPath = dataset.toolTip[context[0].dataIndex]
+                            //console.log(tooltipPath)
                             // all rotations except pasture
                             if(tooltipPath[0] != "pt"){
                                 return ["Rotation: " + farmAccMapping(tooltipPath[0]),
@@ -857,9 +802,19 @@ function create_graph(chart,title,element){
                             }
                             // pasture
                             else{
+                                let grassTypeDisplay = ''
+                                if(tooltipPath[2] == 'Bluegrass-clover'){
+                                    grassTypeDisplay = 'Low Yielding'
+                                }
+                                else if(tooltipPath[2] == 'Timothy-clover'){
+                                    grassTypeDisplay = 'Medium Yielding'
+                                }
+                                else{
+                                    grassTypeDisplay = 'High Yielding'
+                                }
                                 return [
                                 "Rotation: " + farmAccMapping(tooltipPath[1]),
-                                "Grass Type: " + tooltipPath[2]]
+                                "Grass Type: " + grassTypeDisplay]
                             }
                         }
                     }
@@ -920,7 +875,7 @@ function farmAccMapping(inputString){
      'dl':'Dry Lot',
      'cc':'Continuous Corn',
      'cg':'Cash Grain',
-     'dr':'Corn Silage to Corn Grain to Alfalfa(3x)',
+     'dr':'Corn Silage to Corn Grain to Alfalfa 3 yrs',
      'cso':'Corn Silage to Soybeans to Oats'
      }
      return mapping[inputString]
@@ -1152,12 +1107,15 @@ function hideData(chartName, datasetName,dbID){
 function displayAlternate(chartName, btnId){
     chartDatasets = chartObj[chartName].chartData.datasets
     chartData = chartObj[chartName]
+    console.log(chartData)
+    console.log(chartData.chart.options)
 //    btnObject = Ext.getCmp(btnId)
     divideArea = true
 //    switch back to yield by area
     if(chartData.useAlternate){
 //        btnObject.setText('Average Yield')
         chartData.chart.options.scales.y.title.text = chartData.units;
+        chartData.chart.options.plugins.title.text = chartData.title
         chartData.useAlternate = false
         divideArea = true
 //        conv = 1/area
@@ -1165,6 +1123,8 @@ function displayAlternate(chartName, btnId){
     else{
 //        btnObject.setText('Average Yield / Area')
         chartData.chart.options.scales.y.title.text= chartData.units_alternate;
+        chartData.chart.options.plugins.title.text = chartData.title_alternate
+        //chartData.defaults.plugins.title.text = chartData.title_alternate
         chartData.useAlternate = true
 //        conv = area
         divideArea = false
@@ -1212,6 +1172,7 @@ function displayAlternateEcon(chartName,oldValue,newValue){
     if (newValue == 't'){
 //        btnObject.setText('Average Yield / Area')
         chartData.chart.options.scales.y.title.text= chartData.units_alternate;
+        chartData.chart.options.title = chartData.title_alternate
         chartData.useAlternate = true
 //        conv = area
         //divideArea = false
@@ -1645,8 +1606,163 @@ function retrieveAllFieldsDataGeoserver(){
     })
 }
 //runs the print summary in the dashboard
+function downloadSummaryCSV(chartObj){
+    console.log(chartObj)
+    var refinedData = []
+    var fieldkeys = ["rotation_yield_field","alfalfa_yield_field","corn_silage_yield_field","corn_yield_field","grass_yield_field","oat_yield_field","econ_field","insecticide_field","nleaching_field","ploss_field","soil_loss_field"]
+    var farmkeys = ["rotation_yield_farm","alfalfa_yield_farm","corn_silage_yield_farm","corn_yield_farm","grass_yield_farm","oat_yield_farm","econ_farm","insecticide_farm","nleaching_farm","ploss_farm","soil_loss_farm"]
+   // refinedData.push(titleKeys)
+//     titleKeys.forEach(title => 
+//         Object.keys(chartObj).forEach(function(key){
+//         if(title == key){
+//             Object.values(key).forEach(val => {
+//                 console.log(val);
+//         })
+        
+//         //titleKeys.push(key)
+//         }
+// }))
+//Object.entries(chartObj).forEach(([key,values])=> {
+    refinedData.push(["All data shown as per acre"])
+    refinedData.push([""])
+    refinedData.push(["Field Results Results"])
+    refinedData.push([""])
+    fieldtitlearray = ["Field Names"]
+    scentitlearray = ["Field Scenarios"]
+    areatitlearray = ["Field Area(ac)"]
+    rotfieldchart = chartObj.rotation_yield_field.chartData
+    for(i in rotfieldchart.datasets){
+        fieldtitlearray.push(rotfieldchart.datasets[i].label)
+    }
+    for(s in rotfieldchart.datasets){
+        for(d in rotfieldchart.datasets[s].data){
+            if(rotfieldchart.datasets[s].data[d] !== null){
+                scentitlearray.push(rotfieldchart.chartDataLabelsOri[d])
+            }
+        }
+    }
+    for(a in chartObj.rotation_yield_field.area){
+        areatitlearray.push(chartObj.rotation_yield_field.area[a])
+    }
+    refinedData.push(fieldtitlearray)
+    refinedData.push(scentitlearray)
+    refinedData.push(areatitlearray)
+    refinedData.push([""])
+
+
+    for(m in fieldkeys){
+        resultsArray = []
+        //console.log(m)
+        //console.log(fieldkeys[m])
+        resultsArray.push(fieldkeys[m])
+        charttext = fieldkeys[m]
+        // console.log(chartObj.charttext)
+        // modelValues = chartObj.fieldkeys[m].chartData.datasets
+        // console.log(m)
+        // console.log(modelValues)
+        // for(i in modelValues){
+        //     console.log(modelValues[i].data)
+        //     for(d in modelValues[i].data){
+        //         console.log(modelValues[i].data[d])
+        //         if(modelValues[i].data[d] !== null){
+        //             resultsArray.push(modelValues[i].data[d])
+        //         }else{
+        //             resultsArray.push("NA")
+        //         }
+        // }
+
+
+        Object.entries(chartObj).forEach(([key,values])=> {
+        if(String(key) == String(fieldkeys[m])){
+
+            for(i in values.chartData.datasets){
+                if(values.chartData.datasets[i].data.every(d => d === null)){
+                    resultsArray.push("NA")
+                }else{
+                for(d in values.chartData.datasets[i].data){
+                    if(values.chartData.datasets[i].data[d] !== null){
+                        resultsArray.push(values.chartData.datasets[i].data[d])
+                    }
+                    // else{
+                    //     resultsArray.push("NA")
+                    // }
+                }}
+            }
+        refinedData.push(resultsArray)}
+
+    })}
+
+    refinedData.push([""])
+    refinedData.push([""])
+    refinedData.push(["Scenario Results"])
+
+    farmtitlearray = ["Scenario Names"]
+    areatitlearray = ["Scenario Area(ac)"]
+    rotfarmchart = chartObj.rotation_yield_farm.chartData
+    for(i in rotfarmchart.datasets){
+        farmtitlearray.push(rotfarmchart.datasets[i].label)
+    }
+    for(a in chartObj.rotation_yield_farm.area){
+        areatitlearray.push(chartObj.rotation_yield_farm.area[a])
+    }
+    refinedData.push(farmtitlearray)
+    refinedData.push(areatitlearray)
+    refinedData.push([""])
+
+    for(m in farmkeys){
+        resultsArray = []
+        resultsArray.push(farmkeys[m])
+        charttext = farmkeys[m]
+        Object.entries(chartObj).forEach(([key,values])=> {
+        //console.log(key)
+        if(String(key) == String(farmkeys[m])){
+
+            for(i in values.chartData.datasets){
+                if(values.chartData.datasets[i].data.every(d => d === null)){
+                    resultsArray.push("NA")
+                }else{
+                for(d in values.chartData.datasets[i].data){
+                    if(values.chartData.datasets[i].data[d] !== null){
+                        resultsArray.push(values.chartData.datasets[i].data[d])
+                    }
+                    // else{
+                    //     resultsArray.push("NA")
+                    // }
+                }}
+            }
+        refinedData.push(resultsArray)}
+
+    })}
+
+    let csvContent = ''
+    console.log(refinedData)
+    refinedData.forEach(row => {
+        csvContent += row.join(',') + '\n'
+      })
+    console.log(csvContent)
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' })
+    const objUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    console.log(blob)
+    console.log(objUrl)
+    console.log(link)
+    link.setAttribute('href', objUrl)
+    link.setAttribute('download', 'File.csv')
+    link.textContent = 'Click to Download'
+
+    //document.querySelector('body').append(link)
+    Ext.getCmp('downloadSummaryCSV').setHref(link)
+
+
+}
 function printSummary(){
     var pdf = new jsPDF();
+    pdf.setFontSize(22);
+    pdf.text(20, 20, 'This is a title');
+
+    pdf.setFontSize(16);
+    pdf.text(20, 30, 'This is some normal sized text underneath.');
+    pdf.addPage("letter",'landscape')
     let activeTab = Ext.getCmp("mainTab").getActiveTab()
     scenName = chartDatasetContainer.getScenName(DSS.activeScenario)
     let mainTabLength = Ext.getCmp("mainTab").items.length
@@ -1672,16 +1788,75 @@ function printSummary(){
 //            unit:'px',
 //            format:'a4'
 //        });;
+fieldTotals = 0
     setTimeout(() => {
+        noChartDataList = []
+        chartObjList = Object.keys(chartObj)
+        console.log(chartObjList)
+        for(i in chartObj){
+            if(i.includes("_field")){
+                fieldTotals = 0
+                fieldDataSets = chartObj[i].chartData.datasets
+                console.log(fieldDataSets)
+                if(fieldDataSets == 'undefined'){
+                    console.log(i)
+                    continue
+                }
+                for(f in fieldDataSets){
+                    console.log(fieldDataSets[f].fieldData)
+                    if(fieldDataSets[f].fieldData === null){
+                        fieldTotals += 1
+                        console.log(fieldTotals)
+                    }
+                }
+                if(fieldTotals == fieldDataSets.length){
+                    console.log("HIT NO CHART DATA!")
+                    console.log(i)
+                    noChartDataList.push(i)
+                    //chartPresent = false
+                }
+            }
+            if(i.includes("_farm")){
+                farmTotals = 0
+                farmDataSets = chartObj[i].chartData.datasets
+                console.log(farmDataSets)
+                if(farmDataSets == 'undefined'){
+                    console.log(i)
+                    continue
+                }
+                for(f in farmDataSets){
+                    farmDataArray = farmDataSets[f].data
+                    console.log(farmDataArray)
+                    for(fd in farmDataArray){
+                        if(farmDataArray[fd] === null){
+                            farmTotals += 1
+                            console.log(farmTotals)
+                        }
+                    }
+                }
+                if(farmTotals == farmDataArray.length){
+                    console.log("HIT NO CHART DATA!")
+                    console.log(i)
+                    noChartDataList.push(i)
+                    //chartPresent = false
+                }
+            }
+        }
+        
         for (chart in chartList){
+            chartPresent = true
             canvas = document.getElementById(chartList[chart])
             console.log(canvas)
             if(canvas == null){
                 continue
             }
+            if(noChartDataList.includes(canvas.id)){
+                continue
+            }
 //            if(chartList[chart]) == ""){
 //                continue
 //            }
+            fieldTotals = 0
             var newCanvas = canvas.cloneNode(true);
             var ctx = newCanvas.getContext('2d');
             ctx.fillStyle = "#FFF";
@@ -1689,8 +1864,9 @@ function printSummary(){
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
 //            pdf.addImage(imgData, 'JPEG', 0, 0);
-            pdf.addImage(imgData, 'JPEG', 0, 0,8, 4.4);
-            pdf.addPage(imgData,'landscape')
+            pdf.addImage(imgData, 'JPEG', 1,1,8,6);
+            pdf.addPage("letter",'landscape')
+            
         }
         pdf.save(chartDatasetContainer.farmName + "_Charts.pdf");
     }, 1000);
@@ -1876,15 +2052,15 @@ function downloadRasters(fieldIter){
         let numFields = fieldIter.length
         for(item in fieldIter){
             f = fieldIter[item].properties
-            if(f["is_dirty"] == false){
-                downloadCount = downloadCount + 1
-                 if(downloadCount==numFields){
-                    console.log(downloadCount, numFields)
-                    console.log("All files downloaded")
-                    resolve(downloadCount)
-                }
-                continue
-            }
+//            if(f["is_dirty"] == false){
+//                downloadCount = downloadCount + 1
+//                 if(downloadCount==numFields){
+//                    console.log(downloadCount, numFields)
+//                    console.log("All files downloaded")
+//                    resolve(downloadCount)
+//                }
+//                continue
+//            }
             geometry = fieldIter[item]
             model_para = {
                 f_name: f["field_name"],
@@ -2219,6 +2395,7 @@ class ChartData{
         this.units = ''
         this.units_alternate = ''
         this.title = ''
+        this.title_alternate = ''
         this.model_type = ''
         this.sum = []
         this.count = []

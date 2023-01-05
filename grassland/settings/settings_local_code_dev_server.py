@@ -10,6 +10,14 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 import configparser
+# import logging
+
+# logging.basicConfig(level=logging.WARNING)
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
+
+# USE THIS 
+#logger.debug('hello')
 from grassland.settings.settings import *
 if parser.has_section("captcha_google") and parser.has_section("postgresql"):
     params = parser.items("captcha_google")
@@ -27,17 +35,20 @@ else:
 SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 
-GEOSERVER_URL = "http://geoserver-dev1.glbrc.org:8080/"
+GEOSERVER_URL = "http://grazescape-dev1.glbrc.org:8080/"
 #GEOSERVER_URL = "http://geoserver:8080"
 #container R path.
 #R_PATH = "/opt/conda/envs/gscape/bin/R"
 #local R path.
 R_PATH = "C://Program Files/R/R-4.0.5/bin/x64/R.exe"
+#R_PATH = "C://Program Files/R/R-4.1.2/bin/x64/R.exe"
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 #container model path
 #MODEL_PATH = /tmp/GrazeScape/grazescape/data_files/input_models
 MODEL_PATH = "C://Users/zjhas/Documents/GrazeScape/grazescape/data_files/input_models"
+#MODEL_PATH = "C://Users/mmbay/Work/rds_files/input_models"
 
 #new container R path
 #R_PATH = "/opt/conda/envs/gscape/bin/R"

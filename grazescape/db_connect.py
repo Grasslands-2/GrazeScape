@@ -6,7 +6,9 @@ import configparser
 import os
 from django.conf import settings
 from psycopg2.errors import UniqueViolation
-def multifindcoords(string):
+import threading
+
+def multifindcoordsJson(string):
     values = []
     # while True:
     begstring = '"coordinates":[[['
@@ -15,16 +17,24 @@ def multifindcoords(string):
     for par in tmp:
         if endstring in par:
             values.append(par.split(endstring)[0])
-        # found = string.find(value, start, stop)
-        # foundtext = string[string.find(begstring)+len(begstring):string.rfind(endstring)]
-        # if found == -1:
-        #     break
-        # print(found)
-        # #print(foundtext)
-        # values.append(foundtext)
-        # start = found + 1
     print(values)
     return values
+
+
+# Splits up each incoming polygon from the shapefile into a seperate field.
+def multifindcoordsshp(string):
+    values = []
+    # print(string)
+    begstring = 'array([['
+    endstring = ']])'
+    tmp = string.split(begstring)
+    for par in tmp:
+        if endstring in par:
+            par = par.replace('\n', '')
+            values.append(par.split(endstring)[0])
+    print(values)
+    return values
+
 
 def config(filename='database.ini', section='postgresql'):
     """
@@ -85,6 +95,8 @@ def db_has_field(field_id):
     cur.close()
     conn.close()
     return db_result is not None
+
+
 # This collects all the operations owned by the user once the owner logs in
 def get_user_farms(user_id):
     cur, conn = get_db_conn()
@@ -97,17 +109,20 @@ def get_user_farms(user_id):
     conn.close()
     farm_id = []
     for id in db_result:
-        #print(id[0])
+        # print(id[0])
         farm_id.append(id[0])
     return farm_id
+
+
 # updates the users list of farms when they add or delete an operation.
 def update_user_farms(user_id, farm_id):
+    print("IN UPDATE USER FARMS")
     cur, conn = get_db_conn()
     try:
         cur.execute("""INSERT INTO farm_user 
         (user_id, is_owner, can_read, can_write,farm_id)
         VALUES(%s,%s,%s,%s,%s)""",
-                (user_id, True, True, True, farm_id))
+                    (user_id, True, True, True, farm_id))
     except Exception as e:
         print(e)
         print(type(e).__name__)
@@ -120,6 +135,8 @@ def update_user_farms(user_id, farm_id):
         cur.close()
         conn.commit()
         conn.close()
+
+
 # If a fields attributes have been changed.  This function updates the the fields_2 table
 def update_field_dirty(field_id, scenario_id, farm_id):
     """
@@ -159,6 +176,8 @@ def update_field_dirty(field_id, scenario_id, farm_id):
         conn.commit()
         conn.close()
     # Not in use
+
+
 def null_out_yield_results(data):
     if data['crop_ro'] == 'pt' and data['value_type'] != 'Grass':
         data['sum_cells'] = None
@@ -166,16 +185,18 @@ def null_out_yield_results(data):
         data['sum_cells'] = None
     if data['crop_ro'] == 'cg' and data['value_type'] != 'Corn Grain' or 'Soy':
         data['sum_cells'] = None
-    if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or'Corn Grain' or 'Alfalfa':
+    if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or 'Corn Grain' or 'Alfalfa':
         data['sum_cells'] = None
-    if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or'Soy' or 'Oats':
+    if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or 'Soy' or 'Oats':
         data['sum_cells'] = None
+
+
 # Nulls out yeild totals before new models are run.  This is to ensure that no old yield data is being held onto
 def clear_yield_values(field_id):
     cur, conn = get_db_conn()
     nullvalue_list = "grass_yield_tons_per_ac = null, corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
     nullout_text = "UPDATE field_model_results SET "
-    sql_where_text = " WHERE field_id = "+ field_id
+    sql_where_text = " WHERE field_id = " + field_id
     yield_clear_text = nullout_text + nullvalue_list + sql_where_text
     print(yield_clear_text)
     try:
@@ -188,10 +209,15 @@ def clear_yield_values(field_id):
         raise
     finally:
         cur.close()
-        #actual push to db
+        # actual push to db
         conn.commit()
         conn.close()
-#Used to update field model results when models are rerun 
+
+def update_field_results_async(field_id, scenario_id, farm_id, data, insert_field):
+    download_thread = threading.Thread(target=update_field_results, args=(field_id, scenario_id, farm_id, data, insert_field))
+    download_thread.start()
+    # self.threads.append(download_thread)
+# Used to update field model results when models are rerun
 def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     """
 
@@ -247,6 +273,9 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     if data["value_type"] == 'ploss':
         col_name.append('"P_runoff_lbs_per_acre"')
 
+    if data["value_type"] == 'nleaching':
+        col_name.append('"N_runoff_lbs_per_acre"')
+
     if data["value_type"] == 'ero':
         col_name.append("soil_erosion_tons_per_acre")
 
@@ -280,7 +309,6 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         values.append(data['counted_cells'])
         col_name.append("area")
         values.append(data['area'])
-
 
     col_name.append("field_id")
     col_name.append("scenario_id")
@@ -318,7 +346,6 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         sql_request = sql_request + sql_values + sql_where
     # https://stackoverflow.com/questions/29186112/postgresql-python-ignore-duplicate-key-exception
     try:
-
         cur.execute(sql_request, values)
     except UniqueViolation as e:
         print("field already exists in table")
@@ -333,11 +360,13 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         raise
     finally:
         cur.close()
-        #actual push to db
+        # actual push to db
         conn.commit()
         conn.close()
-#Ran if no models are ran.  This pulls the data from the model results table.
-def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
+
+
+# Ran if no models are ran.  This pulls the data from the model results table.
+def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, p_manure_Results):
     cur, conn = get_db_conn()
     runoff_col = ['event_runoff_0.5_inch', 'event_runoff_1_inch',
                   'event_runoff_1.5_inch', 'event_runoff_2_inch',
@@ -348,57 +377,130 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
     model_types = {'yield': {
         "grass_yield_tons_per_ac": {"units": "Yield (tons/acre/year)",
                                     "units_alternate": "'Yield (tons/year'",
+                                    "title": "Grass yield (tons-dry-matter/ac/yr)",
+                                    "title_alternate": "Grass production (tons-dry-matter/yr)",
                                     "type": "Grass"},
         "corn_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
                                    "units_alternate": "Yield (bushels/year)",
+                                   "title": "Corn grain yield [bushels/ac/yr]",
+                                   "title_alternate": "Corn grain production [bushels/yr]",
                                    "type": "Corn Grain"},
         "corn_silage_tons_per_ac": {"units": "Yield (tons/ac/year)",
                                     "units_alternate": "Yield (tons/year)",
+                                    "title": "Corn silage yield (tons/ac/yr)",
+                                    "title_alternate": "Corn silage production (tons/yr)",
                                     "type": "Corn Silage"},
         "soy_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
                                   "units_alternate": "Yield (bushels/year)",
+                                  "title": "Soybean yield (bushels/ac/yr)",
+                                  "title_alternate": "Soybean production (bushels/yr)",
                                   "type": "Soy"},
         "alfalfa_yield_tons_per_acre": {"units": "Yield (tons/ac/year)",
                                         "units_alternate": "Yield (tons/year)",
+                                        "title": "Alfalfa yield (tons/ac/yr)",
+                                        "title_alternate": "Alfalfa production (tons/yr)",
                                         "type": "Alfalfa"},
         "oat_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
                                   "units_alternate": "Yield (bushels/year)",
+                                  "title": "Oat yield (bushels/ac/yr)",
+                                  "title_alternate": "Oat production (bushels/yr)",
                                   "type": "Oats"},
         "rotation_dry_matter_yield_kg-DM/ac/year": {
             "units": "Yield (tons-Dry Matter/ac/year)",
             "units_alternate": "Yield (tons-Dry Matter/year)",
-            "type": "Rotational Average"}
-    },
-        'ploss': {
-            "P_runoff_lbs_per_acre": {
-                "units": "Phosphorus Runoff (lb/acre/year)",
-                "units_alternate": "Phosphorus Runoff (lb/year)",
-                "type": "ploss"},
-            "soil_erosion_tons_per_acre": {
-                "units": "Soil Erosion (ton/acre/year)",
-                "units_alternate": "Soil Erosion (tons of soil/year",
-                "type": "ero"}
-        },
-        'runoff': {
-            "runoff": {"units": "Runoff (in)",
-                       "units_alternate": "Runoff (in)", "type": "Runoff"},
-            "runoff_curve_number": {"units": "Curve Number",
-                                    "units_alternate": "Curve Number",
-                                    "type": "Curve Number"}
-        },
+            "title": "Total dry matter yield (tons/ac/yr)",
+            "title_alternate": "Total dry matter yield (tons/ac/yr)",
+            "type": "Rotational Average"},
+        "P_runoff_lbs_per_acre": {
+            "units": "Phosphorus Runoff (lb/acre/year)",
+            "units_alternate": "Phosphorus Runoff (lb/year)",
+            "type": "ploss"},
+        "N_runoff_lbs_per_acre": {
+            "units": "Nitrate Leaching (lb/acre/year)",
+            "units_alternate": "Nitrate Leaching (lb/year)",
+            "title": "Nitrate-N leaching (lb/ac/yr)",
+            "title_alternate": "Nitrate-N leaching (lb/yr)",
+            "type": "nleaching"},
+        "soil_erosion_tons_per_acre": {
+            "units": "Soil Erosion (ton/acre/year)",
+            "units_alternate": "Soil Erosion (tons of soil/year",
+            "title": "Soil loss (tons/ac/yr)",
+            "title_alternate": "Soil loss (tons/yr)",
+            "type": "ero"},
+        "runoff": {"units": "Runoff (in)",
+                   "units_alternate": "Runoff (in)",
+                   "title": "Storm event runoff (inches)",
+                   "title_alternate": "Storm event runoff (inches)",
+                   "type": "Runoff"},
+        "runoff_curve_number": {"units": "Curve Number",
+                                "units_alternate": "Curve Number",
+                                "title": "Composite curve number",
+                                "title_alternate": "Composite curve number",
+                                "type": "Curve Number"},
         'bio': {
             "honey_bee_toxicity": {"units": "Insecticide Index",
                                    "units_alternate": "Insecticide Index",
+                                   "title": "Honey bee toxicity",
+                                   "title_alternate": "Honey bee toxicity",
                                    "type": "insect"}
         },
         'econ': {
             "costs_per_acre": {"units": "Costs (dollars/acre/year)",
-                                    "units_alternate": "Costs (dollars/year)",
-                                    "units_alternate_2": "Costs (dollars/Tons DM)",
-                                    "type": "econ"},
-        # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
-        #                            "type": "'costs_per_ton_dm"},
+                               "units_alternate": "Costs (dollars/year)",
+                               "units_alternate_2": "Costs (dollars/Tons DM)",
+                               "title": "Production costs",
+                               "title_alternate": "Production costs",
+                               "type": "econ"},
+            # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
+            #                            "type": "'costs_per_ton_dm"},
+        },
+
+
+
     },
+        # 'ploss': {
+        #     "P_runoff_lbs_per_acre": {
+        #         "units": "Phosphorus Runoff (lb/acre/year)",
+        #         "units_alternate": "Phosphorus Runoff (lb/year)",
+        #         "title": "Phosphorus runoff (lb/ac/yr)",
+        #         "title_alternate": "Phosphorus runoff (lb/yr)",
+        #         "type": "ploss"},
+        #     "soil_erosion_tons_per_acre": {
+        #         "units": "Soil Erosion (ton/acre/year)",
+        #         "units_alternate": "Soil Erosion (tons of soil/year",
+        #         "title": "Soil loss (tons/ac/yr)",
+        #         "title_alternate": "Soil loss (tons/yr)",
+        #         "type": "ero"}
+        # },
+        # 'runoff': {
+        #     "runoff": {"units": "Runoff (in)",
+        #                "units_alternate": "Runoff (in)",
+        #                "title": "Total dry matter yield (tons/ac/yr)",
+        #                 "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                "type": "Runoff"},
+        #     "runoff_curve_number": {"units": "Curve Number",
+        #                             "units_alternate": "Curve Number",
+        #                             "title": "Total dry matter yield (tons/ac/yr)",
+        #                             "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                             "type": "Curve Number"}
+        # },
+        # 'bio': {
+        #     "honey_bee_toxicity": {"units": "Insecticide Index",
+        #                            "units_alternate": "Insecticide Index",
+        #                            "title": "Total dry matter yield (tons/ac/yr)",
+        #                            "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                            "type": "insect"}
+        # },
+        # 'econ': {
+        #     "costs_per_acre": {"units": "Costs (dollars/acre/year)",
+        #                        "units_alternate": "Costs (dollars/year)",
+        #                        "units_alternate_2": "Costs (dollars/Tons DM)",
+        #                        "title": "Total dry matter yield (tons/ac/yr)",
+        #                        "title_alternate": "Total dry matter yield (tons/ac/yr)",
+        #                        "type": "econ"},
+        #     # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
+        #     #                            "type": "'costs_per_ton_dm"},
+        # },
     }
 
     return_data = []
@@ -407,12 +509,12 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                 'and field_model_results.scenario_id = %s '
                 'and field_model_results.farm_id = %s '
                 'and field_2.gid = %s',
-                [field_id, scenario_id, farm_id,field_id])
+                [field_id, scenario_id, farm_id, field_id])
     result = cur.fetchone()
     column_names = [desc[0] for desc in cur.description]
     for model in model_types:
         if model == request.POST.get('model_parameters[model_type]'):
-            
+
             if result is None:
                 # print("the query return no results")
                 f_name = request.POST.get('model_parameters[f_name]')
@@ -434,7 +536,7 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                         for run_col in runoff_col:
                             col_index = column_names.index(run_col)
                             sum1.append(result[col_index])
-                    
+
 
                     else:
                         col_index = column_names.index(col)
@@ -444,7 +546,9 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                             print(sum1)
                     units = model_types[model][col]["units"]
                     units_alternate = model_types[model][col][
-                            "units_alternate"]
+                        "units_alternate"]
+                    title = model_types[model][col]["title"]
+                    alternate_title = model_types[model][col]["alternate_title"]
                     if sum1 is None:
                         sum1 = None
                         units = ""
@@ -479,9 +583,11 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                         # "url": model.file_name + ".png",
                         # "values": values_legend,
                         "units": units,
-                        "units_alternate": units_alternate ,
+                        "units_alternate": units_alternate,
                         # overall model type crop, ploss, bio, runoff
                         "model_type": model,
+                        "title": title,
+                        "title_alternate": alternate_title,
                         # specific model for runs with multiple models like corn silage
                         "value_type": model_types[model][col]["type"],
                         "f_name": f_name,
@@ -496,13 +602,16 @@ def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
                         "grass_ro": grass_rotation,
                         "grass_type": grass_type,
                         "till": tillage,
-                        "model_run_timestamp": model_run_timestamp
+                        "model_run_timestamp": model_run_timestamp,
+                        "p_manure_Results":p_manure_Results
 
                     }
                     return_data.append(data)
     cur.close()
     conn.close()
     return return_data
+
+
 # SQl calls for clean data
 def clean_db():
     cur, conn = get_db_conn()
@@ -534,10 +643,9 @@ def clean_db():
     # print(result)
     cur.close()
     conn.close()
-def insert_json_coords(scenario_id,farm_id,file_data):
-    # print(scenario_id)
-    # print(farm_id)
-    # print(file_data)
+
+
+def insert_json_coords(scenario_id, farm_id, file_data):
     tillage = "su"
     tillage_disp = "Spring Cultivation"
     grass_speciesdisp = "Low Yielding"
@@ -547,8 +655,8 @@ def insert_json_coords(scenario_id,farm_id,file_data):
     field_name = "(imported field)"
     rotation = "cc"
     rotation_disp = "Continuous Corn"
-    rotational_freq_val = 1
-    rotational_freq_disp = "Once a day"
+    rotational_freq_val = 0.65
+    rotational_freq_disp = 'Continuous'
     grazingdensityval = "lo"
     grazingdensitydisp = "low"
     spread_confined_manure_on_pastures = False
@@ -558,51 +666,157 @@ def insert_json_coords(scenario_id,farm_id,file_data):
     soil_p = 35
     om = 2.0
     land_cost = 140
-    coord_strings = multifindcoords(file_data)
+    coord_strings = multifindcoordsJson(file_data)
     print(coord_strings)
 
-#[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]
-#-10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405
-# VALUES(%s,%s,%s,ST_GeomFromText('MULTIPOLYGON(((%s)))'))""",
+    # This is how the data looks when it comes into this function.
+    # [-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]
+    # -10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405
+    # VALUES(%s,%s,%s,ST_GeomFromText('MULTIPOLYGON(((%s)))'))""",
 
-#,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
-#,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
+    # ,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+    # ,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
 
+    # This goes through the coords string, and sets it up to get pushed into the GeoServer db.
     for coord in coord_strings:
-        coord = "["+coord+"]"
-        coord = coord.replace(',',' ')
-        coord = coord.replace('] [',',')
-        coord = coord.replace('[','')
-        coord = coord.replace(']','')
+        coord = "[" + coord + "]"
+        coord = coord.replace(',', ' ')
+        coord = coord.replace('] [', ',')
+        coord = coord.replace('[', '')
+        coord = coord.replace(']', '')
         coord = "MULTIPOLYGON(((" + coord + ")))"
+        print("coord")
         print(coord)
+        print("coord")
         postgreSQL_select_Query = "SELECT MAX(gid) FROM field_2;"
         cur, conn = get_db_conn()
         try:
+            # first get highest GID value
             print("GETTING LAST GID!!!!!!!!!!")
             cur.execute(postgreSQL_select_Query)
             lastGID = cur.fetchall()
-            #print(lastGID[0][0] + 1)
-            #update_gid = int(lastGID[0][0])
-            #print(update_gid)
+            # Pushes largest GID +1 for new field
             next_gid = lastGID[0][0] + 1
             cur.execute("""INSERT INTO field_2 
             (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost)
             VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-            (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost))
-            
-            cur.execute("""SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
-            #for ref
-            #SELECT setval(pg_get_serial_sequence('table_name', 'id'), coalesce(max(id), 0)+1 , false) FROM table_name;
-            #cur.execute("""ALTER SEQUENCE field_2_gid_seq RESTART WITH %s;"""
+                        (next_gid, scenario_id, farm_id, coord, tillage, tillage_disp, grass_speciesdisp,
+                         grass_speciesval, cover_crop, cover_crop_disp, field_name, rotation, rotation_disp,
+                         rotational_freq_disp, rotational_freq_val, grazingdensityval, grazingdensitydisp,
+                         spread_confined_manure_on_pastures, on_contour, interseeded_clover, is_dirty, soil_p, om,
+                         land_cost))
 
-            
+            # Resets the GID counter for the fields_2 field in the db
+            cur.execute(
+                """SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
+            # for ref
+            # SELECT setval(pg_get_serial_sequence('table_name', 'id'), coalesce(max(id), 0)+1 , false) FROM table_name;
+            # cur.execute("""ALTER SEQUENCE field_2_gid_seq RESTART WITH %s;"""
 
         except Exception as e:
             print(e)
             print(type(e).__name__)
 
             error = str(e)
+            print("GEOJSON UPLOAD FAILED IN db_connect!!")
+            print(error)
+            raise
+        # close the communication with the PostgreSQL
+        finally:
+            cur.close()
+            conn.commit()
+            conn.close()
+
+
+def insert_shpfile_coords(scenario_id, farm_id, file_data):
+    print("insert_shpfile_coords")
+    print(scenario_id)
+    print(farm_id)
+    print(file_data)
+    # attribute set up
+    tillage = "su"
+    tillage_disp = "Spring Cultivation"
+    grass_speciesdisp = "Low Yielding"
+    grass_speciesval = "Bluegrass-clover"
+    cover_crop = 'nc'
+    cover_crop_disp = 'No Cover'
+    field_name = "(imported field)"
+    rotation = "cc"
+    rotation_disp = "Continuous Corn"
+    rotational_freq_val = 0.65
+    rotational_freq_disp = 'Continuous'
+    grazingdensityval = "lo"
+    grazingdensitydisp = "low"
+    spread_confined_manure_on_pastures = False
+    on_contour = False
+    interseeded_clover = False
+    is_dirty = True
+    soil_p = 35
+    om = 2.0
+    land_cost = 140
+    coord_array_string = str(file_data)
+    coord_strings = multifindcoordsshp(coord_array_string)
+    print("insert_shpfile_coords coord_strings")
+
+    # [-10117019.10216057,   5375516.61168973],
+    #         [-10117008.60306279,   5375090.22832491],
+    #         [-10117389.19649813,   5375093.84153498],
+    #         [-10117444.31690059,   5375650.31213941],
+    #         [-10117370.82299353,   5375650.31213941],
+    #         [-10117173.96427018,   5375538.29258033],
+    #         [-10117019.10216057,   5375516.61168973]
+
+    # ,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+    # ,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
+
+    # series of string replacements
+    for coord in coord_strings:
+        coord = "[" + coord + "]"
+        coord = coord.replace(',', ' ')
+        coord = coord.replace(']/n         [', ',')
+        coord = coord.replace('[', '')
+        coord = coord.replace(']', '')
+        coord = coord.replace('      ', ',')
+        coord = coord.replace('    ', ' ')
+        coord = coord.replace(',   ', ',')
+        coord = "MULTIPOLYGON(((" + coord + ")))"
+        print("coord")
+        print(coord)
+        # setting up SQL quiry to place new field into db
+
+        # Getting highest GID from fields to make sure there isnt a duplicate.
+        postgreSQL_select_Query = "SELECT MAX(gid) FROM field_2;"
+        cur, conn = get_db_conn()
+        try:
+            print("GETTING LAST GID!!!!!!!!!!")
+            cur.execute(postgreSQL_select_Query)
+            # Gets all the fields data from the db
+            lastGID = cur.fetchall()
+            # lastGID[0][0] references the GID value in the fields table.  This gets that valu +1 to prevent a dup
+            next_gid = lastGID[0][0] + 1
+            # actual excution of SQL query to place fields.
+            cur.execute("""INSERT INTO field_2 
+            (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost)
+            VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                        (next_gid, scenario_id, farm_id, coord, tillage, tillage_disp, grass_speciesdisp,
+                         grass_speciesval, cover_crop, cover_crop_disp, field_name, rotation, rotation_disp,
+                         rotational_freq_disp, rotational_freq_val, grazingdensityval, grazingdensitydisp,
+                         spread_confined_manure_on_pastures, on_contour, interseeded_clover, is_dirty, soil_p, om,
+                         land_cost))
+            # Resets the primary key value for the field_2 table after insert of new fields.  This makes sure that new fields being created
+            # on other farms do not end up with a duplicate GID to the ones just inserted via shapefile.
+            cur.execute(
+                """SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
+
+
+
+
+        except Exception as e:
+            print(e)
+            print(type(e).__name__)
+
+            error = str(e)
+            print("SHAPEFILE UPLOAD FAILED IN db_connect!!")
             print(error)
             raise
         # close the communication with the PostgreSQL

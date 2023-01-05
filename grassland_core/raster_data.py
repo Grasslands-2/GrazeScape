@@ -38,7 +38,7 @@ class RasterData:
 
         geo_server_url = settings.GEOSERVER_URL
 
-        # geo_server_url = "http://geoserver-dev1.glbrc.org:8080"
+        # geo_server_url = "http://grazescape-dev1.glbrc.org:8080"
         # temporary for when we start getting the dev server booted up
         # geo_server_url = "https://geoserver:8443"
 
@@ -49,9 +49,15 @@ class RasterData:
 
         # self.file_name = str(uuid.uuid4())
         self.file_name = "field_" + field_id
-        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
-                                     'data_files', 'raster_inputs',
-                                     self.file_name)
+        # if os.path.exists(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs', self.file_name):
+        #     print("field raster_input folder exists")
+        #     # self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
+        #     #                          'data_files', 'raster_inputs',
+        #     #                          self.file_name)
+        # else:
+        #     os.mkdir(os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name))
+        
+        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name)
 
         self.extents_string_x = ""
         self.extents_string_y = ""

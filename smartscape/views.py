@@ -20,6 +20,8 @@ import json as js
 import threading
 import shutil
 from osgeo import gdal
+import math
+import smartscape.helper
 import numpy as np
 from osgeo import gdalconst as gc
 
@@ -46,7 +48,11 @@ def index(request):
                             'data_files', 'raster_inputs')
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    file_names = ["southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12"]
+    # download the watersheds for the learning hubs
+    file_names = [
+        "southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12",
+        "uplandsWI_Huc10", "uplandsWI_Huc12", "northeastWI_Huc10", "northeastWI_Huc12",
+    ]
     for name in file_names:
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A"+name+"&outputFormat=application%2Fjson"
         print("downloading", url)
@@ -57,9 +63,7 @@ def index(request):
         #     f.write(r.content)
     input_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                               'raster_inputs')
-
     now = time.time()
-    #
     for f in os.listdir(input_path):
         try:
             f = os.path.join(input_path, f)
@@ -70,9 +74,11 @@ def index(request):
 
     return render(request, 'smartscape_home.html', context=context)
 
+
 def createNewDownloadThread(link, filelocation):
     download_thread = threading.Thread(target=download, args=(link, filelocation))
     download_thread.start()
+
 
 def download(link, filelocation):
     r = requests.get(link, stream=True)
@@ -112,6 +118,8 @@ def get_selection_raster(request):
         # print("###########################")
         # print(val)
         field_coors_formatted.append(val[0][0])
+    print("downloading base raster")
+
     try:
         geo_data = RasterDataSmartScape(
                 extents, field_coors_formatted,
@@ -130,6 +138,8 @@ def get_selection_raster(request):
             "get_data": "success",
             "folder_id": folder_id
         }
+        # download base layers async
+        smartscape.helper.download_base_rasters_helper(request, folder_id)
     except KeyError as e:
         error = str(e)
     except ValueError as e:
@@ -147,8 +157,15 @@ def get_selection_raster(request):
     print(error)
     return JsonResponse(data, safe=False)
 
-
+@login_required
+def download_base_rasters(request):
+    request_json = js.loads(request.body)
+    geo_folder = request_json["folderId"]
+    smartscape.helper.download_base_rasters_helper(request, geo_folder)
+    return JsonResponse({"download": "started"}, safe=False)
 # get the raster with selection criteria applied
+
+
 def get_selection_criteria_raster(request):
     """
     Takes user transformation and creates a selection raster and png indicating which cells are selected given
@@ -172,6 +189,8 @@ def get_selection_criteria_raster(request):
     # folder_id = request.POST.get("folderId")
     # trans_id = request.POST.get("transId")
     trans_id = request_json["transId"]
+    print(request_json)
+    print("this is the folder id ", trans_id)
     # print(field_id)
     scenario_id = 1
     farm_id = 1
@@ -255,7 +274,6 @@ def get_selection_criteria_raster(request):
     #     # error = "Unexpected error:", sys.exc_info()[0]
     #     # error = "Unexpected error"
     # print(error)
-    return JsonResponse(return_data, safe=False)
 
 
 def get_transformed_land(request):
@@ -278,7 +296,7 @@ def get_transformed_land(request):
     # create a new folder for the model outputs
     trans_id = str(uuid.uuid4())
     folder_id = request_json["folderId"]
-
+    base_loaded = request_json["baseLoaded"]
     model = SmartScape(request_json, trans_id, folder_id)
     return_data = model.run_models()
     print("done running models")

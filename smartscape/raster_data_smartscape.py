@@ -54,6 +54,8 @@ class RasterDataSmartScape:
             "slope": "SmartScapeRaster:" + region + "_slopePer_30m",
             "landuse": "SmartScapeRaster:" + region + "_WiscLand_30m",
             "stream_dist": "SmartScapeRaster:" + region + "_distanceToWaterWays",
+            "land_class": "SmartScapeRaster:" + region + "_landClass_30m",
+            "farm_class": "SmartScapeRaster:" + region + "_farmClass_30m",
 
         }
         self.extents = extents
@@ -106,6 +108,8 @@ class RasterDataSmartScape:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
+                print(raster_shape)
+                print(raster_dic[raster].shape)
                 raise ValueError(raster +
                                  " dimensions do not match other rasters")
 

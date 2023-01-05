@@ -1,46 +1,58 @@
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 var dupname = false
-// function dupNameCheck(inputName){
-// 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-// 		console.log(String(inputName))
-// 		console.log(f.values_.field_name)
-// 		if(f.values_.field_name === String(inputName)){
-// 			console.log("DUP NAME HIT!!!!")
-// 			dupname =  true
-// 			//dupname = true
-// 		}
-// 	})
-// }
 
-async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
+async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_pInput,field_nameInput){
 
 	//Starter values for dependant variables
 	cropDisp='';
 	tillageDisp='';
 	grassDisp='Low Yielding';
 	grassVal='Bluegrass-clover';
-	rotationFreqVal = 1;
-	rotationFreqdisp = 'Once a day';
+	rotationFreqVal = "0.65";
+	rotationFreqdisp = 'Continuous',
 	grazeDensityVal = 'lo',
 	grazeDensityDisp = 'low'
 	//--------------------Setting Display Values------------------
-	if(crop=='pt-cn'){
-		cropDisp ='Continuous Pasture';
+	// if(crop=='pt-cn'){
+	// 	cropDisp ='Continuous Pasture';
+	// 	grassDisp='Low Yielding';
+	// 	grassVal='Bluegrass-clover';
+	// 	rotationFreqVal = 0.65;
+	// 	rotationFreqdisp = 'Continuous',
+	// 	grazeDensityVal = 'lo',
+	// 	grazeDensityDisp = 'low'
+
+	// }
+	if(crop=='pt' && rotfreq == "0.65"){
+		crop='pt-cn'
+		cropDisp ='Pasture';
 		grassDisp='Low Yielding';
 		grassVal='Bluegrass-clover';
-		rotationFreqVal = 1
-		rotationFreqdisp = 'Once a day',
+		rotationFreqVal = rotfreq;
+		rotationFreqdisp = 'Continuous',
 		grazeDensityVal = 'lo',
 		grazeDensityDisp = 'low'
 
 	}
-	else if(crop=='pt-rt'){
-		cropDisp ='Rotational Pasture'
-		grassDisp='Bluegrass-clover';
-		grassVal='Bluegrass';
-
-		rotationFreqVal = 1;
-		rotationFreqdisp = 'Once a day';
+	else if(crop=='pt' && rotfreq != "0.65"){
+		crop='pt-rt'
+		cropDisp ='Pasture'
+		grassDisp='Low Yielding';
+		grassVal='Bluegrass-clover';
+		rotationFreqVal = rotfreq;
+		if(rotfreq == 1){
+			rotationFreqdisp = 'More then once a day'
+		}
+		else if(rotfreq == "1.2"){
+			rotationFreqdisp = 'Once a day'
+		}
+		else if(rotfreq == "0.95"){
+			rotationFreqdisp = 'Every 3 days'
+		}
+		else{
+			rotationFreqdisp = 'Every 7 days'
+		}
+		//rotationFreqdisp = 'Continuous';
 	}
 	else if(crop=='ps'){
 		cropDisp ='New Pasture'}
@@ -49,9 +61,9 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 	else if(crop=='cc'){
 		cropDisp ='Continuous Corn'}
 	else if(crop=='cg'){
-		cropDisp ='Cash Grain (cg/sb)'}
+		cropDisp ='Cash Grain (corn/soy)'}
 	else if(crop=='dr'){
-		cropDisp ='Corn Silage to Corn Grain to Alfalfa(3x)'}
+		cropDisp ='Corn Silage to Corn Grain to Alfalfa 3 yrs'}
 	else if(crop=='cso'){
 		cropDisp ='Corn Silage to Soybeans to Oats'}
 
@@ -87,22 +99,11 @@ async function createFieldAP(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 		console.log("southWestWI has hit")
 		soil_pInput = 35
 	}
-	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput)
-	// DSS.draw = new ol.interaction.Draw({
-	// 	source: source,
-	// 	type: 'MultiPolygon',
-	// 	geometryName: 'geom'
-	// });
-	// DSS.map.addInteraction(DSS.draw);
-	// console.log("draw is on");
-	// var af = parseInt(DSS.activeFarm,10);
-	// var as = DSS.activeScenario;
-	// console.log('This is the active scenario#: ');
-	// setFeatureAttributes(e.feature)
-	// addFieldAcreage(e.feature)
-	// alert('Field Added!')
+	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput,)
 }
-function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput) {
+async function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput) {
+	fertDefaultArray = await get_field_rot_defaults({"rotation": crop, "legume":true})
+	console.log(fertDefaultArray.fertDefaults)
 	var geometry = e.feature.values_.geom
 	fieldArea = ol.sphere.getArea(geometry)
 	console.log(fieldArea);
@@ -131,7 +132,7 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 			perc_manure_p:0,
 			spread_confined_manure_on_pastures: false,
 			on_contour: false,
-			interseeded_clover: false,
+			interseeded_clover: true,
 			pasture_grazing_rot_cont:false,
 			grass_speciesval: grassVal,
 			grass_speciesdisp: grassDisp,
@@ -139,13 +140,15 @@ function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_na
 			rotational_freq_disp: rotationFreqdisp,
 			grazingdensityval: grazeDensityVal,
 			grazingdensitydisp: grazeDensityDisp,
-			perc_fert_n:0,
-			perc_fert_p:0,
-			perc_manure_n:0,
+			// if crop is  set fert to different levels.
+			perc_fert_n:fertDefaultArray.fertDefaults[1],
+			perc_fert_p:fertDefaultArray.fertDefaults[2],
+			perc_manure_n:fertDefaultArray.fertDefaults[0],
 			perc_manure_p:0,
 			is_dirty:true,
 			land_cost:140
 		})
+	
 	setFeatureAttributes(e.feature)
 	addFieldAcreage(e.feature)
 	//alert('Field Added!')
@@ -163,6 +166,10 @@ var fieldData = {
 	crop: {
 		is_active: true,
 		value: 'ps',
+	},
+	rotfreq: {
+		is_active: false,
+		value: '0.65',
 	},
 	tillage: {
 		is_active: false,
@@ -198,8 +205,10 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
     autoDestroy: false,
     scrollable: 'y',
 	titleAlign: 'center',
-	title: 'Choose your new Fields Name and Crop Rotation',
+	title: "Choose your new Field's Name and Crop Rotation",
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
+	requires: ['DSS.field_shapes.apply.RotationalFreq'
+],
 	
 
 	
@@ -229,7 +238,11 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 				},
 				crop: {
 					is_active: true,
-					value: 'ps',
+					value: '',
+				},
+				rotfreq: {
+					is_active: false,
+					value: '',
 				},
 				tillage: {
 					is_active: false,
@@ -253,12 +266,12 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 		
 		Ext.applyIf(me, {
 			items: [
-				//{
-				// xtype: 'component',
-				// cls: 'section-title light-text text-drp-20',
-				// html: 'Field Shapes <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
-				// height: 28
-				// },
+				{
+				xtype: 'component',
+				cls: 'section-title light-text text-drp-20',
+				html: 'Field Shapes <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
+				height: 28
+				},
 				{
 				//xtype: 'container',
 				xtype: 'form',
@@ -276,26 +289,181 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 				},
 				items: [{
 					xtype: 'component',
+					//width: '100%',
+					//layout: 'absolute',
 					cls: 'information light-text text-drp-20',
 					html: 'Add Field Options',
 				},{
 					xtype: 'field_shapes_apply_field_name'
 				},
 				// {
-				// 	xtype: 'field_shapes_apply_graze_animals'
+				// 	xtype: 'field_shapes_apply_landcover'
 				// },
 				{
-					xtype: 'field_shapes_apply_landcover'
+					xtype: 'container',
+					width: '100%',
+					layout: 'absolute',
+					items: [{
+						xtype: 'component',
+						x: 0, y: -6,
+						width: '100%',
+						//height: 500,
+						cls: 'information accent-text bold',
+						html: "Set Crop / Landcover",
+					},
+						getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
+					]},
+					{
+					xtype: 'radiogroup',
+					//itemId: 'contents',
+					style: 'padding: 0px; margin: 0px', // fixme: eh...
+					//hideEmptyLabel: false,
+					columns: 2, 
+					vertical: true,
+					allowBlank: false,
+					viewModel: {
+						formulas: {
+							cropValue: {
+								bind: '{crop.value}', // inherited from parent
+								get: function(val) {
+									let obj = {};
+									obj['crop'] = val;
+									return obj;
+								},
+								set: function(val) {
+									this.set('crop.value', val['crop']);
+								}
+							}
+						}
+					},
+					bind: '{cropValue}', // formula from viewModel above
+					defaults: {
+						name: 'crop',
+						listeners: {
+							afterrender: function(self) {
+								if ( self.boxLabelEl) {
+									self.boxLabelEl.setStyle('cursor', 'pointer')
+								}
+							},
+						}
+					//	boxLabelCls: 'hover'
+					},
+					listeners:{
+						change: function(){
+							selectedType = this.getValue().crop
+							CropTypeVar = selectedType
+							console.log(CropTypeVar)
+							console.log(this)
+							if(CropTypeVar == 'pt'){
+								console.log('pt hit')
+								Ext.getCmp('PTRotFreq').enable()
+								Ext.getCmp('PTRotFreqLabel').setHtml("Set Rotatonal Frequency")
+							}else{
+								Ext.getCmp('PTRotFreq').disable()
+								Ext.getCmp('PTRotFreqLabel').setHtml("")
+							}
+						}
+					},
+					items: [
+					// 	{
+					// 	boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
+					// },
+					// {
+					// 	boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
+					// },
+					{
+						boxLabel: 'Pasture', 			inputValue: 'pt',
+					},
+					// { 
+					// 	boxLabel: 'New Pasture', 			inputValue: 'ps',
+					// },
+					{ 
+						boxLabel: 'Dry Lot', 			inputValue: 'dl',
+					},{
+						boxLabel: 'Continuous Corn',	inputValue: 'cc',
+					},{
+						boxLabel: 'Cash Grain',			inputValue: 'cg',
+						boxLabelAttrTpl: 'data-qtip="Two-year rotation: Corn Grain & Soybeans"',
+					},{
+						boxLabel: 'Dairy Rotation 1',	inputValue: 'dr',
+						boxLabelAttrTpl: 'data-qtip="Five-year rotation: Corn Grain, Corn Silage, Three years of Alfalfa"',
+					},{
+						boxLabel: 'Dairy Rotation 2', 	inputValue: 'cso',
+						boxLabelAttrTpl: 'data-qtip="Three-year rotation: Corn Silage, Soybeans, Oats"',
+					}]
+				},{
+					xtype: 'container',
+					width: '100%',
+					layout: 'absolute',
+					items: [{
+						xtype: 'component',
+						id: 'PTRotFreqLabel',
+						displayed: false,
+						x: 0, y: -6,
+						width: '100%',
+						height: 7,
+						cls: 'information accent-text bold',
+						//html: "Set Rotatonal Frequency",
+						html: "",
+					},
+						//getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
+					]
+				},{
+					xtype: 'radiogroup',
+					//itemId: 'contents',
+					id: 'PTRotFreq',
+					padding: 15,
+					disabled: true,
+					columns: 1, 
+					style: 'padding: 0px; margin: 0px', // fixme: eh...
+					hideEmptyLabel: false,
+					vertical: true,
+					allowBlank: false,
+					html: "Set Rotatonal Frequency",
+					html: "",
+					viewModel: {
+						formulas: {
+							rotfreqValue: {
+								bind: '{rotfreq.value}', // inherited from parent
+								get: function(val) {
+									let obj = {};
+									obj['rotfreq'] = val;
+									return obj;
+								},
+								set: function(val) {
+									this.set('rotfreq.value', val['rotfreq']);
+								}
+							}
+						}
+					},
+					bind: '{rotfreqValue}', // formula from viewModel above
+					defaults: {
+						name: 'rotfreq',
+						listeners: {
+							afterrender: function(self) {
+								if ( self.boxLabelEl) {
+									self.boxLabelEl.setStyle('cursor', 'pointer')
+								}
+							}
+						}
+					//	boxLabelCls: 'hover'
+					},
+					items: [{
+						boxLabel: 'More then once a day', inputValue: "1.2",
+					},{
+						boxLabel: 'Once a day', inputValue: "1",
+					},{ 
+						boxLabel: 'Every 3 days', inputValue: "0.95",
+					},{
+						boxLabel: 'Every 7 days',	inputValue: "0.75",
+					},{
+						boxLabel: 'Never (Continuous grazing)',	inputValue: "0.65",
+					}]
 				},
+
 				// {
-				// 	xtype: 'field_shapes_apply_tillage'
+				// 	xtype: 'field_shapes_apply_rot_freq'
 				// },
-				// {
-				// 	xtype: 'field_shapes_apply_soil_p'
-				// }
-				,/*{
-					xtype: 'field_shapes_apply_fertilizer'
-				}*/
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -326,6 +494,7 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 								data.graze_animals.dairy_nonlactating,
 								data.graze_animals.beef,
 								data.crop.value,
+								data.rotfreq.value,
 								data.tillage.value.tillage,
 								data.soil_p.value,
 								data.field_name.value,

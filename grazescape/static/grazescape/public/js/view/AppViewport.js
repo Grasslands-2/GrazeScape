@@ -11,7 +11,7 @@ var changedScenarios = []
 var DSS_isDataLoaded = false;
 var DSS_chart_data = 1;
 var DSS_dataLoadAjax;
-//var geoserverURL = "http://geoserver-dev1.glbrc.org:8080"
+//var geoserverURL = "http://grazescape-dev1.glbrc.org:8080"
 //var geoserverURL = "https://geoserver:8443"
 
 
@@ -42,6 +42,7 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.infra_shapes.SplitLine',
 		'DSS.infra_shapes.JoinLine',
 		'DSS.infra_shapes.DeleteLine',
+		//'DSS.view.exporter',
 		
 //		'DSS.state.scenario.PerimeterDialog',
 		//'DSS.field_shapes.ModelRunning',

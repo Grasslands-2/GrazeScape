@@ -198,10 +198,13 @@ function createFirstScenario(sname,sdescript){
 	console.log('current active scenario #: '+ DSS.activeScenario);
 	if (typeof DSS.activeScenario == 'undefined' || DSS.activeScenario == null){
 		console.log("in active scenario undefined if");
+		//DSS.layer.farms_1.getSource().refresh()
 		//set up the active farm geom to be the geom for this new scenario
+		setTimeout(function(){
 		DSS.layer.farms_1.getSource().getFeatures().forEach(function(f) {
 			var newScenarioFeature = f;
 			f.values_.geom = f.values_.geometry;
+			console.log(newScenarioFeature.values_.gid)
 			if(newScenarioFeature.values_.gid == DSS.activeFarm){
 				console.log("found actuve farm object!");
 				newScenarioFeature.setProperties({
@@ -233,8 +236,8 @@ function createFirstScenario(sname,sdescript){
 				var geomType = 'point'
 				wfs_scenario_insert(newScenarioFeature, geomType,'scenarios_2')
 				console.log("HI! NEW BLANK SCENARIO CREATED!!!!!!")
-			}else{}
-		})
+			}//else{}
+		})}, 2000);
 		
 	}else{
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
@@ -313,8 +316,9 @@ Ext.define('DSS.state.FirstScenario', {
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
-		getWFSScenarioSP()
-		//getWFSScenarioNS()
+		//geoServer.setFarmSource()
+		//getWFSScenarioSP()
+		getWFSScenarioNS()
 		Ext.applyIf(me, {
 			items: [{
 					xtype: 'container',
@@ -333,7 +337,7 @@ Ext.define('DSS.state.FirstScenario', {
 					xtype: 'component',
 					//id: 'scenIDpanel',
 					cls: 'information',
-					html: "Name and describe your first scenario. We recommend that this scenario reflect your current operation so that you can validate model results. We also recommend that you draw as many field boundaries as you may want to compare in future scenarios.",
+					html: "Name and describe your first scenario. We recommend that your first scenario reflect your farm's current operation so that you can easily compare other scenarios against the current layout of your farm.",
 				},
 				{
 					xtype: 'form',
@@ -369,7 +373,7 @@ Ext.define('DSS.state.FirstScenario', {
 						xtype: 'button',
 						cls: 'button-text-pad',
 						componentCls: 'button-margin',
-						text: 'Create New Scenario',
+						text: 'Create First Scenario',
 						formBind: true,
 						handler: async function() { 
 							console.log('new scenario button pushed')
@@ -391,6 +395,10 @@ Ext.define('DSS.state.FirstScenario', {
 								//DSS.ApplicationFlow.instance.showScenarioPage();
 								this.up('window').destroy();
 							}
+							DSS.dialogs.firstScenarioPopup = Ext.create('DSS.state.FirstScenarioPopup');
+							DSS.dialogs.firstScenarioPopup.setViewModel(DSS.viewModel.scenario);
+							DSS.dialogs.firstScenarioPopup.show().center().setY(100);	
+							
 						}
 					}],
 				}]

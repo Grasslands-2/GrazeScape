@@ -1,4 +1,48 @@
 //const { listenerCount } = require("process");
+function get_field_rot_defaults(data){
+    console.log(data)
+    return new Promise(function(resolve) {
+    var csrftoken = Cookies.get('csrftoken');
+    // data = JSON.stringify(data)
+    $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+    $.ajax({
+    'url' : '/grazescape/get_field_rot_defaults',
+    'type' : 'POST',
+    'data' : data,
+    'timeout':0,
+        success: async function(responses, opts) {
+            delete $.ajaxSetup().headers
+            console.log(responses)
+            if(responses == null){
+                resolve([]);
+            }
+            for (response in responses){
+                obj = responses[response];
+                if(obj.error || response == null){
+                    console.log("model did not run")
+                    console.log(obj.error)
+                    if(!modelError){
+                        alert(obj.error);
+                        modelErrorMessages.push(obj.error)
+                        modelError = true
+                    }
+                    continue
+                }
+                let e = obj.extent;
+            }
+            resolve(responses);
+        },
+
+        failure: function(response, opts) {
+            me.stopWorkerAnimation();
+        },
+        //timeout:50
+    });
+    })
+	}
+
 
 var farmArray = [];
 var farmObj = {};
@@ -245,6 +289,7 @@ function runInfraUpdate(){
 	})
 };
 function runFieldUpdate(){
+	console.log("IN runFieldUpdate");
     let changedFieldsList = []
     for (field in fieldChangeList){
         changedFieldsList.push(fieldChangeList[field].id)
@@ -266,11 +311,21 @@ function runFieldUpdate(){
 				if (changedFieldsList.includes(fieldArray[i].id)){
 				    feildFeature.setProperties({is_dirty:true})
 				}
+				// checking for correct pasture values based on rotational freq
+				cropRot = ''
+				if (fieldArray[i].rotationDisp == 'Pasture'&& fieldArray[i].rotationFreqDisp == 'Continuous'){
+						cropRot = 'pt-cn'
+				}else if(fieldArray[i].rotationDisp == 'Pasture'&& fieldArray[i].rotationFreqDisp != 'Continuous'){
+						cropRot = 'pt-rt'
+				}else{
+					cropRot = fieldArray[i].rotationVal
+				}
 				feildFeature.setProperties({
 					field_name: fieldArray[i].name,
 					soil_p: fieldArray[i].soilP,
 					om: fieldArray[i].soilOM,
-					rotation: fieldArray[i].rotationVal,
+					rotation: cropRot,
+					//rotation: fieldArray[i].rotationVal,
 					rotation_disp: fieldArray[i].rotationDisp,
 					tillage: fieldArray[i].tillageVal,
 					tillage_disp: fieldArray[i].tillageDisp,
@@ -300,7 +355,9 @@ function runFieldUpdate(){
 					perc_manure_p: fieldArray[i].manuPercP,
 					perc_manure_n: fieldArray[i].manuPercN,
 				});
-				wfs_update(feildFeature,'field_2');
+				//setTimeout(function(){
+					wfs_update(feildFeature,'field_2');
+				//}, 1000);
 				break;
 			}				
 		}				
@@ -428,13 +485,11 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.infra_shapes.InfraApplyPanel',
 		'DSS.field_shapes.Delete',
 		'DSS.infra_shapes.DeleteLine',
-		'DSS.field_shapes.ShpFieldUpload',
+		'DSS.field_shapes.GeoJSONFieldUpload',
 		'DSS.state.scenario.CostsDialog'
 	],
-	
 	layout: DSS.utils.layout('vbox', 'center', 'stretch'),
 	cls: 'section',
-
 	statics: {
 		get: function() {
 			let def = {
@@ -444,7 +499,6 @@ Ext.define('DSS.state.Scenario', {
 			return def;
 		}
 	},
-	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
@@ -453,7 +507,6 @@ Ext.define('DSS.state.Scenario', {
 			console.log("cost dialog destroyed")
 		}
 		//DSS.MapState.hideFieldsandInfra()
-
 		Ext.applyIf(me, {
 			defaults: {
 				margin: '1rem',
@@ -476,19 +529,20 @@ Ext.define('DSS.state.Scenario', {
 									// }
 									await gatherScenarioTableData
 									//await runScenarioUpdate();
-									geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
-									//geoServer.getWFSScenario()
+									await geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
 									//DSS.layer.PLossGroup.setVisible(false);
 									DSS.MapState.destroyLegend();
 									DSS.layer.erosionGroup.setVisible(false);
+									DSS.layer.nleachingGroup.setVisible(false);
 									DSS.layer.yieldGroup.setVisible(false);
 									DSS.MapState.hideFieldsandInfra()
 									AppEvents.triggerEvent('hide_field_grid')
 									AppEvents.triggerEvent('hide_infra_grid')
 									DSS.layer.PLossGroup.values_.layers.array_ = [];
 									DSS.layer.erosionGroup.values_.layers.array_ = [];
+									DSS.layer.nleachingGroup.values_.layers.array_ = [];
 									DSS.layer.yieldGroup.values_.layers.array_ = [];
 								}
 							});
@@ -517,7 +571,7 @@ Ext.define('DSS.state.Scenario', {
 				{//------------------------------------------
 					xtype: 'component',
 					cls: 'information',
-					html: 'Draw or Delete Fields<br>and Infrastructure'
+					html: 'Draw or Delete Features'
 				},
 				{
 					xtype: 'button',
@@ -605,8 +659,16 @@ Ext.define('DSS.state.Scenario', {
 						{
 							text: 'Upload GeoJSON',
 							handler: function(self) {
-								DSS.dialogs.ShpFieldUpload = Ext.create('DSS.field_shapes.ShpFieldUpload'); 				
-								DSS.dialogs.ShpFieldUpload.show().center().setY(100);
+								DSS.dialogs.GeoJSONFieldUpload = Ext.create('DSS.field_shapes.GeoJSONFieldUpload'); 				
+								DSS.dialogs.GeoJSONFieldUpload.show().center().setY(100);
+							}
+						},
+						{
+							text: 'Upload Shapefile',
+							handler: function(self) {
+								console.log("Upload Shapefiles clicked")
+								DSS.dialogs.ShpFileFieldUpload = Ext.create('DSS.field_shapes.ShpFileFieldUpload'); 				
+								DSS.dialogs.ShpFileFieldUpload.show().center().setY(100);
 							}
 						},
 					]
@@ -831,7 +893,7 @@ Ext.define('DSS.state.Scenario', {
 					toggleGroup: 'create-scenario',
 					allowDepress: true,
 					text: 'Edit Field Attributes',
-					toggleHandler: function(self, pressed) {
+					toggleHandler: async function(self, pressed) {
 						if (pressed) {
 							DSS.MapState.destroyLegend();
 							//console.log(DSS.field_grid.FieldGrid.getView()); 
@@ -839,7 +901,7 @@ Ext.define('DSS.state.Scenario', {
 							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
 							cropAcreage = 0
-							gatherTableData();
+							await gatherTableData();
 							AppEvents.triggerEvent('show_field_grid');
 							AppEvents.triggerEvent('hide_field_shape_mode');
 							AppEvents.triggerEvent('hide_infra_line_mode');
@@ -848,12 +910,17 @@ Ext.define('DSS.state.Scenario', {
 						    console.log("running update")
 						    fieldChangeList = []
 						    fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
+							console.log(fieldChangeList)
 							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
 							selectInteraction.getFeatures().clear()
 							DSS.map.removeInteraction(selectInteraction);
+							selectedFields = []
 							runFieldUpdate()
+							// setTimeout(() => {
+							// 	Ext.getCmp('fieldTable').destroy()
+							// }, "500")
 						}
 					}
 				},
@@ -883,11 +950,12 @@ Ext.define('DSS.state.Scenario', {
 						}
 					}
 				},
+				//--------------------------------------------------------
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Edit Scenario Costs',
+					text: 'Edit Production Costs',
 					allowDepress: false,
 					handler: function(self) {
 					if(Ext.getCmp("CostDialog")){
@@ -961,16 +1029,18 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Run Models',
 					disabled:true,
 					handler: async function(self) {
-						getWFSScenarioSP()
+						await getWFSScenarioSP()
 						if(fieldArray.length <1 ){
-							gatherTableData();
+							await gatherTableData();
 							console.log("Field Array was empty. Running gatherTableData")
 						}
 						//DSS.layer.PLossGroup.setVisible(false);
 						DSS.layer.erosionGroup.setVisible(false);
+						DSS.layer.nleachingGroup.setVisible(false);
 						DSS.layer.yieldGroup.setVisible(false);
 						DSS.layer.PLossGroup.values_.layers.array_ = [];
 						DSS.layer.erosionGroup.values_.layers.array_ = [];
+						DSS.layer.nleachingGroup.values_.layers.array_ = [];
 						DSS.layer.yieldGroup.values_.layers.array_ = [];
 						console.log("running update")
 						fieldChangeList = []
@@ -1006,7 +1076,7 @@ Ext.define('DSS.state.Scenario', {
 							//Ext.create('DSS.map.OutputMenu').showAt(10,10);
                         }
                         else{
-							getWFSScenarioSP()
+							await getWFSScenarioSP()
 							console.log("rerunning update")
 //                            close model to destroy it to rerun models
                             console.log("destroy dashboard")
@@ -1032,10 +1102,12 @@ Ext.define('DSS.state.Scenario', {
 							DSS.MapState.destroyLegend();
 							DSS.layer.yieldGroup.setVisible(false);
 							DSS.layer.erosionGroup.setVisible(false);
+							DSS.layer.nleachingGroup.setVisible(false);
 							DSS.layer.runoffGroup.setVisible(false);
 							DSS.layer.PLossGroup.setVisible(false);
 							DSS.layer.PLossGroup.values_.layers.array_ = [];
 							DSS.layer.erosionGroup.values_.layers.array_ = [];
+							DSS.layer.nleachingGroup.values_.layers.array_ = [];
 							DSS.layer.yieldGroup.values_.layers.array_ = [];
 							DSS.layer.runoffGroup.values_.layers.array_ = [];
                             let dash = Ext.create('DSS.results.Dashboard', {
@@ -1059,17 +1131,39 @@ Ext.define('DSS.state.Scenario', {
 //				 	disabled: false,
 				 	handler: function(self) {
 		                Ext.getCmp("dashboardWindow").show()
-						// DSS.MapState.destroyLegend();
-            			// DSS.layer.yieldGroup.setVisible(false);
-						// DSS.layer.erosionGroup.setVisible(false);
-						// DSS.layer.runoffGroup.setVisible(false);
-						// DSS.layer.PLossGroup.setVisible(false);
-						// DSS.layer.PLossGroup.values_.layers.array_ = [];
-						// DSS.layer.erosionGroup.values_.layers.array_ = [];
-						// DSS.layer.yieldGroup.values_.layers.array_ = [];
-						// DSS.layer.runoffGroup.values_.layers.array_ = [];
+						DSS.layer.yieldGroup.setVisible(false);
+							// DSS.layer.erosionGroup.setVisible(false);
+							// DSS.layer.nleachingGroup.setVisible(false);
+							// DSS.layer.runoffGroup.setVisible(false);
+							// DSS.layer.PLossGroup.setVisible(false);
+							// DSS.layer.PLossGroup.values_.layers.array_ = [];
+							// DSS.layer.erosionGroup.values_.layers.array_ = [];
+							// DSS.layer.nleachingGroup.values_.layers.array_ = [];
+							// DSS.layer.yieldGroup.values_.layers.array_ = [];
+							// DSS.layer.runoffGroup.values_.layers.array_ = [];
 				 	}
-				 }
+				 },
+				 {
+					xtype: 'component',
+					cls: 'information',
+					html: 'Create a New Scenario'
+				},
+				{
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					toggleGroup: 'create-scenario',
+					//id: 'dupCurScen',
+					//disabled: true,
+					//padding: 1,
+					//margin: '4 2 2 4',
+					//componentCls: 'button-margin-large',
+					text: 'Create New Scenario',
+					handler: function(self) {
+						DSS.dialogs.NewScenPickWindow = Ext.create('DSS.state.NewScenPickWindow'); 				
+						DSS.dialogs.NewScenPickWindow.show().center().setY(100);
+					}
+				},
 				]
 			}]
 		});

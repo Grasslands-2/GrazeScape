@@ -3,45 +3,20 @@ var readerData=''
 
 async function getNewFieldArea(){
 	console.log("HI FROM GET NEW FIELD AREA!")
-	//await DSS.MapState.showFieldsForScenario();
 	await DSS.MapState.showFieldsAfterImport();
-	// console.log(DSS.activeScenario)
-	// await geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-	// DSS.layer.fields_1.getSource().refresh();
-	// DSS.layer.fields_1.setVisible(true);
-	// DSS.layer.fieldsLabels.setVisible(true);
-	// console.log(DSS.layer.fields_1.getSource().getFeatures().length)
-	// console.log("showfieldsforscenario ran");
-// 	setTimeout(() => {
-// 	console.log("Right before the plunge!")
-// 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-// 		console.log(f)
-// 		if (f.values_.field_name == "(imported field)"){
-// 			//f.values_.area = ol.sphere.getArea(f.values_.geometry)* 0.000247105
-// 			f.setProperties({
-// 				area: ol.sphere.getArea(f.values_.geometry)* 0.000247105
-// 			})
-// 			console.log(f)
-// 			wfs_update(f,'field_2');
-// 		}		
-// 	})
-// }, "5000")
 };
 
 //------------------------------------------------------------------------------
-Ext.define('DSS.field_shapes.ShpFieldUpload', {
+Ext.define('DSS.field_shapes.GeoJSONFieldUpload', {
 //------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
 	alias: 'widget.field_apply_panel',
-	id: "ShpFieldUpload",
-//	autoDestroy: false,
-//	closeAction: 'hide',
+	id: "GeoJSONFieldUpload",
 	constrain: false,
 	modal: true,
 	width: 500,
 	resizable: true,
 	bodyPadding: 8,
-	//singleton: true,	
     autoDestroy: false,
     scrollable: 'y',
 	titleAlign: 'center',
@@ -49,10 +24,9 @@ Ext.define('DSS.field_shapes.ShpFieldUpload', {
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	//--------------------------------------------------------------------------
 	initComponent: function() {
-
 		let me = this;
-		if(Ext.getCmp('Shpfilepath')){
-			Ext.getCmp('Shpfilepath').destroy()
+		if(Ext.getCmp('GeoJSONpath')){
+			Ext.getCmp('GeoJSONpath').destroy()
 		}
 		Ext.applyIf(me, {
 			items: [{
@@ -62,13 +36,12 @@ Ext.define('DSS.field_shapes.ShpFieldUpload', {
 				width: '100%',
 				height: 40,
 				style:{
-							fontsize: 45,
-							color: '#4477AA'
-						},
+					fontsize: 45,
+					color: '#4477AA'
+				},
 				html: "Imported file must be a GeoJSON!",
 			},{ //------------------------------------------
 				xtype: 'component',
-				//id: 'scenIDpanel',
 				cls: 'information',
 				html: 'The GeoJSON needs to be unprojected and in the WGS 84/Pseudo-Mercator CRS (EPSG:3857).  More flexiblty coming to this tool soon.',
 			},{
@@ -80,46 +53,59 @@ Ext.define('DSS.field_shapes.ShpFieldUpload', {
 						width: 450,
                         label: "Find GeoJSON",
                         name: 'GeoJSON'
-                    },{
+                     },
+					 {
                         xtype: 'button',
                         text: 'Upload Field Boundaries',
                         handler: async function(){
+							//Isolates geojson file for upload
                             let file = this.up().down('filefield').el.down('input[type=file]').dom.files[0];
                             var reader = new FileReader();
+							reader.fileName = file.name
                             reader.onload = (function(theFile) {
                                 return async function(e) {
 									readerData = e.target.result
+									readerFileName = e.target.fileName
 									console.log(readerData)
-									return new Promise(await function(resolve) {
-										var csrftoken = Cookies.get('csrftoken');
-										$.ajaxSetup({
-												headers: { "X-CSRFToken": csrftoken }
-										});
-										$.ajax({
-											'url' : '/grazescape/outside_geom_field_insert',
-											'type' : 'POST',
-											'data' : {
-												scenario_id:DSS.activeScenario,
-												farm_id :DSS.activeFarm,
-												file_data: readerData
-												//coords_array : JSON.stringify(dummyData)
-											},
-											success: async function(responses, opts) {
-												console.log(responses)
-												delete $.ajaxSetup().headers
-												await resolve({geojson:responses.data})
+									console.log(readerFileName)
+									//Checks to make sure that the file is a geojson.
+									if(readerFileName.indexOf("geojson") !== -1){
+										return new Promise(await function(resolve) {
+											var csrftoken = Cookies.get('csrftoken');
+											$.ajaxSetup({
+													headers: { "X-CSRFToken": csrftoken }
+											});
+											//Sends the read data from the geojson.  
+											$.ajax({
+												'url' : '/grazescape/outside_geojson_coord_pull',
+												'type' : 'POST',
+												'data' : {
+													scenario_id:DSS.activeScenario,
+													farm_id :DSS.activeFarm,
+													file_data: readerData
+												},
+												success: async function(responses, opts) {
+													console.log(responses)
+													delete $.ajaxSetup().headers
+													await resolve({geojson:responses.data})
+													//
+													getNewFieldArea()
+													DSS.layer.fields_1.getSource().refresh();
+													DSS.layer.fieldsLabels.getSource().refresh();
 												
-												getNewFieldArea()
-												DSS.layer.fields_1.getSource().refresh();
-												DSS.layer.fieldsLabels.getSource().refresh();
-											
-											},
-											failure: function(response, opts) {
-												console.log(responses)
-												me.stopWorkerAnimation();
-											}
+												},
+												failure: function(response, opts) {
+													console.log(responses)
+													me.stopWorkerAnimation();
+												}
+											})
 										})
-									})
+									}else{
+										//Upload Fail warning 
+										console.log("GeoJSON upload FAILED!")
+										alert("You choose the wrong file format.  You need to use an unprojected geojson.");
+									}
+									
                                 };
                             })(file);
 							//console.log(file)

@@ -34,6 +34,7 @@ function Transformation(name, id, rank){
             useFt:true,
             extent:[],
             field_coors:[],
+            adoptionRate:100,
             landCover:{
                 contCorn:false,
                 cashGrain:false,
@@ -43,6 +44,27 @@ function Transformation(name, id, rank){
                 hay:false,
                 pasture:false,
                 grasslandIdle:false
+            },
+            landClass:{
+                land1:false,
+                land2:false,
+                land3:false,
+                land4:false,
+                land5:false,
+                land6:false,
+                land7:false,
+                land8:false,
+                landErosion:false,
+                landRoot:false,
+                landWater:false,
+            },
+            farmClass:{
+                prime:false,
+                stateFarm:false,
+                notPrime:false,
+                prime1:false,
+                prime2:false,
+                prime3:false,
             }
         },
         // store the changes to the management practices
@@ -59,6 +81,30 @@ function Transformation(name, id, rank){
             grassYield:"default",
             rotFreq:"default",
 
+        },
+        econ:{
+            p2o5:1,
+            nFert:1,
+            cornSeed:80.5,
+            cornPest:56.64,
+            cornMach:123,
+
+            soySeed:54,
+            soyPest:40,
+            soyMach:62,
+
+            alfaSeed:60,
+            alfaPest:32,
+            alfaMach:136.5,
+            alfaFirstYear:225.5,
+
+            oatSeed:30,
+            oatPest:20,
+            oatMach:63.5,
+
+            pastSeed:28.44,
+            pastPest:5,
+            pastMach:19.7,
         }
     }
 }

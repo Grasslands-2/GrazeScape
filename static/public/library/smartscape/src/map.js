@@ -79,6 +79,8 @@ updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps,reset} from 
 import configureStore from './stores/store'
 import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea} from '/src/stores/mainSlice'
 import {RotateNorthControl} from '/src/mapControls/controlTransSummary'
+import { BallTriangle,RotatingLines, } from  'react-loader-spinner'
+
 proj4.defs(
   'EPSG:27700',
   '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 ' +
@@ -143,7 +145,7 @@ class OLMapFragment extends React.Component {
 //        this.drawRectangleBoundary = this.drawRectangleBoundary.bind(this)
         // binding function to class so they share scope
         this.updateAreaSelectionType = this.updateAreaSelectionType.bind(this)
-        this.getHuc12FromHuc10 = this.getHuc12FromHuc10.bind(this)
+//        this.getHuc12FromHuc10 = this.getHuc12FromHuc10.bind(this)
         this.addLayer = this.addLayer.bind(this)
         this.getMapLayer = this.getMapLayer.bind(this)
 
@@ -225,10 +227,10 @@ class OLMapFragment extends React.Component {
                 }
             }
             if(this.props.layerVisible[0].name == "subHuc12" && this.props.layerVisible[0].visible == true){
-                this.getHuc12FromHuc10()
+//                this.getHuc12FromHuc10()
             }
     //        zoomm in on aoi
-            if(this.props.layerVisible[0].name == "huc10" && this.props.layerVisible[0].visible == false){
+            if(this.props.layerVisible[0].name == "huc12" && this.props.layerVisible[0].visible == false){
                     var extent = this.boundaryLayerAOI.getSource().getExtent()
                     extent = this.add10PerExtent(extent)
                     this.map.getView().fit(extent,{"duration":500});
@@ -239,12 +241,13 @@ class OLMapFragment extends React.Component {
                 console.log("resetting to beginning")
                 this.props.reset();
                 this.selectedFeatures.clear();
-                this.huc10.getSource().clear()
+//                this.huc10.getSource().clear()
+                this.huc12.getSource().clear()
                 this.boundaryLayerAOI.setVisible(false)
                 this.map.addInteraction(this.select);
                 this.props.setVisibilityTransAcc(true)
                 this.map.getView().setCenter([-10008338,5525100]);
-                this.map.getView().setZoom(8);
+                this.map.getView().setZoom(7);
                 return
             }
 
@@ -480,7 +483,7 @@ class OLMapFragment extends React.Component {
         const styles = [new Style({
             stroke: new Stroke({
               color: '#BBBBBB',
-              width: 3,
+              width: 1,
             }),
             fill: new Fill({
               color: 'rgba(0, 0, 255, 0.0)',
@@ -499,8 +502,8 @@ class OLMapFragment extends React.Component {
           this.stylesBoundary = [new Style({
             stroke: new Stroke({
 //              color: 'red',
-              color: '#AA3377',
-              width: 4,
+              color: '#BBBBBB',
+              width: 3,
             }),
             fill: new Fill({
               color: 'rgba(0, 0, 255, 0.0)',
@@ -538,10 +541,11 @@ class OLMapFragment extends React.Component {
          this.huc10 = new VectorLayer({
             name:'huc10',
             renderMode: 'image',
+            visible: false,
 
 //          source:new VectorSource({
 //              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
-////              url: "http://geoserver-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
+////              url: "http://grazescape-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
 //              format: new GeoJSON(),
 //               projection: 'EPSG:3857',
 //            }),
@@ -557,31 +561,30 @@ class OLMapFragment extends React.Component {
               format: new GeoJSON(),
                projection: 'EPSG:3071',
             }),
-            style: this.nullStyle,
+            style: styles,
             visible: true,
 //            operation: olSourceRasterOperationCropInner
         });
        // show borders of our three work areas
-        this.southCentral = new VectorLayer({
+        this.northEast = new VectorLayer({
           renderMode: 'image',
-          name: "southCentral",
+          name: "northEast",
           source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/LearningHubs/southCentralWI.geojson',
+              url: static_global_folder + 'smartscape/gis/LearningHubs/northEastWI.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
-            style: styles,
+            style: this.stylesBoundary,
         });
         this.southWest = new VectorLayer({
             renderMode: 'image',
             name: "southWest",
-//            opacity: .2,
-          source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/LearningHubs/southWestWI.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3857',
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/southWestWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
             }),
-            style: styles,
+            style: this.stylesBoundary,
         });
         this.cloverBelt = new VectorLayer({
             renderMode: 'image',
@@ -591,7 +594,17 @@ class OLMapFragment extends React.Component {
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
-            style: styles,
+            style: this.stylesBoundary,
+        });
+        this.uplands = new VectorLayer({
+            renderMode: 'image',
+            name: "Driftless",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/uplandsWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
         });
         // base map
         this.layers = [
@@ -606,8 +619,9 @@ class OLMapFragment extends React.Component {
             }),
 
             this.cloverBelt,
-//            this.southCentral,
+            this.northEast,
             this.southWest,
+            this.uplands,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
@@ -647,8 +661,8 @@ class OLMapFragment extends React.Component {
                 center: [-10008338,5525100],
                 // centered at kickapoo
 //                center: [-10107218.88240181,5404739.54256515],
-				zoom: 8,
-				maxZoom: 19,
+				zoom: 7,
+				maxZoom: 15,
 				minZoom: 3,//10,
 			//	constrainRotation: false,
 			//	rotation: 0.009,
@@ -669,8 +683,11 @@ class OLMapFragment extends React.Component {
 //                    return false
 //                }
                 if (layer.get('name') == "subHuc12" || layer.get('name') == "huc10" ||
-                layer.get('name') == "southWest"||layer.get('name') == "southCentral"||
-                layer.get('name') == "cloverBelt"){
+                    layer.get('name') == "huc12"||
+                    layer.get('name') == "southWest"||
+                    layer.get('name') == "cloverBelt"||
+                    layer.get('name') == "northEast"||
+                    layer.get('name') == "Driftless"){
                     return true
                 }
 //                console.log(layer)
@@ -727,6 +744,12 @@ class OLMapFragment extends React.Component {
                 }
                 else if (f.target.item(0).get("NAME") == "Clark"){
                     region = "CloverBeltWI"
+                }
+                else if (f.target.item(0).get("NAME") == "Kewaunee"){
+                    region = "northeastWI"
+                }
+                else if (f.target.item(0).get("NAME") == "Grant"){
+                    region = "uplandsWI"
                 }
                 this.setActiveRegion(region)
 
@@ -817,6 +840,26 @@ class OLMapFragment extends React.Component {
     this.map.addInteraction(this.select);
     }
     render(){
+//        size of loader
+        let loaderSize = 100
+        let windowHeight = window.innerHeight
+        let windowWidth = window.innerWidth
+
+        let loaderHeight = (windowHeight/2 - loaderSize/2) / windowHeight * 100
+//        console.log(loaderHeight)
+        let heightString = String(loaderHeight) + "%"
+        let loaderRight = null
+        console.log(document.getElementById("map"))
+        if (document.getElementById("map") != null){
+
+            loaderRight = document.getElementById("map").offsetWidth/2
+        }
+        else{
+            loaderRight = windowWidth *(9/12)/2
+        }
+        console.log(loaderRight)
+        let widthString = String(loaderRight-loaderSize) + "px"
+//        console.log(heightString)
         const style = {
             width: '100%',
             height: '90vh',
@@ -825,6 +868,7 @@ class OLMapFragment extends React.Component {
 //            position:'absolute',
 //            position: 'fixed'
         }
+
         const style1 ={
             width: '100%',
             height: '500px',
@@ -835,9 +879,30 @@ class OLMapFragment extends React.Component {
              backgroundColor: 'transparent',
              hidden: "true"
         }
+        const loaderStyle={
+            position: "absolute",
+            zIndex: "100",
+            top: heightString,
+            right: widthString,
+            color:"#8b32a8",
+            fontSize: "40px",
+            textAlign: "center",
+            fontWeight: "bold"
+        }
+
         return (
             <div>
+            <div id = "loaderDiv" style = {loaderStyle} hidden={true}>
+                <RotatingLines
+                  width={loaderSize}
+                  strokeWidth={5}
+                  strokeColor="#8b32a8"
+                  ariaLabel="loading"
 
+                />
+                <p></p>
+                Loading
+                </div>
 			<div id='map' style={style}>
 
 			</div>

@@ -42,7 +42,7 @@ import { useSelector, useDispatch, connect  } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid';
 
 const mapStateToProps = state => {
-    console.log("mapping sidepannel")
+//    console.log("mapping sidepannel")
     return{
         activeTrans: state.transformation.activeTrans,
         listTrans:state.transformation.listTrans,
@@ -54,7 +54,7 @@ const mapStateToProps = state => {
 }}
 
 const mapDispatchToProps = (dispatch) => {
-    console.log("Dispatching!!")
+//    console.log("Dispatching!!")
     return{
         setActiveTrans: (value)=> dispatch(setActiveTrans(value)),
         addTrans: (value)=> dispatch(addTrans(value)),
@@ -102,8 +102,8 @@ class AppContainer extends React.Component{
         };
   }
 componentDidUpdate(prevProps) {
-    console.log(prevProps)
-    console.log(this.props)
+//    console.log(prevProps)
+//    console.log(this.props)
 }
 
   handleTextChange(newText) {
@@ -112,15 +112,15 @@ componentDidUpdate(prevProps) {
   }
 
   handleAreaSelectionType(type){
-    console.log("app", type)
+//    console.log("app", type)
     this.setState({areaSelectionType:type})
   }
   addTrans(trans){
-    console.log("app container")
+//    console.log("app container")
     this.setState({newTrans:trans})
   }
   componentDidMount(){
-    console.log("compoenet mounted")
+//    console.log("compoenet mounted")
 
   }
 
@@ -146,6 +146,7 @@ componentDidUpdate(prevProps) {
 
                   </Col>
                   <Col xs='9' className = "sidePanelCol">
+
                     <OLMapFragment
                         rasterUrl={this.state.rasterUrl}
                         rasterExtents = {this.state.rasterExtents}

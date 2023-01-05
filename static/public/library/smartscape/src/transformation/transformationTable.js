@@ -16,6 +16,8 @@ import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
 import 'regenerator-runtime/runtime'
 import Alert from 'react-bootstrap/Alert'
+import RangeSlider from 'react-bootstrap-range-slider';
+import Col from 'react-bootstrap/Col'
 
 // reordering the table
 let reorder = (list, startIndex, endIndex) => {
@@ -91,6 +93,7 @@ class TransformationTable extends Component {
     this.handleOpenModalTrans = this.handleOpenModalTrans.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
+    this.handleSelectionChangeGeneral = this.handleSelectionChangeGeneral.bind(this);
 
     this.selectTransClick = this.selectTransClick.bind(this);
     this.handleTransNameChange = this.handleTransNameChange.bind(this);
@@ -267,7 +270,10 @@ class TransformationTable extends Component {
 //      update active transformation with new value
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
         }
+    handleSelectionChangeGeneral(name, e, type){
+            this.props.updateActiveTransProps({"name":name, "value":e.currentTarget.value, "type":type})
 
+    }
     handleSelectionChangeRadio(type, e){
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"mang"})
     }
@@ -394,7 +400,7 @@ class TransformationTable extends Component {
                       <option value="pasture">Pasture</option>
                       <option value="contCorn">Continuous Corn</option>
                       <option value="cornGrain">Cash Grain</option>
-                      <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa(3x))</option>
+                      <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa 3 yrs)</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
 
@@ -464,6 +470,29 @@ class TransformationTable extends Component {
                       <option value="50_0">50/	0</option>
                       <option value="50_50">50/	50</option>
                     </Form.Select>
+                    <OverlayTrigger key="top111111" placement="top" overlay={<Tooltip>The percentage of land in the Transformation to change</Tooltip>}>
+                    <Row>
+                        <Col sm={2}>
+                          <Form.Label>Adoption Rate</Form.Label>
+                          <Form.Control value={this.props.activeTrans.selection.adoptionRate} size='sm'
+                            onChange={(e) => this.handleSelectionChangeGeneral("adoptionRate", e, "reg")}
+                          />
+                        </Col>
+                        <Col sm={10}>
+                           <Form.Label></Form.Label>
+                           <RangeSlider size='sm'
+                            value={this.props.activeTrans.selection.adoptionRate}
+                            onChange={(e) => this.handleSelectionChangeGeneral("adoptionRate", e, "reg")}
+                            max={100}
+                            min={0}
+                            variant="info"
+                          />
+                        </Col>
+                    </Row>
+                    </OverlayTrigger>
+
+
+
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={this.handleCloseModal}>

@@ -26,6 +26,7 @@ class GeoServer{
 //    returns a geojson of the farms
     setFarmSource(parameter = ""){
         console.log("IN SET FARM!!!")
+        console.log(parameter)
         this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
             console.log(geoJson)
             DSS.layer.farms_1.getSource().clear()
@@ -200,7 +201,8 @@ class GeoServer{
             var farmGeojsonString = String(returnData.geojson)
             console.log(farmGeojsonString);
             let currObj = returnData.current
-            currObj.setFarmSource()
+            //currObj.setFarmSource()
+            //geoServer.setFarmSource()
 			DSS.MapState.removeMapInteractions()
             var fgid = farmGeojsonString.substring(farmGeojsonString.indexOf('farm_2.') + 7,farmGeojsonString.lastIndexOf('"/>'));
             var intFgid = parseInt(fgid);
@@ -213,46 +215,6 @@ class GeoServer{
             DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
             DSS.dialogs.ScenarioPicker.show().center().setY(100);
             DSS.MapState.showNewFarm();
-            //DSS.ApplicationFlow.instance.showManageOperationPage();
-            //DSS.ApplicationFlow.instance.showScenarioPage();
-
-            // var formatWFS = new ol.format.WFS();
-            // var formatGML = new ol.format.GML({
-            //     featureNS: 'http://geoserver.org/GrazeScape_Vector',
-            //     featureType: 'scenarios_2',
-            //     srsName: 'EPSG:3857'
-            // });
-            // feat.setProperties({farm_id:DSS.activeFarm})
-            // console.log(feat)
-
-            // node = formatWFS.writeTransaction([feat], null, null, formatGML);
-            // console.log(node);
-            // s = new XMLSerializer();
-            // str = s.serializeToString(node);
-            // console.log(str);
-            // //geoServer.insertFarm(str, feat,fType)
-            // geoServer.makeRequest(geoServer.geoUpdate_Url, "insert_farm", str, this).then(function(returnData){
-            //     var scenGeojsonString = String(returnData.geojson)
-            //     var sgid = scenGeojsonString.substring(scenGeojsonString.indexOf('scenarios_2.') + 12,scenGeojsonString.lastIndexOf('"/>'));
-            //     console.log(intSgid);
-            //     var intSgid = parseInt(sgid);
-            //     console.log(intSgid);
-            //     DSS.activeScenario = sgid
-            //     DSS.MapState.showNewFarm(DSS.activeFarm);
-            //     gatherScenarioTableData();
-            //     runScenarioUpdate();
-            //     DSS.ApplicationFlow.instance.showScenarioPage();
-            //     showInfraForScenario()
-            //     showFieldsForScenario()
-            //     // DSS.MapState.showFieldsForFarm();
-            //     // DSS.MapState.showInfrasForFarm();
-            //     // DSS.layer.fields_1.setVisible(true);
-		    //     // DSS.layer.infrastructure.setVisible(true);
-		    //     // DSS.layer.fieldsLabels.setVisible(true);
-		    //     //console.log("HI! WFS farm Insert ran!")
-            // })
-
-           
         })
     }
 // used to insert fields into geoserver
@@ -294,22 +256,27 @@ class GeoServer{
     }
     //Used to populate the fields grid for a scenario
     getWFSfields(parameter = ""){
-        this.makeRequest(this.geoField_Url + parameter, "source").then(function(geoJson){
+        this.makeRequest(this.geoField_Url + parameter, "source").then(async function(geoJson){
             geoJson = JSON.parse(geoJson.geojson)
             fieldObj = geoJson.features
             fieldArray = [];
-			popFieldsArray(fieldObj);
+			await popFieldsArray(fieldObj);
 			Ext.create('Ext.data.Store', {
 				storeId: 'fieldStore1',
 				alternateClassName: 'DSS.FieldStore',
-				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 'tillageDisp', 'coverCropDisp', 'coverCropVal',
-					'onContour','fertPerc','manuPerc','grassSpeciesVal','grassSpeciesDisp','interseededClover', 'pastureGrazingRotCont',
-					'grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
-					'grazeDairyNonLactating', 'grazeBeefCattle', 'area', 'perimeter'],
-				data: fieldArray
+				fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
+	'tillageDisp', 'coverCropDisp', 'coverCropVal',
+		'onContour','fertPercP','manuPercP','fertPercN','manuPercN','grassSpeciesVal','grassSpeciesDisp',
+		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
+        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp','landCost'],
+		sorters: ['name'],
+	data: fieldArray
 			});
 			DSS.field_grid.FieldGrid.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
 			DSS.field_grid.FieldGrid.store.reload();
+            // DSS.Field_Summary_Table.setStore(Ext.data.StoreManager.lookup('fieldStore1'));
+			// DSS.Field_Summary_Table.store.reload();
         })
     }
     //Used to populate the infra grid for a scenario
@@ -335,6 +302,7 @@ class GeoServer{
     }
     //used to delete a farm from geoserver.  Used several times in DeleteOperation.js to remove everthing assocaited with deleted farm
     deleteOperation(payLoad, feat){
+        console.log(payLoad)
          this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
             //let geoJson = returnData.geojson
             //let currObj = returnData.current
