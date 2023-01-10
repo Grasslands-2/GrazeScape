@@ -309,7 +309,6 @@ class RasterData:
                         raster_data_dic[val][y][x] = 5.5
                     elif val == "slope_length" and raster_val == self.no_data:
                         raster_data_dic[val][y][x] = 76
-
                     # two nodata values for curve number see get_hyro_letter in runoff.py
                     elif val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
                         self.no_data_aray[y][x] = 1
