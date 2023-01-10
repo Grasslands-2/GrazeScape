@@ -430,6 +430,7 @@ async function runScenarioUpdate(){
 				fert_p_cost: DSS['viewModel'].scenario.data.costs.fertPCost,
 				fert_n_cost: DSS['viewModel'].scenario.data.costs.fertNCost
 			});
+            console.log("updating DSS['viewModel'].scenario.data")
 			wfs_update(scenarioFeature,'scenarios_2');
 		}						
 	})
@@ -528,7 +529,7 @@ Ext.define('DSS.state.Scenario', {
 									// 	await me.initViewModel();
 									// }
 									await gatherScenarioTableData
-									//await runScenarioUpdate();
+
 									await geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
@@ -1001,7 +1002,7 @@ Ext.define('DSS.state.Scenario', {
 				// 	text: 'Save Edits',
 				// 	handler: function() {
 				// 		//DSS.layer.scenarios.getSource().refresh();
-				// 		runScenarioUpdate();
+
 				// 		runFieldUpdate();
 				// 		runInfraUpdate();	
 				// 	},
@@ -1053,6 +1054,9 @@ Ext.define('DSS.state.Scenario', {
 						await runInfraUpdate()
 //						cleanDB()
 						//DSS.DrawFieldShapes.addModeControl()
+						console.log("updates")
+						console.log((DSS['viewModel'].scenario))
+						console.log((DSS['viewModel'].scenario.data))
 						if (DSS['viewModel'].scenario.data != null){
                             console.log("updating scenario data")
 						    runScenarioUpdate();

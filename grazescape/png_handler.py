@@ -47,8 +47,8 @@ class PngHandler:
         blobs = storage_client.list_blobs(settings.GCS_BUCKET_NAME)
         for blob in blobs:
             if str(model_type + field_id) in blob.name and model_run_timestamp not in blob.name:
-                print(blob.name)
-                print("timestamp ", model_run_timestamp)
+                # print(blob.name)
+                # print("timestamp ", model_run_timestamp)
                 try:
                     blob.delete()
                     print("Blob " + model_type + field_id + " deleted.")
@@ -81,7 +81,7 @@ class PngHandler:
         for bucket in self.model_list:
             source_file_name = os.path.join(settings.BASE_DIR, 'grazescape', 'static', 'grazescape', 'public', 'images',
                                             bucket + field_id + '_' + model_run_timestamp + ".png")
-            print("uploading file", source_file_name)
+            # print("uploading file", source_file_name)
             # The ID of your GCS object
             destination_blob_name = bucket + field_id + '_' + model_run_timestamp + ".png"
 
@@ -107,8 +107,8 @@ class PngHandler:
                 if str(model + str(field_id)) in blob.name and str(scen) == str(active_scen):
                     # print("SCEN ACTIVE SCEN HIT!!!!!!!!")
                     model_run_timestamp = blob.name[-17:-4]
-                    print(model_run_timestamp)
-                    print(blob.name)
+                    # print(model_run_timestamp)
+                    # print(blob.name)
                     destination_file_name = os.path.join(settings.BASE_DIR, 'grazescape', 'static', 'grazescape',
                                                          'public',
                                                          'images', blob.name)
