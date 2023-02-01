@@ -131,7 +131,7 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
 	showNewFarm: function() {
 		console.log(DSS.activeFarm)
-		//geoServer.setFarmSource('&CQL_filter=gid='+DSS.activeFarm)
+		//geoServer.setFarmSource()
 	    geoServer.setFarmSource('&CQL_filter=gid='+DSS.activeFarm)
 		console.log("setFarmSource in MapStateTools.js within showNewFarm")
 		DSS.layer.farms_1.setOpacity(1);

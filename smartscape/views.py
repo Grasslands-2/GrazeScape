@@ -63,9 +63,7 @@ def index(request):
         #     f.write(r.content)
     input_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                               'raster_inputs')
-
     now = time.time()
-    #
     for f in os.listdir(input_path):
         try:
             f = os.path.join(input_path, f)

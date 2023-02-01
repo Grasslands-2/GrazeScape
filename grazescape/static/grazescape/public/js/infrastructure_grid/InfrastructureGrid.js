@@ -14,7 +14,11 @@ function getWFSinfra(parameter = "") {
     console.log("getting wfs infra")
     geoServer.getWFSinfra(parameter)
 }
-
+function refreshviewinfra(){
+	setTimeout(() => {
+		Ext.getCmp("infraTable").getView().refresh()
+}, "1000")
+}
 function popInfraArray(obj) {
 	for (i in obj)
 	//console.log(i);
@@ -167,7 +171,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 	hidden: true,
 	selModel: {
 		allowDeselect: true,
-		selType: 'checkboxmodel',//"rowmodel",//'checkboxmodel', // rowmodel is the default selection model
+		selType: "rowmodel",//'checkboxmodel', // rowmodel is the default selection model
 		mode: 'MULTI'
 	},
 
@@ -203,7 +207,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		},
 		{
 			xtype: 'button',
-			text: 'Save Changes',
+			text: 'Refresh',
 			handler: function (self) {
 				runInfraUpdate()
 				selectedInfra = []
@@ -342,6 +346,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 							me.getSelectionModel().deselectAll();
 						}
 						console.log("End of Rot Crop change event")
+						refreshviewinfra()
 					}
 				}
 			}
@@ -432,6 +437,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 							me.getSelectionModel().deselectAll();
 						}
 						console.log("End of fence material change event")
+						refreshviewinfra()
 					}
 				}
 			}
@@ -516,6 +522,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 							me.getSelectionModel().deselectAll();
 						}
 						console.log("End of Rot Crop change event")
+						refreshviewinfra()
 					}
 				}
 			}
@@ -600,6 +607,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 						me.getView().refresh();
 						me.getSelectionModel().deselectAll();
 					}
+					refreshviewinfra()
 				}
 			}
 		};
@@ -648,6 +656,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 //				                                }, 1000);
 
 //				                console.log(record.get("totalCost"))s
+								refreshviewinfra()
                             },
 //                            single: true
                             },
@@ -669,6 +678,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				listeners:{change: function(editor, newv,oldv, eOpts) {
 
 				    console.log("total cost updated")
+					refreshviewinfra()
 				}
 				}
 			}, text: 'Total<br>Cost', dataIndex: 'totalCost', width: 80, formatter: 'usMoney',

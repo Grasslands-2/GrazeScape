@@ -67,14 +67,30 @@ Ext.define('DSS.field_shapes.apply.Landcover', {
 							if ( self.boxLabelEl) {
 								self.boxLabelEl.setStyle('cursor', 'pointer')
 							}
+						},
+						change: function(){
+							selectedType = this.inputValue
+							console.log(selectedType)
+							console.log(this)
+							if(selectedType == 'pt'){
+								console.log('pt hit')
+								Ext.getCmp('PTRotFreq').enable()
+							}else{
+								Ext.getCmp('PTRotFreq').disable()
+							}
 						}
 					}
 				//	boxLabelCls: 'hover'
 				},
-				items: [{
-					boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
-				},{
-					boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
+				items: [
+				// 	{
+				// 	boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
+				// },
+				// {
+				// 	boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
+				// },
+				{
+					boxLabel: 'Pasture', 			inputValue: 'pt',
 				},
 				// { 
 				// 	boxLabel: 'New Pasture', 			inputValue: 'ps',

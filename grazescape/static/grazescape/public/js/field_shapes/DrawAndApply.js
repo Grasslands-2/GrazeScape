@@ -231,6 +231,7 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 		'DSS.field_shapes.apply.SpreadManure',
 		'DSS.field_shapes.apply.Fertilizer',
 		'DSS.field_shapes.apply.GrazeAnimals',
+		'DSS.field_shapes.apply.RotationalFreq'
 	],
 	
 	//--------------------------------------------------------------------------

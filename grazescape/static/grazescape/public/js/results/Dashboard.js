@@ -1,8 +1,435 @@
-//const { stringify } = require("querystring")
-// const path = require('path');
-// const fs = require('fs');
-// ploss scale bar values
-
+var fieldArraystandin = []
+Ext.create('Ext.data.Store', {
+	storeId: 'fieldSummaryStore',
+	alternateClassName: 'DSS.FieldSummaryStore',
+	fields:[ 'name', 'soilP', 'soilOM', 'rotationVal', 'rotationDisp', 'tillageVal', 
+	'tillageDisp', 'coverCropDisp', 'coverCropVal',
+		'onContour','fertPercP','manuPercP','fertPercN','manuPercN','grassSpeciesVal','grassSpeciesDisp',
+		'interseededClover','grazeDensityVal','grazeDensityDisp','manurePastures', 'grazeDairyLactating',
+		'grazeDairyNonLactating', 'grazeBeefCattle','area', 'perimeter','fence_type',
+        'fence_cost','fence_unit_cost','rotationFreqVal','rotationFreqDisp','landCost'],
+		sorters: ['name'],
+	data: fieldArraystandin
+});
+//This function is used to create the field summary after the models are run.  it needs the pmanure array of values to completely be filled, 
+//which is why it is run after the models finsih.
+function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
+    var assembledArray = []
+    var fieldArrayItem = []
+    pmanureReturn_array.forEach((pmr) => {
+        switch(pmr[3]){
+            case "pt":
+            for(i in fieldArray){
+                slicedId = fieldArray[i].id.slice(8)
+                console.log(slicedId)
+                console.log(pmr[1])
+                if(slicedId == pmr[1] ){
+                    console.log("in if for fieldarray")
+                    fieldArrayItem = fieldArray[i]
+                    console.log(fieldArrayItem)
+                    var pt_rt = ''
+                    if(pmr[5] == "cn"){
+                    //if(fieldArray[i].rotationVal == "pt-cn"){
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Continuous Pasture",
+                            area:fieldArrayItem.area,
+                            year: 1,
+                            crop: "Grass",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].pt_cn.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].pt_cn.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].pt_cn.n_rec,
+                            pNeeds: pmr[4].pt_cn.p_needs,
+                            manuPercP: pmr[4].pt_cn.man_p_per,
+                            nManure: pmr[4].pt_cn.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].pt_cn.man_p_per/100) * pmr[4].pt_cn.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].pt_cn.p_needs,
+                            tillageDisp: "NA",
+                            coverCropDisp: "NA",
+                            onContour: "NA",
+                            grassSpeciesDisp: fieldArrayItem.grassSpeciesDisp,
+                            interseededClover: fieldArrayItem.interseededClover,
+                            grazeDensityDisp: fieldArrayItem.grazeDensityDisp,
+                            rotationFreqDisp:fieldArrayItem.rotationFreqDisp,
+                            landCost:fieldArrayItem.landCost,
+                        })
+                    }else if(pmr[5] == "rt"){
+                        console.log("in else")
+                        console.log(pmr[4])
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Rotational Pasture",
+                            area:fieldArrayItem.area,
+                            year: 1,
+                            crop: "Grass",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].pt_rt.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].pt_rt.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].pt_rt.n_rec,
+                            pNeeds: pmr[4].pt_rt.p_needs,
+                            manuPercP: pmr[4].pt_rt.man_p_per,
+                            nManure: pmr[4].pt_rt.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].pt_rt.man_p_per/100) * pmr[4].pt_rt.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].pt_rt.p_needs,
+                            tillageDisp: "NA",
+                            coverCropDisp: "NA",
+                            onContour: "NA",
+                            grassSpeciesDisp: fieldArrayItem.grassSpeciesDisp,
+                            interseededClover: fieldArrayItem.interseededClover,
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp:fieldArrayItem.rotationFreqDisp,
+                            landCost:fieldArrayItem.landCost,
+                        })
+                    }
+                    console.log(assembledArray)
+                }
+            }
+            break;
+            case "cc":
+            for(i in fieldArray){
+                slicedId = fieldArray[i].id.slice(8)
+                console.log(slicedId)
+                console.log(pmr[1])
+                if(slicedId == pmr[1]){
+                    console.log("in if for fieldarray")
+                    fieldArrayItem = fieldArray[i]
+                    assembledArray.push({
+                        field_name: pmr[0],
+                        crop_ro: "Continuous Corn",
+                        area:fieldArrayItem.area,
+                        year: 1,
+                        crop: "Corn Grain",
+                        soilP: fieldArrayItem.soilP,
+                        soilOM: fieldArrayItem.soilOM,
+                        Nrec: pmr[4].cn.n_rec,
+                        manuPercN: fieldArrayItem.manuPercN,
+                        fertPercN: fieldArrayItem.fertPercN,
+                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_rec,
+                        fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
+                        pNeeds: pmr[4].cn.p_needs,
+                        manuPercP: pmr[4].cn.man_p_per,
+                        nManure: pmr[4].cn.n_man,
+                        fertPercP: fieldArrayItem.fertPercP,
+                        manuAppliedP:(pmr[4].cn.man_p_per/100) * pmr[4].cn.p_needs,
+                        fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cn.p_needs,
+                        tillageDisp: fieldArrayItem.tillageDisp,
+                        coverCropDisp: fieldArrayItem.coverCropDisp,
+                        onContour: fieldArrayItem.onContour,
+                        grassSpeciesDisp: "NA",
+                        interseededClover: "NA",
+                        grazeDensityDisp: "NA",
+                        rotationFreqDisp: "NA",
+                        landCost:fieldArrayItem.landCost,
+                    })
+                    console.log(assembledArray)
+                }
+            }
+            break;
+            case "cg":
+            for(i in fieldArray){
+                slicedId = fieldArray[i].id.slice(8)
+                //console.log(slicedId)
+                //console.log(pmr[1])
+                if(slicedId == pmr[1]){
+                    console.log("in if for fieldarray")
+                    fieldArrayItem = fieldArray[i]
+                    assembledArray.push({
+                        field_name: pmr[0],
+                        crop_ro: "Cash Grains",
+                        area:fieldArrayItem.area,
+                        year: 1,
+                        crop: "Soy Beans",
+                        soilP: fieldArrayItem.soilP,
+                        soilOM: fieldArrayItem.soilOM,
+                        Nrec: pmr[4].sb.n_rec,
+                        manuPercN: fieldArrayItem.manuPercN,
+                        fertPercN: fieldArrayItem.fertPercN,
+                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].sb.n_rec,
+                        fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].sb.n_rec,
+                        pNeeds: pmr[4].sb.p_needs,
+                        manuPercP: pmr[4].sb.man_p_per,
+                        fertPercP: fieldArrayItem.fertPercP,
+                        nManure: pmr[4].sb.n_man,
+                        manuAppliedP:(pmr[4].sb.man_p_per/100) * pmr[4].sb.p_needs,
+                        fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].sb.p_needs,
+                        tillageDisp: fieldArrayItem.tillageDisp,
+                        coverCropDisp: fieldArrayItem.coverCropDisp,
+                        onContour: fieldArrayItem.onContour,
+                        grassSpeciesDisp: "NA",
+                        interseededClover: "NA",
+                        grazeDensityDisp: "NA",
+                        rotationFreqDisp: "NA",
+                        landCost:fieldArrayItem.landCost,
+                    })
+                    assembledArray.push({
+                        field_name: pmr[0],
+                        crop_ro: "Cash Grains",
+                        area:fieldArrayItem.area,
+                        year: 2,
+                        crop: "Corn Grain",
+                        soilP: fieldArrayItem.soilP,
+                        soilOM: fieldArrayItem.soilOM,
+                        Nrec: pmr[4].cn.n_rec,
+                        manuPercN: fieldArrayItem.manuPercN,
+                        fertPercN: fieldArrayItem.fertPercN,
+                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_rec,
+                        fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
+                        pNeeds: pmr[4].cn.p_needs,
+                        manuPercP: pmr[4].cn.man_p_per,
+                        nManure: pmr[4].cn.n_man,
+                        fertPercP: fieldArrayItem.fertPercP,
+                        manuAppliedP:(pmr[4].cn.man_p_per/100) * pmr[4].cn.p_needs,
+                        fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cn.p_needs,
+                        tillageDisp: fieldArrayItem.tillageDisp,
+                        coverCropDisp: fieldArrayItem.coverCropDisp,
+                        onContour: fieldArrayItem.onContour,
+                        grassSpeciesDisp: "NA",
+                        interseededClover: "NA",
+                        grazeDensityDisp: "NA",
+                        rotationFreqDisp: "NA",
+                        landCost:fieldArrayItem.landCost,
+                    })
+                    console.log(assembledArray)
+                }
+            }
+            break;
+            case "dr":
+                for(i in fieldArray){
+                    slicedId = fieldArray[i].id.slice(8)
+                    console.log(slicedId)
+                    console.log(pmr[1])
+                    if(slicedId == pmr[1]){
+                        console.log("in if for fieldarray")
+                        fieldArrayItem = fieldArray[i]
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Corn Silage to Corn Grain to Alfalfa 3 yrs",
+                            area:fieldArrayItem.area,
+                            year: 1,
+                            crop: "Corn Grain",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].cn.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
+                            pNeeds: pmr[4].cn.p_needs,
+                            manuPercP: pmr[4].cn.man_p_per,
+                            nManure: pmr[4].cn.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].cn.man_p_per/100) * pmr[4].cn.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cn.p_needs,
+                            tillageDisp: fieldArrayItem.tillageDisp,
+                            coverCropDisp: fieldArrayItem.coverCropDisp,
+                            onContour: fieldArrayItem.onContour,
+                            grassSpeciesDisp: "NA",
+                            interseededClover: "NA",
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp: "NA",
+                            landCost:fieldArrayItem.landCost,
+                        })
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Corn Silage to Corn Grain to Alfalfa 3 yrs",
+                            area:fieldArrayItem.area,
+                            year: 2,
+                            crop: "Corn Silage",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].cs.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cs.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cs.n_rec,
+                            pNeeds: pmr[4].cs.p_needs,
+                            manuPercP: pmr[4].cs.man_p_per,
+                            nManure: pmr[4].cs.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].cs.man_p_per/100) * pmr[4].cs.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cs.p_needs,
+                            tillageDisp: fieldArrayItem.tillageDisp,
+                            coverCropDisp: fieldArrayItem.coverCropDisp,
+                            onContour: fieldArrayItem.onContour,
+                            grassSpeciesDisp: "NA",
+                            interseededClover: "NA",
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp: "NA",
+                            landCost:fieldArrayItem.landCost,
+                        })
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Corn Silage to Corn Grain to Alfalfa 3 yrs",
+                            area:fieldArrayItem.area,
+                            year: 3,
+                            crop: "Start Alfalfa",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].as.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].as.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].as.n_rec,
+                            pNeeds: pmr[4].as.p_needs,
+                            manuPercP: pmr[4].as.man_p_per,
+                            nManure: pmr[4].as.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].as.man_p_per/100) * pmr[4].as.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].as.p_needs,
+                            tillageDisp: fieldArrayItem.tillageDisp,
+                            coverCropDisp: fieldArrayItem.coverCropDisp,
+                            onContour: fieldArrayItem.onContour,
+                            grassSpeciesDisp: "NA",
+                            interseededClover: "NA",
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp: "NA",
+                            landCost:fieldArrayItem.landCost,
+                        })
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Corn Silage to Corn Grain to Alfalfa 3 yrs",
+                            area:fieldArrayItem.area,
+                            year: "4-5",
+                            crop: "Alfalfa",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].af.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].af.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN) * pmr[4].af.n_rec,
+                            pNeeds: pmr[4].af.p_needs,
+                            manuPercP: pmr[4].af.man_p_per,
+                            nManure: pmr[4].af.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].af.man_p_per/100) * pmr[4].af.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].af.p_needs,
+                            tillageDisp: fieldArrayItem.tillageDisp,
+                            coverCropDisp: fieldArrayItem.coverCropDisp,
+                            onContour: fieldArrayItem.onContour,
+                            grassSpeciesDisp: "NA",
+                            interseededClover: "NA",
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp: "NA",
+                            landCost:fieldArrayItem.landCost,
+                        })
+                        console.log(assembledArray)
+                    }
+                }
+            break;
+            case "cso":
+                for(i in fieldArray){
+                    slicedId = fieldArray[i].id.slice(8)
+                    console.log(slicedId)
+                    console.log(pmr[1])
+                    if(slicedId == pmr[1]){
+                        console.log("in if for fieldarray")
+                        fieldArrayItem = fieldArray[i]
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Corn Silage to Soybeans to Oats",
+                            area:fieldArrayItem.area,
+                            year: 1,
+                            crop: "Corn Silage",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].cs.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cs.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cs.n_rec,
+                            pNeeds: pmr[4].cs.p_needs,
+                            manuPercP: pmr[4].cs.man_p_per,
+                            nManure: pmr[4].cs.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].cs.man_p_per/100) * pmr[4].cs.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].cs.p_needs,
+                            tillageDisp: fieldArrayItem.tillageDisp,
+                            coverCropDisp: fieldArrayItem.coverCropDisp,
+                            onContour: fieldArrayItem.onContour,
+                            grassSpeciesDisp: "NA",
+                            interseededClover: "NA",
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp: "NA",
+                            landCost:fieldArrayItem.landCost,
+                        })
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Corn Silage to Soybeans to Oats",
+                            area:fieldArrayItem.area,
+                            year: 2,
+                            crop: "Soy Beans",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].sb.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].sb.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].sb.n_rec,
+                            pNeeds: pmr[4].sb.p_needs,
+                            manuPercP: pmr[4].sb.man_p_per,
+                            nManure: pmr[4].sb.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].sb.man_p_per/100) * pmr[4].sb.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].sb.p_needs,
+                            tillageDisp: fieldArrayItem.tillageDisp,
+                            coverCropDisp: fieldArrayItem.coverCropDisp,
+                            onContour: fieldArrayItem.onContour,
+                            grassSpeciesDisp: "NA",
+                            interseededClover: "NA",
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp: "NA",
+                            landCost:fieldArrayItem.landCost,
+                        })
+                        assembledArray.push({
+                            field_name: pmr[0],
+                            crop_ro: "Corn Silage to Soybeans to Oats",
+                            area:fieldArrayItem.area,
+                            year: 3,
+                            crop: "Oats",
+                            soilP: fieldArrayItem.soilP,
+                            soilOM: fieldArrayItem.soilOM,
+                            Nrec: pmr[4].ot.n_rec,
+                            manuPercN: fieldArrayItem.manuPercN,
+                            fertPercN: fieldArrayItem.fertPercN,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].ot.n_rec,
+                            fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].ot.n_rec,
+                            pNeeds: pmr[4].ot.p_needs,
+                            manuPercP: pmr[4].ot.man_p_per,
+                            nManure: pmr[4].ot.n_man,
+                            fertPercP: fieldArrayItem.fertPercP,
+                            manuAppliedP:(pmr[4].ot.man_p_per/100) * pmr[4].ot.p_needs,
+                            fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].ot.p_needs,
+                            tillageDisp: fieldArrayItem.tillageDisp,
+                            coverCropDisp: fieldArrayItem.coverCropDisp,
+                            onContour: fieldArrayItem.onContour,
+                            grassSpeciesDisp: "NA",
+                            interseededClover: "NA",
+                            grazeDensityDisp: "NA",
+                            rotationFreqDisp: "NA",
+                            landCost:fieldArrayItem.landCost,
+                        })
+                        console.log(assembledArray)
+                    }
+                }
+            break;
+        }
+        console.log(assembledArray)
+    });
+    return assembledArray
+}
+//Grabs the pngs for a field that has been previously modeled, but is not dirty in the current model run.
+//pngs are stored on Google Cloud, and the url this function calls to uses a function in the Django Python backend
+//to download those pngs into local container storage for use.
 function field_png_lookup(data,layer,extents){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -17,7 +444,6 @@ function field_png_lookup(data,layer,extents){
     'type' : 'POST',
     'data' : data,
     success: function(responses) {
-		//console.log(responses)
         if(layer == 'ploss'){
             plossPNGFile = responses[0]
             console.log(plossPNGFile)
@@ -58,6 +484,22 @@ function field_png_lookup(data,layer,extents){
             erosionGroupLayers.push(DSS.layer.erosion_field);
             DSS.map.removeLayer(DSS.layer.erosion_field)
         }
+        if(layer == 'nleaching'){
+            nleachingPNGFile = responses[0]
+            DSS.layer.nleaching_field = new ol.layer.Image({
+                visible: false,
+                updateWhileAnimating: true,
+                updateWhileInteracting: true,
+                source: new ol.source.ImageStatic({
+                //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                url: '/static/grazescape/public/images/' + nleachingPNGFile,
+                imageExtent: extents
+                })
+            })
+            var nleachingGroupLayers = DSS.layer.nleachingGroup.getLayers().getArray();
+            nleachingGroupLayers.push(DSS.layer.nleaching_field);
+            DSS.map.removeLayer(DSS.layer.nleaching_field)
+        }
         if(layer == 'yield'){
             yieldPNGFile = responses[0]
             DSS.layer.yield_field = new ol.layer.Image({
@@ -84,6 +526,7 @@ function field_png_lookup(data,layer,extents){
 	})
 	})
 }
+
 function get_results_image(data){
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
@@ -114,10 +557,12 @@ function timeout(){
 var pLossColorArray = ["#204484","#3e75b2","#90b9e4","#d2f0fa","#fcffd8","#ffdaa0","#eb9159","#d25c34","#a52d18"]
 var pLossValueArray =['0',1.5,3,4.5,6,7.5,9.6,11.2,12.8,'15+']
 DSS.plossBol = false
+DSS.nleachBol = false
 DSS.eroBol = false
 DSS.runoffBol = false
 DSS.yieldBol = false
 // unique model time stamp holder
+
 
 //This function gathers the yield data from the active scnearios fields for the yield adjustment table
 function gatherYieldTableData() {
@@ -125,7 +570,6 @@ function gatherYieldTableData() {
 	var chartObjyieldarray = chartObj.rotation_yield_field.chartData.datasets
 	for(field in chartObjyieldarray){
         console.log(chartObjyieldarray[field])
-        //if(chartObjyieldarray[field].toolTip[0] !== null){
         if(chartObjyieldarray[field].scenDbID == DSS.activeScenario){
             fieldYieldArray.push({
                 id: chartObjyieldarray[field].dbID,
@@ -233,12 +677,16 @@ function turnOffMappedResults() {
     DSS.MapState.destroyLegend();
     DSS.layer.yieldGroup.setVisible(false);
     DSS.layer.erosionGroup.setVisible(false);
+    DSS.layer.nleachingGroup.setVisible(false);
     DSS.layer.runoffGroup.setVisible(false);
     DSS.layer.PLossGroup.setVisible(false);
 }
     
 var fieldYieldArray = [];
-var modelTypes = ['yield', 'ploss','runoff', 'bio','econ']
+//var modelTypes = [ /*'ploss',*/'bio','econ','yield','runoff']
+//var modelTypes = ['bio','econ','yield']
+//Models to run.  Currently only yield since all models got wrapped up into one for the time being for efficency updates.
+var modelTypes = ['yield']
 //list of all the current and future charts
 var chartList = [
 //    "cost_farm", "cost_field",
@@ -248,6 +696,7 @@ var chartList = [
 //    "nitrogen_farm",
     "ploss_farm", "ploss_field",
     "soil_loss_farm", "soil_loss_field",
+    "nleaching_farm", "nleaching_field",
 //    "bio_farm",
     "cn_num_farm",
     "runoff_farm",
@@ -309,14 +758,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	alias: 'widget.state_perimeter_dialog',
     requires: [
 		'DSS.map.LayerMenu',
-        'DSS.map.OutputMenu'
+        'DSS.map.OutputMenu',
+        'DSS.Field_Summary_Table'
 	],
     name: "dashboardWindow",
 	alternateClassName: 'DSS.Dashboard',
     id: "dashboardWindow",
-//	autoDestroy: true,
-//	closeAction: 'destroy',
-//    closable: false,
     closeAction: 'method-hide',
 	constrain: true,
 	modal: false,
@@ -325,28 +772,39 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	resizable: true,
     maximizable:true,
     minimizable:true,
-//	bodyPadding: 8,
 	titleAlign: 'center',
 	layout : 'fit',
 	plain: true,
-//    style: 'background-color: #18bc9c!important',
 	title: 'Model Results',
 	runModel: true,
     scope: this,
-    // tbar: [
-    //     {
-    //         text: 'Close',
-    //         handler: function () { this.up('window').close(); }
-    //     }
-    // ],
+    closable: true,
     listeners:{
-        
+        enable: function(){
+            console.log("ENABLE")
+        },
+        afterrender: function(){
+            console.log("afterrender")
+        },
+        added: function(){
+            console.log("ADDED")
+        },
+        add: function(){
+            console.log("ADD")
+        },
+        beforehide: function(){
+            console.log("beforehide")
+            turnOffMappedResults()
+        },
         hide: function(){
             console.log("hide")
             turnOffMappedResults()
         },
-
-        close: function(thisWindow){
+        beforeclose: function(){
+            console.log("beforeclose")
+            turnOffMappedResults()
+        },
+        close: function(){
             console.log("close")
             turnOffMappedResults()
         },
@@ -363,7 +821,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             window.collapse();
             window.setWidth(150);
             window.setHeight(150)
-        }
+        },
+        activate: function(window){
+            console.log("activate")
+        },
     },
     tools: [{
         type: 'restore',
@@ -408,7 +869,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 		let me = this;
 		layer = DSS.layer.fields_1
         
-//
         if (this.runModel) {
             var modelruntime = ''
             //assign model run timestamp
@@ -428,6 +888,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 bio_pb = document.getElementById("bio_pb");
                 runoff_pb = document.getElementById("runoff_pb");
                 econ_pb = document.getElementById("econ_pb");
+                nleaching_pb = document.getElementById("nleaching_pb");
 
                 // show progress bars when models run
                 econ_pb.hidden = false
@@ -436,6 +897,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 runoff_pb.hidden = false
                 yield_pb.hidden = false
                 nut_pb.hidden = false
+                //nleaching_pb.hidden = false
                 Ext.getCmp("erosionFarmConvert").setDisabled(true)
                 Ext.getCmp("erosionFieldConvert").setDisabled(true)
                 Ext.getCmp("yieldFarmConvert").setDisabled(true)
@@ -444,15 +906,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 Ext.getCmp("econFieldConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFarmConvert").setDisabled(true)
                 Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
-                Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
-                Ext.getCmp("nutrientsFieldConvert").setDisabled(true)
+                //Ext.getCmp("nitrateFarmConvert").setDisabled(true)
+                //Ext.getCmp("nitrateFieldConvert").setDisabled(true)
                 Ext.getCmp('mainTab').update()
             }, 10);
             createDashBoard(me)
         }
         //create dashboard model runs
         async function createDashBoard(dashboard){
-
+            pmanureReturn_array = []
             layerList = []
             await layer.getSource().forEachFeature(function(f) {
                 layerList.push(f)
@@ -460,9 +922,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             let fieldIter = await retrieveAllFieldsDataGeoserver()
             fieldIter = await fieldIter
             let download = await downloadRasters(fieldIter)
+            
             download = await download
             console.log("download done")
             console.log("running model")
+            
 
             numbFields = fieldIter.length
             totalFields = numbFields * modelTypes.length
@@ -470,6 +934,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                  switch (modelTypes[model]){
                     case 'yield':
                         yield_pb.max = numbFields
+                        nut_pb.max = numbFields
+                        ero_pb.max = numbFields
                         break
                     case 'ploss':
                          nut_pb.max = numbFields
@@ -487,10 +953,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     case 'econ':
                         econ_pb.max = numbFields
                         break
+                    case 'nitrate':
+                        //set up a call to a python function to run the nitrate model.  we'll worry about
+                        //presentation after the model works.
+                        nleaching_pb.max = numbFields
+                        break
                 }
             }
             console.log(fieldIter)
-//            get parameters for the active scenario fields from the layer display
+            
+//          get parameters for the active scenario fields from the layer display
 //          if fields arent in the active scenario then use the values from the database
 //          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
 //          while the inactive fields are just retrieving their models results from the db
@@ -507,11 +979,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                     })
                 }
-                
+//                let model_request_return1 = await build_model_request(f.properties, f,'pmanure',modelruntime,DSS.activeScenario,[])
+//                let pManureResults = await get_P_Manure_Results(model_request_return1)
+//                console.log(pManureResults)
+//                let pManureResultsArray = pManureResults.p_manure_array
+
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion)//.then(model_request_return)
-                    //build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,DSS.activeRegion).then(model_request_return => {
+                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])//.then(model_request_return)
+                    console.log(model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                         console.log(returnData[0])
@@ -535,33 +1011,30 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("yieldTab").setDisabled(false)
                                     Ext.getCmp("yieldFarmConvert").setDisabled(false)
                                     Ext.getCmp("yieldFieldConvert").setDisabled(false)
+                                    ero_pb.hidden = true
+                                    Ext.getCmp("eroTab").setDisabled(false)
+                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
+                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
+                                    nut_pb.hidden = true
+                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
+                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
+                                    Ext.getCmp("nutTab").setDisabled(false)
+                                    runoff_pb.hidden =true
+                                    Ext.getCmp("runoffTab").setDisabled(false)
+                                    bio_pb.hidden = true
+                                    Ext.getCmp("bioTab").setDisabled(false)
+                                     econ_pb.hidden = true
+                                    Ext.getCmp("econTab").setDisabled(false)
+                                    Ext.getCmp("econFarmConvert").setDisabled(false)
+                                    Ext.getCmp("econFieldConvert").setDisabled(false)
                                     console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
-
-                                    // var heiferFeedData = {
-                                    //     pastYield: (chartObj.grass_yield_farm.sum[scenIndexAS]/chartObj.grass_yield_farm.count[scenIndexAS])*chartObj.grass_yield_farm.area[scenIndexAS],
-                                    //     cornYield:(chartObj.corn_yield_farm.sum[scenIndexAS]/chartObj.corn_yield_farm.count[scenIndexAS])*chartObj.corn_yield_farm.area[scenIndexAS],
-                                    //     cornSilageYield: (chartObj.corn_silage_yield_farm.sum[scenIndexAS]/chartObj.corn_silage_yield_farm.count[scenIndexAS])*chartObj.corn_silage_yield_farm.area[scenIndexAS],
-                                    //     oatYield: (chartObj.oat_yield_farm.sum[scenIndexAS]/chartObj.oat_yield_farm.count[scenIndexAS])*chartObj.oat_yield_farm.area[scenIndexAS],
-                                    //     alfalfaYield: (chartObj.alfalfa_yield_farm.sum[scenIndexAS]/chartObj.alfalfa_yield_farm.count[scenIndexAS])*chartObj.alfalfa_yield_farm.area[scenIndexAS],
-                                    //     totalHeifers: DSS['viewModel'].scenario.data.heifers.heifers,
-                                    //     heiferBreed: DSS['viewModel'].scenario.data.heifers.breedSize,
-                                    //     heiferBred: DSS['viewModel'].scenario.data.heifers.bred,
-                                    //     heiferDOP: DSS['viewModel'].scenario.data.heifers.daysOnPasture,
-                                    //     heiferASW: DSS['viewModel'].scenario.data.heifers.asw,
-                                    //     heiferWGG: DSS['viewModel'].scenario.data.heifers.tdwg
-                                    // }
-                                    // for (const prop in heiferFeedData){
-                                    //     if (heiferFeedData[prop] == undefined || isNaN(heiferFeedData[prop] && typeof(heiferFeedData) !== 'string')){
-                                    //         heiferFeedData[prop] = 0
-                                    //     }
-                                    // }
-                                    // console.log(heiferFeedData)
-                                    //calcHeiferFeedBreakdown(heiferFeedData)
-                                    //gatherYieldTableData()
-                                    //Ext.getCmp("feedTab").setDisabled(false)      
+                                    //At the end of model runs this sets the summary table as the active tab, so that its the first thing the user sees.
+                                    setTimeout(function(){
+                                        Ext.getCmp('mainTab').setActiveTab(summaryTable)
+                                    }, 500);
 
                                 }
                                 break
@@ -604,6 +1077,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("econFieldConvert").setDisabled(false)
                                 }
                                 break
+
                         }
                         totalFields = totalFields - 1
                         if(totalFields == 0){
@@ -622,6 +1096,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                    // })
                 }
             }
+            //Need to activate here since we will not have the manure P results back for all fields until now.
+            //Ext.getCmp('mainTab').setActiveTab(summaryTable)
+            //console.log(Ext.getCmp('SummaryTable').getY)
+            //Ext.getCmp('SummaryTable').active(true)
+            
+            //me.setActiveTab(Ext.getCmp('SummaryTable'))
         }
 //      put new tabs here
 //TODO update
@@ -730,6 +1210,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         var erosion = {
 
                 title: '<i class="fas fa-mountain"></i>  Erosion <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=ero_pb >50%</progress>',
+                //title: '<i class="fas fa-mountain"></i>  Erosion <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=yield_pb >50%</progress>',
                 plain: true,
                 id:"eroTab",
                 disabled:true,
@@ -932,15 +1413,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     columns:2,
                     items: [
                         {
-                            boxLabel  : 'Yield / Area',
+                            boxLabel  : 'Yield  ',
                             inputValue: 'a',
                             checked:true
                         }, {
-                            boxLabel  : 'Total Yield',
+                            boxLabel  : 'Production',
                             inputValue: 't',
                         },
                     ],
                      listeners:{change: function(e, newValue, oldValue, eOpts) {
+                        console.log("yield alternate pushed")
                         displayAlternate("grass_yield_field", e.id)
                         displayAlternate("corn_yield_field", e.id)
                         displayAlternate("corn_silage_yield_field", e.id)
@@ -993,8 +1475,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     chartObj.oat_yield_field.chart = create_graph(chartObj.oat_yield_field, 'Oat Yield', document.getElementById('oat_yield_field').getContext('2d'));
                     chartObj.alfalfa_yield_field.chart = create_graph(chartObj.alfalfa_yield_field, 'Alfalfa Yield', document.getElementById('alfalfa_yield_field').getContext('2d'));
                     chartObj.rotation_yield_field.chart = create_graph(chartObj.rotation_yield_field, 'Total Yield', document.getElementById('rotation_yield_field').getContext('2d'));
-
-
                 },
             }
         },
@@ -1020,11 +1500,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         columns:2,
                         items: [
                             {
-                                boxLabel  : 'Yield / Area',
+                                boxLabel  : 'Yield',
                                 inputValue: 'a',
                                 checked:true
                             }, {
-                                boxLabel  : 'Total Yield',
+                                boxLabel  : 'Production',
                                 inputValue: 't',
                             },
                         ],
@@ -1167,7 +1647,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         columns:3,
                         items: [
                             {
-                                boxLabel  : 'Cost / Acre',
+                                boxLabel  : 'Cost / ac',
                                 inputValue: 'a',
                                 checked:true
                             },
@@ -1176,7 +1656,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 't',
                             },
                             {
-                                boxLabel  : 'Cost/Ton DM',
+                                boxLabel  : 'Cost/Ton-DM',
                                 inputValue: 'd',
                             },
                         ],
@@ -1284,8 +1764,155 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
             }
             //TODO update
+            var nitrate = {
+                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nleaching_pb >50%</progress>',
+                plain: true,
+                id:"nitrateTab",
+                disabled:true,
+                tabBar : {
+                    layout: {
+                        pack: 'center',
+                            //background: '#C81820',
+                     }
+                 },
+                xtype: 'tabpanel',
+                style: 'background-color: #377338;',
+
+                defaults: {
+                   border:false,
+                    bodyBorder: false
+                },
+                scrollable: true,
+//                inner tabs for farm and field scale
+                items:[
+                    { xtype: 'panel',
+                    title: '<i class="fas fa-seedling"></i></i>  Field',
+                     border: false,
+//                   disabled: true,
+                    id: 'nitrateFieldTab',
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'nitrateFieldConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'nitrate / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total nitrate',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("nleaching_field", e.id)
+                         }},
+                    },
+                    {
+
+                        xtype: 'container',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+//                    {
+//                        xtype: 'container',
+//                    },{
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    }
+                    ],
+                         listeners:{activate: function() {
+                            if (chartObj["nleaching_field"].chart !== null){
+//                                chartObj["ploss_field"].chart.destroy()
+//                                chartObj["soil_loss_field"].chart.destroy()
+                                return
+                            }
+                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
+//                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
+
+                    }}
+                },
+                {
+                    xtype: 'container',
+                    title: '<i class="fas fa-warehouse"></i>  Farm',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'nitrateFarmConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Nutrients / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total Nutrients',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("ploss_farm", e.id)
+                            displayAlternate("ploss_farm", e.id)
+                         }},
+                    },
+                   {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+//                    {
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="canvas2" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    },{
+//
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="canvas3" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    }
+                    ],
+                        listeners:{activate: function() {
+                           if (chartObj["ploss_farm"].chart !== null){
+                                return
+                            }
+                            chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
+                    }}
+
+                },
+            ],
+
+            }
         var nutrients = {
                 title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nut_pb >50%</progress>',
+                //title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=yield_pb >50%</progress>',
                 plain: true,
                 id:"nutTab",
                 disabled:true,
@@ -1310,6 +1937,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                      border: false,
 //                   disabled: true,
                     id: 'nutFieldTab',
+                    scrollable: true,
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
@@ -1337,6 +1965,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_field", e.id)
+                            displayAlternate("nleaching_field", e.id)
                          }},
                     },
                     {
@@ -1345,6 +1974,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },{
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="ploss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',
@@ -1364,6 +1997,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 return
                             }
                             chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
+                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
 //                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
 
                     }}
@@ -1399,11 +2033,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_farm", e.id)
+                            displayAlternate("nleaching_farm", e.id)
                          }},
                     },
                    {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nleaching_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',
@@ -1423,6 +2062,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 return
                             }
                             chartObj.ploss_farm.chart = create_graph(chartObj.ploss_farm, 'Phosphorus Loss', document.getElementById('ploss_farm').getContext('2d'));
+                            chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_farm, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
                     }}
 
                 },
@@ -1916,8 +2556,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                 scrollable: true,
 //                inner tabs for farm and field scale
+                listeners:{activate: function() {
+                    downloadSummaryCSV(chartObj)
+                }},
 
                 items:[{
+                    
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
                     border: false,
@@ -2046,22 +2690,369 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 items:compCheckBoxes.costVar
                             }]
                         },
-                    {
-                        xtype: 'button',
-                        text: 'Download Summary Report',
-                        id: 'downloadSummaryBtn',
-                        tooltip: 'Download charts and csv',
-                          handler: function(e) {
-                            console.log(e)
-                            printSummary()
-                          }
-//                        text: 'Yearly Yield'
-                    }
+                        {
+                            xtype: 'button',
+                            text: 'Download Summary Report PDF',
+                            id: 'downloadSummaryBtn',
+                            tooltip: 'Download charts and csv',
+                            handler: function(e) {
+                                console.log(e)
+                                printSummary()
+                            }
+    //                        text: 'Yearly Yield'
+                        },
+                        //There is a listener set up in DashBoardUtilities that runs when this button is clicked to download summary csv to users machine.
+                        {
+                            xtype: 'button',
+                            text: 'Download Summary Report CSV',
+                            id: 'downloadSummaryCSV',
+                            tooltip: 'Download charts and csv',
+                            handler: function(e) {
+                                console.log(e)
+                            }
+                        }
+                    
                     ],
 
                 }]
             }
-        var options = {
+        var summaryTable = {
+                title: '<i class="fas fa-globe"></i>  Field Summary',
+                plain: true,
+                tabConfig:{
+                    tooltip: "Control options and visibility of charts",
+//                    cls: "myBar"
+                },
+                tabBar : {
+                    layout: {
+                        pack: 'center',
+                            //background: '#C81820',
+                     }
+                 },
+                xtype: 'tabpanel',
+                style: 'background-color: #377338;',
+
+                defaults: {
+                   border:false,
+                    bodyBorder: false
+                },
+                scrollable: true,
+//                inner tabs for farm and field scale
+                items:[{
+                    xtype: 'container',
+                    title: '<i class="fas fa-tasks"></i>  Active Scenario Field Attributes',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:1,
+                },
+
+                //This panel is a field summary of the nutrients and settings for each field in the model run.  
+                items:[
+                    Ext.create('Ext.grid.Panel', {
+                    title: 'Active Scenario Field Summary',
+                    store: Ext.data.StoreManager.lookup('fieldSummaryStore'),
+                    singleton: true,
+                    autoDestroy: false,
+                    alternateClassName: 'DSS.Field_Summary_Table',
+                    id: "SummaryTable",
+                    hidden: false,
+                    style: 'columnLineColor: Red',
+                    columnLines: true,
+                    rowLines: true,
+                    columns: [
+                        {text: 'Field IDs',editable: false,hideable: false,  minWidth: 24,locked: true, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    text: 'Field', dataIndex: 'field_name', width: 70, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    locked: true,
+                                    tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
+                                },
+                                {
+                                    text: 'Crop Rotation', dataIndex: 'crop_ro', width: 150, 
+                                    editable: false,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop Rotation</b> Which crop rotation is being grown in each field.',
+                                },
+                                {
+                                    text: 'Crop', dataIndex: 'crop', width: 110, 
+                                    editable: false,locked: true,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Crop</b> Which crop is being grown in a single year within the crop rotation.',
+                                },
+                                {
+                                    text: 'Year', dataIndex: 'year', width: 50, 
+                                    editable: false,
+                                    hideable: false, enableColumnHide: false, minWidth: 24,
+                                    tooltip: '<b>Year</b> The year inwhich the crop is being grown in the crop rotation',
+                                },
+                            ]
+                        },
+                        {text: 'Nutrient management (N)',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Fert N', 
+                                    dataIndex: 'fertPercN', 
+                                    width: 80, 
+                                    tooltip: '<b>Percent Nitrogen Fertilizer</b> Amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Manure N', 
+                                    dataIndex: 'manuPercN', 
+                                    width: 120, tooltip: '<b>Percent Nitrogen Manure</b> Amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'N recommendation (lb/ac)',
+                                    dataIndex: 'Nrec', 
+                                    width: 120, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Recommended N</b> Recommended N application for crop based on UW-Extension guidelines (A2809)',
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure N allowed (lb/ac)', 
+                                    dataIndex: 'nManure', 
+                                    width:180, 
+                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Manure N allowed for legume crops based on allowable units of nitrogen found in the NRCS-WI Conservation Planning Technical Note 1 - Nutrient Management (590) (dated February 2016; Table 2)',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Fert N Applied (lb/ac)', 
+                                    dataIndex: 'fertAppliedN', 
+                                    width: 160, 
+                                    tooltip: '<b>Applied Nitrogen Fertilizer per Acre</b> Applied amount of N fertilizer per acre',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure N Applied (lb/ac)', 
+                                    dataIndex: 'manuAppliedN', 
+                                    width:180, 
+                                    tooltip: '<b>Nitrogen Applied via Manure per Acre</b> Applied amount of N coming from spread manure per acre',
+                                    editable: false,
+                                },
+                            ]
+                        },
+                        {text: 'Nutrient management (P)',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Fert P', 
+                                    dataIndex: 'fertPercP', 
+                                    width: 80, 
+                                    tooltip: '<b>Percent Phosphorus Fertilizer</b> The amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: '% Manure P', 
+                                    dataIndex: 'manuPercP', 
+                                    width: 110, tooltip: '<b>Percent Phosphorus Manure</b> The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'P removal (lb/ac)', 
+                                    dataIndex: 'pNeeds', 
+                                    width: 80, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Phosphorus Needs of Crop</b> Measured as pounds per acre',
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Fert P Applied (lb/ac)', 
+                                    dataIndex: 'fertAppliedP', 
+                                    width: 160, 
+                                    tooltip: '<b>Applied Phosphorus Fertilizer per Acre</b> Applied amount of P fertilizer per acre',
+                                    editable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Manure P Applied (lb/ac)', 
+                                    dataIndex: 'manuAppliedP', 
+                                    width: 190, 
+                                    tooltip: '<b>Phosphorus Applied via Manure per Acre</b> Applied amount of P coming from spread manure per acre',
+                                    editable: false,
+                                },
+                            ]
+                        },
+                        {text: 'Additional Management',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    text: 'Cover Crop', dataIndex: 'coverCropDisp', width: 180, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Cover Crop</b> Which cover crop is being grown on each field during the none growing season',
+                                },
+                                {
+                                    text: 'Tillage', dataIndex: 'tillageDisp', width: 180, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Tillage</b> Which tillage practice is being used on each field',
+                                },
+                                {
+                                    text: 'On Contour', dataIndex: 'onContour', width: 90, 
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not?',
+                                },
+                                {
+                                    text: 'Grass Species', dataIndex: 'grassSpeciesDisp', width: 150, 
+                                    tooltip: '<b>Low Yielding:</b> Italian ryegrass, Kentucky bluegrass, Quackgrass, Meadow fescue (older varieties)\n<b>Medium Yielding:</b> Meadow fescue (newer varieties), Smooth bromegrass, Timothy, Perennial ryegrass\n<b>High Yielding:</b> Orchardgrass, Reed canary grass, Tall fescue, Festulolium, Hybrid and Meadow bromegrass',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                                {
+                                    text: 'Rotational Frequency', dataIndex: 'rotationFreqDisp', width: 150,
+                                    tooltip: '<b>Pasture Rotational Frequency</b> How often the animals are rotated on and off each paddock. For rotated animals, we assume density - 1 AU/ac for 244 grazing days. For continuous pasture, animal density is defined in the animal density column.',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                                {
+                                    text: 'Interseeded Legume', dataIndex: 'interseededClover', width: 145,
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
+                                },
+                                {
+                                    text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110,
+                                    tooltip: '<b>Grazing Density</b> Pasture continuous high density = 1.5 AU/ac for 244 grazing days; pasture continuous low density = 0.5 AU/ac for 244 grazing days; dry lot low density = 2 AU/ac for 244 days; dry lot high density = 10 AU/ac for 244 days',
+                                    editable: false,
+                                    hideable: false,  minWidth: 24,
+                                    
+                                },
+                            ]
+                        },
+                        {text: 'Summary stats',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    width: 60, 
+                                    format: '0.0',
+                                    text: 'Area',
+                                    dataIndex: 'area',
+                                    //flex: 1,
+                                    tooltip:"in acres",
+                                    editable: false,
+                                    hideable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Soil-P (PPM)', 
+                                    dataIndex: 'soilP',
+                                    width: 100,
+                                    tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
+                                    hideable: false,
+                                },
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Soil-OM (%)', 
+                                    dataIndex: 'soilOM', 
+                                    width: 100, 
+                                    editable: false,
+                                    hideable: false,
+                                    tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
+                                },
+                            ]
+                        },
+                        {text: 'Economics',editable: false, hideable: false, minWidth: 24, border:2, //style: 'border-color: Black',
+                            columns:[
+                                {
+                                    xtype: 'numbercolumn',
+                                    format: '0.0',
+                                    text: 'Land Cost ($/ac)',
+                                    dataIndex: 'landCost',
+                                    tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
+                                    formatter: 'usMoney',
+                                    minWidth: 24,
+                                    width: 110,
+                                    editable: false,
+                                    hideable: false,
+                                },
+                            ]
+                        },
+                    ],
+                    resizable: true,
+                    scrollable: true,
+                    height: 400,
+                    width: 1100,
+                    //renderTo: Ext.getBody(),
+                    
+                })
+                    
+                    // {
+                    //     xtype: 'label',
+                    //     cls: 'information med-text',
+                    //     html: 'Summary Table Dashboard'
+                    // },
+                    //Ext.getCmp('SummaryTable')
+                    
+                ],
+                //scope: this,
+                listeners:{activate: async function() {
+                    console.log("manureP")
+                    console.log(pmanureReturn_array)
+                    console.log(fieldArray)
+                    fieldSummaryArray=[]
+                    fieldSummaryArray = await Assemblefieldsummarry(fieldArray,pmanureReturn_array)
+                    console.log(fieldSummaryArray)
+                    Ext.create('Ext.data.Store', {
+                        storeId: 'fieldSummaryStore1',
+                        alternateClassName: 'DSS.FieldStore',
+                        fields:[ 'field_name', 'soilP', 'soilOM','area', 'crop_ro', 'crop', 'fertAppliedN', 'fertAppliedP', 
+                            'fertPercP','manuPercP','fertPercN','manuPercN','manuAppliedN','manuAppliedP','nManure',
+                            'pNeeds','year','Nrec','grazeDensityDisp','landCost','interseededClover','tillageDisp','coverCropDisp','onContour','grassSpeciesDisp','rotationFreqDisp'],
+                            sorters: ['field_name'],
+                        data: fieldSummaryArray
+                    });
+                    Ext.getCmp('SummaryTable').setStore(Ext.data.StoreManager.lookup('fieldSummaryStore1'));
+			        Ext.getCmp('SummaryTable').store.reload();
+                //     setTimeout(() => {
+                //         //Ext.getCmp('SummaryTable').getView().refresh()
+                //         Ext.getCmp('fieldTable').getView().refresh()
+                //          Ext.getCmp('fieldTable').setHidden(false)
+                //         console.log(ModelSummaryData)
+                // }, "250")
+                    //AppEvents.triggerEvent('show_field_grid');
+                    //fieldSummaryArray = []
+                }}
+
+                },
+                ],
+
+            }
+            var options = {
                 title: '<i class="fas fa-globe"></i>  Options',
                 plain: true,
                 tabConfig:{
@@ -2184,7 +3175,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 ],
 
             }
-            var outputLayers =  { 
+            var outputLayers =  {
             title: 'Mapped Results',
             disabled:true,
             id:"mappedResultsTab",
@@ -2250,104 +3241,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         field_png_lookup({model_field:['ploss'+ String(fArray[i].values_.gid)]},'ploss',fExtentsNum)
                         field_png_lookup({model_field:['ero'+ String(fArray[i].values_.gid)]},'ero',fExtentsNum)
                         field_png_lookup({model_field:['Rotational Average'+ String(fArray[i].values_.gid)]},'yield',fExtentsNum)
+                        field_png_lookup({model_field:['nleaching'+ String(fArray[i].values_.gid)]},'nleaching',fExtentsNum)
                         setTimeout(() => {console.log('sup')},100)
 
-                        //MOVED TO field_png_lookup!! Delete after June 1st 2022 if things are working
-                    //     setTimeout(() => {
-                    //     console.log(plossPNGFile)
-                    //     //-------------------------------------Ploss--------------------------------------
-                    //     DSS.layer.ploss_field = new ol.layer.Image({
-                    //         visible: false,
-                    //         opacity: 1,
-                    //         updateWhileAnimating: true,
-                    //         updateWhileInteracting: true,
-                    //         source: new ol.source.ImageStatic({
-                    //         //url:'/static/grazescape/public/images/ploss'+ plossPNGFile[0]/*'String(fId) + '_' + modelruntimeFromDB + */'.png',
-                    //         url:'/static/grazescape/public/images/'+ plossPNGFile/*'String(fId) + '_' + modelruntimeFromDB + */,
-                    //         imageExtent: fExtentsNum
-                    //         })
-                    //     })
-                    //     //DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
-                    //     DSS.layer.ploss_field.getSource().refresh();
-                    //     DSS.layer.ploss_field.getSource().changed();
-                    //     DSS.map.addLayer(DSS.layer.ploss_field)
-                    //     var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                    //     plossGroupLayers.push(DSS.layer.ploss_field);
-                    //     DSS.map.removeLayer(DSS.layer.ploss_field)
-                    // },500)
-                    //     //--------------------Erosion_---------------------------------------
-                    //     field_png_lookup({model_field:['ero'+ String(fId)]},'ero')
-                    //     setTimeout(() => {
-                    //     console.log(eroPNGFile)
-                    //     DSS.layer.erosion_field = new ol.layer.Image({
-                    //         visible: false,
-                    //         updateWhileAnimating: true,
-                    //         updateWhileInteracting: true,
-                    //         source: new ol.source.ImageStatic({
-                    //         //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                    //         url: '/static/grazescape/public/images/' + eroPNGFile,
-                    //         imageExtent: fExtentsNum
-                    //         })
-                    //     })
-                    //     DSS.layer.erosion_field.set('name', 'ero'+ String(fId));
-                    //     var erosionGroupLayers =DSS.layer.erosionGroup.getLayers().getArray();
-                    //     erosionGroupLayers.push(DSS.layer.erosion_field);
-                    //     DSS.map.removeLayer(DSS.layer.erosion_field)
-                    // },100)
-                    //     //--------------------Runoff_---------------------------------------
-                    //     DSS.layer.runoff_field = new ol.layer.Image({
-                    //         visible: false,
-                    //         updateWhileAnimating: true,
-                    //         updateWhileInteracting: true,
-                    //         source: new ol.source.ImageStatic({
-                    //         url: '/static/grazescape/public/images/Curve Number'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                    //         imageExtent: fExtentsNum
-                    //         })
-                    //     })
-                    //     DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
-                    //     var runoffGroupLayers =DSS.layer.runoffGroup.getLayers().getArray();
-                    //     runoffGroupLayers.push(DSS.layer.runoff_field);
-                    //     DSS.map.removeLayer(DSS.layer.runoff_field)
-                    // //--------------------Yield_---------------------------------------
-                    //     field_png_lookup({model_field:['Rotational Average'+ String(fId)]},'yield')
-                    //     setTimeout(() => {
-                    //         console.log(yieldPNGFile)
-                    //         DSS.layer.yield_field = new ol.layer.Image({
-                    //             visible: false,
-                    //             updateWhileAnimating: true,
-                    //             updateWhileInteracting: true,
-                    //             source: new ol.source.ImageStatic({
-                    //             //url: '/static/grazescape/public/images/Rotational Average'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                    //             url: '/static/grazescape/public/images/'+ yieldPNGFile,
-                    //             imageExtent: fExtentsNum
-                    //             })
-                    //         })
-                    //         DSS.layer.yield_field.set('name', 'Rotational Average'+ String(fId));
-                    //         var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                    //         yieldGroupLayers.push(DSS.layer.yield_field);
-                    //         DSS.map.removeLayer(DSS.layer.yield_field)
-                    //     },100)
-
                     }
-
-                    //OLD LEGACY CODE KEEP PLOSS EXAMPLE FOR REFERENCE!!!!!!!!
-                    //---------------------------------------------------------------------------
-                    // DSS.map.removeLayer(DSS.layer.PLossGroup);
-				    // DSS.map.addLayer(DSS.layer.PLossGroup)
-                    // //DSS.layer.PLossGroup.setVisible(true)
-                    // DSS.layer.PLossGroup.getLayers().forEach(function(layer){
-                    //     layer.setVisible(true)
-                    //     var extents = layer.values_.source.imageExtent_
-                    //     //Use this form when you have unique model run ids.
-                    //     layer.setSource(new ol.source.ImageStatic({
-                    //         url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                    //         imageExtent: extents
-                    //     }))
-                    //     layer.getSource().refresh();
-                    //     layer.getSource().changed();
-                    //     layer.setVisible(false)
-                    // })
-                    
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('40%')
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('60%')
 
@@ -2367,6 +3264,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     DSS.map.addLayer(DSS.layer.PLossGroup)
                     DSS.map.removeLayer(DSS.layer.erosionGroup);
                     DSS.map.addLayer(DSS.layer.erosionGroup)
+                    DSS.map.removeLayer(DSS.layer.nleachingGroup);
+                    DSS.map.addLayer(DSS.layer.nleachingGroup)
                     DSS.map.removeLayer(DSS.layer.runoffGroup);
                     DSS.map.addLayer(DSS.layer.runoffGroup)
                     DSS.map.removeLayer(DSS.layer.yieldGroup);
@@ -2432,6 +3331,72 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 plossGroupLayers.push(DSS.layer.ploss_field);
                                 }
                                 DSS.map.removeLayer(DSS.layer.ploss_field)
+                            }
+                        })
+                    }
+                    for (i in fArray){
+                        console.log("IN NLEACHING LOOK THROUGH LAYERS")
+                        DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
+                            console.log(layer)
+                            var gidFromName = layer.values_.name.slice(9)
+                            console.log(gidFromName)
+                            modelruntime = fArray[i].values_.model_time_stamp
+                            console.log(modelruntime)
+                            if (String(fArray[i].values_.gid)==gidFromName){
+                                var extents = layer.values_.source.imageExtent_
+
+                                //Use this form when you have unique model run ids.
+                                layer.setSource(new ol.source.ImageStatic({
+                                    url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
+                                    imageExtent: extents
+                                }))
+                                layer.getSource().changed();
+                            }else{
+                                modelruntimeFromDB = fArray[i].values_.model_time_stamp
+                                fExtents = fArray[i].values_.geometry.extent_
+                                for(e in fExtents){
+                                    console.log(fExtents[e])
+                                    console.log(typeof fExtents[e])
+                                    fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
+                                }
+                                fExtentsNum = fExtents.map(Number);
+                                var fId = fArray[i].values_.gid
+                                console.log(fExtentsNum)
+                                console.log(fId)
+                                DSS.layer.nleaching_field = new ol.layer.Image({
+                                    visible: false,
+                                    opacity: 1,
+                                    updateWhileAnimating: true,
+                                    updateWhileInteracting: true,
+                                    source: new ol.source.ImageStatic({
+                                    url:'/static/grazescape/public/images/nleaching'+ String(fId) + '_' + modelruntimeFromDB + '.png',
+                                    imageExtent: fExtentsNum
+                                    })
+                                })
+                                DSS.layer.nleaching_field.set('name', 'nleaching'+ String(fId));
+                                DSS.layer.nleaching_field.getSource().refresh();
+                                DSS.layer.nleaching_field.getSource().changed();
+                                DSS.map.addLayer(DSS.layer.nleaching_field)
+                                var nleachingGroupLayers = DSS.layer.nleachingGroup.getLayers().getArray();
+                                if(nleachingGroupLayers.length == 0){
+                                    nleachingGroupLayers.push(DSS.layer.nleaching_field);
+                                }
+                                else{
+                                    for(l in nleachingGroupLayers){
+                                        console.log(nleachingGroupLayers[l].values_.name)
+                                        console.log(DSS.layer.nleaching_field.values_.name)
+                                        if(nleachingGroupLayers[l].values_.name == DSS.layer.nleaching_field.values_.name){
+                                            const index = nleachingGroupLayers.indexOf(nleachingGroupLayers[l]);
+                                            if(index > -1) {
+                                                nleachingGroupLayers.splice(index,1);
+                                                console.log("SPLICED :" + DSS.layer.nleaching_field.values_.name)
+                                            }
+                                            nleachingGroupLayers.push(DSS.layer.nleaching_field);
+                                        }
+                                    }
+                                nleachingGroupLayers.push(DSS.layer.nleaching_field);
+                                }
+                                DSS.map.removeLayer(DSS.layer.nleaching_field)
                             }
                         })
                     }
@@ -2626,18 +3591,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 DSS.map.removeLayer(DSS.layer.yield_field)
                             }
                         })
-                        // DSS.layer.erosionGroup.getLayers().forEach(function(layer){
-                        //     layer.setVisible(true)
-                        //     var extents = layer.values_.source.imageExtent_
-                        //     //Use this form when you have unique model run ids.
-                        //     //layer.getSource().clear()
-                        //     layer.setSource(new ol.source.ImageStatic({
-                        //         url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                        //         imageExtent: extents
-                        //     }))
-                        //     layer.getSource().changed();
-                        // })
-                        
                     }
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('40%')
                     Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('60%')
@@ -2656,6 +3609,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     layer.setVisible(false)
                     //layer.setSource(null)
                 })
+                DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
+                    layer.setVisible(false)
+                    //layer.setSource(null)
+                })
                 DSS.layer.runoffGroup.getLayers().forEach(function(layer){
                     layer.setVisible(false)
                     //layer.setSource(null)
@@ -2666,10 +3623,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 })
                 DSS.layer.yieldGroup.setVisible(false);
                 DSS.layer.erosionGroup.setVisible(false);
+                DSS.layer.nleachingGroup.setVisible(false);
                 DSS.layer.runoffGroup.setVisible(false);
                 DSS.layer.PLossGroup.setVisible(false);
                 DSS.layer.PLossGroup.values_.layers.array_ = [];
 				DSS.layer.erosionGroup.values_.layers.array_ = [];
+                DSS.layer.nleachingGroup.values_.layers.array_ = [];
 				DSS.layer.yieldGroup.values_.layers.array_ = [];
 				DSS.layer.runoffGroup.values_.layers.array_ = [];
             }},
@@ -2735,6 +3694,30 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 								}
 							}
 						},
+                        // {
+						// 	boxLabel: 'Nitrate Leaching',
+						// 	listeners:{change: async function(checked)
+						// 		{
+						// 			if(this.checked){
+						// 				console.log('Nitrate clicked')
+                        //                 DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray,'lbs/acre');
+                        //                 await DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
+                        //                     layer.setVisible(true);
+                        //                     layer.getSource().changed();
+                        //                     layer.getSource().refresh();
+                        //                 })
+                        //                 DSS.layer.nleachingGroup.setVisible(true);
+                        //                 //To FORCE a redraw of the map
+                        //                 DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
+                        //                 setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90);
+						// 			}
+						// 			else{
+						// 				DSS.layer.nleachingGroup.setVisible(false);
+						// 			}
+						// 		}
+						// 	}
+						// },
+
                         // {
 						// 	boxLabel: 'Runoff',
 						// 	listeners:{change: async function(checked)
@@ -2876,19 +3859,50 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             width:'100%',
             tabRotation: 0,
             titleRotation:2,
+            
 //            background is apparently an image
             style: 'border-radius: 8px; background-color: #377338;box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
             listeners: {change:function()
             {
                 console.log('Hi from layers button')
-            }},
+            },
+            enable: function(){
+                console.log("ENABLE")
+            },
+            afterrender: function(){
+                console.log("afterrender")
+            },
+            added: function(){
+                console.log("ADDED")
+            },
+            add: function(){
+                console.log("ADD")
+            },
+            hide: function(){
+                console.log("hide")
+                turnOffMappedResults()
+            },
+            beforehide: function(){
+                console.log("beforehide")
+                turnOffMappedResults()
+            },
+            close: function(){
+                console.log("close")
+                turnOffMappedResults()
+            },},
+            beforeclose: function(){
+                console.log("beforeclose")
+                turnOffMappedResults()
+            },
 //                inner tabs for farm and field scale
             items: [
                 phantom,
+                //summaryTable,
                 //summary,
                 yield,
                 erosion,
                 nutrients,
+                //nitrate,
                 runoff,
                 //feedoutput,
                 bio,
@@ -2897,8 +3911,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 compare,
                 outputLayers,
                 summary,
-                options,
-           ]
+                //options,
+           ],
+           //activeTab: summaryTable,
         })
 
 		Ext.applyIf(me, {
@@ -2921,7 +3936,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                        html: 'Fence Settings',
                     },
                         tabs
-
                 ]
 			}]
 

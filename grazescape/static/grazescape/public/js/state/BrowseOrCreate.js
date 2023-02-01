@@ -48,13 +48,13 @@ Ext.define('DSS.state.BrowseOrCreate', {
 				{
 					xtype: 'component',
 					cls: 'information med-text',
-					html: 'Delete one of your current operations.'
+					html: 'Delete one of your current farms.'
 				},
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Delete Operation',
+					text: 'Delete Farm',
 					tooltip: 'Complete delete a farm and all its scenarios',
 					handler: function() {
 						//Make sure all the features are on the table.

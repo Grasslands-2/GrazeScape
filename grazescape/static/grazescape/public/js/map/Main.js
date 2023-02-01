@@ -13,9 +13,6 @@ let context = canvas.getContext('2d');
 
 var fields_1Source = new ol.source.Vector({
 	format: new ol.format.GeoJSON(),
-	// url: function(extent) {
-	// 	return geoserverURL + geoServer.geoField_Url
-	// },
 });
 //import {getArea, getDistance} from 'ol/sphere';
 //------------------------------------------------------------------------------
@@ -191,10 +188,7 @@ Ext.define('DSS.map.Main', {
 		}
 		
 		DSS.layer = {};
-		
-		// Cookie-based settings persistence, when available
 		me.manageMapLayerCookies();
-		
 		//---------------------------------------------------------
 		DSS.layer.bingAerial = new ol.layer.Tile({
 			visible: true,
@@ -255,14 +249,14 @@ Ext.define('DSS.map.Main', {
 		//---------------------------Region Label Layer-----------------
 		let regionLabel = new ol.style.Style({
 			text: new ol.style.Text({
-				font: '26px Calibri,sans-serif',
+				font: '30px Calibri,sans-serif',
 				overflow: true,
 				fill: new ol.style.Fill({
 				  color: 'rgba(0,0,0,1)',
 				}),
 				stroke: new ol.style.Stroke({
-				  color: 'rgba(255, 255, 255, 0.7)',
-				  width: 1,
+				  color: 'rgba(255, 255, 255, 2.5)',
+				  width: 2,
 				}),
 			  }),
 			zIndex: 0
@@ -1316,6 +1310,10 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
+		DSS.layer.nleachingGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
 		DSS.layer.runoffGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
@@ -1652,6 +1650,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.regionLabels,
 				DSS.layer.fields_1,
 				DSS.layer.erosionGroup,
+				DSS.layer.nleachingGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.runoffGroup,
 				DSS.layer.yieldGroup

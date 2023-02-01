@@ -79,7 +79,7 @@ Ext.define('DSS.field_shapes.Delete', {
 	resizable: true,
 	bodyPadding: 8,
 	//singleton: true,	
-    autoDestroy: false,
+    autoDestroy: true,
     scrollable: 'y',
 	titleAlign: 'center',
 	//title: 'Choose your new Fields Name and Crop Rotation',
@@ -116,28 +116,69 @@ Ext.define('DSS.field_shapes.Delete', {
 					componentCls: 'button-margin',
 					text: 'Yes',
 					formBind: true,
-					handler: function() {
+					handler: async function() {
 						console.log("DELETED!")
-						deleteField(selectedField)
-						alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
+						await deleteField(selectedField)
+						//alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
 						DSS.MapState.removeMapInteractions()
 						AppEvents.triggerEvent('hide_field_draw_mode_indicator')
-						this.up('window').destroy();
+						
 						if(DSS.field_grid.FieldGrid.store){
-							console.log('grid present')
+							console.log("running update")
+						    fieldChangeList = []
+						    fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
+							console.log(fieldChangeList)
 							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
 							selectInteraction.getFeatures().clear()
 							DSS.map.removeInteraction(selectInteraction);
-							setTimeout(function(){
+							selectedFields = []
+							await runFieldUpdate()
+							// console.log('grid present')
+							// AppEvents.triggerEvent('hide_field_grid')
+							// AppEvents.triggerEvent('hide_infra_grid')
+							// DSS.field_grid.FieldGrid.store.clearData();
+							// selectInteraction.getFeatures().clear()
+							// DSS.map.removeInteraction(selectInteraction);
+							setTimeout(async function(){
+								DSS.MapState.destroyLegend();
+								//console.log(DSS.field_grid.FieldGrid.getView()); 
+								DSS.MapState.removeMapInteractions();
+								//Running gatherTableData before showing grid to get latest
 								pastAcreage = 0
 								cropAcreage = 0
-								gatherTableData();
+								await gatherTableData();
 								AppEvents.triggerEvent('show_field_grid');
-							}, 2000);
+								AppEvents.triggerEvent('hide_field_shape_mode');
+								AppEvents.triggerEvent('hide_infra_line_mode');
+							}, 3000);
+					// handler: function() {
+					// 	console.log("DELETED!")
+					// 	deleteField(selectedField)
+					// 	//alert('Field '+ selectedField.values_.field_name+ ' has been deleted.')
+					// 	DSS.MapState.removeMapInteractions()
+					// 	AppEvents.triggerEvent('hide_field_draw_mode_indicator')
+					// 	this.up('window').destroy();
+					// 	if(DSS.field_grid.FieldGrid.store){
+					// 		console.log('grid present')
+					// 		AppEvents.triggerEvent('hide_field_grid')
+					// 		AppEvents.triggerEvent('hide_infra_grid')
+					// 		DSS.field_grid.FieldGrid.store.clearData();
+					// 		selectInteraction.getFeatures().clear()
+					// 		DSS.map.removeInteraction(selectInteraction);
+					// 		setTimeout(async function(){
+					// 			console.log('in delete timeout')
+					// 			pastAcreage = 0
+					// 			cropAcreage = 0
+					// 			//await gatherTableData();
+					// 			refreshview()
+					// 			// AppEvents.triggerEvent('hide_field_grid')
+					// 			AppEvents.triggerEvent('show_field_grid');
+					// 		}, 500);
 
 						}
+						this.up('window').destroy();
 					}
 			    },
 				{
