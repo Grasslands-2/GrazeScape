@@ -181,7 +181,9 @@ class SidePanel extends React.Component{
         this.tillage = React.createRef();
         this.density = React.createRef();
         this.contour = React.createRef();
-        this.fertilizer = React.createRef();
+//        this.fertilizer = React.createRef();
+        this.nitrogen = React.createRef();
+        this.nitrogen_fertilizer = React.createRef();
 
         this.p2o5 = React.createRef();
         this.nFert = React.createRef();
@@ -287,13 +289,17 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"100", "type":"mang"})
                 }
 //                clover belt for now
                else{
-                this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"100", "type":"mang"})
                }
 
 //                this.setState({showHuc10:true})
@@ -364,14 +370,16 @@ class SidePanel extends React.Component{
         this.setState({baseModalShow: true})
       }
     showModal(){
-//        console.log("showing modal")
-//        console.log(this.props)
+        console.log("showing modal")
+        console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
         this.cover.current.value = this.props.baseTrans.management.cover
         this.tillage.current.value = this.props.baseTrans.management.tillage
 //        this.density.current.value = this.props.baseTrans.management.density
         this.contour.current.value = this.props.baseTrans.management.contour
-        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
+//        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
+        this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
+        this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
         this.nFert.current.value = this.props.baseTrans.econ.nFert
@@ -531,6 +539,8 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"nitrogen", "value":"100", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"100", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
         this.setState({aoiOrDisplayLoading:false})
 //        document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
@@ -591,6 +601,10 @@ class SidePanel extends React.Component{
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
     newTrans.management.fertilizer = "0_100"
+    newTrans.management.nitrogen = "0"
+    newTrans.management.nitrogen_fertilizer = "0"
+    newTrans.management.phos_fertilizer = "0"
+    newTrans.management.legume = false
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
     newTrans.management.tillage = "su"
@@ -957,14 +971,14 @@ class SidePanel extends React.Component{
         }.bind(this), 3000)
 
     }
-    renderModal(){
+renderModal(){
 //     let width = document.getElementById("modalResults").offsetWidth
 //     this.setState({ speedometerWidth: width});
     var pdf = new jsPDF('p', 'pt',"letter" )
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics"
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Nitrate Leaching"
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
@@ -972,6 +986,7 @@ class SidePanel extends React.Component{
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
         "econ":null, "econ_total":null,"econ_per_diff":null,
+        "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -981,7 +996,9 @@ class SidePanel extends React.Component{
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
-         "econ":null, "econ_total":null,"econ_per_diff":null,
+        "econ":null, "econ_total":null,"econ_per_diff":null,
+         "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
+
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -992,6 +1009,8 @@ class SidePanel extends React.Component{
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
          "econ":null, "econ_total":null,"econ_per_diff":null,
+        "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
+
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -1002,6 +1021,8 @@ class SidePanel extends React.Component{
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
          "econ":null, "econ_total":null,"econ_per_diff":null,
+      "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
+
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -1011,11 +1032,11 @@ class SidePanel extends React.Component{
     let area = 0
     let areaWatershed = 0
     let areaWatershedCalc = 0
-    let radarData = [[1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2]]
+    let radarData = [[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40,40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40,40])
 
     this.dataYield = charts.getChartDataBar([1,null], [null,5])
     let dataEro= dataBarPercent
@@ -1025,6 +1046,7 @@ class SidePanel extends React.Component{
     let dataCN = dataBarPercent
     let dataBird = dataBarPercent
     let dataEcon = dataBarPercent
+    let dataNitrate = dataBarPercent
 
     let dataYieldWatershed = dataBarPercent
     let dataEroWatershed= dataBarPercent
@@ -1034,6 +1056,7 @@ class SidePanel extends React.Component{
     let dataCNWatershed = dataBarPercent
     let dataBirdWatershed = dataBarPercent
     let dataEconWatershed = dataBarPercent
+    let dataNitrateWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
@@ -1044,6 +1067,7 @@ class SidePanel extends React.Component{
     let optionsCN = optionsBarPercent
     let optionsBird= optionsBarPercent
     let optionsEcon= optionsBarPercent
+    let optionsNitrate= optionsBarPercent
     let configErosionGauge = {
       type: "gauge",
       legend: {
@@ -1118,6 +1142,8 @@ class SidePanel extends React.Component{
         model.ploss_total = this.state.modelOutputs.model.ploss.total
         model.econ = this.state.modelOutputs.model.econ.total_per_area
         model.econ_total = this.state.modelOutputs.model.econ.total
+        model.nitrate = this.state.modelOutputs.model.nitrate.total_per_area
+        model.nitrate_total = this.state.modelOutputs.model.nitrate.total
 
         model.cn = this.state.modelOutputs.model.cn.total_per_area
         model.runoff = this.state.modelOutputs.model.runoff.total_per_area
@@ -1133,6 +1159,8 @@ class SidePanel extends React.Component{
         base.ploss_total = this.state.modelOutputs.base.ploss.total
         base.econ = this.state.modelOutputs.base.econ.total_per_area
         base.econ_total = this.state.modelOutputs.base.econ.total
+        base.nitrate = this.state.modelOutputs.base.nitrate.total_per_area
+        base.nitrate_total = this.state.modelOutputs.base.nitrate.total
 
         base.cn = this.state.modelOutputs.base.cn.total_per_area
         base.runoff = this.state.modelOutputs.base.runoff.total_per_area
@@ -1149,6 +1177,8 @@ class SidePanel extends React.Component{
         modelWatershed.ploss_total = this.state.modelOutputs.model.ploss.total_watershed
         modelWatershed.econ = this.state.modelOutputs.model.econ.total_per_area_watershed
         modelWatershed.econ_total = this.state.modelOutputs.model.econ.total_watershed
+        modelWatershed.nitrate = this.state.modelOutputs.model.nitrate.total_per_area_watershed
+        modelWatershed.nitrate_total = this.state.modelOutputs.model.nitrate.total_watershed
 
         modelWatershed.cn = this.state.modelOutputs.model.cn.total_per_area_watershed
         modelWatershed.runoff = this.state.modelOutputs.model.runoff.total_per_area_watershed
@@ -1164,6 +1194,8 @@ class SidePanel extends React.Component{
         baseWatershed.ploss_total = this.state.modelOutputs.base.ploss.total_watershed
         baseWatershed.econ = this.state.modelOutputs.base.econ.total_per_area_watershed
         baseWatershed.econ_total = this.state.modelOutputs.base.econ.total_watershed
+        baseWatershed.nitrate = this.state.modelOutputs.base.nitrate.total_per_area_watershed
+        baseWatershed.nitrate_total = this.state.modelOutputs.base.nitrate.total_watershed
 
         baseWatershed.cn = this.state.modelOutputs.base.cn.total_per_area_watershed
         baseWatershed.runoff = this.state.modelOutputs.base.runoff.total_per_area_watershed
@@ -1197,6 +1229,7 @@ class SidePanel extends React.Component{
                   model.cn/base.cn,
                   model.bird/base.bird,
                   model.econ/base.econ,
+                  model.nitrate/base.nitrate,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1225,6 +1258,7 @@ class SidePanel extends React.Component{
                   modelWatershed.cn/baseWatershed.cn,
                   modelWatershed.bird/baseWatershed.bird,
                   modelWatershed.econ/baseWatershed.econ,
+                  modelWatershed.nitrate/baseWatershed.nitrate,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1235,7 +1269,7 @@ class SidePanel extends React.Component{
 
 
 
-        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ"]
+        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ","nitrate" ]
         let v1, v2 = 0
         let model_name = ""
 //        calculate percent difference
@@ -1296,6 +1330,7 @@ class SidePanel extends React.Component{
                 model.cn_per_diff,
                 model.bird_per_diff,
                 model.econ_per_diff,
+                model.nitrate_per_diff,
 
             ],
             fill: false,
@@ -1308,6 +1343,7 @@ class SidePanel extends React.Component{
               'rgba(153, 102, 255, 0.2)',
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -1318,6 +1354,7 @@ class SidePanel extends React.Component{
               'rgb(153, 102, 255)',
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
+              'rgb(255, 99, 132)',
             ],
             borderWidth: 1
           }]
@@ -1336,6 +1373,7 @@ class SidePanel extends React.Component{
                 modelWatershed.cn_per_diff,
                 modelWatershed.bird_per_diff,
                 modelWatershed.econ_per_diff,
+                modelWatershed.nitrate_per_diff,
 
             ],
             fill: false,
@@ -1348,6 +1386,8 @@ class SidePanel extends React.Component{
               'rgba(153, 102, 255, 0.2)',
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -1358,6 +1398,7 @@ class SidePanel extends React.Component{
               'rgb(153, 102, 255)',
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
+              'rgb(255, 99, 132)',
             ],
             borderWidth: 1
           }]
@@ -1370,6 +1411,8 @@ class SidePanel extends React.Component{
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
         dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
         dataEcon = charts.getChartDataBar([base.econ,null], [null,model.econ])
+        dataNitrate = charts.getChartDataBar([base.nitrate,null], [null,model.nitrate])
+
         dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
         dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
         dataPlossWatershed= charts.getChartDataBar([baseWatershed.ploss,null], [null,modelWatershed.ploss])
@@ -1378,6 +1421,7 @@ class SidePanel extends React.Component{
         dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
         dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
         dataEconWatershed = charts.getChartDataBar([baseWatershed.econ,null], [null,modelWatershed.econ])
+        dataNitrateWatershed = charts.getChartDataBar([baseWatershed.nitrate,null], [null,modelWatershed.nitrate])
 
         this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
@@ -1387,6 +1431,7 @@ class SidePanel extends React.Component{
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
         optionsEcon = charts.getOptionsBar("Production Cost", "$acre/year")
+        optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
         configErosionGauge = {
   type: "gauge",
   'scale-r': {
@@ -1471,6 +1516,14 @@ class SidePanel extends React.Component{
                     </Col>
 
                 </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsNitrate} data={dataNitrate}/>
+                    </Col>
+                    <Col xs={6}>
+                    </Col>
+
+                </Row>
                   <h4>By Watershed</h4>
 
                  <Row>
@@ -1503,6 +1556,13 @@ class SidePanel extends React.Component{
                     </Col>
                     <Col xs={6}>
                         <Bar options = {optionsEcon} data={dataEconWatershed}/>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsNitrate} data={dataNitrateWatershed}/>
+                    </Col>
+                    <Col xs={6}>
                     </Col>
                 </Row>
               </Tab>
@@ -1581,6 +1641,17 @@ class SidePanel extends React.Component{
                       <td>{model.ploss_total}</td>
                       <td>lb/year</td>
                       <td className="table-cell-left">{model.ploss_per_diff}</td>
+                      <td></td>
+                    </tr>
+                     <tr>
+                      <td>Nitrate Leaching</td>
+                      <td className="table-cell-left">{base.nitrate}</td>
+                      <td>{model.nitrate}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{base.nitrate_total}</td>
+                      <td>{model.nitrate_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{model.nitrate_per_diff}</td>
                       <td></td>
                     </tr>
                    <tr>
@@ -1696,6 +1767,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{modelWatershed.ploss_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>Nitrate Leaching</td>
+                      <td className="table-cell-left">{baseWatershed.nitrate}</td>
+                      <td>{modelWatershed.nitrate}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.nitrate_total}</td>
+                      <td>{modelWatershed.nitrate_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{modelWatershed.nitrate_per_diff}</td>
+                      <td></td>
+                    </tr>
                    <tr>
                       <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {baseWatershed.runoff}</td>
@@ -1778,6 +1860,7 @@ class SidePanel extends React.Component{
                 <Bar id = "selChart6" options = {optionsCN} data={dataCN}/>
                 <Bar id = "selChart7" options = {optionsBird} data={dataBird}/>
                 <Bar id = "selChart8" options = {optionsEcon} data={dataEcon}/>
+                <Bar id = "selChart8" options = {optionsNitrate} data={dataNitrate}/>
 
                 <Bar id = "watChart1" options = {this.optionsYield} data={dataYieldWatershed}/>
                 <Bar id = "watChart2" options = {optionsEro} data={dataEroWatershed}/>
@@ -1787,6 +1870,7 @@ class SidePanel extends React.Component{
                 <Bar id = "watChart6" options = {optionsCN} data={dataCNWatershed}/>
                 <Bar id = "watChart7" options = {optionsBird} data={dataBirdWatershed}/>
                 <Bar id = "watChart8" options = {optionsEcon} data={dataEconWatershed}/>
+                <Bar id = "watChart8" options = {optionsNitrate} data={dataNitrateWatershed}/>
 
                 <Radar id = "comChart1" data={dataRadar}/>
                 <Bar id = "comChart2" options = {optionsBarPercent} data={dataBarPercent}/>
@@ -2210,8 +2294,8 @@ class SidePanel extends React.Component{
                      <Stack gap={3}>
                      {/*
 
-                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      */}
+                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
@@ -2225,8 +2309,8 @@ class SidePanel extends React.Component{
             </Accordion>
             {/*
 
-                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             */}
+                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>
@@ -2276,6 +2360,7 @@ class SidePanel extends React.Component{
                       <option value="1">Yes</option>
                       <option value="na">N/A</option>
                     </Form.Select>
+                    {/*
                      <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.fertilizer}
                       onChange={(e) => this.updateActiveBaseProps("fertilizer", e)}>
@@ -2288,6 +2373,29 @@ class SidePanel extends React.Component{
                       <option value="200_0">200/	0</option>
                       <option value="25_50">25/	50</option>
                       <option value="50_50">50/	50</option>
+                    </Form.Select>
+                    */}
+                    <Form.Label>Nitrogen Manure</Form.Label>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen}
+                      onChange={(e) => this.updateActiveBaseProps("nitrogen", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <Form.Label>Nitrogen Fertilizer</Form.Label>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
+                      onChange={(e) => this.updateActiveBaseProps("nitrogen_fertilizer", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
                     </Form.Select>
                  </Tab>
                  <Tab eventKey="economics" title="Economics">

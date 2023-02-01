@@ -107,7 +107,9 @@ class TransformationTable extends Component {
     this.tillage = React.createRef();
     this.density = React.createRef();
     this.contour = React.createRef();
-    this.fertilizer = React.createRef();
+//    this.fertilizer = React.createRef();
+    this.nitrogen = React.createRef();
+    this.nitrogen_fertilizer = React.createRef();
     this.grassYield = React.createRef();
     this.rotFreq = React.createRef();
   }
@@ -139,7 +141,9 @@ class TransformationTable extends Component {
         console.log("showing modal")
         this.rotationType.current.value = this.props.activeTrans.management.rotationType
         this.density.current.value = this.props.activeTrans.management.density
-        this.fertilizer.current.value = this.props.activeTrans.management.fertilizer
+//        this.fertilizer.current.value = this.props.activeTrans.management.fertilizer
+        this.nitrogen.current.value = this.props.activeTrans.management.nitrogen
+        this.nitrogen_fertilizer.current.value = this.props.activeTrans.management.nitrogen_fertilizer
         this.cover.current.value = this.props.activeTrans.management.cover
         this.tillage.current.value = this.props.activeTrans.management.tillage
         this.contour.current.value = this.props.activeTrans.management.contour
@@ -458,17 +462,28 @@ class TransformationTable extends Component {
                       <option value="0">No</option>
                       <option value="1">Yes</option>
                     </Form.Select>
-                    <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
-                     <Form.Select aria-label="Default select example" ref={this.fertilizer}
-                      onChange={(e) => this.handleSelectionChange("fertilizer", e)}>
-                      <option value="0_0">0/	0</option>
-                      <option value="0_100">0/	100</option>
-                      <option value="100_0">100/	0</option>
-                      <option value="150_0">150/	0</option>
-                      <option value="200_0">200/	0</option>
-                      <option value="25_50">25/	50</option>
-                      <option value="50_0">50/	0</option>
-                      <option value="50_50">50/	50</option>
+
+                    <Form.Label>Nitrogen Manure</Form.Label>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen}
+                      onChange={(e) => this.handleSelectionChange("nitrogen", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <Form.Label>Nitrogen Fertilizer</Form.Label>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
+                      onChange={(e) => this.handleSelectionChange("nitrogen_fertilizer", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
                     </Form.Select>
                     <OverlayTrigger key="top111111" placement="top" overlay={<Tooltip>The percentage of land in the Transformation to change</Tooltip>}>
                     <Row>

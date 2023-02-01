@@ -76,6 +76,10 @@ function Transformation(name, id, rank){
             tillage:"default",
             contour:"default",
             fertilizer:"default",
+            nitrogen:"default",
+            nitrogen_fertilizer:"default",
+            phos_fertilizer:"default",
+            legume:"default",
             // only for pasture
             density:"default",
             grassYield:"default",
