@@ -441,7 +441,9 @@ class SmartScape:
         area_selected_total = aoi_area_total * np.count_nonzero(arr > 0) / np.count_nonzero(arr > self.no_data)
         print("total area selected by transformations aoi ", area_selected_total)
         print("total area in aoi ", aoi_area_total)
-
+        om_filepath = os.path.join(self.in_dir, self.region + "_om_30m" + ".tif")
+        om_image = gdal.Open(om_filepath)
+        om_array = om_image.GetRasterBand(1).ReadAsArray()
         # open model results raster
         model_list = ["ploss", "cn", "insect", "econ", "nitrate"]
         # {1:{"yield":"filename", "ero": "filename:}}
@@ -473,7 +475,7 @@ class SmartScape:
                     "insect": 0,
                     "bird": 0,
                     "econ": 0,
-                    "number_cells": 0,
+                    "nitrate": 0,
                     "total_cells": 0
                 }
                 result_list[result] = model
@@ -487,22 +489,16 @@ class SmartScape:
             print("The layer number is ", layer)
             for model in model_list:
                 print(model)
-
                 if model == "nitrate":
                     print("nitrate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                     ero_filepath = os.path.join(self.in_dir, layer_dic[layer]["ero"] + ".tif")
                     ero_image = gdal.Open(ero_filepath)
                     ero_arr = ero_image.GetRasterBand(1).ReadAsArray()
-
-                    om_filepath = os.path.join(self.in_dir, self.region + "_om_30m" + ".tif")
-                    om_image = gdal.Open(om_filepath)
-                    om_array = om_image.GetRasterBand(1).ReadAsArray()
                     om = np.where(
-                        np.logical_and(model_data[model] == layer, om_array != self.no_data
-                                       ), om_array, 0
+                        np.logical_and(model_data[model] == layer, om_array != self.no_data), om_array, 0
                     )
-                    print("om average again ", om)
+                    print("om ", om)
                     print("layer dic  ", layer_dic[layer])
                     print("soy" in layer_dic[layer])
                     # tranformation is a row crop
@@ -531,8 +527,6 @@ class SmartScape:
                     n_parameters = self.get_nitrate_params(tran, model_data[model], layer)
                     inter_data = self.nitrate_calc(n_parameters, tran, inter_data_yield, inter_data_ero, om, layer,
                                                    model_data, cell_count_trans)
-
-
 
                 elif model == "econ":
                     inter_data = np.where(model_data[model] == layer,
@@ -637,6 +631,7 @@ class SmartScape:
             "runoff": np.copy(landuse_arr_sel),
             "insect": np.copy(landuse_arr_sel),
             "econ": np.copy(landuse_arr_sel),
+            "nitrate": np.copy(landuse_arr_sel),
         }
         base_image = gdal.Open(os.path.join(base_dir, "contCorn_CN.tif"))
         base_arr_corn_cn = base_image.GetRasterBand(1).ReadAsArray()
@@ -662,6 +657,14 @@ class SmartScape:
         cont_yield = field_yield["contCorn"]
         corn_yield = field_yield["cornGrain"]
         dairy_yield = field_yield["dairyRotation"]
+        print("base scenario info", base_scen)
+        # calculate base case parameters for nitrate
+        n_parameters = self.get_nitrate_params_base(base_scen, base_data["nitrate"], total_cells)
+        print("base n parameters", n_parameters)
+        base_nitrate_data = self.nitrate_calc_base(n_parameters, base_scen,
+                                                   hay_yield_arr, cont_yield, corn_yield, dairy_yield,
+                                                   hay_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
+                                                   om, total_cells)
 
         watershed_land_use_image = gdal.Open(os.path.join(self.geo_folder, "landuse_aoi-clipped.tif"))
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
@@ -700,6 +703,7 @@ class SmartScape:
             "runoff": np.copy(watershed_land_use),
             "insect": np.copy(watershed_land_use),
             "econ": np.copy(watershed_land_use),
+            "nitrate": np.copy(watershed_land_use),
         }
         watershed_total = {
             1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93, "insect": 0.51,
@@ -707,25 +711,28 @@ class SmartScape:
             2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 0.81, "cn": 85, "insect": 0.51,
                 "bird": 0, "econ": 0, "nitrate": 0},
             4: {"name": "contCorn", "is_calc": True, "yield": cont_yield, "ero": cont_er_arr, "ploss": cont_pl_arr,
-                "cn": base_arr_corn_cn, "insect": 0.51, "bird": 0, "econ": econ_cost["contCorn"], "nitrate": 0},
+                "cn": base_arr_corn_cn, "insect": 0.51, "bird": 0, "econ": econ_cost["contCorn"],
+                "nitrate": base_nitrate_data["corn"]},
             3: {"name": "cornGrain", "is_calc": True, "yield": corn_yield, "ero": corn_er_arr, "ploss": corn_pl_arr,
-                "cn": base_arr_corngrain_cn, "insect": 0.51, "bird": 0, "econ": econ_cost["cornGrain"], "nitrate": 0},
+                "cn": base_arr_corngrain_cn, "insect": 0.51, "bird": 0, "econ": econ_cost["cornGrain"],
+                "nitrate": base_nitrate_data["cash_grain"]},
             5: {"name": "dairyRotation", "is_calc": True, "yield": dairy_yield, "ero": dairy_er_arr,
                 "ploss": dairy_pl_arr,
-                "cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0, "econ": econ_cost["dairyRotation"], "nitrate": 0},
+                "cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0, "econ": econ_cost["dairyRotation"],
+                "nitrate": base_nitrate_data["dairy"]},
             6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
                 "bird": 0,
                 "econ": econ_cost["contCorn"], "nitrate": 0},
             7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12, "bird": 0,
                 "econ": econ_cost["contCorn"], "nitrate": 0},
             8: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "ploss": hay_pl_arr,
-                "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"], "nitrate": 0},
+                "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"],
+                "nitrate": base_nitrate_data["hay"]},
             9: {"name": "pasture", "is_calc": True, "yield": pasture_yield_arr, "ero": pasture_er_arr,
                 "ploss": pasture_pl_arr, "cn": pasture_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"],
                 "nitrate": 0},
             10: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr,
-                 "ploss": hay_pl_arr,
-                 "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
+                 "ploss": hay_pl_arr, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
             11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
                  "bird": 0, "econ": 0, "nitrate": 0},
             12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0, "bird": 0,
@@ -755,7 +762,9 @@ class SmartScape:
             base_data["ploss"] = np.where(base_data["ploss"] == land, watershed_total[land]["ploss"],
                                           base_data["ploss"])
             base_data["econ"] = np.where(base_data["econ"] == land, watershed_total[land]["econ"], base_data["econ"])
-        model_list_runoff = ["yield", "ero", "ploss", "cn", "insect", "econ", "runoff"]
+            base_data["nitrate"] = np.where(base_data["nitrate"] == land, watershed_total[land]["nitrate"],
+                                            base_data["nitrate"])
+        model_list_runoff = ["yield", "ero", "ploss", "cn", "insect", "econ", "runoff", "nitrate"]
         for layer in layer_dic:
             for model in model_list_runoff:
                 inter_data = np.where(model_data[model] == layer, base_data[model], 0)
@@ -790,7 +799,12 @@ class SmartScape:
             np.logical_or(base_data["econ"] == self.no_data, base_data["econ"] < 0),
             0, base_data["econ"])
         sum_base_econ = np.sum(landuse_arr_sel)
-
+        landuse_arr_sel = np.where(
+            np.logical_or(base_data["nitrate"] == self.no_data, base_data["nitrate"] < 0),
+            0, base_data["nitrate"])
+        sum_base_nitrate = np.sum(landuse_arr_sel)
+        # for each land type in the region we are going to replace cells (the land codes)
+        # in the base case with model outputs for each model (the base model not the transformed model)
         for land_type in watershed_total:
             base_data_watershed["yield"] = np.where(base_data_watershed["yield"] == land_type,
                                                     watershed_total[land_type]["yield"], base_data_watershed["yield"])
@@ -806,8 +820,11 @@ class SmartScape:
             base_data_watershed["econ"] = np.where(base_data_watershed["econ"] == land_type,
                                                    watershed_total[land_type]["econ"],
                                                    base_data_watershed["econ"])
+            base_data_watershed["nitrate"] = np.where(base_data_watershed["nitrate"] == land_type,
+                                                      watershed_total[land_type]["nitrate"],
+                                                      base_data_watershed["nitrate"])
             base_data_watershed["runoff"] = self.get_runoff_vectorized(base_data_watershed["cn"], 3)
-
+        # copy the base condition model files, so we can eventually replace the selected cells.
         model_data_watershed = {
             "yield": np.copy(base_data_watershed["yield"]),
             "ero": np.copy(base_data_watershed["ero"]),
@@ -816,9 +833,10 @@ class SmartScape:
             "runoff": np.copy(base_data_watershed["runoff"]),
             "insect": np.copy(base_data_watershed["insect"]),
             "econ": np.copy(base_data_watershed["econ"]),
+            "nitrate": np.copy(base_data_watershed["nitrate"]),
         }
-        # zero out the cells in the model that are selected because we already have that data
         for model in model_data_watershed:
+            # replace base cells with transformed cells
             if model == "runoff":
                 model_data_watershed[model] = np.where(
                     model_data[model] > 0, 0,
@@ -828,11 +846,13 @@ class SmartScape:
                 model_data_watershed[model] = np.where(
                     np.logical_and(model_data[model] != self.no_data, model_data[model] != -88), 0,
                     model_data_watershed[model])
-
+            # zero out bad cells
             inter_data = np.where(
                 np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
                 0, model_data_watershed[model])
             inter_data = np.sum(inter_data)
+            #
+            # put all data in first trans because already calculated the data for each trans
             model_data_gross[1]["selection_watershed"][model] = inter_data
 
         model_data_gross[1]["selection_watershed"]["total_cells"] = total_cells
@@ -854,6 +874,7 @@ class SmartScape:
         sum_model_insect = 0
         sum_model_econ = 0
         sum_model_bird = 0
+        sum_model_nitrate = 0
 
         sum_model_yield_watershed = 0
         sum_model_ero_watershed = 0
@@ -863,6 +884,7 @@ class SmartScape:
         sum_model_insect_watershed = 0
         sum_model_econ_watershed = 0
         sum_model_bird_watershed = 0
+        sum_model_nitrate_watershed = 0
 
         layer_count = 0
         trans_adoption_total = 0
@@ -897,6 +919,9 @@ class SmartScape:
                                                model_data_gross[trans_layer]["base"]["econ"] * base_adpotion)
             sum_model_bird = sum_model_bird + (model_data_gross[trans_layer]["selection"]["bird"] * trans_adpotion +
                                                model_data_gross[trans_layer]["base"]["bird"] * base_adpotion)
+            sum_model_nitrate = sum_model_nitrate + (
+                    model_data_gross[trans_layer]["selection"]["nitrate"] * trans_adpotion +
+                    model_data_gross[trans_layer]["base"]["nitrate"] * base_adpotion)
 
             # These are really just the base scenario values with zero values where the model results will go
             sum_model_yield_watershed = sum_model_yield_watershed + \
@@ -912,6 +937,9 @@ class SmartScape:
                                          model_data_gross[trans_layer]["selection_watershed"]["insect"]
             sum_model_econ_watershed = sum_model_econ_watershed + model_data_gross[trans_layer]["selection_watershed"][
                 "econ"]
+            sum_model_nitrate_watershed = sum_model_nitrate_watershed + \
+                                          model_data_gross[trans_layer]["selection_watershed"][
+                                              "nitrate"]
 
         sum_model_yield_watershed = sum_model_yield_watershed + sum_model_yield
         sum_model_ero_watershed = sum_model_ero_watershed + sum_model_ero
@@ -920,6 +948,8 @@ class SmartScape:
         sum_model_runoff_watershed = sum_model_runoff_watershed + sum_model_runoff
         sum_model_insect_watershed = sum_model_insect_watershed + sum_model_insect
         sum_model_econ_watershed = sum_model_econ_watershed + sum_model_econ
+        sum_model_nitrate_watershed = sum_model_nitrate_watershed + sum_model_nitrate
+
         # the base bird value for the watershed is different then the model bird value for the watershed
         # base_watershed_bird_sum_base_value
         sum_model_bird_watershed = sum_model_bird_watershed + model_data_gross[1]["base_watershed"]["bird"] * (
@@ -992,7 +1022,6 @@ class SmartScape:
                     "total_per_area_watershed": str("%.2f" % (np.sum(base_data_watershed["insect"]) / total_cells)),
                     "units": ""
                 },
-
                 "runoff": {
                     "total": "{:,.2f}".format(sum_base_runoff / 12 / selected_cells * area_selected),
                     "total_per_area": str("%.2f" % (sum_base_runoff / selected_cells)),
@@ -1006,6 +1035,13 @@ class SmartScape:
                     "total_per_area": "{:,.2f}".format(base_bird_sum / selected_cells),
                     "total_watershed": "{:,.2f}".format(0),
                     "total_per_area_watershed": "{:,.2f}".format(base_watershed_bird_sum / total_cells)
+                },
+                "nitrate": {
+                    "total": "{:,.2f}".format(sum_base_nitrate / selected_cells * area_selected),
+                    "total_per_area": "{:,.2f}".format(sum_base_nitrate / selected_cells),
+                    "total_watershed": "{:,.2f}".format(
+                        np.sum(base_data_watershed["nitrate"]) / total_cells * area_watershed),
+                    "total_per_area_watershed": "{:,.2f}".format(np.sum(base_data_watershed["nitrate"]) / total_cells)
                 }
             },
             "model": {
@@ -1033,8 +1069,7 @@ class SmartScape:
                 "yield": {
                     "total": "{:,.2f}".format(sum_model_yield / selected_cells * area_selected),
                     "total_per_area": str("%.2f" % (sum_model_yield / selected_cells)),
-                    "total_watershed": "{:,.2f}".format(
-                        sum_model_yield_watershed / total_cells * area_watershed),
+                    "total_watershed": "{:,.2f}".format(sum_model_yield_watershed / total_cells * area_watershed),
                     "total_per_area_watershed": str("%.2f" % (sum_model_yield_watershed / total_cells)),
                     "units": "Yield (tons-Dry Matter/year)"
                 },
@@ -1066,6 +1101,12 @@ class SmartScape:
                     "total_per_area": "{:,.2f}".format(sum_model_bird / selected_cells),
                     "total_watershed": "{:,.2f}".format(0),
                     "total_per_area_watershed": "{:,.2f}".format(sum_model_bird_watershed / total_cells)
+                },
+                "nitrate": {
+                    "total": "{:,.2f}".format(sum_model_nitrate / selected_cells * area_selected),
+                    "total_per_area": "{:,.2f}".format(sum_model_nitrate / selected_cells),
+                    "total_watershed": "{:,.2f}".format(sum_model_nitrate_watershed / total_cells * area_watershed),
+                    "total_per_area_watershed": "{:,.2f}".format(sum_model_nitrate_watershed / total_cells)
                 }
             },
             "land_stats": {
@@ -1085,19 +1126,8 @@ class SmartScape:
 
         }
 
-    def convert_to_units_per_acre(self, value):
-        return
-
-    def get_model_stats(self):
-        """
-        Get statistics from selected cells and all cells in selected area for baseline and model runs
-        Returns
-        -------
-
-        """
-        return 1
-
     def get_runoff_vectorized(self, cn, rain):
+        cn = np.where(cn < 1, 1, cn)
         stor = (1000 / cn) - 10
         event = np.where(rain > 0.2 * stor,
                          np.power(rain - 0.2 * stor, 2) / (rain + 0.8 * stor),
@@ -1390,30 +1420,31 @@ class SmartScape:
         print("nresponse_average ", nresponse_average)
 
         om_average = self.calc_om_level(om_average)
+        nresponse_average = self.calc_nresponse_level(nresponse_average)
         # calculate dentriloss
-        print(self.nrec_dict)
+        # print(self.nrec_dict)
         nresponse_col = str(nresponse_average)
         om_col = str(om_average)
-        print("average om ", nresponse_col)
-        print("average nResponse ", om_col)
+        print("average nResponse ", nresponse_col)
+        print("average om ", om_col)
 
         # need to do this step for each component of the rotation
         # get parameters and  average
         # pasture
         cover = tran["management"]["cover"]
         rotation_type = nrec[tran["management"]["rotationType"]]
-        nrec_trans_pasture_values = 0
+        nrec_trans_pasture_values = {}
 
-        nrec_trans_cont_values = 0
+        nrec_trans_cont_values = {}
 
-        nrec_trans_corn_values = 0
-        nrec_trans_soy_values = 0
+        nrec_trans_corn_values = {}
+        nrec_trans_soy_values = {}
 
-        nrec_trans_corn_values = 0
-        nrec_trans_silage_values = 0
-        nrec_trans_alfalfa_values = 0
-        nrec_trans_alfalfa_seed_values = 0
-
+        nrec_trans_corn_values = {}
+        nrec_trans_silage_values = {}
+        nrec_trans_alfalfa_values = {}
+        nrec_trans_alfalfa_seed_values = {}
+        # print("crop type", tran["management"]["rotationType"])
         if tran["management"]["rotationType"] == "pasture":
             if tran["management"]["legume"] == "false":
                 legume = "legume"
@@ -1424,6 +1455,7 @@ class SmartScape:
             # pasture only uses om
             nrec_trans = rotation_type + "_" + density + "_" + legume + "_" + tran["management"][
                 "rotationType"] + "_" + cover + "_" + "om" + "_" + om_col
+            print("pasture nrec code", nrec_trans)
             nrec_trans_pasture_values = self.nrec_dict[nrec_trans]
 
             for value in nrec_trans_pasture_values:
@@ -1441,12 +1473,12 @@ class SmartScape:
         elif tran["management"]["rotationType"] == "cornGrain":
             nrec_trans_corn = rotation_type + "_" + "corngrain" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
             nrec_trans_soy = rotation_type + "_" + "soybeans" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
-
             nrec_trans_corn_values = self.nrec_dict[nrec_trans_corn]
             nrec_trans_soy_values = self.nrec_dict[nrec_trans_soy]
 
             for value in nrec_trans_corn_values:
-                nrec_output[value] = (0.5 * float(nrec_trans_corn_values[value]) + 0.5 * float(nrec_trans_soy_values[value]))
+                nrec_output[value] = (
+                        0.5 * float(nrec_trans_corn_values[value]) + 0.5 * float(nrec_trans_soy_values[value]))
 
         elif tran["management"]["rotationType"] == "dairyRotation":
             nrec_trans_corn = rotation_type + "_" + "corngrain" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
@@ -1459,12 +1491,13 @@ class SmartScape:
             nrec_trans_alfalfa_values = self.nrec_dict[nrec_trans_alfalfa]
             nrec_trans_alfalfa_seed_values = self.nrec_dict[nrec_trans_alfalfa_seed]
 
-            for value in nrec_trans_corn:
+            for value in nrec_trans_corn_values:
                 nrec_output[value] = (1 / 5 * float(nrec_trans_corn_values[value]) + 1 / 5 * float(
                     nrec_trans_silage_values[value]) + 2 / 5 * float(nrec_trans_alfalfa_values[value]) + 1 / 5 * float(
-                            nrec_trans_alfalfa_seed_values[value]))
-
-        return {"nirate_inputs": nrec_output, "denitLoss": denitloss,
+                    nrec_trans_alfalfa_seed_values[value]))
+        nrec_output["denitLoss"] = denitloss
+        return {"nirate_inputs": nrec_output,
+                # "denitLoss": denitloss,
                 "nrec_trans_pasture_values": nrec_trans_pasture_values,
                 "nrec_trans_cont_values": nrec_trans_cont_values,
                 "nrec_trans_corn_values": nrec_trans_corn_values,
@@ -1472,6 +1505,132 @@ class SmartScape:
                 "nrec_trans_silage_values": nrec_trans_silage_values,
                 "nrec_trans_alfalfa_values": nrec_trans_alfalfa_values,
                 "nrec_trans_alfalfa_seed_values": nrec_trans_alfalfa_seed_values,
+                }
+
+    def get_nitrate_params_base(self, tran, input_arr, total_cells):
+        nrec_output = {}
+        om_filepath = os.path.join(self.in_dir, self.region + "_om_30m" + ".tif")
+        drain_class_filepath = os.path.join(self.in_dir, self.region + "_drainClass_30m" + ".tif")
+        nresponse_filepath = os.path.join(self.in_dir, self.region + "_nResponse_30m" + ".tif")
+        print(om_filepath)
+        print(drain_class_filepath)
+        om_image = gdal.Open(om_filepath)
+        om_array = om_image.GetRasterBand(1).ReadAsArray()
+
+        drain_image = gdal.Open(drain_class_filepath)
+        drain_class_array = drain_image.GetRasterBand(1).ReadAsArray()
+        nresponse_image = gdal.Open(nresponse_filepath)
+        nresponse_array = nresponse_image.GetRasterBand(1).ReadAsArray()
+
+        # nresponse_array = nresponse_array + 1
+
+        nrec = {"contCorn": "continuouscorn",  # corn
+                "cornGrain": "cashgrain",  # corn soy
+                "dairyRotation": "dairyrotation",  # silage, corn, alfalfa
+                "pasture": "pasture",
+                }
+        density_nrec = {"cn_hi": "cont_high", "cn_lo": "cont_low", "rt_rt": "rotational"}
+        # print(tran)
+        print(total_cells)
+        om_average = np.sum(np.where(om_array != self.no_data, om_array, 0)) / total_cells
+        # cant average
+
+        # cant average
+        # drain_response_average = np.sum(np.where(
+        #     np.logical_and(input_arr == layer_id, drain_class_array != self.no_data
+        #                    ), drain_class_array, 0
+        # )) / cell_count_trans
+        calculate_denitloss_vector = np.vectorize(self.calculate_denitloss)
+        denitloss = np.sum(np.where(
+            drain_class_array != self.no_data, calculate_denitloss_vector(om_average, drain_class_array),
+            0)) / total_cells
+
+        calc_nresponse_level_vector = np.vectorize(self.calc_nresponse_level)
+        nresponse_average = np.sum(
+            np.where(nresponse_array != self.no_data, calc_nresponse_level_vector(nresponse_array), 0)) / total_cells
+
+        print("average om ", om_average)
+        print("nresponse_average ", nresponse_average)
+
+        om_average = self.calc_om_level(om_average)
+        nresponse_average = self.calc_nresponse_level(nresponse_average)
+        # calculate dentriloss
+        # print(self.nrec_dict)
+        nresponse_col = str(nresponse_average)
+        om_col = str(om_average)
+        print("average nResponse ", nresponse_col)
+        print("average om ", om_col)
+
+        # need to do this step for each component of the rotation
+        # get parameters and  average
+
+        # print("crop type", tran["management"]["rotationType"])
+        # if tran["management"]["rotationType"] == "pasture":
+        # if tran["management"]["legume"] == "false":
+        #     legume = "legume"
+        # else:
+        rotation_type = "pasture"
+        legume = "nolegume"
+        cover = "NA"
+        density = "rotational"
+        # density = density_nrec[tran["management"]["density"]]
+        # pasture only uses om
+        nrec_trans = rotation_type + "_" + density + "_" + legume + "_" + rotation_type + "_" + cover + "_" + "om" \
+                     + "_" + om_col
+        # print(nrec_trans)
+        nrec_trans_pasture_values = self.nrec_dict[nrec_trans]
+
+        for value in nrec_trans_pasture_values:
+            nrec_output[value] = float(nrec_trans_pasture_values[value])
+        # print(self.nrec_dict)
+        # elif tran["management"]["rotationType"] == "contCorn":
+        # corn
+        rotation_type = "continuouscorn"
+        cover = tran["management"]["cover"]
+        nrec_trans = rotation_type + "_" + "corngrain" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+        nrec_trans_cont_values = self.nrec_dict[nrec_trans]
+
+        for value in nrec_trans_cont_values:
+            nrec_output[value] = float(nrec_trans_cont_values[value])
+
+        # elif tran["management"]["rotationType"] == "cornGrain":
+        rotation_type = "cashgrain"
+        nrec_trans_corn = rotation_type + "_" + "corngrain" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+        nrec_trans_soy = rotation_type + "_" + "soybeans" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+        nrec_trans_corn_values = self.nrec_dict[nrec_trans_corn]
+        nrec_trans_soy_values = self.nrec_dict[nrec_trans_soy]
+
+        for value in nrec_trans_corn_values:
+            nrec_output[value] = (
+                    0.5 * float(nrec_trans_corn_values[value]) + 0.5 * float(nrec_trans_soy_values[value]))
+
+        # elif tran["management"]["rotationType"] == "dairyRotation":
+        rotation_type = "dairyrotation"
+        nrec_trans_corn_dairy = rotation_type + "_" + "corngrain" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+        nrec_trans_silage = rotation_type + "_" + "cornsilage" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+        nrec_trans_alfalfa = rotation_type + "_" + "alfalfa" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+        nrec_trans_alfalfa_seed = rotation_type + "_" + "alfalfaseedingspring" + "_" + cover + "_" + "om" + "_" + om_col
+
+        nrec_trans_corn_dairy_values = self.nrec_dict[nrec_trans_corn_dairy]
+        nrec_trans_silage_values = self.nrec_dict[nrec_trans_silage]
+        nrec_trans_alfalfa_values = self.nrec_dict[nrec_trans_alfalfa]
+        nrec_trans_alfalfa_seed_values = self.nrec_dict[nrec_trans_alfalfa_seed]
+
+        for value in nrec_trans_corn_values:
+            nrec_output[value] = (1 / 5 * float(nrec_trans_corn_values[value]) + 1 / 5 * float(
+                nrec_trans_silage_values[value]) + 2 / 5 * float(nrec_trans_alfalfa_values[value]) + 1 / 5 * float(
+                nrec_trans_alfalfa_seed_values[value]))
+        nrec_output["denitLoss"] = denitloss
+        return {"nirate_inputs": nrec_output,
+                # "denitLoss": denitloss,
+                "nrec_trans_pasture_values": nrec_trans_pasture_values,
+                "nrec_trans_cont_values": nrec_trans_cont_values,
+                "nrec_trans_corn_values": nrec_trans_corn_values,
+                "nrec_trans_soy_values": nrec_trans_soy_values,
+                "nrec_trans_silage_values": nrec_trans_silage_values,
+                "nrec_trans_alfalfa_values": nrec_trans_alfalfa_values,
+                "nrec_trans_alfalfa_seed_values": nrec_trans_alfalfa_seed_values,
+                "nrec_trans_corn_dairy_values": nrec_trans_corn_dairy_values
                 }
 
     @staticmethod
@@ -1737,64 +1896,202 @@ class SmartScape:
                      cell_count_trans):
         print("hello")
         print("n parameters are ", n_parameters)
-        nrec_trans = n_parameters["nirate_inputs"]
-        nrec = nrec_trans["fertN"]
-        manure_allow = nrec_trans["ManureN"]
-        # in percent so divied to get decimal
-        manrN = float(manure_allow) * float(tran["management"]["nitrogen"]) / 100
-        fertN = float(nrec) * float(tran["management"]["nitrogen"]) / 100
-        NH3loss = nrec_trans["NH3loss"]
-        grazed_manureN = nrec_trans["grazedManureN"]
-        denitLoss = float(n_parameters["denitLoss"])
-        precip_dict = {"southWestWI": 43, "CloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
-        precip = precip_dict[self.region]
-        precN = 0.5 * precip * 0.226
-        dryN = precN
-        NfixPct = nrec_trans["NfixPct"]
-        Nharv_content = nrec_trans["Nharv_content"]
-        harvN = inter_data_yield * 2000 * Nharv_content
-        fixN = harvN * NfixPct / 100 + 3  ## N fixation input, lb/ac
-        NH3_N = fertN * NH3loss / 100  ## ammonia loss output, lb/ac
-        denitN = fertN * denitLoss / 100  ## denitrification loss,
-        erosN = inter_data_ero * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
-        grazed_manureN  # (Ninputs tab)
-        inputsN = fertN + manrN + precN + dryN + fixN + grazed_manureN
-        gasN = 0.01 * inputsN  ## misc gases are estimated as 1% of inputs
-        NH3senN = 8  ## ammonia loss at senescence
-        runoffN = 0
-        outputsN = harvN + NH3_N + denitN + erosN + gasN + NH3senN + runoffN
-        print("input")
-        print("manure_allow", manure_allow)
-        print("nrec", nrec)
-        print("fertN", fertN)
-        print("manrN", manrN)
-        print("precN", precN)
-        print("dryN", dryN)
-        print("fixN", np.sum(np.where(model_data["nitrate"] == layer, fixN, 0)) / cell_count_trans)
-        print("grazed_manureN", grazed_manureN)
+        nitrate_sum_dict = {}
+        for n_par in n_parameters:
+            print("calc nitrate for ", n_par)
+            if n_par == "nirate_inputs" or n_parameters[n_par] == {}:
+                continue
+            print("calc nitrate for ", n_par)
+            nitrate_sum_dict[n_par] = {}
+            nrec_trans = n_parameters[n_par]
+            print(nrec_trans)
+            nrec = float(nrec_trans["fertN"])
+            manure_allow = float(nrec_trans["ManureN"])
+            # in percent so divide to get decimal
+            manrN = float(manure_allow) * float(tran["management"]["nitrogen"]) / 100
+            fertN = float(nrec) * float(tran["management"]["nitrogen_fertilizer"]) / 100
+            NH3loss = float(nrec_trans["NH3loss"])
+            grazed_manureN = float(nrec_trans["grazedManureN"])
+            denitLoss = float(n_parameters["nirate_inputs"]["denitLoss"])
+            precip_dict = {"southWestWI": 43, "CloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
+            precip = precip_dict[self.region]
+            precN = 0.5 * precip * 0.226
+            dryN = precN
+            NfixPct = float(nrec_trans["NfixPct"])
+            Nharv_content = float(nrec_trans["Nharv_content"])
+            print("trouble inputs", Nharv_content, inter_data_yield)
+            harvN = inter_data_yield * 2000 * Nharv_content
+            fixN = harvN * NfixPct / 100 + 3  ## N fixation input, lb/ac
+            NH3_N = fertN * NH3loss / 100  ## ammonia loss output, lb/ac
+            denitN = fertN * denitLoss / 100  ## denitrification loss,
+            erosN = inter_data_ero * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
+            grazed_manureN  # (Ninputs tab)
+            inputsN = fertN + manrN + precN + dryN + fixN + grazed_manureN
+            gasN = 0.01 * inputsN  ## misc gases are estimated as 1% of inputs
+            NH3senN = 8  ## ammonia loss at senescence
+            runoffN = 0
+            outputsN = harvN + NH3_N + denitN + erosN + gasN + NH3senN + runoffN
+            print("input")
+            print("manure_allow", manure_allow)
+            print("nrec", nrec)
+            print("fertN", fertN)
+            print("manrN", manrN)
+            print("precN", precN)
+            print("dryN", dryN)
+            print("fixN", np.sum(np.where(model_data["nitrate"] == layer, fixN, 0)) / cell_count_trans)
+            print("grazed_manureN", grazed_manureN)
 
-        # print(fertN , manrN , precN , dryN , fixN , grazed_manureN)
-        def get_value(model, layer, value, cell_cout):
-            return np.sum(np.where(model == layer, value, 0)) / cell_cout
+            # print(fertN , manrN , precN , dryN , fixN , grazed_manureN)
+            def get_value(model, layer, value, cell_cout):
+                return np.sum(np.where(model == layer, value, 0)) / cell_cout
 
-        print("output")
-        print("harvN", harvN)
-        print("NH3_N", NH3_N)
-        print("denitN", denitN)
-        print("erosN", get_value(model_data["nitrate"], layer, erosN, cell_count_trans))
-        print("gasN", get_value(model_data["nitrate"], layer, gasN, cell_count_trans))
-        print("NH3senN", NH3senN)
-        print("runoffN", runoffN)
-        # print(harvN , NH3_N , denitN , erosN , gasN , NH3senN , runoffN)
-        leach = inputsN - outputsN
-        # print("leacing ", leach)
-        inter_data = np.where(model_data["nitrate"] == layer, leach, 0)
-        inter_data = np.sum(inter_data)
+            print("output")
+            print("harvN", harvN)
+            print("NH3_N", NH3_N)
+            print("denitN", denitN)
+            print("erosN", get_value(model_data["nitrate"], layer, erosN, cell_count_trans))
+            print("gasN", get_value(model_data["nitrate"], layer, gasN, cell_count_trans))
+            print("NH3senN", NH3senN)
+            print("runoffN", runoffN)
+            # print(harvN , NH3_N , denitN , erosN , gasN , NH3senN , runoffN)
+            leach = inputsN - outputsN
+            # print("leacing ", leach)
+            inter_data = np.where(model_data["nitrate"] == layer, leach, 0)
+            inter_data_sum = np.sum(inter_data)
+            if inter_data_sum < 0:
+                inter_data_sum = 0
+            nitrate_sum_dict[n_par]["inter_data_sum"] = inter_data_sum
+        # average rotations
 
         # rot_total_data = rot_total_data + inter_data
         # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
-        print("total leaching ", inter_data)
-        print("cell count ", cell_count_trans)
-        print("leaching ", inter_data / cell_count_trans)
 
-        return inter_data
+        total_leach = 0
+        print(len(nitrate_sum_dict))
+        if len(nitrate_sum_dict) == 2:
+            total_leach = 0.5 * nitrate_sum_dict["nrec_trans_corn_values"]["inter_data_sum"] + \
+                          0.5 * nitrate_sum_dict["nrec_trans_soy_values"]["inter_data_sum"]
+        elif len(nitrate_sum_dict) == 4:
+            total_leach = 0.2 * nitrate_sum_dict["nrec_trans_corn_values"]["inter_data_sum"] + \
+                          0.2 * nitrate_sum_dict["nrec_trans_silage_values"]["inter_data_sum"] + \
+                          0.2 * nitrate_sum_dict["nrec_trans_alfalfa_values"]["inter_data_sum"] + \
+                          0.4 * nitrate_sum_dict["nrec_trans_alfalfa_seed_values"]["inter_data_sum"]
+        else:
+            for val in nitrate_sum_dict:
+                total_leach = nitrate_sum_dict[val]["inter_data_sum"]
+        print("total leaching ", total_leach)
+        print("cell count ", cell_count_trans)
+        print("leaching ", total_leach / cell_count_trans)
+        print("leaching dict", nitrate_sum_dict)
+        return total_leach
+
+    def nitrate_calc_base(self, n_parameters, base_scen,
+                          hay_yield_arr, cont_yield, corn_yield, dairy_yield,
+                          hay_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
+                          om, total_cells):
+        # print("hello")
+        print("n parameters are ", n_parameters)
+        nitrate_sum_dict = {}
+        for n_par in n_parameters:
+            print("calc nitrate for ", n_par)
+            if n_par == "nirate_inputs" or n_parameters[n_par] == {}:
+                continue
+            print("calc nitrate for ", n_par)
+            nitrate_sum_dict[n_par] = {}
+            nrec_trans = n_parameters[n_par]
+            print(nrec_trans)
+            nrec = float(nrec_trans["fertN"])
+            manure_allow = float(nrec_trans["ManureN"])
+            # in percent so divide to get decimal
+            manrN = float(manure_allow) * float(base_scen["management"]["nitrogen"]) / 100
+            fertN = float(nrec) * float(base_scen["management"]["nitrogen_fertilizer"]) / 100
+            print("nitrogen", base_scen["management"]["nitrogen"])
+            print("nitrogen_fertilizer", base_scen["management"]["nitrogen_fertilizer"])
+            NH3loss = float(nrec_trans["NH3loss"])
+            grazed_manureN = float(nrec_trans["grazedManureN"])
+            denitLoss = float(n_parameters["nirate_inputs"]["denitLoss"])
+            precip_dict = {"southWestWI": 43, "CloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
+            precip = precip_dict[self.region]
+            precN = 0.5 * precip * 0.226
+            dryN = precN
+            NfixPct = float(nrec_trans["NfixPct"])
+            Nharv_content = float(nrec_trans["Nharv_content"])
+            if n_par == "nrec_trans_pasture_values":
+                harvN = hay_yield_arr * 2000 * Nharv_content
+                erosN = hay_er_arr * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
+            elif n_par == "nrec_trans_cont_values":
+                harvN = cont_yield * 2000 * Nharv_content
+                erosN = cont_er_arr * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
+            elif n_par == "nrec_trans_corn_values" or n_par == "nrec_trans_soy_values":
+                harvN = corn_yield * 2000 * Nharv_content
+                erosN = corn_er_arr * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
+            elif n_par == "nrec_trans_corn_dairy_values" or n_par == "nrec_trans_silage_values" or n_par == "nrec_trans_alfalfa_values" or n_par == "nrec_trans_alfalfa_seed_values":
+                harvN = dairy_yield * 2000 * Nharv_content
+                erosN = dairy_er_arr * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
+
+            fixN = harvN * NfixPct / 100 + 3  ## N fixation input, lb/ac
+            NH3_N = fertN * NH3loss / 100  ## ammonia loss output, lb/ac
+            denitN = fertN * denitLoss / 100  ## denitrification loss,
+            grazed_manureN  # (Ninputs tab)
+            inputsN = fertN + manrN + precN + dryN + fixN + grazed_manureN
+            gasN = 0.01 * inputsN  ## misc gases are estimated as 1% of inputs
+            NH3senN = 8  ## ammonia loss at senescence
+            runoffN = 0
+            outputsN = harvN + NH3_N + denitN + erosN + gasN + NH3senN + runoffN
+            print("input")
+            print("manure_allow", manure_allow)
+            print("nrec", nrec)
+            print("fertN", fertN)
+            print("manrN", manrN)
+            print("precN", precN)
+            print("dryN", dryN)
+            print("fixN", np.sum(np.where(fixN != self.no_data, fixN, 0)) / total_cells)
+            print("grazed_manureN", grazed_manureN)
+
+            # print(fertN , manrN , precN , dryN , fixN , grazed_manureN)
+            def get_value(value, cell_cout):
+                return np.sum(np.where(value != self.no_data, value, 0)) / cell_cout
+
+            print("output")
+            print("harvN", harvN)
+            print("NH3_N", NH3_N)
+            print("denitN", denitN)
+            print("erosN", get_value(erosN, total_cells))
+            print("gasN", get_value(gasN, total_cells))
+            print("NH3senN", NH3senN)
+            print("runoffN", runoffN)
+            # print(harvN , NH3_N , denitN , erosN , gasN , NH3senN , runoffN)
+            leach = inputsN - outputsN
+            # print("leacing ", leach)
+            inter_data = np.where(leach != self.no_data, leach, 0)
+            # inter_data_sum = np.sum(inter_data)
+            # if inter_data_sum < 0:
+            #     inter_data_sum = 0
+            nitrate_sum_dict[n_par]["inter_data_sum"] = inter_data
+        # average rotations
+
+        # rot_total_data = rot_total_data + inter_data
+        # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+
+        leach_cash_grain = 0.5 * nitrate_sum_dict["nrec_trans_corn_values"]["inter_data_sum"] + \
+                           0.5 * nitrate_sum_dict["nrec_trans_soy_values"]["inter_data_sum"]
+        leach_dairy = 0.2 * nitrate_sum_dict["nrec_trans_corn_dairy_values"]["inter_data_sum"] + \
+                      0.2 * nitrate_sum_dict["nrec_trans_silage_values"]["inter_data_sum"] + \
+                      0.2 * nitrate_sum_dict["nrec_trans_alfalfa_values"]["inter_data_sum"] + \
+                      0.4 * nitrate_sum_dict["nrec_trans_alfalfa_seed_values"]["inter_data_sum"]
+        leach_hay = nitrate_sum_dict["nrec_trans_pasture_values"]["inter_data_sum"]
+        leach_corn = nitrate_sum_dict["nrec_trans_cont_values"]["inter_data_sum"]
+        # print("total leaching ", total_leach)
+        # print("cell count ", total_cells)
+        print("leaching ", leach_hay / total_cells)
+        print("leaching ", leach_corn / total_cells)
+        print("leaching ", leach_cash_grain / total_cells)
+        print("leaching ", leach_dairy / total_cells)
+        # print("leaching ", total_leach / total_cells)
+        # print("leaching dict", nitrate_sum_dict)
+        return {
+            "hay": leach_hay,
+            "corn": leach_corn,
+            "cash_grain": leach_cash_grain,
+            "dairy": leach_dairy,
+        }
