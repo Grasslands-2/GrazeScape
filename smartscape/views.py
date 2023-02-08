@@ -113,7 +113,7 @@ def get_selection_raster(request):
     extents = request_json["geometry"]["extent"]
     field_coors = request_json["geometry"]["field_coors"]
     region = request_json["region"]
-    print(field_coors)
+    # print(field_coors)
     for val in field_coors:
         # print("###########################")
         # print(val)
@@ -189,7 +189,7 @@ def get_selection_criteria_raster(request):
     # folder_id = request.POST.get("folderId")
     # trans_id = request.POST.get("transId")
     trans_id = request_json["transId"]
-    print(request_json)
+    # print(request_json)
     print("this is the folder id ", trans_id)
     # print(field_id)
     scenario_id = 1
