@@ -11,6 +11,7 @@ import Form from 'react-bootstrap/Form';
 import Overlay from 'react-bootstrap/Overlay'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
+import TooltipBootstrap from 'react-bootstrap/Tooltip'
 import Container from 'react-bootstrap/Container';
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
@@ -107,6 +108,9 @@ class TransformationTable extends Component {
     this.tillage = React.createRef();
     this.density = React.createRef();
     this.contour = React.createRef();
+    this.legume = React.createRef();
+    this.phos_fertilizer = React.createRef();
+    this.phos_manure = React.createRef();
 //    this.fertilizer = React.createRef();
     this.nitrogen = React.createRef();
     this.nitrogen_fertilizer = React.createRef();
@@ -147,6 +151,9 @@ class TransformationTable extends Component {
         this.cover.current.value = this.props.activeTrans.management.cover
         this.tillage.current.value = this.props.activeTrans.management.tillage
         this.contour.current.value = this.props.activeTrans.management.contour
+        this.legume.current.value = this.props.activeTrans.management.legume
+        this.phos_fertilizer.current.value = this.props.activeTrans.management.phos_fertilizer
+        this.phos_manure.current.value = this.props.activeTrans.management.phos_manure
         this.grassYield.current.value = this.props.activeTrans.management.grassYield
         this.rotFreq.current.value = this.props.activeTrans.management.rotFreq
         this.handleTransMangement()
@@ -262,6 +269,8 @@ class TransformationTable extends Component {
             }
             else{
                 this.setState({showRotFreq:false})
+                this.props.updateActiveTransProps({"name":"rotFreq", "value":"1", "type":"mang"})
+                this.rotFreq.current.value = "1"
             }
             this.setState({tillageBlank:true})
         }
@@ -463,7 +472,18 @@ class TransformationTable extends Component {
                       <option value="1">Yes</option>
                     </Form.Select>
 
-                    <Form.Label>Nitrogen Manure</Form.Label>
+                    <Form.Label hidden={!this.state.showGrassYield}>Interseeded Legume</Form.Label>
+                    <Form.Select hidden={!this.state.showGrassYield} aria-label="Default select example" ref={this.legume}
+                      onChange={(e) => this.handleSelectionChange("legume", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </Form.Select>
+
+                    <OverlayTrigger key="top1" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                    </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen}
                       onChange={(e) => this.handleSelectionChange("nitrogen", e)}>
                       <option value="0">0</option>
@@ -474,7 +494,11 @@ class TransformationTable extends Component {
                       <option value="125">125</option>
                       <option value="150">150</option>
                     </Form.Select>
-                    <Form.Label>Nitrogen Fertilizer</Form.Label>
+
+                    <OverlayTrigger key="top2" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                    </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
                       onChange={(e) => this.handleSelectionChange("nitrogen_fertilizer", e)}>
                       <option value="0">0</option>
@@ -485,6 +509,26 @@ class TransformationTable extends Component {
                       <option value="125">125</option>
                       <option value="150">150</option>
                     </Form.Select>
+
+                     <OverlayTrigger key="top3" placement="top"
+                            overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                    </OverlayTrigger>
+                    <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
+
+                    <OverlayTrigger key="top4" placement="top"
+                            overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
+                      onChange={(e) => this.handleSelectionChange("phos_fertilizer", e)}>
+                      <option value="0">0</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </Form.Select>
+
+
+
                     <OverlayTrigger key="top111111" placement="top" overlay={<Tooltip>The percentage of land in the Transformation to change</Tooltip>}>
                     <Row>
                         <Col sm={2}>

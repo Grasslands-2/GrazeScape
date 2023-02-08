@@ -14,6 +14,9 @@ import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import CSRFToken from './csrf';
 import Spinner from 'react-bootstrap/Spinner'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import TooltipBootstrap from 'react-bootstrap/Tooltip'
+
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Table from 'react-bootstrap/Table'
@@ -184,6 +187,8 @@ class SidePanel extends React.Component{
 //        this.fertilizer = React.createRef();
         this.nitrogen = React.createRef();
         this.nitrogen_fertilizer = React.createRef();
+        this.phos_fertilizer = React.createRef();
+        this.phos_manure = React.createRef();
 
         this.p2o5 = React.createRef();
         this.nFert = React.createRef();
@@ -289,8 +294,11 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                 }
 //                clover belt for now
                else{
@@ -298,8 +306,11 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                }
 
 //                this.setState({showHuc10:true})
@@ -380,6 +391,8 @@ class SidePanel extends React.Component{
 //        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
         this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
         this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
+        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
+        this.phos_manure.current.value = this.props.baseTrans.management.phos_manure
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
         this.nFert.current.value = this.props.baseTrans.econ.nFert
@@ -539,8 +552,11 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"nitrogen", "value":"100", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"100", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":"0", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
         this.setState({aoiOrDisplayLoading:false})
 //        document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
@@ -601,10 +617,11 @@ class SidePanel extends React.Component{
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
     newTrans.management.fertilizer = "0_100"
-    newTrans.management.nitrogen = "0"
-    newTrans.management.nitrogen_fertilizer = "0"
+    newTrans.management.nitrogen = "125"
+    newTrans.management.nitrogen_fertilizer = "25"
     newTrans.management.phos_fertilizer = "0"
-    newTrans.management.legume = false
+    newTrans.management.phos_manure = "0"
+    newTrans.management.legume = "false"
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
     newTrans.management.tillage = "su"
@@ -1213,7 +1230,7 @@ renderModal(){
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1242,7 +1259,7 @@ renderModal(){
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -2284,7 +2301,6 @@ renderModal(){
                   <TransformationTable/>
                   <Stack gap={3}>
                   <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
-                     <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
                      </Stack>
                       </div>
                             {/* convert from sq m to acres*/}
@@ -2294,13 +2310,15 @@ renderModal(){
                      <Stack gap={3}>
                      {/*
 
-                     */}
                      <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+                     */}
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
                         Loading...
                      </Button>
+                      <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
+
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
 
                      </Stack>
@@ -2309,8 +2327,8 @@ renderModal(){
             </Accordion>
             {/*
 
-            */}
                 <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
+            */}
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>
@@ -2326,7 +2344,7 @@ renderModal(){
                   */}
 
                 <Tabs defaultActiveKey="mange" id="uncontrolled-tab-example" className="mb-3">
-                  <Tab eventKey="mange" title="Land Management">
+                  <Tab eventKey="mange" title="Crop Land Management">
                     <Form.Label>Cover Crop</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.cover}
                       onChange={(e) => this.updateActiveBaseProps("cover", e)}>
@@ -2351,7 +2369,13 @@ renderModal(){
                       <option value="sv">Spring Vertical</option>
                       <option value="na">NA</option>
                     </Form.Select>
-
+                    {/*<Form.Label>Interseeded Legume</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.legume}
+                      onChange={(e) => this.updateActiveBaseProps("legume", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </Form.Select>*/}
                     <Form.Label>On Contour</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.contour}
                       onChange={(e) => this.updateActiveBaseProps("contour", e)}>
@@ -2364,7 +2388,6 @@ renderModal(){
                      <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.fertilizer}
                       onChange={(e) => this.updateActiveBaseProps("fertilizer", e)}>
-
                       <option value="default">Open this select menu</option>
                       <option value="0_0">0/	0</option>
                       <option value="0_100">0/	100</option>
@@ -2375,7 +2398,10 @@ renderModal(){
                       <option value="50_50">50/	50</option>
                     </Form.Select>
                     */}
-                    <Form.Label>Nitrogen Manure</Form.Label>
+                    <OverlayTrigger key="top1" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                    </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen}
                       onChange={(e) => this.updateActiveBaseProps("nitrogen", e)}>
                       <option value="0">0</option>
@@ -2386,7 +2412,11 @@ renderModal(){
                       <option value="125">125</option>
                       <option value="150">150</option>
                     </Form.Select>
-                    <Form.Label>Nitrogen Fertilizer</Form.Label>
+
+                    <OverlayTrigger key="top2" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                    </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
                       onChange={(e) => this.updateActiveBaseProps("nitrogen_fertilizer", e)}>
                       <option value="0">0</option>
@@ -2396,6 +2426,23 @@ renderModal(){
                       <option value="100">100</option>
                       <option value="125">125</option>
                       <option value="150">150</option>
+                    </Form.Select>
+
+                    <OverlayTrigger key="top3" placement="top"
+                            overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                    </OverlayTrigger>
+                    <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
+
+                    <OverlayTrigger key="top4" placement="top"
+                            overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
+                      onChange={(e) => this.updateActiveBaseProps("phos_fertilizer", e)}>
+                      <option value="0">0</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
                     </Form.Select>
                  </Tab>
                  <Tab eventKey="economics" title="Economics">
