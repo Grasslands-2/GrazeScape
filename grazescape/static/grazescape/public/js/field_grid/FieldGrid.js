@@ -398,7 +398,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 	rowLines: true,
 	selModel: {
 		allowDeselect: true,
-		selType: "rowmodel",//'checkboxmodel', // rowmodel is the default selection model
+		selType: "cellmodel",
 		mode: 'MULTI'
 	},
 	
@@ -506,102 +506,78 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		
 	},
 	//requires: ['DSS.map.Main'],
-
-	//-----------------------------------------------------
 	
 	initComponent: function() {
 		console.log("INITCOMPONENT FROM FIELDGRID RAN!!!!!")
 		let me = this;
 		
-		//------------------------------------------------------------------------------
 		let fieldNameColumn = { 
 			editor: 'textfield', text: 'Field', dataIndex: 'name', width: 120, 
 			locked: true, draggable: false, editable: true,
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 			tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
 		};
-		//------------------------------------------------------------------------------
+
 		let soilP_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5,
-				listeners:{
-					change: async function(field,newValue,oldValue,record){
-							var store = me.getStore()
-							var storeDataObjArray = store.data.items
-							if(selectedFields.length > 0 ){
-								for(r in selectedFields){
-									for(f in storeDataObjArray){
-										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											storeDataObjArray[f].dirty = true
-											storeDataObjArray[f].data.soilP = newValue
-										}
-									}
-								}
-							}
-							await refreshview()
-							let view = me.getView()
-							//view.refresh()
-					}
-				}
-			}, text: 'Soil-P (PPM)', dataIndex: 'soilP', width: 100, 
-			tooltip: '<b>Soil Phosphorus:</b> Measured in parts per million.',
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			xtype: "numbercolumn",
+			format: "0.0",
+			editor: {
+				xtype: "numberfield",
+				minValue: 25,
+				maxValue: 175,
+				step: 5,
+			},
+			text: "Soil-P (PPM)",
+			dataIndex: "soilP",
+			width: 100,
+			tooltip: "<b>Soil Phosphorus:</b> Measured in parts per million.",
+			hideable: false,
+			enableColumnHide: false,
+			lockable: false,
+			minWidth: 24,
 		};
-		//------------------------------------------------------------------------------
+
 		let landCost_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 0, maxValue: 10000, step: 5,
-				listeners:{
-					change: async function(field,newValue,oldValue,record){
-							console.log(selectedFields)
-							var store = me.getStore()
-							var storeDataObjArray = store.data.items
-							if(selectedFields.length > 0 ){
-								for(r in selectedFields){
-									for(f in storeDataObjArray){
-										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											storeDataObjArray[f].dirty = true
-											storeDataObjArray[f].data.landCost = newValue
-										}
-									}
-								}
-							await refreshview()
-						}
-					}
-				}
-			}, text: 'Land Cost ($/ac)', dataIndex: 'landCost', width: 120,
-			tooltip: '<b>Land Cost:</b> How much does each field cost to rent or own per acre',
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-			formatter: 'usMoney',
-		};
-		//------------------------------------------------------------------------------
+			xtype: "numbercolumn",
+			format: "0.0",
+			editor: {
+				xtype: "numberfield",
+				minValue: 0,
+				maxValue: 10000,
+				step: 5,
+			},
+			text: "Land Cost ($/ac)",
+			dataIndex: "landCost",
+			width: 120,
+			tooltip:
+				"<b>Land Cost:</b> How much does each field cost to rent or own per acre",
+			hideable: false,
+			enableColumnHide: false,
+			lockable: false,
+			minWidth: 24,
+			formatter: "usMoney",
+    	};
+
 		let soilOM_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-			xtype:'numberfield', minValue: 0, maxValue: 60, step: 0.5, disabled: false,
-				listeners:{
-					change:async function(field,newValue,oldValue,record){
-						console.log(selectedFields)
-						var store = me.getStore()
-						var storeDataObjArray = store.data.items
-						if(selectedFields.length > 0 ){
-							for(r in selectedFields){
-								for(f in storeDataObjArray){
-									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-										storeDataObjArray[f].dirty = true
-										storeDataObjArray[f].data.soilOM = newValue
-									}
-								}
-							}
-						}
-						await refreshview()
-						var view = me.getView()
-					}
-				}
-			}, text: 'Soil-OM (%)', dataIndex: 'soilOM', width: 100, 
-			tooltip: '<b>Soil Organic Matter</b> Measured in percent of soil make up',
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
+			xtype: "numbercolumn",
+			format: "0.0",
+			editor: {
+				xtype: "numberfield",
+				minValue: 0,
+				maxValue: 60,
+				step: 0.5,
+				disabled: false,
+			},
+			text: "Soil-OM (%)",
+			dataIndex: "soilOM",
+			width: 100,
+			tooltip: "<b>Soil Organic Matter</b> Measured in percent of soil make up",
+			hideable: false,
+			enableColumnHide: false,
+			lockable: false,
+			minWidth: 24,
 		};
-		//------------------------------------------------------------------------------
+
 		let cropRotationColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
@@ -848,113 +824,68 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				}
 			}
 		};
-		//------------------------------------------------------------------------------
-		//Change to fertpercP
+
 		let PfertPerc_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
-				listeners:{
-					change: async function(field,newValue,oldValue,record){
-							var store = me.getStore()
-							var storeDataObjArray = store.data.items
-							if(selectedFields.length > 0 ){
-								for(r in selectedFields){
-									for(f in storeDataObjArray){
-										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											storeDataObjArray[f].dirty = true
-											storeDataObjArray[f].data.fertPercP = newValue
-										}
-									}
-								}
-							}
-							await refreshview()
-					}
-				}
-			}, text: '% Fert P', dataIndex: 'fertPercP', width: 80, tooltip: '<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).',
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			xtype: "numbercolumn",
+			format: "0.0",
+			editor: {
+				xtype: "numberfield",
+				maxValue: 150,
+				step: 5,
+				minValue: 0,
+			},
+			text: "% Fert P",
+			dataIndex: "fertPercP",
+			width: 80,
+			tooltip:
+				"<b>Percent Phosphorus Fertilizer</b> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).",
+			hideable: true,
+			enableColumnHide: true,
+			lockable: false,
+			minWidth: 24,
 		};
-		//------------------------------------------------------------------------------
 
-
-		//Change to manupercP
-		let PmanuPerc_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
-				listeners:{
-					change: function(field,newValue,oldValue,record){
-							var store = me.getStore()
-							var storeDataObjArray = store.data.items
-							if(selectedFields.length > 0 ){
-								for(r in selectedFields){
-									for(f in storeDataObjArray){
-										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											storeDataObjArray[f].dirty = true
-											storeDataObjArray[f].data.manuPercP = newValue
-										}
-									}
-								}
-							}
-							var view = me.getView()
-							//view.refresh()
-					}
-				}
-			}, text: '% Manure P', dataIndex: 'manuPercP', width: 110, tooltip: '<b>Percent Phosphorus Manure</b> Enter the amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.',
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
-		};
 		let NfertPerc_Column = {
-			xtype: 'numbercolumn',id:'NfertPerc', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
-				listeners:{
-					change: async function(field,newValue,oldValue,record){
-							var store = me.getStore()
-							var storeDataObjArray = store.data.items
-							if(selectedFields.length > 0 ){
-								for(r in selectedFields){
-									for(f in storeDataObjArray){
-										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											storeDataObjArray[f].dirty = true
-											storeDataObjArray[f].data.fertPercN = newValue
-										}
-									}
-								}
-							// 	setTimeout(() => {
-							// 		me.getView().refresh()
-							// }, "250")
-							}
-							await refreshview()
-							//var view = me.getView()
-							//view.refresh()
-					}
-				}
-			}, text: '% Fert N', dataIndex: 'fertPercN', width: 80, tooltip: '<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.',
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
-		};
-		//------------------------------------------------------------------------------
+			xtype: "numbercolumn",
+			id: "NfertPerc",
+			format: "0.0",
+			editor: {
+				xtype: "numberfield",
+				maxValue: 150,
+				step: 5,
+				minValue: 0,
+			},
+			text: "% Fert N",
+			dataIndex: "fertPercN",
+			width: 80,
+			tooltip:
+				"<b>Percent Nitrogen Fertilizer</b> Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.",
+			hideable: true,
+			enableColumnHide: true,
+			lockable: false,
+			minWidth: 24,
+    	};
+
 		//Change to manupercP
 		let NmanuPerc_Column = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', maxValue: 150, step: 5, minValue: 0,
-				listeners:{
-					change: async function(field,newValue,oldValue,record){
-							console.log("MANURE N CHANGE DETECTED")
-							var store = me.getStore()
-							var storeDataObjArray = store.data.items
-							if(selectedFields.length > 0 ){
-								for(r in selectedFields){
-									for(f in storeDataObjArray){
-										if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-											storeDataObjArray[f].dirty = true
-											storeDataObjArray[f].data.manuPercN = newValue
-										}
-									}
-								}
-							}
-							await refreshview()
-					}
-				}
-			}, text: '% Manure N', dataIndex: 'manuPercN', width: 110, tooltip: '<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.',
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24
-		};
+			xtype: "numbercolumn",
+			format: "0.0",
+			editor: {
+				xtype: "numberfield",
+				maxValue: 150,
+				step: 5,
+				minValue: 0,
+			},
+			text: "% Manure N",
+			dataIndex: "manuPercN",
+			width: 110,
+			tooltip:
+				"<b>Percent Nitrogen Manure</b> Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.",
+			hideable: true,
+			enableColumnHide: true,
+			lockable: false,
+			minWidth: 24,
+    	};
 		//------------------------------------------------------------------------------
 		//Turn on for pasture only
 		//Add fertpectN and manuPercN 
@@ -1372,7 +1303,6 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			}]
 		}
 		
-		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
 
 			columns: [
