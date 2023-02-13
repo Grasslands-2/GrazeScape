@@ -605,7 +605,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						console.log(record.data.interseededClover)
 						interseedTrue = true
 						fertDefaultArray = await get_field_rot_defaults({"rotation": value.get('value'),/*interseedTrue*/ "legume":record.data.interseededClover})
-						//console.log(fertDefaultArray.fertDefaults)
+						
 						if(value.data.value.includes('pt')){
 							console.log('pt hit')
 							if(record.data.rotationFreqDisp == 'Continuous'){
@@ -622,7 +622,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 								record.set('rotationDisp', value.get('display'));
 								record.set('manuPercN',fertDefaultArray.fertDefaults[0])
 								record.set('fertPercN',fertDefaultArray.fertDefaults[1])
-								record.set('fertPercN',fertDefaultArray.fertDefaults[2])
+								record.set('fertPercP',fertDefaultArray.fertDefaults[2])
 								record.set('interseededClover',true)
 								console.log('pt-rt')
 							}
@@ -645,8 +645,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							record.set('fertPercP',fertDefaultArray.fertDefaults[2])
 						}
 						refreshview()
-					},
-					
+					},					
 				}
 			}
 		};
@@ -827,6 +826,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 
 		let PfertPerc_Column = {
 			xtype: "numbercolumn",
+			id: "PfertPerc",
 			format: "0.0",
 			editor: {
 				xtype: "numberfield",
@@ -1219,12 +1219,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			},
 			tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
 		};
-		//------------------------------------------------------------------------------
+
 		let grazeDensityColumn = {
 			xtype: 'widgetcolumn',
-			editor: {}, // workaround for exception
-			text: 'Animal Density', dataIndex: 'grazeDensityDisp', width: 110, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			editor: {},
+			text: 'Animal Density', 
+			dataIndex: 'grazeDensityDisp', 
+			minWidth: 24, 
+			width: 110, 
+			hideable: false, 
+			enableColumnHide: false, 
+			lockable: false, 
+			sortable: true,
 			tooltip: '<b>Grazing Density</b> How intensely are the pastures getting grazed',
 			onWidgetAttach: function(col, widget, rec) {
 				if(rec.get('rotationVal') == 'dl' ) {
@@ -1238,14 +1244,13 @@ Ext.define('DSS.field_grid.FieldGrid', {
 					widget.setDisabled(true);
 				}
 			},
-			exportable: true, exportConverter: function(self){
-				console.log(self)
+			exportable: true, 
+			exportConverter: function(self){
 				return self
 			},
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
-				//store: 'grazingDensity',
 				displayField: 'display',
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
@@ -1258,6 +1263,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				}
 			}
 		};
+
         let area_Column = {
 			xtype: 'numbercolumn', format: '0.0',/*editor: {
 				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false,
@@ -1265,6 +1271,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
 			tooltip: '<b>Area:</b> Area in acres',
 		};
+
 		let delete_Column = 
 		{
 			xtype: 'actioncolumn',
@@ -1295,9 +1302,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 							}
 						})
 						//grid.getStore().removeAt(rowIndex);
-					}, 1000);//wait 2 seconds
-					
-
+					}, 1000);//wait 1000ms
 				},
 				scope: this
 			}]
