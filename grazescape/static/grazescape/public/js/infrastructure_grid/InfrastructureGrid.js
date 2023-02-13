@@ -1,5 +1,3 @@
-
-
 DSS.utils.addStyle('.x-grid-widgetcolumn-cell-inner {padding-left: 0;padding-right: 0;}')
 DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom: transparent}')
 
@@ -267,14 +265,20 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		console.log("INITCOMPONENT FROM FIELDGRID RAN!!!!!")
 		let me = this;
 		
-		//------------------------------------------------------------------------------
-		let infraNameColumn = { 
-			editor: 'textfield', text: 'Label', dataIndex: 'name', width: 120, 
-			locked: true, draggable: false, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-			tooltip: '<b>Infra Name:</b> Can be editted.',
+		let infraNameColumn = {
+			editor: "textfield",
+			text: "Label",
+			dataIndex: "name",
+			width: 120,
+			locked: true,
+			draggable: false,
+			hideable: false,
+			enableColumnHide: false,
+			lockable: false,
+			minWidth: 24,
+			tooltip: "<b>Infra Name:</b> Can be editted.",
 		};
-		//------------------------------------------------------------------------------
+
 		let infraTypeColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
@@ -620,12 +624,24 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			tooltip: '<b>Lane Width:</b> How wide is this lane?  This will be used to calculate the total cost of the lane.',
 		};
 		let lengthColumn = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
-			}, text: 'Length [ft]', dataIndex: 'infraLength', width: 80,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-			tooltip: '<b>Infrastructure Length:</b> Used in cost calculation.',
-		};
+			xtype: "numbercolumn",
+			format: "0.0",
+			editor: {
+				xtype: "numberfield",
+				minValue: 25,
+				maxValue: 175,
+				step: 5,
+				editable: false,
+			},
+			text: "Length [ft]",
+			dataIndex: "infraLength",
+			width: 80,
+			hideable: false,
+			enableColumnHide: false,
+			lockable: false,
+			minWidth: 24,
+			tooltip: "<b>Infrastructure Length:</b> Used in cost calculation.",
+    	};
 		//------------------------------------------------------------------------------
 		let costPerFootColumn = {
 			xtype: 'widgetcolumn', format: '0.00',
@@ -687,9 +703,17 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		};
 		//------------------------------------------------------------------------------
 		Ext.applyIf(me, {
-
-			columns: [infraNameColumn,infraTypeColumn,fenceMaterialColumn,
-				waterPipeColumn,laneLineColumn,lengthColumn,widthColumn,costPerFootColumn,totalCostColumn],
+			columns: [
+				infraNameColumn,
+				infraTypeColumn,
+				fenceMaterialColumn,
+				waterPipeColumn,
+				laneLineColumn,
+				lengthColumn,
+				widthColumn,
+				costPerFootColumn,
+				totalCostColumn
+			],
 			
 			plugins: {
 				ptype: 'cellediting',
