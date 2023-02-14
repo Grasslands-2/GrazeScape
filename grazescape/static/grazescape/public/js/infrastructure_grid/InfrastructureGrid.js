@@ -3,23 +3,20 @@ DSS.utils.addStyle('.combo-limit-borders {border-top: transparent; border-bottom
 
 var infraArray = [];
 var infraObj = {};
-
 var infraUrl = ""
-
 var selectedInfra = []
 
 function getWFSinfra(parameter = "") {
     console.log("getting wfs infra")
     geoServer.getWFSinfra(parameter)
 }
+
 function refreshviewinfra(){
-	setTimeout(() => {
-		Ext.getCmp("infraTable").getView().refresh()
-}, "1000")
+	Ext.getCmp("infraTable").getView().refresh()
 }
+
 function popInfraArray(obj) {
 	for (i in obj)
-	//console.log(i);
 	infraArray.push({
 		id: obj[i].id,
 		name: obj[i].properties.infra_name,
@@ -156,10 +153,7 @@ Ext.create('Ext.data.Store', {
 	data: infraArray
 });
 
-//------------------------------------------------------------------------------
 Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
-	//------------------------------------------------------------------------------
-	//extend: 'Ext.grid.Panel',
 	extend: 'Ext.ux.ExportableGrid',
 	alias: 'widget.infra_grid',
 	alternateClassName: 'DSS.InfraGrid',
@@ -169,17 +163,14 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 	hidden: true,
 	selModel: {
 		allowDeselect: true,
-		selType: "rowmodel",//'checkboxmodel', // rowmodel is the default selection model
+		selType: "cellmodel",
 		mode: 'MULTI'
 	},
-
 	height: 0,
 	internalHeight: 200,
 	isAnimating: false,
-	
 	resizable: true,
 	resizeHandles: 'n',
-	
 	store: Ext.data.StoreManager.lookup('InfraStore'),
 	dockedItems: [{
 		xtype: 'toolbar',
@@ -226,7 +217,6 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		}]
 	},
 ],
-	
 	minHeight: 40,
 	maxHeight: 600,
 	listeners: {
@@ -259,10 +249,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 	},
 	//requires: ['DSS.map.Main'],
 
-	//-----------------------------------------------------
-	
 	initComponent: function() {
-		console.log("INITCOMPONENT FROM FIELDGRID RAN!!!!!")
 		let me = this;
 		
 		let infraNameColumn = {
@@ -282,8 +269,14 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		let infraTypeColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
-			text: 'Infrastructure Type', dataIndex: 'infraTypeDisp', width: 200, 
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24, sortable: true,
+			text: 'Infrastructure Type', 
+			dataIndex: 'infraTypeDisp', 
+			width: 200, 
+			hideable: false, 
+			enableColumnHide: false, 
+			lockable: false, 
+			minWidth: 24, 
+			sortable: true,
 			tooltip: '<b>Infra Type:</b> Edit what class of infrastructure you have placed.',
 			widget: {
 				xtype: 'combobox',
@@ -293,65 +286,12 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, eOpts){
+					select: function(combo, value){
 						var record = combo.getWidgetRecord();
 						record.set('infraType', value.get('value'));
 						record.set('infraTypeDisp', value.get('display'));
 						me.getView().refresh();
 					},
-					change: function(widget,newValueIT,oldValueIT,record){
-						console.log(widget)
-						var record = widget.getWidgetRecord();
-						var dbvalIT = ""
-						console.log(selectedInfra)
-						console.log("newValueIT: " + newValueIT)
-						console.log("oldValueIT: " + oldValueIT)
-						console.log("you've changed man on Infra Type")
-						console.log(record)
-						var store = me.getStore()
-						var storeDataObjArray = store.data.items
-						var view = me.getView()
-						switch(newValueIT){
-							case 'Fencing': dbvalIT = 'fl'
-							break;
-							case 'Water Line': dbvalIT = 'wl'
-							break;
-							case 'Lane Line': dbvalIT = 'll'
-							break;
-							
-
-							case 'fl': dbvalIT = 'fl'
-							break;
-							case 'wl': dbvalIT = 'wl'
-							break;
-							case 'll': dbvalIT = 'll'
-							break;
-							
-							default: dbvalIT = 'No Infra Type fROM SWITCH!'
-						}
-						console.log("dbvalIT: " + dbvalIT)
-						if(selectedInfra.length > 0 ){
-							for(r in selectedInfra){
-								for(f in storeDataObjArray){
-									if(selectedInfra[r] == storeDataObjArray[f].id && selectedInfra[r] != record.id){
-										console.log("newValueIT: " + newValueIT)
-										console.log("dbvalIT: " + dbvalIT)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedInfra[r])
-										storeDataObjArray[f].dirty = true
-										storeDataObjArray[f].data.infraTypeDisp = newValueIT
-										storeDataObjArray[f].data.infraType = dbvalIT
-										
-									}
-								}
-							}
-							selectedInfra = []
-							me.getView().refresh();
-							me.getSelectionModel().deselectAll();
-						}
-						console.log("End of Rot Crop change event")
-						refreshviewinfra()
-					}
 				}
 			}
 		};
@@ -382,71 +322,20 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, cost, eOpts){
+					select: function(combo, value){
 						var record = combo.getWidgetRecord();
+						var cost = value.get('cost');
+						
 						record.set('fenceMaterial', value.get('value'));
 						record.set('fenceMaterialDisp', value.get('display'));
-						record.set('costPerFoot',value.get('cost'));
+						record.set('costPerFoot', cost);
+						record.set('totalCost', cost * record.get('infraLength'));
 						me.getView().refresh();
 					},
-					change: function(widget,newValueFM,oldValueFM,record){
-						console.log(widget)
-						var record = widget.getWidgetRecord();
-						var dbvalFM = ""
-						console.log(selectedInfra)
-						console.log("newValueFM: " + newValueFM)
-						console.log("oldValueFM: " + oldValueFM)
-						console.log("you've changed man on Crop Rot")
-						//console.log(rotfreqcount)
-						console.log(record)
-						var store = me.getStore()
-						var storeDataObjArray = store.data.items
-						var view = me.getView()
-						switch(newValueFM){
-							case 'High Tensile Electric, One Strand': dbvalFM = 'hte1', dbcostFM = 0.84
-							break;
-							case 'High Tensile Electric, Two Strand': dbvalFM = 'hte', dbcostFM = 1.81
-							break;
-							case 'Moveable polywire': dbvalFM = 'pp', dbcostFM = 0.37
-							break;
-							
-
-							case 'hte1': dbvalFM = 'hte1', dbcostFM = 0.84
-							break;
-							case 'hte': dbvalFM = 'hte', dbcostFM = 1.81
-							break;
-							case 'pp': dbvalFM = 'pp', dbcostFM = 0.37
-							break;
-							default: dbvalFM = 'No Fence Material fROM SWitCH!'
-						}
-						console.log("dbvalFM: " + dbvalFM)
-						if(selectedInfra.length > 0 ){
-							for(r in selectedInfra){
-								for(f in storeDataObjArray){
-									if(selectedInfra[r] == storeDataObjArray[f].id && selectedInfra[r] != record.id){
-										console.log("newValueFM: " + newValueFM)
-										console.log("dbvalFM: " + dbvalFM)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedInfra[r])
-										storeDataObjArray[f].dirty = true
-										storeDataObjArray[f].data.fenceMaterialDisp = newValueFM
-										storeDataObjArray[f].data.fenceMaterial = dbvalFM
-										storeDataObjArray[f].data.costPerFoot = dbcostFM
-										
-									}
-								}
-							}
-							selectedInfra = []
-							me.getView().refresh();
-							me.getSelectionModel().deselectAll();
-						}
-						console.log("End of fence material change event")
-						refreshviewinfra()
-					}
 				}
 			}
 		};
-		//------------------------------------------------------------------------------
+
 		let waterPipeColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
@@ -472,66 +361,20 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, cost, eOpts,rec,widget){
+					select: function(combo, value){
 						var record = combo.getWidgetRecord();
+						var cost = value.get('cost');
+
 						record.set('waterPipe', value.get('value'));
 						record.set('waterPipeDisp', value.get('display'));
-						record.set('costPerFoot',value.get('cost'));
+						record.set('costPerFoot', cost);
+						record.set('totalCost', cost * record.get('infraLength'));
 						me.getView().refresh();
 					},
-					change: function(widget,newValueWP,oldValueWP,record){
-						console.log(widget)
-						var record = widget.getWidgetRecord();
-						var dbvalWP = ""
-						console.log(selectedInfra)
-						console.log("newValueWP: " + newValueWP)
-						console.log("oldValueWP: " + oldValueWP)
-						console.log("you've changed man on Infra Type")
-						console.log(record)
-						var store = me.getStore()
-						var storeDataObjArray = store.data.items
-						var view = me.getView()
-						switch(newValueWP){
-							case 'Surface HDPE or PVC Pipe': dbvalWP = 'sup', dbcostWP = 1.17
-							break;
-							case 'Shallow Buried HDPE or PVC Pipe': dbvalWP = 'sbp', dbcostWP = 2.31
-							break;
-
-							case 'sup': dbvalWP = 'sup', dbcostWP = 1.17
-							break;
-							case 'sbp': dbvalWP = 'sbp', dbcostWP = 2.31
-							break;
-							
-							default: dbvalWP = 'No Waterpipe type fROM SWitCH!'
-						}
-						console.log("dbvalWP: " + dbvalWP)
-						if(selectedInfra.length > 0 ){
-							for(r in selectedInfra){
-								for(f in storeDataObjArray){
-									if(selectedInfra[r] == storeDataObjArray[f].id && selectedInfra[r] != record.id){
-										console.log("newValueWP: " + newValueWP)
-										console.log("dbvalWP: " + dbvalWP)
-										console.log(storeDataObjArray[f].id)
-										console.log(selectedInfra[r])
-										storeDataObjArray[f].dirty = true
-										storeDataObjArray[f].data.waterPipeDisp = newValueWP
-										storeDataObjArray[f].data.waterPipe = dbvalWP
-										storeDataObjArray[f].data.costPerFoot = dbcostWP
-										
-									}
-								}
-							}
-							selectedInfra = []
-							me.getView().refresh();
-							me.getSelectionModel().deselectAll();
-						}
-						console.log("End of Rot Crop change event")
-						refreshviewinfra()
-					}
 				}
 			}
 		};
-		//------------------------------------------------------------------
+
 		let laneLineColumn = {
 			xtype: 'widgetcolumn',
 			editor: {}, // workaround for exception
@@ -557,72 +400,40 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				valueField: 'value',
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
-					select: function(combo, value, cost, eOpts,rec,widget){
+					select: function(combo, value){
 						var record = combo.getWidgetRecord();
+						var cost = value.get('cost');
+
 						record.set('laneMaterial', value.get('value'));
 						record.set('laneMaterialDisp', value.get('display'));
-						record.set('costPerFoot',value.get('cost'));
+						record.set('costPerFoot', cost);
+						record.set('totalCost', cost * record.get('infraLength'));
 						me.getView().refresh();
 					}
 				},
-				change: function(widget,newValueLM,oldValueLM,record){
-					console.log(widget)
-					var record = widget.getWidgetRecord();
-					var dbvalLM = ""
-					console.log(selectedInfra)
-					console.log("newValueLM: " + newValueLM)
-					console.log("oldValueLM: " + oldValueLM)
-					console.log("you've changed man on Infra Type")
-					console.log(record)
-					var store = me.getStore()
-					var storeDataObjArray = store.data.items
-					var view = me.getView()
-					switch(newValueLM){
-						case 'Surface HDPE or PVC Pipe': dbvalLM = 'sup', dbcostLM = 1.17
-						break;
-						case 'Shallow Buried HDPE or PVC Pipe': dbvalLM = 'sbp', dbcostLM = 2.31
-						break;
-
-						case 'sup': dbvalLM = 'sup', dbcostLM = 1.17
-						break;
-						case 'sbp': dbvalLM = 'sbp', dbcostLM = 2.31
-						break;
-						
-						default: dbvalLM = 'No Waterpipe type fROM SWitCH!'
-					}
-					console.log("dbvalLM: " + dbvalLM)
-					if(selectedInfra.length > 0 ){
-						for(r in selectedInfra){
-							for(f in storeDataObjArray){
-								if(selectedInfra[r] == storeDataObjArray[f].id && selectedInfra[r] != record.id){
-									console.log("newValueLM: " + newValueLM)
-									console.log("dbvalLM: " + dbvalLM)
-									console.log(storeDataObjArray[f].id)
-									console.log(selectedInfra[r])
-									storeDataObjArray[f].dirty = true
-									storeDataObjArray[f].data.laneMaterialDisp = newValueLM
-									storeDataObjArray[f].data.laneMaterial = dbvalLM
-									storeDataObjArray[f].data.costPerFoot = dbcostLM
-									
-								}
-							}
-						}
-						selectedInfra = []
-						me.getView().refresh();
-						me.getSelectionModel().deselectAll();
-					}
-					refreshviewinfra()
-				}
 			}
 		};
-		//------------------------------------------------------------------
+
 		let widthColumn = {
-			xtype: 'numbercolumn', format: '0.0',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5, editable: false
-			}, text: 'Lane Width (ft)', dataIndex: 'laneWidth', width: 120,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			xtype: 'numbercolumn', 
+			format: '0.0',
+			editor: {
+				xtype:'numberfield', 
+				minValue: 25, 
+				maxValue: 175, 
+				step: 5, 
+				editable: false
+			}, 
+			text: 'Lane Width (ft)', 
+			dataIndex: 'laneWidth', 
+			width: 120,
+			hideable: false, 
+			enableColumnHide: false, 
+			lockable: false, 
+			minWidth: 24,
 			tooltip: '<b>Lane Width:</b> How wide is this lane?  This will be used to calculate the total cost of the lane.',
 		};
+
 		let lengthColumn = {
 			xtype: "numbercolumn",
 			format: "0.0",
@@ -642,66 +453,67 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			minWidth: 24,
 			tooltip: "<b>Infrastructure Length:</b> Used in cost calculation.",
     	};
-		//------------------------------------------------------------------------------
+
 		let costPerFootColumn = {
-			xtype: 'widgetcolumn', format: '0.00',
-			exportable: true, exportConverter: function(self){
-				console.log(self)
-				return self
-			},
-			    editor: {},
-			    widget:{
-				    xtype:'numberfield',
-				    minValue: 0, maxValue: Infinity, step: .2,
-				    listeners:{change: function(editor, newv,oldv, eOpts) {
-				                let changeVal = newv
+			xtype: 'numbercolumn', 
+			format: '0.00',
+			editor: {
+				xtype:'numberfield', 
+				minValue: 0, 
+				maxValue: Infinity, 
+				step: .2,
+				listeners: {
+					change: function(editor, newCost) {
+						let thisCell = editor.up();
+						let plugin = thisCell.editingPlugin;
+						let record = plugin.context.record;
 
-				                let record = editor.getWidgetRecord();
-				                let length = record.get("infraLength")
-
-//				                editor.suspendEvents(false)
-				                record.set("totalCost",changeVal*length )
-//                              the change event for this field first 2 times
-                                //which cause the value to not change. Setting the value fires the event a
-                                // third time which seems to fix the issue.
-                                //The change event only fires twice when we set the value of another column
-                                // Probably a bug with extjs
-				                record.set("costPerFoot", changeVal)
-//				                setTimeout(() => {
-//				                    editor.resumeEvents()
-//				                                }, 1000);
-
-//				                console.log(record.get("totalCost"))s
-								refreshviewinfra()
-                            },
-//                            single: true
-                            },
-
-			    },
-			    text: 'Cost Per<br>Foot', dataIndex: 'costPerFoot', width: 90,
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+						let infraLength = record.get("infraLength")
+						
+						record.set("totalCost", newCost * infraLength)
+					},
+				}
+			}, 
+			text: 'Cost Per<br>Foot', 
+			dataIndex: 'costPerFoot', 
+			width: 90,
+			hideable: false, 
+			enableColumnHide: false, 
+			lockable: false, 
+			minWidth: 24,
 			tooltip: '<b>Cost per Square foot of lane material:</b> Based on Material choosen, can be editted.',
-
 		};
-		//------------------------------------------------------------------------------
+
 		let totalCostColumn = {
-			xtype: 'numbercolumn', format: '0.00',editor: {
-				xtype:'numberfield', minValue: 25, maxValue: 175, step: 5,
-				exportable: true, exportConverter: function(self){
-					console.log(self)
+			xtype: 'numbercolumn', 
+			format: '0.00',
+			editor: {
+				xtype:'numberfield', 
+				minValue: 25, 
+				maxValue: 175, 
+				step: 5,
+				exportable: true, 
+				exportConverter: function(self){
 					return self
 				},
-				listeners:{change: function(editor, newv,oldv, eOpts) {
-
-				    console.log("total cost updated")
-					refreshviewinfra()
+				listeners:{
+					change: function(editor, newv,oldv, eOpts) {
+						console.log("total cost updated")
+						refreshviewinfra()
+					}
 				}
-				}
-			}, text: 'Total<br>Cost', dataIndex: 'totalCost', width: 80, formatter: 'usMoney',
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
+			}, 
+			text: 'Total<br>Cost', 
+			dataIndex: 'totalCost', 
+			width: 80, 
+			formatter: 'usMoney',
+			hideable: false, 
+			enableColumnHide: false, 
+			lockable: false, 
+			minWidth: 24,
 			tooltip: '<b>Total Cost of Infrastructure:</b> Calculated based on length and material of infrastructure.',
 		};
-		//------------------------------------------------------------------------------
+
 		Ext.applyIf(me, {
 			columns: [
 				infraNameColumn,
