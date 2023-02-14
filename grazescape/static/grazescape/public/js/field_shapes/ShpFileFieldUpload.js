@@ -55,7 +55,7 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 						listeners:{
 							afterrender:function(cmp){
 								cmp.fileInputEl.set({
-									//Allows for more then one file to be selected.  Important for shapefiles
+									//Allows for more than one file to be selected.  Important for shapefiles
 									multiple:'multiple'
 								});
 							}

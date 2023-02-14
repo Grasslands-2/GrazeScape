@@ -436,7 +436,7 @@ class TransformationTable extends Component {
                     <Form.Label hidden={!this.state.showRotFreq}>Rotational Frequency</Form.Label>
                     <Form.Select aria-label="Default select example" hidden={!this.state.showRotFreq} ref={this.rotFreq}
                       onChange={(e) => this.handleSelectionChange("rotFreq", e)}>
-                      <option value="1.2">More then once a day</option>
+                      <option value="1.2">More than once a day</option>
                       <option value="1">Once a day</option>
                       <option value="0.95">Every 3 days</option>
                       <option value="0.75">Every 7 days</option>

@@ -41,7 +41,7 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 		grassVal='Bluegrass-clover';
 		rotationFreqVal = rotfreq;
 		if(rotfreq == 1){
-			rotationFreqdisp = 'More then once a day'
+			rotationFreqdisp = 'More than once a day'
 		}
 		else if(rotfreq == "1.2"){
 			rotationFreqdisp = 'Once a day'
@@ -449,7 +449,7 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 					//	boxLabelCls: 'hover'
 					},
 					items: [{
-						boxLabel: 'More then once a day', inputValue: "1.2",
+						boxLabel: 'More than once a day', inputValue: "1.2",
 					},{
 						boxLabel: 'Once a day', inputValue: "1",
 					},{ 
