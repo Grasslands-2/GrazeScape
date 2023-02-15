@@ -421,6 +421,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			{
 				xtype: 'button',
 				text: 'Select All Fields',
+				disabled: true,
 				handler: function (self) {
 					selectedFields = []
 					Ext.getCmp("fieldTable").getView().refresh();
@@ -428,39 +429,39 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				}
 			},
 			{
-			xtype: 'button',
-			text: 'Deselect All Fields',
-			handler: function (self) {
-				selectedFields = []
-				Ext.getCmp("fieldTable").getView().refresh();
-				Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
-			}
+				xtype: 'button',
+				text: 'Deselect All Fields',
+				disabled: true,
+				handler: function (self) {
+					selectedFields = []
+					Ext.getCmp("fieldTable").getView().refresh();
+					Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
+				}
+			},
+			{
+				//refreshes the fields view and saves changes
+				xtype: 'button',
+				text: 'Refresh',
+				handler: async function (self) {
+					await runFieldUpdate()
+					selectedFields = []
+					Ext.getCmp("fieldTable").getView().refresh();
+				}
+			},
+			{
+				//The reason for the exportable grid extension.  Exports a csv of the current fields table
+				xtype: 'button',
+				text: 'Export Table',
+				handler: function (self) {
+					console.log("field table exported")
+					Ext.getCmp("fieldTable").export('Field Table');
+					selectedFields = []
+					Ext.getCmp("fieldTable").getView().refresh();
+					Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
+				}
+			}]
 		},
-		{
-			//refreshes the fields view and saves changes
-			xtype: 'button',
-			text: 'Refresh',
-			handler: async function (self) {
-				await runFieldUpdate()
-				selectedFields = []
-				Ext.getCmp("fieldTable").getView().refresh();
-				Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
-			}
-		},
-		{
-			//The reason for the exportable grid extension.  Exports a csv of the current fields table
-			xtype: 'button',
-			text: 'Export Table',
-			handler: function (self) {
-				console.log("field table exported")
-				Ext.getCmp("fieldTable").export('Field Table');
-				selectedFields = []
-				Ext.getCmp("fieldTable").getView().refresh();
-				Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
-			}
-		}]
-	},
-],
+	],
 	minHeight: 40,
 	maxHeight: 600,
 	listeners: {

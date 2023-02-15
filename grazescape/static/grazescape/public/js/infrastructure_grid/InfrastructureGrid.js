@@ -179,6 +179,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			{
 				xtype: 'button',
 				text: 'Select All Fields',
+				disabled: true,
 				handler: function (self) {
 					selectedInfra = []
 					Ext.getCmp("infraTable").getView().refresh();
@@ -186,37 +187,37 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				}
 			},
 			{
-			xtype: 'button',
-			text: 'Deselect All Fields',
-			handler: function (self) {
-				selectedInfra = []
-				Ext.getCmp("infraTable").getView().refresh();
-				Ext.getCmp("infraTable").getSelectionModel().deselectAll();
-			}
+				xtype: 'button',
+				text: 'Deselect All Fields',
+				disabled: true,
+				handler: function (self) {
+					selectedInfra = []
+					Ext.getCmp("infraTable").getView().refresh();
+					Ext.getCmp("infraTable").getSelectionModel().deselectAll();
+				}
+			},
+			{
+				xtype: 'button',
+				text: 'Refresh',
+				handler: function (self) {
+					runInfraUpdate()
+					selectedInfra = []
+					Ext.getCmp("infraTable").getView().refresh();
+				}
+			},
+			{
+				xtype: 'button',
+				text: 'Export Table',
+				handler: function (self) {
+					console.log("infra Table exported")
+					Ext.getCmp("infraTable").export('Field Table');
+					selectedInfra = []
+					Ext.getCmp("infraTable").getView().refresh();
+					Ext.getCmp("infraTable").getSelectionModel().deselectAll();
+				}
+			}]
 		},
-		{
-			xtype: 'button',
-			text: 'Refresh',
-			handler: function (self) {
-				runInfraUpdate()
-				selectedInfra = []
-				Ext.getCmp("infraTable").getView().refresh();
-				Ext.getCmp("infraTable").getSelectionModel().deselectAll();
-			}
-		},
-		{
-			xtype: 'button',
-			text: 'Export Table',
-			handler: function (self) {
-				console.log("infra Table exported")
-				Ext.getCmp("infraTable").export('Field Table');
-				selectedInfra = []
-				Ext.getCmp("infraTable").getView().refresh();
-				Ext.getCmp("infraTable").getSelectionModel().deselectAll();
-			}
-		}]
-	},
-],
+	],
 	minHeight: 40,
 	maxHeight: 600,
 	listeners: {
