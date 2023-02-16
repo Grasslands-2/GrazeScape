@@ -437,13 +437,6 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		let lengthColumn = {
 			xtype: "numbercolumn",
 			format: "0.0",
-			editor: {
-				xtype: "numberfield",
-				minValue: 25,
-				maxValue: 175,
-				step: 5,
-				editable: false,
-			},
 			text: "Length [ft]",
 			dataIndex: "infraLength",
 			width: 80,
@@ -487,22 +480,6 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		let totalCostColumn = {
 			xtype: 'numbercolumn', 
 			format: '0.00',
-			editor: {
-				xtype:'numberfield', 
-				minValue: 25, 
-				maxValue: 175, 
-				step: 5,
-				exportable: true, 
-				exportConverter: function(self){
-					return self
-				},
-				listeners:{
-					change: function(editor, newv,oldv, eOpts) {
-						console.log("total cost updated")
-						refreshviewinfra()
-					}
-				}
-			}, 
 			text: 'Total<br>Cost', 
 			dataIndex: 'totalCost', 
 			width: 80, 
@@ -556,9 +533,6 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		})
 		
 		AppEvents.registerListener('show_infra_grid', function() {
-			me
-			console.log('hi from grid view')
-
 			let height = me.getHeight();
 			if (height == 0) height = me.internalHeight;			
 			
