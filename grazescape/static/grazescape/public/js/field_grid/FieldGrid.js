@@ -769,24 +769,23 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				}
 			}
 		};
-		//------------------------------------------------------------------------------
-
+		
 		let onContourColumn = {
-			xtype: 'widgetcolumn', text: 'On Contour', dataIndex: 'onContour', width: 100,
+			xtype: 'widgetcolumn', 
+			text: 'On Contour', 
+			dataIndex: 'onContour', 
+			width: 100,
 			editor:{},
 			tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
-			hideable: false, enableColumnHide: false, lockable: false, minWidth: 24,
-			// onWidgetRender: function(widget) {
-			// 	widget.center()
-			// 	console.log("oncontour rendered")
-			// },
+			hideable: false, 
+			enableColumnHide: false, 
+			lockable: false, 
+			minWidth: 24,
 			listeners:{
 				afterrender: function(self){
-					console.log("oncontour rendered")
-					console.log(self)
-					//console.log(self.getAlign(self))
-					self.setAlign('center')},
+					self.setAlign('center')
 				},
+			},
 			onWidgetAttach: function(col, widget, rec) {
 				if (rec.get('rotationVal') == 'pt-cn' || rec.get('rotationVal') == 'pt-rt'|| rec.get('rotationVal') == 'dl') {
 					widget.setDisabled(true);
@@ -813,22 +812,10 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				queryMode: 'local',
 				floating: false,
 				padding: '0 0 0 30',
-				//id: "oncontourcheckbox",
-				//align: 'center',
 				listeners:{
-					change: async function(field,newValue,oldValue,record){
-						var store = me.getStore()
-						var storeDataObjArray = store.data.items
-						if(selectedFields.length > 0 ){
-							for(r in selectedFields){
-								for(f in storeDataObjArray){
-									if(selectedFields[r] == storeDataObjArray[f].id && selectedFields[r] != record.id){
-										storeDataObjArray[f].dirty = true
-										storeDataObjArray[f].data.onContour = newValue
-									}
-								}
-							}
-						}
+					change: async function(widget,value){
+						var record = widget.getWidgetRecord();
+						record.set('onContour', !!value);
 					}
 				}
 			}
@@ -1172,13 +1159,16 @@ Ext.define('DSS.field_grid.FieldGrid', {
 		};
 		//------------------------------------------------------------------------------
 		//turn on only for pasture and new pasture crop rotation
-		// let interseededCloverColumn = {
-		// 	xtype: 'checkcolumn', text: 'Interseeded<br>Clover', dataIndex: 'interseededClover', width: 125, 
-		// 	hideable: false, enableColumnHide: false, lockable: false, minWidth: 24
-		// };
 		let interseededCloverColumn = {
-			xtype: 'widgetcolumn', text: 'Interseeded Legume', dataIndex: 'interseededClover', width: 145, editor:{},
-			hideable: true, enableColumnHide: true, lockable: false, minWidth: 24,
+			xtype: 'widgetcolumn', 
+			text: 'Interseeded Legume', 
+			dataIndex: 'interseededClover', 
+			width: 145, 
+			editor:{},
+			hideable: true, 
+			enableColumnHide: true, 
+			lockable: false, 
+			minWidth: 24,
 			onWidgetAttach: function(col,widget,rec) {
 				if (rec.get('rotationVal') == 'dl' || rec.get('rotationVal') == 'cc' || rec.get('rotationVal') == 'cg' || rec.get('rotationVal') == 'dr' || rec.get('rotationVal') == 'cso') {
 					widget.setDisabled(true);
@@ -1206,24 +1196,16 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				queryMode: 'local',
 				listeners: {
 					change: async function(widget,value){
-					console.log("you've changed man graze clover")
-					var record = widget.getWidgetRecord();
-					fertDefaultArray = await get_field_rot_defaults({"rotation": record.data.rotationVal, "legume":value})
-					console.log(fertDefaultArray.fertDefaults)
-					
-					if (value == true){
-						record.set('interseededClover',true)
+						var record = widget.getWidgetRecord();
+						fertDefaultArray = await get_field_rot_defaults({"rotation": record.data.rotationVal, "legume":value})
+						
+						record.set('interseededClover', !!value)
+
+						record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+						record.set('fertPercN',fertDefaultArray.fertDefaults[1])
+						record.set('fertPercP',fertDefaultArray.fertDefaults[2])
 					}
-					else if(value == false){
-						record.set('interseededClover',false)
-					}
-					console.log(record.get('interseededClover'))
-					record.set('manuPercN',fertDefaultArray.fertDefaults[0])
-					record.set('fertPercN',fertDefaultArray.fertDefaults[1])
-					record.set('fertPercP',fertDefaultArray.fertDefaults[2])
-					//changecount += 1
 				}
-			}
 			},
 			tooltip: '<b>Interseeded Legumes:</b> Are you planting nitrogen fixing legumes like clover.',
 		};

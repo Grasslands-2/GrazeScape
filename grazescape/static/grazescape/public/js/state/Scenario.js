@@ -274,7 +274,9 @@ function runInfraUpdate(){
 					water_pipe_disp: infraArray[i].waterPipeDisp,
 					lane_material: infraArray[i].laneMaterialDisp,
 					lane_material_disp: infraArray[i].laneMaterialDisp,
+					lane_width: infraArray[i].laneWidth,
 					cost_per_foot: infraArray[i].costPerFoot,
+					total_cost: infraArray[i].totalCost
 				});
 				wfs_update(infraFeature,'infrastructure_2');
 				break;
@@ -348,6 +350,7 @@ function runFieldUpdate(){
 					perc_fert_n: fieldArray[i].fertPercN,
 					perc_manure_p: fieldArray[i].manuPercP,
 					perc_manure_n: fieldArray[i].manuPercN,
+					land_cost: fieldArray[i].landCost
 				});
 				wfs_update(feildFeature,'field_2');
 				break;
