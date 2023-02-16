@@ -422,8 +422,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				xtype:'numberfield', 
 				minValue: 25, 
 				maxValue: 175, 
-				step: 5, 
-				editable: false
+				step: 5
 			}, 
 			text: 'Lane Width (ft)', 
 			dataIndex: 'laneWidth', 

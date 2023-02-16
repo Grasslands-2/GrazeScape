@@ -274,6 +274,7 @@ function runInfraUpdate(){
 					water_pipe_disp: infraArray[i].waterPipeDisp,
 					lane_material: infraArray[i].laneMaterialDisp,
 					lane_material_disp: infraArray[i].laneMaterialDisp,
+					lane_width: infraArray[i].laneWidth,
 					cost_per_foot: infraArray[i].costPerFoot,
 				});
 				wfs_update(infraFeature,'infrastructure_2');
