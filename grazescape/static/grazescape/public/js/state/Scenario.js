@@ -348,6 +348,7 @@ function runFieldUpdate(){
 					perc_fert_n: fieldArray[i].fertPercN,
 					perc_manure_p: fieldArray[i].manuPercP,
 					perc_manure_n: fieldArray[i].manuPercN,
+					land_cost: fieldArray[i].landCost
 				});
 				wfs_update(feildFeature,'field_2');
 				break;
