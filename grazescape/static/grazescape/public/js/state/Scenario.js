@@ -519,8 +519,8 @@ Ext.define('DSS.state.Scenario', {
 								self.setActive(false)
 								var af = parseInt(DSS.activeFarm,10);
 								var as = DSS.activeScenario;
-								AppEvents.triggerEvent('hide_field_grid')
-								AppEvents.triggerEvent('hide_infra_grid')
+								Ext.getCmp("EditFieldsButton").toggle(false);
+								Ext.getCmp("EditInfrastructureButton").toggle(false);
 								
 								DSS.MapState.removeMapInteractions();
 								//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
@@ -623,8 +623,8 @@ Ext.define('DSS.state.Scenario', {
 							handler: function(self){
 								self.setActiveCounter(0)
 								self.setActive(false)
-								AppEvents.triggerEvent('hide_field_grid')
-								AppEvents.triggerEvent('hide_infra_grid')
+								Ext.getCmp("EditFieldsButton").toggle(false);
+								Ext.getCmp("EditInfrastructureButton").toggle(false);
 								DSS.MapState.removeMapInteractions();
 								//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
 								DSS.mapClickFunction = undefined;
@@ -693,6 +693,7 @@ Ext.define('DSS.state.Scenario', {
 				},
 				{
 					xtype: 'button',
+					id: 'EditFieldsButton',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
@@ -722,6 +723,7 @@ Ext.define('DSS.state.Scenario', {
 				},
 				{
 					xtype: 'button',
+					id: 'EditInfrastructureButton',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
