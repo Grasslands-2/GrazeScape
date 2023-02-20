@@ -245,8 +245,6 @@ function runFieldUpdate(){
 		var feildFeature = f;
 
 		for (i in fieldArray){
-			console.log("Fieldarray id: " +fieldArray[i].id);
-
 			if(fieldArray[i].id === feildFeature.id_){
 				// if our field has been changed we need to run model
 				if (changedFieldsList.includes(fieldArray[i].id)){
@@ -376,8 +374,6 @@ async function runScenarioUpdate(){
 };
 
 function wfs_update(feat,layer) {
-    console.log(feat)
-	console.log('in field update func')
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
@@ -386,9 +382,7 @@ function wfs_update(feat,layer) {
         featureType: layer,
         srsName: 'EPSG:3857'
     });
-    console.log(feat)
     node = formatWFS.writeTransaction(null, [feat], null, formatGML);
-	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
 	str=str.replace("feature:"+layer,"Farms:"+layer);
@@ -484,7 +478,6 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'component',
 					flex: 1,
 					cls: 'section-title accent-text right-pad',
-					// TODO: Dynamic name...
 					html: 'Scenario Design'
 				}]
 			},{ 
@@ -708,9 +701,7 @@ Ext.define('DSS.state.Scenario', {
 					toggleHandler: async function(self, pressed) {
 						if (pressed) {
 							DSS.MapState.destroyLegend();
-							//console.log(DSS.field_grid.FieldGrid.getView()); 
 							DSS.MapState.removeMapInteractions();
-							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
 							cropAcreage = 0
 							await gatherTableData();
@@ -719,12 +710,8 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_infra_line_mode');
 						}
 						else {
-						    console.log("running update")
-						    fieldChangeList = []
 						    fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
-							console.log(fieldChangeList)
 							AppEvents.triggerEvent('hide_field_grid')
-							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
 							selectInteraction.getFeatures().clear()
 							DSS.map.removeInteraction(selectInteraction);
@@ -750,7 +737,6 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_infra_line_mode');
 						}
 						else {
-							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 							runInfraUpdate()
