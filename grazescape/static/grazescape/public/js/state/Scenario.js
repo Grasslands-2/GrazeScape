@@ -1,9 +1,8 @@
-//const { listenerCount } = require("process");
 function get_field_rot_defaults(data){
     console.log(data)
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
-    // data = JSON.stringify(data)
+
     $.ajaxSetup({
             headers: { "X-CSRFToken": csrftoken }
         });
@@ -30,7 +29,6 @@ function get_field_rot_defaults(data){
                     }
                     continue
                 }
-                let e = obj.extent;
             }
             resolve(responses);
         },
@@ -38,11 +36,9 @@ function get_field_rot_defaults(data){
         failure: function(response, opts) {
             me.stopWorkerAnimation();
         },
-        //timeout:50
     });
     })
 	}
-
 
 var farmArray = [];
 var farmObj = {};
@@ -74,7 +70,6 @@ function dupNameCheck(inputName,layer,nameValue){
 				dupname =  true
 			}
 		}
-		
 	})
 }
 
@@ -137,59 +132,17 @@ function infraDrawStyle(infra_typeInput){
 		return infraDrawDefaultStyle
 	}
 };
-//---------------------------------
 
-function aswCheck(breedSizeData,aswValueInput){
-	console.log(breedSizeData)
-	console.log(aswValueInput)
-	if(breedSizeData = 'small'){
-		if(aswValueInput < 220){
-			aswValue = 220
-		}else if(aswValueInput > 460){
-			aswValue = 460
-		}else{
-			aswValue = aswValueInput
-		}
-	}
-	if(breedSizeData = 'large'){
-		if(aswValueInput < 330){
-			aswValue = 330
-		}else if(aswValueInput > 670){
-			aswValue = 670
-		}else{
-			aswValue = aswValueInput
-		}
-	}
-	// if(breedSizeData = 'small' && aswValueInput < 220){
-	// 	aswValue = 220
-	// }else if(breedSizeData = 'small' && aswValueInput > 460){
-	// 	aswValue = 460
-	// }else if(breedSizeData = 'large' && aswValueInput < 330){
-	// 	aswValue = 330
-	// }else if(breedSizeData = 'large' && aswValueInput > 670){
-	// 	aswValue = 670
-	// }else{
-	// 	aswValue = aswValueInput
-	// }
-	console.log(aswValue)
+// TODO investigate this sketchy as heck function
+function waitForScen(){
+	return new Promise(function(resolve) {
+		resolve("done")
+	activateRunModels()
+	})
 }
 
-function waitForScen(){
-	    return new Promise(function(resolve) {
-	        console.log(scenarioArray.length == 0)
-            if (scenarioArray.length == 0){
-                console.log("waiting...")
-
-            }
-            console.log("done waiting!!!!!!!!!!!!")
-            console.log("2222")
-            resolve("done")
-	    activateRunModels()
-        })
-	}
 function popScenarioArray(obj) {
 	for (i in obj)
-	//console.log(i);
 	scenarioArray.push({
 		gid: obj[i].properties.gid,
 		id: obj[i].properties.scenario_id,
@@ -247,8 +200,6 @@ function popScenarioArray(obj) {
 		fertPCost: obj[i].properties.fert_p_cost,
 		fertNCost: obj[i].properties.fert_n_cost,
 	});
-	console.log("gatherTableData for scenarios ran");
-	console.log(scenarioArray);
 }
 
 function gatherScenarioTableData() {
@@ -258,9 +209,7 @@ function gatherScenarioTableData() {
 function runInfraUpdate(){
 	DSS.layer.infrastructure.getSource().forEachFeature(function(f) {
 		var infraFeature = f;
-		console.log("from infra loop through: " + infraFeature.id_);
 		for (i in infraArray){
-			console.log("infraArray id: " +infraArray[i].id);
 			if(infraArray[i].id === infraFeature.id_){
 				console.log(infraArray[i].name);
 				infraFeature.setProperties({
@@ -291,19 +240,14 @@ function runFieldUpdate(){
     for (field in fieldChangeList){
         changedFieldsList.push(fieldChangeList[field].id)
     }
-    console.log("changedFieldsList", changedFieldsList)
+
 	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-		console.log(f)
 		var feildFeature = f;
-		console.log("from fields_1, processing: " + feildFeature.id_);
+
 		for (i in fieldArray){
 			console.log("Fieldarray id: " +fieldArray[i].id);
-			console.log(fieldArray[i]);
-			if(fieldArray[i].id === feildFeature.id_){
-				console.log(fieldArray[i].name);
-				console.log(fieldArray[i].id);
-				let is_dirty = false
 
+			if(fieldArray[i].id === feildFeature.id_){
 				// if our field has been changed we need to run model
 				if (changedFieldsList.includes(fieldArray[i].id)){
 				    feildFeature.setProperties({is_dirty:true})
@@ -449,7 +393,7 @@ function wfs_update(feat,layer) {
     str = s.serializeToString(node);
 	str=str.replace("feature:"+layer,"Farms:"+layer);
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
-    geoServer.updateFieldAtt(str,feat )
+    geoServer.updateFieldAtt(str,feat)
 }
 
 function activateRunModels(){
@@ -463,9 +407,7 @@ function activateRunModels(){
 	}
 }
 
-//------------------------------------------------------------------------------
 Ext.define('DSS.state.Scenario', {
-//------------------------------------------------------------------------------
 	extend: 'Ext.Container',
     alternateClassName: 'DSS.StateScenario',
 	alias: 'widget.state_scenario',
@@ -495,14 +437,13 @@ Ext.define('DSS.state.Scenario', {
 			return def;
 		}
 	},
-	//--------------------------------------------------------------------------
+
 	initComponent: function() {
 		let me = this;
 		if(Ext.getCmp("CostDialog")){
 			Ext.getCmp("CostDialog").destroy()
 			console.log("cost dialog destroyed")
 		}
-		//DSS.MapState.hideFieldsandInfra()
 		Ext.applyIf(me, {
 			defaults: {
 				margin: '1rem',
@@ -519,16 +460,11 @@ Ext.define('DSS.state.Scenario', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: async function(self) {
-									// if (DSS['viewModel'].scenario.data ==null){
-									// 	console.log("No viewModel")
-									// 	await me.initViewModel();
-									// }
 									await gatherScenarioTableData
 
 									await geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
-									//DSS.layer.PLossGroup.setVisible(false);
 									DSS.MapState.destroyLegend();
 									DSS.layer.erosionGroup.setVisible(false);
 									DSS.layer.nleachingGroup.setVisible(false);
@@ -585,12 +521,6 @@ Ext.define('DSS.state.Scenario', {
 						},
 						items: [{
 							text: 'Place a Field',
-							//id:'nwel',
-							listeners:{
-								afterrender: function(self) {
-									//self.setChecked(DSS.layer.DEM_image2.getVisible());
-								},
-							},
 							handler: function(self){
 								self.setActiveCounter(0)
 								self.setActive(false)
@@ -697,12 +627,6 @@ Ext.define('DSS.state.Scenario', {
 						},
 						items: [{
 							text: 'Place Infrastructure',
-							//id:'nwel',
-							listeners:{
-								afterrender: function(self) {
-									//self.setChecked(DSS.layer.DEM_image2.getVisible());
-								},
-							},
 							handler: function(self){
 								self.setActiveCounter(0)
 								self.setActive(false)
@@ -728,25 +652,16 @@ Ext.define('DSS.state.Scenario', {
 											scale: 0.03,
 											src: '/static/grazescape/public/images/pencil-png-653.png'
 										}),
-										// image: new ol.style.Circle({
-										// 	radius: 7,
-										// 	fill: new ol.style.Fill({
-										// 	  color: '#bd490f',
-										// 	}),
-										// }),
 									})
 								});
 								DSS.map.addInteraction(DSS.draw);
 								AppEvents.triggerEvent('hide_field_draw_mode_indicator')
 								AppEvents.triggerEvent('show_infra_draw_mode_indicator')
 								document.body.style.cursor = 'none'
-								console.log("draw is on");
-								console.log(self)
-								
+
 								DSS.draw.on('drawend', function (e) {
 									document.body.style.cursor = 'default'
 									infraLength = e.feature.values_.geom.getLength() * 3.28084;
-									console.log(infraLength);
 									AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
 									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 	
@@ -888,7 +803,6 @@ Ext.define('DSS.state.Scenario', {
 						DSS.layer.erosionGroup.values_.layers.array_ = [];
 						DSS.layer.nleachingGroup.values_.layers.array_ = [];
 						DSS.layer.yieldGroup.values_.layers.array_ = [];
-						console.log("running update")
 						fieldChangeList = []
 						fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
 						AppEvents.triggerEvent('hide_field_grid')
@@ -897,8 +811,6 @@ Ext.define('DSS.state.Scenario', {
 						DSS.field_grid.FieldGrid.store.clearData();
 						await runFieldUpdate()
 						await runInfraUpdate()
-//						cleanDB()
-						//DSS.DrawFieldShapes.addModeControl()
 						console.log("updates")
 						console.log((DSS['viewModel'].scenario))
 						console.log((DSS['viewModel'].scenario.data))
@@ -910,29 +822,19 @@ Ext.define('DSS.state.Scenario', {
                         Ext.getCmp("btnOpenDashboard").setDisabled(false)
 
                         Ext.getCmp("btnRunModels").setDisabled(true)
-						//Ext.getCmp("btnRemoveModelResults").setDisabled(false)
-//                        if dashboard hasnt been opened before
                         if (!Ext.getCmp("dashboardWindow")) {
-//                            Ext.getCmp("btnRunModels").setDisabled(true)
                             let dash = Ext.create('DSS.results.Dashboard', {
-//                                numberOfLines: 20,
                                 runModel:true,
                                 // any other option you like...
                             });
-//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
                             Ext.getCmp("btnRunModels").setText("Rerun Models")
                             Ext.getCmp("dashboardWindow").show().center();
-							//Ext.create('DSS.map.OutputMenu').showAt(10,10);
                         }
                         else{
 							await getWFSScenarioSP()
-							console.log("rerunning update")
-//                            close model to destroy it to rerun models
-                            console.log("destroy dashboard")
                             modelError = false
                             modelErrorMessages = []
                             chartObj = {}
-//                            reset global vars
                             //controls order of how datasets are displayed and with what colors
                             chartDatasetContainer = {}
                             //https://personal.sron.nl/~pault/
@@ -977,7 +879,7 @@ Ext.define('DSS.state.Scenario', {
 				 	text: 'View Results',
 				 	id: "btnOpenDashboard",
 				 	disabled: true,
-				 	handler: function(self) {
+				 	handler: function() {
 		                Ext.getCmp("dashboardWindow").show()
 						DSS.layer.yieldGroup.setVisible(false);
 							// DSS.layer.erosionGroup.setVisible(false);
@@ -1001,11 +903,6 @@ Ext.define('DSS.state.Scenario', {
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
-					//id: 'dupCurScen',
-					//disabled: true,
-					//padding: 1,
-					//margin: '4 2 2 4',
-					//componentCls: 'button-margin-large',
 					text: 'Create New Scenario',
 					handler: function(self) {
 						DSS.dialogs.NewScenPickWindow = Ext.create('DSS.state.NewScenPickWindow'); 				
@@ -1017,11 +914,9 @@ Ext.define('DSS.state.Scenario', {
 		});
 		
 		me.callParent(arguments);
-		//DSS.Inspector.addModeControl()
 		DSS.MapState.disableFieldDraw();
 		DSS.draw.setActive(false);
 		DSS.modify.setActive(false);
-		//DSS.fieldStyleFunction = undefined;	DSS.layer.fields_1.changed();
 //        having trouble getting the promise to work. Just using a timeout for now
         setTimeout(() => {
             console.log("calling model setup")
@@ -1035,15 +930,8 @@ Ext.define('DSS.state.Scenario', {
         },
 	
 	initViewModel: function() {
-		console.log("IM INSIDE INITVIEWMODEL!!!!!!!")
-		// if (DSS && DSS.viewModel && DSS.viewModel.scenario)
-		// return;
-		
-		// if (!DSS['viewModel'])
-		console.log("No View Model")
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
-//		gatherScenarioTableData()
 		DSS.viewModel.scenario = new Ext.app.ViewModel({
 			formulas: {
 				tillageValue: { 
