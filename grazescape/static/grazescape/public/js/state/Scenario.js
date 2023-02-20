@@ -133,14 +133,6 @@ function infraDrawStyle(infra_typeInput){
 	}
 };
 
-// TODO investigate this sketchy as heck function
-function waitForScen(){
-	return new Promise(function(resolve) {
-		resolve("done")
-	activateRunModels()
-	})
-}
-
 function popScenarioArray(obj) {
 	for (i in obj)
 	scenarioArray.push({
@@ -203,7 +195,7 @@ function popScenarioArray(obj) {
 }
 
 function gatherScenarioTableData() {
-	geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+	return geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 };
 
 function runInfraUpdate(){
@@ -390,14 +382,16 @@ function wfs_update(feat,layer) {
     geoServer.updateFieldAtt(str,feat)
 }
 
-function activateRunModels(){
-	console.log(DSS.layer.fields_1.getSource().getFeatures().length)
-	if(DSS.layer.fields_1.getSource().getFeatures().length > 0){
+function updateRunModelsButtonDisabled(){
+	const runModelsButton = Ext.getCmp("btnRunModels");
+	if( !runModelsButton ) return;
+
+	if( DSS.layer.fields_1.getSource().getFeatures().length > 0 ){
 		console.log("Fields Layer more than 0")
-		Ext.getCmp("btnRunModels").setDisabled(false)
-	}else{
+		runModelsButton.setDisabled(false)
+	} else {
 		console.log("Fields Layer more is Empty")
-		Ext.getCmp("btnRunModels").setDisabled(true)
+		runModelsButton.setDisabled(true)
 	}
 }
 
@@ -454,8 +448,6 @@ Ext.define('DSS.state.Scenario', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: async function(self) {
-									await gatherScenarioTableData
-
 									await geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
@@ -905,16 +897,8 @@ Ext.define('DSS.state.Scenario', {
 		DSS.MapState.disableFieldDraw();
 		DSS.draw.setActive(false);
 		DSS.modify.setActive(false);
-//        having trouble getting the promise to work. Just using a timeout for now
-        setTimeout(() => {
-            console.log("calling model setup")
-            waitForScen().then(function(value){
-                console.log("promise done")
-                me.initViewModel();
-
-            })
-            }, 1500);
-			activateRunModels()
+        me.initViewModel();
+		updateRunModelsButtonDisabled();
         },
 	
 	initViewModel: function() {

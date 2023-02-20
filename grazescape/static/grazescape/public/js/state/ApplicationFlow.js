@@ -286,13 +286,13 @@ Ext.define('DSS.state.ApplicationFlow', {
 	},
 
 	//----------------------------------------------------------------------------------
-	showScenarioPage: function(operationName) {
+	showScenarioPage: async function(operationName) {
 		let me = this;
-		gatherScenarioTableData()
+		await gatherScenarioTableData()
 		Ext.suspendLayouts();
-			me.setControlBlock([	
-				DSS.StateScenario.get()
-			]);
+		me.setControlBlock([	
+			DSS.StateScenario.get()
+		]);
 		Ext.resumeLayouts(true);
 	},
 	
