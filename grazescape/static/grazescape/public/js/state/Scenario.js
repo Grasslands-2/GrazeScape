@@ -793,8 +793,8 @@ Ext.define('DSS.state.Scenario', {
 						DSS.layer.yieldGroup.values_.layers.array_ = [];
 						fieldChangeList = []
 						fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
-						AppEvents.triggerEvent('hide_field_grid')
-						AppEvents.triggerEvent('hide_infra_grid')
+						Ext.getCmp("EditFieldsButton").toggle(false);
+						Ext.getCmp("EditInfrastructureButton").toggle(false);
 						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 						DSS.field_grid.FieldGrid.store.clearData();
 						await runFieldUpdate()
