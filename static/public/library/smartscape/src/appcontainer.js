@@ -95,14 +95,11 @@ class AppContainer extends React.Component{
         areaSelectionType:"",
         boundaryRasterId:"",
         coors:[],
-
         basePloss: "hello world",
         modelPloss: "hello world",
         baseEro: "hello world",
         modelEro: "hello world",
         modelOutputs: {},
-
-//        newTrans:new Transformation("intial",-1,-1)
         };
   }
 componentDidUpdate(prevProps) {

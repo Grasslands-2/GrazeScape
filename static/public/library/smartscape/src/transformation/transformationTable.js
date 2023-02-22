@@ -59,6 +59,9 @@ const mapStateToProps = state => {
     return{
         activeTrans: state.transformation.activeTrans,
         listTrans: state.transformation.listTrans,
+        baseTrans:state.transformation.baseTrans,
+        aoiFolderId:state.main.aoiFolderId,
+
 }}
 
 const mapDispatchToProps = (dispatch) => {
@@ -96,10 +99,12 @@ class TransformationTable extends Component {
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSelectionChangeGeneral = this.handleSelectionChangeGeneral.bind(this);
 
+
     this.selectTransClick = this.selectTransClick.bind(this);
     this.handleTransNameChange = this.handleTransNameChange.bind(this);
 //    this.addTransformation = this.addTransformation.bind(this);
     this.removeTransformation = this.removeTransformation.bind(this);
+    this.getPhosValues = this.getPhosValues.bind(this);
     this.showModal = this.showModal.bind(this);
     this.testVisible = this.testVisible.bind(this);
 
@@ -116,12 +121,15 @@ class TransformationTable extends Component {
     this.nitrogen_fertilizer = React.createRef();
     this.grassYield = React.createRef();
     this.rotFreq = React.createRef();
+    this.phos_fert_options_holder = []
   }
   componentDidUpdate(prevProps) {
-
-//    if(prevProps.newTrans == undefined && this.props.newTrans == undefined){
-//        console.log("no new trans")
-//    }
+        console.log("old values", prevProps)
+        console.log("new values", this.props)
+    if(prevProps.activeTrans.management.nitrogen != this.props.activeTrans.management.nitrogen){
+        console.log("Nitrogen has changed, calculate new P")
+        this.getPhosValues()
+    }
 //    else if(prevProps.newTrans == undefined && this.props.newTrans != undefined){
 //        console.log("adding new trans")
 //        this.addTransformation(this.props.newTrans)
@@ -136,6 +144,7 @@ class TransformationTable extends Component {
         console.log(e)
         // the modal will only open after the active trans has been set
         await this.selectTransClick(e)
+        this.getPhosValues()
         this.setState({transModalShow: true})
       }
     handleCloseModal(){
@@ -156,6 +165,7 @@ class TransformationTable extends Component {
         this.phos_manure.current.value = this.props.activeTrans.management.phos_manure
         this.grassYield.current.value = this.props.activeTrans.management.grassYield
         this.rotFreq.current.value = this.props.activeTrans.management.rotFreq
+        this.phos_fert_options_holder = this.props.activeTrans.management.phos_fert_options
         this.handleTransMangement()
       }
       configureTillage(){
@@ -290,21 +300,22 @@ class TransformationTable extends Component {
     handleSelectionChangeRadio(type, e){
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"mang"})
     }
-  onDragEnd(result) {
-    // dropped outside the list
-    if (!result.destination) {
-      return;
+
+    onDragEnd(result) {
+        // dropped outside the list
+        if (!result.destination) {
+          return;
+        }
+        console.log(result)
+        // deep copy seems to be the only one to make this work
+        let list = JSON.parse(JSON.stringify(this.props.listTrans))
+        let items = reorder(
+          list,
+          result.source.index,
+          result.destination.index
+        );
+        this.props.updateTransList(items);
     }
-    console.log(result)
-    // deep copy seems to be the only one to make this work
-    let list = JSON.parse(JSON.stringify(this.props.listTrans))
-    let items = reorder(
-      list,
-      result.source.index,
-      result.destination.index
-    );
-    this.props.updateTransList(items);
-  }
 
   selectTransClick(e){
     return new Promise((resolve) => {
@@ -326,23 +337,78 @@ class TransformationTable extends Component {
 
   }
 
-//  addTransformation(newTrans){
-//    let items = this.state.items
-//    items.push(newTrans)
-//    this.setState({
-//      items:items
-//    });
-//  }
   removeTransformation(e){
     console.log(e.currentTarget)
     console.log(e.currentTarget.id)
     let removeTransId = e.currentTarget.id
     this.props.removeTrans(removeTransId)
   }
+  getPhosValues(){
+    let transPayload = {}
+    let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
+    let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
+    let lengthTrans = transValues.length
+//        give the transformations the correct ranking
+    for(let trans in transValues){
+        transValues[trans].rank = lengthTrans;
+        transValues1[trans].rank = lengthTrans;
+        transValues[trans].selection.field_coors = []
+        transPayload[lengthTrans] = transValues[trans]
+        lengthTrans--;
+    }
+    this.props.updateTransList(transValues1);
+    var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+        let payload = {
+                trans: transPayload,
+                base:this.props.baseTrans,
+                folderId: this.props.aoiFolderId,
+                base_calc: false,
+            }
+        console.log(payload)
+        payload = JSON.stringify(payload)
+        $.ajax({
+            url : '/smartscape/get_phos_fert_options',
+            type : 'POST',
+            data : payload,
+            success: (response, opts) => {
+                delete $.ajaxSetup().headers
+                console.log("done with model runs")
+                console.log(response)
+                let list = JSON.parse(JSON.stringify(this.props.listTrans))
+                for (let item in list){
+                    console.log(item)
+                    console.log(list[item])
+                    console.log(list[item].rank)
+                    let transId = list[item].id
+//                    console.log(responses.land_stats.area_trans[list[item].rank]["area"])
+//                    let phos_options = [99,88]
+                    console.log(response, transId)
+                    let phos_options = response.response[transId].p_choices
+//                    let manure_value = 12
+                    let manure_value = response.response[transId].p_manure
+                    list[item].management.phos_manure = manure_value
 
-  // Normally you would want to split things out into separate components.
-  // But in this example everything is just done in one place for simplicity
-  //https://egghead.io/lessons/react-reorder-a-list-with-react-beautiful-dnd
+                    list[item].management.phos_fert_options = phos_options
+                    list[item].management.phos_fertilizer = phos_options[0]
+//                    if (this.props.activeTrans.id == item.id){
+//                  update active trans with new phos options
+                    if (this.props.activeTrans.id == transId){
+                        this.phos_fert_options_holder = phos_options
+                        this.phos_manure.current.value = manure_value
+                        this.phos_fertilizer.current.value = phos_options[0]
+                    }
+                }
+                 this.props.updateTransList(list);
+                console.log(this.props.listTrans)
+            },
+
+            failure: function(response, opts) {
+            }
+        })
+  }
   render() {
     return (
     <div>
@@ -368,15 +434,15 @@ class TransformationTable extends Component {
                         provided.draggableProps.style
                       )}
                     >
-                    <div >
+                    <div key = {item1.id}>
                     <InputGroup  size="sm" draggable="true">
                         {/*<Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}><ThreeDotsVertical/></Form.Label>*/}
-                        <OverlayTrigger key="top1" placement="top"
+                        <OverlayTrigger  placement="top"
                             overlay={<Tooltip>Land Transformation Priority</Tooltip>}>
                             <Form.Label size="sm" className={this.props.activeTrans.id === item1.id && 'active1 test1' } id={item1.id} onClick={this.selectTransClick}>&nbsp;&nbsp;{index +1}&nbsp;&nbsp;</Form.Label>
                         </OverlayTrigger>
                         <Form.Control placeholder="Enter Name..." id={item1.id} className={ this.props.activeTrans.id === item1.id && 'active1' } onChange={this.handleTransNameChange} onClick={this.selectTransClick} />
-                        <OverlayTrigger key="top" placement="top"
+                        <OverlayTrigger  placement="top"
                           overlay={<Tooltip>Set Transformation</Tooltip>}>
                             <Button size="sm" variant="primary" id={item1.id} onClick={this.handleOpenModalTrans}><Sliders/></Button>
                         </OverlayTrigger>
@@ -522,9 +588,11 @@ class TransformationTable extends Component {
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
                       onChange={(e) => this.handleSelectionChange("phos_fertilizer", e)}>
-                      <option value="0">0</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
+                        {this.phos_fert_options_holder.map((item1, index) => (
+
+                         <option  key = {item1} value={item1}>{item1}</option>
+                        ))}
+
                     </Form.Select>
 
 
