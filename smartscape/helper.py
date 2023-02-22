@@ -22,6 +22,7 @@ import shutil
 from osgeo import gdal
 import math
 
+
 def download_base_rasters_helper(request, geo_folder):
     request_json = js.loads(request.body)
     # geo_folder = request_json["folderId"]
@@ -94,6 +95,7 @@ def download_base_rasters_helper(request, geo_folder):
         download_thread.start()
         # download_thread.join()
         # createNewDownloadThread(url, raster_file_path)
+
 def download(link, filelocation):
     r = requests.get(link, stream=True)
     with open(filelocation, 'wb') as f:

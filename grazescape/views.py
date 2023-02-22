@@ -389,7 +389,7 @@ def geoserver_request(request):
 @login_required
 def get_default_om(request):
     print(request.POST)
-    field_id = file_name = str(uuid.uuid4())
+    field_id = str(uuid.uuid4())
     active_region = request.POST.getlist("active_region")[0]
     extents = request.POST.getlist("extents[]")
     print("the extents are ", extents)

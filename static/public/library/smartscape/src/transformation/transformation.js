@@ -78,13 +78,14 @@ function Transformation(name, id, rank){
             fertilizer:"default",
             nitrogen:"default",
             nitrogen_fertilizer:"default",
-            phos_fertilizer:"default",
             phos_manure:"default",
+            phos_fertilizer:"default",
             legume:"default",
             // only for pasture
             density:"default",
             grassYield:"default",
             rotFreq:"default",
+            phos_fert_options:[],
 
         },
         econ:{

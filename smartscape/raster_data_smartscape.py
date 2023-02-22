@@ -56,6 +56,9 @@ class RasterDataSmartScape:
             "stream_dist": "SmartScapeRaster:" + region + "_distanceToWaterWays",
             "land_class": "SmartScapeRaster:" + region + "_landClass_30m",
             "farm_class": "SmartScapeRaster:" + region + "_farmClass_30m",
+            "om": "SmartScapeRaster:" + region + "_om_30m",
+            "drainClass": "SmartScapeRaster:" + region + "_drainClass_30m",
+            "nResponse": "SmartScapeRaster:" + region + "_nResponse_30m",
 
         }
         self.extents = extents

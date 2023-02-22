@@ -360,12 +360,6 @@ class SmartScape:
         base_length = len(base_dic)
         for f in os.listdir(os.path.join(self.geo_folder, "base")):
             counter = counter + 1
-            # try:
-            #     f = os.path.join(input_path, f)
-            #     if os.stat(f).st_mtime < now - 3600:
-            #         shutil.rmtree(f)
-            # except OSError as e:
-            #     print("Error: %s : %s" % (f, e.strerror))
         if base_length != counter:
             return False
         return True
@@ -416,7 +410,7 @@ class SmartScape:
         layer_area_dic, layer_dic = self.create_trans_layers_dic(trans, region)
         # create list of layers to download for each trans
         length_trans = len(trans)
-
+        # trans_with_aoi has our transformation order in the same bounds as our aoi
         image = gdal.Open(os.path.join(self.in_dir, "trans_with_aoi.tif"))
         band = image.GetRasterBand(1)
         geoTransform = image.GetGeoTransform()
@@ -441,7 +435,7 @@ class SmartScape:
         area_selected_total = aoi_area_total * np.count_nonzero(arr > 0) / np.count_nonzero(arr > self.no_data)
         print("total area selected by transformations aoi ", area_selected_total)
         print("total area in aoi ", aoi_area_total)
-        om_filepath = os.path.join(self.in_dir, self.region + "_om_30m" + ".tif")
+        om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
         om_image = gdal.Open(om_filepath)
         om_array = om_image.GetRasterBand(1).ReadAsArray()
         # open model results raster
@@ -564,10 +558,10 @@ class SmartScape:
                         inter_data1 = np.where(model_data[model] == layer, model_arr, 0)
                         inter_data2 = np.where(model_data[model] == layer, model_arr_ploss_2, 0)
                         # extrapolate out
-                        if "150" in layer_dic[layer][model] and "100" in layer_dic[layer]["ploss2"]:
+                        if "200" in layer_dic[layer][model] and "150" in layer_dic[layer]["ploss2"]:
                             x_star = layer_dic[layer]["manure_outbounds"]
 
-                            inter_data = inter_data2 + (x_star - 100) / (150 - 100) * (inter_data1 - inter_data2)
+                            inter_data = inter_data2 + (x_star - 150) / (200 - 150) * (inter_data1 - inter_data2)
                         # average
                         else:
                             inter_data = (inter_data1 + inter_data2) / 2
@@ -1185,16 +1179,16 @@ class SmartScape:
         # download om, drainclass, and nresponse
         image = gdal.Open(os.path.join(self.in_dir, "trans_with_aoi.tif"))
         band = image.GetRasterBand(1)
-        geoTransform = image.GetGeoTransform()
+        # geoTransform = image.GetGeoTransform()
         arr = band.ReadAsArray()
-        layer_dic_om = {"0": {
-            "om": region + "_om_30m",
-            "drainClass": region + "_drainClass_30m",
-            "nResponse": region + "_nResponse_30m",
-        }}
+        # layer_dic_om = {"0": {
+        #     "om": region + "_om_30m",
+        #     "drainClass": region + "_drainClass_30m",
+        #     "nResponse": region + "_nResponse_30m",
+        # }}
 
         print("starting p calc")
-        self.download_rasters(geoTransform, image, layer_dic_om)
+        # self.download_rasters(geoTransform, image, layer_dic_om)
 
         for tran1 in trans:
             tran = trans[tran1]
@@ -1382,9 +1376,9 @@ class SmartScape:
         print(layer_id)
         nrec_output = {}
         layer_id = float(layer_id)
-        om_filepath = os.path.join(self.in_dir, self.region + "_om_30m" + ".tif")
-        drain_class_filepath = os.path.join(self.in_dir, self.region + "_drainClass_30m" + ".tif")
-        nresponse_filepath = os.path.join(self.in_dir, self.region + "_nResponse_30m" + ".tif")
+        om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
+        drain_class_filepath = os.path.join(self.geo_folder, "drainClass_aoi-clipped.tif")
+        nresponse_filepath = os.path.join(self.geo_folder, "nResponse_aoi-clipped.tif")
         print(om_filepath)
         print(drain_class_filepath)
         om_image = gdal.Open(om_filepath)
@@ -1520,9 +1514,9 @@ class SmartScape:
 
     def get_nitrate_params_base(self, tran, input_arr, total_cells):
         nrec_output = {}
-        om_filepath = os.path.join(self.in_dir, self.region + "_om_30m" + ".tif")
-        drain_class_filepath = os.path.join(self.in_dir, self.region + "_drainClass_30m" + ".tif")
-        nresponse_filepath = os.path.join(self.in_dir, self.region + "_nResponse_30m" + ".tif")
+        om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
+        drain_class_filepath = os.path.join(self.geo_folder, "drainClass_aoi-clipped.tif")
+        nresponse_filepath = os.path.join(self.geo_folder, "nResponse_aoi-clipped.tif")
         print(om_filepath)
         print(drain_class_filepath)
         om_image = gdal.Open(om_filepath)
@@ -1683,8 +1677,11 @@ class SmartScape:
         elif 75 <= manure < 125:
             return ["100", "150", 0]
         # p is outside of bounds so we will to interpolate
+        elif 125 <= manure <= 175:
+            return ["150", "200", 0]
         elif 125 <= manure:
-            return ["150", "100", manure]
+            return ["200", "150", manure]
+
         else:
             return ["0", "50", 0]
 

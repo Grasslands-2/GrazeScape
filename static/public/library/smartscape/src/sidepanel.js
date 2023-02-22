@@ -146,6 +146,7 @@ class SidePanel extends React.Component{
         this.reset = this.reset.bind(this);
         this.sliderChangeSlope = this.sliderChangeSlope.bind(this);
         this.sliderChangeStream = this.sliderChangeStream.bind(this);
+        this.getPhosValuesBase = this.getPhosValuesBase.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
@@ -211,13 +212,11 @@ class SidePanel extends React.Component{
 
 
 
-
         this.slopeMax = 700;
         this.distStreamMax = 16000;
         this.selectWatershed = React.createRef();
         this.state = {slope:{slope1:null, slope2:null},
             geometry:{extents:[],coords:[]},
-//            newTrans:new Transformation("intial",-1,-1),
             activeTrans:null,
             selectWatershed:false,
             baseModelShow:false,
@@ -230,6 +229,7 @@ class SidePanel extends React.Component{
             modelEro: "hello world",
             modelOutputs: {},
             aoiOrDisplayLoading:false,
+            phos_fert_options_holder:[],
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
@@ -286,6 +286,10 @@ class SidePanel extends React.Component{
             this.meters.current.checked = true
             this.feet.current.checked = false
         }
+        if(prevProps.baseTrans.management.nitrogen != this.props.baseTrans.management.nitrogen){
+            console.log("Nitrogen has changed, calculate new P")
+            this.getPhosValuesBase()
+        }
 //        if region is changed show huc 10
         if (prevProps.region != this.props.region){
             if(this.props.region != null){
@@ -296,8 +300,7 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":"0", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+
                     this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                 }
 //                clover belt for now
@@ -308,8 +311,7 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":"0", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+
                     this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                }
 
@@ -382,6 +384,7 @@ class SidePanel extends React.Component{
       }
     showModal(){
         console.log("showing modal")
+                this.getPhosValuesBase()
         console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
         this.cover.current.value = this.props.baseTrans.management.cover
@@ -391,8 +394,7 @@ class SidePanel extends React.Component{
 //        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
         this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
         this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
-        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
-        this.phos_manure.current.value = this.props.baseTrans.management.phos_manure
+
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
         this.nFert.current.value = this.props.baseTrans.econ.nFert
@@ -554,7 +556,6 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":"0", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
@@ -610,8 +611,8 @@ class SidePanel extends React.Component{
   addTrans(){
     console.log("add new transformation!")
     // example transformation
-    // random id from 1 to 100
     let tempId = uuidv4();
+    console.log("trans id ", tempId)
 //  set default parameters
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
@@ -657,6 +658,8 @@ class SidePanel extends React.Component{
     });
     console.log("coordsa")
     console.log(this.state.aoiCoors)
+    let downloadFolder = uuidv4();
+    this.props.setAoiFolderId(downloadFolder)
     this.setState({aoiOrDisplayLoading:true})
     $.ajax({
         url : '/smartscape/get_selection_raster',
@@ -668,14 +671,15 @@ class SidePanel extends React.Component{
                 field_coors:this.props.aoiCoors,
             },
             region:this.props.region,
-            baseTrans: this.props.baseTrans
+            baseTrans: this.props.baseTrans,
+            folderId: downloadFolder,
         }),
         success: (response, opts) => {
             delete $.ajaxSetup().headers
             console.log("raster loaded");
             console.log(response);
             this.setState({boundaryRasterId:response.folder_id})
-            this.props.setAoiFolderId(response.folder_id)
+//            this.props.setAoiFolderId(response.folder_id)
             console.log(this.state)
 //            alert("Raster loaded")
             this.setState({aoiOrDisplayLoading:false})
@@ -840,6 +844,64 @@ class SidePanel extends React.Component{
             }
         })
     }
+   getPhosValuesBase(){
+    let transPayload = {}
+    let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
+    let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
+    let lengthTrans = transValues.length
+//        give the transformations the correct ranking
+    for(let trans in transValues){
+        transValues[trans].rank = lengthTrans;
+        transValues1[trans].rank = lengthTrans;
+        transValues[trans].selection.field_coors = []
+        transPayload[lengthTrans] = transValues[trans]
+        lengthTrans--;
+    }
+    this.props.updateTransList(transValues1);
+    var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+        let payload = {
+                 trans: transPayload,
+                base:this.props.baseTrans,
+                folderId: this.props.aoiFolderId,
+                base_calc: true,
+            }
+        console.log(payload)
+        payload = JSON.stringify(payload)
+        $.ajax({
+            url : '/smartscape/get_phos_fert_options',
+            type : 'POST',
+            data : payload,
+            success: (response, opts) => {
+                delete $.ajaxSetup().headers
+                console.log("done with model runs")
+                console.log(response)
+
+//                let phos_options = response.response["base"].p_choices
+                let phos_options = response.response["base"].p_choices
+                let manure_value = response.response["base"].p_manure
+//                let manure_value = response.response["base"].p_manure
+                console.log(phos_options, manure_value)
+
+                this.props.updateActiveBaseProps({"name":"phos_manure", "value": manure_value, "type":"mang"})
+//                this.props.updateActiveBaseProps({"name":"phos_fert_options", "value": phos_options, "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phos_options[0], "type":"mang"})
+
+//                this.phos_fert_options_holder = ["6","8","9"]
+                this.setState({phos_fert_options_holder:phos_options})
+                this.phos_manure.current.value = manure_value
+                this.phos_fertilizer.current.value = phos_options[0]
+
+                console.log(this.phos_fertilizer )
+
+            },
+
+            failure: function(response, opts) {
+            }
+        })
+  }
     printSummary(){
         var doc = new jsPDF();
 //        var node = document.getElementById("map")
@@ -2054,33 +2116,6 @@ renderModal(){
                         </Accordion.Body>
                       </Accordion.Item>
                     </Accordion>
-{/*
-                    <Accordion onSelect={(e) => this.subAreaSelection(e)}>
-                      <Accordion.Item eventKey="2">
-                        <Accordion.Header>Sub Area</Accordion.Header>
-                        <Accordion.Body>
-                          <Row>
-                               <Form.Check
-                                inline
-                                label="Select Sub Watersheds"
-                                ref={this.selectWatershed}
-                                checked={this.state.selectWatershed}
-                                name="group2"
-                                type='radio'
-                                onChange={(e) => this.handleAreaSelectionType("watershed", e)}
-                              />*
-                                <Button variant="secondary" onClick={(e) => this.handleAreaSelectionType("none", e)}>
-                                Stop Selection
-                              </Button>
-                               <h6> Hold shift to select multiple watersheds. </h6>
-                               <h6> Close accordion to stop selection. </h6>
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Reset Sub Area</Button>
-
-                          </Row>
-                        </Accordion.Body>
-                      </Accordion.Item>
-                    </Accordion>
-                    */}
                     <Accordion>
                       <Accordion.Item eventKey="3">
                         <Accordion.Header>Slope</Accordion.Header>
@@ -2163,12 +2198,6 @@ renderModal(){
                                 <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Reset Slope</Button>
 
                             </Form.Group>
-
-
-
-
-
-
 
                             </Accordion.Body>
                         </Accordion.Item>
@@ -2440,9 +2469,10 @@ renderModal(){
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
                       onChange={(e) => this.updateActiveBaseProps("phos_fertilizer", e)}>
-                      <option value="0">0</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
+                       {this.state.phos_fert_options_holder.map((item1, index) => (
+
+                         <option  key = {item1} value={item1}>{item1}</option>
+                        ))}
                     </Form.Select>
                  </Tab>
                  <Tab eventKey="economics" title="Economics">
