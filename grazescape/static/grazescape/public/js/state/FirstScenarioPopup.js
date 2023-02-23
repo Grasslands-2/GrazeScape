@@ -40,7 +40,7 @@ Ext.define('DSS.state.FirstScenarioPopup', {
 					//id: 'scenIDpanel',
 					//cls: 'information',
 					//html: 'You just created your first scenario for your new farm! The next step is to add in your fields by clicking on “Add/Delete Fields”. Once you have added your fields you can edit their attributes in a table by clicking “Edit Field Attributes”. Similarly, you can add in any infrastructure (e.g., fencing) if applicable (not required). You can also adjust production cost assumptions by clicking “Edit Production Costs”. Once you have all of your fields set up properly for your scenario, you can then run the models by clicking “Run Models”.',
-					html:'<b>You just named the first scenario of your new farm.<b/> <ul> <li>Next, add fields (required) and infrastructure (optional)</li>  <li>After fields are added, edit their management with “Edit Field Attributes”</li> <li>You can edit infrastructure with “Edit Infrastructure Attributes”</li> <li>You can also adjust seed, pesticide, fertilizer and machinery costs with “Edit Scenario Costs”</li> <li>Click “Run Models”</li></ul>'
+					html:'<b>You just named the first scenario of your new farm.<b/> <ul> <li>Next, add fields (required) and infrastructure (optional)</li>  <li>After fields are added, edit their management with “Edit Field Attributes”</li> <li>You can edit infrastructure with “Edit Infrastructure Attributes”</li> <li>You can also adjust seed, pesticide, fertilizer and machinery costs with “Edit Production Costs”</li> <li>Click “Run Models”</li></ul>'
 				},
 				{
 					xtype: 'button',
