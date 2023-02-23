@@ -38,15 +38,12 @@ class GeoServer{
             );
            console.log(myGeoJsonFeatures)
            DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
-           //DSS.layer.farms_1.getSource().refresh();
-           //DSS.layer.farms_1.setOpacity(1);
         })
     }
     setFieldsAfterImport(parameter = ""){
         console.log(parameter)
         //This function returns its value, since it is used in promises inside other functions to refresh fields array
         this.makeRequest(this.geoField_Url + parameter, "source").then(async function(geoJson){
-            //console.log(geoJson.geojson)
             DSS.layer.fields_1.getSource().clear()
             DSS.layer.fieldsLabels.getSource().clear()
             var FSgeoJson = geoJson.geojson
@@ -58,9 +55,7 @@ class GeoServer{
             await DSS.layer.fields_1.getSource().addFeatures(myGeoJsonFeatures)
             DSS.layer.fieldsLabels.getSource().addFeatures(myGeoJsonFeatures)
             await DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-                console.log(f)
                 if (f.values_.field_name == "(imported field)"){
-                    //f.values_.area = ol.sphere.getArea(f.values_.geometry)* 0.000247105
                     f.setProperties({
                         area: ol.sphere.getArea(f.values_.geometry)* 0.000247105
                     })
@@ -75,7 +70,7 @@ class GeoServer{
                 console.log("setFieldSource")
                 DSS.MapState.zoomToRealExtent(extent)
             }
-            waitForScen()
+            updateRunModelsButtonDisabled()
         })
     }
     //    returns a geojson of the fields
@@ -83,7 +78,6 @@ class GeoServer{
         console.log(parameter)
         //This function returns its value, since it is used in promises inside other functions to refresh fields array
         this.makeRequest(this.geoField_Url + parameter, "source").then(async function(geoJson){
-            //console.log(geoJson.geojson)
             DSS.layer.fields_1.getSource().clear()
             DSS.layer.fieldsLabels.getSource().clear()
             var FSgeoJson = geoJson.geojson
@@ -101,7 +95,7 @@ class GeoServer{
                 console.log("setFieldSource")
                 DSS.MapState.zoomToRealExtent(extent)
             }
-            waitForScen()
+            updateRunModelsButtonDisabled()
         })
     }
     //    returns a geojson of the infrastructure
@@ -110,7 +104,6 @@ class GeoServer{
         this.makeRequest(this.geoInfra_Url + parameter, "source").then(function(geoJson){
             DSS.layer.infrastructure.getSource().clear()
             var ISgeoJson = geoJson.geojson
-                        //console.log(geoJson)
 
             var format = new ol.format.GeoJSON();
             var myGeoJsonFeatures = format.readFeatures(
@@ -119,7 +112,6 @@ class GeoServer{
             );
             console.log(myGeoJsonFeatures)
             DSS.layer.infrastructure.getSource().addFeatures(myGeoJsonFeatures)
-//            DSS.layer.infrastructure.getSource().refresh();
         })
     }
 //    get farms and then run popfarmArray Currently not being used as of 02042022
@@ -159,8 +151,6 @@ class GeoServer{
             geoJson = JSON.parse(geoJson.geojson)
 			let scenObj = geoJson.features
             console.log(scenObj)
-			//return DupScenArray
-            
         })
     }
 // Slightly different in how ScenarioMenu is handled
@@ -175,7 +165,7 @@ class GeoServer{
     }
 // Simular to first 2 examples.  This does not blank out the farm array.  Used in Scenario.js
     getWFSScenario(parameter = ''){
-        this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
+        return this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             geoJson = JSON.parse(geoJson.geojson)
             scenarioObj = geoJson.features
             console.log(scenarioObj)
@@ -197,12 +187,9 @@ class GeoServer{
 // Used to insert new farms into geoserver. if statements handle if the new farm or scenario is coming in
     insertFarm(payLoad, feat, fType){
         this.makeRequest(this.geoUpdate_Url, "insert_farm", payLoad, this).then(function(returnData){
-            //console.log(returnData.current);
             var farmGeojsonString = String(returnData.geojson)
             console.log(farmGeojsonString);
             let currObj = returnData.current
-            //currObj.setFarmSource()
-            //geoServer.setFarmSource()
 			DSS.MapState.removeMapInteractions()
             var fgid = farmGeojsonString.substring(farmGeojsonString.indexOf('farm_2.') + 7,farmGeojsonString.lastIndexOf('"/>'));
             var intFgid = parseInt(fgid);
@@ -210,7 +197,7 @@ class GeoServer{
             // DSS.activeFarm = highestFarmIdCNO + 1
             DSS.activeFarm = intFgid
             DSS.farmName = feat.values_.farm_name;
-            DSS.scenarioName = ''//feat.values_.scenario_name;
+            DSS.scenarioName = ''
             DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.FirstScenario'); 
             DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
             DSS.dialogs.ScenarioPicker.show().center().setY(100);
@@ -230,7 +217,6 @@ class GeoServer{
             let geoJson = returnData.geojson
             let currObj = returnData.current
             console.log("wfs_field_insert")
-            //await currObj.setFieldSource()
 
             console.log("redraw fields")
             DSS.MapState.showFieldsForScenario();
@@ -302,14 +288,7 @@ class GeoServer{
     }
     //used to delete a farm from geoserver.  Used several times in DeleteOperation.js to remove everthing assocaited with deleted farm
     deleteOperation(payLoad, feat){
-        console.log(payLoad)
-         this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
-            //let geoJson = returnData.geojson
-            //let currObj = returnData.current
-            //currObj.setScenariosSource()
-            //currObj.setFarmSource()
-            //cleanDB()
-         })
+        this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(){})
     }
     //used to delete fields
     deleteField(payLoad, feat){
@@ -317,19 +296,9 @@ class GeoServer{
             let geoJson = returnData.geojson
             let currObj = returnData.current
             console.log("deleteField")
-            //console.log(currObj)
-            //currObj.setFieldSource().then(function(){
-            console.log("redraw fields")
             await DSS.MapState.showFieldsForScenario();
             await DSS.MapState.showInfraForScenario();
             DSS.MapState.zoomToActiveFarm()
-            //activateRunModels()
-            // setFieldSource().then(function(){
-            //     console.log("redraw fields")
-            //     DSS.MapState.showNewFarm(DSS.activeFarm);
-            //     DSS.MapState.showFieldsForFarm(DSS.activeFarm);
-            //     DSS.MapState.showInfrasForFarm(DSS.activeFarm);
-            // })
          })
     }
     //inserts new scenario based on current active scenario 
@@ -338,20 +307,14 @@ class GeoServer{
             var geojsonString = String(returnData.geojson)
             //This var holds onto the old activeScenario number, so that it can be referenced for copying over fields and infra
             var copyScenarioNum = parseInt(DSS.activeScenario)
-            console.log(geojsonString);
             var fgid = geojsonString.substring(geojsonString.indexOf('scenarios_2.') + 12,geojsonString.lastIndexOf('"/>'));
                 var intFgid = parseInt(fgid);
-            console.log(intFgid);
             DSS.activeScenario = intFgid
 			farmArray = [];
 			DSS.MapState.removeMapInteractions()
 			DSS.newScenarioID = null
             DSS.farmName = feat.values_.farm_name;
 			DSS.scenarioName = feat.values_.scenario_name
-			console.log(DSS.activeScenario);
-            console.log(copyScenarioNum);
-            console.log(fieldArrayNS);
-            console.log("copying features$$$$$$$$$")
 			await getWFSFieldsInfraNS(copyScenarioNum,fieldArrayNS,DSS.layer.fields_1,'field_2');
             await wfs_new_scenario_features_copy(fieldArrayNS,'field_2')
             console.log("DONE WITH NEW SCENARIO COPY AND INSERT!!!!!!!!")
@@ -360,7 +323,6 @@ class GeoServer{
             await geoServer.setScenariosSource('&CQL_filter=farm_id='+DSS.activeFarm)
             //Placed here to change the window to manage the new scenario once everything is ready to go.
             DSS.ApplicationFlow.instance.showScenarioPage();
-
          })
     }
     //ALL THIS DOES IS GET A GEOSJSON WIth THE CURRENT SCENS AND GET THE HIGHEST SCENARIOID #
@@ -400,22 +362,12 @@ class GeoServer{
             console.log (returnData.current)
             console.log (returnData.geojson)
             console.log ("wfs_new_scenario_features_copy")
-            //currObj.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-            //geoServer.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-            //geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
          })
-
     }
     //used in delete scneario to delete assocaited fields and infra
     wfsDeleteItem(payLoad, feat){
         this.makeRequest(this.geoUpdate_Url, "delete", payLoad, this).then(function(returnData){
             console.log(feat)
-            // let geoJson = returnData.geojson
-            // let currObj = returnData.current
-            // currObj.setScenariosSource()
-            // console.log ("wfsDeleteItem")
-            // currObj.setFieldSource('&CQL_filter=scenario_id='+DSS.activeScenario)
-            // currObj.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
             geoServer.setScenariosSource()
             if(feat = 'scenarios_2'){
                 getWFSScenarioSP()
