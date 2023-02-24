@@ -98,6 +98,7 @@ class TransformationTable extends Component {
     this.handleCloseModal = this.handleCloseModal.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handleSelectionChangeGeneral = this.handleSelectionChangeGeneral.bind(this);
+    this.handleNitrogenDefaults = this.handleNitrogenDefaults.bind(this);
 
 
     this.selectTransClick = this.selectTransClick.bind(this);
@@ -107,6 +108,7 @@ class TransformationTable extends Component {
     this.getPhosValues = this.getPhosValues.bind(this);
     this.showModal = this.showModal.bind(this);
     this.testVisible = this.testVisible.bind(this);
+    this.handleSelectionChange = this.handleSelectionChange.bind(this);
 
     this.rotationType = React.createRef();
     this.cover = React.createRef();
@@ -130,6 +132,13 @@ class TransformationTable extends Component {
         console.log("Nitrogen has changed, calculate new P")
         this.getPhosValues()
     }
+
+
+
+
+
+
+
 //    else if(prevProps.newTrans == undefined && this.props.newTrans != undefined){
 //        console.log("adding new trans")
 //        this.addTransformation(this.props.newTrans)
@@ -288,7 +297,48 @@ class TransformationTable extends Component {
       testVisible(){
         this.setState({tillageBlank:true})
       }
+    handleNitrogenDefaults(type, value){
+        if (this.nitrogen.current != null){
+
+            let nitrogen = "0"
+            let nitrogen_fert = "0"
+            console.log("value is ", value)
+            switch (value){
+                case "pasture":
+                    nitrogen = "0"
+                    nitrogen_fert = "0"
+                    break;
+                case "contCorn":
+                    nitrogen = "0"
+                    nitrogen_fert = "100"
+                    break;
+                case "cornGrain":
+                    nitrogen = "0"
+                    nitrogen_fert = "100"
+                    break;
+                case "dairyRotation":
+                   nitrogen = "100"
+                   nitrogen_fert = "25"
+                   break;
+
+            }
+            console.log("value is ", nitrogen, nitrogen_fert)
+//            let placeholder = {"currentTarget":{"value":nitrogen}}
+//            this.handleSelectionChange("nitrogen", placeholder)
+//            let placeholder2 = {"currentTarget":{"value":nitrogen_fert}}
+//            this.handleSelectionChange("nitrogen_fertilizer", placeholder2)
+
+            this.props.updateActiveTransProps({"name":"nitrogen", "value":nitrogen, "type":"mang"})
+            this.props.updateActiveTransProps({"name":"nitrogen_fertilizer", "value":nitrogen_fert, "type":"mang"})
+            this.nitrogen.current.value = nitrogen
+            this.nitrogen_fertilizer.current.value = nitrogen_fert
+            }
+    }
     handleSelectionChange(type, e){
+        console.log("Updating selection of ", type)
+        if(type == "rotationType" || type == "legume"){
+            this.handleNitrogenDefaults(type, e.currentTarget.value)
+        }
          this.handleTransMangement()
 //      update active transformation with new value
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
@@ -363,7 +413,7 @@ class TransformationTable extends Component {
         });
         let payload = {
                 trans: transPayload,
-                base:this.props.baseTrans,
+                baseTrans:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 base_calc: false,
             }

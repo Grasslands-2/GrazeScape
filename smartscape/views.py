@@ -21,7 +21,7 @@ import threading
 import shutil
 from osgeo import gdal
 import math
-import smartscape.helper
+import smartscape.helper_base
 import numpy as np
 from osgeo import gdalconst as gc
 
@@ -144,7 +144,7 @@ def get_selection_raster(request):
             "folder_id": folder_id
         }
         # download base layers async
-        smartscape.helper.download_base_rasters_helper(request, folder_id)
+        smartscape.helper_base.download_base_rasters_helper(request, folder_id)
     except KeyError as e:
         error = str(e)
     except ValueError as e:
@@ -167,7 +167,7 @@ def get_selection_raster(request):
 def download_base_rasters(request):
     request_json = js.loads(request.body)
     geo_folder = request_json["folderId"]
-    smartscape.helper.download_base_rasters_helper(request, geo_folder)
+    smartscape.helper_base.download_base_rasters_helper(request, geo_folder)
     return JsonResponse({"download": "started"}, safe=False)
 
 
@@ -182,141 +182,12 @@ def get_phos_fert_options(request):
 
     Returns
     -------
-        return_dict : dict
-            dictionary containing the trans/base id and the p values
+        return_data : JsonResponse
+            Contains the trans/base id and the p values
     """
-    # base on the available rasters for smartscape
-    phos_choices = {"0": [0, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
-
     request_json = js.loads(request.body)
-    # folder id of our aoi input data
-    folder_id = request_json["folderId"]
-    # transformation data
-    trans = request_json['trans']
-    base = request_json['base']
     base_calc = request_json['base_calc']
-    # trans_id = request_json["transId"]
-    # file path of our input data
-    geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs', folder_id)
-    data_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs')
-    return_data = {}
-
-    # make sure files are loaded
-    def check_file_path(geo_folder_func):
-        print("checking files!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(geo_folder_func)
-        dir_list = os.listdir(geo_folder_func)
-        print(dir_list)
-        if "om.tif" in dir_list and "drainClass.tif" in dir_list and "nResponse.tif" in dir_list:
-            return True
-        else:
-            return False
-
-    files_loaded = check_file_path(geo_folder)
-    while not files_loaded:
-        time.sleep(.5)
-        files_loaded = check_file_path(geo_folder)
-        print("file not loaded")
-
-    model = SmartScape(request_json, folder_id, folder_id)
-    model.geo_folder = geo_folder
-    model.load_nrec()
-    arr_holder = []
-    for tran1 in trans:
-        tran = trans[tran1]
-        layer_rank = tran1
-        print("layer rank", layer_rank, tran["id"])
-        image = gdal.Open(os.path.join(data_dir, tran["id"], "selection_output.tif"))
-        band = image.GetRasterBand(1)
-        arr = band.ReadAsArray()
-        arr = np.where(arr == -99, float(layer_rank), arr)
-        arr_holder.append(arr)
-
-        cell_count_trans = np.count_nonzero(arr == float(layer_rank))
-        print(np.unique(arr, return_counts=True))
-        print("cell count for transition ", cell_count_trans)
-        n_parameters = model.get_nitrate_params(tran, arr, layer_rank)
-        manure_p_bounds = model.calc_p(tran, n_parameters["nirate_inputs"])
-        manure_p = manure_p_bounds[0]
-        print("p manure!!")
-        print(manure_p)
-        return_data[tran["id"]] = {"p_manure": manure_p, "p_choices": phos_choices[manure_p]}
-    if base_calc:
-        file_path = os.path.join(geo_folder, "landuse_aoi-clipped.tif")
-        image = gdal.Open(file_path)
-        band = image.GetRasterBand(1)
-        arr = band.ReadAsArray()
-        output = np.copy(arr)
-        total_cells = np.count_nonzero(arr > model.no_data)
-        n_parameters = model.get_nitrate_params_base(base, arr, total_cells)
-        print(n_parameters)
-
-        def calc_p(tran, nrec_trans, name):
-            nrec = nrec_trans[name]["fertN"]
-            pneeds = nrec_trans[name]["Pneeds"]
-            manure_n = float(nrec) * float(tran["management"]["nitrogen"]) / 100
-            applied_manure_n = (manure_n / 0.4) / 3
-            manure_percent = (applied_manure_n / float(pneeds)) * 100
-            return manure_percent
-
-        p_manure_hay = calc_p(base, n_parameters, "nrec_trans_pasture_values")
-        p_manure_corn = calc_p(base, n_parameters, "nrec_trans_cont_values")
-        p_manure_cash_grain = 0.5 * calc_p(base, n_parameters, "nrec_trans_corn_values") + 0.5 * calc_p(base,
-                                                                                                           n_parameters,
-                                                                                                           "nrec_trans_soy_values")
-        p_manure_dairy = 1 / 5 * calc_p(base, n_parameters, "nrec_trans_corn_dairy_values") + \
-                         2 / 5 * calc_p(base, n_parameters, "nrec_trans_alfalfa_values") + \
-                         1 / 5 * calc_p(base, n_parameters, "nrec_trans_alfalfa_seed_values") + \
-                         1 / 5 * calc_p(base, n_parameters, "nrec_trans_silage_values")
-        watershed_total = {3: {"p_manure": p_manure_cash_grain},
-                           4: {"p_manure": p_manure_corn},
-                           5: {"p_manure": p_manure_dairy},
-                           1: {"p_manure": 0},
-                           2: {"p_manure": 0},
-                           6: {"p_manure": 0},
-                           7: {"p_manure": 0},
-                           8: {"p_manure": p_manure_hay},
-                           9: {"p_manure": p_manure_hay},
-                           10: {"p_manure": p_manure_hay},
-                           11: {"p_manure": 0},
-                           12: {"p_manure": 0},
-                           13: {"p_manure": 0},
-                           14: {"p_manure": 0},
-                           15: {"p_manure": 0}}
-        for land_type in watershed_total:
-            print(land_type)
-            output = np.where(arr == land_type, watershed_total[land_type]["p_manure"], output)
-        p_manure_arr = np.where(output == model.no_data, 0, output)
-        p_manure = np.sum(p_manure_arr) / total_cells
-        print("p manure for base", p_manure)
-        # holds the combined layer of each transformation so we can properly model the base
-        # main_arr = arr_holder[0]
-        # for arr in arr_holder:
-        #     main_arr = np.where(arr > 0, arr, main_arr)
-        #     # main_arr = arr
-        # # testing output
-        #
-        image = gdal.Open(os.path.join(geo_folder, "om_aoi-clipped.tif"))
-        [rows, cols] = p_manure_arr.shape
-        driver = gdal.GetDriverByName("GTiff")
-        file_path = os.path.join(geo_folder, "aaaAaaaap_output_base111.tif")
-        print("file path of test ffile", file_path)
-        outdata = driver.Create(file_path, cols, rows, 1,
-                                gdal.GDT_Float32)
-        outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
-        outdata.SetProjection(image.GetProjection())  ##sets same projection as input
-        outdata.GetRasterBand(1).WriteArray(p_manure_arr)
-        outdata.GetRasterBand(1).SetNoDataValue(-9999)
-        # write to disk
-        outdata.FlushCache()
-        outdata = None
-        band = None
-        ds = None
-
-        p_manure = model.calc_manure_level(p_manure)
-        # phos_choices = {"55": [66, 88888, 56777]}
-        return_data["base"] = {"p_manure": p_manure[0], "p_choices": phos_choices[manure_p]}
-    print(return_data)
+    return_data = smartscape.helper_base.get_phos_fert_options(request, base_calc)
     return JsonResponse({"response": return_data}, safe=False)
 
 

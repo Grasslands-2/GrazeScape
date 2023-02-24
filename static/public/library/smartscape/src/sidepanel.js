@@ -236,12 +236,13 @@ class SidePanel extends React.Component{
             showHuc12:false,
             printingPDF:false,
             speedometerWidth:window.innerWidth*.7/2,
-            speedometerHeight:window.innerWidth*.7/2/2
+            speedometerHeight:window.innerWidth*.7/2/2,
+            landTypeSelected:false
         }
     }
     // fires anytime state or props are updated
     componentDidUpdate(prevProps) {
-//        console.log(prevProps)
+        console.log("UI updating")
         document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
@@ -257,6 +258,24 @@ class SidePanel extends React.Component{
         this.hay.current.checked = this.props.activeTrans.selection.landCover.hay
         this.pasture.current.checked = this.props.activeTrans.selection.landCover.pasture
         this.grasslandIdle.current.checked = this.props.activeTrans.selection.landCover.grasslandIdle
+        let displayNext = false
+//        todo this doesn't seem to quite be working properly
+        for (let val in this.props.activeTrans.selection.landCover){
+            if (this.props.activeTrans.selection.landCover[val] == true){
+                displayNext = true
+           }
+        }
+        console.log(displayNext, this.state.landTypeSelected)
+        if (displayNext && this.state.landTypeSelected == false && !this.state.aoiOrDisplayLoading){
+            this.setState({landTypeSelected:true})
+        }
+        else if (!displayNext && this.state.landTypeSelected == true && this.props.listTrans == 1){
+            this.setState({landTypeSelected:false})
+        }
+//        if (landCoverCounter == Object.keys(this.props.activeTrans.selection.landCover).length){
+//            console.log("hide everything")
+//            this.setState({landTypeSelected:false})
+//        }
 
         this.land1.current.checked = this.props.activeTrans.selection.landClass.land1
         this.land2.current.checked = this.props.activeTrans.selection.landClass.land2
@@ -384,7 +403,7 @@ class SidePanel extends React.Component{
       }
     showModal(){
         console.log("showing modal")
-                this.getPhosValuesBase()
+        this.getPhosValuesBase()
         console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
         this.cover.current.value = this.props.baseTrans.management.cover
@@ -618,10 +637,10 @@ class SidePanel extends React.Component{
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
     newTrans.management.fertilizer = "0_100"
-    newTrans.management.nitrogen = "125"
-    newTrans.management.nitrogen_fertilizer = "25"
-    newTrans.management.phos_fertilizer = "0"
-    newTrans.management.phos_manure = "0"
+    newTrans.management.nitrogen = "0"
+    newTrans.management.nitrogen_fertilizer = "0"
+//    newTrans.management.phos_fertilizer = "0"
+//    newTrans.management.phos_manure = "0"
     newTrans.management.legume = "false"
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
@@ -864,7 +883,7 @@ class SidePanel extends React.Component{
         });
         let payload = {
                  trans: transPayload,
-                base:this.props.baseTrans,
+                baseTrans:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 base_calc: true,
             }
@@ -2044,6 +2063,7 @@ renderModal(){
                     </Form>
                     <a className = "wisc_link" target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34"><sup>*</sup>From Wiscland 2 (2019)</a>
                 </div>
+                <div hidden ={!this.state.landTypeSelected}>
                 <div className = "criteriaSections">
                     <Form.Label>2) Optional Selection Options</Form.Label>
                      <Accordion>
@@ -2351,6 +2371,8 @@ renderModal(){
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
 
                      </Stack>
+
+              </div>
               </Accordion.Body>
               </Accordion.Item>
             </Accordion>
@@ -2358,6 +2380,7 @@ renderModal(){
 
                 <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             */}
+
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>

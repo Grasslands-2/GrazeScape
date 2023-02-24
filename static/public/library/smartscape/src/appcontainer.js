@@ -83,7 +83,6 @@ class AppContainer extends React.Component{
     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
     this.props.updateActiveBaseProps({"name":"nitrogen", "value":"100", "type":"mang"})
     this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"100", "type":"mang"})
-    this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":"100", "type":"mang"})
     this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
 
 

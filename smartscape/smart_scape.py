@@ -1189,6 +1189,8 @@ class SmartScape:
 
         print("starting p calc")
         # self.download_rasters(geoTransform, image, layer_dic_om)
+        # based on the available rasters for smartscape
+        phos_choices = {"0": [0, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
 
         for tran1 in trans:
             tran = trans[tran1]
@@ -1196,10 +1198,14 @@ class SmartScape:
             n_parameters = self.get_nitrate_params(tran, arr, layer_rank)
             manure_p_bounds = self.calc_p(tran, n_parameters["nirate_inputs"])
             phos_fert = tran["management"]["phos_fertilizer"]
+
+            if phos_fert == "default":
+                phos_fert = phos_choices[manure_p_bounds[0]][0]
+
             # second value comes from user input
             # phos_fert will only be 0 50 or 100
-            manure_p = manure_p_bounds[0] + "_" + phos_fert
-            manure_p2 = manure_p_bounds[1] + "_" + phos_fert
+            manure_p = str(manure_p_bounds[0]) + "_" + str(phos_fert)
+            manure_p2 = str(manure_p_bounds[1]) + "_" + str(phos_fert)
             # we don't have a 50_0 option
             # if manure_p_bounds[0] == "50":
             #     manure_p = manure_p_bounds[0] + "_50"
