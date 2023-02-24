@@ -37,8 +37,6 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.field_shapes.Delete',
 		'DSS.field_shapes.ModelRunning',
 		'DSS.results.Dashboard',
-
-		'DSS.infra_shapes.DrawLine',
 		'DSS.infra_shapes.SplitLine',
 		'DSS.infra_shapes.JoinLine',
 		'DSS.infra_shapes.DeleteLine',
@@ -47,7 +45,6 @@ Ext.define('DSS.view.AppViewport', {
 //		'DSS.state.scenario.PerimeterDialog',
 		//'DSS.field_shapes.ModelRunning',
 
-//		'DSS.results.ResultsMain',
 //		'DSS.results.test_window'
 	],
 

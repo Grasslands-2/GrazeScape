@@ -172,11 +172,8 @@ function createinfra(e,infra_nameInput,
 	// alert('Field Added!')
 }
 function addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,water_pipeInput,lane_materialInput) {
-	//var geom = e.target;
-	console.log(e);
 	//		in meters convert to feet
 	var lineGeom = e.feature.values_.geom
-	//infraLength = e.feature.values_.geom.getLength() * 3.28084;
 	infraLength = ol.sphere.getLength(lineGeom) * 3.28084;
 	data = {
 		extents: e.feature.values_.geom.extent_,
@@ -184,14 +181,17 @@ function addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,wat
 		infraID: e.feature.ol_uid,
 		// infraLengthXY kept in meters
 		infraLengthXY: infraLength
-		//e.feature.values_.geom.getLength()
 	}
 	console.log(data)
-	console.log(infraLength);
 	//await get_terrian_distance(data)
-	console.log(infraLength);
-	totalCost = (infraLength * costPerFoot).toFixed(2)
-	console.log(totalCost);
+	totalCost = DSS.utils.calculateInfrastructureCost(
+		infra_typeInput, 
+		infraLength, 
+		costPerFoot, 
+		DSS.utils.constants.DEFAULT_LANE_WIDTH_FT
+	)
+
+	console.log("Total Cost:", totalCost);
 	e.feature.setProperties({
 		id: DSS.activeFarm,
 		farm_id: DSS.activeFarm,
@@ -209,6 +209,13 @@ function addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,wat
 		infra_length: infraLength,
 		total_cost: totalCost
 	})
+	
+	if(infra_typeInput == "ll"){
+		e.feature.setProperties({
+			lane_width: DSS.utils.constants.DEFAULT_LANE_WIDTH_FT
+		})
+	}
+
 	var geomType = 'Line'
 	console.log(e.feature)
 	DSS.MapState.removeMapInteractions()
