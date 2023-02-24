@@ -288,9 +288,29 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
 					select: function(combo, value){
+						const newInfraType = value.get('value')
 						var record = combo.getWidgetRecord();
-						record.set('infraType', value.get('value'));
+
+						record.set('infraType', newInfraType);
 						record.set('infraTypeDisp', value.get('display'));
+						
+						if(newInfraType == 'll') {
+							record.set("laneWidth", DSS.utils.constants.DEFAULT_LANE_WIDTH_FT)
+						} else {
+							record.set("laneWidth", "");
+						}
+
+						const laneWidth = record.get("laneWidth");
+						const infraLength = record.get("infraLength");
+						const costPerFoot = record.get("costPerFoot");
+						const totalCost = DSS.utils.calculateInfrastructureCost(
+							newInfraType, 
+							infraLength, 
+							costPerFoot, 
+							laneWidth
+						);
+						record.set("totalCost", totalCost)
+						
 						me.getView().refresh();
 					},
 				}
@@ -420,9 +440,27 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			format: '0.0',
 			editor: {
 				xtype:'numberfield', 
-				minValue: 25, 
+				minValue: 1, 
 				maxValue: 175, 
-				step: 5
+				step: 5,
+				listeners: {
+					change: function(editor, newWidth) {
+						const thisCell = editor.up();
+						const plugin = thisCell.editingPlugin;
+						const record = plugin.context.record;
+
+						const infraType = record.get("infraType");
+						const infraLength = record.get("infraLength");
+						const costPerFoot = record.get("costPerFoot");
+						const totalCost = DSS.utils.calculateInfrastructureCost(
+							infraType, 
+							infraLength, 
+							costPerFoot, 
+							newWidth
+						);
+						record.set("totalCost", totalCost)
+					},
+				}
 			}, 
 			text: 'Lane Width (ft)', 
 			dataIndex: 'laneWidth', 
@@ -457,13 +495,20 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				step: .2,
 				listeners: {
 					change: function(editor, newCost) {
-						let thisCell = editor.up();
-						let plugin = thisCell.editingPlugin;
-						let record = plugin.context.record;
+						const thisCell = editor.up();
+						const plugin = thisCell.editingPlugin;
+						const record = plugin.context.record;
 
-						let infraLength = record.get("infraLength")
-						
-						record.set("totalCost", newCost * infraLength)
+						const infraType = record.get("infraType");
+						const infraLength = record.get("infraLength")
+						const laneWidth = record.get("laneWidth");
+						const totalCost = DSS.utils.calculateInfrastructureCost(
+							infraType, 
+							infraLength, 
+							newCost, 
+							laneWidth
+						);
+						record.set("totalCost", totalCost)
 					},
 				}
 			}, 
