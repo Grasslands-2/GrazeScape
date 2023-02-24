@@ -554,7 +554,9 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				clicksToEdit: 1,
 				listeners: {
 					beforeedit: function(editor, context, eOpts) {
-						if (context.column.widget) return false
+						if (context.column.widget) return false;
+						if (context.field == "laneWidth" 
+							&& context.record.get("infraType") != 'll') return false;
 					}
 				}
 			}
