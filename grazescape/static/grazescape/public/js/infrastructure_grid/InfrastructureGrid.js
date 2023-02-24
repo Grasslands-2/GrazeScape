@@ -210,7 +210,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				text: 'Export Table',
 				handler: function (self) {
 					console.log("infra Table exported")
-					Ext.getCmp("infraTable").export('Field Table');
+					Ext.getCmp("infraTable").export('Infrastructure Table');
 					selectedInfra = []
 					Ext.getCmp("infraTable").getView().refresh();
 					Ext.getCmp("infraTable").getSelectionModel().deselectAll();
@@ -279,6 +279,11 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			minWidth: 24, 
 			sortable: true,
 			tooltip: '<b>Infra Type:</b> Edit what class of infrastructure you have placed.',
+			exportable: true, 
+			exportConverter: function(self){
+				console.log(self)
+				return self
+			},
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
