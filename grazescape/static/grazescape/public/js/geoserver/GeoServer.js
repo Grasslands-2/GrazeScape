@@ -279,6 +279,7 @@ class GeoServer{
 				alternateClassName: 'DSS.infraStore',
 				fields:['name','infraType','infraTypeDisp','fenceMaterial','fenceMaterialDisp','waterPipe',
 				'waterPipeDisp','laneMaterial','laneMaterialDisp', 'costPerFoot','laneWidth','totalCost'],
+                sorters: ['name'],
 				data: infraArray
 			});
 			//Setting store to just declared store fieldStore1, and reloading the store to the grid
