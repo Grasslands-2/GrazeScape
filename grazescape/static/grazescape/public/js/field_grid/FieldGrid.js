@@ -776,7 +776,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
 			dataIndex: 'onContour', 
 			width: 100,
 			editor:{},
-			tooltip: '<b>Tillage On Contour</b>Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
+			tooltip: '<b>Tillage On Contour</b> Was this field tillage along the contour of the land or not? Checked if yes, blank if no.',
 			hideable: false, 
 			enableColumnHide: false, 
 			lockable: false, 
@@ -1257,7 +1257,7 @@ Ext.define('DSS.field_grid.FieldGrid', {
         let area_Column = {
 			xtype: 'numbercolumn', 
 			format: '0.0',
-			text: 'Area(acre)', 
+			text: 'Area (acres)', 
 			dataIndex: 'area', 
 			width: 90,
 			editable: false,

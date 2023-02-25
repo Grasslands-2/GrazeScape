@@ -6,6 +6,10 @@ Ext.define('DSS.utils', {
     extend: 'Ext.Base',
     
 	statics: {
+		constants: {
+			DEFAULT_LANE_WIDTH_FT: 12,
+		},
+		
 		layout: function(type, pack, align) {
 			return {
 				type: type,
@@ -25,14 +29,27 @@ Ext.define('DSS.utils', {
 			}
 		},
 		
-		// entry =  '.cssClass { color: #F00; }'
 		addStyle: function(entry) {
 			let style = document.createElement('style');
 			style.type = 'text/css';
 			style.innerHTML = entry;
 			document.getElementsByTagName('head')[0].appendChild(style);
-		}		
-		
+		},		
+
+		calculateInfrastructureCost(infraType, length, costPerFoot, laneWidth) {
+			console.log("Calculating infrastructure cost:")
+			console.log(infraType, length, costPerFoot, laneWidth)
+			switch(infraType) {
+				case 'll': // Lane
+					return (length * costPerFoot * laneWidth).toFixed(2);
+				case 'fl': // Fence
+				case 'wl': // Water
+					return (length * costPerFoot).toFixed(2);
+				default:
+					console.error("Unknown infrastructure type: ", infraType);
+					return 0;
+			}
+		}
 	},
 		
 });

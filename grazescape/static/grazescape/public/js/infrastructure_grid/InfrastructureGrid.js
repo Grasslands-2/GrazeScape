@@ -210,7 +210,7 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				text: 'Export Table',
 				handler: function (self) {
 					console.log("infra Table exported")
-					Ext.getCmp("infraTable").export('Field Table');
+					Ext.getCmp("infraTable").export('Infrastructure Table');
 					selectedInfra = []
 					Ext.getCmp("infraTable").getView().refresh();
 					Ext.getCmp("infraTable").getSelectionModel().deselectAll();
@@ -279,6 +279,11 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			minWidth: 24, 
 			sortable: true,
 			tooltip: '<b>Infra Type:</b> Edit what class of infrastructure you have placed.',
+			exportable: true, 
+			exportConverter: function(self){
+				console.log(self)
+				return self
+			},
 			widget: {
 				xtype: 'combobox',
 				queryMode: 'local',
@@ -288,9 +293,29 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				triggerWrapCls: 'x-form-trigger-wrap combo-limit-borders',
 				listeners:{
 					select: function(combo, value){
+						const newInfraType = value.get('value')
 						var record = combo.getWidgetRecord();
-						record.set('infraType', value.get('value'));
+
+						record.set('infraType', newInfraType);
 						record.set('infraTypeDisp', value.get('display'));
+						
+						if(newInfraType == 'll') {
+							record.set("laneWidth", DSS.utils.constants.DEFAULT_LANE_WIDTH_FT)
+						} else {
+							record.set("laneWidth", "");
+						}
+
+						const laneWidth = record.get("laneWidth");
+						const infraLength = record.get("infraLength");
+						const costPerFoot = record.get("costPerFoot");
+						const totalCost = DSS.utils.calculateInfrastructureCost(
+							newInfraType, 
+							infraLength, 
+							costPerFoot, 
+							laneWidth
+						);
+						record.set("totalCost", totalCost)
+						
 						me.getView().refresh();
 					},
 				}
@@ -420,13 +445,31 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 			format: '0.0',
 			editor: {
 				xtype:'numberfield', 
-				minValue: 25, 
+				minValue: 1, 
 				maxValue: 175, 
-				step: 5
+				step: 5,
+				listeners: {
+					change: function(editor, newWidth) {
+						const thisCell = editor.up();
+						const plugin = thisCell.editingPlugin;
+						const record = plugin.context.record;
+
+						const infraType = record.get("infraType");
+						const infraLength = record.get("infraLength");
+						const costPerFoot = record.get("costPerFoot");
+						const totalCost = DSS.utils.calculateInfrastructureCost(
+							infraType, 
+							infraLength, 
+							costPerFoot, 
+							newWidth
+						);
+						record.set("totalCost", totalCost)
+					},
+				}
 			}, 
 			text: 'Lane Width (ft)', 
 			dataIndex: 'laneWidth', 
-			width: 120,
+			width: 106,
 			hideable: false, 
 			enableColumnHide: false, 
 			lockable: false, 
@@ -437,9 +480,9 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 		let lengthColumn = {
 			xtype: "numbercolumn",
 			format: "0.0",
-			text: "Length [ft]",
+			text: "Length (ft)",
 			dataIndex: "infraLength",
-			width: 80,
+			width: 100,
 			hideable: false,
 			enableColumnHide: false,
 			lockable: false,
@@ -457,32 +500,39 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				step: .2,
 				listeners: {
 					change: function(editor, newCost) {
-						let thisCell = editor.up();
-						let plugin = thisCell.editingPlugin;
-						let record = plugin.context.record;
+						const thisCell = editor.up();
+						const plugin = thisCell.editingPlugin;
+						const record = plugin.context.record;
 
-						let infraLength = record.get("infraLength")
-						
-						record.set("totalCost", newCost * infraLength)
+						const infraType = record.get("infraType");
+						const infraLength = record.get("infraLength")
+						const laneWidth = record.get("laneWidth");
+						const totalCost = DSS.utils.calculateInfrastructureCost(
+							infraType, 
+							infraLength, 
+							newCost, 
+							laneWidth
+						);
+						record.set("totalCost", totalCost)
 					},
 				}
 			}, 
-			text: 'Cost Per<br>Foot', 
+			text: 'Unit Cost', 
 			dataIndex: 'costPerFoot', 
 			width: 90,
 			hideable: false, 
 			enableColumnHide: false, 
 			lockable: false, 
 			minWidth: 24,
-			tooltip: '<b>Cost per Square foot of lane material:</b> Based on Material choosen, can be editted.',
+			tooltip: 'For <b>Lanes:</b> the cost per <b>square foot</b> of lane material. <br/>For <b>Fence</b> and <b>Water:</b> the cost per <b>linear foot.</b>',
 		};
 
 		let totalCostColumn = {
 			xtype: 'numbercolumn', 
 			format: '0.00',
-			text: 'Total<br>Cost', 
+			text: 'Total Cost', 
 			dataIndex: 'totalCost', 
-			width: 80, 
+			width: 100, 
 			formatter: 'usMoney',
 			hideable: false, 
 			enableColumnHide: false, 
@@ -509,7 +559,9 @@ Ext.define('DSS.infrastructure_grid.InfrastructureGrid', {
 				clicksToEdit: 1,
 				listeners: {
 					beforeedit: function(editor, context, eOpts) {
-						if (context.column.widget) return false
+						if (context.column.widget) return false;
+						if (context.field == "laneWidth" 
+							&& context.record.get("infraType") != 'll') return false;
 					}
 				}
 			}
