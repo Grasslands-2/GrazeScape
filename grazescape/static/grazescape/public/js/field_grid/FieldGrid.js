@@ -1281,24 +1281,18 @@ Ext.define('DSS.field_grid.FieldGrid', {
 				text:'Delete Field',
 				tooltip: 'Delete',
 				handler: function(grid, rowIndex) {
+					const recordToDelete = grid.store.data.items[rowIndex];
 					selectedFields = []
 					Ext.getCmp("fieldTable").getView().refresh();
 					Ext.getCmp("fieldTable").getSelectionModel().deselectAll();
-					setTimeout(function(){
-						let deleteRecID = deleteRecord.id
-						console.log(deleteRecID)
-						DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-							console.log(f)
-							if(deleteRecID == f.id_){
-								console.log("hit delete field by grid",f)
-								selectedField = f
-								console.log(selectedField);
-								DSS.dialogs.FieldDeletePanel = Ext.create('DSS.field_shapes.Delete'); 		
-								DSS.dialogs.FieldDeletePanel.show().center().setY(100);
-							}
-						})
-						//grid.getStore().removeAt(rowIndex);
-					}, 1000);//wait 1000ms
+
+					DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+						if(recordToDelete.id == f.id_){
+							selectedField = f
+							DSS.dialogs.FieldDeletePanel = Ext.create('DSS.field_shapes.Delete'); 		
+							DSS.dialogs.FieldDeletePanel.show().center().setY(100);
+						}
+					})
 				},
 				scope: this
 			}]
