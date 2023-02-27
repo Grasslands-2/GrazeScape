@@ -30,6 +30,7 @@ urlpatterns = [
     # handles the login and logout requests
     path('accounts/', include('homepage.urls')),
     path('homepage/', include('homepage.urls')),
+    path('floodscape/', include('floodscape.urls')),
     # path('accounts/', include('django.contrib.auth.urls')),
     # path('accounts/register', )
 ]

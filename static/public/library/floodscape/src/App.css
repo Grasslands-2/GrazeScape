@@ -1,0 +1,127 @@
+html, body, #root, .App {
+  height: 100%;
+   overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+
+}
+.sidePanelCol{
+    padding:0;
+}
+.side_pannel_style{
+background-image: linear-gradient(#EFF4CF, white);
+      padding-bottom: 40px;
+       overflow: auto;
+   height: 90vh;
+}
+ .active1, .trans1:hover {
+  background-color: green;
+  color: white;
+}
+.form-label {
+    margin-bottom:0px;
+}
+.ol-dragbox {
+        background-color: rgba(255,255,255,0.5);
+        border-color: rgba(255,0,0,1);
+        border: 2px solid #f00
+      }
+/*.ol-attribution{
+    padding-top: 650px;
+}
+*/
+div.image {
+   content:url("images/color-flush-Grassland2.0-logo-web.svg");
+    width:50%;
+
+}
+
+.header1{
+background-image: linear-gradient(#EFF4CF, white);
+      padding-bottom: 40px
+}
+#footer{
+    background:#373737;
+    color: #8E8E8E;
+     position: relative;
+     bottom:0;
+
+
+}
+
+
+.text-left {
+  text-align: left;
+}
+
+
+
+.image:hover{
+  opacity: 0.3;
+}
+
+.image{
+    padding:20px;
+}
+
+.progress_bar{
+    padding:20px;
+}
+
+.modal-90w{
+    width: 80vw;
+    max-width: 80vw;
+}
+.criteriaSections {
+    border-bottom:3px solid black;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+.ol-zoomslider {
+    top: calc(85% - 200px) !important;
+    left: auto !important;
+    right: 15px;
+    height: 200px;
+}
+
+.ol-zoom {
+    top: calc(85% - 224px)!important;
+    right: 15px;
+    left: auto !important;
+
+}
+.ol-zoom-in{
+margin-bottom: 200px !important;
+}
+.ol-attribution{
+right: 15px !important;
+}
+
+.table-cell-left{
+    border-left-color: #1b2d4a !important;
+    border-left-width: thick !important;
+}
+
+.table-cell-right{
+    background-color:powderblue !important;
+    border-color: red !important;
+    border-bottom-width: thick !important;
+}
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+            color: black;
+            opacity: 1; /* Firefox */
+}
+.custom-control {
+  top: 20px;
+  right: 20px;
+  width: 70px;
+  height: 70px;
+  background: no-repeat url('http://openlayers.org/en/latest/examples/resources/logo-70x70.png')
+}
+.wisc_link {
+    color: grey;
+    font-size: 10px
+}
