@@ -9,6 +9,7 @@ var scenarioObj = {};
 //empty array to catch feature objects
 var farmArrayCNO = [];
 var scenarioArrayCNO = [];
+const ADDRESS_LOOKUP_ZOOM_LEVEL = 15;
 
 //define function to populate data array with farm table data
 function popfarmArrayCNO(obj) {
@@ -54,7 +55,24 @@ async function cnf_farm_insert(feat, fType) {
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
     s = new XMLSerializer();
     str = s.serializeToString(node);
-    await geoServer.insertFarm(str, feat,fType)
+    const intFgid = await geoServer.insertFarm(str);
+	return intFgid;
+}
+
+async function geocodeLookup(address) {
+	const encodedAddress = encodeURI(address);
+	const result = await $.ajax(`http://localhost:8000/geocode/?address=${encodedAddress}`);
+
+	if (result.error_message) {
+		console.error("Error geocoding address: \n", result.error_message);
+	} else if (result.results && result.results.length == 0) {
+		console.log("Geocode result was empty");
+	} else {
+		return ol.proj.fromLonLat([
+			result.results[0].geometry.location.lng,
+			result.results[0].geometry.location.lat,
+		]);
+	}
 }
 
 function createFarm(fname,fowner,faddress){
@@ -73,7 +91,16 @@ function createFarm(fname,fowner,faddress){
 			farm_owner: fowner,
 			farm_addre: faddress,
 		})
-		await cnf_farm_insert(e.feature, 'farm_2')
+		
+		var intFgid = await cnf_farm_insert(e.feature, 'farm_2')
+
+		DSS.activeFarm = intFgid
+		DSS.farmName = e.feature.values_.farm_name;
+		DSS.scenarioName = ''
+		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.FirstScenario'); 
+		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+		DSS.dialogs.ScenarioPicker.show().center().setY(100);
+		DSS.MapState.showNewFarm();
 	})     
 }
 
@@ -165,13 +192,16 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					componentCls: 'button-margin',
 					text: 'Place Operation',
 					formBind: true,
-					handler: function() { 
+					handler: async function() { 
 						var form = this.up('form').getForm();
 						if (form.isValid()) {
+							const address = form.findField('address').getSubmitValue();
+							const point = await geocodeLookup(address);
+							DSS.MapState.zoomToExtent(point, ADDRESS_LOOKUP_ZOOM_LEVEL);
 							createFarm(
 								form.findField('operation').getSubmitValue(),
 								form.findField('owner').getSubmitValue(),
-								form.findField('address').getSubmitValue());
+								address);
 						}
 			        }
 				}],
