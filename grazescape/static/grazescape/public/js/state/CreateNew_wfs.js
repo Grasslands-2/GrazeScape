@@ -4,30 +4,15 @@ DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
 DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
 
 //--------------Geoserver WFS source connection-------------------
-//wfs farm layer url for general use
 var scenarioObj = {};
-var farmUrl = 
 
-// function showNewFarm() {
-//     geoServer.setFarmSource()
-// 	console.log("setFarmSource in CreateNew_wfs within showNewFarm")
-// 	DSS.layer.farms_1.setOpacity(1);
-// 	DSS.layer.farms_1.getSource().refresh();
-// 	console.log(DSS.activeFarm)
-// 	console.log("show new farm ran");
-// }
-//bring in farm layer table as object for iteration
-//bring in farm layer table as object for iteration
 //empty array to catch feature objects
-farmArrayCNO = [];
-scenarioArrayCNO = [];
+var farmArrayCNO = [];
+var scenarioArrayCNO = [];
 
 //define function to populate data array with farm table data
 function popfarmArrayCNO(obj) {
-	console.log('running popfarmArrayCNO')
-	console.log(obj)
 	for (i in obj) {
-//		console.log(obj[i].properties.id)
 		farmArrayCNO.push({
 			id: obj[i].properties.id,
 			gid: obj[i].properties.gid,
@@ -37,15 +22,11 @@ function popfarmArrayCNO(obj) {
 	for (i in farmArrayCNO){
 		if (farmArrayCNO[i].id > highestFarmIdCNO){
 			highestFarmIdCNO = farmArrayCNO[i].id
-//			console.log(highestFarmIdCNO);
 		};
 	};
-	console.log('popfarmArrayCNO Completed')
 }
 function popScenarioArrayCNO(obj) {
-	console.log('running popScenarioArrayCNO')
 	for (i in obj){ 
-//		console.log(obj[i].properties.scenario_id)
 		scenarioArrayCNO.push({
 			id: obj[i].id,
 			gid: obj[i].properties.gid,
@@ -58,117 +39,48 @@ function popScenarioArrayCNO(obj) {
 			highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
 		};
 	};
-	console.log('popScenarioArrayCNO Completed')
 }
-//populate data array with farm object data from each farm
-//popArray(farmObj);
 //var to hold onto largest gid value of current farms before another is added
 highestFarmIdCNO = 0;
 highestScenarioIdCNO = 0;
-//loops through data array gids to find largest value and hold on to it with highestFarmIdCNO
 
-function gethighestFarmIdCNO(){
-	console.log('running gethighestFarmIDCNO')
-	geoServer.getWFSFarmCNO()
-	
-}
-function gethighestScenarioIdCNO(){
-	console.log('running gethighestScenarioIDCNO')
-	geoServer.getWFSScenarioCNO()
-	
-}
-//gethighestFarmIdCNO()
-//gethighestScenarioIdCNO()
-
-//highestFarmIdCNO = 0
-// console.log(highestFarmIdCNO);
-// console.log(highestScenarioIdCNO);
-
-
-//---------------------------------Working Functions-------------------------------
-async function cnf_farm_insert(feat,geomType,fType, farmID=null) {
+async function cnf_farm_insert(feat, fType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector',
         featureType: fType,
         srsName: 'EPSG:3857'
     });
-    console.log(feat)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
-	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
-    console.log(str);
     await geoServer.insertFarm(str, feat,fType)
-	//await cnf_scenario_insert(feat,geomType,'scenarios_2',)
 }
-//you need to make sure that farm gets in and sets an active farm before scenario kicks off.
 
-// function cnf_scenario_insert(feat,geomType,fType, farmID=null) {
-//     var formatWFS = new ol.format.WFS();
-//     var formatGML = new ol.format.GML({
-//         featureNS: 'http://geoserver.org/GrazeScape_Vector',
-//         featureType: fType,
-//         srsName: 'EPSG:3857'
-//     });
-// 	if(fType == 'scenarios_2'){
-// 		feat.setProperties({farm_id:DSS.activeFarm})
-// 	}
-//     console.log(feat)
-//     node = formatWFS.writeTransaction([feat], null, null, formatGML);
-// 	console.log(node);
-//     s = new XMLSerializer();
-//     str = s.serializeToString(node);
-//     console.log(str);
-//     geoServer.insertFarm(str, feat,fType)
-// }
-function createFarm(fname,fowner,faddress,sname,sdescript){
-
-	let me = this;
+function createFarm(fname,fowner,faddress){
 	DSS.MapState.removeMapInteractions()
 	DSS.mapClickFunction = undefined;
 	DSS.mouseMoveFunction = undefined;
 	DSS.draw = new ol.interaction.Draw({
-		//source: source,
 		type: 'Point',
 		geometryName: 'geom'
 	});
 	DSS.map.addInteraction(DSS.draw);
-	console.log("draw is on");
-	console.log(DSS.draw);
 	DSS.draw.on('drawend', async function (e) {
 		console.log(e)
-		//DSS.map.getView().fit(e);
 		e.feature.setProperties({
-			//plugs in highestFarmIdCNO and gives it an id +1 to make sure its unique
-			//id: highestFarmIdCNO + 1,
 			farm_name: fname,
 			farm_owner: fowner,
 			farm_addre: faddress,
-			// scenario_name: sname,
-			// scenario_desp: sdescript,
-			//scenario_id: DSS.activeFarm
-			//farm_id: highestFarmIdCNO + 1,
 		})
-		var geomType = 'point'
-		await cnf_farm_insert(e.feature, geomType,'farm_2')
-		//cnf_farm_insert(e.feature, geomType,'scenarios_2')
-		// DSS.layer.fields_1.setVisible(true);
-		// DSS.layer.infrastructure.setVisible(true);
-		// DSS.layer.fieldsLabels.setVisible(true);
-		// console.log("HI! WFS farm Insert ran!")
-		//DSS.layer.scenarios.getSource().refresh();
+		await cnf_farm_insert(e.feature, 'farm_2')
 	})     
 }
 
-
-//------------------working variables--------------------
 var type = "Point";
-//var source = farms_1Source;
 
 //---------------------------Create New Farm Container, and component declaration---------------
 Ext.define('DSS.state.CreateNew_wfs', {
-//------------------------------------------------------------------------------
 	extend: 'Ext.Container',
 	alias: 'widget.operation_create',
 
@@ -177,8 +89,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 
 	DSS_singleText: '"Start by creating a new operation"',
 					
-	//--------------------------------------------------------------------------
-	initComponent: function(map) {
+	initComponent: function() {
 		let me = this;
 
 		Ext.applyIf(me, {
@@ -248,19 +159,6 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					margin: '12 0',
 					padding: 4,
             	},
-				// {
-				// 	fieldLabel: 'Scenario Name',
-				// 	name: 'scenario_name',
-                //     allowBlank: false,
-				// 	margin: '12 0',
-				// 	padding: 4,
-            	// },{
-				// 	fieldLabel: 'Scenario Description',
-				// 	name: 'scenario_description',
-                //     allowBlank: false,
-				// 	margin: '12 0',
-				// 	padding: 4,
-            	// },
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -270,18 +168,10 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					handler: function() { 
 						var form = this.up('form').getForm();
 						if (form.isValid()) {
-							// DSS.MapState.removeMapInteractions()
-							// DSS.mapClickFunction = undefined;
-							// DSS.mouseMoveFunction = undefined;
-							//gethighestFarmIdCNO();
-							//gethighestScenarioIdCNO();
-							createFarm(form.findField('operation').getSubmitValue(),
-							form.findField('owner').getSubmitValue(),
-							form.findField('address').getSubmitValue());
-							// form.findField('scenario_name').getSubmitValue(),
-							// form.findField('scenario_description').getSubmitValue());
-							//DSS.layer.fields_1.setVisible(true);
-							//showNewFarm()
+							createFarm(
+								form.findField('operation').getSubmitValue(),
+								form.findField('owner').getSubmitValue(),
+								form.findField('address').getSubmitValue());
 						}
 			        }
 				}],
@@ -289,5 +179,4 @@ Ext.define('DSS.state.CreateNew_wfs', {
 		});	
 		me.callParent(arguments);
 	},
-	//------------------------------------------------------------------
 });
