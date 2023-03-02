@@ -394,6 +394,7 @@ class TransformationTable extends Component {
     this.props.removeTrans(removeTransId)
   }
   getPhosValues(){
+    console.log("transformation ")
     let transPayload = {}
     let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
     let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))

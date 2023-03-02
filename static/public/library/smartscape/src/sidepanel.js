@@ -242,7 +242,6 @@ class SidePanel extends React.Component{
     }
     // fires anytime state or props are updated
     componentDidUpdate(prevProps) {
-        console.log("UI updating")
         document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
@@ -265,7 +264,6 @@ class SidePanel extends React.Component{
                 displayNext = true
            }
         }
-        console.log(displayNext, this.state.landTypeSelected)
         if (displayNext && this.state.landTypeSelected == false && !this.state.aoiOrDisplayLoading){
             this.setState({landTypeSelected:true})
         }
@@ -864,6 +862,11 @@ class SidePanel extends React.Component{
         })
     }
    getPhosValuesBase(){
+    console.log("side pannel")
+    if(this.props.aoiFolderId == null){
+        return
+    }
+
     let transPayload = {}
     let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
     let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
@@ -1528,7 +1531,7 @@ renderModal(){
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
-        optionsEcon = charts.getOptionsBar("Production Cost", "$acre/year")
+        optionsEcon = charts.getOptionsBar("Cost per Ton-Dry Matter", "$/acre/year")
         optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
         configErosionGauge = {
   type: "gauge",
@@ -1797,7 +1800,7 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
-                      <td>Production Cost</td>
+                      <td>Cost per Ton-Dry Matter</td>
                       <td className="table-cell-left">{base.econ}</td>
                       <td>{model.econ}</td>
                       <td>$/acre/year</td>
@@ -1922,7 +1925,7 @@ renderModal(){
 
                     </tr>
                     <tr>
-                      <td>Production Cost</td>
+                      <td>Cost per Ton-Dry Matter</td>
                       <td className="table-cell-left">{baseWatershed.econ}</td>
                       <td>{modelWatershed.econ}</td>
                       <td>$/acre/year</td>
@@ -1935,6 +1938,7 @@ renderModal(){
                   </tbody>
                 </Table>
               </Tab>
+              {/*}
               <Tab eventKey="gauges" title="Gauges">
                <Row>
                <h4>By Selection</h4>
@@ -1948,6 +1952,7 @@ renderModal(){
                      </Col>
                  </Row>
               </Tab>
+              */}
             </Tabs>
             <div id = "chartPrintDiv" style = {{width:pageWidth/2}} hidden={true}>
                 <Bar id = "selChart1" options = {this.optionsYield} data={this.dataYield}/>
