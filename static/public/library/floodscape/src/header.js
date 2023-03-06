@@ -20,12 +20,7 @@ class Header extends React.Component{
         <Navbar bg="light" variant="light">
             <Container>
                 <Navbar.Brand href="#home">
-                <img
-                  alt=""
-                  src= {static_logo}
-                  width="50%"
-                  className="d-inline-block align-top"
-                />
+                    FloodScape
                 </Navbar.Brand>
                 <Nav className="justify-content-center ">
                   <Nav.Link href="/">Main Menu</Nav.Link>

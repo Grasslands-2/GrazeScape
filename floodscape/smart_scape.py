@@ -63,18 +63,18 @@ class SmartScape:
         """
         self.file_name = file_name
         self.raster_image_file_path = os.path.join(settings.BASE_DIR,
-                                                   'smartscape', 'data_files',
+                                                   'floodscape', 'data_files',
                                                    'raster_inputs',
                                                    self.file_name, "selection.png")
         self.bounds = {"x": 0, "y": 0}
         self.raster_inputs = {}
         self.no_data = -9999
-        self.data_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs')
-        self.in_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
+        self.data_dir = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files', 'raster_inputs')
+        self.in_dir = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files',
                                    'raster_inputs', self.file_name)
         if not os.path.exists(self.in_dir):
             os.makedirs(self.in_dir)
-        self.geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
+        self.geo_folder = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files',
                                        'raster_inputs', geo_folder)
         self.request_json = request_json
         self.threads = []
@@ -1715,7 +1715,7 @@ class SmartScape:
 
     def load_nrec(self):
 
-        csv_filename = os.path.join("smartscape", "NmodelInputs_final.csv")
+        csv_filename = os.path.join("floodscape", "NmodelInputs_final.csv")
         output_dict = {}
 
         # fertNrec_soil1	fertNrec_soil2	fertNrec_soil3	fertNrec_om1	fertNrec_om2 fertNrec_om3

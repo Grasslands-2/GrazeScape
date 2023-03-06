@@ -55,9 +55,9 @@ import {
     Projection,
     get as getProjection
  } from 'ol/proj'
- import {getArea, getLength} from 'ol/sphere';
- import ol from 'ol'
- import proj4 from 'proj4';
+import {getArea, getLength} from 'ol/sphere';
+import ol from 'ol'
+import proj4 from 'proj4';
 import {register} from 'ol/proj/proj4';
 import ImageLayer from "ol/layer/Image";
 import Static from "ol/source/ImageStatic";
@@ -91,6 +91,8 @@ proj4.defs(
 proj4.defs(
 'EPSG:3071',"+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs "
 )
+proj4.defs("EPSG:6609","+proj=lcc +lat_0=42 +lon_0=-90 +lat_1=44.0666666666667 +lat_2=42.7333333333333 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=us-ft +no_defs +type=crs");
+
 
 register(proj4);
   var customControl = function(opt_options) {
@@ -243,7 +245,7 @@ class OLMapFragment extends React.Component {
                 this.props.reset();
                 this.selectedFeatures.clear();
 //                this.huc10.getSource().clear()
-                this.huc12.getSource().clear()
+//                this.huc12.getSource().clear()
                 this.boundaryLayerAOI.setVisible(false)
                 this.map.addInteraction(this.select);
                 this.props.setVisibilityTransAcc(true)
@@ -426,22 +428,24 @@ class OLMapFragment extends React.Component {
         return extents
     }
     setActiveRegion(region){
-        let region_10 = region + "_Huc10.geojson"
-        let url = location.origin + "/smartscape/get_image?file_name="+region_10+ "&time="+Date.now()
-        let source = new VectorSource({
-              url: url,
-              format: new GeoJSON(),
-               projection: 'EPSG:3071',
-            })
-        this.huc10.setSource(source)
-        let region_12 = region + "_Huc12.geojson"
-        url = location.origin + "/smartscape/get_image?file_name="+region_12+ "&time="+Date.now()
-        source = new VectorSource({
-              url: url,
-              format: new GeoJSON(),
-            })
-
-        this.huc12.setSource(source)
+        this.ccWatershed.setVisible(true)
+        this.wfkWatershed.setVisible(true)
+//        let region_10 = region + "_Huc10.geojson"
+//        let url = location.origin + "/floodscape/get_image?file_name="+region_10+ "&time="+Date.now()
+//        let source = new VectorSource({
+//              url: url,
+//              format: new GeoJSON(),
+//               projection: 'EPSG:3071',
+//            })
+//        this.huc10.setSource(source)
+//        let region_12 = region + "_Huc12.geojson"
+//        url = location.origin + "/floodscape/get_image?file_name="+region_12+ "&time="+Date.now()
+//        source = new VectorSource({
+//              url: url,
+//              format: new GeoJSON(),
+//            })
+//
+//        this.huc12.setSource(source)
 
 
 //        this.huc10.setVisible(true)
@@ -519,6 +523,15 @@ class OLMapFragment extends React.Component {
               color: 'rgba(0, 0, 255, 0.0)',
             }),
           })]
+          this.stylesBoundaryRiver = [new Style({
+            stroke: new Stroke({
+              color: '#0523b5',
+              width: 3,
+            }),
+            fill: new Fill({
+              color: 'rgba(0, 0, 255, 0.0)',
+            }),
+          })]
           //todo move bing api key
         this.bing_key = 'Anug_v1v0dwJiJPxdyrRWz0BBv_p2sm5XA72OW-ypA064_JoUViwpDXZl3v7KZC1'
         // layer to hold the users aoi selection
@@ -526,86 +539,73 @@ class OLMapFragment extends React.Component {
           name: "aoi",
           zIndex: 10,
           source: new VectorSource({
-            projection: 'EPSG:3071',
+            projection: 'EPSG:6609',
             }),
             style:this.stylesBoundary,
         });
-         this.subSelectHuc12 = new VectorLayer({
-          name: "subHuc12",
-//          zIndex: 100,
-          source: new VectorSource({
-            projection: 'EPSG:3071',
-            }),
-            style: styles,
-        });
-        // layer to hold huc 10 watersheds
-         this.huc10 = new VectorLayer({
-            name:'huc10',
-            renderMode: 'image',
-            visible: false,
 
-//          source:new VectorSource({
-//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
-////              url: "http://grazescape-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
-//              format: new GeoJSON(),
-//               projection: 'EPSG:3857',
-//            }),
-            style: styles,
-        });
-        // layer to hold huc 10 watersheds
-         this.huc12 = new VectorLayer({
-            name: 'huc12',
-            renderMode: 'image',
-          source:new VectorSource({
-//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_json.geojson',
-//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_12_trim.geojson',
-              format: new GeoJSON(),
-               projection: 'EPSG:3071',
-            }),
-            style: styles,
-            visible: true,
-//            operation: olSourceRasterOperationCropInner
-        });
-       // show borders of our three work areas
-        this.northEast = new VectorLayer({
+        this.ccBoundary = new VectorLayer({
           renderMode: 'image',
-          name: "northEast",
+          name: "ccBoundary",
           source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/LearningHubs/northEastWI.geojson',
+              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_OutlineFinal.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:3857',
+               projection: 'EPSG:6609',
             }),
             style: this.stylesBoundary,
         });
-        this.southWest = new VectorLayer({
-            renderMode: 'image',
-            name: "southWest",
-            source:new VectorSource({
-                url: static_global_folder + 'smartscape/gis/LearningHubs/southWestWI.geojson',
-                format: new GeoJSON(),
-                projection: 'EPSG:3857',
-            }),
-            style: this.stylesBoundary,
-        });
-        this.cloverBelt = new VectorLayer({
-            renderMode: 'image',
-            name: "cloverBelt",
+
+        this.ccWatershed = new VectorLayer({
+          renderMode: 'image',
+          name: "ccWatershed",
           source:new VectorSource({
-              url: static_global_folder + 'smartscape/gis/LearningHubs/cloverBelt.geojson',
+              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_fixed.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:3857',
+               projection: 'EPSG:6609',
+            }),
+            style: this.stylesBoundary,
+            visible: false,
+        });
+        this.wfkBoundary = new VectorLayer({
+          renderMode: 'image',
+          name: "wfkBoundary",
+          source:new VectorSource({
+              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_OutlineFinal.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:6609',
             }),
             style: this.stylesBoundary,
         });
-        this.uplands = new VectorLayer({
-            renderMode: 'image',
-            name: "Driftless",
-            source:new VectorSource({
-                url: static_global_folder + 'smartscape/gis/LearningHubs/uplandsWI.geojson',
-                format: new GeoJSON(),
-                projection: 'EPSG:3857',
+        this.wfkWatershed = new VectorLayer({
+          renderMode: 'image',
+          name: "wfkWatershed",
+          source:new VectorSource({
+              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_fixed.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:6609',
             }),
             style: this.stylesBoundary,
+            visible: false,
+        });
+        this.ccRivers = new VectorLayer({
+          renderMode: 'image',
+          name: "ccRivers",
+          source:new VectorSource({
+              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_Rivers.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:6609',
+            }),
+            style: this.stylesBoundaryRiver,
+        });
+        this.wfkRivers = new VectorLayer({
+          renderMode: 'image',
+          name: "wfkRivers",
+          source:new VectorSource({
+              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_Rivers.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:6609',
+            }),
+            style: this.stylesBoundaryRiver,
         });
         // base map
         this.layers = [
@@ -619,13 +619,12 @@ class OLMapFragment extends React.Component {
               }),
             }),
 
-            this.cloverBelt,
-            this.northEast,
-            this.southWest,
-            this.uplands,
-            this.huc10,
-            this.huc12,
-            this.subSelectHuc12,
+            this.ccBoundary,
+            this.ccWatershed,
+            this.wfkBoundary,
+            this.wfkWatershed,
+            this.ccRivers,
+            this.wfkRivers,
             this.boundaryLayerAOI,
 //            this.waterSheds1,
 //            this.huc10Layer,
@@ -644,14 +643,14 @@ class OLMapFragment extends React.Component {
             layers: this.layers,
 //            overlays: [overlay2],
             // Add in the following map controls
-//            controls: [
-//                new ZoomSlider(),
-//                new MousePosition(),
-//                new ScaleLine(),
-////                new OverviewMap(),
-//                    new Attribution()
-//////                attributionOptions: collapsible: true
-//                ],
+            controls: [
+                new ZoomSlider(),
+                new MousePosition(),
+                new ScaleLine(),
+//                new OverviewMap(),
+                    new Attribution()
+////                attributionOptions: collapsible: true
+                ],
             // Render the tile layers in a map view with a Mercator projection
             view: new View({
                 projection: 'EPSG:3857',
@@ -659,10 +658,10 @@ class OLMapFragment extends React.Component {
 //                center: [0, 0],
 //                zoom: 2,
 //                centered at the learning hubs
-                center: [-10008338,5525100],
+                center: [-10117379.58, 5414217.17],
                 // centered at kickapoo
 //                center: [-10107218.88240181,5404739.54256515],
-				zoom: 7,
+				zoom: 10,
 				maxZoom: 15,
 				minZoom: 3,//10,
 			//	constrainRotation: false,
@@ -675,6 +674,7 @@ class OLMapFragment extends React.Component {
         this.map.addControl(new ScaleLine());
 //        this.map.addControl(zoomslider);
         // single slick selection
+//
         this.select = new Select({
             condition: click,
 //             multi: true,
@@ -683,12 +683,12 @@ class OLMapFragment extends React.Component {
 //               if (layer.get('name') == "aoi"){
 //                    return false
 //                }
-                if (layer.get('name') == "subHuc12" || layer.get('name') == "huc10" ||
-                    layer.get('name') == "huc12"||
-                    layer.get('name') == "southWest"||
-                    layer.get('name') == "cloverBelt"||
-                    layer.get('name') == "northEast"||
-                    layer.get('name') == "Driftless"){
+//              which layers can be selected
+                if (layer.get('name') == "ccBoundary" ||
+                    layer.get('name') == "ccWatershed" ||
+                    layer.get('name') == "wfkBoundary"||
+                    layer.get('name') == "wfkWatershed")
+                    {
                     return true
                 }
 //                console.log(layer)
@@ -696,27 +696,7 @@ class OLMapFragment extends React.Component {
            },
 
         });
-        // select interaction working on "click"
-//        const selectClick = new Select({
-//          condition: click,
-//           multi: true,
-//           layers:function(layer){
-//                console.log(layer)
-//               console.log("hello32$$#$#$#$#$$###$")
-//               return false
-//           },
 
-//          filter: function(layer){
-//                        console.log("in the select condition@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-//                console.log(layer)
-//                return false
-//                    },
-//          layerFilter: function(layer) {
-//            console.log("in the select condition@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-//                console.log(layer)
-//              return layer.get('typename') == 'layerDIST';
-//            },
-//        });
         // get selected features from map
         this.selectedFeatures = this.select.getFeatures();
         this.selectedFeatures.on(['remove'], (f)=> {
@@ -732,26 +712,31 @@ class OLMapFragment extends React.Component {
 //            console.log(f.target.item(0).getGeometry())
 //          selecting by county
             console.log(f.target)
-            if(f.target.item(0).get("NAME") != undefined){
+            console.log(f.target.item(0))
+            console.log(f.target.item(0).get("NAME"))
+            console.log(f.target.item(0).get("name"))
+            if(f.target.item(0).get("name") == "West Fork Kickapoo 5" ||
+            f.target.item(0).get("name") == "COON CREEK 33"){
                 console.log("selecting a county!!!!!")
                 var extent = f.target.item(0).getGeometry().getExtent()
                 console.log(extent)
                 extent = this.add10PerExtent(extent)
                 console.log(extent)
-
+//              floodscape only has one region
+                region = "southWestWI"
                 this.map.getView().fit(extent,{"duration":500});
-                if(f.target.item(0).get("NAME") == "La Crosse"){
-                    region = "southWestWI"
-                }
-                else if (f.target.item(0).get("NAME") == "Clark"){
-                    region = "CloverBeltWI"
-                }
-                else if (f.target.item(0).get("NAME") == "Kewaunee"){
-                    region = "northeastWI"
-                }
-                else if (f.target.item(0).get("NAME") == "Grant"){
-                    region = "uplandsWI"
-                }
+//                if(f.target.item(0).get("NAME") == "La Crosse"){
+//                    region = "southWestWI"
+//                }
+//                else if (f.target.item(0).get("NAME") == "Clark"){
+//                    region = "CloverBeltWI"
+//                }
+//                else if (f.target.item(0).get("NAME") == "Kewaunee"){
+//                    region = "northeastWI"
+//                }
+//                else if (f.target.item(0).get("NAME") == "Grant"){
+//                    region = "uplandsWI"
+//                }
                 this.setActiveRegion(region)
 
                 return
@@ -772,12 +757,14 @@ class OLMapFragment extends React.Component {
                 console.log(lyr)
                 aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
                 aoiCoors.push(lyr.getGeometry().getCoordinates())
-                area = area + lyr.get("areasqM")
+                area = area + lyr.get("area_sqkm")
+                console.log("area", area)
             })
 //            selecting the huc 10 aoi
             if(layer.get('name')== 'aoi'){
                 // set state of appcontainer to the current extents and coords of selection areas
                 this.props.setAoiExtentsCoors({"extents":aoiExtents, "coors":aoiCoors})
+                console.log("setting aoiArea", area)
                 this.props.setAoiArea({"aoiArea":area})
 
             }
@@ -822,22 +809,7 @@ class OLMapFragment extends React.Component {
 //            start_drawing = true;
         });
         this.draw.on('drawend', (evt) => {})
-        // fire when we add a new polygon
-//        this.source.on('addfeature', (evt) => {
-////            start_drawing = false;
-//            let aoiExtents = createEmpty();
-//            let aoiCoors = []
-//
-//            this.boundaryLayer.getSource().forEachFeature(function (lyr) {
 
-//                aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
-//                aoiCoors.push(lyr.getGeometry().getCoordinates())
-//            })
-
-//            this.props.handleBoundaryChange(aoiExtents,aoiCoors)
-//
-//
-//        });
     this.map.addInteraction(this.select);
     }
     render(){

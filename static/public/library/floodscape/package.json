@@ -1,7 +1,7 @@
 {
-  "name": "grassland",
+  "name": "FloodScape",
   "version": "1.0.0",
-  "description": "main react library for grassland project",
+  "description": "main react library for FloodScape",
   "main": "index.js",
   "scripts": {
     "dev": "webpack --mode development --watch",

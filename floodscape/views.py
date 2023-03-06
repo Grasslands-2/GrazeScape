@@ -8,8 +8,8 @@ import uuid
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from smartscape.raster_data_smartscape import RasterDataSmartScape
-from smartscape.smart_scape import SmartScape
+from floodscape.raster_data_smartscape import RasterDataSmartScape
+from floodscape.smart_scape import SmartScape
 from grazescape.db_connect import *
 import traceback
 from django.http import FileResponse
@@ -21,7 +21,7 @@ import threading
 import shutil
 from osgeo import gdal
 import math
-import smartscape.helper_base
+import floodscape.helper_base
 import numpy as np
 from osgeo import gdalconst as gc
 
@@ -45,24 +45,24 @@ def index(request):
     context = {
         "user_info": {"user_name": user_name}
     }
-    dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
-                            'data_files', 'raster_inputs')
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    # download the watersheds for the learning hubs
-    file_names = [
-        "southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12",
-        "uplandsWI_Huc10", "uplandsWI_Huc12", "northeastWI_Huc10", "northeastWI_Huc12",
-    ]
-    for name in file_names:
-        url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
-        print("downloading", url)
-        raster_file_path = os.path.join(dir_path, name + ".geojson")
-        createNewDownloadThread(url, raster_file_path)
-        # r = requests.get(url)
-        # with open(raster_file_path, "wb") as f:
-        #     f.write(r.content)
-    input_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
+    # dir_path = os.path.join(settings.BASE_DIR, 'floodscape',
+    #                         'data_files', 'raster_inputs')
+    # if not os.path.exists(dir_path):
+    #     os.makedirs(dir_path)
+    # # download the watersheds for the learning hubs
+    # file_names = [
+    #     "southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12",
+    #     "uplandsWI_Huc10", "uplandsWI_Huc12", "northeastWI_Huc10", "northeastWI_Huc12",
+    # ]
+    # for name in file_names:
+    #     url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
+    #     print("downloading", url)
+    #     raster_file_path = os.path.join(dir_path, name + ".geojson")
+    #     createNewDownloadThread(url, raster_file_path)
+    #     # r = requests.get(url)
+    #     # with open(raster_file_path, "wb") as f:
+    #     #     f.write(r.content)
+    input_path = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files',
                               'raster_inputs')
 
     now = time.time()
@@ -75,7 +75,7 @@ def index(request):
         except OSError as e:
             print("Error: %s : %s" % (f, e.strerror))
 
-    return render(request, 'smartscape_home.html', context=context)
+    return render(request, 'floodscape_home.html', context=context)
 
 
 def createNewDownloadThread(link, filelocation):
@@ -144,7 +144,7 @@ def get_selection_raster(request):
             "folder_id": folder_id
         }
         # download base layers async
-        smartscape.helper_base.download_base_rasters_helper(request, folder_id)
+        floodscape.helper_base.download_base_rasters_helper(request, folder_id)
     except KeyError as e:
         error = str(e)
     except ValueError as e:
@@ -167,7 +167,7 @@ def get_selection_raster(request):
 def download_base_rasters(request):
     request_json = js.loads(request.body)
     geo_folder = request_json["folderId"]
-    smartscape.helper_base.download_base_rasters_helper(request, geo_folder)
+    floodscape.helper_base.download_base_rasters_helper(request, geo_folder)
     return JsonResponse({"download": "started"}, safe=False)
 
 
@@ -187,7 +187,7 @@ def get_phos_fert_options(request):
     """
     request_json = js.loads(request.body)
     base_calc = request_json['base_calc']
-    return_data = smartscape.helper_base.get_phos_fert_options(request, base_calc)
+    return_data = floodscape.helper_base.get_phos_fert_options(request, base_calc)
     return JsonResponse({"response": return_data}, safe=False)
 
 
@@ -379,7 +379,7 @@ def get_image(response):
         The image object
     """
     file_name = response.GET.get('file_name')
-    file_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
+    file_path = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files',
                              'raster_inputs', file_name)
     print(file_path)
     img = open(file_path, 'rb')

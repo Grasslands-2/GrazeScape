@@ -69,6 +69,7 @@ import html2canvas from 'html2canvas';
 import ReactSpeedometer from "react-d3-speedometer"
 import ZingChart from 'zingchart-react';
 import "zingchart/es6";
+const sqKilToSqAc = 247.105
 const mapStateToProps = state => {
     return{
     activeTrans: state.transformation.activeTrans,
@@ -681,7 +682,7 @@ class SidePanel extends React.Component{
     this.props.setAoiFolderId(downloadFolder)
     this.setState({aoiOrDisplayLoading:true})
     $.ajax({
-        url : '/smartscape/get_selection_raster',
+        url : '/floodscape/get_selection_raster',
         type : 'POST',
         data : JSON.stringify({
             geometry:{
@@ -725,7 +726,7 @@ class SidePanel extends React.Component{
         headers: { "X-CSRFToken": csrftoken }
     });
     $.ajax({
-        url : '/smartscape/get_selection_criteria_raster',
+        url : '/floodscape/get_selection_criteria_raster',
         type : 'POST',
         data : JSON.stringify({
 //            selectionCrit:selectionCrit,
@@ -743,15 +744,19 @@ class SidePanel extends React.Component{
         success: (responses, opts) => {
             delete $.ajaxSetup().headers
             console.log(responses)
-            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            let url = location.origin + "/floodscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
             console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
             let cellRatio = responses[0]["cellRatio"]
 //          only works if whole area is selected
-            let totalArea = Math.round(this.props.aoiArea* 0.000247105)
+            let totalArea = Math.round(this.props.aoiArea* sqKilToSqAc)
             let selectionArea = Math.round(cellRatio * totalArea)
             let perArea = Math.round(selectionArea/totalArea * 100)
+            console.log("aoiArea", this.props.aoiArea)
+            console.log("total area", totalArea)
+            console.log(" selectionArea", selectionArea)
+            console.log("perArea", perArea)
             this.props.updateActiveTransProps({"name":"areaSelected", "value":selectionArea, "type":"base"})
             this.props.updateActiveTransProps({"name":"areaSelectedPerWorkArea", "value":perArea, "type":"base"})
         },
@@ -776,7 +781,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/download_base_rasters',
+            url : '/floodscape/download_base_rasters',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -829,7 +834,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_transformed_land',
+            url : '/floodscape/get_transformed_land',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -890,7 +895,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_phos_fert_options',
+            url : '/floodscape/get_phos_fert_options',
             type : 'POST',
             data : payload,
             success: (response, opts) => {
@@ -1062,7 +1067,7 @@ class SidePanel extends React.Component{
                      lineWidth:1
                      }
                 })
-                pdf.save("SmartScape.pdf");
+                pdf.save("floodscape.pdf");
                 div.hidden = true
 //            })
         this.setState({printingPDF:false})
@@ -2325,7 +2330,7 @@ renderModal(){
                    </Stack>
                     </div>
                     <div className = "criteriaSections">
-                      <div>Work Area: {Math.round(this.props.aoiArea* 0.000247105).toLocaleString('en-US')} ac</div>
+                      <div>Work Area: {Math.round(this.props.aoiArea* sqKilToSqAc).toLocaleString('en-US')} ac</div>
                       <Table striped bordered hover size="sm" responsive>
                       <thead>
                       <tr style={{textAlign:"center"}}>

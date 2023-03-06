@@ -1,5 +1,5 @@
 """
-Helper SmartScape views
+Helper floodscape views
 Author: Matthew Bayles
 Created: July 2021
 Python Version: 3.9.2
@@ -8,8 +8,8 @@ import uuid
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from smartscape.raster_data_smartscape import RasterDataSmartScape
-from smartscape.smart_scape import SmartScape
+from floodscape.raster_data_smartscape import RasterDataSmartScape
+from floodscape.smart_scape import SmartScape
 from grazescape.db_connect import *
 import traceback
 from django.http import FileResponse
@@ -30,7 +30,7 @@ def download_base_rasters_helper(request, geo_folder):
     # geo_folder = request_json["folderId"]
     region = request_json['region']
     base_scen = request_json['baseTrans']
-    geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
+    geo_folder = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files',
                               'raster_inputs', geo_folder)
     base_layer_dic = {}
     # download layers for base case
@@ -139,8 +139,8 @@ def get_phos_fert_options(request, base_calc):
 
     # trans_id = request_json["transId"]
     # file path of our input data
-    geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs', folder_id)
-    data_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs')
+    geo_folder = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files', 'raster_inputs', folder_id)
+    data_dir = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files', 'raster_inputs')
     return_data = {}
 
     # make sure files are loaded

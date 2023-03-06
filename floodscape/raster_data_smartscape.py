@@ -47,7 +47,7 @@ class RasterDataSmartScape:
         """
         self.file_name = field_id
 
-        self.dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
+        self.dir_path = os.path.join(settings.BASE_DIR, 'floodscape',
                                      'data_files', 'raster_inputs',
                                      self.file_name)
         self.layer_dic = {
