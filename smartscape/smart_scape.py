@@ -664,15 +664,15 @@ class SmartScape:
         watershed_land_use = watershed_land_use_band.ReadAsArray()
         # need to fill in holes for erosion model inputs for nitrate model
         # print("valid cells", np.count_nonzero())
-        hay_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, hay_er_arr == self.no_data), 0, hay_er_arr)
+        pasture_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, pasture_er_arr == self.no_data), 0, pasture_er_arr)
         cont_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, cont_er_arr == self.no_data), 0, cont_er_arr)
         corn_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, corn_er_arr == self.no_data), 0, corn_er_arr)
         dairy_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, dairy_er_arr == self.no_data), 0, dairy_er_arr)
-        hay_yield_arr = np.where(np.logical_and(watershed_land_use != self.no_data, hay_yield_arr == self.no_data), 0, hay_yield_arr)
+        pasture_yield_arr = np.where(np.logical_and(watershed_land_use != self.no_data, pasture_yield_arr == self.no_data), 0, pasture_yield_arr)
 
         base_nitrate_data = self.nitrate_calc_base(n_parameters, base_scen,
-                                                   hay_yield_arr, cont_yield, corn_yield, dairy_yield,
-                                                   hay_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
+                                                   pasture_yield_arr, cont_yield, corn_yield, dairy_yield,
+                                                   pasture_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
                                                    om, total_cells, watershed_land_use)
         # handling bird model for base conditions
         start = time.time()
@@ -730,11 +730,10 @@ class SmartScape:
             7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12, "bird": 0,
                 "econ": econ_cost["contCorn"], "nitrate": 0},
             8: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "ploss": hay_pl_arr,
-                "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"],
-                "nitrate": base_nitrate_data["hay"]},
+                "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"], "nitrate":0 },
             9: {"name": "pasture", "is_calc": True, "yield": pasture_yield_arr, "ero": pasture_er_arr,
                 "ploss": pasture_pl_arr, "cn": pasture_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"],
-                "nitrate": 0},
+                "nitrate": base_nitrate_data["pasture"]},
             10: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr,
                  "ploss": hay_pl_arr, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
             11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
@@ -2001,8 +2000,8 @@ class SmartScape:
         return total_leach
 
     def nitrate_calc_base(self, n_parameters, base_scen,
-                          hay_yield_arr, cont_yield, corn_yield, dairy_yield,
-                          hay_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
+                          pasture_yield_arr, cont_yield, corn_yield, dairy_yield,
+                          pasture_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
                           om, total_cells, watershed_land_use):
         # print("hello")
         total_cells2_classify = np.where(
@@ -2038,8 +2037,10 @@ class SmartScape:
             NfixPct = float(nrec_trans["NfixPct"])
             Nharv_content = float(nrec_trans["Nharv_content"])
             if n_par == "nrec_trans_pasture_values":
-                harvN = hay_yield_arr * 2000 * Nharv_content
-                erosN = hay_er_arr * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
+                harvN = pasture_yield_arr * 2000 * Nharv_content
+                erosN = pasture_er_arr * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
+                manrN = 0
+                fertN = 0
             elif n_par == "nrec_trans_cont_values":
                 harvN = cont_yield * 2000 * Nharv_content
                 erosN = cont_er_arr * om * 2  ## note that OM is in units of % ## erosion from models = tons/acre
@@ -2096,18 +2097,18 @@ class SmartScape:
                       0.2 * nitrate_sum_dict["nrec_trans_silage_values"]["inter_data_sum"] + \
                       0.2 * nitrate_sum_dict["nrec_trans_alfalfa_values"]["inter_data_sum"] + \
                       0.4 * nitrate_sum_dict["nrec_trans_alfalfa_seed_values"]["inter_data_sum"]
-        leach_hay = nitrate_sum_dict["nrec_trans_pasture_values"]["inter_data_sum"]
+        leach_pasture = nitrate_sum_dict["nrec_trans_pasture_values"]["inter_data_sum"]
         leach_corn = nitrate_sum_dict["nrec_trans_cont_values"]["inter_data_sum"]
         # print("total leaching ", total_leach)
         # print("cell count ", total_cells)
-        print("leaching hay", get_value(leach_hay, total_cells, watershed_land_use))
+        print("leaching hay", get_value(leach_pasture, total_cells, watershed_land_use))
         print("leaching corn", get_value(leach_corn, total_cells, watershed_land_use))
         print("leaching cash grain", get_value(leach_cash_grain, total_cells, watershed_land_use))
         print("leaching dairy", get_value(leach_dairy, total_cells, watershed_land_use))
         # print("leaching ", total_leach / total_cells)
         # print("leaching dict", nitrate_sum_dict)
         return {
-            "hay": leach_hay,
+            "pasture": leach_pasture,
             "corn": leach_corn,
             "cash_grain": leach_cash_grain,
             "dairy": leach_dairy,

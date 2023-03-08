@@ -48,7 +48,7 @@ def download_base_rasters_helper(request, geo_folder):
             if name == "hayGrassland" or name == "pastureWatershed":
                 # medium_GrassYield_southWestWI.tif
                 # pasture_CN_rt_rt_0_0_southWestWI.tif
-                base_layer_dic[name + "_" + model] = "pasture_" + model + "_rt_rt_0_0_" + region
+                base_layer_dic[name + "_" + model] = "pasture_" + model + "_cn_lo_0_0_" + region
             else:
                 file_name = name + "_" + \
                             model + "_" + \
