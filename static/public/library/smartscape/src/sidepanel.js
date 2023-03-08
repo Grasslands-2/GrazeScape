@@ -218,6 +218,8 @@ class SidePanel extends React.Component{
         this.state = {slope:{slope1:null, slope2:null},
             sDist1:0,
             sDist2:this.distStreamMax,
+            slop1:0,
+            slop2:this.slopeMax,
             geometry:{extents:[],coords:[]},
             activeTrans:null,
             selectWatershed:false,
@@ -249,6 +251,10 @@ class SidePanel extends React.Component{
         document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
+            this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", this.props.activeTrans.selection.streamDist1, "slider")
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.props.activeTrans.selection.streamDist2, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope1", "reg", this.props.activeTrans.selection.slope1, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", this.props.activeTrans.selection.slope2, "slider")
         }
         // set selection criteria to active scenario
 
@@ -299,8 +305,7 @@ class SidePanel extends React.Component{
         this.prime2.current.checked = this.props.activeTrans.selection.farmClass.prime2
         this.prime3.current.checked = this.props.activeTrans.selection.farmClass.prime3
 
-        this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", this.props.activeTrans.selection.streamDist1, "slider")
-        this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.props.activeTrans.selection.streamDist2, "slider")
+
 
 //        this.setState({sDist1:this.props.activeTrans.selection.streamDist1})
 //        this.setState({sDist2:this.props.activeTrans.selection.streamDist2})
@@ -445,13 +450,17 @@ class SidePanel extends React.Component{
     clearSelection(selectionType){
 
         if(selectionType == "slope"){
-             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
-             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+//             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
+//             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+             this.handleSelectionChangeGeneralNumeric("slope1", "reg", 0, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", this.slopeMax, "slider")
 
         }
         else if(selectionType == "streamDist"){
-             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
-             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
+//             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
+//             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
+             this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", 0, "slider")
+             this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.distStreamMax, "slider")
         }
         else if(selectionType == "subArea"){
             this.props.updateActiveTransProps({"name":'extent', "value":[], "type":"reg"})
@@ -527,21 +536,31 @@ class SidePanel extends React.Component{
                 this.setState({sDist2:e})
             }
         }
+         if(name == "slope1"){
+            if(this.state.slop1 != e){
+                this.setState({slop1:e})
+            }
+        }
+        if(name == "slope2" ){
+            if(this.state.slop2 != e){
+                this.setState({slop2:e})
+            }
+        }
 
-//        this.setState({aoiOrDisplayLoading:false})
-//        this.setState({aoiOrDisplayLoading:true})
+        this.setState({aoiOrDisplayLoading:false})
+        this.setState({aoiOrDisplayLoading:true})
 //
         this.props.updateActiveTransProps({"name":name, "value":e, "type":type})
-//        this.setState({aoiOrDisplayLoading:false})
-//        this.setState({aoiOrDisplayLoading:true})
-//        selectionTime = new Date();
-//        setTimeout(function(){
-//            if (new Date() - selectionTime >= 1000 && rasterDownloaded){
-//                console.log(name)
-//                this.displaySelectionCriteria()
-//            }
-//
-//        }.bind(this), 1000)
+        this.setState({aoiOrDisplayLoading:false})
+        this.setState({aoiOrDisplayLoading:true})
+        selectionTime = new Date();
+        setTimeout(function(){
+            if (new Date() - selectionTime >= 1000 && rasterDownloaded){
+                console.log(name)
+                this.displaySelectionCriteria()
+            }
+
+        }.bind(this), 1000)
 
     }
     handleSelectionChangeUnit(type, useFt, e){
@@ -2175,7 +2194,7 @@ renderModal(){
                                       domain={domainSlope}
                                       rootStyle={sliderStyle}
                                       onUpdate={this.sliderChangeSlope}
-                                      values={[this.props.activeTrans.selection.slope1,this.props.activeTrans.selection.slope2]}
+                                      values={[this.state.slop1,this.state.slop2]}
                                     >
                                       <Rail>
                                         {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
@@ -2227,14 +2246,16 @@ renderModal(){
 
                                 <Col xs="5">
                                 <Form.Label>Min Slope</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
+                                  <Form.Control value={this.state.slop1} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope1", "reg", e.currentTarget.value, "box")}
+//                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
                                 </Col>
                                 <Col xs="5">
                             <Form.Label>Max Slope</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.slope2} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
+                                  <Form.Control value={this.state.slop2} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope2", "reg", e.currentTarget.value, "box")}
+//                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
                                   />
                                 </Col>
                             </Form.Group>
