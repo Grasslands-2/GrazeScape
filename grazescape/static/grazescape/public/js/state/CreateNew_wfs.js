@@ -75,7 +75,19 @@ async function geocodeLookup(address) {
 	}
 }
 
-function createFarm(fname,fowner,faddress){
+async function createFarm(feature) {
+	var intFgid = await cnf_farm_insert(feature, 'farm_2')
+	console.log(feature);
+	DSS.activeFarm = intFgid
+	DSS.farmName = feature.values_.farm_name;
+	DSS.scenarioName = ''
+	DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.FirstScenario'); 
+	DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+	DSS.dialogs.ScenarioPicker.show().center().setY(100);
+	DSS.MapState.showNewFarm();
+}
+
+function enablePlaceFarmMapInteraction(fname,fowner,faddress){
 	DSS.MapState.removeMapInteractions()
 	DSS.mapClickFunction = undefined;
 	DSS.mouseMoveFunction = undefined;
@@ -85,23 +97,35 @@ function createFarm(fname,fowner,faddress){
 	});
 	DSS.map.addInteraction(DSS.draw);
 	DSS.draw.on('drawend', async function (e) {
-		console.log(e)
 		e.feature.setProperties({
 			farm_name: fname,
 			farm_owner: fowner,
 			farm_addre: faddress,
 		})
 		
-		var intFgid = await cnf_farm_insert(e.feature, 'farm_2')
-
-		DSS.activeFarm = intFgid
-		DSS.farmName = e.feature.values_.farm_name;
-		DSS.scenarioName = ''
-		DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.FirstScenario'); 
-		DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-		DSS.dialogs.ScenarioPicker.show().center().setY(100);
-		DSS.MapState.showNewFarm();
+		await createFarm(e.feature);
 	})     
+}
+
+const placeFarmManuallyButton = () => ({
+	xtype: 'button',
+	cls: 'button-text-pad',
+	componentCls: 'button-margin',
+	text: 'Place Farm Manually',
+	handler: function(self) { 
+		var form = self.up('form').getForm();
+		enablePlaceFarmMapInteraction(
+			form.findField('operation').getSubmitValue(),
+			form.findField('owner').getSubmitValue(),
+			form.findField('address').getSubmitValue());
+		resetFarmSearchState(self);
+	}
+});
+
+function resetFarmSearchState(self) {
+	DSS.map.removeLayer(DSS.layer.newFarmStaging);
+	const searchResults = self.up("operation_create").down("#search_results");
+	searchResults.removeAll();
 }
 
 var type = "Point";
@@ -151,7 +175,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
             { 
 				xtype: 'component',
 				cls: 'information',
-				html: 'Fill in operation info in the form below, then select farm location on map'
+				html: 'First, fill in farm info in the form below.'
 			},{
 				xtype: 'form',
 				url: 'create_operation',
@@ -187,23 +211,99 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					padding: 4,
             	},
 				{
+					xtype: 'component',
+					cls: 'information',
+					html: 'Then, to place your farm, click Search.'
+				},
+				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Place Operation',
+					text: 'Search',
 					formBind: true,
-					handler: async function() { 
+					handler: async function(self) { 
 						var form = this.up('form').getForm();
 						if (form.isValid()) {
+							resetFarmSearchState(self);
+
 							const address = form.findField('address').getSubmitValue();
-							const point = await geocodeLookup(address);
-							DSS.MapState.zoomToExtent(point, ADDRESS_LOOKUP_ZOOM_LEVEL);
-							createFarm(
-								form.findField('operation').getSubmitValue(),
-								form.findField('owner').getSubmitValue(),
-								address);
+							const coordinate = await geocodeLookup(address);
+
+							if(!coordinate) {
+								const searchResults = self.up("operation_create").down("#search_results");;
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									style: {
+										color: "#FF0000",
+									},
+									html: 'Error! Unable to find location. Try again with a different address, or place farm by clicking on the map.'
+								});
+								searchResults.add(placeFarmManuallyButton());
+								return;
+							}
+
+							const regionContainsPoint = selectedRegion.getGeometry().intersectsCoordinate(coordinate);
+							if(regionContainsPoint){
+								const point = new ol.geom.Point(coordinate);
+								const feature = new ol.Feature({geom: point});
+								feature.setGeometryName("geom");
+								feature.setProperties({
+									farm_name: form.findField('operation').getSubmitValue(),
+									farm_owner: form.findField('owner').getSubmitValue(),
+									farm_addre: address,
+								})
+								DSS.layer.newFarmStaging = new ol.layer.Vector({
+									name: "newFarmStaging",
+									style: DSS.farms_1_style,
+									source: new ol.source.Vector({features: [feature]})
+								});
+								DSS.map.addLayer(DSS.layer.newFarmStaging);
+								DSS.MapState.zoomToExtent(coordinate, ADDRESS_LOOKUP_ZOOM_LEVEL);
+
+								const searchResults = self.up("operation_create").down("#search_results");
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									html: 'Location found. If this looks right, click confirm. Otherwise, try another search or place farm by clicking on the map.'
+								})
+								searchResults.add({
+									xtype: 'button',
+									cls: 'button-text-pad',
+									componentCls: 'button-margin',
+									text: 'Confirm',
+									handler: async function(self) { 
+										const feature = DSS.layer.newFarmStaging.getSource().getFeatures()[0];
+										if(!feature) {
+											alert("Error placing farm! Feature not found.");
+											return;
+										}
+										console.log(feature);
+										await createFarm(feature);
+										resetFarmSearchState(self);
+									}
+								});
+								searchResults.add(placeFarmManuallyButton());
+							} else {
+								const searchResults = self.up("operation_create").down("#search_results");
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									style: {
+										color: "#FF0000",
+									},
+									html: 'Location was not inside the region. Try again with a different address, or place farm by clicking on the map.'
+								});
+								searchResults.add(placeFarmManuallyButton())
+							}
 						}
 			        }
+				},
+				{
+					xtype: 'container',
+					layout: DSS.utils.layout('vbox', 'center', 'stretch'),
+					id: 'search_results',
+					items: []
 				}],
 			}]
 		});	
