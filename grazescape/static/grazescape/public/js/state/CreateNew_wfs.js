@@ -60,18 +60,28 @@ async function cnf_farm_insert(feat, fType) {
 }
 
 async function geocodeLookup(address) {
-	const encodedAddress = encodeURI(address);
-	const result = await $.ajax(`http://localhost:8000/geocode/?address=${encodedAddress}`);
+	try{
+		const encodedAddress = encodeURI(address);
+		const result = await $.ajax(`http://localhost:8000/geocode/?address=${encodedAddress}`);
 
-	if (result.error_message) {
-		console.error("Error geocoding address: \n", result.error_message);
-	} else if (result.results && result.results.length == 0) {
-		console.log("Geocode result was empty");
-	} else {
-		return ol.proj.fromLonLat([
-			result.results[0].geometry.location.lng,
-			result.results[0].geometry.location.lat,
-		]);
+		if (result.error_message) {
+			console.error("Error geocoding address: \n", result.error_message);
+			return {
+				error: "Address search is down."
+			};
+		} else if (result.results && result.results.length == 0) {
+			console.log("Geocode result was empty");
+			return {};
+		} else {
+			return {
+				coordinate: ol.proj.fromLonLat([
+					result.results[0].geometry.location.lng,
+					result.results[0].geometry.location.lat,
+				])
+			};
+		}
+	} catch(e) {
+		return { error: "Unhandled error!" };
 	}
 }
 
@@ -211,11 +221,6 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					padding: 4,
             	},
 				{
-					xtype: 'component',
-					cls: 'information',
-					html: 'Then, to place your farm, click Search.'
-				},
-				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
@@ -227,17 +232,21 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							resetFarmSearchState(self);
 
 							const address = form.findField('address').getSubmitValue();
-							const coordinate = await geocodeLookup(address);
+							const result = await geocodeLookup(address);
+							const coordinate = result.coordinate;
 
 							if(!coordinate) {
-								const searchResults = self.up("operation_create").down("#search_results");;
+								const searchResults = self.up("operation_create").down("#search_results");
+								const errorText = result.error 
+									? result.error + " Please place your farm by clicking 'Place Farm Manually', then clicking on the map."
+									: 'Error! Unable to find location. Try again with a different address, or place farm by clicking on the map.';
 								searchResults.add({ 
 									xtype: 'component',
 									cls: 'information',
 									style: {
 										color: "#FF0000",
 									},
-									html: 'Error! Unable to find location. Try again with a different address, or place farm by clicking on the map.'
+									html: errorText
 								});
 								searchResults.add(placeFarmManuallyButton());
 								return;
@@ -265,7 +274,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 								searchResults.add({ 
 									xtype: 'component',
 									cls: 'information',
-									html: 'Location found. If this looks right, click confirm. Otherwise, try another search or place farm by clicking on the map.'
+									html: 'Location found. If this looks right, click Confirm. Otherwise, try another search or place farm by clicking on the map.'
 								})
 								searchResults.add({
 									xtype: 'button',
