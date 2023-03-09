@@ -31,8 +31,6 @@ if parser.has_section("captcha_google") and parser.has_section("postgresql"):
 else:
     raise Exception(
         'Section {0} not found in the {1} file'.format("captcha_google", filename))
-if parser.has_section("google_cloud"):
-    GOOGLE_CLOUD_API_KEY= parser.items("google_cloud")[0][1]
 
 SECRET_KEY = 'r59hzdx*6!+et=7=_cs-ysj3f1z!pfsizixsuj4)055-+d@c&r'
 
