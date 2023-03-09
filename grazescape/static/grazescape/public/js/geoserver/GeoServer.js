@@ -114,20 +114,7 @@ class GeoServer{
             DSS.layer.infrastructure.getSource().addFeatures(myGeoJsonFeatures)
         })
     }
-//    get farms and then run popfarmArray Currently not being used as of 02042022
-    getWFSFarmCNO(){
-         this.makeRequest(this.geoFarm_Url, "source").then(function(geoJson){
-            geoJson = JSON.parse(geoJson.geojson)
-            popfarmArrayCNO(geoJson.features)
-        })
-    }
-//  gets scenario for create new operation.  Currently not being used as of 02042022
-    getWFSScenarioCNO(){
-        this.makeRequest(this.geoScen_Url, "source").then(function(geoJson){
-            geoJson = JSON.parse(geoJson.geojson)
-            popScenarioArrayCNO(geoJson.features);
-        })
-    }
+
 //  Gets data for scenarios and populates the scenarios array. used in Scenario Picker
 //  Also used in NewScenario.js to refresh data of current active scenario
     getWFSScenarioSP(parameter = ''){
@@ -185,24 +172,16 @@ class GeoServer{
         })
     }
 // Used to insert new farms into geoserver. if statements handle if the new farm or scenario is coming in
-    insertFarm(payLoad, feat, fType){
-        this.makeRequest(this.geoUpdate_Url, "insert_farm", payLoad, this).then(function(returnData){
-            var farmGeojsonString = String(returnData.geojson)
-            console.log(farmGeojsonString);
-            let currObj = returnData.current
-			DSS.MapState.removeMapInteractions()
-            var fgid = farmGeojsonString.substring(farmGeojsonString.indexOf('farm_2.') + 7,farmGeojsonString.lastIndexOf('"/>'));
-            var intFgid = parseInt(fgid);
-            console.log(intFgid);
-            // DSS.activeFarm = highestFarmIdCNO + 1
-            DSS.activeFarm = intFgid
-            DSS.farmName = feat.values_.farm_name;
-            DSS.scenarioName = ''
-            DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.FirstScenario'); 
-            DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
-            DSS.dialogs.ScenarioPicker.show().center().setY(100);
-            DSS.MapState.showNewFarm();
-        })
+    insertFarm(payLoad){
+        return this.makeRequest(this.geoUpdate_Url, "insert_farm", payLoad, this)
+            .then(function(returnData){
+                var farmGeojsonString = String(returnData.geojson)
+                DSS.MapState.removeMapInteractions()
+                var fgid = farmGeojsonString.substring(farmGeojsonString.indexOf('farm_2.') + 7,farmGeojsonString.lastIndexOf('"/>'));
+                var intFgid = parseInt(fgid);
+                console.log(intFgid);
+                return intFgid;
+            });
     }
 // used to insert fields into geoserver
     wfs_field_insert(payLoad, feat, fType){
