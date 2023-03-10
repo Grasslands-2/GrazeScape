@@ -85,6 +85,25 @@ async function geocodeLookup(address) {
 	}
 }
 
+// Create a new layer for a new farm to be displayed in while the user is asked to confirm the location.
+function showFarmInStagingLayer(coordinate, form){
+	const point = new ol.geom.Point(coordinate);
+	const feature = new ol.Feature({geom: point});
+	feature.setGeometryName("geom");
+	feature.setProperties({
+		farm_name: form.findField('operation').getSubmitValue(),
+		farm_owner: form.findField('owner').getSubmitValue(),
+		farm_addre: form.findField('address').getSubmitValue(),
+	})
+	DSS.layer.newFarmStaging = new ol.layer.Vector({
+		name: "newFarmStaging",
+		style: DSS.farms_1_style,
+		source: new ol.source.Vector({features: [feature]})
+	});
+	DSS.map.addLayer(DSS.layer.newFarmStaging);
+	DSS.MapState.zoomToExtent(coordinate, ADDRESS_LOOKUP_ZOOM_LEVEL);
+}
+
 async function createFarm(feature) {
 	var intFgid = await cnf_farm_insert(feature, 'farm_2')
 	console.log(feature);
@@ -107,13 +126,27 @@ function enablePlaceFarmMapInteraction(fname,fowner,faddress){
 	});
 	DSS.map.addInteraction(DSS.draw);
 	DSS.draw.on('drawend', async function (e) {
-		e.feature.setProperties({
-			farm_name: fname,
-			farm_owner: fowner,
-			farm_addre: faddress,
-		})
-		
-		await createFarm(e.feature);
+		const coordinate = e.feature.getGeometry().getCoordinates();
+		const regionContainsPoint = selectedRegion.getGeometry().intersectsCoordinate(coordinate);
+		if(regionContainsPoint){
+			e.feature.setProperties({
+				farm_name: fname,
+				farm_owner: fowner,
+				farm_addre: faddress,
+			})
+			Ext.ComponentQuery.query("#search_results")[0].removeAll();
+			await createFarm(e.feature);
+		} else if(!Ext.ComponentQuery.query("#search_results_inside_region_message").length > 0){
+			Ext.ComponentQuery.query("#search_results")[0].add({ 
+				xtype: 'component',
+				id: "search_results_inside_region_message",
+				cls: 'information',
+				style: {
+					color: "#FF0000",
+				},
+				html: 'Farm location must be inside the region!'
+			});
+		}
 	})     
 }
 
@@ -254,21 +287,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 
 							const regionContainsPoint = selectedRegion.getGeometry().intersectsCoordinate(coordinate);
 							if(regionContainsPoint){
-								const point = new ol.geom.Point(coordinate);
-								const feature = new ol.Feature({geom: point});
-								feature.setGeometryName("geom");
-								feature.setProperties({
-									farm_name: form.findField('operation').getSubmitValue(),
-									farm_owner: form.findField('owner').getSubmitValue(),
-									farm_addre: address,
-								})
-								DSS.layer.newFarmStaging = new ol.layer.Vector({
-									name: "newFarmStaging",
-									style: DSS.farms_1_style,
-									source: new ol.source.Vector({features: [feature]})
-								});
-								DSS.map.addLayer(DSS.layer.newFarmStaging);
-								DSS.MapState.zoomToExtent(coordinate, ADDRESS_LOOKUP_ZOOM_LEVEL);
+								showFarmInStagingLayer(coordinate, form);
 
 								const searchResults = self.up("operation_create").down("#search_results");
 								searchResults.add({ 
