@@ -87,6 +87,7 @@ async function geocodeLookup(address) {
 
 // Create a new layer for a new farm to be displayed in while the user is asked to confirm the location.
 function showFarmInStagingLayer(coordinate, form){
+	DSS.MapState.removeMapInteractions();
 	const point = new ol.geom.Point(coordinate);
 	const feature = new ol.Feature({geom: point});
 	feature.setGeometryName("geom");
@@ -117,7 +118,7 @@ async function createFarm(feature) {
 }
 
 function enablePlaceFarmMapInteraction(fname,fowner,faddress){
-	DSS.MapState.removeMapInteractions()
+	DSS.MapState.removeMapInteractions();
 	DSS.mapClickFunction = undefined;
 	DSS.mouseMoveFunction = undefined;
 	DSS.draw = new ol.interaction.Draw({
@@ -149,21 +150,6 @@ function enablePlaceFarmMapInteraction(fname,fowner,faddress){
 		}
 	})     
 }
-
-const placeFarmManuallyButton = () => ({
-	xtype: 'button',
-	cls: 'button-text-pad',
-	componentCls: 'button-margin',
-	text: 'Place Farm Manually',
-	handler: function(self) { 
-		var form = self.up('form').getForm();
-		enablePlaceFarmMapInteraction(
-			form.findField('operation').getSubmitValue(),
-			form.findField('owner').getSubmitValue(),
-			form.findField('address').getSubmitValue());
-		resetFarmSearchState(self);
-	}
-});
 
 function resetFarmSearchState(self) {
 	DSS.map.removeLayer(DSS.layer.newFarmStaging);
@@ -234,7 +220,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					triggerWrapCls: 'underlined-input',
 				},
 				items: [{
-					fieldLabel: 'Operation',
+					fieldLabel: 'Farm Name',
 					name: 'operation',
 					allowBlank: false,
 					value: me.DSS_operation,
@@ -247,7 +233,21 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					margin: '10 0',
 					padding: 4,
 				},{
-					fieldLabel: 'Address',
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Place Farm Manually',
+					formBind: true,
+					handler: function(self) { 
+						var form = self.up('form').getForm();
+						enablePlaceFarmMapInteraction(
+							form.findField('operation').getSubmitValue(),
+							form.findField('owner').getSubmitValue(),
+							form.findField('address').getSubmitValue());
+						resetFarmSearchState(self);
+					}
+				},{
+					fieldLabel: 'Find by Address',
 					name: 'address',
                     allowBlank: true,
 					margin: '12 0',
@@ -265,6 +265,20 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							resetFarmSearchState(self);
 
 							const address = form.findField('address').getSubmitValue();
+							if(!address || address == "") {
+								const searchResults = self.up("operation_create").down("#search_results");
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									style: {
+										color: "#FF0000",
+									},
+									html: "Address can't be empty."
+								});
+
+								return;
+							};
+						
 							const result = await geocodeLookup(address);
 							const coordinate = result.coordinate;
 
@@ -272,7 +286,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 								const searchResults = self.up("operation_create").down("#search_results");
 								const errorText = result.error 
 									? result.error + " Please place your farm by clicking 'Place Farm Manually', then clicking on the map."
-									: 'Error! Unable to find location. Try again with a different address, or place farm by clicking on the map.';
+									: 'Error! Unable to find location. Try again with a different address, or place farm manually.';
 								searchResults.add({ 
 									xtype: 'component',
 									cls: 'information',
@@ -281,7 +295,6 @@ Ext.define('DSS.state.CreateNew_wfs', {
 									},
 									html: errorText
 								});
-								searchResults.add(placeFarmManuallyButton());
 								return;
 							}
 
@@ -293,7 +306,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 								searchResults.add({ 
 									xtype: 'component',
 									cls: 'information',
-									html: 'Location found. If this looks right, click Confirm. Otherwise, try another search or place farm by clicking on the map.'
+									html: 'Location found. If this looks right, click Confirm. Otherwise, try another search or place farm manually.'
 								})
 								searchResults.add({
 									xtype: 'button',
@@ -311,7 +324,6 @@ Ext.define('DSS.state.CreateNew_wfs', {
 										resetFarmSearchState(self);
 									}
 								});
-								searchResults.add(placeFarmManuallyButton());
 							} else {
 								const searchResults = self.up("operation_create").down("#search_results");
 								searchResults.add({ 
@@ -320,9 +332,8 @@ Ext.define('DSS.state.CreateNew_wfs', {
 									style: {
 										color: "#FF0000",
 									},
-									html: 'Location was not inside the region. Try again with a different address, or place farm by clicking on the map.'
+									html: 'Location was not inside the region. Try again with a different address, or place farm manually.'
 								});
-								searchResults.add(placeFarmManuallyButton())
 							}
 						}
 			        }
