@@ -62,7 +62,7 @@ async function cnf_farm_insert(feat, fType) {
 async function geocodeLookup(address) {
 	try{
 		const encodedAddress = encodeURI(address);
-		const result = await $.ajax(`http://localhost:8000/geocode/?address=${encodedAddress}`);
+		const result = await $.ajax(`/geocode/?address=${encodedAddress}`);
 
 		if (result.error_message) {
 			console.error("Error geocoding address: \n", result.error_message);
