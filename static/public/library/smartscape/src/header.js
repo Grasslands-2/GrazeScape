@@ -19,7 +19,7 @@ class Header extends React.Component{
         return(
         <Navbar bg="light" variant="light">
             <Container>
-                <Navbar.Brand href="#home">
+                <Navbar.Brand href="https://grasslandag.org/" target="_blank">
                 <img
                   alt=""
                   src= {static_logo}

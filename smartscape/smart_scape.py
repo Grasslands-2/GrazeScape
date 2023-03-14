@@ -166,11 +166,6 @@ class SmartScape:
         # selection parameters: 1 if passes 0 otherwise
         print("about to start selecting by slope")
         # https://gis.stackexchange.com/questions/163007/raster-reclassify-using-python-gdal-and-numpy
-        # copy datanm so we can use it for just the image
-        # TODO there is probably a way to combine this with the raster datanm
-        # datanm_image = np.copy(datanm)
-        # selected values get 1 and everything else gets a zero
-        # datanm_image = np.where(np.logical_and(*self.parse("", datanm_image, slope1, slope2)), 1, 0)
         # need to separate out no data value; so we will have selected, no selected but within area
         # and no data (should just be values outside of subarea)
         # set selected to -99
@@ -198,8 +193,7 @@ class SmartScape:
         print(land_class)
         if land_class["land1"]:
             datanm_landclass = np.where(
-                np.logical_and(1 == datanm_landclass, datanm_landclass != self.no_data), -99, datanm_landclass
-            )
+                np.logical_and(1 == datanm_landclass, datanm_landclass != self.no_data), -99, datanm_landclass)
         if land_class["land2"]:
             datanm_landclass = np.where(
                 np.logical_and(2 == datanm_landclass, datanm_landclass != self.no_data), -99, datanm_landclass
@@ -228,9 +222,6 @@ class SmartScape:
             datanm_landclass = np.where(
                 np.logical_and(8 == datanm_landclass, datanm_landclass != self.no_data), -99, datanm_landclass
             )
-        if np.count_nonzero(datanm_landclass == -99) > 0:
-            datanm = np.where(np.logical_and(datanm == -99, datanm_landclass == -99), -99, self.no_data)
-        print("selected cells land class", np.count_nonzero(datanm_landclass == -99))
 
         datanm_farmclass = self.raster_inputs["farm_class"]
         if farm_class["prime"]:
@@ -260,9 +251,6 @@ class SmartScape:
                 np.logical_and(6 == datanm_farmclass, datanm_farmclass != self.no_data), -99,
                 datanm_farmclass
             )
-        if np.count_nonzero(datanm_farmclass == -99) > 0:
-            datanm = np.where(np.logical_and(datanm == -99, datanm_farmclass == -99), -99, self.no_data)
-            # datanm = np.where(np.logical_and(datanm == -99, datanm_landclass == -99), -99, self.no_data)
 
         datanm_landuse = self.raster_inputs["landuse"]
         if landuse_par["cashGrain"]:
@@ -297,8 +285,17 @@ class SmartScape:
             datanm_landuse = np.where(
                 np.logical_and(10 == datanm_landuse, datanm_landuse != self.no_data), -99, datanm_landuse
             )
-        # if np.count_nonzero(datanm_landuse == -99) > 0:
+        land_class_selected = any(val is True for val in land_class.values())
+        farm_class_selected = any(val is True for val in farm_class.values())
+        print("land selected and farm selected", land_class_selected, farm_class_selected)
+        if land_class_selected:
+            datanm = np.where(np.logical_and(datanm == -99, datanm_landclass == -99), -99, self.no_data)
+        print("selected cells land class", np.count_nonzero(datanm_landclass == -99))
+        if farm_class_selected:
+            datanm = np.where(np.logical_and(datanm == -99, datanm_farmclass == -99), -99, self.no_data)
+        print("selected cells farmclass", np.count_nonzero(datanm_farmclass == -99))
         datanm = np.where(np.logical_and(datanm == -99, datanm_landuse == -99), -99, self.no_data)
+
         selected_cells = np.count_nonzero(datanm != self.no_data)
         print("selected cells", selected_cells)
         datanm_image = np.copy(datanm)

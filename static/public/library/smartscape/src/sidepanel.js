@@ -641,7 +641,7 @@ class SidePanel extends React.Component{
     newTrans.management.nitrogen_fertilizer = "0"
 //    newTrans.management.phos_fertilizer = "0"
 //    newTrans.management.phos_manure = "0"
-    newTrans.management.legume = "false"
+    newTrans.management.legume = "true"
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
     newTrans.management.tillage = "su"
