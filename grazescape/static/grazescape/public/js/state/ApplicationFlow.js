@@ -305,20 +305,5 @@ Ext.define('DSS.state.ApplicationFlow', {
 				{xtype: 'field_shape_mgr'}
 			]);
 		Ext.resumeLayouts(true);
-	}
-	
-	
-	/* If and when needed....
-	 
-	me.DSS_realtimeDashboard.animate({
-		dynamic: true, duration: 300,
-		to: {
-			width: 0
-		}
-	})
-	
-	DSS.map.getView().fit([-10126000, 5360000, -10110000, 5390000], {duration: 1000});
-},*/
-
-	
+	}	
 });

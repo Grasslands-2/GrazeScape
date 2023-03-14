@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.contrib.auth import views as auth_views
-
+from .geocode import geocode
 
 
 urlpatterns = [
@@ -30,6 +30,7 @@ urlpatterns = [
     # handles the login and logout requests
     path('accounts/', include('homepage.urls')),
     path('homepage/', include('homepage.urls')),
+    path('geocode/', geocode)
     # path('accounts/', include('django.contrib.auth.urls')),
     # path('accounts/register', )
 ]

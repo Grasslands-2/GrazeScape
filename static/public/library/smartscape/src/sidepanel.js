@@ -216,6 +216,10 @@ class SidePanel extends React.Component{
         this.distStreamMax = 16000;
         this.selectWatershed = React.createRef();
         this.state = {slope:{slope1:null, slope2:null},
+            sDist1:0,
+            sDist2:this.distStreamMax,
+            slop1:0,
+            slop2:this.slopeMax,
             geometry:{extents:[],coords:[]},
             activeTrans:null,
             selectWatershed:false,
@@ -242,10 +246,15 @@ class SidePanel extends React.Component{
     }
     // fires anytime state or props are updated
     componentDidUpdate(prevProps) {
-        console.log("UI updating")
+        console.log("updating")
+        console.log(prevProps)
         document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
+            this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", this.props.activeTrans.selection.streamDist1, "slider")
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.props.activeTrans.selection.streamDist2, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope1", "reg", this.props.activeTrans.selection.slope1, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", this.props.activeTrans.selection.slope2, "slider")
         }
         // set selection criteria to active scenario
 
@@ -260,12 +269,12 @@ class SidePanel extends React.Component{
         this.grasslandIdle.current.checked = this.props.activeTrans.selection.landCover.grasslandIdle
         let displayNext = false
 //        todo this doesn't seem to quite be working properly
+//      checking is user has selected landtype
         for (let val in this.props.activeTrans.selection.landCover){
             if (this.props.activeTrans.selection.landCover[val] == true){
                 displayNext = true
            }
         }
-        console.log(displayNext, this.state.landTypeSelected)
         if (displayNext && this.state.landTypeSelected == false && !this.state.aoiOrDisplayLoading){
             this.setState({landTypeSelected:true})
         }
@@ -296,6 +305,10 @@ class SidePanel extends React.Component{
         this.prime2.current.checked = this.props.activeTrans.selection.farmClass.prime2
         this.prime3.current.checked = this.props.activeTrans.selection.farmClass.prime3
 
+
+
+//        this.setState({sDist1:this.props.activeTrans.selection.streamDist1})
+//        this.setState({sDist2:this.props.activeTrans.selection.streamDist2})
 //       which unit to use for steam distance
         if (this.props.activeTrans.selection.useFt){
             this.feet.current.checked = true
@@ -305,6 +318,10 @@ class SidePanel extends React.Component{
             this.meters.current.checked = true
             this.feet.current.checked = false
         }
+
+
+
+
         if(prevProps.baseTrans.management.nitrogen != this.props.baseTrans.management.nitrogen){
             console.log("Nitrogen has changed, calculate new P")
             this.getPhosValuesBase()
@@ -333,11 +350,8 @@ class SidePanel extends React.Component{
 
                     this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                }
-
-//                this.setState({showHuc10:true})
                 this.setState({showHuc12:true})
             }
-//           console.log(this.state.showHuc10)
         }
     }
 
@@ -376,22 +390,18 @@ class SidePanel extends React.Component{
 //        if slope entered in textbox is greater than box domain dont update slider
         if(e[1] != domainSlope[1]){
 //            console.log("not updating")
-//            this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("slope2", "reg", e[1])
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", e[1], "slider")
 
 
         }
-//            this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("slope1", "reg", e[0])
+            this.handleSelectionChangeGeneralNumeric("slope1", "reg", e[0], "slider")
     }
     sliderChangeStream(e){
 //        console.log("slider change")
 //        console.log(e)
-//        this.props.updateActiveTransProps({"name":"streamDist1", "value":e[0], "type":"reg"})
-        this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", e[0])
+        this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", e[0], "slider")
 
-//        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
-        this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", e[1])
+        this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", e[1], "slider")
 
     }
       handleCloseModalBase(){
@@ -440,13 +450,17 @@ class SidePanel extends React.Component{
     clearSelection(selectionType){
 
         if(selectionType == "slope"){
-             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
-             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+//             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
+//             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+             this.handleSelectionChangeGeneralNumeric("slope1", "reg", 0, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", this.slopeMax, "slider")
 
         }
         else if(selectionType == "streamDist"){
-             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
-             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
+//             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
+//             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
+             this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", 0, "slider")
+             this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.distStreamMax, "slider")
         }
         else if(selectionType == "subArea"){
             this.props.updateActiveTransProps({"name":'extent', "value":[], "type":"reg"})
@@ -475,7 +489,6 @@ class SidePanel extends React.Component{
     }
     // type needs to match the selection name in transformation
     handleSelectionChange(type, e){
-//        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"reg"})
         this.handleSelectionChangeGeneral(type, "reg", e)
     }
     updateActiveBaseProps(type, e){
@@ -487,7 +500,6 @@ class SidePanel extends React.Component{
 
     }
     handleSelectionChangeLand(type, e){
-//        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"land"})
         this.handleSelectionChangeGeneral(type, "land", e)
     }
     handleSelectionChangeGeneral(name, type, e){
@@ -505,14 +517,39 @@ class SidePanel extends React.Component{
 
         }.bind(this), 1000)
     }
-    handleSelectionChangeGeneralNumeric(name, type, e){
+    handleSelectionChangeGeneralNumeric(name, type, e, caller){
+        console.log("selection change numeric")
+        console.log("caller source", caller)
+        console.log(e)
+        console.log(e.currentTarget)
+        console.log("done")
+//        console.log(e.currentTarget.value)
 //        this is a hack. slope1 is being triggered at the beginning of the app
         if (name == "slope1" && this.props.listTrans.length < 1){return}
+        if(name == "streamDist1"){
+            if(this.state.sDist1 != e){
+                this.setState({sDist1:e})
+            }
+        }
+        if(name == "streamDist2" ){
+            if(this.state.sDist2 != e){
+                this.setState({sDist2:e})
+            }
+        }
+         if(name == "slope1"){
+            if(this.state.slop1 != e){
+                this.setState({slop1:e})
+            }
+        }
+        if(name == "slope2" ){
+            if(this.state.slop2 != e){
+                this.setState({slop2:e})
+            }
+        }
 
         this.setState({aoiOrDisplayLoading:false})
         this.setState({aoiOrDisplayLoading:true})
-
-
+//
         this.props.updateActiveTransProps({"name":name, "value":e, "type":type})
         this.setState({aoiOrDisplayLoading:false})
         this.setState({aoiOrDisplayLoading:true})
@@ -538,20 +575,20 @@ class SidePanel extends React.Component{
             console.log("converting to meters")
             dist = 4878
 //            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist)
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist, "unit change")
             domainStream[1] = 4878
         }
         else if(useFt && dist == 4878) {
             dist = 16000
 //            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist)
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist, "unit change")
             domainStream[1] = 16000
         }
 //        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
 
 //        this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
         console.log(domainStream)
-        this.handleSelectionChangeGeneralNumeric(type, "reg", useFt)
+        this.handleSelectionChangeGeneralNumeric(type, "reg", useFt, "unit change")
 
 
     }
@@ -864,6 +901,11 @@ class SidePanel extends React.Component{
         })
     }
    getPhosValuesBase(){
+    console.log("side pannel")
+    if(this.props.aoiFolderId == null){
+        return
+    }
+
     let transPayload = {}
     let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
     let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
@@ -1528,7 +1570,7 @@ renderModal(){
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
-        optionsEcon = charts.getOptionsBar("Production Cost", "$acre/year")
+        optionsEcon = charts.getOptionsBar("Cost per Ton-Dry Matter", "$/acre/year")
         optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
         configErosionGauge = {
   type: "gauge",
@@ -1797,7 +1839,7 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
-                      <td>Production Cost</td>
+                      <td>Cost per Ton-Dry Matter</td>
                       <td className="table-cell-left">{base.econ}</td>
                       <td>{model.econ}</td>
                       <td>$/acre/year</td>
@@ -1922,7 +1964,7 @@ renderModal(){
 
                     </tr>
                     <tr>
-                      <td>Production Cost</td>
+                      <td>Cost per Ton-Dry Matter</td>
                       <td className="table-cell-left">{baseWatershed.econ}</td>
                       <td>{modelWatershed.econ}</td>
                       <td>$/acre/year</td>
@@ -1935,6 +1977,7 @@ renderModal(){
                   </tbody>
                 </Table>
               </Tab>
+              {/*}
               <Tab eventKey="gauges" title="Gauges">
                <Row>
                <h4>By Selection</h4>
@@ -1948,6 +1991,7 @@ renderModal(){
                      </Col>
                  </Row>
               </Tab>
+              */}
             </Tabs>
             <div id = "chartPrintDiv" style = {{width:pageWidth/2}} hidden={true}>
                 <Bar id = "selChart1" options = {this.optionsYield} data={this.dataYield}/>
@@ -2150,7 +2194,7 @@ renderModal(){
                                       domain={domainSlope}
                                       rootStyle={sliderStyle}
                                       onUpdate={this.sliderChangeSlope}
-                                      values={[this.props.activeTrans.selection.slope1,this.props.activeTrans.selection.slope2]}
+                                      values={[this.state.slop1,this.state.slop2]}
                                     >
                                       <Rail>
                                         {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
@@ -2202,14 +2246,16 @@ renderModal(){
 
                                 <Col xs="5">
                                 <Form.Label>Min Slope</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
+                                  <Form.Control value={this.state.slop1} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope1", "reg", e.currentTarget.value, "box")}
+//                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
                                 </Col>
                                 <Col xs="5">
                             <Form.Label>Max Slope</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.slope2} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
+                                  <Form.Control value={this.state.slop2} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope2", "reg", e.currentTarget.value, "box")}
+//                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
                                   />
                                 </Col>
                             </Form.Group>
@@ -2237,7 +2283,7 @@ renderModal(){
                                       domain={domainStream}
                                       rootStyle={sliderStyle}
                                       onChange={this.sliderChangeStream}
-                                      values={[this.props.activeTrans.selection.streamDist1,this.props.activeTrans.selection.streamDist2]}
+                                      values={[this.state.sDist1,this.state.sDist2]}
                                     >
                                       <Rail>
                                         {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
@@ -2286,14 +2332,14 @@ renderModal(){
                              <Form.Group as={Row}>
                                 <Col xs="5">
                                     <Form.Label>Minimum Distance to Stream</Form.Label>
-                                    <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
+                                    <Form.Control value={this.state.sDist1} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", e.currentTarget.value, "box")}
                                   />
                                 </Col>
                                 <Col xs="5">
                                     <Form.Label>Maximum Distance to Stream</Form.Label>
-                                    <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("streamDist2", e)}
+                                    <Form.Control value={this.state.sDist2} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", e.currentTarget.value, "box")}
                                   />
                                 </Col>
                                 <Form.Label>Units</Form.Label>

@@ -142,3 +142,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 STATICFILES_DIRS = (
                 os.path.join(BASE_DIR, 'static'), # if your static files folder is named "staticfiles",
 )
+
+if parser.has_section("google_cloud"):
+    GOOGLE_CLOUD_API_KEY= parser.items("google_cloud")[0][1]
