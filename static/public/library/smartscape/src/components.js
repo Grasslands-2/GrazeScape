@@ -1,4 +1,4 @@
-// @flow weak
+// Components for the slider elements
 
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
