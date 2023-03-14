@@ -1638,8 +1638,12 @@ function printSummary(){
         unit: 'px',
         format: 'letter',
     });
+    var pdfWidth = pdf.internal.pageSize.width;
+    var pdfHeight = pdf.internal.pageSize.height;
+
+    pdf.setFontSize(14);
     pdf.deletePage(1);
-    
+
     fieldTotals = 0
     
     setTimeout(() => {
@@ -1681,7 +1685,6 @@ function printSummary(){
             }
         }
 
-        let lastPage;
         for (chart in chartList){
             chartPresent = true
             canvas = document.getElementById(chartList[chart])
@@ -1698,12 +1701,17 @@ function printSummary(){
             ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
-            var pdfWidth = pdf.internal.pageSize.width;
-            const scaleFactor = pdfWidth / newCanvas.width * 0.8;
+
+            const scaleFactor = Math.min(pdfWidth / newCanvas.width, pdfHeight/ newCanvas.height) * 0.8;
+            
             pdf.addPage("letter",'landscape');
+            pdf.text(20, 20, 
+                `Chart ID: ${chartList[chart]}\n` +
+                `\n` +  // 2nd line of text available here
+                ``);    // 3rd line here
             pdf.addImage(imgData, 'JPEG', 
-                pdfWidth * 0.1 , 
-                0, 
+                pdfWidth * 0.1, 
+                55, 
                 newCanvas.width * scaleFactor, 
                 newCanvas.height * scaleFactor);
         }
