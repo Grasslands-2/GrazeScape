@@ -979,14 +979,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                     })
                 }
-//                let model_request_return1 = await build_model_request(f.properties, f,'pmanure',modelruntime,DSS.activeScenario,[])
-//                let pManureResults = await get_P_Manure_Results(model_request_return1)
-//                console.log(pManureResults)
-//                let pManureResultsArray = pManureResults.p_manure_array
 
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])//.then(model_request_return)
+                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])
                     console.log(model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -2694,12 +2690,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             xtype: 'button',
                             text: 'Download Summary Report PDF',
                             id: 'downloadSummaryBtn',
-                            tooltip: 'Download charts and csv',
+                            tooltip: 'Download summary report PDF',
                             handler: function(e) {
-                                console.log(e)
                                 printSummary()
                             }
-    //                        text: 'Yearly Yield'
                         },
                         //There is a listener set up in DashBoardUtilities that runs when this button is clicked to download summary csv to users machine.
                         {
