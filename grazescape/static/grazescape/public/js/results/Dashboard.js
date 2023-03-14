@@ -2698,7 +2698,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             id: 'downloadSummaryBtn',
                             tooltip: 'Download summary report PDF',
                             handler: function(e) {
-                                printSummary()
+                                downloadSummaryPdf()
                             }
                         },
                         //There is a listener set up in DashBoardUtilities that runs when this button is clicked to download summary csv to users machine.
