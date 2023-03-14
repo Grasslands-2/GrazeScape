@@ -1633,7 +1633,11 @@ function printSummary(){
     // make the summary tab the active tab when done.
     Ext.getCmp("mainTab").setActiveTab(activeTab)
 
-    var pdf = new jsPDF('l', 'in', 'letter')
+    var pdf = new jsPDF({
+        orientation: 'l',
+        unit: 'px',
+        format: 'letter',
+    });
     fieldTotals = 0
     
     setTimeout(() => {
@@ -1691,12 +1695,14 @@ function printSummary(){
             ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
-            pdf.addImage(imgData, 'JPEG', 1,1,8,6);
+            pdf.addImage(imgData, 'JPEG', 1,1,newCanvas.width,newCanvas.height);
             pdf.addPage("letter",'landscape');
         }
         pdf.save(chartDatasetContainer.farmName + "_Report.pdf");
     }, 1000);
 
+    // TODO suspect can delete below this point
+    // What does this code do?
     let type = "csv";
 
     let fieldUrl_results =
@@ -2155,7 +2161,7 @@ class ChartData{
         this.fieldSum = []
         this.areaSum = []
     }
-    
+
     get_avg(scenIndex){
         return +((this.sum[scenIndex] / this.count[scenIndex]).toFixed(2))
     }
