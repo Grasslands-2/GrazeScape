@@ -1638,6 +1638,8 @@ function printSummary(){
         unit: 'px',
         format: 'letter',
     });
+    pdf.deletePage(1);
+    
     fieldTotals = 0
     
     setTimeout(() => {
@@ -1678,7 +1680,8 @@ function printSummary(){
                 }
             }
         }
-        
+
+        let lastPage;
         for (chart in chartList){
             chartPresent = true
             canvas = document.getElementById(chartList[chart])
@@ -1695,8 +1698,14 @@ function printSummary(){
             ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
             ctx.drawImage(canvas, 0, 0);
             var imgData = newCanvas.toDataURL("image/jpeg");
-            pdf.addImage(imgData, 'JPEG', 1,1,newCanvas.width,newCanvas.height);
+            var pdfWidth = pdf.internal.pageSize.width;
+            const scaleFactor = pdfWidth / newCanvas.width * 0.8;
             pdf.addPage("letter",'landscape');
+            pdf.addImage(imgData, 'JPEG', 
+                pdfWidth * 0.1 , 
+                0, 
+                newCanvas.width * scaleFactor, 
+                newCanvas.height * scaleFactor);
         }
         pdf.save(chartDatasetContainer.farmName + "_Report.pdf");
     }, 1000);
