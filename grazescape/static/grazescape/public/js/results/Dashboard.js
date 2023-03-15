@@ -689,29 +689,123 @@ var fieldYieldArray = [];
 var modelTypes = ['yield']
 //list of all the current and future charts
 var chartList = [
-//    "cost_farm", "cost_field",
-//    "net_return_farm", "net_return_field",
-    "grass_yield_farm", "grass_yield_field",
-//    "milk_farm", "milk_field",
-//    "nitrogen_farm",
-    "ploss_farm", "ploss_field",
-    "soil_loss_farm", "soil_loss_field",
-    "nleaching_farm", "nleaching_field",
-//    "bio_farm",
+    "grass_yield_farm", 
+    "grass_yield_field",
+    "ploss_farm", 
+    "ploss_field",
+    "soil_loss_farm", 
+    "soil_loss_field",
+    "nleaching_farm", 
+    "nleaching_field",
     "cn_num_farm",
     "runoff_farm",
     "compare_farm",
-    'corn_yield_farm','corn_yield_field',
-    'corn_silage_yield_farm', 'corn_silage_yield_field',
-    'soy_yield_farm','soy_yield_field',
-    'oat_yield_farm', 'oat_yield_field',
-    'alfalfa_yield_farm','alfalfa_yield_field',
-    'rotation_yield_farm' , 'rotation_yield_field',
-    'insecticide_farm', 'insecticide_field',
+    'corn_yield_farm',
+    'corn_yield_field',
+    'corn_silage_yield_farm',
+    'corn_silage_yield_field',
+    'soy_yield_farm',
+    'soy_yield_field',
+    'oat_yield_farm', 
+    'oat_yield_field',
+    'alfalfa_yield_farm',
+    'alfalfa_yield_field',
+    'rotation_yield_farm',
+    'rotation_yield_field',
+    'insecticide_farm',
+    'insecticide_field',
     'feed_breakdown',
-    'econ_farm','econ_field'
-    //'crop_feed_breakdown'
+    'econ_farm',
+    'econ_field'
 ]
+
+var additionalChartInfo = {
+    'grass_yield_farm': {
+        group: 'Yield'
+    }, 
+    'grass_yield_field': {
+        group: 'Yield'
+    },
+    'ploss_farm': {
+        group: 'Nutrients'
+    }, 
+    'ploss_field': {
+        group: 'Nutrients'
+    },
+    'soil_loss_farm': {
+        group: 'Erosion'
+    }, 
+    'soil_loss_field': {
+        group: 'Erosion'
+    },
+    'nleaching_farm': {
+        group: 'Nutrients'
+    }, 
+    'nleaching_field': {
+        group: 'Nutrients'
+    },
+    'cn_num_farm': {
+        group: 'Runoff'
+    },
+    'runoff_farm': {
+        group: 'Runoff'
+    },
+    'compare_farm': {
+        group: 'Unknown'
+    },
+    'corn_yield_farm': {
+        group: 'Yield'
+    },
+    'corn_yield_field': {
+        group: 'Yield'
+    },
+    'corn_silage_yield_farm': {
+        group: 'Yield'
+    },
+    'corn_silage_yield_field': {
+        group: 'Yield'
+    },
+    'soy_yield_farm': {
+        group: 'Yield'
+    },
+    'soy_yield_field': {
+        group: 'Yield'
+    },
+    'oat_yield_farm': {
+        group: 'Yield'
+    }, 
+    'oat_yield_field': {
+        group: 'Yield'
+    },
+    'alfalfa_yield_farm': {
+        group: 'Yield'
+    },
+    'alfalfa_yield_field': {
+        group: 'Yield'
+    },
+    'rotation_yield_farm': {
+        group: 'Yield'
+    },
+    'rotation_yield_field': {
+        group: 'Yield'
+    },
+    'insecticide_farm': {
+        group: 'Insecticide'
+    },
+    'insecticide_field': {
+        group: 'Insecticide'
+    },
+    'feed_breakdown': {
+        group: 'Unknown'
+    },
+    'econ_farm': {
+        group: 'Production Costs'
+    },
+    'econ_field': {
+        group: 'Production Costs'
+    },
+}
+
 var chartColorsAS = [
     {trans:'rgba(68, 119, 170,.2)',opa:'rgb(68, 119, 170)'}  ,
     {trans:'rgba(0, 119, 187,.2)',opa:'rgb(0, 119, 187)'},
@@ -979,14 +1073,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                     })
                 }
-//                let model_request_return1 = await build_model_request(f.properties, f,'pmanure',modelruntime,DSS.activeScenario,[])
-//                let pManureResults = await get_P_Manure_Results(model_request_return1)
-//                console.log(pManureResults)
-//                let pManureResultsArray = pManureResults.p_manure_array
 
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])//.then(model_request_return)
+                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])
                     console.log(model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -2694,12 +2784,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             xtype: 'button',
                             text: 'Download Summary Report PDF',
                             id: 'downloadSummaryBtn',
-                            tooltip: 'Download charts and csv',
+                            tooltip: 'Download summary report PDF',
                             handler: function(e) {
-                                console.log(e)
-                                printSummary()
+                                downloadSummaryPdf()
                             }
-    //                        text: 'Yearly Yield'
                         },
                         //There is a listener set up in DashBoardUtilities that runs when this button is clicked to download summary csv to users machine.
                         {
