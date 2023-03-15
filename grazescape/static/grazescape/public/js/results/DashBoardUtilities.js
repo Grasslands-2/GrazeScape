@@ -1629,6 +1629,14 @@ function getChartsWithNoData() {
     let fieldTotals, farmTotals;
     chartObjList = Object.keys(chartObj)
     for(i in chartObj){
+        // If every dataset has null data or missing data.
+        if (chartObj[i].chartData && 
+            chartObj[i].chartData.datasets &&
+            chartObj[i].chartData.datasets.every(ds => !ds.data || ds.data.every(d => d == null))){
+            noChartDataList.push(i);
+            continue;
+        }
+
         if(i.includes("_field")){
             fieldTotals = 0
             fieldDataSets = chartObj[i].chartData.datasets
