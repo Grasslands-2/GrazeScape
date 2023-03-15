@@ -718,6 +718,94 @@ var chartList = [
     'econ_farm',
     'econ_field'
 ]
+
+var additionalChartInfo = {
+    'grass_yield_farm': {
+        group: 'Yield'
+    }, 
+    'grass_yield_field': {
+        group: 'Yield'
+    },
+    'ploss_farm': {
+        group: 'Nutrients'
+    }, 
+    'ploss_field': {
+        group: 'Nutrients'
+    },
+    'soil_loss_farm': {
+        group: 'Erosion'
+    }, 
+    'soil_loss_field': {
+        group: 'Erosion'
+    },
+    'nleaching_farm': {
+        group: 'Nutrients'
+    }, 
+    'nleaching_field': {
+        group: 'Nutrients'
+    },
+    'cn_num_farm': {
+        group: 'Runoff'
+    },
+    'runoff_farm': {
+        group: 'Runoff'
+    },
+    'compare_farm': {
+        group: 'Unknown'
+    },
+    'corn_yield_farm': {
+        group: 'Yield'
+    },
+    'corn_yield_field': {
+        group: 'Yield'
+    },
+    'corn_silage_yield_farm': {
+        group: 'Yield'
+    },
+    'corn_silage_yield_field': {
+        group: 'Yield'
+    },
+    'soy_yield_farm': {
+        group: 'Yield'
+    },
+    'soy_yield_field': {
+        group: 'Yield'
+    },
+    'oat_yield_farm': {
+        group: 'Yield'
+    }, 
+    'oat_yield_field': {
+        group: 'Yield'
+    },
+    'alfalfa_yield_farm': {
+        group: 'Yield'
+    },
+    'alfalfa_yield_field': {
+        group: 'Yield'
+    },
+    'rotation_yield_farm': {
+        group: 'Yield'
+    },
+    'rotation_yield_field': {
+        group: 'Yield'
+    },
+    'insecticide_farm': {
+        group: 'Insecticide'
+    },
+    'insecticide_field': {
+        group: 'Insecticide'
+    },
+    'feed_breakdown': {
+        group: 'Unknown'
+    },
+    'econ_farm': {
+        group: 'Production Costs'
+    },
+    'econ_field': {
+        group: 'Production Costs'
+    },
+}
+
 var chartColorsAS = [
     {trans:'rgba(68, 119, 170,.2)',opa:'rgb(68, 119, 170)'}  ,
     {trans:'rgba(0, 119, 187,.2)',opa:'rgb(0, 119, 187)'},

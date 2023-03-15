@@ -1710,11 +1710,13 @@ async function downloadSummaryPdf(){
 
         const scaleFactor = Math.min(pdfWidth / newCanvas.width, pdfHeight/ newCanvas.height) * 0.9;
         
+        const category = canvas.id.includes("farm") ? "Farm" : "Field";
+        const group = additionalChartInfo[canvas.id].group;
+
         pdf.addPage("letter",'landscape');
         pdf.text(20, 20, 
-            `Chart ID: ${chartList[chart]}\n` +
-            `\n` +  // 2nd line of text available here
-            ``);    // 3rd line here
+            `Group: ${group}\n` +
+            `Category: ${category}`);
         pdf.addImage(imgData, 'JPEG', 
             pdfWidth * 0.05, 
             55, 
