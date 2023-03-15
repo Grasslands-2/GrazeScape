@@ -35,7 +35,7 @@ def download_base_rasters_helper(request, geo_folder):
     base_layer_dic = {}
     # download layers for base case
     base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pastureWatershed")
-    model_names_base = ("Erosion", "PI", "CN")
+    model_names_base = ["CN"]
     # contCorn
     # create name of the layer that corresponds to geoserver for base case
     phos_fertilizer = base_scen["management"]["phos_fertilizer"]
@@ -59,14 +59,14 @@ def download_base_rasters_helper(request, geo_folder):
                             region
                 base_layer_dic[name + "_" + model] = "" + file_name
     # download corn and soy rasters for yield
-    corn = "corn_Yield_" + region
-    soy = "soy_Yield_" + region
-    base_layer_dic["corn_yield"] = "" + corn
-    base_layer_dic["soy_yield"] = "" + soy
+    # corn = "corn_Yield_" + region
+    # soy = "soy_Yield_" + region
+    # base_layer_dic["corn_yield"] = "" + corn
+    # base_layer_dic["soy_yield"] = "" + soy
     base_layer_dic["landuse"] = "" + region + "_WiscLand_30m"
     base_layer_dic["hyd_letter"] = "" + region + "_hydgrp_30m"
-    base_layer_dic["hayGrassland_Yield"] = "pasture_Yield_medium_" + region
-    base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_medium_" + region
+    # base_layer_dic["hayGrassland_Yield"] = "pasture_Yield_medium_" + region
+    # base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_medium_" + region
     print(base_layer_dic)
     image = gdal.Open(os.path.join(geo_folder, "landuse_aoi-clipped.tif"))
     band = image.GetRasterBand(1)
