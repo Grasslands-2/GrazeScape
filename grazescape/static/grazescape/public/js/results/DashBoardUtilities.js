@@ -1690,7 +1690,7 @@ async function downloadSummaryPdf(){
     // Graphs generate asynchronously? So wait a sec...
     await new Promise((res) => setTimeout(res, 1000));
     
-    var pdf = new jsPDF({
+    var pdf = new jspdf.jsPDF({
         orientation: 'l',
         unit: 'px',
         format: 'letter',
