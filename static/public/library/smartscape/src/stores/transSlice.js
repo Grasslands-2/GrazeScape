@@ -147,6 +147,7 @@ export const transSlice = createSlice({
         let value = action.payload
         let base = state.baseTrans
         // change selection criteria
+        console.log("state", state, action)
         if(action.payload.type === "reg"){
             base.selection[value.name] = value.value
         }
@@ -156,6 +157,10 @@ export const transSlice = createSlice({
         }
         else if (action.payload.type === "econ"){
             base.econ[value.name] = value.value
+        }
+        else if (action.payload.type === "base"){
+            console.log("updating a base value")
+            base[value.name] = value.value
         }
         // land cover is being updated
         else{

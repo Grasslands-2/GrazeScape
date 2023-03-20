@@ -15,7 +15,6 @@ from osgeo import gdal
 from osgeo import gdalconst as gc
 import requests
 import numpy as np
-import geopandas as gpd
 from shapely.geometry import Polygon
 import os
 from django.conf import settings
@@ -96,14 +95,16 @@ class RasterDataSmartScape:
         field_geom_array = self.field_geom_array
         # create polygon for each selection
         for poly in field_geom_array:
+            print("poly", poly)
             geom_array_float = []
             # for coor in poly:
             #     geom_array_float.append([float(coor[0]), float(coor[1])])
             poly_list.append(Polygon(poly))
+        print("polylist", poly_list)
         df = pd.DataFrame({'geometry': poly_list})
         crs = {'init': self.crs}
         polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
-        print(polygon)
+        # print(polygon)
         polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
 
     def check_raster_data(self, raster_dic):

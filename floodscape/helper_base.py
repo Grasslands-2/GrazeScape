@@ -39,6 +39,7 @@ def download_base_rasters_helper(request, geo_folder):
     # contCorn
     # create name of the layer that corresponds to geoserver for base case
     phos_fertilizer = base_scen["management"]["phos_fertilizer"]
+    region_extents = base_scen["selection"]["extent"]
     # if not value chosen set it to the first item in the list (usually zero)
     if phos_fertilizer == "default":
         phos_fertilizer = manure_options["base"]["p_choices"][0]
@@ -48,7 +49,8 @@ def download_base_rasters_helper(request, geo_folder):
             if name == "hayGrassland" or name == "pastureWatershed":
                 # medium_GrassYield_southWestWI.tif
                 # pasture_CN_rt_rt_0_0_southWestWI.tif
-                base_layer_dic[name + "_" + model] = "pasture_" + model + "_rt_rt_0_0_" + region
+                base_layer_dic[name + "_" + model] = "pasture_" + model + "_cn_lo_0_0_" + region
+                base_layer_dic[name + "_" + model + "_whole_region"] = "pasture_" + model + "_rt_rt_0_0_" + region
             else:
                 file_name = name + "_" + \
                             model + "_" + \
@@ -58,17 +60,25 @@ def download_base_rasters_helper(request, geo_folder):
                             manure_fert_p + "_" + \
                             region
                 base_layer_dic[name + "_" + model] = "" + file_name
+                base_layer_dic[name + "_" + model + "_whole_region"] = "" + file_name
     # download corn and soy rasters for yield
     # corn = "corn_Yield_" + region
     # soy = "soy_Yield_" + region
     # base_layer_dic["corn_yield"] = "" + corn
     # base_layer_dic["soy_yield"] = "" + soy
     base_layer_dic["landuse"] = "" + region + "_WiscLand_30m"
+    base_layer_dic["landuse" + "_whole_region"] = "" + region + "_WiscLand_30m"
     base_layer_dic["hyd_letter"] = "" + region + "_hydgrp_30m"
     # base_layer_dic["hayGrassland_Yield"] = "pasture_Yield_medium_" + region
     # base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_medium_" + region
     print(base_layer_dic)
+    # whole_watershed = True
+    # if whole_watershed:
+    #     watershed_folder = os.path.join(settings.BASE_DIR,'static','public',"library","floodscape","gis","CC_GIS")
+    #     image = gdal.Open(os.path.join(watershed_folder, "CC_fixed.geojson"))
+    # else:
     image = gdal.Open(os.path.join(geo_folder, "landuse_aoi-clipped.tif"))
+
     band = image.GetRasterBand(1)
     geoTransform = image.GetGeoTransform()
     minx = geoTransform[0]
@@ -76,11 +86,22 @@ def download_base_rasters_helper(request, geo_folder):
     maxx = minx + geoTransform[1] * image.RasterXSize
     miny = maxy + geoTransform[5] * image.RasterYSize
     extents = [minx, miny, maxx, maxy]
+    print("geotransform ", geoTransform)
+    print("extents ", extents)
+    print("region_extents ", region_extents)
     if extents is not None:
         extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(
             math.ceil(float(extents[2]))) + ")"
         extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
             math.ceil(float(extents[3]))) + ")"
+    # getting region level curve numbers
+    if region_extents is not None:
+        region_extents_string_x = "&subset=X(" + str(math.floor(float(region_extents[0]))) + "," + str(
+            math.ceil(float(region_extents[2]))) + ")"
+        region_extents_string_y = "&subset=Y(" + str(math.floor(float(region_extents[1]))) + "," + str(
+            math.ceil(float(region_extents[3]))) + ")"
+
+
     geo_server_url = settings.GEOSERVER_URL
 
     geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
@@ -95,8 +116,13 @@ def download_base_rasters_helper(request, geo_folder):
         os.makedirs(folder_base)
 
     for layer in base_layer_dic:
-        print("downloading layer ", base_layer_dic[layer])
-        url = geoserver_url + workspace + base_layer_dic[layer] + extents_string_x + extents_string_y
+        print("downloading layer ", layer, base_layer_dic[layer])
+        if "_whole_region" in layer:
+
+            url = geoserver_url + workspace + base_layer_dic[layer] + region_extents_string_x + region_extents_string_y
+        else:
+            url = geoserver_url + workspace + base_layer_dic[layer] + extents_string_x + extents_string_y
+        print(url)
         raster_file_path = os.path.join(geo_folder, "base", layer + ".tif")
         download_thread = threading.Thread(target=download, args=(url, raster_file_path))
         download_thread.start()

@@ -20,6 +20,8 @@ function Transformation(name, id, rank){
         areaSelected: 0,
         areaSelectedPerWorkArea: 0,
         area:0,
+//        which watershed we are using (only used with base case)
+        watershed:"",
         // the open layers id of the selection display layer
         displayLayerID:-99,
         // ol id of the layer containing the boundary information

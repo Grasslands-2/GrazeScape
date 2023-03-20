@@ -707,6 +707,7 @@ class OLMapFragment extends React.Component {
             let region = ""
             let aoiExtents = createEmpty();
             let aoiCoors = []
+            let watershedCoors = []
             // cumulative area of selection
             let area = 0
 //            console.log(f.target.item(0).getGeometry())
@@ -719,12 +720,18 @@ class OLMapFragment extends React.Component {
             f.target.item(0).get("name") == "COON CREEK 33"){
                 console.log("selecting a county!!!!!")
                 var extent = f.target.item(0).getGeometry().getExtent()
+                watershedCoors.push(f.target.item(0).getGeometry().getCoordinates())
                 console.log(extent)
-                extent = this.add10PerExtent(extent)
+                var extent_wide = this.add10PerExtent(extent)
                 console.log(extent)
+                console.log("hello world")
 //              floodscape only has one region
                 region = "southWestWI"
-                this.map.getView().fit(extent,{"duration":500});
+                this.props.updateActiveBaseProps({"name":'field_coors', "value":watershedCoors, "type":"reg"})
+                this.props.updateActiveBaseProps({"name":'extent', "value":extent, "type":"reg"})
+                this.props.updateActiveBaseProps({"name":'watershed', "value": f.target.item(0).get("name"), "type":"reg"})
+
+                this.map.getView().fit(extent_wide,{"duration":500});
 //                if(f.target.item(0).get("NAME") == "La Crosse"){
 //                    region = "southWestWI"
 //                }
