@@ -101,14 +101,11 @@ def getfertNrec_values(rot_yrs_crop, crop, legume_text, animal_density_text, fer
 def getOMText(omraw):
     if omraw <= 2:
         OM_fertrecs = '<2'
-    elif omraw > 2 and omraw < 5:
+    elif 2 < omraw <= 10:
         OM_fertrecs = '2-9.9'
-    elif omraw > 5 and omraw < 10:
-        OM_fertrecs = '2-9.9'
-    elif omraw > 10 and omraw < 20:
+    elif omraw > 10:
         OM_fertrecs = '10-20.0'
-    elif omraw >= 20:
-        OM_fertrecs = '10-20.0'
+
     return OM_fertrecs
 
 
