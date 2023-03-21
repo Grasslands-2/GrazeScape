@@ -8,23 +8,16 @@ from shapely.geometry import Polygon
 
 
 def getOMText(omraw, text_needed):
-    print(omraw)
     if omraw <= 2:
         OM_denitloss = '<2'
         OM_fertrecs = '<2'
-    elif 2 < omraw < 5:
+    elif 2 < omraw <= 10:
         OM_denitloss = '2-5.0'
         OM_fertrecs = '2-9.9'
-    elif 5 < omraw < 10:
-        OM_denitloss = '>5'
-        OM_fertrecs = '2-9.9'
-    elif 10 < omraw < 20:
+    elif 10 < omraw:
         OM_denitloss = '>5'
         OM_fertrecs = '10-20.0'
     # return [OM_denitloss,OM_fertrecs]
-    elif omraw >= 20:
-        OM_denitloss = '>5'
-        OM_fertrecs = '10-20.0'
     if text_needed == "denitr":
         return OM_denitloss
     else:
@@ -513,7 +506,7 @@ class CropYield(ModelBase):
         print("erosion model ran", time.time() - start1)
 
         ero = r.get("erosion").to_numpy()
-        print("ero", ero)
+        # print("ero", ero)
         print("done with erosion!!!!!!")
 
         r.assign("erosion", ero.flatten())
@@ -768,7 +761,7 @@ class CropYield(ModelBase):
 
 
         ploss = r.get("pi").to_numpy()
-        print(ploss)
+        # print(ploss)
         # with np.printoptions(threshold=np.inf):
         #     print("ploss ", ploss)
 
