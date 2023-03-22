@@ -207,7 +207,10 @@ class CropYield(ModelBase):
             return_data.append(nitrate)
         else:
             raise Exception("Invalid crop rotation selected")
+        nitrate_water = OutputDataNode("nwater", "Total Nitrogen Loss To Water (lb/ac/yr)", "Total Nitrogen Loss To Water (lb/yr)",
+                                 "Total Nitrogen Loss To Water (lb/ac/yr)", "Total Nitrogen Loss To Water (lb/yr)")
 
+        return_data.append(nitrate_water)
         # _______________START OF NUTRIENT MODELS!!!__________________________________
 
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
@@ -802,6 +805,7 @@ class CropYield(ModelBase):
         # todo get rid of this loop by using vectors
         # for y in range(0, len(flat_corn)):
         leached_N_Total = 0
+        n_loss_h20 = 0
 
         # [bushels/acre x 10] original units
         corn_yield_raw = flat_corn / 10
@@ -867,8 +871,11 @@ class CropYield(ModelBase):
             # rotation avg is not less than zero
             if leachN_avg < 0:
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
-            leached_N_Total = leached_N_Total + leachN_Calced
 
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            nitrate_water.set_data(n_loss_h20)
+
+            leached_N_Total = leached_N_Total + leachN_Calced
             nitrate.set_data(leached_N_Total)
 
         elif crop_ro == "dl":
@@ -895,6 +902,9 @@ class CropYield(ModelBase):
             if leachN_avg < 0:
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
             leached_N_Total = leached_N_Total + leachN_Calced
+
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            nitrate_water.set_data([n_loss_h20])
 
             nitrate.set_data([leached_N_Total])
         #     cash grain
@@ -941,6 +951,9 @@ class CropYield(ModelBase):
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
+
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            nitrate_water.set_data(n_loss_h20/2)
 
             leached_N_Total = leached_N_Total / 2
 
@@ -1018,7 +1031,10 @@ class CropYield(ModelBase):
                 # rotation avg is not less than zero
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
                 leached_N_Total = leached_N_Total + leachN_Calced
+
+            nitrate_water.set_data(n_loss_h20 / 5)
             leached_N_Total = leached_N_Total / 5
 
             nitrate.set_data([leached_N_Total])
@@ -1079,7 +1095,9 @@ class CropYield(ModelBase):
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
 
+            nitrate_water.set_data(n_loss_h20/3)
             leached_N_Total = leached_N_Total / 3
             nitrate.set_data([leached_N_Total])
 
