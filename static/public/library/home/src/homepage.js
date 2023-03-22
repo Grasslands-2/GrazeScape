@@ -197,9 +197,15 @@ const App = (props) => (
                   <a href="/smartscape"><Image className = "shadow-lg app_click image" fluid src="static/public/library/images/dss_logo.png" rounded /></a>
                 </Row>
                  <Row className="appInfo">
+                    <Col><a >User Manual</a></Col>
+                    <Col><a >Video Tutorial</a></Col>
+                    <Col><a>Feedback Form</a></Col>
+                    {/*
+
                     <Col><a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ"target="_blank">User Manual</a></Col>
                     <Col><a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a></Col>
                     <Col><a href="https://forms.gle/4jy4acwjTe2mzJLw7" target="_blank">Feedback Form</a></Col>
+                    */}
                 </Row>
              </Col>
              <Col xs='3'>
