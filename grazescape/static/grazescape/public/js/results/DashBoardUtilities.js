@@ -27,7 +27,7 @@ function populateChartObj(scenList, fieldList, allField, allScen){
 //    list of every chart currently in app
     for (chart in chartList){
         chartName = chartList[chart]
-        console.log(chartName)
+//        console.log(chartName)
         if(chartName.includes('field')){
             node = new ChartData()
             node.chartData =  {
@@ -299,10 +299,10 @@ function format_chart_data(model_data){
                 break
             case 'feed breakdown':
                 chartTypeField = chartObj.feed_breakdown
-            case 'nitrate':
-                chartTypeField = chartObj.nleaching_field
-                chartTypeFarm = chartObj.nleaching_farm
-                break
+//            case 'nitrate':
+//                chartTypeField = chartObj.nleaching_field
+//                chartTypeFarm = chartObj.nleaching_farm
+//                break
             case 'ploss':
             
                 chartTypeField = chartObj.ploss_field
@@ -359,6 +359,25 @@ function format_chart_data(model_data){
                         DSS.layer.nleaching_field.set('name', 'nleaching'+ model_data.field_id);
                     }
                 }
+                break
+            case 'nwater':
+                chartTypeField = chartObj.nwater_field
+                chartTypeFarm = chartObj.nwater_farm
+//                if(model_data.scen_id == DSS.activeScenario){
+//                    console.log(model_data.extent)
+//                    if(model_data.extent !== undefined){
+//                        DSS.nleachingBol = false
+//                        var plextent = model_data.extent
+//                        DSS.layer.nleaching_field = new ol.layer.Image({
+//                            visible: false,
+//                            source: new ol.source.ImageStatic({
+//                            url: '/static/grazescape/public/images/nleaching'+ model_data.field_id + '.png',
+//                            imageExtent: plextent
+//                            })
+//                        })
+//                        DSS.layer.nleaching_field.set('name', 'nleaching'+ model_data.field_id);
+//                    }
+//                }
                 break
             case 'Runoff':
                 chartTypeFarm = chartObj.runoff_farm
@@ -600,6 +619,8 @@ function get_model_data(data){
     'timeout':0,
         success: async function(responses, opts) {
             delete $.ajaxSetup().headers
+            console.log("full model output", responses)
+
             if(responses == null){
                 resolve([]);
             }
@@ -1504,8 +1525,8 @@ function retrieveAllFieldsDataGeoserver(){
 //runs the print summary in the dashboard
 function downloadSummaryCSV(chartObj){
     var refinedData = []
-    var fieldkeys = ["rotation_yield_field","alfalfa_yield_field","corn_silage_yield_field","corn_yield_field","grass_yield_field","oat_yield_field","econ_field","insecticide_field","nleaching_field","ploss_field","soil_loss_field"]
-    var farmkeys = ["rotation_yield_farm","alfalfa_yield_farm","corn_silage_yield_farm","corn_yield_farm","grass_yield_farm","oat_yield_farm","econ_farm","insecticide_farm","nleaching_farm","ploss_farm","soil_loss_farm"]
+    var fieldkeys = ["rotation_yield_field","alfalfa_yield_field","corn_silage_yield_field","corn_yield_field","grass_yield_field","oat_yield_field","econ_field","insecticide_field","nleaching_field","nwater_field","ploss_field","soil_loss_field"]
+    var farmkeys = ["rotation_yield_farm","alfalfa_yield_farm","corn_silage_yield_farm","corn_yield_farm","grass_yield_farm","oat_yield_farm","econ_farm","insecticide_farm","nleaching_farm","nwater_farm", "ploss_farm","soil_loss_farm"]
 
     refinedData.push(["All data shown as per acre"])
     refinedData.push([""])

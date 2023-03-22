@@ -171,6 +171,8 @@ class GrassYield(ModelBase):
         nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)","Nitrate-N leaching (lb/ac/yr)","Nitrate-N leaching (lb/yr)")
         erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)","Soil loss (tons/ac/yr)","Soil loss (tons/yr)")
         pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
+        nitrate_water = OutputDataNode("nwater", "Total Nitrogen Loss To Water (lb/ac/yr)", "Total Nitrogen Loss To Water (lb/yr)",
+                                 "Total Nitrogen Loss To Water (lb/ac/yr)", "Total Nitrogen Loss To Water (lb/yr)")
 
         nitrate_array = []
         crop_ro = self.model_parameters["crop"] + '-' + self.model_parameters["rotation"]
@@ -180,8 +182,10 @@ class GrassYield(ModelBase):
         return_data.append(grass_yield)
         return_data.append(rotation_avg)
         return_data.append(nitrate)
+        return_data.append(nitrate_water)
         # path to R instance
         grass = ''
+        n_loss_h20 = 0
         # print("self.model_parameters")
         # print(self.model_parameters)
         # print(self.model_parameters["grass_type"])
@@ -825,7 +829,8 @@ class GrassYield(ModelBase):
         # rotation avg is not less than zero
         if leachN_avg < 0:
             leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
-
+        n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+        nitrate_water.set_data([n_loss_h20])
         # print(leached_N_Total)
         nitrate.set_data([leachN_Calced])
 
