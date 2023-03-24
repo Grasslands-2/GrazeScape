@@ -202,6 +202,8 @@ class GrassYield(ModelBase):
         k = self.raster_inputs["k"].flatten()
         ls = self.raster_inputs["ls"].flatten()
         elevation = self.raster_inputs["elevation"].flatten()
+        ft_to_m = 0.3048
+        elevation = elevation * ft_to_m
         sand = self.raster_inputs["sand"].flatten()
         silt = self.raster_inputs["silt"].flatten()
         clay = self.raster_inputs["clay"].flatten()
