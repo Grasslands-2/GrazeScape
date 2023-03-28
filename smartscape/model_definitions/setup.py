@@ -7,7 +7,7 @@ import numpy
 setup(
     name="bird_model",
     cmdclass={"build_ext": build_ext},
-    ext_modules=cythonize("bird_model.pyx"),
+    ext_modules=cythonize("bird_model.pyx", "nitrate_model.pyx"),
     zip_safe=False,
     include_dirs=[numpy.get_include()]
 )

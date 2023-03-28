@@ -1,4 +1,3 @@
-
 //Ext.tip.QuickTipManager.init(true, {shadow: false}); // Instantiate the QuickTipManager
 Ext.Loader.setConfig({
 	enabled: true,
@@ -45,3 +44,24 @@ Ext.application({
 
     },
 });
+
+window.onbeforeunload = function(e){
+    // Note: Not all browsers use e.returnValue, but they will prevent reload if it's set:
+    const fieldTableComponent = Ext.getCmp("fieldTable");
+    if(fieldTableComponent) {
+        const updatedFields = fieldTableComponent.getStore().getUpdatedRecords();
+        if(updatedFields.length) {
+            e.returnValue = "Unsaved Fields";
+            return;
+        }
+    } 
+    
+    const infraTableComponent = Ext.getCmp("infraTable");
+    if(infraTableComponent) {
+        const updatedInfra = infraTableComponent.getStore().getUpdatedRecords();
+        if(updatedInfra.length) {
+            e.returnValue = "Unsaved Infrastructure";
+            return;
+        }
+    }
+}

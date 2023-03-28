@@ -8,23 +8,16 @@ from shapely.geometry import Polygon
 
 
 def getOMText(omraw, text_needed):
-    print(omraw)
     if omraw <= 2:
         OM_denitloss = '<2'
         OM_fertrecs = '<2'
-    elif 2 < omraw < 5:
+    elif 2 < omraw <= 10:
         OM_denitloss = '2-5.0'
         OM_fertrecs = '2-9.9'
-    elif 5 < omraw < 10:
-        OM_denitloss = '>5'
-        OM_fertrecs = '2-9.9'
-    elif 10 < omraw < 20:
+    elif 10 < omraw:
         OM_denitloss = '>5'
         OM_fertrecs = '10-20.0'
     # return [OM_denitloss,OM_fertrecs]
-    elif omraw >= 20:
-        OM_denitloss = '>5'
-        OM_fertrecs = '10-20.0'
     if text_needed == "denitr":
         return OM_denitloss
     else:
@@ -214,7 +207,10 @@ class CropYield(ModelBase):
             return_data.append(nitrate)
         else:
             raise Exception("Invalid crop rotation selected")
+        nitrate_water = OutputDataNode("nwater", "Total Nitrogen Loss To Water (lb/ac/yr)", "Total Nitrogen Loss To Water (lb/yr)",
+                                 "Total Nitrogen Loss To Water (lb/ac/yr)", "Total Nitrogen Loss To Water (lb/yr)")
 
+        return_data.append(nitrate_water)
         # _______________START OF NUTRIENT MODELS!!!__________________________________
 
         print("running PL loss model!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
@@ -513,7 +509,7 @@ class CropYield(ModelBase):
         print("erosion model ran", time.time() - start1)
 
         ero = r.get("erosion").to_numpy()
-        print("ero", ero)
+        # print("ero", ero)
         print("done with erosion!!!!!!")
 
         r.assign("erosion", ero.flatten())
@@ -768,7 +764,7 @@ class CropYield(ModelBase):
 
 
         ploss = r.get("pi").to_numpy()
-        print(ploss)
+        # print(ploss)
         # with np.printoptions(threshold=np.inf):
         #     print("ploss ", ploss)
 
@@ -809,6 +805,7 @@ class CropYield(ModelBase):
         # todo get rid of this loop by using vectors
         # for y in range(0, len(flat_corn)):
         leached_N_Total = 0
+        n_loss_h20 = 0
 
         # [bushels/acre x 10] original units
         corn_yield_raw = flat_corn / 10
@@ -874,8 +871,11 @@ class CropYield(ModelBase):
             # rotation avg is not less than zero
             if leachN_avg < 0:
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
-            leached_N_Total = leached_N_Total + leachN_Calced
 
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            nitrate_water.set_data(n_loss_h20)
+
+            leached_N_Total = leached_N_Total + leachN_Calced
             nitrate.set_data(leached_N_Total)
 
         elif crop_ro == "dl":
@@ -902,6 +902,9 @@ class CropYield(ModelBase):
             if leachN_avg < 0:
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
             leached_N_Total = leached_N_Total + leachN_Calced
+
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            nitrate_water.set_data([n_loss_h20])
 
             nitrate.set_data([leached_N_Total])
         #     cash grain
@@ -948,6 +951,9 @@ class CropYield(ModelBase):
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
+
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            nitrate_water.set_data(n_loss_h20/2)
 
             leached_N_Total = leached_N_Total / 2
 
@@ -1025,7 +1031,10 @@ class CropYield(ModelBase):
                 # rotation avg is not less than zero
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
                 leached_N_Total = leached_N_Total + leachN_Calced
+
+            nitrate_water.set_data(n_loss_h20 / 5)
             leached_N_Total = leached_N_Total / 5
 
             nitrate.set_data([leached_N_Total])
@@ -1086,7 +1095,9 @@ class CropYield(ModelBase):
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
 
+            nitrate_water.set_data(n_loss_h20/3)
             leached_N_Total = leached_N_Total / 3
             nitrate.set_data([leached_N_Total])
 

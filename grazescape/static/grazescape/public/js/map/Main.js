@@ -403,7 +403,6 @@ Ext.define('DSS.map.Main', {
 			})
 		});
 		var extent = [ -10168100, 5454227, -10055830, 5318380];
-		var mrextent = [-10135469.3149,5405765.3492,-10135319.3149,5406075.3492];
 
 		DSS.layer.hillshade = new ol.layer.Image({
 			visible: DSS.layer['hillshade:visible'],
@@ -1322,36 +1321,6 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
-		var pointStyle = new ol.style.Style({
-			image: new ol.style.Circle({
-			  radius: 7,
-			  stroke: new ol.style.Stroke({
-					color: 'orange',
-					width: 1
-			  }),
-			  fill: new ol.style.Fill({
-					color: '#ffe4b3'
-			  })
-			})
-		});
-		var getText = function(feature, resolution) {
-			var text =feature.get('field_name');
-			return text;
-		}
-		var createTextStyle = function(feature,resolution){
-			return new ol.style.Text({
-				text: getText(feature, resolution),
-				font: '12px Calibri,sans-serif',
-				overflow: true,
-				fill: new ol.style.Fill({
-				  color: '#000',
-				}),
-				stroke: new ol.style.Stroke({
-				  color: '#fff',
-				  width: 3,
-				}),
-			  })
-		}
 
 		//---------------------------------------
 		let fieldLabel = new ol.style.Style({
@@ -1369,16 +1338,6 @@ Ext.define('DSS.map.Main', {
 			zIndex: 0
 		});
 		//------------------------------------------------
-		let defaultFieldStyle = new ol.style.Style({
-			stroke: new ol.style.Stroke({
-				color: 'rgba(255,200,32,0.8)',
-				width: 5
-			}),
-			fill: new ol.style.Fill({
-				color: 'rgba(0,0,0,0.5)',
-			}),
-			zIndex: 0
-		});
 		
 		DSS['layerSource'] = {};
 		DSS.layerSource['fields'] = new ol.source.Vector({
@@ -1423,7 +1382,7 @@ Ext.define('DSS.map.Main', {
 				width: 4,
 			})
 		})
-		function infraStyle(feature, resolution){
+		function infraStyle(feature){
 			var infraType = feature.get("infra_type");
 			//var fenceMat = feature.get('fence_material');
 			if(infraType == 'fl'){
@@ -1439,15 +1398,7 @@ Ext.define('DSS.map.Main', {
 				return infraDefaultStyle
 			}
 		};
-		let iconStyle = new ol.style.Style({
-			image: new ol.style.Icon({
-				size: 100000,
-				//anchor: [0,0],
-				//anchorXUnits: 'fraction',
-				//anchorYUnits: 'pixels',
-				src: '/static/grazescape/public/images/NicePng_barn-silhouette-png_7969174.png',
-			}),
-		  });
+
 		DEMExtent = [-10177440, 5490396, -10040090, 5310186]
 		console.log("setFieldSource in Main")
 		geoServer.setFieldSource()
@@ -1455,8 +1406,6 @@ Ext.define('DSS.map.Main', {
 		console.log("setFarmSource in Main.js")
 		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
-		//geoServer.setDEMSource()
-
 		
 		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
@@ -1468,6 +1417,14 @@ Ext.define('DSS.map.Main', {
 			style: infraStyle		
 		});
 		//-------------------------------------------------------------------------
+		DSS.farms_1_style = function(feature, resolution) {
+			let r = 4.0 - resolution / 94.0;
+			if (r < 0) r = 0
+			else if (r > 1) r = 1
+			// value from 3 to 16
+			r = Math.round(Math.pow(r, 3) * 13 + 3)
+			return me.DSS_zoomStyles['style' + r];
+		}
 		DSS.layer.farms_1 = new ol.layer.Vector({
 			title: 'farms_1',
 			visible: false,
@@ -1475,14 +1432,7 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: farms_1Source,
 			//style: iconStyle
-			style: function(feature, resolution) {
-				let r = 4.0 - resolution / 94.0;
-				if (r < 0) r = 0
-				else if (r > 1) r = 1
-				// value from 3 to 16
-				r = Math.round(Math.pow(r, 3) * 13 + 3)
-				return me.DSS_zoomStyles['style' + r];
-			}
+			style: DSS.farms_1_style
 		})
 		DSS.layer.scenarios = new ol.layer.Vector({
 			title: 'scenarios_2',
@@ -1712,8 +1662,6 @@ Ext.define('DSS.map.Main', {
         var view = me.map.getView();
         var viewResolution = view.getResolution();
 		
-		var value = {};
-		
         console.log(view)
         console.log(viewResolution)
 		
@@ -1748,7 +1696,6 @@ Ext.define('DSS.map.Main', {
 	
 	//---------------------------------------------------------------
 	addWorkAreaMask: function(map) {
-		let me = this;
 		let spotStyle = new ol.style.Style({
 		    stroke: new ol.style.Stroke({
 		        color: 'rgba(0, 0, 0, 0.9)',
@@ -1785,7 +1732,6 @@ Ext.define('DSS.map.Main', {
 		]];
 		
 		var spot = new ol.geom.MultiPolygon(multiPoly);
-	    //console.log(spot);
 		DSS.layer.mask.getSource().addFeature(new ol.Feature(spot));
 		map.addLayer(DSS.layer.mask);                        
 	},

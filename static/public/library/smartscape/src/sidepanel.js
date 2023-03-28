@@ -14,6 +14,9 @@ import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import CSRFToken from './csrf';
 import Spinner from 'react-bootstrap/Spinner'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import TooltipBootstrap from 'react-bootstrap/Tooltip'
+
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Table from 'react-bootstrap/Table'
@@ -143,6 +146,7 @@ class SidePanel extends React.Component{
         this.reset = this.reset.bind(this);
         this.sliderChangeSlope = this.sliderChangeSlope.bind(this);
         this.sliderChangeStream = this.sliderChangeStream.bind(this);
+        this.getPhosValuesBase = this.getPhosValuesBase.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
@@ -181,7 +185,11 @@ class SidePanel extends React.Component{
         this.tillage = React.createRef();
         this.density = React.createRef();
         this.contour = React.createRef();
-        this.fertilizer = React.createRef();
+//        this.fertilizer = React.createRef();
+        this.nitrogen = React.createRef();
+        this.nitrogen_fertilizer = React.createRef();
+        this.phos_fertilizer = React.createRef();
+        this.phos_manure = React.createRef();
 
         this.p2o5 = React.createRef();
         this.nFert = React.createRef();
@@ -204,13 +212,15 @@ class SidePanel extends React.Component{
 
 
 
-
         this.slopeMax = 700;
         this.distStreamMax = 16000;
         this.selectWatershed = React.createRef();
         this.state = {slope:{slope1:null, slope2:null},
+            sDist1:0,
+            sDist2:this.distStreamMax,
+            slop1:0,
+            slop2:this.slopeMax,
             geometry:{extents:[],coords:[]},
-//            newTrans:new Transformation("intial",-1,-1),
             activeTrans:null,
             selectWatershed:false,
             baseModelShow:false,
@@ -223,21 +233,28 @@ class SidePanel extends React.Component{
             modelEro: "hello world",
             modelOutputs: {},
             aoiOrDisplayLoading:false,
+            phos_fert_options_holder:[],
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
             showHuc12:false,
             printingPDF:false,
             speedometerWidth:window.innerWidth*.7/2,
-            speedometerHeight:window.innerWidth*.7/2/2
+            speedometerHeight:window.innerWidth*.7/2/2,
+            landTypeSelected:false
         }
     }
     // fires anytime state or props are updated
     componentDidUpdate(prevProps) {
-//        console.log(prevProps)
+        console.log("updating")
+        console.log(prevProps)
         document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
+            this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", this.props.activeTrans.selection.streamDist1, "slider")
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.props.activeTrans.selection.streamDist2, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope1", "reg", this.props.activeTrans.selection.slope1, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", this.props.activeTrans.selection.slope2, "slider")
         }
         // set selection criteria to active scenario
 
@@ -250,6 +267,24 @@ class SidePanel extends React.Component{
         this.hay.current.checked = this.props.activeTrans.selection.landCover.hay
         this.pasture.current.checked = this.props.activeTrans.selection.landCover.pasture
         this.grasslandIdle.current.checked = this.props.activeTrans.selection.landCover.grasslandIdle
+        let displayNext = false
+//        todo this doesn't seem to quite be working properly
+//      checking is user has selected landtype
+        for (let val in this.props.activeTrans.selection.landCover){
+            if (this.props.activeTrans.selection.landCover[val] == true){
+                displayNext = true
+           }
+        }
+        if (displayNext && this.state.landTypeSelected == false && !this.state.aoiOrDisplayLoading){
+            this.setState({landTypeSelected:true})
+        }
+        else if (!displayNext && this.state.landTypeSelected == true && this.props.listTrans == 1){
+            this.setState({landTypeSelected:false})
+        }
+//        if (landCoverCounter == Object.keys(this.props.activeTrans.selection.landCover).length){
+//            console.log("hide everything")
+//            this.setState({landTypeSelected:false})
+//        }
 
         this.land1.current.checked = this.props.activeTrans.selection.landClass.land1
         this.land2.current.checked = this.props.activeTrans.selection.landClass.land2
@@ -270,6 +305,10 @@ class SidePanel extends React.Component{
         this.prime2.current.checked = this.props.activeTrans.selection.farmClass.prime2
         this.prime3.current.checked = this.props.activeTrans.selection.farmClass.prime3
 
+
+
+//        this.setState({sDist1:this.props.activeTrans.selection.streamDist1})
+//        this.setState({sDist2:this.props.activeTrans.selection.streamDist2})
 //       which unit to use for steam distance
         if (this.props.activeTrans.selection.useFt){
             this.feet.current.checked = true
@@ -279,6 +318,14 @@ class SidePanel extends React.Component{
             this.meters.current.checked = true
             this.feet.current.checked = false
         }
+
+
+
+
+        if(prevProps.baseTrans.management.nitrogen != this.props.baseTrans.management.nitrogen){
+            console.log("Nitrogen has changed, calculate new P")
+            this.getPhosValuesBase()
+        }
 //        if region is changed show huc 10
         if (prevProps.region != this.props.region){
             if(this.props.region != null){
@@ -287,19 +334,24 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+
+                    this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                 }
 //                clover belt for now
                else{
-                this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
-               }
+                    this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
 
-//                this.setState({showHuc10:true})
+                    this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
+               }
                 this.setState({showHuc12:true})
             }
-//           console.log(this.state.showHuc10)
         }
     }
 
@@ -338,22 +390,18 @@ class SidePanel extends React.Component{
 //        if slope entered in textbox is greater than box domain dont update slider
         if(e[1] != domainSlope[1]){
 //            console.log("not updating")
-//            this.props.updateActiveTransProps({"name":"slope2", "value":e[1], "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("slope2", "reg", e[1])
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", e[1], "slider")
 
 
         }
-//            this.props.updateActiveTransProps({"name":"slope1", "value":e[0], "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("slope1", "reg", e[0])
+            this.handleSelectionChangeGeneralNumeric("slope1", "reg", e[0], "slider")
     }
     sliderChangeStream(e){
 //        console.log("slider change")
 //        console.log(e)
-//        this.props.updateActiveTransProps({"name":"streamDist1", "value":e[0], "type":"reg"})
-        this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", e[0])
+        this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", e[0], "slider")
 
-//        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
-        this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", e[1])
+        this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", e[1], "slider")
 
     }
       handleCloseModalBase(){
@@ -364,14 +412,18 @@ class SidePanel extends React.Component{
         this.setState({baseModalShow: true})
       }
     showModal(){
-//        console.log("showing modal")
-//        console.log(this.props)
+        console.log("showing modal")
+        this.getPhosValuesBase()
+        console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
         this.cover.current.value = this.props.baseTrans.management.cover
         this.tillage.current.value = this.props.baseTrans.management.tillage
 //        this.density.current.value = this.props.baseTrans.management.density
         this.contour.current.value = this.props.baseTrans.management.contour
-        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
+//        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
+        this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
+        this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
+
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
         this.nFert.current.value = this.props.baseTrans.econ.nFert
@@ -398,13 +450,17 @@ class SidePanel extends React.Component{
     clearSelection(selectionType){
 
         if(selectionType == "slope"){
-             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
-             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+//             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
+//             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
+             this.handleSelectionChangeGeneralNumeric("slope1", "reg", 0, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope2", "reg", this.slopeMax, "slider")
 
         }
         else if(selectionType == "streamDist"){
-             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
-             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
+//             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
+//             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
+             this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", 0, "slider")
+             this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.distStreamMax, "slider")
         }
         else if(selectionType == "subArea"){
             this.props.updateActiveTransProps({"name":'extent', "value":[], "type":"reg"})
@@ -433,7 +489,6 @@ class SidePanel extends React.Component{
     }
     // type needs to match the selection name in transformation
     handleSelectionChange(type, e){
-//        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"reg"})
         this.handleSelectionChangeGeneral(type, "reg", e)
     }
     updateActiveBaseProps(type, e){
@@ -445,7 +500,6 @@ class SidePanel extends React.Component{
 
     }
     handleSelectionChangeLand(type, e){
-//        this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.checked, "type":"land"})
         this.handleSelectionChangeGeneral(type, "land", e)
     }
     handleSelectionChangeGeneral(name, type, e){
@@ -463,14 +517,39 @@ class SidePanel extends React.Component{
 
         }.bind(this), 1000)
     }
-    handleSelectionChangeGeneralNumeric(name, type, e){
+    handleSelectionChangeGeneralNumeric(name, type, e, caller){
+        console.log("selection change numeric")
+        console.log("caller source", caller)
+        console.log(e)
+        console.log(e.currentTarget)
+        console.log("done")
+//        console.log(e.currentTarget.value)
 //        this is a hack. slope1 is being triggered at the beginning of the app
         if (name == "slope1" && this.props.listTrans.length < 1){return}
+        if(name == "streamDist1"){
+            if(this.state.sDist1 != e){
+                this.setState({sDist1:e})
+            }
+        }
+        if(name == "streamDist2" ){
+            if(this.state.sDist2 != e){
+                this.setState({sDist2:e})
+            }
+        }
+         if(name == "slope1"){
+            if(this.state.slop1 != e){
+                this.setState({slop1:e})
+            }
+        }
+        if(name == "slope2" ){
+            if(this.state.slop2 != e){
+                this.setState({slop2:e})
+            }
+        }
 
         this.setState({aoiOrDisplayLoading:false})
         this.setState({aoiOrDisplayLoading:true})
-
-
+//
         this.props.updateActiveTransProps({"name":name, "value":e, "type":type})
         this.setState({aoiOrDisplayLoading:false})
         this.setState({aoiOrDisplayLoading:true})
@@ -496,20 +575,20 @@ class SidePanel extends React.Component{
             console.log("converting to meters")
             dist = 4878
 //            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist)
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist, "unit change")
             domainStream[1] = 4878
         }
         else if(useFt && dist == 4878) {
             dist = 16000
 //            this.props.updateActiveTransProps({"name":"streamDist2", "value":dist, "type":"reg"})
-            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist)
+            this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", dist, "unit change")
             domainStream[1] = 16000
         }
 //        this.props.updateActiveTransProps({"name":"streamDist2", "value":e[1], "type":"reg"})
 
 //        this.props.updateActiveTransProps({"name":type, "value":useFt, "type":"reg"})
         console.log(domainStream)
-        this.handleSelectionChangeGeneralNumeric(type, "reg", useFt)
+        this.handleSelectionChangeGeneralNumeric(type, "reg", useFt, "unit change")
 
 
     }
@@ -531,6 +610,10 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
         this.setState({aoiOrDisplayLoading:false})
 //        document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
@@ -584,13 +667,18 @@ class SidePanel extends React.Component{
   addTrans(){
     console.log("add new transformation!")
     // example transformation
-    // random id from 1 to 100
     let tempId = uuidv4();
+    console.log("trans id ", tempId)
 //  set default parameters
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
     newTrans.management.fertilizer = "0_100"
+    newTrans.management.nitrogen = "0"
+    newTrans.management.nitrogen_fertilizer = "0"
+//    newTrans.management.phos_fertilizer = "0"
+//    newTrans.management.phos_manure = "0"
+    newTrans.management.legume = "true"
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
     newTrans.management.tillage = "su"
@@ -626,6 +714,8 @@ class SidePanel extends React.Component{
     });
     console.log("coordsa")
     console.log(this.state.aoiCoors)
+    let downloadFolder = uuidv4();
+    this.props.setAoiFolderId(downloadFolder)
     this.setState({aoiOrDisplayLoading:true})
     $.ajax({
         url : '/smartscape/get_selection_raster',
@@ -637,14 +727,15 @@ class SidePanel extends React.Component{
                 field_coors:this.props.aoiCoors,
             },
             region:this.props.region,
-            baseTrans: this.props.baseTrans
+            baseTrans: this.props.baseTrans,
+            folderId: downloadFolder,
         }),
         success: (response, opts) => {
             delete $.ajaxSetup().headers
             console.log("raster loaded");
             console.log(response);
             this.setState({boundaryRasterId:response.folder_id})
-            this.props.setAoiFolderId(response.folder_id)
+//            this.props.setAoiFolderId(response.folder_id)
             console.log(this.state)
 //            alert("Raster loaded")
             this.setState({aoiOrDisplayLoading:false})
@@ -809,6 +900,69 @@ class SidePanel extends React.Component{
             }
         })
     }
+   getPhosValuesBase(){
+    console.log("side pannel")
+    if(this.props.aoiFolderId == null){
+        return
+    }
+
+    let transPayload = {}
+    let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
+    let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
+    let lengthTrans = transValues.length
+//        give the transformations the correct ranking
+    for(let trans in transValues){
+        transValues[trans].rank = lengthTrans;
+        transValues1[trans].rank = lengthTrans;
+        transValues[trans].selection.field_coors = []
+        transPayload[lengthTrans] = transValues[trans]
+        lengthTrans--;
+    }
+    this.props.updateTransList(transValues1);
+    var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": csrftoken }
+        });
+        let payload = {
+                 trans: transPayload,
+                baseTrans:this.props.baseTrans,
+                folderId: this.props.aoiFolderId,
+                base_calc: true,
+            }
+        console.log(payload)
+        payload = JSON.stringify(payload)
+        $.ajax({
+            url : '/smartscape/get_phos_fert_options',
+            type : 'POST',
+            data : payload,
+            success: (response, opts) => {
+                delete $.ajaxSetup().headers
+                console.log("done with model runs")
+                console.log(response)
+
+//                let phos_options = response.response["base"].p_choices
+                let phos_options = response.response["base"].p_choices
+                let manure_value = response.response["base"].p_manure
+//                let manure_value = response.response["base"].p_manure
+                console.log(phos_options, manure_value)
+
+                this.props.updateActiveBaseProps({"name":"phos_manure", "value": manure_value, "type":"mang"})
+//                this.props.updateActiveBaseProps({"name":"phos_fert_options", "value": phos_options, "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phos_options[0], "type":"mang"})
+
+//                this.phos_fert_options_holder = ["6","8","9"]
+                this.setState({phos_fert_options_holder:phos_options})
+                this.phos_manure.current.value = manure_value
+                this.phos_fertilizer.current.value = phos_options[0]
+
+                console.log(this.phos_fertilizer )
+
+            },
+
+            failure: function(response, opts) {
+            }
+        })
+  }
     printSummary(){
         var doc = new jsPDF();
 //        var node = document.getElementById("map")
@@ -957,14 +1111,14 @@ class SidePanel extends React.Component{
         }.bind(this), 3000)
 
     }
-    renderModal(){
+renderModal(){
 //     let width = document.getElementById("modalResults").offsetWidth
 //     this.setState({ speedometerWidth: width});
     var pdf = new jsPDF('p', 'pt',"letter" )
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics"
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Nitrate Leaching"
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
@@ -972,6 +1126,7 @@ class SidePanel extends React.Component{
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
         "econ":null, "econ_total":null,"econ_per_diff":null,
+        "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -981,7 +1136,9 @@ class SidePanel extends React.Component{
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
-         "econ":null, "econ_total":null,"econ_per_diff":null,
+        "econ":null, "econ_total":null,"econ_per_diff":null,
+         "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
+
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -992,6 +1149,8 @@ class SidePanel extends React.Component{
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
          "econ":null, "econ_total":null,"econ_per_diff":null,
+        "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
+
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -1002,6 +1161,8 @@ class SidePanel extends React.Component{
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
          "econ":null, "econ_total":null,"econ_per_diff":null,
+      "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
+
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
@@ -1011,11 +1172,11 @@ class SidePanel extends React.Component{
     let area = 0
     let areaWatershed = 0
     let areaWatershedCalc = 0
-    let radarData = [[1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2]]
+    let radarData = [[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40,40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40,40])
 
     this.dataYield = charts.getChartDataBar([1,null], [null,5])
     let dataEro= dataBarPercent
@@ -1025,6 +1186,7 @@ class SidePanel extends React.Component{
     let dataCN = dataBarPercent
     let dataBird = dataBarPercent
     let dataEcon = dataBarPercent
+    let dataNitrate = dataBarPercent
 
     let dataYieldWatershed = dataBarPercent
     let dataEroWatershed= dataBarPercent
@@ -1034,6 +1196,7 @@ class SidePanel extends React.Component{
     let dataCNWatershed = dataBarPercent
     let dataBirdWatershed = dataBarPercent
     let dataEconWatershed = dataBarPercent
+    let dataNitrateWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
@@ -1044,6 +1207,7 @@ class SidePanel extends React.Component{
     let optionsCN = optionsBarPercent
     let optionsBird= optionsBarPercent
     let optionsEcon= optionsBarPercent
+    let optionsNitrate= optionsBarPercent
     let configErosionGauge = {
       type: "gauge",
       legend: {
@@ -1118,6 +1282,8 @@ class SidePanel extends React.Component{
         model.ploss_total = this.state.modelOutputs.model.ploss.total
         model.econ = this.state.modelOutputs.model.econ.total_per_area
         model.econ_total = this.state.modelOutputs.model.econ.total
+        model.nitrate = this.state.modelOutputs.model.nitrate.total_per_area
+        model.nitrate_total = this.state.modelOutputs.model.nitrate.total
 
         model.cn = this.state.modelOutputs.model.cn.total_per_area
         model.runoff = this.state.modelOutputs.model.runoff.total_per_area
@@ -1133,6 +1299,8 @@ class SidePanel extends React.Component{
         base.ploss_total = this.state.modelOutputs.base.ploss.total
         base.econ = this.state.modelOutputs.base.econ.total_per_area
         base.econ_total = this.state.modelOutputs.base.econ.total
+        base.nitrate = this.state.modelOutputs.base.nitrate.total_per_area
+        base.nitrate_total = this.state.modelOutputs.base.nitrate.total
 
         base.cn = this.state.modelOutputs.base.cn.total_per_area
         base.runoff = this.state.modelOutputs.base.runoff.total_per_area
@@ -1149,6 +1317,8 @@ class SidePanel extends React.Component{
         modelWatershed.ploss_total = this.state.modelOutputs.model.ploss.total_watershed
         modelWatershed.econ = this.state.modelOutputs.model.econ.total_per_area_watershed
         modelWatershed.econ_total = this.state.modelOutputs.model.econ.total_watershed
+        modelWatershed.nitrate = this.state.modelOutputs.model.nitrate.total_per_area_watershed
+        modelWatershed.nitrate_total = this.state.modelOutputs.model.nitrate.total_watershed
 
         modelWatershed.cn = this.state.modelOutputs.model.cn.total_per_area_watershed
         modelWatershed.runoff = this.state.modelOutputs.model.runoff.total_per_area_watershed
@@ -1164,6 +1334,8 @@ class SidePanel extends React.Component{
         baseWatershed.ploss_total = this.state.modelOutputs.base.ploss.total_watershed
         baseWatershed.econ = this.state.modelOutputs.base.econ.total_per_area_watershed
         baseWatershed.econ_total = this.state.modelOutputs.base.econ.total_watershed
+        baseWatershed.nitrate = this.state.modelOutputs.base.nitrate.total_per_area_watershed
+        baseWatershed.nitrate_total = this.state.modelOutputs.base.nitrate.total_watershed
 
         baseWatershed.cn = this.state.modelOutputs.base.cn.total_per_area_watershed
         baseWatershed.runoff = this.state.modelOutputs.base.runoff.total_per_area_watershed
@@ -1181,7 +1353,7 @@ class SidePanel extends React.Component{
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1197,6 +1369,7 @@ class SidePanel extends React.Component{
                   model.cn/base.cn,
                   model.bird/base.bird,
                   model.econ/base.econ,
+                  model.nitrate/base.nitrate,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1209,7 +1382,7 @@ class SidePanel extends React.Component{
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1225,6 +1398,7 @@ class SidePanel extends React.Component{
                   modelWatershed.cn/baseWatershed.cn,
                   modelWatershed.bird/baseWatershed.bird,
                   modelWatershed.econ/baseWatershed.econ,
+                  modelWatershed.nitrate/baseWatershed.nitrate,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1235,7 +1409,7 @@ class SidePanel extends React.Component{
 
 
 
-        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ"]
+        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ","nitrate" ]
         let v1, v2 = 0
         let model_name = ""
 //        calculate percent difference
@@ -1296,6 +1470,7 @@ class SidePanel extends React.Component{
                 model.cn_per_diff,
                 model.bird_per_diff,
                 model.econ_per_diff,
+                model.nitrate_per_diff,
 
             ],
             fill: false,
@@ -1308,6 +1483,7 @@ class SidePanel extends React.Component{
               'rgba(153, 102, 255, 0.2)',
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -1318,6 +1494,7 @@ class SidePanel extends React.Component{
               'rgb(153, 102, 255)',
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
+              'rgb(255, 99, 132)',
             ],
             borderWidth: 1
           }]
@@ -1336,6 +1513,7 @@ class SidePanel extends React.Component{
                 modelWatershed.cn_per_diff,
                 modelWatershed.bird_per_diff,
                 modelWatershed.econ_per_diff,
+                modelWatershed.nitrate_per_diff,
 
             ],
             fill: false,
@@ -1348,6 +1526,8 @@ class SidePanel extends React.Component{
               'rgba(153, 102, 255, 0.2)',
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -1358,6 +1538,7 @@ class SidePanel extends React.Component{
               'rgb(153, 102, 255)',
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
+              'rgb(255, 99, 132)',
             ],
             borderWidth: 1
           }]
@@ -1370,6 +1551,8 @@ class SidePanel extends React.Component{
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
         dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
         dataEcon = charts.getChartDataBar([base.econ,null], [null,model.econ])
+        dataNitrate = charts.getChartDataBar([base.nitrate,null], [null,model.nitrate])
+
         dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
         dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
         dataPlossWatershed= charts.getChartDataBar([baseWatershed.ploss,null], [null,modelWatershed.ploss])
@@ -1378,6 +1561,7 @@ class SidePanel extends React.Component{
         dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
         dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
         dataEconWatershed = charts.getChartDataBar([baseWatershed.econ,null], [null,modelWatershed.econ])
+        dataNitrateWatershed = charts.getChartDataBar([baseWatershed.nitrate,null], [null,modelWatershed.nitrate])
 
         this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
@@ -1386,7 +1570,8 @@ class SidePanel extends React.Component{
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
-        optionsEcon = charts.getOptionsBar("Production Cost", "$acre/year")
+        optionsEcon = charts.getOptionsBar("Cost per Ton-Dry Matter", "$/acre/year")
+        optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
         configErosionGauge = {
   type: "gauge",
   'scale-r': {
@@ -1471,6 +1656,14 @@ class SidePanel extends React.Component{
                     </Col>
 
                 </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsNitrate} data={dataNitrate}/>
+                    </Col>
+                    <Col xs={6}>
+                    </Col>
+
+                </Row>
                   <h4>By Watershed</h4>
 
                  <Row>
@@ -1503,6 +1696,13 @@ class SidePanel extends React.Component{
                     </Col>
                     <Col xs={6}>
                         <Bar options = {optionsEcon} data={dataEconWatershed}/>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsNitrate} data={dataNitrateWatershed}/>
+                    </Col>
+                    <Col xs={6}>
                     </Col>
                 </Row>
               </Tab>
@@ -1583,6 +1783,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{model.ploss_per_diff}</td>
                       <td></td>
                     </tr>
+                     <tr>
+                      <td>Nitrate Leaching</td>
+                      <td className="table-cell-left">{base.nitrate}</td>
+                      <td>{model.nitrate}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{base.nitrate_total}</td>
+                      <td>{model.nitrate_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{model.nitrate_per_diff}</td>
+                      <td></td>
+                    </tr>
                    <tr>
                       <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {base.runoff}</td>
@@ -1628,7 +1839,7 @@ class SidePanel extends React.Component{
                       <td></td>
                     </tr>
                     <tr>
-                      <td>Production Cost</td>
+                      <td>Cost per Ton-Dry Matter</td>
                       <td className="table-cell-left">{base.econ}</td>
                       <td>{model.econ}</td>
                       <td>$/acre/year</td>
@@ -1696,6 +1907,17 @@ class SidePanel extends React.Component{
                       <td className="table-cell-left">{modelWatershed.ploss_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>Nitrate Leaching</td>
+                      <td className="table-cell-left">{baseWatershed.nitrate}</td>
+                      <td>{modelWatershed.nitrate}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.nitrate_total}</td>
+                      <td>{modelWatershed.nitrate_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{modelWatershed.nitrate_per_diff}</td>
+                      <td></td>
+                    </tr>
                    <tr>
                       <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {baseWatershed.runoff}</td>
@@ -1742,7 +1964,7 @@ class SidePanel extends React.Component{
 
                     </tr>
                     <tr>
-                      <td>Production Cost</td>
+                      <td>Cost per Ton-Dry Matter</td>
                       <td className="table-cell-left">{baseWatershed.econ}</td>
                       <td>{modelWatershed.econ}</td>
                       <td>$/acre/year</td>
@@ -1755,6 +1977,7 @@ class SidePanel extends React.Component{
                   </tbody>
                 </Table>
               </Tab>
+              {/*}
               <Tab eventKey="gauges" title="Gauges">
                <Row>
                <h4>By Selection</h4>
@@ -1768,6 +1991,7 @@ class SidePanel extends React.Component{
                      </Col>
                  </Row>
               </Tab>
+              */}
             </Tabs>
             <div id = "chartPrintDiv" style = {{width:pageWidth/2}} hidden={true}>
                 <Bar id = "selChart1" options = {this.optionsYield} data={this.dataYield}/>
@@ -1778,6 +2002,7 @@ class SidePanel extends React.Component{
                 <Bar id = "selChart6" options = {optionsCN} data={dataCN}/>
                 <Bar id = "selChart7" options = {optionsBird} data={dataBird}/>
                 <Bar id = "selChart8" options = {optionsEcon} data={dataEcon}/>
+                <Bar id = "selChart8" options = {optionsNitrate} data={dataNitrate}/>
 
                 <Bar id = "watChart1" options = {this.optionsYield} data={dataYieldWatershed}/>
                 <Bar id = "watChart2" options = {optionsEro} data={dataEroWatershed}/>
@@ -1787,6 +2012,7 @@ class SidePanel extends React.Component{
                 <Bar id = "watChart6" options = {optionsCN} data={dataCNWatershed}/>
                 <Bar id = "watChart7" options = {optionsBird} data={dataBirdWatershed}/>
                 <Bar id = "watChart8" options = {optionsEcon} data={dataEconWatershed}/>
+                <Bar id = "watChart8" options = {optionsNitrate} data={dataNitrateWatershed}/>
 
                 <Radar id = "comChart1" data={dataRadar}/>
                 <Bar id = "comChart2" options = {optionsBarPercent} data={dataBarPercent}/>
@@ -1881,6 +2107,7 @@ class SidePanel extends React.Component{
                     </Form>
                     <a className = "wisc_link" target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34"><sup>*</sup>From Wiscland 2 (2019)</a>
                 </div>
+                <div hidden ={!this.state.landTypeSelected}>
                 <div className = "criteriaSections">
                     <Form.Label>2) Optional Selection Options</Form.Label>
                      <Accordion>
@@ -1953,33 +2180,6 @@ class SidePanel extends React.Component{
                         </Accordion.Body>
                       </Accordion.Item>
                     </Accordion>
-{/*
-                    <Accordion onSelect={(e) => this.subAreaSelection(e)}>
-                      <Accordion.Item eventKey="2">
-                        <Accordion.Header>Sub Area</Accordion.Header>
-                        <Accordion.Body>
-                          <Row>
-                               <Form.Check
-                                inline
-                                label="Select Sub Watersheds"
-                                ref={this.selectWatershed}
-                                checked={this.state.selectWatershed}
-                                name="group2"
-                                type='radio'
-                                onChange={(e) => this.handleAreaSelectionType("watershed", e)}
-                              />*
-                                <Button variant="secondary" onClick={(e) => this.handleAreaSelectionType("none", e)}>
-                                Stop Selection
-                              </Button>
-                               <h6> Hold shift to select multiple watersheds. </h6>
-                               <h6> Close accordion to stop selection. </h6>
-                                <Button variant="primary"  onClick={(e) => this.clearSelection("subArea")}>Reset Sub Area</Button>
-
-                          </Row>
-                        </Accordion.Body>
-                      </Accordion.Item>
-                    </Accordion>
-                    */}
                     <Accordion>
                       <Accordion.Item eventKey="3">
                         <Accordion.Header>Slope</Accordion.Header>
@@ -1994,7 +2194,7 @@ class SidePanel extends React.Component{
                                       domain={domainSlope}
                                       rootStyle={sliderStyle}
                                       onUpdate={this.sliderChangeSlope}
-                                      values={[this.props.activeTrans.selection.slope1,this.props.activeTrans.selection.slope2]}
+                                      values={[this.state.slop1,this.state.slop2]}
                                     >
                                       <Rail>
                                         {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
@@ -2046,14 +2246,16 @@ class SidePanel extends React.Component{
 
                                 <Col xs="5">
                                 <Form.Label>Min Slope</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.slope1} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
+                                  <Form.Control value={this.state.slop1} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope1", "reg", e.currentTarget.value, "box")}
+//                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
                                 </Col>
                                 <Col xs="5">
                             <Form.Label>Max Slope</Form.Label>
-                                  <Form.Control value={this.props.activeTrans.selection.slope2} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
+                                  <Form.Control value={this.state.slop2} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope2", "reg", e.currentTarget.value, "box")}
+//                                    onChange={(e) => this.handleSelectionChange("slope2", e)}
                                   />
                                 </Col>
                             </Form.Group>
@@ -2062,12 +2264,6 @@ class SidePanel extends React.Component{
                                 <Button variant="primary"  onClick={(e) => this.clearSelection("slope")}>Reset Slope</Button>
 
                             </Form.Group>
-
-
-
-
-
-
 
                             </Accordion.Body>
                         </Accordion.Item>
@@ -2087,7 +2283,7 @@ class SidePanel extends React.Component{
                                       domain={domainStream}
                                       rootStyle={sliderStyle}
                                       onChange={this.sliderChangeStream}
-                                      values={[this.props.activeTrans.selection.streamDist1,this.props.activeTrans.selection.streamDist2]}
+                                      values={[this.state.sDist1,this.state.sDist2]}
                                     >
                                       <Rail>
                                         {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
@@ -2136,14 +2332,14 @@ class SidePanel extends React.Component{
                              <Form.Group as={Row}>
                                 <Col xs="5">
                                     <Form.Label>Minimum Distance to Stream</Form.Label>
-                                    <Form.Control value={this.props.activeTrans.selection.streamDist1} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("streamDist1", e)}
+                                    <Form.Control value={this.state.sDist1} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", e.currentTarget.value, "box")}
                                   />
                                 </Col>
                                 <Col xs="5">
                                     <Form.Label>Maximum Distance to Stream</Form.Label>
-                                    <Form.Control value={this.props.activeTrans.selection.streamDist2} size='sm'
-                                    onChange={(e) => this.handleSelectionChange("streamDist2", e)}
+                                    <Form.Control value={this.state.sDist2} size='sm'
+                                    onChange={(e) => this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", e.currentTarget.value, "box")}
                                   />
                                 </Col>
                                 <Form.Label>Units</Form.Label>
@@ -2200,7 +2396,6 @@ class SidePanel extends React.Component{
                   <TransformationTable/>
                   <Stack gap={3}>
                   <Button size="sm" variant="primary" onClick={this.addTrans}><PlusLg/></Button>
-                     <Button onClick={this.handleOpenModalBase} variant="primary">Base Assumptions</Button>
                      </Stack>
                       </div>
                             {/* convert from sq m to acres*/}
@@ -2217,9 +2412,13 @@ class SidePanel extends React.Component{
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
                         Loading...
                      </Button>
+                      <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
+
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
 
                      </Stack>
+
+              </div>
               </Accordion.Body>
               </Accordion.Item>
             </Accordion>
@@ -2227,6 +2426,7 @@ class SidePanel extends React.Component{
 
                 <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             */}
+
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>
@@ -2242,7 +2442,7 @@ class SidePanel extends React.Component{
                   */}
 
                 <Tabs defaultActiveKey="mange" id="uncontrolled-tab-example" className="mb-3">
-                  <Tab eventKey="mange" title="Land Management">
+                  <Tab eventKey="mange" title="Crop Land Management">
                     <Form.Label>Cover Crop</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.cover}
                       onChange={(e) => this.updateActiveBaseProps("cover", e)}>
@@ -2267,7 +2467,13 @@ class SidePanel extends React.Component{
                       <option value="sv">Spring Vertical</option>
                       <option value="na">NA</option>
                     </Form.Select>
-
+                    {/*<Form.Label>Interseeded Legume</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.legume}
+                      onChange={(e) => this.updateActiveBaseProps("legume", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </Form.Select>*/}
                     <Form.Label>On Contour</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.contour}
                       onChange={(e) => this.updateActiveBaseProps("contour", e)}>
@@ -2276,10 +2482,10 @@ class SidePanel extends React.Component{
                       <option value="1">Yes</option>
                       <option value="na">N/A</option>
                     </Form.Select>
+                    {/*
                      <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.fertilizer}
                       onChange={(e) => this.updateActiveBaseProps("fertilizer", e)}>
-
                       <option value="default">Open this select menu</option>
                       <option value="0_0">0/	0</option>
                       <option value="0_100">0/	100</option>
@@ -2288,6 +2494,54 @@ class SidePanel extends React.Component{
                       <option value="200_0">200/	0</option>
                       <option value="25_50">25/	50</option>
                       <option value="50_50">50/	50</option>
+                    </Form.Select>
+                    */}
+                    <OverlayTrigger key="top1" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen}
+                      onChange={(e) => this.updateActiveBaseProps("nitrogen", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+
+                    <OverlayTrigger key="top2" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
+                      onChange={(e) => this.updateActiveBaseProps("nitrogen_fertilizer", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+
+                    <OverlayTrigger key="top3" placement="top"
+                            overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                    </OverlayTrigger>
+                    <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
+
+                    <OverlayTrigger key="top4" placement="top"
+                            overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
+                      onChange={(e) => this.updateActiveBaseProps("phos_fertilizer", e)}>
+                       {this.state.phos_fert_options_holder.map((item1, index) => (
+
+                         <option  key = {item1} value={item1}>{item1}</option>
+                        ))}
                     </Form.Select>
                  </Tab>
                  <Tab eventKey="economics" title="Economics">

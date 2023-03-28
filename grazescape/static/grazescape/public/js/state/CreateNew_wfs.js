@@ -4,30 +4,16 @@ DSS.utils.addStyle('.underlined-input:hover { border-bottom: 1px solid #7ad;}')
 DSS.utils.addStyle('.right-pad { padding-right: 32px }')   
 
 //--------------Geoserver WFS source connection-------------------
-//wfs farm layer url for general use
 var scenarioObj = {};
-var farmUrl = 
 
-// function showNewFarm() {
-//     geoServer.setFarmSource()
-// 	console.log("setFarmSource in CreateNew_wfs within showNewFarm")
-// 	DSS.layer.farms_1.setOpacity(1);
-// 	DSS.layer.farms_1.getSource().refresh();
-// 	console.log(DSS.activeFarm)
-// 	console.log("show new farm ran");
-// }
-//bring in farm layer table as object for iteration
-//bring in farm layer table as object for iteration
 //empty array to catch feature objects
-farmArrayCNO = [];
-scenarioArrayCNO = [];
+var farmArrayCNO = [];
+var scenarioArrayCNO = [];
+const ADDRESS_LOOKUP_ZOOM_LEVEL = 15;
 
 //define function to populate data array with farm table data
 function popfarmArrayCNO(obj) {
-	console.log('running popfarmArrayCNO')
-	console.log(obj)
 	for (i in obj) {
-//		console.log(obj[i].properties.id)
 		farmArrayCNO.push({
 			id: obj[i].properties.id,
 			gid: obj[i].properties.gid,
@@ -37,15 +23,11 @@ function popfarmArrayCNO(obj) {
 	for (i in farmArrayCNO){
 		if (farmArrayCNO[i].id > highestFarmIdCNO){
 			highestFarmIdCNO = farmArrayCNO[i].id
-//			console.log(highestFarmIdCNO);
 		};
 	};
-	console.log('popfarmArrayCNO Completed')
 }
 function popScenarioArrayCNO(obj) {
-	console.log('running popScenarioArrayCNO')
 	for (i in obj){ 
-//		console.log(obj[i].properties.scenario_id)
 		scenarioArrayCNO.push({
 			id: obj[i].id,
 			gid: obj[i].properties.gid,
@@ -58,117 +40,127 @@ function popScenarioArrayCNO(obj) {
 			highestScenarioIdCNO = scenarioArrayCNO[i].scenarioId
 		};
 	};
-	console.log('popScenarioArrayCNO Completed')
 }
-//populate data array with farm object data from each farm
-//popArray(farmObj);
 //var to hold onto largest gid value of current farms before another is added
 highestFarmIdCNO = 0;
 highestScenarioIdCNO = 0;
-//loops through data array gids to find largest value and hold on to it with highestFarmIdCNO
 
-function gethighestFarmIdCNO(){
-	console.log('running gethighestFarmIDCNO')
-	geoServer.getWFSFarmCNO()
-	
-}
-function gethighestScenarioIdCNO(){
-	console.log('running gethighestScenarioIDCNO')
-	geoServer.getWFSScenarioCNO()
-	
-}
-//gethighestFarmIdCNO()
-//gethighestScenarioIdCNO()
-
-//highestFarmIdCNO = 0
-// console.log(highestFarmIdCNO);
-// console.log(highestScenarioIdCNO);
-
-
-//---------------------------------Working Functions-------------------------------
-async function cnf_farm_insert(feat,geomType,fType, farmID=null) {
+async function cnf_farm_insert(feat, fType) {
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector',
         featureType: fType,
         srsName: 'EPSG:3857'
     });
-    console.log(feat)
     node = formatWFS.writeTransaction([feat], null, null, formatGML);
-	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
-    console.log(str);
-    await geoServer.insertFarm(str, feat,fType)
-	//await cnf_scenario_insert(feat,geomType,'scenarios_2',)
+    const intFgid = await geoServer.insertFarm(str);
+	return intFgid;
 }
-//you need to make sure that farm gets in and sets an active farm before scenario kicks off.
 
-// function cnf_scenario_insert(feat,geomType,fType, farmID=null) {
-//     var formatWFS = new ol.format.WFS();
-//     var formatGML = new ol.format.GML({
-//         featureNS: 'http://geoserver.org/GrazeScape_Vector',
-//         featureType: fType,
-//         srsName: 'EPSG:3857'
-//     });
-// 	if(fType == 'scenarios_2'){
-// 		feat.setProperties({farm_id:DSS.activeFarm})
-// 	}
-//     console.log(feat)
-//     node = formatWFS.writeTransaction([feat], null, null, formatGML);
-// 	console.log(node);
-//     s = new XMLSerializer();
-//     str = s.serializeToString(node);
-//     console.log(str);
-//     geoServer.insertFarm(str, feat,fType)
-// }
-function createFarm(fname,fowner,faddress,sname,sdescript){
+async function geocodeLookup(address) {
+	try{
+		const encodedAddress = encodeURI(address);
+		const result = await $.ajax(`/geocode/?address=${encodedAddress}`);
 
-	let me = this;
-	DSS.MapState.removeMapInteractions()
+		if (result.error_message) {
+			console.error("Error geocoding address: \n", result.error_message);
+			return {
+				error: "Address search is down."
+			};
+		} else if (result.results && result.results.length == 0) {
+			console.log("Geocode result was empty");
+			return {};
+		} else {
+			return {
+				coordinate: ol.proj.fromLonLat([
+					result.results[0].geometry.location.lng,
+					result.results[0].geometry.location.lat,
+				])
+			};
+		}
+	} catch(e) {
+		return { error: "Unhandled error!" };
+	}
+}
+
+// Create a new layer for a new farm to be displayed in while the user is asked to confirm the location.
+function showFarmInStagingLayer(coordinate, form){
+	DSS.MapState.removeMapInteractions();
+	const point = new ol.geom.Point(coordinate);
+	const feature = new ol.Feature({geom: point});
+	feature.setGeometryName("geom");
+	feature.setProperties({
+		farm_name: form.findField('operation').getSubmitValue(),
+		farm_owner: form.findField('owner').getSubmitValue(),
+		farm_addre: form.findField('address').getSubmitValue(),
+	})
+	DSS.layer.newFarmStaging = new ol.layer.Vector({
+		name: "newFarmStaging",
+		style: DSS.farms_1_style,
+		source: new ol.source.Vector({features: [feature]})
+	});
+	DSS.map.addLayer(DSS.layer.newFarmStaging);
+	DSS.MapState.zoomToExtent(coordinate, ADDRESS_LOOKUP_ZOOM_LEVEL);
+}
+
+async function createFarm(feature) {
+	var intFgid = await cnf_farm_insert(feature, 'farm_2')
+	console.log(feature);
+	DSS.activeFarm = intFgid
+	DSS.farmName = feature.values_.farm_name;
+	DSS.scenarioName = ''
+	DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.FirstScenario'); 
+	DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);		
+	DSS.dialogs.ScenarioPicker.show().center().setY(100);
+	DSS.MapState.showNewFarm();
+}
+
+function enablePlaceFarmMapInteraction(fname,fowner,faddress){
+	DSS.MapState.removeMapInteractions();
 	DSS.mapClickFunction = undefined;
 	DSS.mouseMoveFunction = undefined;
 	DSS.draw = new ol.interaction.Draw({
-		//source: source,
 		type: 'Point',
 		geometryName: 'geom'
 	});
 	DSS.map.addInteraction(DSS.draw);
-	console.log("draw is on");
-	console.log(DSS.draw);
 	DSS.draw.on('drawend', async function (e) {
-		console.log(e)
-		//DSS.map.getView().fit(e);
-		e.feature.setProperties({
-			//plugs in highestFarmIdCNO and gives it an id +1 to make sure its unique
-			//id: highestFarmIdCNO + 1,
-			farm_name: fname,
-			farm_owner: fowner,
-			farm_addre: faddress,
-			// scenario_name: sname,
-			// scenario_desp: sdescript,
-			//scenario_id: DSS.activeFarm
-			//farm_id: highestFarmIdCNO + 1,
-		})
-		var geomType = 'point'
-		await cnf_farm_insert(e.feature, geomType,'farm_2')
-		//cnf_farm_insert(e.feature, geomType,'scenarios_2')
-		// DSS.layer.fields_1.setVisible(true);
-		// DSS.layer.infrastructure.setVisible(true);
-		// DSS.layer.fieldsLabels.setVisible(true);
-		// console.log("HI! WFS farm Insert ran!")
-		//DSS.layer.scenarios.getSource().refresh();
+		const coordinate = e.feature.getGeometry().getCoordinates();
+		const regionContainsPoint = selectedRegion.getGeometry().intersectsCoordinate(coordinate);
+		if(regionContainsPoint){
+			e.feature.setProperties({
+				farm_name: fname,
+				farm_owner: fowner,
+				farm_addre: faddress,
+			})
+			Ext.ComponentQuery.query("#search_results")[0].removeAll();
+			await createFarm(e.feature);
+		} else if(!Ext.ComponentQuery.query("#search_results_inside_region_message").length > 0){
+			Ext.ComponentQuery.query("#search_results")[0].add({ 
+				xtype: 'component',
+				id: "search_results_inside_region_message",
+				cls: 'information',
+				style: {
+					color: "#FF0000",
+				},
+				html: 'Farm location must be inside the region!'
+			});
+		}
 	})     
 }
 
+function resetFarmSearchState(self) {
+	DSS.map.removeLayer(DSS.layer.newFarmStaging);
+	const searchResults = self.up("operation_create").down("#search_results");
+	searchResults.removeAll();
+}
 
-//------------------working variables--------------------
 var type = "Point";
-//var source = farms_1Source;
 
 //---------------------------Create New Farm Container, and component declaration---------------
 Ext.define('DSS.state.CreateNew_wfs', {
-//------------------------------------------------------------------------------
 	extend: 'Ext.Container',
 	alias: 'widget.operation_create',
 
@@ -177,8 +169,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 
 	DSS_singleText: '"Start by creating a new operation"',
 					
-	//--------------------------------------------------------------------------
-	initComponent: function(map) {
+	initComponent: function() {
 		let me = this;
 
 		Ext.applyIf(me, {
@@ -213,7 +204,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
             { 
 				xtype: 'component',
 				cls: 'information',
-				html: 'Fill in operation info in the form below, then select farm location on map'
+				html: 'First, fill in farm info in the form below.'
 			},{
 				xtype: 'form',
 				url: 'create_operation',
@@ -229,7 +220,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					triggerWrapCls: 'underlined-input',
 				},
 				items: [{
-					fieldLabel: 'Operation',
+					fieldLabel: 'Farm Name',
 					name: 'operation',
 					allowBlank: false,
 					value: me.DSS_operation,
@@ -242,52 +233,119 @@ Ext.define('DSS.state.CreateNew_wfs', {
 					margin: '10 0',
 					padding: 4,
 				},{
-					fieldLabel: 'Address',
+					xtype: 'button',
+					cls: 'button-text-pad',
+					componentCls: 'button-margin',
+					text: 'Place Farm Manually',
+					formBind: true,
+					handler: function(self) { 
+						var form = self.up('form').getForm();
+						enablePlaceFarmMapInteraction(
+							form.findField('operation').getSubmitValue(),
+							form.findField('owner').getSubmitValue(),
+							form.findField('address').getSubmitValue());
+						resetFarmSearchState(self);
+					}
+				},{
+					fieldLabel: 'Find by Address',
 					name: 'address',
                     allowBlank: true,
 					margin: '12 0',
 					padding: 4,
             	},
-				// {
-				// 	fieldLabel: 'Scenario Name',
-				// 	name: 'scenario_name',
-                //     allowBlank: false,
-				// 	margin: '12 0',
-				// 	padding: 4,
-            	// },{
-				// 	fieldLabel: 'Scenario Description',
-				// 	name: 'scenario_description',
-                //     allowBlank: false,
-				// 	margin: '12 0',
-				// 	padding: 4,
-            	// },
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
-					text: 'Place Operation',
+					text: 'Search',
 					formBind: true,
-					handler: function() { 
+					handler: async function(self) { 
 						var form = this.up('form').getForm();
 						if (form.isValid()) {
-							// DSS.MapState.removeMapInteractions()
-							// DSS.mapClickFunction = undefined;
-							// DSS.mouseMoveFunction = undefined;
-							//gethighestFarmIdCNO();
-							//gethighestScenarioIdCNO();
-							createFarm(form.findField('operation').getSubmitValue(),
-							form.findField('owner').getSubmitValue(),
-							form.findField('address').getSubmitValue());
-							// form.findField('scenario_name').getSubmitValue(),
-							// form.findField('scenario_description').getSubmitValue());
-							//DSS.layer.fields_1.setVisible(true);
-							//showNewFarm()
+							resetFarmSearchState(self);
+
+							const address = form.findField('address').getSubmitValue();
+							if(!address || address == "") {
+								const searchResults = self.up("operation_create").down("#search_results");
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									style: {
+										color: "#FF0000",
+									},
+									html: "Address can't be empty."
+								});
+
+								return;
+							};
+						
+							const result = await geocodeLookup(address);
+							const coordinate = result.coordinate;
+
+							if(!coordinate) {
+								const searchResults = self.up("operation_create").down("#search_results");
+								const errorText = result.error 
+									? result.error + " Please place your farm by clicking 'Place Farm Manually', then clicking on the map."
+									: 'Error! Unable to find location. Try again with a different address, or place farm manually.';
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									style: {
+										color: "#FF0000",
+									},
+									html: errorText
+								});
+								return;
+							}
+
+							const regionContainsPoint = selectedRegion.getGeometry().intersectsCoordinate(coordinate);
+							if(regionContainsPoint){
+								showFarmInStagingLayer(coordinate, form);
+
+								const searchResults = self.up("operation_create").down("#search_results");
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									html: 'Location found. If this looks right, click Confirm. Otherwise, try another search or place farm manually.'
+								})
+								searchResults.add({
+									xtype: 'button',
+									cls: 'button-text-pad',
+									componentCls: 'button-margin',
+									text: 'Confirm',
+									handler: async function(self) { 
+										const feature = DSS.layer.newFarmStaging.getSource().getFeatures()[0];
+										if(!feature) {
+											alert("Error placing farm! Feature not found.");
+											return;
+										}
+										console.log(feature);
+										await createFarm(feature);
+										resetFarmSearchState(self);
+									}
+								});
+							} else {
+								const searchResults = self.up("operation_create").down("#search_results");
+								searchResults.add({ 
+									xtype: 'component',
+									cls: 'information',
+									style: {
+										color: "#FF0000",
+									},
+									html: 'Location was not inside the region. Try again with a different address, or place farm manually.'
+								});
+							}
 						}
 			        }
+				},
+				{
+					xtype: 'container',
+					layout: DSS.utils.layout('vbox', 'center', 'stretch'),
+					id: 'search_results',
+					items: []
 				}],
 			}]
 		});	
 		me.callParent(arguments);
 	},
-	//------------------------------------------------------------------
 });

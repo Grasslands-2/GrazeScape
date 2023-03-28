@@ -275,6 +275,8 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
 
     if data["value_type"] == 'nleaching':
         col_name.append('"N_runoff_lbs_per_acre"')
+    if data["value_type"] == 'nwater':
+        col_name.append('"N_water_lbs_per_acre"')
 
     if data["value_type"] == 'ero':
         col_name.append("soil_erosion_tons_per_acre")

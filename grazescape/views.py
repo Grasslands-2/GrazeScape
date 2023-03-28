@@ -389,7 +389,7 @@ def geoserver_request(request):
 @login_required
 def get_default_om(request):
     print(request.POST)
-    field_id = file_name = str(uuid.uuid4())
+    field_id = str(uuid.uuid4())
     active_region = request.POST.getlist("active_region")[0]
     extents = request.POST.getlist("extents[]")
     print("the extents are ", extents)
@@ -503,9 +503,7 @@ def get_model_results(request):
         model.bounds["x"] = geo_data.bounds["x"]
         model.bounds["y"] = geo_data.bounds["y"]
 
-        print("BOUNDS MADE!")
         model.raster_inputs = clipped_rasters
-        print("CLIPPED RASTERS MADE!")
         # loop here to build a response for all the model types
         print("models start running ", time.time() - start)
 
@@ -525,7 +523,6 @@ def get_model_results(request):
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.get('model_parameters[area]'))
-        print('RESULTS PRINTED HERE!!!')
         # probably use threads here and use numpy in the png creation
         print("models done running ", time.time() - start)
         for result in results:

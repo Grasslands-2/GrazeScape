@@ -21,9 +21,10 @@ import threading
 import shutil
 from osgeo import gdal
 import math
-import smartscape.helper
+import smartscape.helper_base
 import numpy as np
 from osgeo import gdalconst as gc
+
 
 @login_required
 def index(request):
@@ -54,7 +55,7 @@ def index(request):
         "uplandsWI_Huc10", "uplandsWI_Huc12", "northeastWI_Huc10", "northeastWI_Huc12",
     ]
     for name in file_names:
-        url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A"+name+"&outputFormat=application%2Fjson"
+        url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
         print("downloading", url)
         raster_file_path = os.path.join(dir_path, name + ".geojson")
         createNewDownloadThread(url, raster_file_path)
@@ -87,6 +88,7 @@ def download(link, filelocation):
             if chunk:
                 f.write(chunk)
 
+
 @login_required
 def get_selection_raster(request):
     """
@@ -109,11 +111,12 @@ def get_selection_raster(request):
     print("downloading rasters in background")
     request_json = js.loads(request.body)
     # folder for all input and outputs
-    folder_id = str(uuid.uuid4())
+    # folder_id = str(uuid.uuid4())
+    folder_id = request_json["folderId"]
     extents = request_json["geometry"]["extent"]
     field_coors = request_json["geometry"]["field_coors"]
     region = request_json["region"]
-    print(field_coors)
+    # print(field_coors)
     for val in field_coors:
         # print("###########################")
         # print(val)
@@ -122,9 +125,9 @@ def get_selection_raster(request):
 
     try:
         geo_data = RasterDataSmartScape(
-                extents, field_coors_formatted,
-                folder_id,
-                region)
+            extents, field_coors_formatted,
+            folder_id,
+            region)
         print("loading layers")
         geo_data.load_layers()
         print("create clip #######################################")
@@ -139,7 +142,7 @@ def get_selection_raster(request):
             "folder_id": folder_id
         }
         # download base layers async
-        smartscape.helper.download_base_rasters_helper(request, folder_id)
+        smartscape.helper_base.download_base_rasters_helper(request, folder_id)
     except KeyError as e:
         error = str(e)
     except ValueError as e:
@@ -157,13 +160,33 @@ def get_selection_raster(request):
     print(error)
     return JsonResponse(data, safe=False)
 
+
 @login_required
 def download_base_rasters(request):
     request_json = js.loads(request.body)
     geo_folder = request_json["folderId"]
-    smartscape.helper.download_base_rasters_helper(request, geo_folder)
+    smartscape.helper_base.download_base_rasters_helper(request, geo_folder)
     return JsonResponse({"download": "started"}, safe=False)
+
+
 # get the raster with selection criteria applied
+def get_phos_fert_options(request):
+    """
+    Calculate p manure and avialable p fert options for each transformation and base case
+    Parameters
+    ----------
+    request : request object
+        The request object from the client
+
+    Returns
+    -------
+        return_data : JsonResponse
+            Contains the trans/base id and the p values
+    """
+    request_json = js.loads(request.body)
+    base_calc = request_json['base_calc']
+    return_data = smartscape.helper_base.get_phos_fert_options(request, base_calc)
+    return JsonResponse({"response": return_data}, safe=False)
 
 
 def get_selection_criteria_raster(request):
@@ -181,7 +204,7 @@ def get_selection_criteria_raster(request):
         Contains output parameters needed for client
     """
     start = time.time()
-    print(" ", time.time()-start)
+    print(" ", time.time() - start)
     # print(request.POST)
     request_json = js.loads(request.body)
     folder_id = request_json["folderId"]
@@ -189,7 +212,7 @@ def get_selection_criteria_raster(request):
     # folder_id = request.POST.get("folderId")
     # trans_id = request.POST.get("transId")
     trans_id = request_json["transId"]
-    print(request_json)
+    # print(request_json)
     print("this is the folder id ", trans_id)
     # print(field_id)
     scenario_id = 1

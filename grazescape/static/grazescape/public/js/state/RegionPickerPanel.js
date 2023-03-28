@@ -54,8 +54,6 @@ Ext.define('DSS.state.RegionPickerPanel', {
 					items: regionsList,
 					listeners:{
 						click: async function( menu, item, e, eOpts ) {
-							//this.up('window').destroy();
-							//console.log(item.text);
 							DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
 							DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
 							console.log(DSS.map.getView())

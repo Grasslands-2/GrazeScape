@@ -309,7 +309,7 @@ Ext.define('DSS.state.FirstScenario', {
 	bodyPadding: 8,
 	titleAlign: 'center',
 	
-	title: "Set up your new operation's first scenario!",
+	title: "Set up your new farm's first scenario!",
 	
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	

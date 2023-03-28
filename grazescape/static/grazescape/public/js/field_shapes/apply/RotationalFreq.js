@@ -76,7 +76,7 @@ Ext.define('DSS.field_shapes.apply.RotationalFreq', {
 				//	boxLabelCls: 'hover'
 				},
 				items: [{
-					boxLabel: 'More then once a day', inputValue: '1.2',
+					boxLabel: 'More than once a day', inputValue: '1.2',
 				},{
 					boxLabel: 'Once a day', inputValue: '1',
 				},{ 

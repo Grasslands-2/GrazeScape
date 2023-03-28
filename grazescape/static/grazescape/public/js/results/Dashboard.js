@@ -41,7 +41,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].pt_cn.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].pt_cn.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].pt_cn.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].pt_cn.n_rec,
                             pNeeds: pmr[4].pt_cn.p_needs,
                             manuPercP: pmr[4].pt_cn.man_p_per,
@@ -72,7 +72,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].pt_rt.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].pt_rt.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].pt_rt.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].pt_rt.n_rec,
                             pNeeds: pmr[4].pt_rt.p_needs,
                             manuPercP: pmr[4].pt_rt.man_p_per,
@@ -113,7 +113,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         Nrec: pmr[4].cn.n_rec,
                         manuPercN: fieldArrayItem.manuPercN,
                         fertPercN: fieldArrayItem.fertPercN,
-                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_rec,
+                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_man,
                         fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
                         pNeeds: pmr[4].cn.p_needs,
                         manuPercP: pmr[4].cn.man_p_per,
@@ -153,7 +153,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         Nrec: pmr[4].sb.n_rec,
                         manuPercN: fieldArrayItem.manuPercN,
                         fertPercN: fieldArrayItem.fertPercN,
-                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].sb.n_rec,
+                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].sb.n_man,
                         fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].sb.n_rec,
                         pNeeds: pmr[4].sb.p_needs,
                         manuPercP: pmr[4].sb.man_p_per,
@@ -181,7 +181,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                         Nrec: pmr[4].cn.n_rec,
                         manuPercN: fieldArrayItem.manuPercN,
                         fertPercN: fieldArrayItem.fertPercN,
-                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_rec,
+                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_man,
                         fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
                         pNeeds: pmr[4].cn.p_needs,
                         manuPercP: pmr[4].cn.man_p_per,
@@ -221,7 +221,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].cn.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cn.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cn.n_rec,
                             pNeeds: pmr[4].cn.p_needs,
                             manuPercP: pmr[4].cn.man_p_per,
@@ -249,7 +249,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].cs.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cs.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cs.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cs.n_rec,
                             pNeeds: pmr[4].cs.p_needs,
                             manuPercP: pmr[4].cs.man_p_per,
@@ -277,7 +277,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].as.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].as.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].as.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].as.n_rec,
                             pNeeds: pmr[4].as.p_needs,
                             manuPercP: pmr[4].as.man_p_per,
@@ -305,7 +305,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].af.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].af.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].af.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN) * pmr[4].af.n_rec,
                             pNeeds: pmr[4].af.p_needs,
                             manuPercP: pmr[4].af.man_p_per,
@@ -345,7 +345,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].cs.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cs.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].cs.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].cs.n_rec,
                             pNeeds: pmr[4].cs.p_needs,
                             manuPercP: pmr[4].cs.man_p_per,
@@ -373,7 +373,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].sb.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].sb.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].sb.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].sb.n_rec,
                             pNeeds: pmr[4].sb.p_needs,
                             manuPercP: pmr[4].sb.man_p_per,
@@ -401,7 +401,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             Nrec: pmr[4].ot.n_rec,
                             manuPercN: fieldArrayItem.manuPercN,
                             fertPercN: fieldArrayItem.fertPercN,
-                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].ot.n_rec,
+                            manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].ot.n_man,
                             fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].ot.n_rec,
                             pNeeds: pmr[4].ot.p_needs,
                             manuPercP: pmr[4].ot.man_p_per,
@@ -689,29 +689,131 @@ var fieldYieldArray = [];
 var modelTypes = ['yield']
 //list of all the current and future charts
 var chartList = [
-//    "cost_farm", "cost_field",
-//    "net_return_farm", "net_return_field",
-    "grass_yield_farm", "grass_yield_field",
-//    "milk_farm", "milk_field",
-//    "nitrogen_farm",
-    "ploss_farm", "ploss_field",
-    "soil_loss_farm", "soil_loss_field",
-    "nleaching_farm", "nleaching_field",
-//    "bio_farm",
+    "grass_yield_farm", 
+    "grass_yield_field",
+    "ploss_farm", 
+    "ploss_field",
+    "soil_loss_farm", 
+    "soil_loss_field",
+    "nleaching_farm", 
+    "nleaching_field",
+    "nwater_field",
+    "nwater_farm",
     "cn_num_farm",
     "runoff_farm",
     "compare_farm",
-    'corn_yield_farm','corn_yield_field',
-    'corn_silage_yield_farm', 'corn_silage_yield_field',
-    'soy_yield_farm','soy_yield_field',
-    'oat_yield_farm', 'oat_yield_field',
-    'alfalfa_yield_farm','alfalfa_yield_field',
-    'rotation_yield_farm' , 'rotation_yield_field',
-    'insecticide_farm', 'insecticide_field',
+    'corn_yield_farm',
+    'corn_yield_field',
+    'corn_silage_yield_farm',
+    'corn_silage_yield_field',
+    'soy_yield_farm',
+    'soy_yield_field',
+    'oat_yield_farm', 
+    'oat_yield_field',
+    'alfalfa_yield_farm',
+    'alfalfa_yield_field',
+    'rotation_yield_farm',
+    'rotation_yield_field',
+    'insecticide_farm',
+    'insecticide_field',
     'feed_breakdown',
-    'econ_farm','econ_field'
-    //'crop_feed_breakdown'
+    'econ_farm',
+    'econ_field'
 ]
+
+var additionalChartInfo = {
+    'grass_yield_farm': {
+        group: 'Yield'
+    }, 
+    'grass_yield_field': {
+        group: 'Yield'
+    },
+    'ploss_farm': {
+        group: 'Nutrients'
+    }, 
+    'ploss_field': {
+        group: 'Nutrients'
+    },
+    'soil_loss_farm': {
+        group: 'Erosion'
+    }, 
+    'soil_loss_field': {
+        group: 'Erosion'
+    },
+    'nleaching_farm': {
+        group: 'Nutrients'
+    }, 
+    'nleaching_field': {
+        group: 'Nutrients'
+    },
+    'nwater_field': {
+        group: 'Nutrients'
+    },
+    'nwater_farm': {
+        group: 'Nutrients'
+    },
+    'cn_num_farm': {
+        group: 'Runoff'
+    },
+    'runoff_farm': {
+        group: 'Runoff'
+    },
+    'compare_farm': {
+        group: 'Unknown'
+    },
+    'corn_yield_farm': {
+        group: 'Yield'
+    },
+    'corn_yield_field': {
+        group: 'Yield'
+    },
+    'corn_silage_yield_farm': {
+        group: 'Yield'
+    },
+    'corn_silage_yield_field': {
+        group: 'Yield'
+    },
+    'soy_yield_farm': {
+        group: 'Yield'
+    },
+    'soy_yield_field': {
+        group: 'Yield'
+    },
+    'oat_yield_farm': {
+        group: 'Yield'
+    }, 
+    'oat_yield_field': {
+        group: 'Yield'
+    },
+    'alfalfa_yield_farm': {
+        group: 'Yield'
+    },
+    'alfalfa_yield_field': {
+        group: 'Yield'
+    },
+    'rotation_yield_farm': {
+        group: 'Yield'
+    },
+    'rotation_yield_field': {
+        group: 'Yield'
+    },
+    'insecticide_farm': {
+        group: 'Insecticide'
+    },
+    'insecticide_field': {
+        group: 'Insecticide'
+    },
+    'feed_breakdown': {
+        group: 'Unknown'
+    },
+    'econ_farm': {
+        group: 'Production Costs'
+    },
+    'econ_field': {
+        group: 'Production Costs'
+    },
+}
+
 var chartColorsAS = [
     {trans:'rgba(68, 119, 170,.2)',opa:'rgb(68, 119, 170)'}  ,
     {trans:'rgba(0, 119, 187,.2)',opa:'rgb(0, 119, 187)'},
@@ -979,27 +1081,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                     })
                 }
-//                let model_request_return1 = await build_model_request(f.properties, f,'pmanure',modelruntime,DSS.activeScenario,[])
-//                let pManureResults = await get_P_Manure_Results(model_request_return1)
-//                console.log(pManureResults)
-//                let pManureResultsArray = pManureResults.p_manure_array
 
 //              for each layer run each model type: yield (grass or crop), ero, pl
                 for (model in modelTypes){
-                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])//.then(model_request_return)
-                    console.log(model_request_return)
+                    let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])
                     get_model_data(model_request_return).then(returnData =>{
-                        console.log("RETURN DATA HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                        console.log(returnData[0])
-                        console.log(f)
-                        console.log(f.properties.is_dirty)
                         //console.log(returnData[0].model_run_timestamp)
-                        console.log(DSS.activeScenario.toString())
                         if(f.properties.is_dirty == false && returnData[0].model_type == 'ploss' && returnData[0].model_run_timestamp != modelruntimeOrig && returnData[0].scen_id == DSS.activeScenario.toString()){
                             modelruntime = returnData[0].model_run_timestamp
-                            console.log("MODELRUNTIME CHANGED TO OLD VALUE");
-                            //console.log(returnData[0])
-                            console.log(modelruntime);
+
                         }
                         //modelruntime = returnData[0].model_run_timestamp
 //                      no model results with that particular field
@@ -1027,7 +1117,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     Ext.getCmp("econTab").setDisabled(false)
                                     Ext.getCmp("econFarmConvert").setDisabled(false)
                                     Ext.getCmp("econFieldConvert").setDisabled(false)
-                                    console.log("LOOK FOR CHARTOBJ!!!%^%^%&^*&^*%^&*^&*%*&%&^%^&%*&^&^(*^&*%*^%^*^&*^*&%^&%^^&*^&(^*^%^&%&*^&*^&*%&^$^&%&*^")
                                     console.log(chartObj)
                                     let scenIndexAS = chartDatasetContainer.indexScenario(DSS.activeScenario)
                                     console.log(scenIndexAS)
@@ -1764,152 +1853,152 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
             }
             //TODO update
-            var nitrate = {
-                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nleaching_pb >50%</progress>',
-                plain: true,
-                id:"nitrateTab",
-                disabled:true,
-                tabBar : {
-                    layout: {
-                        pack: 'center',
-                            //background: '#C81820',
-                     }
-                 },
-                xtype: 'tabpanel',
-                style: 'background-color: #377338;',
-
-                defaults: {
-                   border:false,
-                    bodyBorder: false
-                },
-                scrollable: true,
-//                inner tabs for farm and field scale
-                items:[
-                    { xtype: 'panel',
-                    title: '<i class="fas fa-seedling"></i></i>  Field',
-                     border: false,
-//                   disabled: true,
-                    id: 'nitrateFieldTab',
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
-
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'radiogroup',
-                        id: 'nitrateFieldConvert',
-                        vertical: true,
-                        columns:2,
-                        items: [
-                            {
-                                boxLabel  : 'nitrate / Area',
-                                inputValue: 'a',
-                                checked:true
-                            }, {
-                                boxLabel  : 'Total nitrate',
-                                inputValue: 't',
-                            },
-                        ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            displayAlternate("nleaching_field", e.id)
-                         }},
-                    },
-                    {
-
-                        xtype: 'container',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-//                    {
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//            var nitrate = {
+//                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nleaching_pb >50%</progress>',
+//                plain: true,
+//                id:"nitrateTab",
+//                disabled:true,
+//                tabBar : {
+//                    layout: {
+//                        pack: 'center',
+//                            //background: '#C81820',
+//                     }
+//                 },
+//                xtype: 'tabpanel',
+//                style: 'background-color: #377338;',
+//
+//                defaults: {
+//                   border:false,
+//                    bodyBorder: false
+//                },
+//                scrollable: true,
+////                inner tabs for farm and field scale
+//                items:[
+//                    { xtype: 'panel',
+//                    title: '<i class="fas fa-seedling"></i></i>  Field',
+//                     border: false,
+////                   disabled: true,
+//                    id: 'nitrateFieldTab',
+//                    layout: {
+//                        type: 'table',
+//                        // The total column count must be specified here
+//                        columns: 1
+//                    },
+//                    defaults: {
+//
+//                    style: 'padding:10px; ',
+//                    border:0,
+//                },
+//                    items:[{
+//                        xtype: 'radiogroup',
+//                        id: 'nitrateFieldConvert',
+//                        vertical: true,
+//                        columns:2,
+//                        items: [
+//                            {
+//                                boxLabel  : 'nitrate / Area',
+//                                inputValue: 'a',
+//                                checked:true
+//                            }, {
+//                                boxLabel  : 'Total nitrate',
+//                                inputValue: 't',
+//                            },
+//                        ],
+//                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+//                            displayAlternate("nleaching_field", e.id)
+//                         }},
 //                    },
 //                    {
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    }
-                    ],
-                         listeners:{activate: function() {
-                            if (chartObj["nleaching_field"].chart !== null){
-//                                chartObj["ploss_field"].chart.destroy()
-//                                chartObj["soil_loss_field"].chart.destroy()
-                                return
-                            }
-                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
-//                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
-
-                    }}
-                },
-                {
-                    xtype: 'container',
-                    title: '<i class="fas fa-warehouse"></i>  Farm',
-                    border: false,
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
-
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'radiogroup',
-                        id: 'nitrateFarmConvert',
-                        vertical: true,
-                        columns:2,
-                        items: [
-                            {
-                                boxLabel  : 'Nutrients / Area',
-                                inputValue: 'a',
-                                checked:true
-                            }, {
-                                boxLabel  : 'Total Nutrients',
-                                inputValue: 't',
-                            },
-                        ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            displayAlternate("ploss_farm", e.id)
-                            displayAlternate("ploss_farm", e.id)
-                         }},
-                    },
-                   {
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-//                    {
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-//                    },
-//                    {
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="canvas2" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    },{
 //
 //                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="canvas3" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    }
-                    ],
-                        listeners:{activate: function() {
-                           if (chartObj["ploss_farm"].chart !== null){
-                                return
-                            }
-                            chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
-                    }}
-
-                },
-            ],
-
-            }
+//                    },{
+//                        xtype: 'container',
+//                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+////                    {
+////                        xtype: 'container',
+////                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+////                    },
+////                    {
+////                        xtype: 'container',
+////                    },{
+////                        xtype: 'container',
+////                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+////                    }
+//                    ],
+//                         listeners:{activate: function() {
+//                            if (chartObj["nleaching_field"].chart !== null){
+////                                chartObj["ploss_field"].chart.destroy()
+////                                chartObj["soil_loss_field"].chart.destroy()
+//                                return
+//                            }
+//                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
+////                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
+//
+//                    }}
+//                },
+//                {
+//                    xtype: 'container',
+//                    title: '<i class="fas fa-warehouse"></i>  Farm',
+//                    border: false,
+//                    layout: {
+//                        type: 'table',
+//                        // The total column count must be specified here
+//                        columns: 1
+//                    },
+//                    defaults: {
+//
+//                    style: 'padding:10px; ',
+//                    border:0,
+//                },
+//                    items:[{
+//                        xtype: 'radiogroup',
+//                        id: 'nitrateFarmConvert',
+//                        vertical: true,
+//                        columns:2,
+//                        items: [
+//                            {
+//                                boxLabel  : 'Nutrients / Area',
+//                                inputValue: 'a',
+//                                checked:true
+//                            }, {
+//                                boxLabel  : 'Total Nutrients',
+//                                inputValue: 't',
+//                            },
+//                        ],
+//                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+//                            displayAlternate("ploss_farm", e.id)
+//                            displayAlternate("ploss_farm", e.id)
+//                         }},
+//                    },
+//                   {
+//                        xtype: 'container',
+//                        html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+//                    },
+////                    {
+////                        xtype: 'container',
+////                        html: '<div id="container"><canvas  id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+////                    },
+////                    {
+////                        xtype: 'container',
+////                        html: '<div id="container"><canvas  id="canvas2" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+////                    },{
+////
+////                        xtype: 'container',
+////                        html: '<div id="container"><canvas  id="canvas3" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+////                    }
+//                    ],
+//                        listeners:{activate: function() {
+//                           if (chartObj["ploss_farm"].chart !== null){
+//                                return
+//                            }
+//                            chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
+//                    }}
+//
+//                },
+//            ],
+//
+//            }
         var nutrients = {
                 title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nut_pb >50%</progress>',
                 //title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=yield_pb >50%</progress>',
@@ -1966,6 +2055,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_field", e.id)
                             displayAlternate("nleaching_field", e.id)
+                            displayAlternate("nwater_field", e.id)
                          }},
                     },
                     {
@@ -1979,10 +2069,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
-//                    {
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-//                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="nwater_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
 //                    {
 //                        xtype: 'container',
 //                    },{
@@ -1998,6 +2088,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             }
                             chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
                             chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
+                            chartObj.nwater_field.chart = create_graph(chartObj.nwater_field, 'Nitrogen Lost to Water', document.getElementById('nwater_field').getContext('2d'));
 //                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
 
                     }}
@@ -2034,6 +2125,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("ploss_farm", e.id)
                             displayAlternate("nleaching_farm", e.id)
+                            displayAlternate("nwater_farm", e.id)
                          }},
                     },
                    {
@@ -2043,6 +2135,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="nleaching_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nwater_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',
@@ -2063,6 +2159,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             }
                             chartObj.ploss_farm.chart = create_graph(chartObj.ploss_farm, 'Phosphorus Loss', document.getElementById('ploss_farm').getContext('2d'));
                             chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_farm, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
+                            chartObj.nwater_farm.chart = create_graph(chartObj.nwater_farm, 'Nitrogen Lost to Water', document.getElementById('nwater_farm').getContext('2d'));
                     }}
 
                 },
@@ -2694,12 +2791,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             xtype: 'button',
                             text: 'Download Summary Report PDF',
                             id: 'downloadSummaryBtn',
-                            tooltip: 'Download charts and csv',
+                            tooltip: 'Download summary report PDF',
                             handler: function(e) {
-                                console.log(e)
-                                printSummary()
+                                downloadSummaryPdf()
                             }
-    //                        text: 'Yearly Yield'
                         },
                         //There is a listener set up in DashBoardUtilities that runs when this button is clicked to download summary csv to users machine.
                         {

@@ -1,9 +1,8 @@
-//const { listenerCount } = require("process");
 function get_field_rot_defaults(data){
     console.log(data)
     return new Promise(function(resolve) {
     var csrftoken = Cookies.get('csrftoken');
-    // data = JSON.stringify(data)
+
     $.ajaxSetup({
             headers: { "X-CSRFToken": csrftoken }
         });
@@ -30,7 +29,6 @@ function get_field_rot_defaults(data){
                     }
                     continue
                 }
-                let e = obj.extent;
             }
             resolve(responses);
         },
@@ -38,11 +36,9 @@ function get_field_rot_defaults(data){
         failure: function(response, opts) {
             me.stopWorkerAnimation();
         },
-        //timeout:50
     });
     })
 	}
-
 
 var farmArray = [];
 var farmObj = {};
@@ -74,7 +70,6 @@ function dupNameCheck(inputName,layer,nameValue){
 				dupname =  true
 			}
 		}
-		
 	})
 }
 
@@ -137,59 +132,9 @@ function infraDrawStyle(infra_typeInput){
 		return infraDrawDefaultStyle
 	}
 };
-//---------------------------------
 
-function aswCheck(breedSizeData,aswValueInput){
-	console.log(breedSizeData)
-	console.log(aswValueInput)
-	if(breedSizeData = 'small'){
-		if(aswValueInput < 220){
-			aswValue = 220
-		}else if(aswValueInput > 460){
-			aswValue = 460
-		}else{
-			aswValue = aswValueInput
-		}
-	}
-	if(breedSizeData = 'large'){
-		if(aswValueInput < 330){
-			aswValue = 330
-		}else if(aswValueInput > 670){
-			aswValue = 670
-		}else{
-			aswValue = aswValueInput
-		}
-	}
-	// if(breedSizeData = 'small' && aswValueInput < 220){
-	// 	aswValue = 220
-	// }else if(breedSizeData = 'small' && aswValueInput > 460){
-	// 	aswValue = 460
-	// }else if(breedSizeData = 'large' && aswValueInput < 330){
-	// 	aswValue = 330
-	// }else if(breedSizeData = 'large' && aswValueInput > 670){
-	// 	aswValue = 670
-	// }else{
-	// 	aswValue = aswValueInput
-	// }
-	console.log(aswValue)
-}
-
-function waitForScen(){
-	    return new Promise(function(resolve) {
-	        console.log(scenarioArray.length == 0)
-            if (scenarioArray.length == 0){
-                console.log("waiting...")
-
-            }
-            console.log("done waiting!!!!!!!!!!!!")
-            console.log("2222")
-            resolve("done")
-	    activateRunModels()
-        })
-	}
 function popScenarioArray(obj) {
 	for (i in obj)
-	//console.log(i);
 	scenarioArray.push({
 		gid: obj[i].properties.gid,
 		id: obj[i].properties.scenario_id,
@@ -247,26 +192,16 @@ function popScenarioArray(obj) {
 		fertPCost: obj[i].properties.fert_p_cost,
 		fertNCost: obj[i].properties.fert_n_cost,
 	});
-	console.log("gatherTableData for scenarios ran");
-	console.log(scenarioArray);
 }
 
-// function getWFSScenario() {
-        
-
-// }
-
 function gatherScenarioTableData() {
-	geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
+	return geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 };
-
 
 function runInfraUpdate(){
 	DSS.layer.infrastructure.getSource().forEachFeature(function(f) {
 		var infraFeature = f;
-		console.log("from infra loop through: " + infraFeature.id_);
 		for (i in infraArray){
-			console.log("infraArray id: " +infraArray[i].id);
 			if(infraArray[i].id === infraFeature.id_){
 				console.log(infraArray[i].name);
 				infraFeature.setProperties({
@@ -280,7 +215,9 @@ function runInfraUpdate(){
 					water_pipe_disp: infraArray[i].waterPipeDisp,
 					lane_material: infraArray[i].laneMaterialDisp,
 					lane_material_disp: infraArray[i].laneMaterialDisp,
+					lane_width: infraArray[i].laneWidth,
 					cost_per_foot: infraArray[i].costPerFoot,
+					total_cost: infraArray[i].totalCost
 				});
 				wfs_update(infraFeature,'infrastructure_2');
 				break;
@@ -288,25 +225,19 @@ function runInfraUpdate(){
 		}				
 	})
 };
+
 function runFieldUpdate(){
-	console.log("IN runFieldUpdate");
+	console.log("Updating Fields");
     let changedFieldsList = []
     for (field in fieldChangeList){
         changedFieldsList.push(fieldChangeList[field].id)
     }
-    console.log(changedFieldsList)
-	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-		console.log(f)
-		var feildFeature = f;
-		console.log("from fields_1 loop through: " + feildFeature.id_);
-		for (i in fieldArray){
-			console.log("Fieldarray id: " +fieldArray[i].id);
-			console.log(fieldArray[i]);
-			if(fieldArray[i].id === feildFeature.id_){
-				console.log(fieldArray[i].name);
-				console.log(fieldArray[i].id);
-				let is_dirty = false
 
+	DSS.layer.fields_1.getSource().forEachFeature(function(f) {
+		var feildFeature = f;
+
+		for (i in fieldArray){
+			if(fieldArray[i].id === feildFeature.id_){
 				// if our field has been changed we need to run model
 				if (changedFieldsList.includes(fieldArray[i].id)){
 				    feildFeature.setProperties({is_dirty:true})
@@ -325,7 +256,6 @@ function runFieldUpdate(){
 					soil_p: fieldArray[i].soilP,
 					om: fieldArray[i].soilOM,
 					rotation: cropRot,
-					//rotation: fieldArray[i].rotationVal,
 					rotation_disp: fieldArray[i].rotationDisp,
 					tillage: fieldArray[i].tillageVal,
 					tillage_disp: fieldArray[i].tillageDisp,
@@ -354,15 +284,15 @@ function runFieldUpdate(){
 					perc_fert_n: fieldArray[i].fertPercN,
 					perc_manure_p: fieldArray[i].manuPercP,
 					perc_manure_n: fieldArray[i].manuPercN,
+					land_cost: fieldArray[i].landCost
 				});
-				//setTimeout(function(){
-					wfs_update(feildFeature,'field_2');
-				//}, 1000);
+				wfs_update(feildFeature,'field_2');
 				break;
 			}				
 		}				
 	})
 };
+
 async function runScenarioUpdate(){
 	aswValue = 0
 	
@@ -374,7 +304,6 @@ async function runScenarioUpdate(){
 		console.log(f.values_.gid)
 		var scenarioFeature = f;
 		if(DSS.activeScenario === scenarioFeature.values_.gid){
-			//console.log(scenarioArray[i].scenarioName);
 			console.log(scenarioArray[i]);
 			scenarioFeature.setProperties({
 
@@ -430,14 +359,13 @@ async function runScenarioUpdate(){
 				fert_p_cost: DSS['viewModel'].scenario.data.costs.fertPCost,
 				fert_n_cost: DSS['viewModel'].scenario.data.costs.fertNCost
 			});
+            console.log("updating DSS['viewModel'].scenario.data")
 			wfs_update(scenarioFeature,'scenarios_2');
 		}						
 	})
 };
+
 function wfs_update(feat,layer) {
-    console.log(feat)
-    //console.log(geomType)
-	console.log('in field update func')
     var formatWFS = new ol.format.WFS();
     var formatGML = new ol.format.GML({
         featureNS: 'http://geoserver.org/GrazeScape_Vector'
@@ -446,30 +374,28 @@ function wfs_update(feat,layer) {
         featureType: layer,
         srsName: 'EPSG:3857'
     });
-    console.log(feat)
     node = formatWFS.writeTransaction(null, [feat], null, formatGML);
-	console.log(node);
     s = new XMLSerializer();
     str = s.serializeToString(node);
 	str=str.replace("feature:"+layer,"Farms:"+layer);
 	str=str.replace("<Name>geometry</Name>","<Name>geom</Name>");
-    geoServer.updateFieldAtt(str,feat )
+    geoServer.updateFieldAtt(str,feat)
 }
 
-function activateRunModels(){
-	console.log(DSS.layer.fields_1.getSource().getFeatures().length)
-	if(DSS.layer.fields_1.getSource().getFeatures().length > 0){
-		console.log("Fields Layer more then 0")
-		Ext.getCmp("btnRunModels").setDisabled(false)
-	}else{
+function updateRunModelsButtonDisabled(){
+	const runModelsButton = Ext.getCmp("btnRunModels");
+	if( !runModelsButton ) return;
+
+	if( DSS.layer.fields_1.getSource().getFeatures().length > 0 ){
+		console.log("Fields Layer more than 0")
+		runModelsButton.setDisabled(false)
+	} else {
 		console.log("Fields Layer more is Empty")
-		Ext.getCmp("btnRunModels").setDisabled(true)
+		runModelsButton.setDisabled(true)
 	}
 }
 
-//------------------------------------------------------------------------------
 Ext.define('DSS.state.Scenario', {
-//------------------------------------------------------------------------------
 	extend: 'Ext.Container',
     alternateClassName: 'DSS.StateScenario',
 	alias: 'widget.state_scenario',
@@ -499,14 +425,13 @@ Ext.define('DSS.state.Scenario', {
 			return def;
 		}
 	},
-	//--------------------------------------------------------------------------
+
 	initComponent: function() {
 		let me = this;
 		if(Ext.getCmp("CostDialog")){
 			Ext.getCmp("CostDialog").destroy()
 			console.log("cost dialog destroyed")
 		}
-		//DSS.MapState.hideFieldsandInfra()
 		Ext.applyIf(me, {
 			defaults: {
 				margin: '1rem',
@@ -523,16 +448,9 @@ Ext.define('DSS.state.Scenario', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: async function(self) {
-									// if (DSS['viewModel'].scenario.data ==null){
-									// 	console.log("No viewModel")
-									// 	await me.initViewModel();
-									// }
-									await gatherScenarioTableData
-									//await runScenarioUpdate();
 									await geoServer.getWFSScenario('&CQL_filter=gid='+DSS.activeScenario)
 									DSS.ApplicationFlow.instance.showManageOperationPage();
 									//resetting model result layers
-									//DSS.layer.PLossGroup.setVisible(false);
 									DSS.MapState.destroyLegend();
 									DSS.layer.erosionGroup.setVisible(false);
 									DSS.layer.nleachingGroup.setVisible(false);
@@ -552,23 +470,22 @@ Ext.define('DSS.state.Scenario', {
 					xtype: 'component',
 					flex: 1,
 					cls: 'section-title accent-text right-pad',
-					// TODO: Dynamic name...
 					html: 'Scenario Design'
 				}]
 			},{ 
 				xtype: 'container',
 				layout: DSS.utils.layout('vbox', 'center', 'stretch'),
-				items: [{ //------------------------------------------
+				items: [{
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Farm: ' + DSS.farmName,
 				},
-				{ //------------------------------------------
+				{
 					xtype: 'component',
 					cls: 'information med-text',
 					html: 'Scenario: ' + DSS.scenarioName,
 				},
-				{//------------------------------------------
+				{
 					xtype: 'component',
 					cls: 'information',
 					html: 'Draw or Delete Features'
@@ -589,19 +506,13 @@ Ext.define('DSS.state.Scenario', {
 						},
 						items: [{
 							text: 'Place a Field',
-							//id:'nwel',
-							listeners:{
-								afterrender: function(self) {
-									//self.setChecked(DSS.layer.DEM_image2.getVisible());
-								},
-							},
 							handler: function(self){
 								self.setActiveCounter(0)
 								self.setActive(false)
 								var af = parseInt(DSS.activeFarm,10);
 								var as = DSS.activeScenario;
-								AppEvents.triggerEvent('hide_field_grid')
-								AppEvents.triggerEvent('hide_infra_grid')
+								Ext.getCmp("EditFieldsButton").toggle(false);
+								Ext.getCmp("EditInfrastructureButton").toggle(false);
 								
 								DSS.MapState.removeMapInteractions();
 								//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
@@ -701,17 +612,11 @@ Ext.define('DSS.state.Scenario', {
 						},
 						items: [{
 							text: 'Place Infrastructure',
-							//id:'nwel',
-							listeners:{
-								afterrender: function(self) {
-									//self.setChecked(DSS.layer.DEM_image2.getVisible());
-								},
-							},
 							handler: function(self){
 								self.setActiveCounter(0)
 								self.setActive(false)
-								AppEvents.triggerEvent('hide_field_grid')
-								AppEvents.triggerEvent('hide_infra_grid')
+								Ext.getCmp("EditFieldsButton").toggle(false);
+								Ext.getCmp("EditInfrastructureButton").toggle(false);
 								DSS.MapState.removeMapInteractions();
 								//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
 								DSS.mapClickFunction = undefined;
@@ -732,25 +637,16 @@ Ext.define('DSS.state.Scenario', {
 											scale: 0.03,
 											src: '/static/grazescape/public/images/pencil-png-653.png'
 										}),
-										// image: new ol.style.Circle({
-										// 	radius: 7,
-										// 	fill: new ol.style.Fill({
-										// 	  color: '#bd490f',
-										// 	}),
-										// }),
 									})
 								});
 								DSS.map.addInteraction(DSS.draw);
 								AppEvents.triggerEvent('hide_field_draw_mode_indicator')
 								AppEvents.triggerEvent('show_infra_draw_mode_indicator')
 								document.body.style.cursor = 'none'
-								console.log("draw is on");
-								console.log(self)
-								
+
 								DSS.draw.on('drawend', function (e) {
 									document.body.style.cursor = 'default'
 									infraLength = e.feature.values_.geom.getLength() * 3.28084;
-									console.log(infraLength);
 									AppEvents.triggerEvent('hide_infra_draw_mode_indicator')
 									DSS.MapState.removeMapInteractions()
 									DSS.dialogs.InfraApplyPanel = Ext.create('DSS.infra_shapes.InfraApplyPanel'); 	
@@ -781,113 +677,15 @@ Ext.define('DSS.state.Scenario', {
 						Ext.resumeLayouts(true);
 					}
 				}
-			},
-
-
-
-
-// 				{
-// 					xtype: 'button',
-// 					cls: 'button-text-pad',
-// 					componentCls: 'button-margin',
-// 					text: 'Field Shapes',
-// //					allowDepress:
-// 					toggleGroup: 'manage-operation',
-// 					toggleHandler: function(self, pressed) {
-// 						if (pressed) {
-// 							AppEvents.triggerEvent('show_field_shape_mode')
-// 							DSS.MapState.removeMapInteractions()
-// 							AppEvents.triggerEvent('hide_field_grid')
-// 							AppEvents.triggerEvent('hide_infra_grid')
-// 						}
-// 						else {
-// 							AppEvents.triggerEvent('hide_field_shape_mode');
-// 							AppEvents.triggerEvent('hide_infra_line_mode');
-// 							// use DSS.Inspector.addModeControl() to turn the mode
-// 							// back to inspector
-// 							DSS.Inspector.addModeControl()
-// 							//----------------------------------
-// 							DSS.MapState.removeMapInteractions()
-// 						}
-// 					//	DSS.ApplicationFlow.instance.showNewOperationPage();
-// 					}
-// 				},
-				//-----------------------------------------------------
-// 				
-
-//{
-// 					xtype: 'button',
-// 					cls: 'button-text-pad',
-// 					componentCls: 'button-margin',
-// 					text: 'Infrastructure Lines',
-// //					allowDepress:
-// 					toggleGroup: 'manage-operation',
-// 					toggleHandler: function(self, pressed) {
-// 						if (pressed) {
-// 							AppEvents.triggerEvent('show_infra_line_mode')
-// 							DSS.MapState.removeMapInteractions()
-// 							AppEvents.triggerEvent('hide_field_grid')
-// 							AppEvents.triggerEvent('hide_infra_grid')
-// 						}
-// 						else {
-// 							AppEvents.triggerEvent('hide_field_shape_mode');
-// 							AppEvents.triggerEvent('hide_infra_line_mode');
-// 							// use DSS.Inspector.addModeControl() to turn the mode
-// 							// back to inspector
-// 							DSS.Inspector.addModeControl()
-// 							//----------------------------------
-// 							DSS.MapState.removeMapInteractions()
-// 						}
-// 					}
-// 				},
-				//------------------------------------------
+				},
 				{
 					xtype: 'component',
 					cls: 'information',
 					html: 'Edit Scenario Attributes'
 				},
-				
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'Feed Worksheet',
-				// 	handler: function(self) {
-				// 		DSS.dialogs.HeiferScapeDialog = Ext.create('DSS.state.scenario.HeiferScapeDialog'); 
-				// 		DSS.dialogs.HeiferScapeDialog.setViewModel(DSS.viewModel.scenario);
-				// 		pastAcreage = 0
-				// 		pastAcreage = 0
-				// 		gatherTableData();
-				// 		AppEvents.triggerEvent('hide_field_grid')
-				// 		AppEvents.triggerEvent('hide_infra_grid')
-				// 		AppEvents.triggerEvent('hide_field_shape_mode');
-				// 		AppEvents.triggerEvent('hide_infra_line_mode');
-				// 		DSS.dialogs.HeiferScapeDialog.show().center().setY(100);
-				// 	}
-				// },
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'Animals',
-				// 	handler: async function(self) {
-				// 		//await getWFSScenario()
-						
-				// 		//if (!DSS.dialogs) DSS.dialogs = {};
-				// 		//if (!DSS.dialogs.AnimalDialog) 
-				// 		{
-				// 			DSS.dialogs.AnimalDialog = Ext.create('DSS.state.scenario.AnimalDialog'); 
-				// 			DSS.dialogs.AnimalDialog.setViewModel(DSS.viewModel.scenario);		
-				// 		}
-				// 		AppEvents.triggerEvent('hide_field_grid')
-				// 		AppEvents.triggerEvent('hide_infra_grid')
-				// 		AppEvents.triggerEvent('hide_field_shape_mode');
-				// 		AppEvents.triggerEvent('hide_infra_line_mode');
-				// 		DSS.dialogs.AnimalDialog.show().center().setY(100);
-				// 	}
-				// }, 
 				{
 					xtype: 'button',
+					id: 'EditFieldsButton',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
@@ -896,9 +694,7 @@ Ext.define('DSS.state.Scenario', {
 					toggleHandler: async function(self, pressed) {
 						if (pressed) {
 							DSS.MapState.destroyLegend();
-							//console.log(DSS.field_grid.FieldGrid.getView()); 
 							DSS.MapState.removeMapInteractions();
-							//Running gatherTableData before showing grid to get latest
 							pastAcreage = 0
 							cropAcreage = 0
 							await gatherTableData();
@@ -907,26 +703,19 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_infra_line_mode');
 						}
 						else {
-						    console.log("running update")
-						    fieldChangeList = []
 						    fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
-							console.log(fieldChangeList)
 							AppEvents.triggerEvent('hide_field_grid')
-							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.field_grid.FieldGrid.store.clearData();
 							selectInteraction.getFeatures().clear()
 							DSS.map.removeInteraction(selectInteraction);
 							selectedFields = []
 							runFieldUpdate()
-							// setTimeout(() => {
-							// 	Ext.getCmp('fieldTable').destroy()
-							// }, "500")
 						}
 					}
 				},
-				//-------------------------------------------------------
 				{
 					xtype: 'button',
+					id: 'EditInfrastructureButton',
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
@@ -942,7 +731,6 @@ Ext.define('DSS.state.Scenario', {
 							AppEvents.triggerEvent('hide_infra_line_mode');
 						}
 						else {
-							AppEvents.triggerEvent('hide_field_grid')
 							AppEvents.triggerEvent('hide_infra_grid')
 							DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 							runInfraUpdate()
@@ -950,7 +738,6 @@ Ext.define('DSS.state.Scenario', {
 						}
 					}
 				},
-				//--------------------------------------------------------
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -958,69 +745,23 @@ Ext.define('DSS.state.Scenario', {
 					text: 'Edit Production Costs',
 					allowDepress: false,
 					handler: function(self) {
-					if(Ext.getCmp("CostDialog")){
-						DSS.dialogs.CostsDialog = Ext.getCmp("CostDialog").show()
-						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
-						DSS.dialogs.CostsDialog.show().center().setY(25);
-						console.log("cost dialog destroyed")
-					}else{
-					// setTimeout(() => {
-						DSS.dialogs.CostsDialog = Ext.create('DSS.state.scenario.CostsDialog');
-						DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
-						DSS.dialogs.CostsDialog.show().center().setY(25);
+						if(Ext.getCmp("CostDialog")){
+							DSS.dialogs.CostsDialog = Ext.getCmp("CostDialog").show()
+							DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
+							DSS.dialogs.CostsDialog.show().center().setY(25);
+							console.log("cost dialog destroyed")
+						}else{
+							DSS.dialogs.CostsDialog = Ext.create('DSS.state.scenario.CostsDialog');
+							DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);	 				
+							DSS.dialogs.CostsDialog.show().center().setY(25);
+						}
 					}
-					//}, 1000);
-					}
-					
-				},
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	text: 'run econ model',
-				// 	allowDepress: false,
-				// 	handler: function(self) {
-				// 		//console.log(fieldArray)
-				// 		econPact = {
-				// 			"fieldCount": fieldArray.length,
-				// 			"fieldArray": fieldArray,
-				// 			"scenArray": scenarioArray
-				// 		}
-				// 		console.log(econPact)
-				// 		//run econ model calcs
-				// 		run_econ_model(econPact)
-				// 	}
-				// },
-				//------------------------------------------
-				// {
-				// 	xtype: 'button',
-				// 	cls: 'button-text-pad',
-				// 	componentCls: 'button-margin',
-				// 	toggleGroup: 'create-scenario',
-				// 	allowDepress: false,
-				// 	text: 'Save Edits',
-				// 	handler: function() {
-				// 		//DSS.layer.scenarios.getSource().refresh();
-				// 		runScenarioUpdate();
-				// 		runFieldUpdate();
-				// 		runInfraUpdate();	
-				// 	},
-				// },
-						
-				// {//------------------------------------------
-				// 	xtype: 'component',
-				// 	height: 32
-				// },
+				},		
 				{
 					xtype: 'component',
 					cls: 'information',
 					html: 'Run Models, and View Results'
 				},
-				// {//------------------------------------------
-				// 	xtype: 'component',
-				// 	cls: 'information med-text',
-				// 	html: 'Run Simulations'
-				// },
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -1042,17 +783,17 @@ Ext.define('DSS.state.Scenario', {
 						DSS.layer.erosionGroup.values_.layers.array_ = [];
 						DSS.layer.nleachingGroup.values_.layers.array_ = [];
 						DSS.layer.yieldGroup.values_.layers.array_ = [];
-						console.log("running update")
 						fieldChangeList = []
 						fieldChangeList = Ext.getCmp("fieldTable").getStore().getUpdatedRecords()
-						AppEvents.triggerEvent('hide_field_grid')
-						AppEvents.triggerEvent('hide_infra_grid')
+						Ext.getCmp("EditFieldsButton").toggle(false);
+						Ext.getCmp("EditInfrastructureButton").toggle(false);
 						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 						DSS.field_grid.FieldGrid.store.clearData();
 						await runFieldUpdate()
 						await runInfraUpdate()
-//						cleanDB()
-						//DSS.DrawFieldShapes.addModeControl()
+						console.log("updates")
+						console.log((DSS['viewModel'].scenario))
+						console.log((DSS['viewModel'].scenario.data))
 						if (DSS['viewModel'].scenario.data != null){
                             console.log("updating scenario data")
 						    runScenarioUpdate();
@@ -1061,29 +802,19 @@ Ext.define('DSS.state.Scenario', {
                         Ext.getCmp("btnOpenDashboard").setDisabled(false)
 
                         Ext.getCmp("btnRunModels").setDisabled(true)
-						//Ext.getCmp("btnRemoveModelResults").setDisabled(false)
-//                        if dashboard hasnt been opened before
                         if (!Ext.getCmp("dashboardWindow")) {
-//                            Ext.getCmp("btnRunModels").setDisabled(true)
                             let dash = Ext.create('DSS.results.Dashboard', {
-//                                numberOfLines: 20,
                                 runModel:true,
                                 // any other option you like...
                             });
-//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
                             Ext.getCmp("btnRunModels").setText("Rerun Models")
                             Ext.getCmp("dashboardWindow").show().center();
-							//Ext.create('DSS.map.OutputMenu').showAt(10,10);
                         }
                         else{
 							await getWFSScenarioSP()
-							console.log("rerunning update")
-//                            close model to destroy it to rerun models
-                            console.log("destroy dashboard")
                             modelError = false
                             modelErrorMessages = []
                             chartObj = {}
-//                            reset global vars
                             //controls order of how datasets are displayed and with what colors
                             chartDatasetContainer = {}
                             //https://personal.sron.nl/~pault/
@@ -1127,9 +858,8 @@ Ext.define('DSS.state.Scenario', {
 				 	componentCls: 'button-margin',
 				 	text: 'View Results',
 				 	id: "btnOpenDashboard",
-				 	disabled:true,
-//				 	disabled: false,
-				 	handler: function(self) {
+				 	disabled: true,
+				 	handler: function() {
 		                Ext.getCmp("dashboardWindow").show()
 						DSS.layer.yieldGroup.setVisible(false);
 							// DSS.layer.erosionGroup.setVisible(false);
@@ -1153,11 +883,6 @@ Ext.define('DSS.state.Scenario', {
 					cls: 'button-text-pad',
 					componentCls: 'button-margin',
 					toggleGroup: 'create-scenario',
-					//id: 'dupCurScen',
-					//disabled: true,
-					//padding: 1,
-					//margin: '4 2 2 4',
-					//componentCls: 'button-margin-large',
 					text: 'Create New Scenario',
 					handler: function(self) {
 						DSS.dialogs.NewScenPickWindow = Ext.create('DSS.state.NewScenPickWindow'); 				
@@ -1169,38 +894,16 @@ Ext.define('DSS.state.Scenario', {
 		});
 		
 		me.callParent(arguments);
-		//DSS.Inspector.addModeControl()
 		DSS.MapState.disableFieldDraw();
 		DSS.draw.setActive(false);
 		DSS.modify.setActive(false);
-		//DSS.fieldStyleFunction = undefined;	DSS.layer.fields_1.changed();
-//        having trouble getting the promise to work. Just using a timeout for now
-        setTimeout(() => {
-            console.log("calling model setup")
-            waitForScen().then(function(value){
-                console.log("promise done")
-                me.initViewModel();
-
-            })
-            }, 1500);
-			activateRunModels()
+        me.initViewModel();
+		updateRunModelsButtonDisabled();
         },
 	
-
-	//-----------------------------------------------------------------------------
 	initViewModel: function() {
-		console.log("IM INSIDE INITVIEWMODEL!!!!!!!")
-		// if (DSS && DSS.viewModel && DSS.viewModel.scenario)
-		// return;
-		
-		// if (!DSS['viewModel'])
-		console.log("No View Model")
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
-//		gatherScenarioTableData()
-		//console.log('in animal view model')
-		//console.log('this is the farms beef cows: ')
-		//console.log(scenarioArray[0].beefCows)
 		DSS.viewModel.scenario = new Ext.app.ViewModel({
 			formulas: {
 				tillageValue: { 
@@ -1277,7 +980,6 @@ Ext.define('DSS.state.Scenario', {
 				}
 			}
 		})
-		//console.log(DSS['viewModel'].scenario.data.dairy.dry);
 	}
 });
 
