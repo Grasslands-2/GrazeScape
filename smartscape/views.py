@@ -25,7 +25,8 @@ import smartscape.helper_base
 import numpy as np
 from osgeo import gdalconst as gc
 
-
+def offline(request):
+    return render(request, 'offline.html')
 @login_required
 def index(request):
     """
