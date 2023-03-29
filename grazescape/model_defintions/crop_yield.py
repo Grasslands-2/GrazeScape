@@ -871,8 +871,8 @@ class CropYield(ModelBase):
             # rotation avg is not less than zero
             if leachN_avg < 0:
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
-
-            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
             nitrate_water.set_data(n_loss_h20)
 
             leached_N_Total = leached_N_Total + leachN_Calced
@@ -902,8 +902,8 @@ class CropYield(ModelBase):
             if leachN_avg < 0:
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
             leached_N_Total = leached_N_Total + leachN_Calced
-
-            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
             nitrate_water.set_data([n_loss_h20])
 
             nitrate.set_data([leached_N_Total])
@@ -951,8 +951,8 @@ class CropYield(ModelBase):
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
-
-                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
             nitrate_water.set_data(n_loss_h20/2)
 
             leached_N_Total = leached_N_Total / 2
@@ -1031,7 +1031,8 @@ class CropYield(ModelBase):
                 # rotation avg is not less than zero
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
-                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
                 leached_N_Total = leached_N_Total + leachN_Calced
 
             nitrate_water.set_data(n_loss_h20 / 5)
@@ -1095,7 +1096,8 @@ class CropYield(ModelBase):
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
-                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
 
             nitrate_water.set_data(n_loss_h20/3)
             leached_N_Total = leached_N_Total / 3
