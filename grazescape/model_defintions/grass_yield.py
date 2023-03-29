@@ -831,7 +831,8 @@ class GrassYield(ModelBase):
         # rotation avg is not less than zero
         if leachN_avg < 0:
             leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
-        n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+        runoffN = 0
+        n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
         nitrate_water.set_data([n_loss_h20])
         # print(leached_N_Total)
         nitrate.set_data([leachN_Calced])

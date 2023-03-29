@@ -2067,11 +2067,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="nwater_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="nwater_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',
@@ -2134,11 +2134,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="nleaching_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="nwater_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="nwater_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="nleaching_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',
