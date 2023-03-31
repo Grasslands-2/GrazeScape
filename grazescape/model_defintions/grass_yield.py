@@ -191,10 +191,11 @@ class GrassYield(ModelBase):
         # print("Model Results")
         # print("$$$$$$$$$$$$$$$")
         pred = pred * float(self.model_parameters["graze_factor"])
-        pred2 = np.where(pred < 0.01, .01, pred)
+        # pred2 = np.where(pred < 0.01, .01, pred)
         # print("GRASS PRED Flattened")
         # print(pred2)
         grass_yield.set_data(pred)
+        grass_yield.set_data_alternate(pred)
         rotation_avg.set_data(pred)
 
         return return_data

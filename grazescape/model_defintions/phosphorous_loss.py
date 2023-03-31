@@ -9,10 +9,10 @@ from shapely.geometry import Polygon
 
 
 class PhosphorousLoss(ModelBase):
-    def __init__(self, request, active_region, file_name=None):
-        super().__init__(request,active_region, file_name)
+    def __init__(self, request, active_region, clipped_rasters, file_name=None):
+        super().__init__(request,active_region, clipped_rasters, file_name)
 
-    def run_model(self, active_region, manure_results, ero):
+    def run_model(self, manure_results, ero):
         r = R(RCMD=self.r_file_path, use_pandas=True)
         pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
 
@@ -66,7 +66,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
 
-        r.assign("erosion", ero)
+        r.assign("erosion", ero[0].data)
         ContCornTidyploss = "cc_ploss_"
         cornGrainTidyploss = "cg_ploss_"
         cornSoyOatTidyploss = "cso_ploss_"
@@ -74,15 +74,15 @@ class PhosphorousLoss(ModelBase):
         pastureSeedingTidyploss = "ps_ploss_"
         pastureTidyploss = "pt_ploss_"
         dryLotTidyploss = "dl_ploss_"
-        regionRDS = active_region + '.rds'
-        r.assign("cc_pi_file", os.path.join(self.model_file_path2, ContCornTidyploss + regionRDS))
-        r.assign("cg_pi_file", os.path.join(self.model_file_path2, cornGrainTidyploss + regionRDS))
-        r.assign("cso_pi_file", os.path.join(self.model_file_path2, cornSoyOatTidyploss + regionRDS))
-        r.assign("dr_pi_file", os.path.join(self.model_file_path2, dairyRotationTidyploss + regionRDS))
-        r.assign("ps_pi_file", os.path.join(self.model_file_path2, pastureSeedingTidyploss + regionRDS))
-        r.assign("pt_pi_file", os.path.join(self.model_file_path2, pastureTidyploss + regionRDS))
-        r.assign("dl_pi_file", os.path.join(self.model_file_path2, dryLotTidyploss + regionRDS))
-        print(r(f"""
+        regionRDS = self.active_region + '.rds'
+        r.assign("cc_pi_file", os.path.join(self.model_file_path, ContCornTidyploss + regionRDS))
+        r.assign("cg_pi_file", os.path.join(self.model_file_path, cornGrainTidyploss + regionRDS))
+        r.assign("cso_pi_file", os.path.join(self.model_file_path, cornSoyOatTidyploss + regionRDS))
+        r.assign("dr_pi_file", os.path.join(self.model_file_path, dairyRotationTidyploss + regionRDS))
+        r.assign("ps_pi_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
+        r.assign("pt_pi_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
+        r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
+        r(f"""
 
                     library(tidyverse)
                     library(tidymodels)
@@ -287,12 +287,12 @@ class PhosphorousLoss(ModelBase):
 
 
 
-                """))
+                """)
 
         ploss = r.get("pi").to_numpy()
+        ploss = ploss.flatten()
         print("ploss", ploss)
         ploss = np.where(ploss < 0.01, .01, ploss)
         pl.set_data(ploss)
         return [pl]
-
 

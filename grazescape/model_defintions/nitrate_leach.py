@@ -1,26 +1,6 @@
-from abc import ABC
-import os
-import sys
-import csv
-
-sys.path.append('/grazescape/model_defintions')
-from osgeo import gdal
-from osgeo import gdalconst as gc
-from osgeo import ogr
-import matplotlib.pyplot as plt
-import requests
-import numpy as np
 import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Polygon
-from django.conf import settings
-from pyper import R
-from django.conf import settings
-
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import *
 import numpy as np
-import math
 
 
 # you need to cycle through each crop from each
@@ -99,6 +79,8 @@ def get_region_precip(active_region):
         return 43
     elif active_region == 'northeastWI':
         return 35
+
+
 class NitrateLeeching(ModelBase):
     def __init__(self, request, file_name=None):
         super().__init__(request, file_name)
@@ -110,8 +92,6 @@ class NitrateLeeching(ModelBase):
         # self.units = "Dry Mass tons/ac"
         # list of CropYieldDataNode
         # self.crop_list = []
-
-
 
     def run_model(self, active_region, manure_results, ero, yield_result):
         nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)",
@@ -160,20 +140,20 @@ class NitrateLeeching(ModelBase):
 
         getRotText_Value = getRotText(crop_ro, legume_text, animal_density_text)
 
-        rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)",
-                                      "Total dry matter production (tons/yr)", "Total dry matter yield (tons/ac/yr)",
-                                      "Total dry matter production (tons/yr)")
-        return_data.append(rotation_avg)
-        flat_corn = self.raster_inputs["corn"].flatten()
-        flat_soy = self.raster_inputs["soy"].flatten()
+        # rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)",
+        #                               "Total dry matter production (tons/yr)", "Total dry matter yield (tons/ac/yr)",
+        #                               "Total dry matter production (tons/yr)")
+        # return_data.append(rotation_avg)
+        # flat_corn = self.raster_inputs["corn"].flatten()
+        # flat_soy = self.raster_inputs["soy"].flatten()
         # todo get rid of this loop by using vectors
         # for y in range(0, len(flat_corn)):
         leached_N_Total = 0
         n_loss_h20 = 0
 
         # [bushels/acre x 10] original units
-        corn_yield_raw = flat_corn / 10
-        soy_yield_raw = flat_soy / 10
+        # corn_yield_raw = flat_corn / 10
+        # soy_yield_raw = flat_soy / 10
         om = float(self.model_parameters["om"])
         ero = ero.flatten()
         ero = np.where(drain_class_flattened != self.no_data, ero, 0)
@@ -184,13 +164,13 @@ class NitrateLeeching(ModelBase):
 
         print("om", om)
         print("drain_class", drain_class_flattened)
-        print("corn", flat_corn)
+        # print("corn", flat_corn)
         print("ero", np.sum(ero / cell_count))
         print("erosN", erosN)
 
         print("om", np.shape(om))
         print("drain_class", np.shape(drain_class_flattened))
-        print("corn", np.shape(flat_corn))
+        # print("corn", np.shape(flat_corn))
 
         calculate_denitloss_vector = np.vectorize(self.calculate_denitloss)
         Calc_N_Leach_Vector = np.vectorize(self.Calc_N_LeachCalc_N_Leach)
@@ -200,11 +180,11 @@ class NitrateLeeching(ModelBase):
         NvarsRot = self.Nvars[self.Nvars['RotationAbbr'] == getRotText_Value]
         NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
         # Nvar variabels can be collected on a crop year basis not by cell.
-        corn_yield = corn_yield_raw
-        corn_yield_tonDMac = corn_yield_raw * 56 * (1 - 0.155) / 2000
-
-        soy_yield = soy_yield_raw
-        soy_yield_tonDMac = soy_yield * 60 * 0.792 * 0.9008 / 2000
+        # corn_yield = corn_yield_raw
+        # corn_yield_tonDMac = corn_yield_raw * 56 * (1 - 0.155) / 2000
+        #
+        # soy_yield = soy_yield_raw
+        # soy_yield_tonDMac = soy_yield * 60 * 0.792 * 0.9008 / 2000
 
         # cont corn
         if crop_ro == "cc":
@@ -231,7 +211,8 @@ class NitrateLeeching(ModelBase):
             if leachN_avg < 0:
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
 
-            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
             nitrate_water.set_data(n_loss_h20)
 
             leached_N_Total = leached_N_Total + leachN_Calced
@@ -262,20 +243,21 @@ class NitrateLeeching(ModelBase):
                 leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
             leached_N_Total = leached_N_Total + leachN_Calced
 
-            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
             nitrate_water.set_data([n_loss_h20])
 
             nitrate.set_data([leached_N_Total])
         #     cash grain
         elif crop_ro == "cg":
 
-            rotation_avg_tonDMac = 0.5 * corn_yield_tonDMac + 0.5 * soy_yield_tonDMac
-
-            corn.set_data(corn_yield)
-
-            soy.set_data(soy_yield)
-            corn_DM_yield = corn_yield_tonDMac
-            soy_DM_yield = soy_yield_tonDMac
+            # rotation_avg_tonDMac = 0.5 * corn_yield_tonDMac + 0.5 * soy_yield_tonDMac
+            #
+            # corn.set_data(corn_yield)
+            #
+            # soy.set_data(soy_yield)
+            # corn_DM_yield = corn_yield_tonDMac
+            # soy_DM_yield = soy_yield_tonDMac
             for i in rot_yrs_crop:
                 if i == 'cn':
                     yield_crop_data = yield_dic["cn"].alternate_data
@@ -311,7 +293,8 @@ class NitrateLeeching(ModelBase):
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
 
-                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
             nitrate_water.set_data(n_loss_h20 / 2)
 
             leached_N_Total = leached_N_Total / 2
@@ -374,7 +357,8 @@ class NitrateLeeching(ModelBase):
                 # rotation avg is not less than zero
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
-                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
                 leached_N_Total = leached_N_Total + leachN_Calced
 
             nitrate_water.set_data(n_loss_h20 / 5)
@@ -420,12 +404,49 @@ class NitrateLeeching(ModelBase):
                 if leachN_avg < 0:
                     leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
                 leached_N_Total = leached_N_Total + leachN_Calced
-                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + precN))
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
 
             nitrate_water.set_data(n_loss_h20 / 3)
             leached_N_Total = leached_N_Total / 3
             nitrate.set_data([leached_N_Total])
+        elif "pt" == self.model_parameters["crop"]:
+            # print("in pasture leaching")
+            # print(crop_ro)
+            # print(manure_results)
+            yield_crop_data = yield_dic["pt"].alternate_data
+            print("yield shape", np.shape(yield_crop_data))
+            for i in rot_yrs_crop:
+                print("rot year", i)
+                print(NvarsCover)
+                # Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == i]])
+                Nvars_Row = pd.concat([self.Nvars[self.Nvars['RotationAbbr'] == getRotText_Value]])
+                fertN = PctFertN * float(manure_results[i]["n_rec"])
+                manrN = PctManrN * float(manure_results[i]["n_man"])
+            print("Nvars_Row", Nvars_Row)
+            NfixPct = float(Nvars_Row["NfixPct"].values[0])
+            NH3loss = float(Nvars_Row["NH3loss"].values[0])
+            Nharv_content = float(Nvars_Row["Nharv_content"].values[0])
+            grazed_manureN = float(Nvars_Row["grazedManureN"].values[0])
+            # print(np.shape(drain_class_flattened))
+            leachN_Calced = np.where(drain_class_flattened != self.no_data,
+                                     Calc_N_Leach_Vector(yield_crop_data, fertN, manrN, NfixPct, NH3loss,
+                                                         Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
+                                                         erosN),
+                                     0)
+            # print(leachN_Calced)
+            print("leach shape", np.shape(leachN_Calced))
+            leachN_avg = np.sum(leachN_Calced) / cell_count
+            # print("leaching for rotation", leachN_avg)
+            # rotation avg is not less than zero
+            if leachN_avg < 0:
+                leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
+            nitrate_water.set_data([n_loss_h20])
+            # print(leached_N_Total)
+            nitrate.set_data([leachN_Calced])
 
-        rotation_avg.set_data(rotation_avg_tonDMac)
+        # rotation_avg.set_data(rotation_avg_tonDMac)
 
         return return_data

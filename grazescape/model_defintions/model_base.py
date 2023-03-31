@@ -284,9 +284,11 @@ class OutputDataNode:
         self.P2O5_fert = None
         self.N_fert = None
 
-
     def set_data(self, data):
         self.data.append(data)
+
+    def set_data_alternate(self, data):
+        self.alternate_data.append(data)
 
     def get_model_type(self):
         return self.model_type
