@@ -51,14 +51,14 @@ class RasterDataSmartScape:
                                      'data_files', 'raster_inputs',
                                      self.file_name)
         self.layer_dic = {
-            "slope": "SmartScapeRaster:" + region + "_slopePer_30m",
-            "landuse": "SmartScapeRaster:" + region + "_WiscLand_30m",
-            "stream_dist": "SmartScapeRaster:" + region + "_distanceToWaterWays",
-            "land_class": "SmartScapeRaster:" + region + "_landClass_30m",
-            "farm_class": "SmartScapeRaster:" + region + "_farmClass_30m",
-            "om": "SmartScapeRaster:" + region + "_om_30m",
-            "drainClass": "SmartScapeRaster:" + region + "_drainClass_30m",
-            "nResponse": "SmartScapeRaster:" + region + "_nResponse_30m",
+            "slope": "SmartScapeRaster_" + region + ":" + region + "_slopePer_30m",
+            "landuse": "SmartScapeRaster_" + region + ":" + region + "_WiscLand_30m",
+            "stream_dist": "SmartScapeRaster_" + region + ":" + region + "_distanceToWaterWays",
+            "land_class": "SmartScapeRaster_" + region + ":" + region + "_landClass_30m",
+            "farm_class": "SmartScapeRaster_" + region + ":" + region + "_farmClass_30m",
+            "om": "SmartScapeRaster_" + region + ":" + region + "_om_30m",
+            "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
+            "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
 
         }
         self.extents = extents
@@ -135,7 +135,7 @@ class RasterDataSmartScape:
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            print("done downloading")
+            # print("done downloading")
             print("raster_file_path", raster_file_path)
             self.createNewDownloadThread(url, raster_file_path)
 

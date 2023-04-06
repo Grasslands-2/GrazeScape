@@ -1740,8 +1740,8 @@ class SmartScape:
         self.nrec_dict = output_dict
 
     #
-    def download_rasters(self, geoTransform, image, layer_dic,
-                         workspace="SmartScapeRaster:"):
+    def download_rasters(self, geoTransform, image, layer_dic):
+        workspace = "SmartScapeRaster_" + self.region + ":"
         minx = geoTransform[0]
         maxy = geoTransform[3]
         maxx = minx + geoTransform[1] * image.RasterXSize
@@ -1924,7 +1924,7 @@ class SmartScape:
             NH3loss = float(nrec_trans["NH3loss"])
             grazed_manureN = float(nrec_trans["grazedManureN"])
             denitLoss = float(n_parameters["nirate_inputs"]["denitLoss"])
-            precip_dict = {"southWestWI": 43, "CloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
+            precip_dict = {"southWestWI": 43, "cloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
             precip = precip_dict[self.region]
             precN = 0.5 * precip * 0.226
             dryN = precN
@@ -2027,7 +2027,7 @@ class SmartScape:
             NH3loss = float(nrec_trans["NH3loss"])
             grazed_manureN = float(nrec_trans["grazedManureN"])
             denitLoss = float(n_parameters["nirate_inputs"]["denitLoss"])
-            precip_dict = {"southWestWI": 43, "CloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
+            precip_dict = {"southWestWI": 43, "cloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
             precip = precip_dict[self.region]
             precN = 0.5 * precip * 0.226
             dryN = precN

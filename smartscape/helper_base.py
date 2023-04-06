@@ -85,7 +85,7 @@ def download_base_rasters_helper(request, geo_folder):
 
     geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
                                      "srsName=EPSG:3071&request=GetCoverage&CoverageId="
-    workspace = "SmartScapeRaster:"
+    workspace = "SmartScapeRaster_" + region + ":"
     threads_list = []
     folder_base = os.path.join(geo_folder, "base")
     if not os.path.exists(folder_base):
