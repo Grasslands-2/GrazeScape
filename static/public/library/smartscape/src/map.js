@@ -619,9 +619,9 @@ class OLMapFragment extends React.Component {
             }),
 
             this.cloverBelt,
-            this.northEast,
+//            this.northEast,
             this.southWest,
-            this.uplands,
+//            this.uplands,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
