@@ -619,9 +619,9 @@ class OLMapFragment extends React.Component {
             }),
 
             this.cloverBelt,
-            this.northEast,
+//            this.northEast,
             this.southWest,
-            this.uplands,
+//            this.uplands,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
@@ -743,7 +743,7 @@ class OLMapFragment extends React.Component {
                     region = "southWestWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Clark"){
-                    region = "CloverBeltWI"
+                    region = "cloverBeltWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Kewaunee"){
                     region = "northeastWI"
