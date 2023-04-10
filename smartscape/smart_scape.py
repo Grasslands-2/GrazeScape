@@ -1657,7 +1657,7 @@ class SmartScape:
         return drain_dict[drain_round]
 
     def calc_p(self, tran, nrec_trans):
-        nrec = nrec_trans["fertN"]
+        nrec = nrec_trans["ManureN"]
         pneeds = nrec_trans["Pneeds"]
         print(float(tran["management"]["nitrogen"]))
         manure_n = nrec * float(tran["management"]["nitrogen"]) / 100

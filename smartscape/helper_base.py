@@ -180,6 +180,7 @@ def get_phos_fert_options(request, base_calc):
             print(np.unique(arr, return_counts=True))
             print("cell count for transition ", cell_count_trans)
             n_parameters = model.get_nitrate_params(tran, arr, layer_rank)
+            print("n_parameters", n_parameters)
             manure_p_bounds = model.calc_p(tran, n_parameters["nirate_inputs"])
             manure_p = manure_p_bounds[0]
             print("p manure!!")
@@ -191,12 +192,21 @@ def get_phos_fert_options(request, base_calc):
         band = image.GetRasterBand(1)
         arr = band.ReadAsArray()
         output = np.copy(arr)
-        total_cells = np.count_nonzero(arr > model.no_data)
-        n_parameters = model.get_nitrate_params_base(base, arr, total_cells)
+        cell_corn = np.count_nonzero(arr == 4)
+        cell_corn_grain = np.count_nonzero(arr == 3)
+        cell_dairy = np.count_nonzero(arr == 5)
+        total_cells = cell_corn + cell_corn_grain + cell_dairy
+        total_total_cell = np.count_nonzero(arr > -9999)
+        print("crop cells", total_cells)
+        print("total cells", np.count_nonzero(arr > -9999))
+        # n_parameters = model.get_nitrate_params_base(base, arr, total_cells)
+        # print(n_parameters)
+        # looks at whole raster so use all valid cells here but final value only uses crop land cells
+        n_parameters = model.get_nitrate_params_base(base, arr, total_total_cell)
         print(n_parameters)
 
         def calc_p(tran, nrec_trans, name):
-            nrec = nrec_trans[name]["fertN"]
+            nrec = nrec_trans[name]["ManureN"]
             pneeds = nrec_trans[name]["Pneeds"]
             manure_n = float(nrec) * float(tran["management"]["nitrogen"]) / 100
             applied_manure_n = (manure_n / 0.4) / 3
@@ -206,12 +216,13 @@ def get_phos_fert_options(request, base_calc):
         p_manure_hay = calc_p(base, n_parameters, "nrec_trans_pasture_values")
         p_manure_corn = calc_p(base, n_parameters, "nrec_trans_cont_values")
         p_manure_cash_grain = 0.5 * calc_p(base, n_parameters, "nrec_trans_corn_values") + 0.5 * calc_p(base,
-                                                                                                           n_parameters,
-                                                                                                           "nrec_trans_soy_values")
+                                                                                                        n_parameters,
+                                                                                                        "nrec_trans_soy_values")
         p_manure_dairy = 1 / 5 * calc_p(base, n_parameters, "nrec_trans_corn_dairy_values") + \
                          2 / 5 * calc_p(base, n_parameters, "nrec_trans_alfalfa_values") + \
                          1 / 5 * calc_p(base, n_parameters, "nrec_trans_alfalfa_seed_values") + \
                          1 / 5 * calc_p(base, n_parameters, "nrec_trans_silage_values")
+        # only calc p_manure for the three main crop systems
         watershed_total = {3: {"p_manure": p_manure_cash_grain},
                            4: {"p_manure": p_manure_corn},
                            5: {"p_manure": p_manure_dairy},
@@ -219,14 +230,15 @@ def get_phos_fert_options(request, base_calc):
                            2: {"p_manure": 0},
                            6: {"p_manure": 0},
                            7: {"p_manure": 0},
-                           8: {"p_manure": p_manure_hay},
-                           9: {"p_manure": p_manure_hay},
-                           10: {"p_manure": p_manure_hay},
+                           8: {"p_manure": 0},
+                           9: {"p_manure": 0},
+                           10: {"p_manure": 0},
                            11: {"p_manure": 0},
                            12: {"p_manure": 0},
                            13: {"p_manure": 0},
                            14: {"p_manure": 0},
-                           15: {"p_manure": 0}}
+                           15: {"p_manure": 0}
+       }
         for land_type in watershed_total:
             print(land_type)
             output = np.where(arr == land_type, watershed_total[land_type]["p_manure"], output)

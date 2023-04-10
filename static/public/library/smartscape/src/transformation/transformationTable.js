@@ -196,7 +196,7 @@ class TransformationTable extends Component {
             })
 
         this.tillage.current.value = "na"
-         this.setState({tillageBlank:false})
+        this.setState({tillageBlank:false})
         if (cover == "cc"){
             this.setState({
                 showTillageNT:true,

@@ -147,6 +147,7 @@ class SidePanel extends React.Component{
         this.sliderChangeSlope = this.sliderChangeSlope.bind(this);
         this.sliderChangeStream = this.sliderChangeStream.bind(this);
         this.getPhosValuesBase = this.getPhosValuesBase.bind(this);
+        this.setTillage = this.setTillage.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
@@ -241,7 +242,15 @@ class SidePanel extends React.Component{
             printingPDF:false,
             speedometerWidth:window.innerWidth*.7/2,
             speedometerHeight:window.innerWidth*.7/2/2,
-            landTypeSelected:false
+            landTypeSelected:false,
+            showTillageFC:true,
+            showTillageFM:true,
+            showTillageNT:true,
+            showTillageSC:false,
+            showTillageSN:true,
+            showTillageSU:true,
+            showTillageSV:true,
+            tillageBlank:false,
         }
     }
     // fires anytime state or props are updated
@@ -370,6 +379,7 @@ class SidePanel extends React.Component{
             }.bind(this), 1)
         }
     }
+
     updateDimensions = () => {
 //        console.log("dimensions updated", window.innerWidth, window.innerHeight)
         let width = 0
@@ -963,6 +973,78 @@ class SidePanel extends React.Component{
             }
         })
   }
+  setTillage(base_prop, e){
+        this.updateActiveBaseProps("cover", e)
+//        let rot = this.rotationType.current.value
+        let cover = this.cover.current.value
+//        let currentTill = this.tillage.current.value
+//        console.log("tillage")
+//        console.log(currentTill)
+//        console.log(this.tillage)
+//        set all till disabled to start
+        this.setState({
+                showTillageFC:false,
+                showTillageFM:false,
+                showTillageNT:false,
+                showTillageSC:false,
+                showTillageSN:false,
+                showTillageSU:false,
+                showTillageSV:false,
+            })
+
+        this.tillage.current.value = "nt"
+        this.setState({tillageBlank:false})
+        if (cover == "cc"){
+            this.setState({
+                showTillageNT:true,
+                showTillageSU:true,
+            })
+//            if (rot == "dairyRotation"){
+//                this.setState({
+//                    showTillageSC:true
+//                })
+//            }
+//            else{
+//                this.setState({
+//                    showTillageSN:true,
+//                })
+//            }
+        }
+        else if (cover == "nc"){
+            this.setState({
+                showTillageFC:true,
+                showTillageFM:true,
+                showTillageNT:true,
+                showTillageSN:true,
+                showTillageSU:true,
+                showTillageSV:true,
+            })
+
+        }
+        else if (cover == "gcis"){
+            this.setState({
+                showTillageNT:true,
+                showTillageSC:true,
+                showTillageSU:true,
+            })
+        }
+        else if (cover == "gcds"){
+            this.setState({
+                    showTillageNT:true,
+                    showTillageSC:true,
+                    showTillageSU:true,
+                })
+            }
+//        console.log(this.state["showTillage" + currentTill.toUpperCase()])
+//        console.log("showTillage" + currentTill.toUpperCase())
+
+//        console.log(this.state)
+//        if(this.state["showTillage" + currentTill.toUpperCase()] == true){
+//            this.tillage.current.value = currentTill
+//        }
+      }
+
+
     printSummary(){
         var doc = new jsPDF();
 //        var node = document.getElementById("map")
@@ -2445,7 +2527,7 @@ renderModal(){
                   <Tab eventKey="mange" title="Crop Land Management">
                     <Form.Label>Cover Crop</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.cover}
-                      onChange={(e) => this.updateActiveBaseProps("cover", e)}>
+                      onChange={(e) => this.setTillage("cover", e)}>
                       <option value="default">Open this select menu</option>
                       <option value="cc">Small Grain</option>
                       <option value="gcds">Grazed Cover Direct Seeded</option>
@@ -2453,19 +2535,17 @@ renderModal(){
                       <option value="nc">No Cover</option>
                       <option value="na">NA</option>
                     </Form.Select>
+
                     <Form.Label>Tillage</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.tillage}
-                    onChange={(e) => this.updateActiveBaseProps("tillage", e)}>
-
-                      <option value="default">Open this select menu</option>
-                      <option value="fc">Fall Chisel</option>
-                      <option value="fm">Fall Moldboard</option>
-                      <option value="nt">No Till</option>
-                      <option value="sc">Spring Chisel, Disked</option>
-                      <option value="sn">Spring Chisel, No Disk</option>
-                      <option value="su">Spring Cultivation</option>
-                      <option value="sv">Spring Vertical</option>
-                      <option value="na">NA</option>
+                    onChange={(e) =>  this.updateActiveBaseProps("tillage", e)}>
+                      <option disabled={!this.state.showTillageFC} value="fc">Fall Chisel</option>
+                      <option disabled={!this.state.showTillageFM} value="fm">Fall Moldboard</option>
+                      <option disabled={!this.state.showTillageNT} value="nt">No Till</option>
+                      <option disabled={!this.state.showTillageSC} value="sc">Spring Chisel, Disked</option>
+                      <option disabled={!this.state.showTillageSN} value="sn">Spring Chisel, No Disk</option>
+                      <option disabled={!this.state.showTillageSU} value="su">Spring Cultivation</option>
+                      <option disabled={!this.state.showTillageSV} value="sv">Spring Vertical</option>
                     </Form.Select>
                     {/*<Form.Label>Interseeded Legume</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.legume}
