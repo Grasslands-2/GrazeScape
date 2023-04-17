@@ -1197,10 +1197,11 @@ class SmartScape:
 
             if phos_fert == "default":
                 phos_fert = phos_choices[manure_p_bounds[0]][0]
-
+            # TODO this needs to be redone to properly work for all combinations
             # second value comes from user input
             # phos_fert will only be 0 50 or 100
             manure_p = str(manure_p_bounds[0]) + "_" + str(phos_fert)
+            # manure_p2 = str(manure_p_bounds[1]) + "_" + str(phos_fert)
             manure_p2 = str(manure_p_bounds[1]) + "_" + str(phos_fert)
             # we don't have a 50_0 option
             # if manure_p_bounds[0] == "50":
