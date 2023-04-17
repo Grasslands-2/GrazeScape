@@ -482,10 +482,10 @@ class SmartScape:
         for layer in layer_dic:
             cell_count_trans = np.count_nonzero(model_base_data == layer)
             model_data_gross[layer]["selection"]["number_cells"] = cell_count_trans
-            print("cell count for the transformation is ", cell_count_trans)
-            print("The layer number is ", layer)
+            # print("cell count for the transformation is ", cell_count_trans)
+            # print("The layer number is ", layer)
             for model in model_list:
-                print(model)
+                # print(model)
                 model_trans_filepath = os.path.join(self.in_dir, layer_dic[layer][model] + ".tif")
                 model_image = gdal.Open(model_trans_filepath)
                 model_band = model_image.GetRasterBand(1)
@@ -506,16 +506,16 @@ class SmartScape:
                 inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
                 if cell_count_trans > 0:
                     model_data_gross[layer]["selection"][model] = inter_data
-                print("the inter data is ", inter_data)
-                print(inter_data / cell_count_trans)
+                # print("the inter data is ", inter_data)
+                # print(inter_data / cell_count_trans)
                 model_image = None
                 model_band = None
                 model_arr = None
-            print("%%%%%%%%%%%%%%%%%%%%%%%%")
+            # print("%%%%%%%%%%%%%%%%%%%%%%%%")
 
-        print("done with trans models")
+        # print("done with trans models")
 
-        print(model_data_gross)
+        # print(model_data_gross)
 
         #   iterate through wiscland layer
         # current land use
@@ -693,8 +693,8 @@ class SmartScape:
             trans_adoption_total = trans_adoption_total + trans_adpotion
             base_adoption_total = base_adoption_total + base_adpotion
 
-            print("adoption rate ", trans_adpotion)
-            print("base adoption rate ", base_adpotion)
+            # print("adoption rate ", trans_adpotion)
+            # print("base adoption rate ", base_adpotion)
 
             sum_model_cn = sum_model_cn + (model_data_gross[trans_layer]["selection"]["cn"] * trans_adpotion +
                                            model_data_gross[trans_layer]["base"]["cn"] * base_adpotion)
@@ -705,6 +705,7 @@ class SmartScape:
 
         self.run_region_cn()
         print("time to run models ", time.time() - start)
+        print("cn for watershed with trans is", sum_model_cn_watershed / total_cells)
         return {
             "base": {
                 "cn": {
@@ -754,6 +755,9 @@ class SmartScape:
             # Do something with each feature
             # print(feature['properties'])
             feature_name = feature['properties']["name"]
+            # print(feature_name)
+            if feature_name != "Middle Coon Creek I":
+                continue
             # print(feature['geometry'])
             # print(feature['geometry']['coordinates'])
             geometry = feature['geometry']['coordinates'][0][0]
@@ -1155,6 +1159,16 @@ class SmartScape:
             outputType=gc.GDT_Float32)
         ds_clip.FlushCache()
         ds_clip = None
+
+        # ds_clip = gdal.Warp(
+        #     # last raster ovrrides it
+        #     os.path.join(self.in_dir, "trans_with_aoi.tif"),
+        #     [os.path.join(self.in_dir, "base_aoi.tif"), os.path.join(self.in_dir, "merged.tif")],
+        #     dstNodata=-9999,
+        #     # dstSRS="EPSG:3071",
+        #     outputType=gc.GDT_Float32)
+        # ds_clip.FlushCache()
+        # ds_clip = None
         return
 
     def get_nitrate_params(self, tran, input_arr, layer_id):
@@ -1525,6 +1539,7 @@ class SmartScape:
     #
     def download_rasters(self, geoTransform, image, layer_dic,
                          workspace="SmartScapeRaster:"):
+        workspace = "SmartScapeRaster_" + self.region + ":"
         minx = geoTransform[0]
         maxy = geoTransform[3]
         maxx = minx + geoTransform[1] * image.RasterXSize

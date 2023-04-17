@@ -50,14 +50,14 @@ class RasterDataSmartScape:
                                      'data_files', 'raster_inputs',
                                      self.file_name)
         self.layer_dic = {
-            "slope": "SmartScapeRaster:" + region + "_slopePer_30m",
-            "landuse": "SmartScapeRaster:" + region + "_WiscLand_30m",
-            "stream_dist": "SmartScapeRaster:" + region + "_distanceToWaterWays",
-            "land_class": "SmartScapeRaster:" + region + "_landClass_30m",
-            "farm_class": "SmartScapeRaster:" + region + "_farmClass_30m",
-            "om": "SmartScapeRaster:" + region + "_om_30m",
-            "drainClass": "SmartScapeRaster:" + region + "_drainClass_30m",
-            "nResponse": "SmartScapeRaster:" + region + "_nResponse_30m",
+            "slope": "SmartScapeRaster_" + region + ":" + region + "_slopePer_30m",
+            "landuse": "SmartScapeRaster_" + region + ":" + region + "_WiscLand_30m",
+            "stream_dist": "SmartScapeRaster_" + region + ":" + region + "_distanceToWaterWays",
+            "land_class": "SmartScapeRaster_" + region + ":" + region + "_landClass_30m",
+            "farm_class": "SmartScapeRaster_" + region + ":" + region + "_farmClass_30m",
+            "om": "SmartScapeRaster_" + region + ":" + region + "_om_30m",
+            "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
+            "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
 
         }
         self.extents = extents
