@@ -318,8 +318,8 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"0", "type":"mang"})
 
                     this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                 }
@@ -329,8 +329,8 @@ class SidePanel extends React.Component{
                     this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
                     this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"0", "type":"mang"})
+                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"0", "type":"mang"})
 
                     this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
                }

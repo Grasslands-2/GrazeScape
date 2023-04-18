@@ -746,6 +746,7 @@ class SmartScape:
         }
 
     def run_region_cn(self):
+        print("running cn for region")
         base_dir = os.path.join(self.geo_folder, "base")
         # TODO this needs to be dynamic
         region_watershed_file = os.path.join(self.watershed_folder, "CC_GIS", "CC_fixed.geojson")
@@ -756,7 +757,7 @@ class SmartScape:
             # print(feature['properties'])
             feature_name = feature['properties']["name"]
             # print(feature_name)
-            if feature_name != "Middle Coon Creek I":
+            if feature_name != "Middle Coon Creek K":
                 continue
             # print(feature['geometry'])
             # print(feature['geometry']['coordinates'])
