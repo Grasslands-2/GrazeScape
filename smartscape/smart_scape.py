@@ -531,17 +531,23 @@ class SmartScape:
                         model_image = gdal.Open(model_trans_filepath1)
                         model_band = model_image.GetRasterBand(1)
                         model_arr_ploss_2 = model_band.ReadAsArray()
+
                         inter_data1 = np.where(model_data[model] == layer, model_arr, 0)
                         inter_data2 = np.where(model_data[model] == layer, model_arr_ploss_2, 0)
+                        x1 = layer_dic[layer]["manure_p1"]
+                        x2 = layer_dic[layer]["manure_p2"]
+                        y1 = inter_data1
+                        y2 = inter_data2
+                        x_star = ["manure_outbounds"]
                         # extrapolate out
-                        if "200" in layer_dic[layer][model] and "150" in layer_dic[layer]["ploss2"]:
-                            x_star = layer_dic[layer]["manure_outbounds"]
-
-                            inter_data = inter_data2 + (x_star - 150) / (200 - 150) * (inter_data1 - inter_data2)
-                        # average
+                        # y = y2 + (x - x2) * ((y2 - y1) / (x2 - x1))
+                        if x_star > x2:
+                            y = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
                         else:
-                            inter_data = (inter_data1 + inter_data2) / 2
-
+                            # interpolate
+                            # y = y1 + (x - x1) * ((y2 - y1) / (x2 - x1))
+                            y = y1 + (x_star - x1) * ((y2 - y1) / (x2 - x1))
+                        inter_data = y
                     else:
                         inter_data = np.where(model_data[model] == layer, model_arr, 0)
                 inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
@@ -551,7 +557,6 @@ class SmartScape:
                 model_image = None
                 model_band = None
                 model_arr = None
-
 
         #   iterate through wiscland layer
         # current land use
@@ -631,11 +636,16 @@ class SmartScape:
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
         watershed_land_use = watershed_land_use_band.ReadAsArray()
         # need to fill in holes for erosion model inputs for nitrate model
-        pasture_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, pasture_er_arr == self.no_data), 0, pasture_er_arr)
-        cont_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, cont_er_arr == self.no_data), 0, cont_er_arr)
-        corn_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, corn_er_arr == self.no_data), 0, corn_er_arr)
-        dairy_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, dairy_er_arr == self.no_data), 0, dairy_er_arr)
-        pasture_yield_arr = np.where(np.logical_and(watershed_land_use != self.no_data, pasture_yield_arr == self.no_data), 0, pasture_yield_arr)
+        pasture_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, pasture_er_arr == self.no_data), 0,
+                                  pasture_er_arr)
+        cont_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, cont_er_arr == self.no_data), 0,
+                               cont_er_arr)
+        corn_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, corn_er_arr == self.no_data), 0,
+                               corn_er_arr)
+        dairy_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, dairy_er_arr == self.no_data), 0,
+                                dairy_er_arr)
+        pasture_yield_arr = np.where(
+            np.logical_and(watershed_land_use != self.no_data, pasture_yield_arr == self.no_data), 0, pasture_yield_arr)
 
         base_nitrate_data = self.nitrate_calc_base(n_parameters, base_scen,
                                                    pasture_yield_arr, cont_yield, corn_yield, dairy_yield,
@@ -696,7 +706,7 @@ class SmartScape:
             7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12, "bird": 0,
                 "econ": econ_cost["contCorn"], "nitrate": 0},
             8: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "ploss": hay_pl_arr,
-                "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"], "nitrate":0 },
+                "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"], "nitrate": 0},
             9: {"name": "pasture", "is_calc": True, "yield": pasture_yield_arr, "ero": pasture_er_arr,
                 "ploss": pasture_pl_arr, "cn": pasture_cn_arr, "insect": 0, "bird": 0, "econ": econ_cost["pasture"],
                 "nitrate": base_nitrate_data["pasture"]},
@@ -865,7 +875,6 @@ class SmartScape:
             base_adpotion = 1 - trans_adpotion
             trans_adoption_total = trans_adoption_total + trans_adpotion
             base_adoption_total = base_adoption_total + base_adpotion
-
 
             sum_model_yield = sum_model_yield + (model_data_gross[trans_layer]["selection"]["yield"] * trans_adpotion +
                                                  model_data_gross[trans_layer]["base"]["yield"] * base_adpotion)
@@ -1148,28 +1157,63 @@ class SmartScape:
 
         # self.download_rasters(geoTransform, image, layer_dic_om)
         # based on the available rasters for smartscape
-        phos_choices = {"0": [0, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
+        phos_choices = {"0": [0, 50, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
 
         for tran1 in trans:
             tran = trans[tran1]
             layer_rank = tran1
             n_parameters = self.get_nitrate_params(tran, arr, layer_rank)
-            manure_p_bounds = self.calc_p(tran, n_parameters["nirate_inputs"])
+            manure_p_bounds, manure_value = self.calc_p(tran, n_parameters["nirate_inputs"])
             phos_fert = tran["management"]["phos_fertilizer"]
 
             if phos_fert == "default":
                 phos_fert = phos_choices[manure_p_bounds[0]][0]
-            # TODO this needs to be redone to properly work for all combinations
-            # second value comes from user input
-            # phos_fert will only be 0 50 or 100
-            manure_p = str(manure_p_bounds[0]) + "_" + str(phos_fert)
-            # manure_p2 = str(manure_p_bounds[1]) + "_" + str(phos_fert)
-            manure_p2 = str(manure_p_bounds[1]) + "_" + str(phos_fert)
-            # we don't have a 50_0 option
-            # if manure_p_bounds[0] == "50":
-            #     manure_p = manure_p_bounds[0] + "_50"
-            # if manure_p_bounds[1] == "50":
-            #     manure_p2 = manure_p_bounds[1] + "_50"
+
+            def get_m_p2(manure_val, phos_val, man_actual):
+                m1, m2, p1, p2 = 0, 0, 0, 0
+                if manure_val == 0:
+                    if phos_val == 0:
+                        m1, m2, p1, p2 = 0, 0, 0, 50
+                    elif phos_val == 50:
+                        m1, m2, p1, p2 = 0, 0, 50, 100
+                    # need to extrapolate
+                    elif phos_val == 100:
+                        m1, m2, p1, p2 = 0, 0, 50, 100
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 25:
+                    if phos_val == 50:
+                        m1, m2, p1, p2 = 25, 50, 50, 50
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 50:
+                    if phos_val == 50:
+                        m1, m2, p1, p2 = 25, 50, 50, 50
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 100:
+                    if phos_val == 0:
+                        m1, m2, p1, p2 = 25, 50, 50, 50
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 150:
+                    pass
+                elif manure_val == 200:
+                    pass
+                else:
+                    raise ValueError("P manure is not one of the avilable options")
+                return m1, m2, p1, p2
+
+            man1, man2, phos1, phos2 = get_m_p2(manure_p_bounds[0], phos_fert, manure_value)
+            print("manure values for rasters")
+            manure_p = str(man1) + "_" + str(phos1)
+            manure_p2 = str(man2) + "_" + str(phos2)
+            # setting our x interpolatation value
+            if man1 == man2:
+                man1 = phos1
+                man2 = phos2
+            print(manure_p)
+            print(manure_p2)
 
             layer_dic[tran["rank"]] = {}
             # for each trans get the path to the selection raster used
@@ -1218,7 +1262,9 @@ class SmartScape:
             layer_dic[tran["rank"]]["ploss2"] = ploss_name2
             layer_dic[tran["rank"]]["cn"] = cn_name
             layer_dic[tran["rank"]]["land_id"] = land_id
-            layer_dic[tran["rank"]]["manure_outbounds"] = manure_p_bounds[2]
+            layer_dic[tran["rank"]]["manure_outbounds"] = manure_value
+            layer_dic[tran["rank"]]["manure_p1"] = man1
+            layer_dic[tran["rank"]]["manure_p2"] = man2
 
             layer_area_dic[tran["rank"]] = {}
             layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(float(str(tran["areaSelected"]).replace(',', '')))
@@ -1378,13 +1424,11 @@ class SmartScape:
             np.logical_and(input_arr == layer_id, nresponse_array != self.no_data
                            ), calc_nresponse_level_vector(nresponse_array), 0)) / cell_count_trans
 
-
         om_average = self.calc_om_level(om_average)
         nresponse_average = self.calc_nresponse_level(nresponse_average)
 
         nresponse_col = str(nresponse_average)
         om_col = str(om_average)
-
 
         # need to do this step for each component of the rotation
         # get parameters and  average
@@ -1598,28 +1642,44 @@ class SmartScape:
         manure_n = nrec * float(tran["management"]["nitrogen"]) / 100
         applied_manure_n = (manure_n / 0.4) / 3
         manure_percent = (applied_manure_n / pneeds) * 100
-
-        return self.calc_manure_level(manure_percent)
+        manure_levels = self.calc_manure_level(manure_percent)
+        return manure_levels, manure_percent
 
     @staticmethod
     def calc_manure_level(manure):
-        # 50_50 is not reachable get rid of it
-        if manure < 75:
-            return ["0", "100", 0]
-        # elif 12.5 <= manure < 37.5:
-        #     return ["25", "50"]
-        # elif 50 <= manure < 125:
-        #     return ["100", "100", 0]
-        elif 75 <= manure < 125:
-            return ["100", "150", 0]
-        # p is outside of bounds so we will to interpolate
-        elif 125 <= manure <= 175:
-            return ["150", "200", 0]
-        elif 125 <= manure:
-            return ["200", "150", manure]
+        """
+        Calculates the closest P manure value from Raster
+        Parameters
+        ----------
+        manure float
+            The value of the P manure
 
-        else:
-            return ["0", "50", 0]
+        Returns
+        ------- float
+            Closest categorical value to give manure
+
+        """
+        # phos_choices = {
+            # "0": [0, 50, 100],
+            # "25": [50],
+            # "50": [50],
+            # "100": [0],
+            # "150": [0],
+            # "200": [0]
+        # }
+
+        if manure < 12.5:
+            return 0
+        elif 12.5 <= manure < 37.5:
+            return 25
+        elif 37.5 <= manure < 75:
+            return 50
+        elif 75 <= manure < 125:
+            return 100
+        elif 125 <= manure <= 175:
+            return 150
+        elif 125 <= manure:
+            return 200
 
     @staticmethod
     def calc_om_level(om):
@@ -1658,7 +1718,6 @@ class SmartScape:
                            "_" + row["rasterVals"]
                 dict_key = dict_key.replace(" ", "")
 
-
                 output_dict[dict_key] = {"fertN": row["fertN"], "ManureN": row["ManureN"], "Pneeds": row["Pneeds"],
                                          "grazedManureN": row["grazedManureN"],
                                          "NfixPct": row["NfixPct"],
@@ -1688,7 +1747,7 @@ class SmartScape:
                                          "srsName=EPSG:3071&request=GetCoverage&CoverageId="
         for layer in layer_dic:
             for model in layer_dic[layer]:
-                if model != "land_id" and model != "manure_outbounds":
+                if model != "land_id" and model != "manure_outbounds" and model != "manure_p1" and model != "manure_p2":
                     print("downloading layer ", layer_dic[layer][
                         model])
                     url = geoserver_url + workspace + layer_dic[layer][
@@ -1896,8 +1955,8 @@ class SmartScape:
                           pasture_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
                           om, total_cells, watershed_land_use):
         total_cells2_classify = np.where(
-                np.logical_and(watershed_land_use != self.no_data, dairy_er_arr != self.no_data), 1, self.no_data
-            )
+            np.logical_and(watershed_land_use != self.no_data, dairy_er_arr != self.no_data), 1, self.no_data
+        )
 
         total_cells2 = np.count_nonzero(total_cells2_classify > 0)
 
@@ -1959,9 +2018,9 @@ class SmartScape:
             print(n_par, np.sum(outputsN))
             # print(n_par, np.sum(inputsN))
             print("*****************")
+
             def get_value(value, cell_cout, watershed_land_use):
                 return np.sum(np.where(watershed_land_use != self.no_data, value, 0)) / cell_cout
-
 
             leach = inputsN - outputsN
             # each rotation shouldn't go below zero

@@ -629,7 +629,7 @@ class TransformationTable extends Component {
 
                      <OverlayTrigger key="top3" placement="top"
                             overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
                     </OverlayTrigger>
                     <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
 
