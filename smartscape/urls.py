@@ -7,6 +7,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    # path('', views.offline, name='offline'),
     path('get_selection_raster', views.get_selection_raster, name='get_selection_raster'),
     path('get_selection_raster', views.get_selection_raster, name='get_selection_raster'),
     path('get_selection_criteria_raster', views.get_selection_criteria_raster, name='get_selection_criteria_raster'),
