@@ -752,12 +752,20 @@ class SmartScape:
         region_watershed_file = os.path.join(self.watershed_folder, "CC_GIS", "CC_fixed.geojson")
         with open(region_watershed_file, 'r') as f:
             data = json.load(f)
+        feature_list = ["Upper Coon Creek B",]
+# "Upper Coon Creek A",
+# "COON CREEK 33",
+# "COON CREEK 29",
+# "Timber Coulee C",
+# "Timber Coulee D",
+# "Timber Coulee B"]
         for feature in data['features']:
             # Do something with each feature
             # print(feature['properties'])
             feature_name = feature['properties']["name"]
             # print(feature_name)
-            if feature_name != "Middle Coon Creek K":
+            if feature_name not in feature_list:
+
                 continue
             # print(feature['geometry'])
             # print(feature['geometry']['coordinates'])

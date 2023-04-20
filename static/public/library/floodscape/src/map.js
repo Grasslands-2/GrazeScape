@@ -716,8 +716,9 @@ class OLMapFragment extends React.Component {
             console.log(f.target.item(0))
             console.log(f.target.item(0).get("NAME"))
             console.log(f.target.item(0).get("name"))
-            if(f.target.item(0).get("name") == "West Fork Kickapoo 5" ||
-            f.target.item(0).get("name") == "COON CREEK 33"){
+//            large areas
+            if(f.target.item(0).get("name") == "West Fork Kickapoo Main" ||
+            f.target.item(0).get("name") == "COON CREEK Main"){
                 console.log("selecting a county!!!!!")
                 var extent = f.target.item(0).getGeometry().getExtent()
                 watershedCoors.push(f.target.item(0).getGeometry().getCoordinates())
