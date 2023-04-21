@@ -201,6 +201,7 @@ class RasterDataSmartScape:
                 # print(os.path.join(self.dir_path, file))
                 # ds_clip = gdal.Open(os.path.join(self.dir_path, data_name + "_clipped.tif"))
                 ds_clip = gdal.Open(os.path.join(self.dir_path, file))
+                print("clippled file path", os.path.join(self.dir_path, file))
                 geoTransform = ds_clip.GetGeoTransform()
                 minx = geoTransform[0]
                 maxy = geoTransform[3]

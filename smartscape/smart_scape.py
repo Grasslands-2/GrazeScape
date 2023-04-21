@@ -538,15 +538,19 @@ class SmartScape:
                         x2 = layer_dic[layer]["manure_p2"]
                         y1 = inter_data1
                         y2 = inter_data2
-                        x_star = ["manure_outbounds"]
-                        # extrapolate out
+                        x_star = layer_dic[layer]["manure_outbounds"]
+                        print(x_star)
+                        # extrapolate and interpolate are the same since we assume linear condition
                         # y = y2 + (x - x2) * ((y2 - y1) / (x2 - x1))
-                        if x_star > x2:
-                            y = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
-                        else:
-                            # interpolate
-                            # y = y1 + (x - x1) * ((y2 - y1) / (x2 - x1))
-                            y = y1 + (x_star - x1) * ((y2 - y1) / (x2 - x1))
+                        # if x_star > x2:
+                        # y = ((y2 - y1))
+                        # y = ((x2 - x1))
+                        # y =  (x_star - x2)
+                        y = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
+                        # else:
+                        # interpolate
+                        # y = y1 + (x - x1) * ((y2 - y1) / (x2 - x1))
+                        # y = y1 + (x_star - x1) * ((y2 - y1) / (x2 - x1))
                         inter_data = y
                     else:
                         inter_data = np.where(model_data[model] == layer, model_arr, 0)
@@ -1167,10 +1171,14 @@ class SmartScape:
             phos_fert = tran["management"]["phos_fertilizer"]
 
             if phos_fert == "default":
-                phos_fert = phos_choices[manure_p_bounds[0]][0]
+                phos_fert = phos_choices[str(manure_p_bounds)][0]
 
-            def get_m_p2(manure_val, phos_val, man_actual):
+            def get_m_p_options(manure_val, phos_val, man_actual):
                 m1, m2, p1, p2 = 0, 0, 0, 0
+                print("get_m_p_options", manure_val, phos_val, man_actual)
+                print(phos_val == 100)
+                print(float(phos_val) == 100)
+                phos_val = float(phos_val)
                 if manure_val == 0:
                     if phos_val == 0:
                         m1, m2, p1, p2 = 0, 0, 0, 50
@@ -1178,7 +1186,7 @@ class SmartScape:
                         m1, m2, p1, p2 = 0, 0, 50, 100
                     # need to extrapolate
                     elif phos_val == 100:
-                        m1, m2, p1, p2 = 0, 0, 50, 100
+                        m1, m2, p1, p2 = 0, 0, 100, 50
                     else:
                         raise ValueError("P phos is wrong value")
                 elif manure_val == 25:
@@ -1188,23 +1196,35 @@ class SmartScape:
                         raise ValueError("P phos is wrong value")
                 elif manure_val == 50:
                     if phos_val == 50:
-                        m1, m2, p1, p2 = 25, 50, 50, 50
+                        m1, m2, p1, p2 = 50, 25, 50, 50
                     else:
                         raise ValueError("P phos is wrong value")
                 elif manure_val == 100:
                     if phos_val == 0:
-                        m1, m2, p1, p2 = 25, 50, 50, 50
+                        m1, m2, p1, p2 = 100, 150, 0, 0
                     else:
                         raise ValueError("P phos is wrong value")
                 elif manure_val == 150:
-                    pass
+                    if man_actual < manure_val:
+                        if phos_val == 0:
+                            m1, m2, p1, p2 = 150, 100, 0, 0
+                        else:
+                            raise ValueError("P phos is wrong value")
+                    else:
+                        if phos_val == 0:
+                            m1, m2, p1, p2 = 150, 200, 0, 0
+                        else:
+                            raise ValueError("P phos is wrong value")
                 elif manure_val == 200:
-                    pass
+                    if phos_val == 0:
+                        m1, m2, p1, p2 = 200, 150, 0, 0
+                    else:
+                        raise ValueError("P phos is wrong value")
                 else:
-                    raise ValueError("P manure is not one of the avilable options")
+                    raise ValueError("P manure is not one of the available options")
                 return m1, m2, p1, p2
 
-            man1, man2, phos1, phos2 = get_m_p2(manure_p_bounds[0], phos_fert, manure_value)
+            man1, man2, phos1, phos2 = get_m_p_options(manure_p_bounds, phos_fert, manure_value)
             print("manure values for rasters")
             manure_p = str(man1) + "_" + str(phos1)
             manure_p2 = str(man2) + "_" + str(phos2)
@@ -1660,12 +1680,12 @@ class SmartScape:
 
         """
         # phos_choices = {
-            # "0": [0, 50, 100],
-            # "25": [50],
-            # "50": [50],
-            # "100": [0],
-            # "150": [0],
-            # "200": [0]
+        # "0": [0, 50, 100],
+        # "25": [50],
+        # "50": [50],
+        # "100": [0],
+        # "150": [0],
+        # "200": [0]
         # }
 
         if manure < 12.5:

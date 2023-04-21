@@ -423,6 +423,7 @@ class SidePanel extends React.Component{
       }
     showModal(){
         console.log("showing modal")
+        console.log("Phos fert is ", this.props.baseTrans.management.phos_fertilizer)
         this.getPhosValuesBase()
         console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
@@ -433,6 +434,7 @@ class SidePanel extends React.Component{
 //        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
         this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
         this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
+        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
 
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
@@ -623,6 +625,7 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"p_manure_cat", "value":"0", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
         this.setState({aoiOrDisplayLoading:false})
@@ -953,18 +956,26 @@ class SidePanel extends React.Component{
 //                let phos_options = response.response["base"].p_choices
                 let phos_options = response.response["base"].p_choices
                 let manure_value = response.response["base"].p_manure
+                let p_manure_cat = response.response["base"].p_manure_cat
 //                let manure_value = response.response["base"].p_manure
                 console.log(phos_options, manure_value)
-
+                let phosOpt = phos_options[0]
+                console.log("phosOpt")
+                console.log(phosOpt)
+                console.log(this.phos_fertilizer.current.value)
+                console.log(phos_options.includes(parseInt(this.phos_fertilizer.current.value)))
+                if (phos_options.includes(parseInt(this.phos_fertilizer.current.value))){
+                    phosOpt = this.phos_fertilizer.current.value
+                }
                 this.props.updateActiveBaseProps({"name":"phos_manure", "value": manure_value, "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_manure_cat", "value": p_manure_cat, "type":"mang"})
 //                this.props.updateActiveBaseProps({"name":"phos_fert_options", "value": phos_options, "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phos_options[0], "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phosOpt, "type":"mang"})
 
 //                this.phos_fert_options_holder = ["6","8","9"]
                 this.setState({phos_fert_options_holder:phos_options})
                 this.phos_manure.current.value = manure_value
-                this.phos_fertilizer.current.value = phos_options[0]
-
+                this.phos_fertilizer.current.value = phosOpt
                 console.log(this.phos_fertilizer )
 
             },
@@ -2487,8 +2498,8 @@ renderModal(){
                      <Stack gap={3}>
                      {/*
 
-                     */}
                      <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+                     */}
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />

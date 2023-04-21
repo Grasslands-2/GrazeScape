@@ -126,8 +126,8 @@ class TransformationTable extends Component {
     this.phos_fert_options_holder = []
   }
   componentDidUpdate(prevProps) {
-        console.log("old values", prevProps)
-        console.log("new values", this.props)
+    console.log("old values", prevProps)
+    console.log("new values", this.props)
     if(prevProps.activeTrans.management.nitrogen != this.props.activeTrans.management.nitrogen){
         console.log("Nitrogen has changed, calculate new P")
         this.getPhosValues()
@@ -443,13 +443,32 @@ class TransformationTable extends Component {
                     list[item].management.phos_manure = manure_value
 
                     list[item].management.phos_fert_options = phos_options
-                    list[item].management.phos_fertilizer = phos_options[0]
+                    let phosOpt = phos_options[0]
+                    console.log("phosOpt")
+                    console.log(phosOpt)
+                    console.log(list[item].management.phos_fertilizer)
+
+                    console.log(parseInt(list[item].management.phos_fertilizer))
+                    console.log(phos_options.includes(parseInt(list[item].management.phos_fertilizer)))
+
+                    if (phos_options.includes(parseInt(list[item].management.phos_fertilizer))){
+                            console.log("phos was a match")
+                            phosOpt = list[item].management.phos_fertilizer
+                    }
+                     console.log("after if check", phosOpt)
+
+                    list[item].management.phos_fertilizer = phosOpt
 //                    if (this.props.activeTrans.id == item.id){
 //                  update active trans with new phos options
                     if (this.props.activeTrans.id == transId){
+
+
+
+
                         this.phos_fert_options_holder = phos_options
                         this.phos_manure.current.value = manure_value
-                        this.phos_fertilizer.current.value = phos_options[0]
+                        this.phos_fertilizer.current.value = phosOpt
+//                        list[item].management.phos_fertilizer = phosOpt
                     }
                 }
                  this.props.updateTransList(list);

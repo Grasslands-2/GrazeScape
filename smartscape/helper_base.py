@@ -25,6 +25,7 @@ import numpy as np
 
 
 def download_base_rasters_helper(request, geo_folder):
+    print("starting to download base rasters")
     manure_options = get_phos_fert_options(request, True)
     request_json = js.loads(request.body)
     # geo_folder = request_json["folderId"]
@@ -42,7 +43,9 @@ def download_base_rasters_helper(request, geo_folder):
     # if not value chosen set it to the first item in the list (usually zero)
     if phos_fertilizer == "default":
         phos_fertilizer = manure_options["base"]["p_choices"][0]
-    manure_fert_p = str(manure_options["base"]["p_manure"]) + "_" + str(phos_fertilizer)
+
+    manure_fert_p = str(manure_options["base"]["p_manure_cat"]) + "_" + str(phos_fertilizer)
+    # manure_fert_p = str(manure_options["base"]["p_manure"]) + "_" + str(phos_fertilizer)
     for name in base_names:
         for model in model_names_base:
             if name == "hayGrassland" or name == "pastureWatershed":
@@ -131,6 +134,7 @@ def get_phos_fert_options(request, base_calc):
     phos_choices = {"0": [0, 50, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
 
     request_json = js.loads(request.body)
+    # print("get phos fert options request", request_json)
     # folder id of our aoi input data
     folder_id = request_json["folderId"]
     # transformation data
@@ -147,6 +151,8 @@ def get_phos_fert_options(request, base_calc):
     def check_file_path(geo_folder_func):
         print("checking files!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(geo_folder_func)
+        if not os.path.exists(geo_folder_func):
+            return False
         dir_list = os.listdir(geo_folder_func)
         print(dir_list)
         if "om.tif" in dir_list and "drainClass.tif" in dir_list and "nResponse.tif" in dir_list:
@@ -170,6 +176,7 @@ def get_phos_fert_options(request, base_calc):
             tran = trans[tran1]
             layer_rank = tran1
             print("layer rank", layer_rank, tran["id"])
+            print(os.path.join(data_dir, tran["id"], "selection_output.tif"))
             image = gdal.Open(os.path.join(data_dir, tran["id"], "selection_output.tif"))
             band = image.GetRasterBand(1)
             arr = band.ReadAsArray()
@@ -182,11 +189,11 @@ def get_phos_fert_options(request, base_calc):
             n_parameters = model.get_nitrate_params(tran, arr, layer_rank)
             print("n_parameters", n_parameters)
             manure_p_bounds, manure_value = model.calc_p(tran, n_parameters["nirate_inputs"])
-            manure_p = manure_p_bounds[0]
+            manure_p = str(manure_p_bounds)
             print("p manure!!")
             print(manure_p)
             print(manure_value)
-            return_data[tran["id"]] = {"p_manure": "{:,.2f}".format(manure_value), "p_choices": phos_choices[manure_p]}
+            return_data[tran["id"]] = {"p_manure": "{:,.0f}".format(manure_value), "p_choices": phos_choices[manure_p]}
     if base_calc:
         file_path = os.path.join(geo_folder, "landuse_aoi-clipped.tif")
         image = gdal.Open(file_path)
@@ -239,7 +246,7 @@ def get_phos_fert_options(request, base_calc):
                            15: {"p_manure": 0}
                            }
         for land_type in watershed_total:
-            print(land_type)
+            # print(land_type)
             output = np.where(arr == land_type, watershed_total[land_type]["p_manure"], output)
         p_manure_arr = np.where(output == model.no_data, 0, output)
         p_manure = np.sum(p_manure_arr) / total_cells
@@ -270,6 +277,8 @@ def get_phos_fert_options(request, base_calc):
 
         p_manure_levels = model.calc_manure_level(p_manure)
         # phos_choices = {"55": [66, 88888, 56777]}
-        return_data["base"] = {"p_manure": "{:,.2f}".format(p_manure), "p_choices": phos_choices[p_manure_levels[0]]}
+        return_data["base"] = {"p_manure": "{:,.2f}".format(p_manure),
+                               "p_choices": phos_choices[str(p_manure_levels)],
+                               "p_manure_cat": p_manure_levels}
     print(return_data)
     return return_data
