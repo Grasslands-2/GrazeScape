@@ -610,14 +610,16 @@ class SidePanel extends React.Component{
 //        this.setState({showHuc10:false})
         this.setState({showHuc12:false})
         this.props.setActiveRegion(null)
-        this.props.setVisibilityMapLayer([
-            {'name':'southWest', 'visible':true},
-            {'name':'southCentral', 'visible':true},
-            {'name':'cloverBelt', 'visible':true},
-            {'name':'subHuc12', 'visible':false},
-//            {'name':'huc10', 'visible':true},
-            {'name':'huc12', 'visible':true}
-            ])
+//        this.props.setVisibilityMapLayer([
+//            {'name':'southWest', 'visible':true},
+//            {'name':'southCentral', 'visible':true},
+//            {'name':'redCedar', 'visible':true},
+//            {'name':'cloverBelt', 'visible':true},
+//            {'name':'cloverBelt', 'visible':true},
+//            {'name':'subHuc12', 'visible':false},
+////            {'name':'huc10', 'visible':true},
+//            {'name':'huc12', 'visible':true}
+//            ])
         this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
@@ -1211,7 +1213,7 @@ renderModal(){
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Nitrate Leaching"
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Total Nitrogen Loss to Water"
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
@@ -1664,7 +1666,7 @@ renderModal(){
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
         optionsEcon = charts.getOptionsBar("Cost per Ton-Dry Matter", "$/acre/year")
-        optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
+        optionsNitrate = charts.getOptionsBar("Total Nitrogen Loss to Water", "lb/acre/year")
         configErosionGauge = {
   type: "gauge",
   'scale-r': {
@@ -1877,7 +1879,7 @@ renderModal(){
                       <td></td>
                     </tr>
                      <tr>
-                      <td>Nitrate Leaching</td>
+                      <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{base.nitrate}</td>
                       <td>{model.nitrate}</td>
                       <td>lb/acre/year</td>
@@ -2001,7 +2003,7 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
-                      <td>Nitrate Leaching</td>
+                      <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{baseWatershed.nitrate}</td>
                       <td>{modelWatershed.nitrate}</td>
                       <td>lb/acre/year</td>
