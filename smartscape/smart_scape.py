@@ -374,7 +374,8 @@ class SmartScape:
         insect = {"contCorn": 0.51,
                   "cornGrain": 0.51,
                   "dairyRotation": 0.12,
-                  "pasture": 0
+                  "pasture": 0,
+                  "cornSoyOat": .22,
                   }
         econ_cost = self.calculate_econ(base_scen)
         self.load_nrec()
@@ -633,6 +634,7 @@ class SmartScape:
         cont_yield = field_yield["contCorn"]
         corn_yield = field_yield["cornGrain"]
         dairy_yield = field_yield["dairyRotation"]
+        # dairy2_yield = field_yield["cornSoyOat"]
         # calculate base case parameters for nitrate
         n_parameters = self.get_nitrate_params_base(base_scen, base_data["nitrate"], total_cells)
 
@@ -1260,6 +1262,8 @@ class SmartScape:
                     land_id = 3
                 elif tran["management"]["rotationType"] == "dairyRotation":
                     land_id = 5
+                elif tran["management"]["rotationType"] == "cornSoyOat":
+                    land_id = -9999
                 corn = "corn_Yield_" + region
                 soy = "soy_Yield_" + region
                 layer_dic[tran["rank"]]["corn"] = "" + corn
@@ -1420,6 +1424,7 @@ class SmartScape:
                 "cornGrain": "cashgrain",  # corn soy
                 "dairyRotation": "dairyrotation",  # silage, corn, alfalfa
                 "pasture": "pasture",
+                "cornSoyOat": "cornsilage-soy-oats",
                 }
         density_nrec = {"cn_hi": "cont_high", "cn_lo": "cont_low", "rt_rt": "rotational"}
         cell_count_trans = np.count_nonzero(input_arr == float(layer_id))
@@ -1466,6 +1471,7 @@ class SmartScape:
         nrec_trans_silage_values = {}
         nrec_trans_alfalfa_values = {}
         nrec_trans_alfalfa_seed_values = {}
+        nrec_trans_oat_values = {}
         if tran["management"]["rotationType"] == "pasture":
             if tran["management"]["legume"] == "false":
                 legume = "nolegume"
@@ -1515,6 +1521,21 @@ class SmartScape:
                 nrec_output[value] = (1 / 5 * float(nrec_trans_corn_values[value]) + 1 / 5 * float(
                     nrec_trans_silage_values[value]) + 2 / 5 * float(nrec_trans_alfalfa_values[value]) + 1 / 5 * float(
                     nrec_trans_alfalfa_seed_values[value]))
+        elif tran["management"]["rotationType"] == "cornSoyOat":
+            nrec_trans_soy = rotation_type + "_" + "soybeans" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+            nrec_trans_silage = rotation_type + "_" + "cornsilage" + "_" + cover + "_" + "nResponse" + "_" + nresponse_col
+            nrec_trans_oat = rotation_type + "_" + "oats" + "_" + cover + "_" + "om" + "_" + om_col
+            print(self.nrec_dict)
+            print(nrec_trans_soy)
+            print(nrec_trans_oat)
+            print(nrec_trans_soy)
+            nrec_trans_soy_values = self.nrec_dict[nrec_trans_soy]
+            nrec_trans_silage_values = self.nrec_dict[nrec_trans_silage]
+            nrec_trans_oat_values = self.nrec_dict[nrec_trans_oat]
+
+            for value in nrec_trans_soy_values:
+                nrec_output[value] = (1 / 3 * float(nrec_trans_soy_values[value]) + 1 / 3 * float(
+                    nrec_trans_silage_values[value]) + 1 / 3 * float(nrec_trans_oat_values[value]))
         nrec_output["denitLoss"] = denitloss
         return {"nirate_inputs": nrec_output,
                 # "denitLoss": denitloss,
@@ -1525,6 +1546,7 @@ class SmartScape:
                 "nrec_trans_silage_values": nrec_trans_silage_values,
                 "nrec_trans_alfalfa_values": nrec_trans_alfalfa_values,
                 "nrec_trans_alfalfa_seed_values": nrec_trans_alfalfa_seed_values,
+                "nrec_trans_oat_values": nrec_trans_oat_values,
                 }
 
     def get_nitrate_params_base(self, tran, input_arr, total_cells):
@@ -1784,6 +1806,7 @@ class SmartScape:
         corn_arr = corn_arr / 10
         alfalfa_yield = corn_arr * 0.0195 * 2000 * (1 - 0.13) / 2000
         silage_yield = ((3.73E-4 * corn_arr * corn_arr) + (3.95E-2 * corn_arr + 6.0036)) * 2000 * (1 - 0.65) / 2000
+        # tons of dry matter
         corn_arr = corn_arr * 56 * (1 - 0.155) / 2000
 
         soy_image = gdal.Open(os.path.join(base_dir, "soy_yield.tif"))
@@ -1794,6 +1817,8 @@ class SmartScape:
         corn_yield = (corn_arr * .5) + (soy_arr * .5)
         dairy_yield = 1 / 5 * silage_yield + 1 / 5 * corn_arr + 3 / 5 * alfalfa_yield
 
+        oat_yield = corn_arr * 0.42 * 32 * (1 - 0.14) / 2000
+        dairy2_yield = 1/3 * soy_arr + 1/3 * silage_yield + 1/3 * oat_yield
         # landuse_yield = np.where(landuse_yield == 4, cont_yield, landuse_yield)
         # landuse_yield = np.where(landuse_yield == 3, corn_yield, landuse_yield)
         # landuse_yield = np.where(landuse_yield == 5, dairy_yield, landuse_yield)
@@ -1806,10 +1831,12 @@ class SmartScape:
         return {"contCorn": cont_yield,
                 "cornGrain": corn_yield,
                 "dairyRotation": dairy_yield,
+                "cornSoyOat": dairy2_yield,
                 "soy": soy_arr,
                 "silage": silage_yield,
                 "alfalfa": alfalfa_yield,
                 "corn": cont_yield,
+                "oat": oat_yield,
                 }
 
     def calculate_econ(self, scen):
@@ -1862,6 +1889,7 @@ class SmartScape:
         rotation_types = {"contCorn": {"cost": 0, "rot_type": "cc"},
                           "cornGrain": {"cost": 0, "rot_type": "cg"},
                           "dairyRotation": {"cost": 0, "rot_type": "dr"},
+                          "cornSoyOat": {"cost": 0, "rot_type": "cso"},
                           "pasture": {"cost": 0, "rot_type": "pt"}}
         for rot in rotation_types:
             if rot == "pasture":
@@ -1888,13 +1916,17 @@ class SmartScape:
                     pest_cost = 1 / 5 * (2 * scen["econ"]["cornPest"] + 3 * scen["econ"]["alfaPest"])
                     mach_cost = 1 / 5 * (2 * scen["econ"]["cornMach"] + 2 * scen["econ"]["alfaMach"] +
                                          scen["econ"]["alfaFirstYear"])
+                elif rot == "cornSoyOat":
+                    seed_cost = 1 / 3 * (scen["econ"]["cornSeed"] + scen["econ"]["soySeed"] + scen["econ"]["oatSeed"])
+                    pest_cost = 1 / 3 * (scen["econ"]["cornPest"] + scen["econ"]["soyPest"] + scen["econ"]["oatPest"])
+                    mach_cost = 1 / 3 * (scen["econ"]["cornMach"] + scen["econ"]["soyMach"] + scen["econ"]["oatMach"])
 
             p_needs = float(nutrient_dict[nutrient_type]["Pneeds"])
             n_needs = float(nutrient_dict[nutrient_type]["Nneeds"])
 
             fert = float(scen["management"]["fertilizer"].split("_")[1])
-            P2O5_fert = (fert) * (p_needs / 100)
-            n_fert = (fert) * (n_needs / 100)
+            P2O5_fert = fert * (p_needs / 100)
+            n_fert = fert * (n_needs / 100)
             cost_p2 = P2O5_fert * float(scen["econ"]["p2o5"])
             cost_n = n_fert * float(scen["econ"]["nFert"])
             land_cost = 140
@@ -1904,6 +1936,7 @@ class SmartScape:
                 "cornGrain": rotation_types["cornGrain"]["cost"],
                 "dairyRotation": rotation_types["dairyRotation"]["cost"],
                 "pasture": rotation_types["pasture"]["cost"],
+                "cornSoyOat": rotation_types["cornSoyOat"]["cost"],
                 }
 
     def nitrate_calc(self, n_parameters, tran, inter_data_yield, inter_data_ero, om, layer, model_data,
@@ -1923,7 +1956,7 @@ class SmartScape:
             NH3loss = float(nrec_trans["NH3loss"])
             grazed_manureN = float(nrec_trans["grazedManureN"])
             denitLoss = float(n_parameters["nirate_inputs"]["denitLoss"])
-            precip_dict = {"southWestWI": 43, "cloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
+            precip_dict = {"southWestWI": 43, "cloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44, "redCedarWI": 39}
             precip = precip_dict[self.region]
             precN = 0.5 * precip * 0.226
             dryN = precN
@@ -1945,8 +1978,11 @@ class SmartScape:
                 return np.sum(np.where(model == layer, value, 0)) / cell_cout
 
             leach = inputsN - outputsN
+            leach = leach + (runoffN + erosN)
             inter_data = np.where(model_data["nitrate"] == layer, leach, 0)
             inter_data_sum = np.sum(inter_data)
+            # calculate n loss to water
+
             if inter_data_sum < 0:
                 inter_data_sum = 0
             nitrate_sum_dict[n_par]["inter_data_sum"] = inter_data_sum
@@ -1964,6 +2000,10 @@ class SmartScape:
                           0.2 * nitrate_sum_dict["nrec_trans_silage_values"]["inter_data_sum"] + \
                           0.2 * nitrate_sum_dict["nrec_trans_alfalfa_values"]["inter_data_sum"] + \
                           0.4 * nitrate_sum_dict["nrec_trans_alfalfa_seed_values"]["inter_data_sum"]
+        elif len(nitrate_sum_dict) == 3:
+            total_leach = 1/3 * nitrate_sum_dict["nrec_trans_soy_values"]["inter_data_sum"] + \
+                          1/3 * nitrate_sum_dict["nrec_trans_silage_values"]["inter_data_sum"] + \
+                          1/3 * nitrate_sum_dict["nrec_trans_oat_values"]["inter_data_sum"]
         else:
             for val in nitrate_sum_dict:
                 total_leach = nitrate_sum_dict[val]["inter_data_sum"]
@@ -1995,7 +2035,7 @@ class SmartScape:
             NH3loss = float(nrec_trans["NH3loss"])
             grazed_manureN = float(nrec_trans["grazedManureN"])
             denitLoss = float(n_parameters["nirate_inputs"]["denitLoss"])
-            precip_dict = {"southWestWI": 43, "cloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44}
+            precip_dict = {"southWestWI": 43, "cloverBeltWI": 38, "northeastWI": 35, "uplandsWI": 44, "redCedarWI": 39}
             precip = precip_dict[self.region]
             precN = 0.5 * precip * 0.226
             dryN = precN
@@ -2024,16 +2064,7 @@ class SmartScape:
             gasN = 0.01 * inputsN  ## misc gases are estimated as 1% of inputs
             NH3senN = 8  ## ammonia loss at senescence
             runoffN = 0
-            if n_par == "nrec_trans_corn_dairy_values":
-                # print("harvN", np.sum(harvN))
-                # print("NH3_N", np.sum(NH3_N))
-                # print("denitN", np.sum(denitN))
-                print("erosN", np.sum(erosN))
-                print("dairy_er_arr", np.sum(dairy_er_arr))
-                print("om", np.sum(om))
-                # print("gasN", np.sum(gasN))
-                # print("NH3senN", np.sum(NH3senN))
-                # print("runoffN", np.sum(runoffN))
+
             outputsN = harvN + NH3_N + denitN + erosN + gasN + NH3senN + runoffN
             print(n_par, np.sum(outputsN))
             # print(n_par, np.sum(inputsN))
@@ -2043,8 +2074,12 @@ class SmartScape:
                 return np.sum(np.where(watershed_land_use != self.no_data, value, 0)) / cell_cout
 
             leach = inputsN - outputsN
+            # calculate n loss to water
+            leach = leach + (runoffN + erosN)
+
             # each rotation shouldn't go below zero
             inter_data = np.where(leach != self.no_data, leach, 0)
+
             # inter_data_sum = np.sum(inter_data)
             # if inter_data_sum < 0:
             #     inter_data_sum = 0

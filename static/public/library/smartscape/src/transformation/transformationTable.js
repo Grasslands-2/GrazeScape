@@ -202,7 +202,7 @@ class TransformationTable extends Component {
                 showTillageNT:true,
                 showTillageSU:true,
             })
-            if (rot == "dairyRotation"){
+            if (rot == "dairyRotation" || rot == "cornSoyOat"){
                 this.setState({
                     showTillageSC:true
                 })
@@ -317,6 +317,10 @@ class TransformationTable extends Component {
                     nitrogen_fert = "100"
                     break;
                 case "dairyRotation":
+                   nitrogen = "100"
+                   nitrogen_fert = "25"
+                   break;
+                case "cornSoyOat":
                    nitrogen = "100"
                    nitrogen_fert = "25"
                    break;
@@ -461,10 +465,6 @@ class TransformationTable extends Component {
 //                    if (this.props.activeTrans.id == item.id){
 //                  update active trans with new phos options
                     if (this.props.activeTrans.id == transId){
-
-
-
-
                         this.phos_fert_options_holder = phos_options
                         this.phos_manure.current.value = manure_value
                         this.phos_fertilizer.current.value = phosOpt
@@ -550,6 +550,7 @@ class TransformationTable extends Component {
                       <option value="contCorn">Continuous Corn</option>
                       <option value="cornGrain">Cash Grain</option>
                       <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa 3 yrs)</option>
+                      <option value="cornSoyOat">Dairy Rotation II (Corn Silage to Soy Beans to Oats)</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
 
