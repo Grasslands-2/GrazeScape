@@ -23,6 +23,7 @@ import math
 import threading
 import shutil
 
+
 class RasterDataSmartScape:
     """
     Child class of RasterData. Specifically used to handel raster requests for SmartScape
@@ -33,6 +34,7 @@ class RasterDataSmartScape:
     layer_dic : str
         dict of local layer names and their names on geoserver
     """
+
     def __init__(self, extents, field_geom_array, field_id, region):
         """
         Constructor.
@@ -66,7 +68,7 @@ class RasterDataSmartScape:
         geo_server_url = settings.GEOSERVER_URL
 
         self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
-                             "request=GetCoverage&CoverageId="
+                                              "request=GetCoverage&CoverageId="
         self.field_geom_array = field_geom_array
         self.extents_string_x = ""
         self.extents_string_y = ""
@@ -74,8 +76,10 @@ class RasterDataSmartScape:
         self.no_data_aray = []
 
         if extents is not None:
-            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
-            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(
+                math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
+                math.ceil(float(extents[3]))) + ")"
         self.crs = "epsg:3857"
 
         self.no_data = -9999
@@ -130,7 +134,6 @@ class RasterDataSmartScape:
         # layers.json")
 
         for layer in self.layer_dic:
-
             print("downloading layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
