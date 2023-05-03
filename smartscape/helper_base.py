@@ -36,7 +36,7 @@ def download_base_rasters_helper(request, geo_folder):
     base_layer_dic = {}
     # download layers for base case
     base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pastureWatershed")
-    model_names_base = ("Erosion", "PI", "CN")
+    model_names_base = ("Erosion", "PI", "CN",  "SCI")
     # contCorn
     # create name of the layer that corresponds to geoserver for base case
     phos_fertilizer = base_scen["management"]["phos_fertilizer"]
