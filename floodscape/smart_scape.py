@@ -415,7 +415,6 @@ class SmartScape:
         self.create_download_extents_boundary(file_list, trans)
         print("create download extents2")
 
-        self.create_base_layers_dic(base_scen, region)
         print("create download extents3")
 
         layer_area_dic, layer_dic = self.create_trans_layers_dic(trans, region)
@@ -616,13 +615,14 @@ class SmartScape:
         selec_arr = [3, 4, 5, 6, 7, 8, 9, 10]
         # calc data for base run
         # plugging results from our base case values into our base data. Only values that can be selected will change
-        # so we don't need to worry about other land use codes.
+        # so we don't need to worry about other land use codes, for the selection base
         for land in selec_arr:
             cn_final = np.where(base_data["cn"] == land, watershed_total[land]["cn"], base_data["cn"])
 
             base_data["cn"] = cn_final
 
         # model_list_runoff = ["yield", "ero", "ploss", "cn", "insect", "econ", "runoff", "nitrate"]
+        # remove zeros and no data
         model_list_runoff = ["cn"]
         for layer in layer_dic:
             for model in model_list_runoff:
@@ -630,11 +630,11 @@ class SmartScape:
                 inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
                 model_data_gross[layer]["base"][model] = inter_data
 
-        base_cn = np.where(
-            np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
-            0, (base_data["cn"]))
-        sum_base_cn = np.sum(base_cn)
-
+        # base_cn = np.where(
+        #     np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
+        #     0, (base_data["cn"]))
+        # sum_base_cn = np.sum(base_cn)
+        # apply base data to whole watershed
         for land_type in watershed_total:
             base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type,
                                                  watershed_total[land_type]["cn"], base_data_watershed["cn"])
@@ -664,6 +664,7 @@ class SmartScape:
             #
             # put all data in first trans because already calculated the data for each trans
             model_data_gross[1]["selection_watershed"][model] = inter_data
+            # model_data_watershed[model] = inter_data
 
         model_data_gross[1]["selection_watershed"]["total_cells"] = total_cells
         # remove zeros from watershed base
@@ -682,16 +683,16 @@ class SmartScape:
         sum_model_cn_watershed = 0
 
         layer_count = 0
-        trans_adoption_total = 0
-        base_adoption_total = 0
+        # trans_adoption_total = 0
+        # base_adoption_total = 0
         for trans_layer in model_data_gross:
             layer_count = layer_count + 1
             print(trans_layer)
             tran = trans[str(trans_layer)]
             trans_adpotion = int(tran["selection"]["adoptionRate"]) / 100
             base_adpotion = 1 - trans_adpotion
-            trans_adoption_total = trans_adoption_total + trans_adpotion
-            base_adoption_total = base_adoption_total + base_adpotion
+            # trans_adoption_total = trans_adoption_total + trans_adpotion
+            # base_adoption_total = base_adoption_total + base_adpotion
 
             # print("adoption rate ", trans_adpotion)
             # print("base adoption rate ", base_adpotion)
@@ -706,11 +707,16 @@ class SmartScape:
         self.run_region_cn()
         print("time to run models ", time.time() - start)
         print("cn for watershed with trans is", sum_model_cn_watershed / total_cells)
+
+        print("cn for watershed with trans is", np.sum(model_data_watershed["cn"]) / total_cells)
+        print("cn for watershed with trans is", model_data_gross)
+
+        print("cn for watershed with trans is", np.sum(model_data_gross[1]["selection_watershed"]["cn"]) / total_cells)
         return {
             "base": {
                 "cn": {
-                    "total": "{:,.1f}".format(sum_base_cn / selected_cells),
-                    "total_per_area": str("%.1f" % (sum_base_cn / selected_cells)),
+                    "total": "{:,.1f}".format(0 / selected_cells),
+                    "total_per_area": str("%.1f" % (0 / selected_cells)),
                     "total_watershed": "{:,.1f}".format(np.sum(base_data_watershed["cn"]) / total_cells),
                     "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["cn"]) / total_cells)),
                     "units": "Curve Number"
@@ -926,50 +932,13 @@ class SmartScape:
 
         return event
 
-    def create_base_layers_dic(self, base_scen, region):
-        base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pastureWatershed")
-        model_names_base = ["CN"]
-        base_layer_dic = {}
-        for name in base_names:
-            for model in model_names_base:
-                if name == "hayGrassland" or name == "pastureWatershed":
-                    base_layer_dic[name + "_" + model] = "pasture_" + model + "_cn_lo_0_0_" + region
-                    base_layer_dic[name + "_" + model + "_whole_region"] = "pasture_" + model + "_rt_rt_0_0_" + region
-
-                else:
-                    file_name = name + "_" + \
-                                model + "_" + \
-                                base_scen["management"]["cover"] + "_" + \
-                                base_scen["management"]["tillage"] + "_" + \
-                                base_scen["management"]["contour"] + "_" + \
-                                base_scen["management"]["fertilizer"] + "_" + \
-                                region
-                    base_layer_dic[name + "_" + model] = "" + file_name
-                    base_layer_dic[name + "_" + model + "_whole_region"] = "" + file_name
-
-        # download corn and soy rasters for yield
-        # corn = "corn_Yield_" + region
-        # soy = "soy_Yield_" + region
-        # base_layer_dic["corn_yield"] = "" + corn
-        # base_layer_dic["soy_yield"] = "" + soy
-        base_layer_dic["landuse"] = "" + region + "_WiscLand_30m"
-        base_layer_dic["landuse" + "_whole_region"] = "" + region + "_WiscLand_30m"
-
-        base_layer_dic["hyd_letter"] = "" + region + "_hydgrp_30m"
-        # base_layer_dic["hayGrassland_Yield"] = "pasture_Yield_medium_" + region
-        # base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_medium_" + region
-        # check that all files needed are downloaded
-        base_loaded = self.check_file_path(base_layer_dic)
-        while not base_loaded:
-            time.sleep(.1)
-            base_loaded = self.check_file_path(base_layer_dic)
-
     def create_trans_layers_dic(self, trans, region):
         layer_dic = {}
         # file_list = []
         layer_area_dic = {}
         # download om, drainclass, and nresponse
         image = gdal.Open(os.path.join(self.in_dir, "trans_with_aoi.tif"))
+
         band = image.GetRasterBand(1)
         # geoTransform = image.GetGeoTransform()
         arr = band.ReadAsArray()
@@ -979,42 +948,89 @@ class SmartScape:
         #     "nResponse": region + "_nResponse_30m",
         # }}
 
-        print("starting p calc")
         # self.download_rasters(geoTransform, image, layer_dic_om)
         # based on the available rasters for smartscape
-        phos_choices = {"0": [0, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
+        phos_choices = {"0": [0, 50, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
 
         for tran1 in trans:
             tran = trans[tran1]
             layer_rank = tran1
             n_parameters = self.get_nitrate_params(tran, arr, layer_rank)
-            manure_p_bounds = self.calc_p(tran, n_parameters["nirate_inputs"])
+            manure_p_bounds, manure_value = self.calc_p(tran, n_parameters["nirate_inputs"])
             phos_fert = tran["management"]["phos_fertilizer"]
 
             if phos_fert == "default":
-                phos_fert = phos_choices[manure_p_bounds[0]][0]
+                phos_fert = phos_choices[str(manure_p_bounds)][0]
 
-            # second value comes from user input
-            # phos_fert will only be 0 50 or 100
-            manure_p = str(manure_p_bounds[0]) + "_" + str(phos_fert)
-            manure_p2 = str(manure_p_bounds[1]) + "_" + str(phos_fert)
-            # we don't have a 50_0 option
-            # if manure_p_bounds[0] == "50":
-            #     manure_p = manure_p_bounds[0] + "_50"
-            # if manure_p_bounds[1] == "50":
-            #     manure_p2 = manure_p_bounds[1] + "_50"
+            def get_m_p_options(manure_val, phos_val, man_actual):
+                m1, m2, p1, p2 = 0, 0, 0, 0
+                print("get_m_p_options", manure_val, phos_val, man_actual)
+                print(phos_val == 100)
+                print(float(phos_val) == 100)
+                phos_val = float(phos_val)
+                if manure_val == 0:
+                    if phos_val == 0:
+                        m1, m2, p1, p2 = 0, 0, 0, 50
+                    elif phos_val == 50:
+                        m1, m2, p1, p2 = 0, 0, 50, 100
+                    # need to extrapolate
+                    elif phos_val == 100:
+                        m1, m2, p1, p2 = 0, 0, 100, 50
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 25:
+                    if phos_val == 50:
+                        m1, m2, p1, p2 = 25, 50, 50, 50
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 50:
+                    if phos_val == 50:
+                        m1, m2, p1, p2 = 50, 25, 50, 50
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 100:
+                    if phos_val == 0:
+                        m1, m2, p1, p2 = 100, 150, 0, 0
+                    else:
+                        raise ValueError("P phos is wrong value")
+                elif manure_val == 150:
+                    if man_actual < manure_val:
+                        if phos_val == 0:
+                            m1, m2, p1, p2 = 150, 100, 0, 0
+                        else:
+                            raise ValueError("P phos is wrong value")
+                    else:
+                        if phos_val == 0:
+                            m1, m2, p1, p2 = 150, 200, 0, 0
+                        else:
+                            raise ValueError("P phos is wrong value")
+                elif manure_val == 200:
+                    if phos_val == 0:
+                        m1, m2, p1, p2 = 200, 150, 0, 0
+                    else:
+                        raise ValueError("P phos is wrong value")
+                else:
+                    raise ValueError("P manure is not one of the available options")
+                return m1, m2, p1, p2
 
-            print(manure_p_bounds)
-            print("manure1 ", manure_p)
-            print("manure1 ", manure_p2)
-            print("tran is   ", tran)
+            man1, man2, phos1, phos2 = get_m_p_options(manure_p_bounds, phos_fert, manure_value)
+            print("manure values for rasters")
+            manure_p = str(man1) + "_" + str(phos1)
+            manure_p2 = str(man2) + "_" + str(phos2)
+            # setting our x interpolatation value
+            if man1 == man2:
+                man1 = phos1
+                man2 = phos2
+            print(manure_p)
+            print(manure_p2)
+
             layer_dic[tran["rank"]] = {}
             # for each trans get the path to the selection raster used
             # file = os.path.join(self.data_dir, tran["id"], "selection_output.tif")
             # file_list.append(file)
 
             if tran["management"]["rotationType"] == "pasture":
-                yield_name = "pasture_Yield_" + tran["management"]["grassYield"] + "_" + region
+                # yield_name = "pasture_Yield_" + tran["management"]["grassYield"] + "_" + region
                 # ero_name = "pasture_Erosion_" + tran["management"]["density"] + "_" + \
                 #            manure_p + "_" + region
                 # ploss_name = "pasture_PI_" + tran["management"]["density"] + "_" + \
@@ -1023,7 +1039,9 @@ class SmartScape:
                 #               manure_p2 + "_" + region
                 cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
                           manure_p + "_" + region
-                layer_dic[tran["rank"]]["yield"] = yield_name
+                # sci_name = "pasture_SCI_" + tran["management"]["density"] + "_" + \
+                #            manure_p + "_" + region
+                # layer_dic[tran["rank"]]["yield"] = yield_name
                 land_id = 9
 
             else:
@@ -1033,10 +1051,12 @@ class SmartScape:
                     land_id = 3
                 elif tran["management"]["rotationType"] == "dairyRotation":
                     land_id = 5
-                corn = "corn_Yield_" + region
-                soy = "soy_Yield_" + region
-                layer_dic[tran["rank"]]["corn"] = "" + corn
-                layer_dic[tran["rank"]]["soy"] = "" + soy
+                elif tran["management"]["rotationType"] == "cornSoyOat":
+                    land_id = -9999
+                # corn = "corn_Yield_" + region
+                # soy = "soy_Yield_" + region
+                # layer_dic[tran["rank"]]["corn"] = "" + corn
+                # layer_dic[tran["rank"]]["soy"] = "" + soy
 
                 # ero_name = "" + tran["management"]["rotationType"] + "_Erosion_" + \
                 #            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
@@ -1050,19 +1070,27 @@ class SmartScape:
                 cn_name = "" + tran["management"]["rotationType"] + "_CN_" + \
                           tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
                           tran["management"]["contour"] + "_" + manure_p + "_" + region
+                # sci_name = "" + tran["management"]["rotationType"] + "_SCI_" + \
+                #            tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                #            tran["management"]["contour"] + "_" + manure_p + "_" + region
             # layer_dic[tran["rank"]]["ero"] = ero_name
+            # layer_dic[tran["rank"]]["sci"] = sci_name
             # layer_dic[tran["rank"]]["ploss"] = ploss_name
             # layer_dic[tran["rank"]]["ploss2"] = ploss_name2
             layer_dic[tran["rank"]]["cn"] = cn_name
             layer_dic[tran["rank"]]["land_id"] = land_id
-            layer_dic[tran["rank"]]["manure_outbounds"] = manure_p_bounds[2]
+            # layer_dic[tran["rank"]]["manure_outbounds"] = manure_value
+            # layer_dic[tran["rank"]]["manure_p1"] = man1
+            # layer_dic[tran["rank"]]["manure_p2"] = man2
 
             layer_area_dic[tran["rank"]] = {}
             layer_area_dic[tran["rank"]]["area"] = "{:,.0f}".format(float(str(tran["areaSelected"]).replace(',', '')))
         return layer_area_dic, layer_dic
 
     def create_download_extents_boundary(self, file_list, trans):
+
         image = gdal.Open(os.path.join(self.geo_folder, "slope_aoi-clipped.tif"))
+
         band = image.GetRasterBand(1)
         arr_aoi = band.ReadAsArray()
         # create a new raster with all valid cells set to -88 to be merged with merged.tif later
@@ -1159,6 +1187,7 @@ class SmartScape:
 
         # burn out combined trans raster into the aoi raster so they are the same size
         # also we have to have the transformations in a known area
+
         ds_clip = gdal.Warp(
             # last raster ovrrides it
             os.path.join(self.in_dir, "trans_with_aoi.tif"),
@@ -1168,6 +1197,19 @@ class SmartScape:
             outputType=gc.GDT_Float32)
         ds_clip.FlushCache()
         ds_clip = None
+
+        # image = gdal.Open(os.path.join))
+
+        # ds_clip = gdal.Warp(
+        #     # name
+        #     os.path.join(self.in_dir, "trans_with_aoi11.tif"),
+        #     # last raster ovrrides
+        #     [os.path.join(self.geo_folder, "base", "landuse_whole_region.tif"), os.path.join(self.in_dir, "merged.tif")],
+        #     dstNodata=-9999,
+        #     # dstSRS="EPSG:3071",
+        #     outputType=gc.GDT_Float32)
+        # ds_clip.FlushCache()
+        # ds_clip = None
 
         # ds_clip = gdal.Warp(
         #     # last raster ovrrides it
@@ -1463,35 +1505,47 @@ class SmartScape:
         return drain_dict[drain_round]
 
     def calc_p(self, tran, nrec_trans):
-        nrec = nrec_trans["fertN"]
+        nrec = nrec_trans["ManureN"]
         pneeds = nrec_trans["Pneeds"]
-        print(float(tran["management"]["nitrogen"]))
         manure_n = nrec * float(tran["management"]["nitrogen"]) / 100
         applied_manure_n = (manure_n / 0.4) / 3
         manure_percent = (applied_manure_n / pneeds) * 100
-        print("Manure Percent", manure_percent)
-
-        return self.calc_manure_level(manure_percent)
+        manure_levels = self.calc_manure_level(manure_percent)
+        return manure_levels, manure_percent
 
     @staticmethod
     def calc_manure_level(manure):
-        # 50_50 is not reachable get rid of it
-        if manure < 75:
-            return ["0", "100", 0]
-        # elif 12.5 <= manure < 37.5:
-        #     return ["25", "50"]
-        # elif 50 <= manure < 125:
-        #     return ["100", "100", 0]
-        elif 75 <= manure < 125:
-            return ["100", "150", 0]
-        # p is outside of bounds so we will to interpolate
-        elif 125 <= manure <= 175:
-            return ["150", "200", 0]
-        elif 125 <= manure:
-            return ["200", "150", manure]
+        """
+        Calculates the closest P manure value from Raster
+        Parameters
+        ----------
+        manure float
+            The value of the P manure
+        Returns
+        ------- float
+            Closest categorical value to give manure
+        """
+        # phos_choices = {
+        # "0": [0, 50, 100],
+        # "25": [50],
+        # "50": [50],
+        # "100": [0],
+        # "150": [0],
+        # "200": [0]
+        # }
 
-        else:
-            return ["0", "50", 0]
+        if manure < 12.5:
+            return 0
+        elif 12.5 <= manure < 37.5:
+            return 25
+        elif 37.5 <= manure < 75:
+            return 50
+        elif 75 <= manure < 125:
+            return 100
+        elif 125 <= manure <= 175:
+            return 150
+        elif 125 <= manure:
+            return 200
 
     @staticmethod
     def calc_om_level(om):

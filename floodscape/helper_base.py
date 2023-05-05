@@ -43,7 +43,7 @@ def download_base_rasters_helper(request, geo_folder):
     # if not value chosen set it to the first item in the list (usually zero)
     if phos_fertilizer == "default":
         phos_fertilizer = manure_options["base"]["p_choices"][0]
-    manure_fert_p = str(manure_options["base"]["p_manure"]) + "_" + str(phos_fertilizer)
+    manure_fert_p = str(manure_options["base"]["p_manure_cat"]) + "_" + str(phos_fertilizer)
     for name in base_names:
         for model in model_names_base:
             if name == "hayGrassland" or name == "pastureWatershed":
@@ -147,16 +147,16 @@ def get_phos_fert_options(request, base_calc):
         True if p calcs are for the base scenario
     request : request object
         The request object from the client
-
     Returns
     -------
         return_data : dict
             dictionary containing the trans/base id and the p values
     """
     # based on the available rasters for smartscape
-    phos_choices = {"0": [0, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
+    phos_choices = {"0": [0, 50, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
 
     request_json = js.loads(request.body)
+    # print("get phos fert options request", request_json)
     # folder id of our aoi input data
     folder_id = request_json["folderId"]
     # transformation data
@@ -173,6 +173,8 @@ def get_phos_fert_options(request, base_calc):
     def check_file_path(geo_folder_func):
         print("checking files!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(geo_folder_func)
+        if not os.path.exists(geo_folder_func):
+            return False
         dir_list = os.listdir(geo_folder_func)
         print(dir_list)
         if "om.tif" in dir_list and "drainClass.tif" in dir_list and "nResponse.tif" in dir_list:
@@ -196,6 +198,7 @@ def get_phos_fert_options(request, base_calc):
             tran = trans[tran1]
             layer_rank = tran1
             print("layer rank", layer_rank, tran["id"])
+            print(os.path.join(data_dir, tran["id"], "selection_output.tif"))
             image = gdal.Open(os.path.join(data_dir, tran["id"], "selection_output.tif"))
             band = image.GetRasterBand(1)
             arr = band.ReadAsArray()
@@ -206,38 +209,48 @@ def get_phos_fert_options(request, base_calc):
             print(np.unique(arr, return_counts=True))
             print("cell count for transition ", cell_count_trans)
             n_parameters = model.get_nitrate_params(tran, arr, layer_rank)
-            manure_p_bounds = model.calc_p(tran, n_parameters["nirate_inputs"])
-            manure_p = manure_p_bounds[0]
+            print("n_parameters", n_parameters)
+            manure_p_bounds, manure_value = model.calc_p(tran, n_parameters["nirate_inputs"])
+            manure_p = str(manure_p_bounds)
             print("p manure!!")
             print(manure_p)
-            return_data[tran["id"]] = {"p_manure": manure_p, "p_choices": phos_choices[manure_p]}
+            print(manure_value)
+            return_data[tran["id"]] = {"p_manure": "{:,.0f}".format(manure_value), "p_choices": phos_choices[manure_p]}
     if base_calc:
         file_path = os.path.join(geo_folder, "landuse_aoi-clipped.tif")
         image = gdal.Open(file_path)
         band = image.GetRasterBand(1)
         arr = band.ReadAsArray()
         output = np.copy(arr)
-        total_cells = np.count_nonzero(arr > model.no_data)
-        n_parameters = model.get_nitrate_params_base(base, arr, total_cells)
+        cell_corn = np.count_nonzero(arr == 4)
+        cell_corn_grain = np.count_nonzero(arr == 3)
+        cell_dairy = np.count_nonzero(arr == 5)
+        total_cells = cell_corn + cell_corn_grain + cell_dairy
+        total_total_cell = np.count_nonzero(arr > -9999)
+        print("crop cells", total_cells)
+        print("total cells", np.count_nonzero(arr > -9999))
+        # n_parameters = model.get_nitrate_params_base(base, arr, total_cells)
+        # print(n_parameters)
+        # looks at whole raster so use all valid cells here but final value only uses crop land cells
+        n_parameters = model.get_nitrate_params_base(base, arr, total_total_cell)
         print(n_parameters)
 
-        def calc_p(tran, nrec_trans, name):
-            nrec = nrec_trans[name]["fertN"]
+        def calc_p_local(tran, nrec_trans, name):
+            nrec = nrec_trans[name]["ManureN"]
             pneeds = nrec_trans[name]["Pneeds"]
             manure_n = float(nrec) * float(tran["management"]["nitrogen"]) / 100
             applied_manure_n = (manure_n / 0.4) / 3
             manure_percent = (applied_manure_n / float(pneeds)) * 100
             return manure_percent
 
-        p_manure_hay = calc_p(base, n_parameters, "nrec_trans_pasture_values")
-        p_manure_corn = calc_p(base, n_parameters, "nrec_trans_cont_values")
-        p_manure_cash_grain = 0.5 * calc_p(base, n_parameters, "nrec_trans_corn_values") + 0.5 * calc_p(base,
-                                                                                                           n_parameters,
-                                                                                                           "nrec_trans_soy_values")
-        p_manure_dairy = 1 / 5 * calc_p(base, n_parameters, "nrec_trans_corn_dairy_values") + \
-                         2 / 5 * calc_p(base, n_parameters, "nrec_trans_alfalfa_values") + \
-                         1 / 5 * calc_p(base, n_parameters, "nrec_trans_alfalfa_seed_values") + \
-                         1 / 5 * calc_p(base, n_parameters, "nrec_trans_silage_values")
+        p_manure_corn = calc_p_local(base, n_parameters, "nrec_trans_cont_values")
+        p_manure_cash_grain = 0.5 * calc_p_local(base, n_parameters, "nrec_trans_corn_values") + \
+                              0.5 * calc_p_local(base, n_parameters, "nrec_trans_soy_values")
+        p_manure_dairy = 1 / 5 * calc_p_local(base, n_parameters, "nrec_trans_corn_dairy_values") + \
+                         2 / 5 * calc_p_local(base, n_parameters, "nrec_trans_alfalfa_values") + \
+                         1 / 5 * calc_p_local(base, n_parameters, "nrec_trans_alfalfa_seed_values") + \
+                         1 / 5 * calc_p_local(base, n_parameters, "nrec_trans_silage_values")
+        # only calc p_manure for the three main crop systems
         watershed_total = {3: {"p_manure": p_manure_cash_grain},
                            4: {"p_manure": p_manure_corn},
                            5: {"p_manure": p_manure_dairy},
@@ -245,16 +258,17 @@ def get_phos_fert_options(request, base_calc):
                            2: {"p_manure": 0},
                            6: {"p_manure": 0},
                            7: {"p_manure": 0},
-                           8: {"p_manure": p_manure_hay},
-                           9: {"p_manure": p_manure_hay},
-                           10: {"p_manure": p_manure_hay},
+                           8: {"p_manure": 0},
+                           9: {"p_manure": 0},
+                           10: {"p_manure": 0},
                            11: {"p_manure": 0},
                            12: {"p_manure": 0},
                            13: {"p_manure": 0},
                            14: {"p_manure": 0},
-                           15: {"p_manure": 0}}
+                           15: {"p_manure": 0}
+                           }
         for land_type in watershed_total:
-            print(land_type)
+            # print(land_type)
             output = np.where(arr == land_type, watershed_total[land_type]["p_manure"], output)
         p_manure_arr = np.where(output == model.no_data, 0, output)
         p_manure = np.sum(p_manure_arr) / total_cells
@@ -283,8 +297,10 @@ def get_phos_fert_options(request, base_calc):
         # band = None
         # ds = None
 
-        p_manure = model.calc_manure_level(p_manure)
+        p_manure_levels = model.calc_manure_level(p_manure)
         # phos_choices = {"55": [66, 88888, 56777]}
-        return_data["base"] = {"p_manure": p_manure[0], "p_choices": phos_choices[p_manure[0]]}
+        return_data["base"] = {"p_manure": "{:,.2f}".format(p_manure),
+                               "p_choices": phos_choices[str(p_manure_levels)],
+                               "p_manure_cat": p_manure_levels}
     print(return_data)
     return return_data
