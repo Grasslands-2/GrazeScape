@@ -27,7 +27,7 @@ import threading
 import time
 import multiprocessing
 import concurrent.futures
-from smartscape.model_definitions.bird_model import window
+from floodscape_models.WorkflowTrigger import hms_trigger
 import csv
 import json
 
@@ -494,15 +494,17 @@ class SmartScape:
                     cn_final = np.where(model_data[model] == layer, model_arr, 0)
                     # only looking at 3 in storm
                     inter_data = self.get_runoff_vectorized(cn_final, 3)
-                    inter_data = np.sum(
-                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                    # inter_data = np.sum(
+                    #     np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                    inter_data = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
                     if cell_count_trans > 0:
                         model_data_gross[layer]["selection"]["runoff"] = inter_data
                     inter_data = cn_final
 
                 else:
                     inter_data = np.where(model_data[model] == layer, model_arr, 0)
-                inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                inter_data = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
                 if cell_count_trans > 0:
                     model_data_gross[layer]["selection"][model] = inter_data
                 # print("the inter data is ", inter_data)
@@ -627,7 +629,8 @@ class SmartScape:
         for layer in layer_dic:
             for model in model_list_runoff:
                 inter_data = np.where(model_data[model] == layer, base_data[model], 0)
-                inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                inter_data = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
                 model_data_gross[layer]["base"][model] = inter_data
 
         # base_cn = np.where(
@@ -660,7 +663,7 @@ class SmartScape:
             inter_data = np.where(
                 np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
                 0, model_data_watershed[model])
-            inter_data = np.sum(inter_data)
+            # inter_data = np.sum(inter_data)
             #
             # put all data in first trans because already calculated the data for each trans
             model_data_gross[1]["selection_watershed"][model] = inter_data
@@ -704,14 +707,41 @@ class SmartScape:
 
         sum_model_cn_watershed = sum_model_cn_watershed + sum_model_cn
 
+
+        # print("time to run models ", time.time() - start)
+        print("cn for watershed with trans is", np.sum(sum_model_cn_watershed) / total_cells)
+        # print("cn for watershed with trans is", sum_model_cn_watershed)
+        #
+        # print("cn for watershed with trans is", np.sum(model_data_gross[1]["selection_watershed"]["cn"]) / total_cells)
+
+        sum_model_cn_watershed = np.where(sum_model_cn_watershed == 0, self.no_data, sum_model_cn_watershed)
+        print("old model cn", sum_model_cn_watershed / total_cells)
+        # base_dir = os.path.join(self.geo_folder, "base")
+
+        image = gdal.Open(os.path.join(self.geo_folder, "slope_aoi-clipped.tif"))
+        band = image.GetRasterBand(1)
+        arr_aoi = band.ReadAsArray()
+        # create a new raster with all valid cells set to -88 to be merged with merged.tif later
+        # arr_aoi = np.where(arr_aoi != self.no_data, -88, arr_aoi)
+        [rows, cols] = arr_aoi.shape
+        driver = gdal.GetDriverByName("GTiff")
+        outdata = driver.Create(os.path.join(self.in_dir, "model_combined.tif"), cols, rows, 1,
+                                gdal.GDT_Float32)
+        outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
+        outdata.SetProjection(image.GetProjection())  ##sets same projection as input
+        outdata.GetRasterBand(1).WriteArray(sum_model_cn_watershed)
+        outdata.GetRasterBand(1).SetNoDataValue(-9999)
+        # write to disk
+        outdata.FlushCache()
+        outdata = None
+        band = None
+        ds = None
+        file_list = [os.path.join(base_dir, "landuse_whole_region.tif"), os.path.join(self.in_dir, "model_combined.tif")]
+        options = gdal.WarpOptions(dstNodata=self.no_data, outputType=gc.GDT_Float32)
+
+        ds_clip = gdal.Warp(os.path.join(self.in_dir, "landuse_cn.tif"), file_list, options=options)
         self.run_region_cn()
-        print("time to run models ", time.time() - start)
-        print("cn for watershed with trans is", sum_model_cn_watershed / total_cells)
-
-        print("cn for watershed with trans is", np.sum(model_data_watershed["cn"]) / total_cells)
-        print("cn for watershed with trans is", model_data_gross)
-
-        print("cn for watershed with trans is", np.sum(model_data_gross[1]["selection_watershed"]["cn"]) / total_cells)
+        # self.run_region_cn1()
         return {
             "base": {
                 "cn": {
@@ -753,18 +783,119 @@ class SmartScape:
 
     def run_region_cn(self):
         print("running cn for region")
+        start = time.time()
         base_dir = os.path.join(self.geo_folder, "base")
+        landuse_file = os.path.join(base_dir, "landuse_whole_region.tif")
+        corn_file = os.path.join(base_dir, "contCorn_CN_whole_region.tif")
+        corngrain_file = os.path.join(base_dir, "cornGrain_CN_whole_region.tif")
+        dairy_file = os.path.join(base_dir, "dairyRotation_CN_whole_region.tif")
+        hay_file = os.path.join(base_dir, "hayGrassland_CN_whole_region.tif")
+        pasture_file = os.path.join(base_dir, "pastureWatershed_CN_whole_region.tif")
+
+        region_landuse_image = gdal.Open(landuse_file)
+        region_landuse_arr = region_landuse_image.GetRasterBand(1).ReadAsArray()
+
+        base_image = gdal.Open(corn_file)
+        base_arr_corn_cn = base_image.GetRasterBand(1).ReadAsArray()
+
+        base_image = gdal.Open(corngrain_file)
+        base_arr_corngrain_cn = base_image.GetRasterBand(1).ReadAsArray()
+
+        base_image = gdal.Open(dairy_file)
+        base_arr_dairy_cn = base_image.GetRasterBand(1).ReadAsArray()
+
+        cont_pl_image = gdal.Open(hay_file)
+        hay_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+
+        cont_pl_image = gdal.Open(pasture_file)
+        pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        watershed_total = {
+            1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93,
+                "insect": 0.51,
+                "bird": 0, "econ": 0, "nitrate": 0},
+            2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 0.81, "cn": 85, "insect": 0.51,
+                "bird": 0, "econ": 0, "nitrate": 0},
+            4: {"name": "contCorn", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
+                "cn": base_arr_corn_cn, "insect": 0.51, "bird": 0, "econ": 0,
+                "nitrate": 0},
+            3: {"name": "cornGrain", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
+                "cn": base_arr_corngrain_cn, "insect": 0.51, "bird": 0, "econ": 0,
+                "nitrate": 0},
+            5: {"name": "dairyRotation", "is_calc": True, "yield": 0, "ero": 0,
+                "ploss": 0,
+                "cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0, "econ": 0,
+                "nitrate": 0},
+            6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
+                "bird": 0,
+                "econ": 0, "nitrate": 0},
+            7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
+                "bird": 0,
+                "econ": 0, "nitrate": 0},
+            8: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
+                "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0,
+                "nitrate": 0},
+            9: {"name": "pasture", "is_calc": True, "yield": 0, "ero": 0,
+                "ploss": 0, "cn": pasture_cn_arr, "insect": 0, "bird": 0, "econ": 0,
+                "nitrate": 0},
+            10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0,
+                 "ploss": 0, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
+                 "bird": 0, "econ": 0, "nitrate": 0},
+            12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0,
+                 "bird": 0,
+                 "econ": 0, "nitrate": 0},
+            13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 85, "insect": 0,
+                 "bird": 0, "econ": 0, "nitrate": 0},
+            14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 82, "insect": 0,
+                 "bird": 0,
+                 "econ": 0, "nitrate": 0},
+            15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 72, "insect": 0,
+                 "bird": 0, "econ": 0, "nitrate": 0},
+        }
+        base_data_watershed = {
+            "cn": np.copy(region_landuse_arr)
+        }
+        for land_type in watershed_total:
+            base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type,
+                                                 watershed_total[land_type]["cn"], base_data_watershed["cn"])
+        [rows, cols] = pasture_cn_arr.shape
+        driver = gdal.GetDriverByName("GTiff")
+        outdata = driver.Create(os.path.join(self.in_dir, "cn_whole_region.tif"), cols, rows, 1,
+                                gdal.GDT_Float32)
+        outdata.SetGeoTransform(cont_pl_image.GetGeoTransform())  ##sets same geotransform as input
+        outdata.SetProjection(cont_pl_image.GetProjection())  ##sets same projection as input
+        outdata.GetRasterBand(1).WriteArray(base_data_watershed["cn"])
+        outdata.GetRasterBand(1).SetNoDataValue(-9999)
+        # write to disk
+        outdata.FlushCache()
+        outdata = None
+        band = None
+        ds = None
+        # save output
+        ds_clip = gdal.Warp(
+            # last raster ovrrides it
+            os.path.join(self.in_dir, "cn_whole_region_model.tif"),
+            [os.path.join(self.in_dir, "cn_whole_region.tif"), os.path.join(self.in_dir, "model_combined.tif")],
+            dstNodata=-9999,
+            # dstSRS="EPSG:3071",
+            outputType=gc.GDT_Float32)
+        ds_clip.FlushCache()
+        ds_clip = None
+
         # TODO this needs to be dynamic
         region_watershed_file = os.path.join(self.watershed_folder, "CC_GIS", "CC_fixed.geojson")
         with open(region_watershed_file, 'r') as f:
             data = json.load(f)
-        feature_list = ["Upper Coon Creek B",]
-# "Upper Coon Creek A",
-# "COON CREEK 33",
-# "COON CREEK 29",
-# "Timber Coulee C",
-# "Timber Coulee D",
-# "Timber Coulee B"]
+
+
+        feature_list = ["Middle Coon Creek I","Middle Coon Creek M"]
+            # "Upper Coon Creek A",
+            # "COON CREEK 33",
+            # "COON CREEK 29",
+            # "Timber Coulee C",
+            # "Timber Coulee D",
+            # "Timber Coulee B"]
+        feature_dict = {}
         for feature in data['features']:
             # Do something with each feature
             # print(feature['properties'])
@@ -785,143 +916,203 @@ class SmartScape:
             sub_water_cut_file = os.path.join(base_dir, feature_name + ".shp")
             polygon.to_file(filename=sub_water_cut_file, driver="ESRI Shapefile")
 
-            landuse_file = os.path.join(base_dir, "landuse_whole_region.tif")
-            corn_file = os.path.join(base_dir, "contCorn_CN_whole_region.tif")
-            corngrain_file = os.path.join(base_dir, "cornGrain_CN_whole_region.tif")
-            dairy_file = os.path.join(base_dir, "dairyRotation_CN_whole_region.tif")
-            hay_file = os.path.join(base_dir, "hayGrassland_CN_whole_region.tif")
-            pasture_file = os.path.join(base_dir, "pastureWatershed_CN_whole_region.tif")
+            output_filename_model = '/vsimem/output_model.tif'
+            output_filename_base = '/vsimem/output_base.tif'
             print(feature_name)
-            ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "landuse-clipped.tif"), gdal.Open(landuse_file),
-                                cutlineDSName=sub_water_cut_file,
-                                cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
-            ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "corn-clipped.tif"), gdal.Open(corn_file),
-                                cutlineDSName=sub_water_cut_file,
-                                cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
-            ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "corngrain-clipped.tif"),
-                                gdal.Open(corngrain_file),
-                                cutlineDSName=sub_water_cut_file,
-                                cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
-            ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "dairy-clipped.tif"), gdal.Open(dairy_file),
-                                cutlineDSName=sub_water_cut_file,
-                                cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
-            ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "hay-clipped.tif"), gdal.Open(hay_file),
-                                cutlineDSName=sub_water_cut_file,
-                                cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
-            ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "pasture-clipped.tif"), gdal.Open(pasture_file),
+            ds_clip = gdal.Warp(output_filename_base,
+                                [os.path.join(self.in_dir, "cn_whole_region.tif")],
                                 cutlineDSName=sub_water_cut_file,
                                 cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
 
-            landuse_file = os.path.join(base_dir, feature_name + "landuse-clipped.tif")
-            corn_file = os.path.join(base_dir, feature_name + "corn-clipped.tif")
-            corngrain_file = os.path.join(base_dir, feature_name + "corngrain-clipped.tif")
-            dairy_file = os.path.join(base_dir, feature_name + "dairy-clipped.tif")
-            hay_file = os.path.join(base_dir, feature_name + "hay-clipped.tif")
-            pasture_file = os.path.join(base_dir, feature_name + "pasture-clipped.tif")
+            ds_clip = gdal.Warp(output_filename_model,
+                                [os.path.join(self.in_dir, "cn_whole_region_model.tif")],
+                                cutlineDSName=sub_water_cut_file,
+                                cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
 
-            region_landuse_image = gdal.Open(landuse_file)
-            region_landuse_arr = region_landuse_image.GetRasterBand(1).ReadAsArray()
+            # cn_file = os.path.join(base_dir, feature_name + "base-clipped.tif")
+            # cn_model_file = os.path.join(base_dir, feature_name + "model-clipped.tif")
 
-            base_image = gdal.Open(corn_file)
-            base_arr_corn_cn = base_image.GetRasterBand(1).ReadAsArray()
+            base_image = gdal.Open(output_filename_base)
+            # base_image = gdal.Open(cn_file)
+            base_image_model = gdal.Open(output_filename_model)
+            # base_image_model = gdal.Open(cn_model_file)
 
-            base_image = gdal.Open(corngrain_file)
-            base_arr_corngrain_cn = base_image.GetRasterBand(1).ReadAsArray()
+            base_cn_arr = base_image.GetRasterBand(1).ReadAsArray()
+            model_cn_arr = base_image_model.GetRasterBand(1).ReadAsArray()
 
-            base_image = gdal.Open(dairy_file)
-            base_arr_dairy_cn = base_image.GetRasterBand(1).ReadAsArray()
-
-            cont_pl_image = gdal.Open(hay_file)
-            hay_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
-
-            cont_pl_image = gdal.Open(pasture_file)
-            pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+            base_data_watershed_local = {
+                "cn": np.copy(base_cn_arr),
+                "cn_model": np.copy(model_cn_arr)
+            }
             #
-            watershed_total = {
-                1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93,
-                    "insect": 0.51,
-                    "bird": 0, "econ": 0, "nitrate": 0},
-                2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 0.81, "cn": 85, "insect": 0.51,
-                    "bird": 0, "econ": 0, "nitrate": 0},
-                4: {"name": "contCorn", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
-                    "cn": base_arr_corn_cn, "insect": 0.51, "bird": 0, "econ": 0,
-                    "nitrate": 0},
-                3: {"name": "cornGrain", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
-                    "cn": base_arr_corngrain_cn, "insect": 0.51, "bird": 0, "econ": 0,
-                    "nitrate": 0},
-                5: {"name": "dairyRotation", "is_calc": True, "yield": 0, "ero": 0,
-                    "ploss": 0,
-                    "cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0, "econ": 0,
-                    "nitrate": 0},
-                6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
-                    "bird": 0,
-                    "econ": 0, "nitrate": 0},
-                7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
-                    "bird": 0,
-                    "econ": 0, "nitrate": 0},
-                8: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
-                    "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0,
-                    "nitrate": 0},
-                9: {"name": "pasture", "is_calc": True, "yield": 0, "ero": 0,
-                    "ploss": 0, "cn": pasture_cn_arr, "insect": 0, "bird": 0, "econ": 0,
-                    "nitrate": 0},
-                10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0,
-                     "ploss": 0, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
-                11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
-                     "bird": 0, "econ": 0, "nitrate": 0},
-                12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0,
-                     "bird": 0,
-                     "econ": 0, "nitrate": 0},
-                13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 85, "insect": 0,
-                     "bird": 0, "econ": 0, "nitrate": 0},
-                14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 82, "insect": 0,
-                     "bird": 0,
-                     "econ": 0, "nitrate": 0},
-                15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 72, "insect": 0,
-                     "bird": 0, "econ": 0, "nitrate": 0},
-            }
             # # only land use that can be selected
-            base_data_watershed = {
-                "cn": np.copy(region_landuse_arr)
-            }
-            total_cells = np.count_nonzero(base_data_watershed["cn"] > self.no_data)
 
-            for land_type in watershed_total:
-                base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type,
-                                                     watershed_total[land_type]["cn"], base_data_watershed["cn"])
-            base_data_watershed["cn"] = np.where(
-                np.logical_or(base_data_watershed["cn"] == self.no_data, base_data_watershed["cn"] < 0),
-                0, base_data_watershed["cn"])
+            total_cells = np.count_nonzero(base_data_watershed_local["cn"] > self.no_data)
 
-            total_cn = np.sum(base_data_watershed["cn"])
+            base_data_watershed_local["cn"] = np.where(
+                np.logical_or(base_data_watershed_local["cn"] == self.no_data, base_data_watershed_local["cn"] < 0),
+                0, base_data_watershed_local["cn"])
+
+            base_data_watershed_local["cn_model"] = np.where(
+                np.logical_or(base_data_watershed_local["cn_model"] == self.no_data, base_data_watershed_local["cn_model"] < 0),
+                0, base_data_watershed_local["cn_model"])
+
+            total_cn = np.sum(base_data_watershed_local["cn"])
+            total_cn_model = np.sum(base_data_watershed_local["cn_model"])
+            # print("total cn", total_cn)
             # print("total cells", total_cells)
 
-            print("cn is ", total_cn / total_cells)
-            # [rows, cols] = base_data_watershed["cn"].shape
-            # driver = gdal.GetDriverByName("GTiff")
-            # print("filepath", os.path.join(base_dir,  "cn_outputt.tif"))
-            # outdata = driver.Create(os.path.join(base_dir,  "cn_outputt.tif"), cols, rows, 1,
-            #                         gdal.GDT_Float32)
-            # # set metadata to an existing raster
-            # outdata.SetGeoTransform(
-            #     region_landuse_image.GetGeoTransform())  ##sets same geotransform as input
-            # outdata.SetProjection(
-            #     region_landuse_image.GetProjection())  ##sets same projection as input
-            # outdata.GetRasterBand(1).WriteArray(base_data_watershed["cn"])
-            # outdata.GetRasterBand(1).SetNoDataValue(self.no_data)
-            # # write to disk
-            # outdata.FlushCache()
-            # outdata = None
-            # band = None
-            # ds = None
-            # print("done writing")
-            # break
+            print("base cn is ", total_cn / total_cells)
+            print("model cn is ", total_cn_model / total_cells)
+            feature_dict[feature_name] = {"model":total_cn_model / total_cells, "base": total_cn / total_cells}
+        print(feature_dict)
+        print("time to run cn models ", time.time() - start)
+        hms_trigger(feature_dict)
+    # def run_region_cn1(self):
+    #     base_dir = os.path.join(self.geo_folder, "base")
+    #     # TODO this needs to be dynamic
+    #     region_watershed_file = os.path.join(self.watershed_folder, "CC_GIS", "CC_fixed.geojson")
+    #     feature_list = ["Middle Coon Creek I", ]
+    #     # "Upper Coon Creek A",
+    #     # "COON CREEK 33",
+    #     # "COON CREEK 29",
+    #     # "Timber Coulee C",
+    #     # "Timber Coulee D",
+    #     # "Timber Coulee B"]
+    #     with open(region_watershed_file, 'r') as f:
+    #         data = json.load(f)
+    #     for feature in data['features']:
+    #         # Do something with each feature
+    #         # print(feature['properties'])
+    #         feature_name = feature['properties']["name"]
+    #         if feature_name not in feature_list:
+    #             continue
+    #         # print(feature['geometry'])
+    #         # print(feature['geometry']['coordinates'])
+    #         geometry = feature['geometry']['coordinates'][0][0]
+    #         geometry_poly = [Polygon(geometry)]
+    #         # print(geometry_poly)
+    #         df = pd.DataFrame({'geometry': geometry_poly})
+    #         crs = {'init': "epsg:6609"}
+    #         polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
+    #         # print(polygon)
+    #         sub_water_cut_file = os.path.join(base_dir, feature_name + ".shp")
+    #         polygon.to_file(filename=sub_water_cut_file, driver="ESRI Shapefile")
+    #
+    #         landuse_file = os.path.join(base_dir, "landuse_whole_region.tif")
+    #         corn_file = os.path.join(base_dir, "contCorn_CN_whole_region.tif")
+    #         corngrain_file = os.path.join(base_dir, "cornGrain_CN_whole_region.tif")
+    #         dairy_file = os.path.join(base_dir, "dairyRotation_CN_whole_region.tif")
+    #         hay_file = os.path.join(base_dir, "hayGrassland_CN_whole_region.tif")
+    #         pasture_file = os.path.join(base_dir, "pastureWatershed_CN_whole_region.tif")
+    #         print(feature_name)
+    #         ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "landuse-clipped.tif"), gdal.Open(landuse_file),
+    #                             cutlineDSName=sub_water_cut_file,
+    #                             cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+    #         ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "corn-clipped.tif"), gdal.Open(corn_file),
+    #                             cutlineDSName=sub_water_cut_file,
+    #                             cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+    #         ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "corngrain-clipped.tif"),
+    #                             gdal.Open(corngrain_file),
+    #                             cutlineDSName=sub_water_cut_file,
+    #                             cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+    #         ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "dairy-clipped.tif"), gdal.Open(dairy_file),
+    #                             cutlineDSName=sub_water_cut_file,
+    #                             cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+    #         ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "hay-clipped.tif"), gdal.Open(hay_file),
+    #                             cutlineDSName=sub_water_cut_file,
+    #                             cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+    #         ds_clip = gdal.Warp(os.path.join(base_dir, feature_name + "pasture-clipped.tif"), gdal.Open(pasture_file),
+    #                             cutlineDSName=sub_water_cut_file,
+    #                             cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+    #
+    #         landuse_file = os.path.join(base_dir, feature_name + "landuse-clipped.tif")
+    #         corn_file = os.path.join(base_dir, feature_name + "corn-clipped.tif")
+    #         corngrain_file = os.path.join(base_dir, feature_name + "corngrain-clipped.tif")
+    #         dairy_file = os.path.join(base_dir, feature_name + "dairy-clipped.tif")
+    #         hay_file = os.path.join(base_dir, feature_name + "hay-clipped.tif")
+    #         pasture_file = os.path.join(base_dir, feature_name + "pasture-clipped.tif")
+    #
+    #         region_landuse_image = gdal.Open(landuse_file)
+    #         region_landuse_arr = region_landuse_image.GetRasterBand(1).ReadAsArray()
+    #
+    #         base_image = gdal.Open(corn_file)
+    #         base_arr_corn_cn = base_image.GetRasterBand(1).ReadAsArray()
+    #
+    #         base_image = gdal.Open(corngrain_file)
+    #         base_arr_corngrain_cn = base_image.GetRasterBand(1).ReadAsArray()
+    #
+    #         base_image = gdal.Open(dairy_file)
+    #         base_arr_dairy_cn = base_image.GetRasterBand(1).ReadAsArray()
+    #
+    #         cont_pl_image = gdal.Open(hay_file)
+    #         hay_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+    #
+    #         cont_pl_image = gdal.Open(pasture_file)
+    #         pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+    #         #
+    #         watershed_total = {
+    #             1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93,
+    #                 "insect": 0.51,
+    #                 "bird": 0, "econ": 0, "nitrate": 0},
+    #             2: {"name": "lowUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 0.81, "cn": 85, "insect": 0.51,
+    #                 "bird": 0, "econ": 0, "nitrate": 0},
+    #             4: {"name": "contCorn", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
+    #                 "cn": base_arr_corn_cn, "insect": 0.51, "bird": 0, "econ": 0,
+    #                 "nitrate": 0},
+    #             3: {"name": "cornGrain", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
+    #                 "cn": base_arr_corngrain_cn, "insect": 0.51, "bird": 0, "econ": 0,
+    #                 "nitrate": 0},
+    #             5: {"name": "dairyRotation", "is_calc": True, "yield": 0, "ero": 0,
+    #                 "ploss": 0,
+    #                 "cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0, "econ": 0,
+    #                 "nitrate": 0},
+    #             6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
+    #                 "bird": 0,
+    #                 "econ": 0, "nitrate": 0},
+    #             7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
+    #                 "bird": 0,
+    #                 "econ": 0, "nitrate": 0},
+    #             8: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0, "ploss": 0,
+    #                 "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0,
+    #                 "nitrate": 0},
+    #             9: {"name": "pasture", "is_calc": True, "yield": 0, "ero": 0,
+    #                 "ploss": 0, "cn": pasture_cn_arr, "insect": 0, "bird": 0, "econ": 0,
+    #                 "nitrate": 0},
+    #             10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0,
+    #                  "ploss": 0, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
+    #             11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
+    #                  "bird": 0, "econ": 0, "nitrate": 0},
+    #             12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0,
+    #                  "bird": 0,
+    #                  "econ": 0, "nitrate": 0},
+    #             13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 85, "insect": 0,
+    #                  "bird": 0, "econ": 0, "nitrate": 0},
+    #             14: {"name": "barren", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 82, "insect": 0,
+    #                  "bird": 0,
+    #                  "econ": 0, "nitrate": 0},
+    #             15: {"name": "shrub", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 72, "insect": 0,
+    #                  "bird": 0, "econ": 0, "nitrate": 0},
+    #         }
+    #         # # only land use that can be selected
+    #         base_data_watershed = {
+    #             "cn": np.copy(region_landuse_arr)
+    #         }
+    #         total_cells = np.count_nonzero(base_data_watershed["cn"] > self.no_data)
+    #
+    #         for land_type in watershed_total:
+    #             base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type,
+    #                                                  watershed_total[land_type]["cn"], base_data_watershed["cn"])
+    #         base_data_watershed["cn"] = np.where(
+    #             np.logical_or(base_data_watershed["cn"] == self.no_data, base_data_watershed["cn"] < 0),
+    #             0, base_data_watershed["cn"])
+    #
+    #         total_cn = np.sum(base_data_watershed["cn"])
+    #         print("total cn", total_cn)
+    #
+    #         print("total cells", total_cells)
+    #         print("cn is ", total_cn / total_cells)
 
-        #
-        # for feature in data['features']:
-        #     # Do something with each feature
-        #     print(feature['properties'])
-        #     print(feature['geometry'])
 
     def get_runoff_vectorized(self, cn, rain):
         cn = np.where(cn < 1, 1, cn)
