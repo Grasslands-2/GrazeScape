@@ -280,6 +280,7 @@ class OutputDataNode:
         self.default_units = default_units
         self.default_title = default_title
         self.alternate_title = alternate_title
+        self.alternate_data = []
         self.data = []
         self.P2O5_fert = None
         self.N_fert = None
