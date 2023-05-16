@@ -8,7 +8,7 @@ class CropYield(ModelBase):
     def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
-    def run_model(self, request, active_region, manure_results):
+    def run_model(self, manure_results):
 
         crop_ro = self.model_parameters["crop"]
         return_data = []
@@ -16,6 +16,7 @@ class CropYield(ModelBase):
             corn = OutputDataNode("Corn Grain", "Corn grain yield [bu/ac/yr]", "Corn grain production [bu/yr]",
                                   "Corn grain yield [bushels/ac/yr]", "Corn grain production [bushels/yr]")
 
+            return_data.append(corn)
         elif crop_ro == "cg":
             corn = OutputDataNode("Corn Grain", "Corn grain yield [bu/ac/yr]", "Corn grain production [bu/yr]",
                                   "Corn grain yield [bushels/ac/yr]", "Corn grain production [bushels/yr]")

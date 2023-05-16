@@ -26,7 +26,7 @@ class Runoff(ModelBase):
         }
         return hyro_dic[group_num]
 
-    def run_model(self, active_region, manure_results):
+    def run_model(self, manure_results):
         print("start runoff")
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
@@ -63,7 +63,7 @@ class Runoff(ModelBase):
         pastureTidyffcn = "pt_ffcn_"
         dryLotTidyffcn = "dl_ffcn_"
 
-        regionRDS = active_region + '.rds'
+        regionRDS = self.active_region + '.rds'
 
         r.assign("slope", slope)
         r.assign("slope_length", slope_length)

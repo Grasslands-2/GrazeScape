@@ -28,63 +28,7 @@ class GrassYield(ModelBase):
         self.grass_type = self.model_parameters['grass_type']
         # self.units = "Dry Mass tons/ac"
 
-    @staticmethod
-    def calculate_denitloss(om_average, drain_response_average):
-        drain_round = drain_response_average
-        if drain_round > 7:
-            drain_round = 7
-        if drain_round < 1:
-            drain_round = 1
-        if om_average < 2:
-            drain_dict = {1: 3, 2: 9, 3: 20, 4: 3, 5: 13, 6: 20, 7: 6}
-        elif 2 <= om_average <= 5:
-            drain_dict = {1: 6, 2: 13, 3: 30, 4: 6, 5: 17.5, 6: 30, 7: 10}
-        else:
-            drain_dict = {1: 8, 2: 17.5, 3: 40, 4: 8, 5: 25, 6: 40, 7: 13}
-        return drain_dict[drain_round]
-
-    def Calc_N_Leach(self, yeild_crop_data, fertN, manrN, NfixPct, NH3loss, Nharv_content, grazed_manureN,
-                     Denitr_Value, precN, dryN, erosN):
-        # print("hello world")
-        NH3N = fertN * NH3loss / 100  ## ammonia loss output, lb/ac
-        # print("NH3N")
-        # print(NH3N)
-        harvN = yeild_crop_data * 2000 * Nharv_content  ## harvested N output, lb/ac (crop yield in tons dm, convert to lbs dm) # dry lot yield = 0
-        # print("harvN")
-        # print(harvN)
-        fixN = harvN * NfixPct / 100 + 3  ## N fixation input, lb/ac
-        # print("fixN")
-        # print(fixN)
-        denitN = fertN * Denitr_Value / 100  ## denitrification loss,
-        # print("denitN")
-        # print(denitN)
-        inputsN = fertN + manrN + precN + dryN + fixN + grazed_manureN
-        # print("inputsN 1")
-        # print(inputsN)
-        gasN = 0.01 * inputsN  ## misc gases are estimated as 1% of inputs
-        # print("gasN")
-        # print(gasN)
-        NH3senN = 8  ## ammonia loss at senescence
-        runoffN = 0
-        # print("inputs", fertN , manrN , precN , dryN , fixN , grazed_manureN)
-        # print("outputs", harvN , NH3N , denitN , erosN , gasN , NH3senN , runoffN)
-        outputsN = harvN + NH3N + denitN + erosN + gasN + NH3senN + runoffN
-        # print("inputsN")
-        # print(inputsN)
-        # print("outputsN")
-        # print(outputsN)
-        # if yeild_crop_data > 0:
-        #     print("inputs", fertN, manrN, precN, dryN, fixN, grazed_manureN)
-        #     print("inputs2", yeild_crop_data, fertN, manrN, NfixPct, NH3loss, Nharv_content, grazed_manureN,
-        #              Denitr_Value, precN, dryN, erosN)
-        #     print("outputs", harvN, NH3N, denitN, erosN, gasN, NH3senN, runoffN)
-        #     print("sum is", inputsN - outputsN)
-        leachN = inputsN - outputsN
-        # print("LEACHN")
-        # print(leachN)
-        return leachN
-
-    def run_model(self, request, active_region, manure_results):
+    def run_model(self, manure_results):
         start = time.time()
         grass_yield = OutputDataNode("Grass", "Grass yield (tons-dry-matter/ac/yr)", 'Grass production (tons-dry-matter/yr)','Grass yield (tons-dry-matter/ac/yr)','Grass production (tons-dry-matter/yr)')
         rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)", "Total dry matter production (tons/yr)","Total dry matter yield (tons/ac/yr)","Total dry matter yield (tons/ac/yr)")
@@ -92,6 +36,7 @@ class GrassYield(ModelBase):
 
         nitrate_array = []
         crop_ro = self.model_parameters["crop"] + '-' + self.model_parameters["rotation"]
+        print("crop rotation", crop_ro)
         return_data = []
         return_data.append(grass_yield)
         return_data.append(rotation_avg)
@@ -125,7 +70,7 @@ class GrassYield(ModelBase):
         awc = self.raster_inputs["awc"].flatten()
         total_depth = self.raster_inputs["total_depth"].flatten()
 
-        regionRDS = active_region + '.rds'
+        regionRDS = self.active_region + '.rds'
         r.assign("slope_length", slope_length)
         r.assign("k", k)
         r.assign("total_depth", total_depth)
@@ -140,7 +85,6 @@ class GrassYield(ModelBase):
         r.assign("awc", awc)
         r.assign("total_depth", total_depth)
 
-        regionRDS = active_region + '.rds'
         r.assign("slope", slope)
         r.assign("slope_length", slope_length)
         r.assign("sand", sand)
@@ -166,36 +110,28 @@ class GrassYield(ModelBase):
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
-        print("om value is ", float(self.model_parameters["om"]))
-        print("assigning om done")
 
-        print(r("library(randomForest)"))
-        print(r("library(dplyr)"))
-        print(r("library(tidymodels)"))
-        print(r("library(tidyverse)"))
-        print(r("savedRF <- readRDS('" + self.model_file_path + "')"))
-        print(r(
+        r("library(randomForest)")
+        r("library(dplyr)")
+        r("library(tidymodels)")
+        r("library(tidyverse)")
+        r("savedRF <- readRDS('" + self.model_file_path + "')")
+        r(
             "new_dat <- data.frame(slope=slope, elev=elevation, sand=sand, "
             "silt=silt,   clay=clay,     om=om,   ksat=ksat,    "  # cec=cec,     
-            "ph=ph,  awc=awc,   total.depth=total_depth )"))
-        print(r(
+            "ph=ph,  awc=awc,   total.depth=total_depth )")
+        r(
             'cropname <- factor(c("Bluegrass-clover", "Orchardgrass-clover",'
-            '"Timothy-clover"))'))
-        print(r(
-            "df_repeated <- new_dat %>% slice(rep(1:n(), each=length(cropname)))"))
-        print(r("new_df <- cbind(cropname, df_repeated)"))
-        print(r("pred_df <- new_df %>% filter(cropname == '" + grass + "')"))
-        print(r("pred <- predict(savedRF, pred_df)"))
-        pred = r.get("pred")
-
-        # print("Model Results")
-        # print("$$$$$$$$$$$$$$$")
+            '"Timothy-clover"))')
+        r(
+            "df_repeated <- new_dat %>% slice(rep(1:n(), each=length(cropname)))")
+        r("new_df <- cbind(cropname, df_repeated)")
+        r("pred_df <- new_df %>% filter(cropname == '" + grass + "')")
+        r("pred <- predict(savedRF, pred_df)")
+        pred = r.get("pred").to_numpy()
         pred = pred * float(self.model_parameters["graze_factor"])
-        # pred2 = np.where(pred < 0.01, .01, pred)
-        # print("GRASS PRED Flattened")
-        # print(pred2)
-        grass_yield.set_data(pred)
-        grass_yield.set_data_alternate(pred)
-        rotation_avg.set_data(pred)
+        grass_yield.set_data(pred.flatten())
+        grass_yield.set_data_alternate(pred.flatten())
+        rotation_avg.set_data(pred.flatten())
 
         return return_data

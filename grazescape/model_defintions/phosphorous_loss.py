@@ -9,10 +9,10 @@ from shapely.geometry import Polygon
 
 
 class PhosphorousLoss(ModelBase):
-    def __init__(self, request, active_region, clipped_rasters, file_name=None):
-        super().__init__(request,active_region, clipped_rasters, file_name)
+    def __init__(self, request, active_region, file_name=None):
+        super().__init__(request, active_region, file_name)
 
-    def run_model(self, manure_results, ero):
+    def run_model(self, manure_results, ero, placeholder):
         r = R(RCMD=self.r_file_path, use_pandas=True)
         pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
 
@@ -66,7 +66,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
 
-        r.assign("erosion", ero[0].data)
+        r.assign("erosion", ero.data)
         ContCornTidyploss = "cc_ploss_"
         cornGrainTidyploss = "cg_ploss_"
         cornSoyOatTidyploss = "cso_ploss_"

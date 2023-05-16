@@ -7,8 +7,8 @@ from shapely.geometry import Polygon
 
 
 class Erosion(ModelBase):
-    def __init__(self, request, active_region, clipped_rasters, file_name=None):
-        super().__init__(request, active_region, clipped_rasters, file_name)
+    def __init__(self, request, active_region, file_name=None):
+        super().__init__(request, active_region, file_name)
 
     def run_model(self, manure_results):
         r = R(RCMD=self.r_file_path, use_pandas=True)

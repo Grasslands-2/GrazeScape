@@ -40,7 +40,6 @@ Processing.initialize()
 #import grass.script as grass
 from grazescape.raster_data import RasterData
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import R
 from django.conf import settings
 
 class InfraTrueLength(QgsProcessingAlgorithm):

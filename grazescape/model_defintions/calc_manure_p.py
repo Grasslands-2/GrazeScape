@@ -1,6 +1,5 @@
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 import math
-from pyper import *
 import numpy as np
 import pandas as pd
 import time
@@ -61,7 +60,7 @@ def getfertNrec_values(rot_yrs_crop, crop, legume_text, animal_density_text, fer
         NFertRecs_CoverAbbr = NFertRecs_CropAbbr[NFertRecs_CropAbbr["coverAbbr"] == str(cover_crop)]
         NFertRecs_RasterLookup = NFertRecs_CoverAbbr[NFertRecs_CoverAbbr["rasterLookup"] == rasterLookUp]
         NFertRecs_Row = pd.concat([NFertRecs_RasterLookup[NFertRecs_RasterLookup["rasterVals"] == str(rasterVal)]])
-        print("crop ", i)
+
         # alfalfa has two rotation years
 
         nrecValue = float(NFertRecs_Row["Nrec"].values[0])
@@ -94,7 +93,7 @@ def getfertNrec_values(rot_yrs_crop, crop, legume_text, animal_density_text, fer
         }
     for val in n_fert_values["avg"]:
         n_fert_values["avg"][val] = n_fert_values["avg"][val] / len(rot_yrs_crop)
-    print("n fert inputs", n_fert_values)
+
     return n_fert_values
 
 
@@ -161,8 +160,8 @@ class CalcManureP(ModelBase):
         self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
 
     def run_model(self):
-        print("starting manure model")
-        print(self.model_parameters["crop"])
+
+
         start = time.time()
         if self.model_parameters["crop"] == "pt" or self.model_parameters["crop"] == "dl":
             cover_crop = 'nc'
@@ -182,21 +181,21 @@ class CalcManureP(ModelBase):
         values, counts = np.unique(self.raster_inputs["Nresponse"], return_counts=True)
         # we are going to take the dominate nresponse value from each field
         for i in range(1, len(values)):
-            print(i)
+
             if counts[i] > max_val:
                 max_val = counts[i]
                 max_index = i
         cell_nresponse = str(values[max_index])
-        print(values, counts)
-        print(cell_nresponse)
-        print(self.model_parameters["om"])
+
+
+
         rot_yrs_crop = getRotYers(crop_ro)[1]
-        print("right before pmanure loop ", time.time() - start)
+
 
         nitrate_inputs = getfertNrec_values(rot_yrs_crop, crop_ro, legume_text, animal_density_text,
                                             self.fertNrec, getOMText(float(self.model_parameters["om"])),
                                             cell_nresponse,
                                             cover_crop, manure_n_perc)
 
-        print("p mamnure finished", time.time() - start)
+
         return nitrate_inputs
