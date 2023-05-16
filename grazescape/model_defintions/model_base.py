@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from PIL import Image
 import numpy as np
 # np.set_printoptions(threshold=np.inf)
-from pyper import R
 from django.conf import settings
 import os
 import pandas as pd
@@ -49,7 +48,7 @@ class ModelBase:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
-
+        self.active_region = active_region
         if active_region == "cloverBeltWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'cloverBeltWI')
         if active_region == "southWestWI":
@@ -210,7 +209,7 @@ class ModelBase:
                         min_val = data[y][x]
                     sum_val = sum_val + data[y][x]
                     count = count + 1
-        print("The cell count is ", count)
+        # print("The cell count is ", count)
         return min_val, max_val, sum_val / count, sum_val, count
 
     def sum_count(self, data, no_data_array):
@@ -280,13 +279,16 @@ class OutputDataNode:
         self.default_units = default_units
         self.default_title = default_title
         self.alternate_title = alternate_title
+        self.alternate_data = []
         self.data = []
         self.P2O5_fert = None
         self.N_fert = None
 
-
     def set_data(self, data):
         self.data.append(data)
+
+    def set_data_alternate(self, data):
+        self.alternate_data.append(data)
 
     def get_model_type(self):
         return self.model_type
