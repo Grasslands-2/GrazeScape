@@ -689,19 +689,8 @@ var fieldYieldArray = [];
 var modelTypes = ['yield']
 //list of all the current and future charts
 var chartList = [
-    "grass_yield_farm", 
-    "grass_yield_field",
-    "ploss_farm", 
-    "ploss_field",
-    "soil_loss_farm", 
-    "soil_loss_field",
-    "nleaching_farm", 
-    "nleaching_field",
-    "nwater_field",
-    "nwater_farm",
-    "cn_num_farm",
-    "runoff_farm",
-    "compare_farm",
+    'grass_yield_farm', 
+    'grass_yield_field',
     'corn_yield_farm',
     'corn_yield_field',
     'corn_silage_yield_farm',
@@ -714,6 +703,17 @@ var chartList = [
     'alfalfa_yield_field',
     'rotation_yield_farm',
     'rotation_yield_field',
+    'soil_loss_farm', 
+    'soil_loss_field',
+    'ploss_farm', 
+    'ploss_field',
+    'nleaching_farm', 
+    'nleaching_field',
+    'nwater_field',
+    'nwater_farm',
+    'cn_num_farm',
+    'runoff_farm',
+    'compare_farm',
     'insecticide_farm',
     'insecticide_field',
     'feed_breakdown',
@@ -727,39 +727,6 @@ var additionalChartInfo = {
     }, 
     'grass_yield_field': {
         group: 'Yield'
-    },
-    'ploss_farm': {
-        group: 'Nutrients'
-    }, 
-    'ploss_field': {
-        group: 'Nutrients'
-    },
-    'soil_loss_farm': {
-        group: 'Erosion'
-    }, 
-    'soil_loss_field': {
-        group: 'Erosion'
-    },
-    'nleaching_farm': {
-        group: 'Nutrients'
-    }, 
-    'nleaching_field': {
-        group: 'Nutrients'
-    },
-    'nwater_field': {
-        group: 'Nutrients'
-    },
-    'nwater_farm': {
-        group: 'Nutrients'
-    },
-    'cn_num_farm': {
-        group: 'Runoff'
-    },
-    'runoff_farm': {
-        group: 'Runoff'
-    },
-    'compare_farm': {
-        group: 'Unknown'
     },
     'corn_yield_farm': {
         group: 'Yield'
@@ -796,6 +763,39 @@ var additionalChartInfo = {
     },
     'rotation_yield_field': {
         group: 'Yield'
+    },
+    'soil_loss_farm': {
+        group: 'Erosion'
+    }, 
+    'soil_loss_field': {
+        group: 'Erosion'
+    },
+    'ploss_farm': {
+        group: 'Nutrients'
+    }, 
+    'ploss_field': {
+        group: 'Nutrients'
+    },
+    'nleaching_farm': {
+        group: 'Nutrients'
+    }, 
+    'nleaching_field': {
+        group: 'Nutrients'
+    },
+    'nwater_field': {
+        group: 'Nutrients'
+    },
+    'nwater_farm': {
+        group: 'Nutrients'
+    },
+    'cn_num_farm': {
+        group: 'Runoff'
+    },
+    'runoff_farm': {
+        group: 'Runoff'
+    },
+    'compare_farm': {
+        group: 'Unknown'
     },
     'insecticide_farm': {
         group: 'Insecticide'
@@ -2067,11 +2067,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container"><canvas  id="nwater_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container"><canvas  id="nwater_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',
@@ -2134,11 +2134,11 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="nleaching_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="nwater_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
                     {
                         xtype: 'container',
-                        html: '<div id="container" ><canvas id="nwater_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        html: '<div id="container" ><canvas id="nleaching_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',

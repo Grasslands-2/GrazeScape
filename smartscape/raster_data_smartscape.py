@@ -23,6 +23,7 @@ import math
 import threading
 import shutil
 
+
 class RasterDataSmartScape:
     """
     Child class of RasterData. Specifically used to handel raster requests for SmartScape
@@ -33,6 +34,7 @@ class RasterDataSmartScape:
     layer_dic : str
         dict of local layer names and their names on geoserver
     """
+
     def __init__(self, extents, field_geom_array, field_id, region):
         """
         Constructor.
@@ -51,14 +53,14 @@ class RasterDataSmartScape:
                                      'data_files', 'raster_inputs',
                                      self.file_name)
         self.layer_dic = {
-            "slope": "SmartScapeRaster:" + region + "_slopePer_30m",
-            "landuse": "SmartScapeRaster:" + region + "_WiscLand_30m",
-            "stream_dist": "SmartScapeRaster:" + region + "_distanceToWaterWays",
-            "land_class": "SmartScapeRaster:" + region + "_landClass_30m",
-            "farm_class": "SmartScapeRaster:" + region + "_farmClass_30m",
-            "om": "SmartScapeRaster:" + region + "_om_30m",
-            "drainClass": "SmartScapeRaster:" + region + "_drainClass_30m",
-            "nResponse": "SmartScapeRaster:" + region + "_nResponse_30m",
+            "slope": "SmartScapeRaster_" + region + ":" + region + "_slopePer_30m",
+            "landuse": "SmartScapeRaster_" + region + ":" + region + "_WiscLand_30m",
+            "stream_dist": "SmartScapeRaster_" + region + ":" + region + "_distanceToWaterWays",
+            "land_class": "SmartScapeRaster_" + region + ":" + region + "_landClass_30m",
+            "farm_class": "SmartScapeRaster_" + region + ":" + region + "_farmClass_30m",
+            "om": "SmartScapeRaster_" + region + ":" + region + "_om_30m",
+            "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
+            "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
 
         }
         self.extents = extents
@@ -66,7 +68,7 @@ class RasterDataSmartScape:
         geo_server_url = settings.GEOSERVER_URL
 
         self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
-                             "request=GetCoverage&CoverageId="
+                                              "request=GetCoverage&CoverageId="
         self.field_geom_array = field_geom_array
         self.extents_string_x = ""
         self.extents_string_y = ""
@@ -74,8 +76,10 @@ class RasterDataSmartScape:
         self.no_data_aray = []
 
         if extents is not None:
-            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
-            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(
+                math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
+                math.ceil(float(extents[3]))) + ")"
         self.crs = "epsg:3857"
 
         self.no_data = -9999
@@ -130,12 +134,11 @@ class RasterDataSmartScape:
         # layers.json")
 
         for layer in self.layer_dic:
-
             print("downloading layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            print("done downloading")
+            # print("done downloading")
             print("raster_file_path", raster_file_path)
             self.createNewDownloadThread(url, raster_file_path)
 
@@ -201,6 +204,7 @@ class RasterDataSmartScape:
                 # print(os.path.join(self.dir_path, file))
                 # ds_clip = gdal.Open(os.path.join(self.dir_path, data_name + "_clipped.tif"))
                 ds_clip = gdal.Open(os.path.join(self.dir_path, file))
+                print("clippled file path", os.path.join(self.dir_path, file))
                 geoTransform = ds_clip.GetGeoTransform()
                 minx = geoTransform[0]
                 maxy = geoTransform[3]

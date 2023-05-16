@@ -147,6 +147,7 @@ class SidePanel extends React.Component{
         this.sliderChangeSlope = this.sliderChangeSlope.bind(this);
         this.sliderChangeStream = this.sliderChangeStream.bind(this);
         this.getPhosValuesBase = this.getPhosValuesBase.bind(this);
+        this.setTillage = this.setTillage.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
@@ -241,7 +242,15 @@ class SidePanel extends React.Component{
             printingPDF:false,
             speedometerWidth:window.innerWidth*.7/2,
             speedometerHeight:window.innerWidth*.7/2/2,
-            landTypeSelected:false
+            landTypeSelected:false,
+            showTillageFC:true,
+            showTillageFM:true,
+            showTillageNT:true,
+            showTillageSC:false,
+            showTillageSN:true,
+            showTillageSU:true,
+            showTillageSV:true,
+            tillageBlank:false,
         }
     }
     // fires anytime state or props are updated
@@ -370,6 +379,7 @@ class SidePanel extends React.Component{
             }.bind(this), 1)
         }
     }
+
     updateDimensions = () => {
 //        console.log("dimensions updated", window.innerWidth, window.innerHeight)
         let width = 0
@@ -413,6 +423,7 @@ class SidePanel extends React.Component{
       }
     showModal(){
         console.log("showing modal")
+        console.log("Phos fert is ", this.props.baseTrans.management.phos_fertilizer)
         this.getPhosValuesBase()
         console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
@@ -423,6 +434,7 @@ class SidePanel extends React.Component{
 //        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
         this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
         this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
+        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
 
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
@@ -598,14 +610,16 @@ class SidePanel extends React.Component{
 //        this.setState({showHuc10:false})
         this.setState({showHuc12:false})
         this.props.setActiveRegion(null)
-        this.props.setVisibilityMapLayer([
-            {'name':'southWest', 'visible':true},
-            {'name':'southCentral', 'visible':true},
-            {'name':'cloverBelt', 'visible':true},
-            {'name':'subHuc12', 'visible':false},
-//            {'name':'huc10', 'visible':true},
-            {'name':'huc12', 'visible':true}
-            ])
+//        this.props.setVisibilityMapLayer([
+//            {'name':'southWest', 'visible':true},
+//            {'name':'southCentral', 'visible':true},
+//            {'name':'redCedar', 'visible':true},
+//            {'name':'cloverBelt', 'visible':true},
+//            {'name':'cloverBelt', 'visible':true},
+//            {'name':'subHuc12', 'visible':false},
+////            {'name':'huc10', 'visible':true},
+//            {'name':'huc12', 'visible':true}
+//            ])
         this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
@@ -613,6 +627,7 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"p_manure_cat", "value":"0", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
         this.setState({aoiOrDisplayLoading:false})
@@ -943,18 +958,26 @@ class SidePanel extends React.Component{
 //                let phos_options = response.response["base"].p_choices
                 let phos_options = response.response["base"].p_choices
                 let manure_value = response.response["base"].p_manure
+                let p_manure_cat = response.response["base"].p_manure_cat
 //                let manure_value = response.response["base"].p_manure
                 console.log(phos_options, manure_value)
-
+                let phosOpt = phos_options[0]
+                console.log("phosOpt")
+                console.log(phosOpt)
+                console.log(this.phos_fertilizer.current.value)
+                console.log(phos_options.includes(parseInt(this.phos_fertilizer.current.value)))
+                if (phos_options.includes(parseInt(this.phos_fertilizer.current.value))){
+                    phosOpt = this.phos_fertilizer.current.value
+                }
                 this.props.updateActiveBaseProps({"name":"phos_manure", "value": manure_value, "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_manure_cat", "value": p_manure_cat, "type":"mang"})
 //                this.props.updateActiveBaseProps({"name":"phos_fert_options", "value": phos_options, "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phos_options[0], "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phosOpt, "type":"mang"})
 
 //                this.phos_fert_options_holder = ["6","8","9"]
                 this.setState({phos_fert_options_holder:phos_options})
                 this.phos_manure.current.value = manure_value
-                this.phos_fertilizer.current.value = phos_options[0]
-
+                this.phos_fertilizer.current.value = phosOpt
                 console.log(this.phos_fertilizer )
 
             },
@@ -963,6 +986,78 @@ class SidePanel extends React.Component{
             }
         })
   }
+  setTillage(base_prop, e){
+        this.updateActiveBaseProps("cover", e)
+//        let rot = this.rotationType.current.value
+        let cover = this.cover.current.value
+//        let currentTill = this.tillage.current.value
+//        console.log("tillage")
+//        console.log(currentTill)
+//        console.log(this.tillage)
+//        set all till disabled to start
+        this.setState({
+                showTillageFC:false,
+                showTillageFM:false,
+                showTillageNT:false,
+                showTillageSC:false,
+                showTillageSN:false,
+                showTillageSU:false,
+                showTillageSV:false,
+            })
+
+        this.tillage.current.value = "nt"
+        this.setState({tillageBlank:false})
+        if (cover == "cc"){
+            this.setState({
+                showTillageNT:true,
+                showTillageSU:true,
+            })
+//            if (rot == "dairyRotation"){
+//                this.setState({
+//                    showTillageSC:true
+//                })
+//            }
+//            else{
+//                this.setState({
+//                    showTillageSN:true,
+//                })
+//            }
+        }
+        else if (cover == "nc"){
+            this.setState({
+                showTillageFC:true,
+                showTillageFM:true,
+                showTillageNT:true,
+                showTillageSN:true,
+                showTillageSU:true,
+                showTillageSV:true,
+            })
+
+        }
+        else if (cover == "gcis"){
+            this.setState({
+                showTillageNT:true,
+                showTillageSC:true,
+                showTillageSU:true,
+            })
+        }
+        else if (cover == "gcds"){
+            this.setState({
+                    showTillageNT:true,
+                    showTillageSC:true,
+                    showTillageSU:true,
+                })
+            }
+//        console.log(this.state["showTillage" + currentTill.toUpperCase()])
+//        console.log("showTillage" + currentTill.toUpperCase())
+
+//        console.log(this.state)
+//        if(this.state["showTillage" + currentTill.toUpperCase()] == true){
+//            this.tillage.current.value = currentTill
+//        }
+      }
+
+
     printSummary(){
         var doc = new jsPDF();
 //        var node = document.getElementById("map")
@@ -1118,7 +1213,7 @@ renderModal(){
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Nitrate Leaching"
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Total Nitrogen Loss to Water", "Soil Conditioning Index"
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
@@ -1131,6 +1226,7 @@ renderModal(){
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let base = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -1143,6 +1239,7 @@ renderModal(){
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let modelWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -1155,6 +1252,7 @@ renderModal(){
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let baseWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
@@ -1167,16 +1265,17 @@ renderModal(){
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let areaCalc = 0
     let area = 0
     let areaWatershed = 0
     let areaWatershedCalc = 0
-    let radarData = [[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2]]
+    let radarData = [[1,1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40,40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40,40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40,40,40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40,40,40])
 
     this.dataYield = charts.getChartDataBar([1,null], [null,5])
     let dataEro= dataBarPercent
@@ -1187,6 +1286,7 @@ renderModal(){
     let dataBird = dataBarPercent
     let dataEcon = dataBarPercent
     let dataNitrate = dataBarPercent
+    let dataSCI = dataBarPercent
 
     let dataYieldWatershed = dataBarPercent
     let dataEroWatershed= dataBarPercent
@@ -1197,6 +1297,7 @@ renderModal(){
     let dataBirdWatershed = dataBarPercent
     let dataEconWatershed = dataBarPercent
     let dataNitrateWatershed = dataBarPercent
+    let dataSCIWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
@@ -1208,6 +1309,7 @@ renderModal(){
     let optionsBird= optionsBarPercent
     let optionsEcon= optionsBarPercent
     let optionsNitrate= optionsBarPercent
+    let optionsSCI= optionsBarPercent
     let configErosionGauge = {
       type: "gauge",
       legend: {
@@ -1290,6 +1392,7 @@ renderModal(){
         model.runoff_total = this.state.modelOutputs.model.runoff.total
         model.insect = this.state.modelOutputs.model.insect.total_per_area
         model.bird = this.state.modelOutputs.model.bird.total_per_area
+        model.sci = this.state.modelOutputs.model.sci.total_per_area
 
         base.yield = this.state.modelOutputs.base.yield.total_per_area
         base.yield_total = this.state.modelOutputs.base.yield.total
@@ -1307,6 +1410,7 @@ renderModal(){
         base.runoff_total = this.state.modelOutputs.base.runoff.total
         base.insect = this.state.modelOutputs.base.insect.total_per_area
         base.bird = this.state.modelOutputs.base.bird.total_per_area
+        base.sci = this.state.modelOutputs.base.sci.total_per_area
 
 
         modelWatershed.yield = this.state.modelOutputs.model.yield.total_per_area_watershed
@@ -1325,6 +1429,7 @@ renderModal(){
         modelWatershed.runoff_total = this.state.modelOutputs.model.runoff.total_watershed
         modelWatershed.insect = this.state.modelOutputs.model.insect.total_per_area_watershed
         modelWatershed.bird = this.state.modelOutputs.model.bird.total_per_area_watershed
+        modelWatershed.sci = this.state.modelOutputs.model.sci.total_per_area_watershed
 
         baseWatershed.yield = this.state.modelOutputs.base.yield.total_per_area_watershed
         baseWatershed.yield_total = this.state.modelOutputs.base.yield.total_watershed
@@ -1342,6 +1447,7 @@ renderModal(){
         baseWatershed.runoff_total = this.state.modelOutputs.base.runoff.total_watershed
         baseWatershed.insect = this.state.modelOutputs.base.insect.total_per_area_watershed
         baseWatershed.bird = this.state.modelOutputs.base.bird.total_per_area_watershed
+        baseWatershed.sci = this.state.modelOutputs.base.sci.total_per_area_watershed
 
         area = this.state.modelOutputs.land_stats.area
         areaCalc = this.state.modelOutputs.land_stats.area_calc
@@ -1353,7 +1459,7 @@ renderModal(){
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1370,6 +1476,7 @@ renderModal(){
                   model.bird/base.bird,
                   model.econ/base.econ,
                   model.nitrate/base.nitrate,
+                  model.sci/base.sci,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1382,7 +1489,7 @@ renderModal(){
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1399,6 +1506,7 @@ renderModal(){
                   modelWatershed.bird/baseWatershed.bird,
                   modelWatershed.econ/baseWatershed.econ,
                   modelWatershed.nitrate/baseWatershed.nitrate,
+                  modelWatershed.sci/baseWatershed.sci,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1409,7 +1517,7 @@ renderModal(){
 
 
 
-        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ","nitrate" ]
+        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ","nitrate", "sci"]
         let v1, v2 = 0
         let model_name = ""
 //        calculate percent difference
@@ -1471,6 +1579,7 @@ renderModal(){
                 model.bird_per_diff,
                 model.econ_per_diff,
                 model.nitrate_per_diff,
+                model.sci_per_diff,
 
             ],
             fill: false,
@@ -1484,6 +1593,7 @@ renderModal(){
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
               'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -1495,6 +1605,7 @@ renderModal(){
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
               'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
             ],
             borderWidth: 1
           }]
@@ -1514,6 +1625,7 @@ renderModal(){
                 modelWatershed.bird_per_diff,
                 modelWatershed.econ_per_diff,
                 modelWatershed.nitrate_per_diff,
+                modelWatershed.sci_per_diff,
 
             ],
             fill: false,
@@ -1527,6 +1639,7 @@ renderModal(){
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
               'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
 
             ],
             borderColor: [
@@ -1539,6 +1652,7 @@ renderModal(){
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
               'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
             ],
             borderWidth: 1
           }]
@@ -1552,6 +1666,7 @@ renderModal(){
         dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
         dataEcon = charts.getChartDataBar([base.econ,null], [null,model.econ])
         dataNitrate = charts.getChartDataBar([base.nitrate,null], [null,model.nitrate])
+        dataSCI = charts.getChartDataBar([base.sci,null], [null,model.sci])
 
         dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
         dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
@@ -1562,6 +1677,7 @@ renderModal(){
         dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
         dataEconWatershed = charts.getChartDataBar([baseWatershed.econ,null], [null,modelWatershed.econ])
         dataNitrateWatershed = charts.getChartDataBar([baseWatershed.nitrate,null], [null,modelWatershed.nitrate])
+        dataSCIWatershed = charts.getChartDataBar([baseWatershed.sci,null], [null,modelWatershed.sci])
 
         this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
@@ -1571,7 +1687,8 @@ renderModal(){
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
         optionsEcon = charts.getOptionsBar("Cost per Ton-Dry Matter", "$/acre/year")
-        optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
+        optionsNitrate = charts.getOptionsBar("Total Nitrogen Loss to Water", "lb/acre/year")
+        optionsSCI = charts.getOptionsBar("Soil Conditioning Index", "sci")
         configErosionGauge = {
   type: "gauge",
   'scale-r': {
@@ -1661,6 +1778,7 @@ renderModal(){
                         <Bar options = {optionsNitrate} data={dataNitrate}/>
                     </Col>
                     <Col xs={6}>
+                        <Bar options = {optionsSCI} data={dataSCI}/>
                     </Col>
 
                 </Row>
@@ -1703,6 +1821,7 @@ renderModal(){
                         <Bar options = {optionsNitrate} data={dataNitrateWatershed}/>
                     </Col>
                     <Col xs={6}>
+                        <Bar options = {optionsSCI} data={dataSCIWatershed}/>
                     </Col>
                 </Row>
               </Tab>
@@ -1784,7 +1903,7 @@ renderModal(){
                       <td></td>
                     </tr>
                      <tr>
-                      <td>Nitrate Leaching</td>
+                      <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{base.nitrate}</td>
                       <td>{model.nitrate}</td>
                       <td>lb/acre/year</td>
@@ -1792,6 +1911,17 @@ renderModal(){
                       <td>{model.nitrate_total}</td>
                       <td>lb/year</td>
                       <td className="table-cell-left">{model.nitrate_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Soil Conditioning Index</td>
+                      <td className="table-cell-left">{base.sci}</td>
+                      <td>{model.sci}</td>
+                      <td>sci</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{model.sci_per_diff}</td>
                       <td></td>
                     </tr>
                    <tr>
@@ -1908,7 +2038,7 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
-                      <td>Nitrate Leaching</td>
+                      <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{baseWatershed.nitrate}</td>
                       <td>{modelWatershed.nitrate}</td>
                       <td>lb/acre/year</td>
@@ -1918,7 +2048,18 @@ renderModal(){
                       <td className="table-cell-left">{modelWatershed.nitrate_per_diff}</td>
                       <td></td>
                     </tr>
-                   <tr>
+                    <tr>
+                      <td>Soil Conditioning Index</td>
+                      <td className="table-cell-left">{baseWatershed.sci}</td>
+                      <td>{modelWatershed.sci}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.sci_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
                       <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {baseWatershed.runoff}</td>
                       <td>{modelWatershed.runoff}</td>
@@ -2003,6 +2144,7 @@ renderModal(){
                 <Bar id = "selChart7" options = {optionsBird} data={dataBird}/>
                 <Bar id = "selChart8" options = {optionsEcon} data={dataEcon}/>
                 <Bar id = "selChart8" options = {optionsNitrate} data={dataNitrate}/>
+                <Bar id = "selChart9" options = {optionsSCI} data={dataSCI}/>
 
                 <Bar id = "watChart1" options = {this.optionsYield} data={dataYieldWatershed}/>
                 <Bar id = "watChart2" options = {optionsEro} data={dataEroWatershed}/>
@@ -2013,6 +2155,7 @@ renderModal(){
                 <Bar id = "watChart7" options = {optionsBird} data={dataBirdWatershed}/>
                 <Bar id = "watChart8" options = {optionsEcon} data={dataEconWatershed}/>
                 <Bar id = "watChart8" options = {optionsNitrate} data={dataNitrateWatershed}/>
+                <Bar id = "watChart8" options = {optionsSCI} data={dataSCIWatershed}/>
 
                 <Radar id = "comChart1" data={dataRadar}/>
                 <Bar id = "comChart2" options = {optionsBarPercent} data={dataBarPercent}/>
@@ -2445,7 +2588,7 @@ renderModal(){
                   <Tab eventKey="mange" title="Crop Land Management">
                     <Form.Label>Cover Crop</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.cover}
-                      onChange={(e) => this.updateActiveBaseProps("cover", e)}>
+                      onChange={(e) => this.setTillage("cover", e)}>
                       <option value="default">Open this select menu</option>
                       <option value="cc">Small Grain</option>
                       <option value="gcds">Grazed Cover Direct Seeded</option>
@@ -2453,19 +2596,17 @@ renderModal(){
                       <option value="nc">No Cover</option>
                       <option value="na">NA</option>
                     </Form.Select>
+
                     <Form.Label>Tillage</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.tillage}
-                    onChange={(e) => this.updateActiveBaseProps("tillage", e)}>
-
-                      <option value="default">Open this select menu</option>
-                      <option value="fc">Fall Chisel</option>
-                      <option value="fm">Fall Moldboard</option>
-                      <option value="nt">No Till</option>
-                      <option value="sc">Spring Chisel, Disked</option>
-                      <option value="sn">Spring Chisel, No Disk</option>
-                      <option value="su">Spring Cultivation</option>
-                      <option value="sv">Spring Vertical</option>
-                      <option value="na">NA</option>
+                    onChange={(e) =>  this.updateActiveBaseProps("tillage", e)}>
+                      <option disabled={!this.state.showTillageFC} value="fc">Fall Chisel</option>
+                      <option disabled={!this.state.showTillageFM} value="fm">Fall Moldboard</option>
+                      <option disabled={!this.state.showTillageNT} value="nt">No Till</option>
+                      <option disabled={!this.state.showTillageSC} value="sc">Spring Chisel, Disked</option>
+                      <option disabled={!this.state.showTillageSN} value="sn">Spring Chisel, No Disk</option>
+                      <option disabled={!this.state.showTillageSU} value="su">Spring Cultivation</option>
+                      <option disabled={!this.state.showTillageSV} value="sv">Spring Vertical</option>
                     </Form.Select>
                     {/*<Form.Label>Interseeded Legume</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.legume}
@@ -2528,7 +2669,7 @@ renderModal(){
 
                     <OverlayTrigger key="top3" placement="top"
                             overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
                     </OverlayTrigger>
                     <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
 

@@ -25,7 +25,8 @@ import smartscape.helper_base
 import numpy as np
 from osgeo import gdalconst as gc
 
-
+def offline(request):
+    return render(request, 'offline.html')
 @login_required
 def index(request):
     """
@@ -51,17 +52,24 @@ def index(request):
         os.makedirs(dir_path)
     # download the watersheds for the learning hubs
     file_names = [
-        "southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12",
-        "uplandsWI_Huc10", "uplandsWI_Huc12", "northeastWI_Huc10", "northeastWI_Huc12",
+        "cloverBeltWI_Huc12",
+        "southWestWI_Huc12",
+        "uplandsWI_Huc12",
+        "northeastWI_Huc12",
+        "redCedarWI_Huc12",
     ]
+    threads =[]
     for name in file_names:
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
         print("downloading", url)
         raster_file_path = os.path.join(dir_path, name + ".geojson")
-        createNewDownloadThread(url, raster_file_path)
+        thread = createNewDownloadThread(url, raster_file_path)
+        threads.append(thread)
         # r = requests.get(url)
         # with open(raster_file_path, "wb") as f:
         #     f.write(r.content)
+    for th in threads:
+        th.join()
     input_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                               'raster_inputs')
     now = time.time()
@@ -79,6 +87,7 @@ def index(request):
 def createNewDownloadThread(link, filelocation):
     download_thread = threading.Thread(target=download, args=(link, filelocation))
     download_thread.start()
+    return download_thread
 
 
 def download(link, filelocation):
