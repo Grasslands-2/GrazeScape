@@ -23,6 +23,8 @@ from grazescape.model_defintions.calc_manure_p import CalcManureP
 from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.nitrate_leach import NitrateLeeching
 from grazescape.model_defintions.insecticide import Insecticide
+from grazescape.model_defintions.soil_condition_index import SoilIndex
+
 from grazescape.geoserver_connect import GeoServer
 from grazescape.multiprocessing_helper import run_parallel
 from grazescape.db_connect import *
@@ -480,6 +482,8 @@ def get_model_results(request):
         model_phos.raster_inputs = clipped_rasters
         model_nit = NitrateLeeching(request, active_region)
         model_nit.raster_inputs = clipped_rasters
+        model_sci = SoilIndex(request, active_region)
+        model_sci.raster_inputs = clipped_rasters
 
         model_yield.bounds["x"] = geo_data.bounds["x"]
         model_yield.bounds["y"] = geo_data.bounds["y"]
@@ -489,7 +493,7 @@ def get_model_results(request):
         print("models start running ", time.time() - start)
         results = []
         if model_type == 'yield':
-            # results = run_parallel(model_yield,model_rain,model_ero,model_phos,model_nit,p_manure_Results)
+            results = run_parallel(model_yield,model_rain,model_ero,model_phos,model_nit,p_manure_Results,model_sci)
 
             # start1 = time.time()
             # yield_results = model_yield.run_model(p_manure_Results)
@@ -501,6 +505,8 @@ def get_model_results(request):
             econ_results = model_insect.run_model()
             insect_results = model_insect.run_model()
             # ero_results = model_ero.run_model(p_manure_Results)[0]
+            # sci_results = model_sci.run_model(p_manure_Results, ero_results, None)
+            # print(sci_results)
             # phos_results = model_phos.run_model(p_manure_Results, ero_results, yield_results)
             # nitrogen_results = model_nit.run_model(p_manure_Results, ero_results, yield_results)
             # results = yield_results
@@ -510,6 +516,7 @@ def get_model_results(request):
             # results.append(phos_results[0])
             # results.append(nitrogen_results[0])
             # results.append(nitrogen_results[1])
+            # results.append(sci_results[0])
 
             results.append(econ_results[0])
             results.append(insect_results[0])

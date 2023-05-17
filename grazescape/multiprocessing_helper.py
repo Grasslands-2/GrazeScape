@@ -1,6 +1,7 @@
 import multiprocessing
 import pickle
 
+
 # Define the functions that will run in parallel
 def func1(x, output_queue):
     y = x * 2
@@ -33,7 +34,7 @@ def run_model_tier2(model, manure_results, ero_node, yield_node, output_dict):
     output_dict[model.__class__.__name__] = model_result
 
 
-def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_results):
+def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_results, model_sci):
     # first run yield, rain, ero
     # second run phos, nit
     # Create a list to hold the processes
@@ -70,9 +71,12 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
         yield_data = results_dict["CropYield"]
     # print(ero_data)
     # print(yield_data)
-# # start second tier
+    # # start second tier
     processes = []
-    inputs = [(model_phos, p_manure_results, ero_data, yield_data), (model_nit, p_manure_results, ero_data,yield_data)]
+    inputs = [(model_phos, p_manure_results, ero_data, yield_data),
+              (model_nit, p_manure_results, ero_data, yield_data),
+              (model_sci, p_manure_results, ero_data, yield_data)
+              ]
     # Create a queue to hold the outputs
     # output_queue = multiprocessing.Queue()
     manager = multiprocessing.Manager()
@@ -80,7 +84,8 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
 
     for f in inputs:
         print(inputs[0][0], inputs[0][1])
-        p = multiprocessing.Process(target=run_model_tier2, args=(inputs[0][0], inputs[0][1], inputs[0][2],inputs[0][3],results_dict))
+        p = multiprocessing.Process(target=run_model_tier2,
+                                    args=(inputs[0][0], inputs[0][1], inputs[0][2], inputs[0][3], results_dict))
         processes.append(p)
         inputs = inputs[1:]
 
@@ -98,7 +103,8 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
     print("output$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$", results_dict)
     nitrate_data = results_dict["NitrateLeeching"]
     phos_data = results_dict["PhosphorousLoss"]
-    outputs = [*yield_data, ero_data, *rain_data, *nitrate_data, *phos_data]
+    sci_data = results_dict["SoilIndex"]
+    outputs = [*yield_data, ero_data, *rain_data, *nitrate_data, *phos_data, *sci_data]
     # start second tier
     return outputs
 

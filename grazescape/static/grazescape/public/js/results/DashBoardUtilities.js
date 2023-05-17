@@ -379,6 +379,11 @@ function format_chart_data(model_data){
 //                    }
 //                }
                 break
+            case 'soil_index':
+                console.log("running soil index")
+                chartTypeField = chartObj.sci_field
+                chartTypeFarm = chartObj.sci_farm
+                break
             case 'Runoff':
                 chartTypeFarm = chartObj.runoff_farm
                 chartTypeFarm.units = model_data.units
@@ -1525,8 +1530,8 @@ function retrieveAllFieldsDataGeoserver(){
 //runs the print summary in the dashboard
 function downloadSummaryCSV(chartObj){
     var refinedData = []
-    var fieldkeys = ["rotation_yield_field","alfalfa_yield_field","corn_silage_yield_field","corn_yield_field","grass_yield_field","oat_yield_field","econ_field","insecticide_field","nleaching_field","nwater_field","ploss_field","soil_loss_field"]
-    var farmkeys = ["rotation_yield_farm","alfalfa_yield_farm","corn_silage_yield_farm","corn_yield_farm","grass_yield_farm","oat_yield_farm","econ_farm","insecticide_farm","nleaching_farm","nwater_farm", "ploss_farm","soil_loss_farm"]
+    var fieldkeys = ["rotation_yield_field","alfalfa_yield_field","corn_silage_yield_field","corn_yield_field","grass_yield_field","oat_yield_field","econ_field","insecticide_field","nleaching_field","nwater_field","sci_field","ploss_field","soil_loss_field"]
+    var farmkeys = ["rotation_yield_farm","alfalfa_yield_farm","corn_silage_yield_farm","corn_yield_farm","grass_yield_farm","oat_yield_farm","econ_farm","insecticide_farm","nleaching_farm","nwater_farm", "sci_farm","ploss_farm","soil_loss_farm"]
 
     refinedData.push(["All data shown as per acre"])
     refinedData.push([""])

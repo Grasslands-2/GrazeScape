@@ -711,6 +711,8 @@ var chartList = [
     'nleaching_field',
     'nwater_field',
     'nwater_farm',
+    'sci_field',
+    'sci_farm',
     'cn_num_farm',
     'runoff_farm',
     'compare_farm',
@@ -787,6 +789,12 @@ var additionalChartInfo = {
     },
     'nwater_farm': {
         group: 'Nutrients'
+    },
+    'sci_field': {
+        group: 'Erosion'
+    },
+    'sci_farm': {
+        group: 'Erosion'
     },
     'cn_num_farm': {
         group: 'Runoff'
@@ -1299,7 +1307,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         var erosion = {
 
                 title: '<i class="fas fa-mountain"></i>  Erosion <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=ero_pb >50%</progress>',
-                //title: '<i class="fas fa-mountain"></i>  Erosion <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=yield_pb >50%</progress>',
                 plain: true,
                 id:"eroTab",
                 disabled:true,
@@ -1328,6 +1335,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     id: 'eroFieldTab',
 //                    disabled: true,
                     border: false,
+                    scrollable: true,
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
@@ -1355,11 +1363,17 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("soil_loss_field", e.id)
+//                            displayAlternate("sci_field", e.id)
                          }},
                     },
                     {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="sci_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 
                     ],
@@ -1368,7 +1382,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         if (chartObj["soil_loss_field"].chart !== null){
                             return
                         }
+                        console.log("chartObj", chartObj)
                         chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
+                        chartObj.sci_field.chart = create_graph(chartObj.sci_field, 'Soil Condition Index', document.getElementById('sci_field').getContext('2d'));
 
                     }}
                 },{
@@ -1402,11 +1418,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("soil_loss_farm", e.id)
+//                            displayAlternate("sci_farm", e.id)
                          }},
                     },
                     {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                     {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="sci_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 //                    {
 //                        xtype: 'container',
@@ -1425,6 +1446,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             return
                         }
                       chartObj.soil_loss_farm.chart = create_graph(chartObj.soil_loss_farm, 'Soil Loss', document.getElementById('soil_loss_farm').getContext('2d'));
+                      chartObj.sci_farm.chart = create_graph(chartObj.sci_farm, 'Soil Condition Index', document.getElementById('sci_farm').getContext('2d'));
 
 
                     }}
@@ -1852,153 +1874,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             ],
 
             }
-            //TODO update
-//            var nitrate = {
-//                title: '<i class="fas fa-hand-holding-water"></i>  Nitrate <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nleaching_pb >50%</progress>',
-//                plain: true,
-//                id:"nitrateTab",
-//                disabled:true,
-//                tabBar : {
-//                    layout: {
-//                        pack: 'center',
-//                            //background: '#C81820',
-//                     }
-//                 },
-//                xtype: 'tabpanel',
-//                style: 'background-color: #377338;',
-//
-//                defaults: {
-//                   border:false,
-//                    bodyBorder: false
-//                },
-//                scrollable: true,
-////                inner tabs for farm and field scale
-//                items:[
-//                    { xtype: 'panel',
-//                    title: '<i class="fas fa-seedling"></i></i>  Field',
-//                     border: false,
-////                   disabled: true,
-//                    id: 'nitrateFieldTab',
-//                    layout: {
-//                        type: 'table',
-//                        // The total column count must be specified here
-//                        columns: 1
-//                    },
-//                    defaults: {
-//
-//                    style: 'padding:10px; ',
-//                    border:0,
-//                },
-//                    items:[{
-//                        xtype: 'radiogroup',
-//                        id: 'nitrateFieldConvert',
-//                        vertical: true,
-//                        columns:2,
-//                        items: [
-//                            {
-//                                boxLabel  : 'nitrate / Area',
-//                                inputValue: 'a',
-//                                checked:true
-//                            }, {
-//                                boxLabel  : 'Total nitrate',
-//                                inputValue: 't',
-//                            },
-//                        ],
-//                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-//                            displayAlternate("nleaching_field", e.id)
-//                         }},
-//                    },
-//                    {
-//
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-//                    },
-////                    {
-////                        xtype: 'container',
-////                        html: '<div id="container"><canvas  id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-////                    },
-////                    {
-////                        xtype: 'container',
-////                    },{
-////                        xtype: 'container',
-////                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-////                    }
-//                    ],
-//                         listeners:{activate: function() {
-//                            if (chartObj["nleaching_field"].chart !== null){
-////                                chartObj["ploss_field"].chart.destroy()
-////                                chartObj["soil_loss_field"].chart.destroy()
-//                                return
-//                            }
-//                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
-////                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
-//
-//                    }}
-//                },
-//                {
-//                    xtype: 'container',
-//                    title: '<i class="fas fa-warehouse"></i>  Farm',
-//                    border: false,
-//                    layout: {
-//                        type: 'table',
-//                        // The total column count must be specified here
-//                        columns: 1
-//                    },
-//                    defaults: {
-//
-//                    style: 'padding:10px; ',
-//                    border:0,
-//                },
-//                    items:[{
-//                        xtype: 'radiogroup',
-//                        id: 'nitrateFarmConvert',
-//                        vertical: true,
-//                        columns:2,
-//                        items: [
-//                            {
-//                                boxLabel  : 'Nutrients / Area',
-//                                inputValue: 'a',
-//                                checked:true
-//                            }, {
-//                                boxLabel  : 'Total Nutrients',
-//                                inputValue: 't',
-//                            },
-//                        ],
-//                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-//                            displayAlternate("ploss_farm", e.id)
-//                            displayAlternate("ploss_farm", e.id)
-//                         }},
-//                    },
-//                   {
-//                        xtype: 'container',
-//                        html: '<div id="container" ><canvas id="ploss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-//                    },
-////                    {
-////                        xtype: 'container',
-////                        html: '<div id="container"><canvas  id="soil_loss_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-////                    },
-////                    {
-////                        xtype: 'container',
-////                        html: '<div id="container"><canvas  id="canvas2" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-////                    },{
-////
-////                        xtype: 'container',
-////                        html: '<div id="container"><canvas  id="canvas3" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-////                    }
-//                    ],
-//                        listeners:{activate: function() {
-//                           if (chartObj["ploss_farm"].chart !== null){
-//                                return
-//                            }
-//                            chartObj.nleaching_farm.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_farm').getContext('2d'));
-//                    }}
-//
-//                },
-//            ],
-//
-//            }
+
         var nutrients = {
                 title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=nut_pb >50%</progress>',
                 //title: '<i class="fas fa-hand-holding-water"></i>  Nutrients <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=yield_pb >50%</progress>',
@@ -2082,14 +1958,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     ],
                          listeners:{activate: function() {
                             if (chartObj["ploss_field"].chart !== null){
-//                                chartObj["ploss_field"].chart.destroy()
-//                                chartObj["soil_loss_field"].chart.destroy()
+
                                 return
                             }
                             chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
                             chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
                             chartObj.nwater_field.chart = create_graph(chartObj.nwater_field, 'Nitrogen Lost to Water', document.getElementById('nwater_field').getContext('2d'));
-//                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'test units', 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
 
                     }}
                 },
