@@ -4,7 +4,7 @@ import textwrap
 import re
 import shutil
 import numpy as np
-import cn_inputs
+from floodscape.floodscape_models.cn_inputs import CN_Inputs
 import os
 
 
@@ -67,14 +67,14 @@ def prepare_model_runs(project_dir, modified_cn=None):
             ([float(f'{CC_params_l[subbasin]}'), float(f'{CC_params_Y[subbasin]}')]))
 
     # bring in dictionary of subbasin experimental CNs
-    CC_CNs_input = cn_inputs.CN_Inputs('CC', project_dir)  # bring in module
+    CC_CNs_input = CN_Inputs('CC', project_dir)  # bring in module
     CC_CNs_input.reset()  # ensure values are reset, otherwise past replacements perpetuate
     for cn in modified_cn:
-
+        print(cn)
         CC_CNs_input.replaceCN(cn, modified_cn[cn]) #if we wanted to change any CN values
     # CC_CNs_input.replaceCN('Lower Coon Creek C', 67.99) #if we wanted to change any CN values
     CC_CNs = CC_CNs_input.get_basin_CN_input()  # this is a subbasin:CN dictionary
-
+    print("print subbasins", CC_CNs)
     # define function to calculate lag (as referenced in part 630.1502a Hydrology National Engineering Handbook; see
     # above)
     def calcL(subbasin):

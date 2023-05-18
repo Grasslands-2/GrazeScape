@@ -27,7 +27,7 @@ import threading
 import time
 import multiprocessing
 import concurrent.futures
-from floodscape_models.WorkflowTrigger import hms_trigger
+from floodscape.floodscape_models.WorkflowTrigger import hms_trigger
 import csv
 import json
 
@@ -895,7 +895,8 @@ class SmartScape:
             # "Timber Coulee C",
             # "Timber Coulee D",
             # "Timber Coulee B"]
-        feature_dict = {}
+        model_cn_dict = {}
+        base_cn_dict = {}
         for feature in data['features']:
             # Do something with each feature
             # print(feature['properties'])
@@ -964,10 +965,13 @@ class SmartScape:
 
             print("base cn is ", total_cn / total_cells)
             print("model cn is ", total_cn_model / total_cells)
-            feature_dict[feature_name] = {"model":total_cn_model / total_cells, "base": total_cn / total_cells}
-        print(feature_dict)
+            # feature_dict[feature_name] = {"model":total_cn_model / total_cells, "base": total_cn / total_cells}
+            model_cn_dict[feature_name] = total_cn_model / total_cells
+            base_cn_dict[feature_name] = total_cn / total_cells
+        print("model cn dict", model_cn_dict)
+        print("base cn dict", base_cn_dict)
         print("time to run cn models ", time.time() - start)
-        hms_trigger(feature_dict)
+        hms_trigger(model_cn_dict)
     # def run_region_cn1(self):
     #     base_dir = os.path.join(self.geo_folder, "base")
     #     # TODO this needs to be dynamic

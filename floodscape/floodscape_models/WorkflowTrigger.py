@@ -1,7 +1,7 @@
 import subprocess
 import os
 import time
-import CC_cn_adjustments as cn_adjust
+import floodscape.floodscape_models.CC_cn_adjustments as cn_adjust
 from django.conf import settings
 
 
@@ -18,7 +18,7 @@ def hms_trigger(cn_dict):
 
     # STEP1: adjust CN and lag values in HMS .basin file
     # list_files = subprocess.run("python CC_cn_adjustments.py", cwd=r"C:\Users\paige\OneDrive\Documents\HMS_CC_Final")
-    list_files = cn_adjust.prepare_model_runs(project_dir)
+    list_files = cn_adjust.prepare_model_runs(project_dir, cn_dict)
     # # time.sleep(2)
     # print("The exit code to run STEP1 was %d" % list_files.returncode)
 

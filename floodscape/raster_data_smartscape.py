@@ -95,16 +95,16 @@ class RasterDataSmartScape:
         field_geom_array = self.field_geom_array
         # create polygon for each selection
         for poly in field_geom_array:
-            print("poly", poly)
+
             geom_array_float = []
             # for coor in poly:
             #     geom_array_float.append([float(coor[0]), float(coor[1])])
             poly_list.append(Polygon(poly))
-        print("polylist", poly_list)
+
         df = pd.DataFrame({'geometry': poly_list})
         crs = {'init': self.crs}
         polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
-        # print(polygon)
+        #
         polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
 
     def check_raster_data(self, raster_dic):
@@ -112,8 +112,8 @@ class RasterDataSmartScape:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
-                print(raster_shape)
-                print(raster_dic[raster].shape)
+
+
                 raise ValueError(raster +
                                  " dimensions do not match other rasters")
 
@@ -132,18 +132,16 @@ class RasterDataSmartScape:
 
         for layer in self.layer_dic:
 
-            print("downloading layer ", layer)
+
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            print("done downloading")
             print("raster_file_path", raster_file_path)
             self.createNewDownloadThread(url, raster_file_path)
 
             # r = requests.get(url)
             # with open(raster_file_path, "wb") as f:
             #     f.write(r.content)
-            print("done writing")
         self.joinThreads()
 
     def createNewDownloadThread(self, link, filelocation):
@@ -181,7 +179,7 @@ class RasterDataSmartScape:
 
                 # set all output rasters to have float 32 data type
                 # this allows for the use of -9999 as no data value
-                # print("clipping raster ", data_name)
+                #
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "-clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                     cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
@@ -189,7 +187,7 @@ class RasterDataSmartScape:
                     ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "_aoi-clipped.tif"), image,
                                         cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                         cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
-        print("done clipping")
+
 
     def get_clipped_rasters(self):
         raster_data_dic = {}
@@ -198,8 +196,8 @@ class RasterDataSmartScape:
             if '-clipped.tif' in file and 'aoi' not in file:
                 data_name = file.split(".")[0]
                 data_name = data_name.split("-")[0]
-                # print("file paths!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                # print(os.path.join(self.dir_path, file))
+                #
+                #
                 # ds_clip = gdal.Open(os.path.join(self.dir_path, data_name + "_clipped.tif"))
                 ds_clip = gdal.Open(os.path.join(self.dir_path, file))
                 geoTransform = ds_clip.GetGeoTransform()
