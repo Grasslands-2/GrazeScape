@@ -34,7 +34,6 @@ import pandas as pd
 import json as js
 import geopandas as gpd
 import fiona as fiona
-import psutil
 import sys
 import time
 import sys
