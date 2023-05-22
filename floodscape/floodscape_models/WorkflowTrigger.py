@@ -1,7 +1,9 @@
 import subprocess
 import os
 import time
-import floodscape.floodscape_models.CC_cn_adjustments as cn_adjust
+import floodscape.floodscape_models.cn_adjustments as cn_adjust
+from floodscape.floodscape_models.dss_output import DSSOutput
+import floodscape.floodscape_models.CompiledDataToJSON as compile_data
 from django.conf import settings
 
 
@@ -34,12 +36,15 @@ def hms_trigger(cn_dict):
     # list_files = subprocess.run(
     #     ["hec-hms.exe", "-s", script_file],
     #     executable=os.path.join(hms_exe, "hec-hms.exe"))
-    list_files = subprocess.run(["hec-hms.exe", "-s", script_file],stdout=subprocess.PIPE, executable=os.path.join(hms_exe, "hec-hms.exe"))
-    print(list_files)
-    print(list_files.stdout.decode('utf-8'))
-    print(dir(list_files))
-    print("The exit code to run STEP2 was %d" % list_files.returncode)
 
+    # list_files = subprocess.run(["hec-hms.exe", "-s", script_file],stdout=subprocess.PIPE, executable=os.path.join(hms_exe, "hec-hms.exe"))
+    # print(list_files)
+    # print(list_files.stdout.decode('utf-8'))
+    # print(dir(list_files))
+    # print("The exit code to run STEP2 was %d" % list_files.returncode)
+    output = DSSOutput()
+    output.run()
+    compile_data.compile_data_to_json()
     # time.sleep(2)
     # if list_files.returncode == 0:
     #     # STEP3: extract each HMS reach time series data from output .dss file, compile to .json file

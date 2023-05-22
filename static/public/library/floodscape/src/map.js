@@ -621,10 +621,10 @@ class OLMapFragment extends React.Component {
 
             this.ccBoundary,
             this.ccWatershed,
-            this.wfkBoundary,
-            this.wfkWatershed,
+//            this.wfkBoundary,
+//            this.wfkWatershed,
             this.ccRivers,
-            this.wfkRivers,
+//            this.wfkRivers,
             this.boundaryLayerAOI,
 //            this.waterSheds1,
 //            this.huc10Layer,

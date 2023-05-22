@@ -740,46 +740,11 @@ class SmartScape:
         options = gdal.WarpOptions(dstNodata=self.no_data, outputType=gc.GDT_Float32)
 
         ds_clip = gdal.Warp(os.path.join(self.in_dir, "landuse_cn.tif"), file_list, options=options)
-        self.run_region_cn()
+        return_data = self.run_region_cn()
         # self.run_region_cn1()
-        return {
-            "base": {
-                "cn": {
-                    "total": "{:,.1f}".format(0 / selected_cells),
-                    "total_per_area": str("%.1f" % (0 / selected_cells)),
-                    "total_watershed": "{:,.1f}".format(np.sum(base_data_watershed["cn"]) / total_cells),
-                    "total_per_area_watershed": str("%.1f" % (np.sum(base_data_watershed["cn"]) / total_cells)),
-                    "units": "Curve Number"
-                },
+        return return_data
 
-            },
-            "model": {
 
-                "cn": {
-                    "total": "{:,.1f}".format(sum_model_cn / selected_cells),
-                    "total_per_area": str("%.1f" % (sum_model_cn / selected_cells)),
-                    "total_watershed": "{:,.1f}".format(sum_model_cn_watershed / total_cells),
-                    "total_per_area_watershed": str("%.1f" % (sum_model_cn_watershed / total_cells)),
-                    "units": "Curve Number"
-                },
-
-            },
-            "land_stats": {
-                "area": "{:,.0f}".format(area_selected),
-                "area_calc": area_selected,
-                "area_watershed": "{:,.0f}".format(area_watershed),
-                "area_watershed_calc": area_watershed,
-                "area_trans": layer_area_dic,
-                "model_id": self.in_dir,
-            },
-            # "debugging": {
-            #     "runoff_ base": base_data_watershed["runoff"].tolist(),
-            #     "runoff_model": model_data_watershed["runoff"].tolist(),
-            #     "actual_landuse": watershed_land_use.tolist()
-            #
-            # }
-
-        }
 
     def run_region_cn(self):
         print("running cn for region")
@@ -972,6 +937,12 @@ class SmartScape:
         print("base cn dict", base_cn_dict)
         print("time to run cn models ", time.time() - start)
         hms_trigger(model_cn_dict)
+        project_dir = settings.HMS_MODEL_PATH
+        with open(os.path.join(project_dir, "CompiledRiverStationDataModel.json")) as f:
+            data_model = json.load(f)
+        with open(os.path.join(project_dir, "CompiledRiverStationDataModel.json")) as f:
+            data_base = json.load(f)
+        return {"base": data_base, "model": data_model}
     # def run_region_cn1(self):
     #     base_dir = os.path.join(self.geo_folder, "base")
     #     # TODO this needs to be dynamic

@@ -48,7 +48,7 @@ import {
   Title,
 } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
-import { Bar } from 'react-chartjs-2';
+import { Bar,Line } from 'react-chartjs-2';
 ChartJS.register(
   RadialLinearScale,
   PointElement,
@@ -130,6 +130,7 @@ class SidePanel extends React.Component{
         this.runModels = this.runModels.bind(this);
         this.downloadBase = this.downloadBase.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
+        this.chartChange = this.chartChange.bind(this);
         this.tabControl = this.tabControl.bind(this);
         this.tabControlResults = this.tabControlResults.bind(this);
         this.subAreaSelection = this.subAreaSelection.bind(this);
@@ -140,7 +141,7 @@ class SidePanel extends React.Component{
         this.handleCloseModalBase = this.handleCloseModalBase.bind(this);
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.renderModal = this.renderModal.bind(this);
-        this.printSummary = this.printSummary.bind(this);
+//        this.printSummary = this.printSummary.bind(this);
         this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
         this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
         this.clearSelection = this.clearSelection.bind(this);
@@ -216,6 +217,35 @@ class SidePanel extends React.Component{
         this.slopeMax = 700;
         this.distStreamMax = 16000;
         this.selectWatershed = React.createRef();
+        let data = {
+              labels:['January', 'February', 'March'],
+              datasets: [
+                {
+                  label: 'Dataset 1',
+                  data: [1,2,3],
+                  borderColor: 'rgb(255, 99, 132)',
+                  backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                },
+                {
+                  label: 'Dataset 2',
+                  data:[4,5,6],
+                  borderColor: 'rgb(53, 162, 235)',
+                  backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                },
+              ],
+            };
+        let options = {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Chart.js Line Chart'
+              }
+            }
+        };
         this.state = {slope:{slope1:null, slope2:null},
             geometry:{extents:[],coords:[]},
             activeTrans:null,
@@ -238,7 +268,13 @@ class SidePanel extends React.Component{
             printingPDF:false,
             speedometerWidth:window.innerWidth*.7/2,
             speedometerHeight:window.innerWidth*.7/2/2,
-            landTypeSelected:false
+            landTypeSelected:false,
+            chart_data_wse:100,
+
+
+            chart_data_ts:data,
+            chart_options_ts:options,
+            displayReachList:{"1":{"data":"hi"},"2":{"data":"hi"}}
         }
     }
     // fires anytime state or props are updated
@@ -841,26 +877,9 @@ class SidePanel extends React.Component{
                 delete $.ajaxSetup().headers
                 console.log("done with model runs")
                 console.log(responses)
-                let list = JSON.parse(JSON.stringify(this.props.listTrans))
-                for (let item in list){
-                    console.log("Parsing area for transformation")
-                    console.log(item)
-                    console.log(list[item])
-                    console.log(list[item].rank)
-                    console.log(responses.land_stats.area_trans[list[item].rank]["area"])
-                    list[item].areaSelected = responses.land_stats.area_trans[list[item].rank]["area"]
-                }
-                 this.props.updateTransList(list);
-
-                this.setState({basePloss:"Phosphorus Loss: " + responses.base.ploss.total + " lb/year; "+ responses.base.ploss.total_per_area + " lb/year/ac"})
-                this.setState({modelPloss:"Phosphorus Loss: " + responses.model.ploss.total + " lb/year; "+ responses.model.ploss.total_per_area + " lb/year/ac"})
-                this.setState({baseEro:"Erosion: " + responses.base.ero.total + " tons/year; "+ responses.base.ero.total_per_area + " tons/year/ac"})
-                this.setState({modelEro:"Erosion: " + responses.model.ero.total + " tons/year; "+ responses.model.ero.total_per_area + " tons/year/ac"})
-//                this.setState({modelPloss:5555})
-                this.setState({outputModalShow:true})
                 this.setState({modelOutputs:responses})
-                this.setState({modelsLoading:false})
-                this.setState({showViewResults:true})
+                this.setState({outputModalShow:true})
+
 
             },
 
@@ -926,1061 +945,73 @@ class SidePanel extends React.Component{
             }
         })
   }
-    printSummary(){
-        var doc = new jsPDF();
-//        var node = document.getElementById("map")
-//        var clone = node.cloneNode(true);
-//        doc.html(document.getElementById("map"), {
-//           callback: function (doc) {
-//             doc.save("test1.pdf");
-//           }
-//        });
+   chartChange(e){
+        console.log("changing chart")
+        console.log(e)
+        let data = {
+          labels:['January', 'February', 'March'],
+          datasets: [
+            {
+              label: 'Dataset 1',
+              data: [100,50,60],
+              borderColor: 'rgb(255, 99, 132)',
+              backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            },
+            {
+              label: 'Dataset 2',
+              data: [140,150,200],
+              borderColor: 'rgb(53, 162, 235)',
+              backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            },
+          ],
+        };
+        let options = {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Current Reach'
+              }
+            }
+        };
 
-
-        this.setState({printingPDF:true})
-        var pdf = new jsPDF('p', 'pt',"letter" )
-//        var pdf = new jsPDF('p', 'pt',[4000, 4000] )
-
-
-        console.log(pdf)
-        console.log(pdf.getCurrentPageInfo().pageContext.mediaBox)
-        var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
-        var pageHeight = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightY
-        console.log("page width ", pageWidth,pageHeight)
-
-        var canvas = document.getElementById("selChart1");
-        var div = document.getElementById("chartPrintDiv");
-        var rowNum = 0
-        div.hidden = false
-        setTimeout(function(){
-    //        canvas.width = 830
-    //        canvas.height = 414
-//            var ctx = canvas.getContext("2d");
-//            pdf.html(document.getElementById("selChart1")).then(() => pdf.save('fileName.pdf'));
-          var width = document.getElementById("map").offsetWidth
-          var scale = (pageWidth / width)
-            console.log(width, scale)
-//            html2canvas(document.getElementById("map"),{scale:0.25}).then(function(canvasMap) {
-//                pdf.addPage(imgData,'l')
-                pdf.autoTable({
-                    html: '#transResultsTable',
-                    styles: {
-                    fillColor: [0, 0, 0,0],
-                     textColor:[0, 0, 0],
-                     lineColor:[0, 0, 0],
-                     lineWidth:1
-                     }
-                })
-
-//
-//                var newCanvas = canvasMap.cloneNode(true);
-//                var ctx = newCanvas.getContext('2d');
-//                console.log(newCanvas.width)
-//                var ratio1 = (pageWidth / newCanvas.width)
-//                var ratio1 = 2
-//                console.log(ratio1)
-//                console.log(newCanvas)
-//                newCanvas.width =pageWidth;
-//                newCanvas.height = pageHeight;
-//                newCanvas.style.width = pageWidth+ "px";
-//                newCanvas.style.height = pageHeight+ "px";
-////                ctx.setTransform(ratio1,0,0,ratio1,0,0);
-//                console.log(newCanvas)
-//                var imgData = canvasMap.toDataURL("image/png", 1);
-//                pdf.addPage("letter",'p')
-//                pdf.addImage(imgData, 'png', 0, 0,0,0);
-//
-////                document.body.appendChild(canvas);
-//
-                pdf.addPage("p",'p')
-                pdf.text("By Selection", 20, 20)
-                for (let i = 1; i <= 8; i++) {
-//                    console.log("loop ", i)
-                    canvas = document.getElementById("selChart" + i);
-                    var newCanvas = canvas.cloneNode(true);
-                    var ctx = newCanvas.getContext('2d');
-                    var ratio1 = (pageWidth / newCanvas.width)/2
-                    newCanvas.width = newCanvas.width * ratio1;
-                    newCanvas.height = newCanvas.height * ratio1;
-                    newCanvas.style.width = (newCanvas.width)+ "px";
-                    newCanvas.style.height = (newCanvas.height)+ "px";
-                    ctx.setTransform(ratio1,0,0,ratio1,0,0);
-
-                    ctx.fillStyle = "#FFF";
-                    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-                    ctx.drawImage(canvas, 0, 0);
-                    var imgData = newCanvas.toDataURL("image/png", 1);
-//                    console.log("row ", newCanvas.width * ((i-1)%2), " column ", newCanvas.height * (Math.floor(i / 2) + i%2 -1))
-                    pdf.addImage(imgData, 'png', newCanvas.width * ((i-1)%2), 40 + newCanvas.height * (Math.floor(i / 2) + i%2 -1),0,0);
-                }
-                 pdf.addPage(imgData,'p')
-                 pdf.text("By Watershed", 20, 20)
-                for (let i = 1; i <= 8; i++) {
-//                    console.log("loop ", i)
-                    canvas = document.getElementById("watChart" + i);
-                    var newCanvas = canvas.cloneNode(true);
-                    var ctx = newCanvas.getContext('2d');
-                    var ratio1 = (pageWidth / newCanvas.width)/2
-                    newCanvas.width = newCanvas.width * ratio1;
-                    newCanvas.height = newCanvas.height * ratio1;
-                    newCanvas.style.width = (newCanvas.width)+ "px";
-                    newCanvas.style.height = (newCanvas.height)+ "px";
-                    ctx.setTransform(ratio1,0,0,ratio1,0,0);
-
-                    ctx.fillStyle = "#FFF";
-                    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-                    ctx.drawImage(canvas, 0, 0);
-                    var imgData = newCanvas.toDataURL("image/png", 1);
-//                    console.log("row ", newCanvas.width * ((i-1)%2), " column ", newCanvas.height * (Math.floor(i / 2) + i%2 -1))
-                    pdf.addImage(imgData, 'png', newCanvas.width * ((i-1)%2), 40 + newCanvas.height * (Math.floor(i / 2) + i%2 -1),0,0);
-                }
-                pdf.addPage(imgData,'p')
-                pdf.text("Comparison Charts", 20, 20)
-                for (let i = 1; i <= 4; i++) {
-//                    console.log("loop ", i)
-                    canvas = document.getElementById("comChart" + i);
-                    var newCanvas = canvas.cloneNode(true);
-                    var ctx = newCanvas.getContext('2d');
-                    var ratio1 = (pageWidth / newCanvas.width)/2
-                    newCanvas.width = newCanvas.width * ratio1;
-                    newCanvas.height = newCanvas.height * ratio1;
-                    newCanvas.style.width = (newCanvas.width)+ "px";
-                    newCanvas.style.height = (newCanvas.height)+ "px";
-                    ctx.setTransform(ratio1,0,0,ratio1,0,0);
-
-                    ctx.fillStyle = "#FFF";
-                    ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
-                    ctx.drawImage(canvas, 0, 0);
-                    var imgData = newCanvas.toDataURL("image/png", 1);
-//                    console.log("row ", newCanvas.width * ((i-1)%2), " column ", newCanvas.height * (Math.floor(i / 2) + i%2 -1))
-                    pdf.addImage(imgData, 'png', newCanvas.width * ((i-1)%2), 40 + newCanvas.height * (Math.floor(i / 2) + i%2 -1),0,0);
-                }
-
-
-                pdf.addPage(imgData,'l')
-                pdf.autoTable({
-                    html: '#summaryTable',
-                    styles: {
-                    fillColor: [0, 0, 0,0],
-                     textColor:[0, 0, 0],
-                     lineColor:[0, 0, 0],
-                     lineWidth:1
-                     }
-                })
-                pdf.save("floodscape.pdf");
-                div.hidden = true
-//            })
-        this.setState({printingPDF:false})
-        }.bind(this), 3000)
-
-    }
+        this.setState({chart_data_ts:data})
+        this.setState({displayReachList:{"5":{"data":"hi"},"6":{"data":"hi"}}})
+        this.setState({chart_options_ts:options})
+        this.setState({chart_data_wse:40})
+   }
 renderModal(){
 //     let width = document.getElementById("modalResults").offsetWidth
 //     this.setState({ speedometerWidth: width});
-    var pdf = new jsPDF('p', 'pt',"letter" )
-    var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
-    var labels = ['Yield', 'Erosion',
-        'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Nitrate Leaching"
-    ]
-//    console.log(this.state.modelOutputs)
-    let model = {
-        "yield":null, "yield_total":null, "yield_per_diff":null,
-        "ero":null, "ero_total":null,"ero_per_diff":null,
-        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
-        "econ":null, "econ_total":null,"econ_per_diff":null,
-        "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
-        "cn":null,"cn_per_diff":null,
-        "runoff":null,"runoff_per_diff":null,
-        "insect":null,"insect_per_diff":null,
-        "bird":null,"bird_per_diff":null,
-    }
-    let base = {
-        "yield":null, "yield_total":null, "yield_per_diff":null,
-        "ero":null, "ero_total":null,"ero_per_diff":null,
-        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
-        "econ":null, "econ_total":null,"econ_per_diff":null,
-         "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
 
-        "cn":null,"cn_per_diff":null,
-        "runoff":null,"runoff_per_diff":null,
-        "insect":null,"insect_per_diff":null,
-        "bird":null,"bird_per_diff":null,
-    }
-    let modelWatershed = {
-        "yield":null, "yield_total":null, "yield_per_diff":null,
-        "ero":null, "ero_total":null,"ero_per_diff":null,
-        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
-         "econ":null, "econ_total":null,"econ_per_diff":null,
-        "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
 
-        "cn":null,"cn_per_diff":null,
-        "runoff":null,"runoff_per_diff":null,
-        "insect":null,"insect_per_diff":null,
-        "bird":null,"bird_per_diff":null,
-    }
-    let baseWatershed = {
-        "yield":null, "yield_total":null, "yield_per_diff":null,
-        "ero":null, "ero_total":null,"ero_per_diff":null,
-        "ploss":null, "ploss_total":null,"ploss_per_diff":null,
-         "econ":null, "econ_total":null,"econ_per_diff":null,
-      "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
 
-        "cn":null,"cn_per_diff":null,
-        "runoff":null,"runoff_per_diff":null,
-        "insect":null,"insect_per_diff":null,
-        "bird":null,"bird_per_diff":null,
-    }
-    let areaCalc = 0
-    let area = 0
-    let areaWatershed = 0
-    let areaWatershedCalc = 0
-    let radarData = [[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2]]
-    let dataRadar = charts.getChartDataRadar(labels, radarData)
-    let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40,40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40,40])
+    const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
 
-    this.dataYield = charts.getChartDataBar([1,null], [null,5])
-    let dataEro= dataBarPercent
-    let dataPloss= dataBarPercent
-    let dataRun= dataBarPercent
-    let dataInsect= dataBarPercent
-    let dataCN = dataBarPercent
-    let dataBird = dataBarPercent
-    let dataEcon = dataBarPercent
-    let dataNitrate = dataBarPercent
 
-    let dataYieldWatershed = dataBarPercent
-    let dataEroWatershed= dataBarPercent
-    let dataPlossWatershed= dataBarPercent
-    let dataRunWatershed= dataBarPercent
-    let dataInsectWatershed= dataBarPercent
-    let dataCNWatershed = dataBarPercent
-    let dataBirdWatershed = dataBarPercent
-    let dataEconWatershed = dataBarPercent
-    let dataNitrateWatershed = dataBarPercent
 
-    let optionsBarPercent = charts.getOptionsBarPercent()
-    this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
-    let optionsEro = optionsBarPercent
-    let optionsPloss = optionsBarPercent
-    let optionsRun = optionsBarPercent
-    let optionsInsect = optionsBarPercent
-    let optionsCN = optionsBarPercent
-    let optionsBird= optionsBarPercent
-    let optionsEcon= optionsBarPercent
-    let optionsNitrate= optionsBarPercent
-    let configErosionGauge = {
-      type: "gauge",
-      legend: {
-
-        },
-        title: {
-          text: "Erosion"
-        },
-
-      'scale-r': {
-        aperture: 200,     //Specify your scale range.
-        values: "0:20:5", //Provide min/max/step scale values.
-        ring: {
-          size:10,
-           rules: [
-        {
-          rule: "%v >= 0 && %v <= 5",
-          'background-color': "green red"
-        },
-        {
-          rule: "%v >= 5 && %v <= 10",
-          'background-color': "yellow"
-        },
-        {
-          rule: "%v >= 10 && %v <= 15",
-          'background-color': "rgb(245, 117, 66)"
-        },
-        {
-          rule: "%v >= 15 && %v <= 20",
-          'background-color': "red"
-        },
-
-      ],
-
-        },
-//        labels: [ "0", "Poor", "Fair", "Good", "Great", "100" ],  //Scale Labels
-        labels: [ "Great", "Good", "Fair", "Poor", "Worst"],  //Scale Labels
-        item: {    //Scale Label Styling
-          'font-color': "purple",
-          'font-family': "Georgia, serif",
-          'font-size':12,
-          'font-weight': "bold",     //or "normal"
-          'font-style': "normal",    //or "italic"
-          'offset-r': -50,    //To adjust the placement of your scale labels.
-          angle: "auto"    //To adjust the angle of your scale labels.
-        }
-      },
-        tooltip: { //Tooltips
-          text: "%t - %v",
-          'font-color': "black",
-          'font-family': "Georgia",
-          'background-color': "white",
-          alpha:0.7,
-          'border-color': "none"
-        },
-          series: [
-            { values: [13], text: "Base",'background-color': '#be5dc2 '},
-            { values: [2], text: "Transformation",'background-color': 'rgba(0, 119, 187,1)'},
-          ]
-    }
-    let configPhosGauge =  structuredClone(configErosionGauge)
-    configPhosGauge.title.text = "Phosphorus Loss"
-    configPhosGauge.series[1].values[0] = 5
-
-//    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
-        model.yield = this.state.modelOutputs.model.yield.total_per_area
-        model.yield_total = this.state.modelOutputs.model.yield.total
-        model.ero = this.state.modelOutputs.model.ero.total_per_area
-        model.ero_total = this.state.modelOutputs.model.ero.total
-        model.ploss = this.state.modelOutputs.model.ploss.total_per_area
-        model.ploss_total = this.state.modelOutputs.model.ploss.total
-        model.econ = this.state.modelOutputs.model.econ.total_per_area
-        model.econ_total = this.state.modelOutputs.model.econ.total
-        model.nitrate = this.state.modelOutputs.model.nitrate.total_per_area
-        model.nitrate_total = this.state.modelOutputs.model.nitrate.total
-
-        model.cn = this.state.modelOutputs.model.cn.total_per_area
-        model.runoff = this.state.modelOutputs.model.runoff.total_per_area
-        model.runoff_total = this.state.modelOutputs.model.runoff.total
-        model.insect = this.state.modelOutputs.model.insect.total_per_area
-        model.bird = this.state.modelOutputs.model.bird.total_per_area
-
-        base.yield = this.state.modelOutputs.base.yield.total_per_area
-        base.yield_total = this.state.modelOutputs.base.yield.total
-        base.ero = this.state.modelOutputs.base.ero.total_per_area
-        base.ero_total = this.state.modelOutputs.base.ero.total
-        base.ploss = this.state.modelOutputs.base.ploss.total_per_area
-        base.ploss_total = this.state.modelOutputs.base.ploss.total
-        base.econ = this.state.modelOutputs.base.econ.total_per_area
-        base.econ_total = this.state.modelOutputs.base.econ.total
-        base.nitrate = this.state.modelOutputs.base.nitrate.total_per_area
-        base.nitrate_total = this.state.modelOutputs.base.nitrate.total
-
-        base.cn = this.state.modelOutputs.base.cn.total_per_area
-        base.runoff = this.state.modelOutputs.base.runoff.total_per_area
-        base.runoff_total = this.state.modelOutputs.base.runoff.total
-        base.insect = this.state.modelOutputs.base.insect.total_per_area
-        base.bird = this.state.modelOutputs.base.bird.total_per_area
 
 
-        modelWatershed.yield = this.state.modelOutputs.model.yield.total_per_area_watershed
-        modelWatershed.yield_total = this.state.modelOutputs.model.yield.total_watershed
-        modelWatershed.ero = this.state.modelOutputs.model.ero.total_per_area_watershed
-        modelWatershed.ero_total = this.state.modelOutputs.model.ero.total_watershed
-        modelWatershed.ploss = this.state.modelOutputs.model.ploss.total_per_area_watershed
-        modelWatershed.ploss_total = this.state.modelOutputs.model.ploss.total_watershed
-        modelWatershed.econ = this.state.modelOutputs.model.econ.total_per_area_watershed
-        modelWatershed.econ_total = this.state.modelOutputs.model.econ.total_watershed
-        modelWatershed.nitrate = this.state.modelOutputs.model.nitrate.total_per_area_watershed
-        modelWatershed.nitrate_total = this.state.modelOutputs.model.nitrate.total_watershed
-
-        modelWatershed.cn = this.state.modelOutputs.model.cn.total_per_area_watershed
-        modelWatershed.runoff = this.state.modelOutputs.model.runoff.total_per_area_watershed
-        modelWatershed.runoff_total = this.state.modelOutputs.model.runoff.total_watershed
-        modelWatershed.insect = this.state.modelOutputs.model.insect.total_per_area_watershed
-        modelWatershed.bird = this.state.modelOutputs.model.bird.total_per_area_watershed
-
-        baseWatershed.yield = this.state.modelOutputs.base.yield.total_per_area_watershed
-        baseWatershed.yield_total = this.state.modelOutputs.base.yield.total_watershed
-        baseWatershed.ero = this.state.modelOutputs.base.ero.total_per_area_watershed
-        baseWatershed.ero_total = this.state.modelOutputs.base.ero.total_watershed
-        baseWatershed.ploss = this.state.modelOutputs.base.ploss.total_per_area_watershed
-        baseWatershed.ploss_total = this.state.modelOutputs.base.ploss.total_watershed
-        baseWatershed.econ = this.state.modelOutputs.base.econ.total_per_area_watershed
-        baseWatershed.econ_total = this.state.modelOutputs.base.econ.total_watershed
-        baseWatershed.nitrate = this.state.modelOutputs.base.nitrate.total_per_area_watershed
-        baseWatershed.nitrate_total = this.state.modelOutputs.base.nitrate.total_watershed
-
-        baseWatershed.cn = this.state.modelOutputs.base.cn.total_per_area_watershed
-        baseWatershed.runoff = this.state.modelOutputs.base.runoff.total_per_area_watershed
-        baseWatershed.runoff_total = this.state.modelOutputs.base.runoff.total_watershed
-        baseWatershed.insect = this.state.modelOutputs.base.insect.total_per_area_watershed
-        baseWatershed.bird = this.state.modelOutputs.base.bird.total_per_area_watershed
-
-        area = this.state.modelOutputs.land_stats.area
-        areaCalc = this.state.modelOutputs.land_stats.area_calc
-        areaWatershed = this.state.modelOutputs.land_stats.area_watershed
-        areaWatershedCalc = this.state.modelOutputs.land_stats.area_watershed_calc
-
-        dataRadar = {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1],
-              backgroundColor: 'rgba(238, 119, 51,.2)',
-              borderColor: 'rgba(238, 119, 51,1)',
-              borderWidth: 1,
-            },
-                    {
-              label: 'Transformation',
-              data: [
-                  model.yield/base.yield,
-                  model.ero/base.ero,
-                  model.ploss/base.ploss,
-                  model.runoff/base.runoff ,
-                  model.insect/base.insect,
-                  model.cn/base.cn,
-                  model.bird/base.bird,
-                  model.econ/base.econ,
-                  model.nitrate/base.nitrate,
-              ],
-              backgroundColor: 'rgba(0, 119, 187,.2)',
-              borderColor: 'rgba(0, 119, 187,1)',
-              borderWidth: 1,
-            },
-          ],
-        };
-        dataRadarWatershed = {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1],
-              backgroundColor: 'rgba(238, 119, 51,.2)',
-              borderColor: 'rgba(238, 119, 51,1)',
-              borderWidth: 1,
-            },
-                    {
-              label: 'Transformation',
-              data: [
-                  modelWatershed.yield/baseWatershed.yield,
-                  modelWatershed.ero/baseWatershed.ero,
-                  modelWatershed.ploss/baseWatershed.ploss,
-                  modelWatershed.runoff/baseWatershed.runoff ,
-                  modelWatershed.insect/baseWatershed.insect,
-                  modelWatershed.cn/baseWatershed.cn,
-                  modelWatershed.bird/baseWatershed.bird,
-                  modelWatershed.econ/baseWatershed.econ,
-                  modelWatershed.nitrate/baseWatershed.nitrate,
-              ],
-              backgroundColor: 'rgba(0, 119, 187,.2)',
-              borderColor: 'rgba(0, 119, 187,1)',
-              borderWidth: 1,
-            },
-          ],
-        };
-
-
-
-        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ","nitrate" ]
-        let v1, v2 = 0
-        let model_name = ""
-//        calculate percent difference
-        for (let m in models) {
-            model_name = models[m]
-            v1 = parseFloat(model[model_name])
-            v2 = parseFloat(base[model_name])
-//            console.log(v1, v2)
-//            console.log(((v1 + v2)/2))
-//            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
-//            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            let perDif = Math.round(((v1-v2)/v2) * 100)
-//            console.log(model_name)
-//            console.log("percent different " + perDif)
-            if (isNaN(perDif)){
-                model[model_name + "_per_diff"] = 0
-            }
-            else{
-
-                model[model_name + "_per_diff"] = perDif
-            }
-        }
-
-        for (let m in models) {
-            model_name = models[m]
-            v1 = parseFloat(modelWatershed[model_name])
-            v2 = parseFloat(baseWatershed[model_name])
-//            console.log(v1, v2)
-//            console.log(((v1 + v2)/2))
-//            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
-//            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            let perDif = Math.round(((v1-v2)/v2) * 100)
-
-            if (isNaN(perDif)){
-                modelWatershed[model_name + "_per_diff"] = 0
-            }
-            else{
-
-                modelWatershed[model_name + "_per_diff"] = perDif
-            }
-//            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
-        }
-        dataBarPercent ={ labels: labels,
-          datasets: [{
-            axis: 'y',
-             minBarLength: 7,
-            label: 'Relative Change Between Base and Transformation',
-            data: [
-                model.yield_per_diff,
-                model.ero_per_diff,
-                model.ploss_per_diff,
-                model.runoff_per_diff,
-                model.insect_per_diff,
-                model.cn_per_diff,
-                model.bird_per_diff,
-                model.econ_per_diff,
-                model.nitrate_per_diff,
-
-            ],
-            fill: false,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(255, 159, 64, 0.2)',
-              'rgba(255, 205, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(136, 34, 85, 0.2)',
-              'rgba(153, 153, 51, 0.2)',
-              'rgba(255, 99, 132, 0.2)',
-            ],
-            borderColor: [
-              'rgb(255, 99, 132)',
-              'rgb(255, 159, 64)',
-              'rgb(255, 205, 86)',
-              'rgb(75, 192, 192)',
-              'rgb(54, 162, 235)',
-              'rgb(153, 102, 255)',
-              'rgb(136, 34, 85)',
-              'rgb(153, 153, 51)',
-              'rgb(255, 99, 132)',
-            ],
-            borderWidth: 1
-          }]
-        };
-        dataBarPercentWatershed ={ labels: labels,
-          datasets: [{
-            axis: 'y',
-             minBarLength: 7,
-            label: 'Relative Change Between Base and Transformation for Watershed',
-            data: [
-                modelWatershed.yield_per_diff,
-                modelWatershed.ero_per_diff,
-                modelWatershed.ploss_per_diff,
-                modelWatershed.runoff_per_diff,
-                modelWatershed.insect_per_diff,
-                modelWatershed.cn_per_diff,
-                modelWatershed.bird_per_diff,
-                modelWatershed.econ_per_diff,
-                modelWatershed.nitrate_per_diff,
-
-            ],
-            fill: false,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(255, 159, 64, 0.2)',
-              'rgba(255, 205, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(136, 34, 85, 0.2)',
-              'rgba(153, 153, 51, 0.2)',
-              'rgba(255, 99, 132, 0.2)',
-
-            ],
-            borderColor: [
-              'rgb(255, 99, 132)',
-              'rgb(255, 159, 64)',
-              'rgb(255, 205, 86)',
-              'rgb(75, 192, 192)',
-              'rgb(54, 162, 235)',
-              'rgb(153, 102, 255)',
-              'rgb(136, 34, 85)',
-              'rgb(153, 153, 51)',
-              'rgb(255, 99, 132)',
-            ],
-            borderWidth: 1
-          }]
-        };
-        this.dataYield = charts.getChartDataBar([base.yield,null], [null,model.yield])
-        dataEro= charts.getChartDataBar([base.ero,null],[ null,model.ero])
-        dataPloss= charts.getChartDataBar([base.ploss,null], [null,model.ploss])
-        dataRun= charts.getChartDataBar([base.runoff,null], [null,model.runoff])
-        dataInsect= charts.getChartDataBar([base.insect,null], [null,model.insect])
-        dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
-        dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
-        dataEcon = charts.getChartDataBar([base.econ,null], [null,model.econ])
-        dataNitrate = charts.getChartDataBar([base.nitrate,null], [null,model.nitrate])
-
-        dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
-        dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
-        dataPlossWatershed= charts.getChartDataBar([baseWatershed.ploss,null], [null,modelWatershed.ploss])
-        dataRunWatershed= charts.getChartDataBar([baseWatershed.runoff,null], [null,modelWatershed.runoff])
-        dataInsectWatershed= charts.getChartDataBar([baseWatershed.insect,null], [null,modelWatershed.insect])
-        dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
-        dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
-        dataEconWatershed = charts.getChartDataBar([baseWatershed.econ,null], [null,modelWatershed.econ])
-        dataNitrateWatershed = charts.getChartDataBar([baseWatershed.nitrate,null], [null,modelWatershed.nitrate])
-
-        this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
-        optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
-        optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/acre/year")
-        optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
-        optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
-        optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
-        optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
-        optionsEcon = charts.getOptionsBar("Production Cost", "$acre/year")
-        optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
-        configErosionGauge = {
-  type: "gauge",
-  'scale-r': {
-    aperture: 200,     //Specify your scale range.
-    values: "0:100:20" //Provide min/max/step scale values.
-  },
-  series: [
-    { values: [87]}
-  ]
-}
 
     }
-    let percentArea = (parseFloat(areaCalc)/parseFloat(areaWatershedCalc) * 100).toFixed(2)
     return(
-            <div>
-            <Accordion defaultActiveKey="0">
-              <Accordion.Item eventKey="0">
-                <Accordion.Header>Transformation Information</Accordion.Header>
-                <Accordion.Body>
-                    <div> Total area Transformed: {area} acres ({percentArea}%)</div>
-                    <div> Total area in Work Area: {areaWatershed} acres</div>
-                    <Table id = "transResultsTable" striped bordered hover size="sm" responsive>
-                      <thead>
-                      <tr style={{textAlign:"center"}}>
-                          <th>Priority</th>
-                          <th>Name</th>
-                          <th>Area (ac)</th>
-                        </tr>
-                      </thead>
-                        {this.props.listTrans.map((trans, index) => (
-
-                      <tbody >
-                        <tr>
-                          <td>{index + 1}</td>
-                          <td>{trans.name}</td>
-                          <td>{trans.areaSelected}</td>
-                        </tr>
-                       </tbody>
-                        ))}
-                    </Table>
-                    <Button variant="success" onClick={this.printSummary} hidden={this.state.printingPDF}>Print PDF</Button>
-                    <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.printingPDF}>
-                        <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
-                        Loading...
-                     </Button>
-                </Accordion.Body>
-            </Accordion.Item>
-            </Accordion>
-            <Tabs defaultActiveKey="chartsBar" id="uncontrolled-tab-example" className="mb-3" onSelect={(k) => this.tabControlResults(k)}>
-              <Tab eventKey="chartsBar" title="Bar Charts">
-              <h4>By Selection</h4>
-                 <Row>
-                    <Col xs={6}>
-                        <Bar options = {this.optionsYield} data={this.dataYield}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsEro} data={dataEro}/>
-                    </Col>
-                 </Row>
-                 <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsPloss} data={dataPloss}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsRun} data={dataRun}/>
-                    </Col>
-                 </Row>
-                 <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsInsect} data={dataInsect}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsCN} data={dataCN}/>
-                    </Col>
-                </Row>
-                 <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsBird} data={dataBird}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsEcon} data={dataEcon}/>
-                    </Col>
-
-                </Row>
-                <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsNitrate} data={dataNitrate}/>
-                    </Col>
-                    <Col xs={6}>
-                    </Col>
-
-                </Row>
-                  <h4>By Watershed</h4>
-
-                 <Row>
-                    <Col xs={6}>
-                        <Bar options = {this.optionsYield} data={dataYieldWatershed}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsEro} data={dataEroWatershed}/>
-                    </Col>
-                 </Row>
-                 <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsPloss} data={dataPlossWatershed}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsRun} data={dataRunWatershed}/>
-                    </Col>
-                 </Row>
-                 <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsInsect} data={dataInsectWatershed}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsCN} data={dataCNWatershed}/>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsBird} data={dataBirdWatershed}/>
-                    </Col>
-                    <Col xs={6}>
-                        <Bar options = {optionsEcon} data={dataEconWatershed}/>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col xs={6}>
-                        <Bar options = {optionsNitrate} data={dataNitrateWatershed}/>
-                    </Col>
-                    <Col xs={6}>
-                    </Col>
-                </Row>
-              </Tab>
-              <Tab eventKey="chart" title="Summary Charts">
-              <h4>By Selection</h4>
-               <Row>
-                <Col xs={6}>
-                    <Radar data={dataRadar}/>
-                </Col>
-                <Col xs={6}>
-                    <Bar options = {optionsBarPercent} data={dataBarPercent}/>
-                </Col>
-                </Row>
-                <h4>By Watershed</h4>
-                <Row>
-                <Col xs={6}>
-                    <Radar data={dataRadarWatershed}/>
-                </Col>
-                <Col xs={6}>
-                    <Bar options = {optionsBarPercent} data={dataBarPercentWatershed}/>
-                </Col>
-                </Row>
-
-            </Tab>
-              <Tab eventKey="tabular" title="Tabular">
-                  <h4>By Selection</h4>
-                <Table id = "summaryTable" striped bordered hover size="sm" responsive>
-                  <thead>
-                  <tr style={{textAlign:"center"}}>
-                      <th></th>
-                      <th className="table-cell-left" colSpan={3}>Per Acre</th>
-                      <th className="table-cell-left" colSpan={3}>Total</th>
-                      <th className="table-cell-left" colSpan={2}></th>
-                    </tr>
-                    <tr style={{textAlign:"center"}}>
-                      <th  >Variable</th>
-                      <th className="table-cell-left">Base</th>
-                      <th>Transformation</th>
-                      <th>Units</th>
-                      <th className="table-cell-left">Base</th>
-                      <th>Transformation</th>
-                      <th>Units</th>
-                      <th className="table-cell-left">Relative Change</th>
-                      <th>Help</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Yield</td>
-                      <td className="table-cell-left">{base.yield}</td>
-                      <td>{model.yield}</td>
-                      <td>tons-dry matter/acre/year</td>
-                      <td className="table-cell-left">{base.yield_total}</td>
-                      <td>{model.yield_total}</td>
-                      <td>tons-dry matter/year</td>
-                      <td className="table-cell-left">{model.yield_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Erosion</td>
-                      <td className="table-cell-left">{base.ero}</td>
-                      <td>{model.ero}</td>
-                      <td>tons/acre/year</td>
-                      <td className="table-cell-left">{base.ero_total}</td>
-                      <td>{model.ero_total}</td>
-                      <td>tons/year</td>
-                      <td className="table-cell-left">{model.ero_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Phosphorus Loss</td>
-                      <td className="table-cell-left">{base.ploss}</td>
-                      <td>{model.ploss}</td>
-                      <td>lb/acre/year</td>
-                      <td className="table-cell-left">{base.ploss_total}</td>
-                      <td>{model.ploss_total}</td>
-                      <td>lb/year</td>
-                      <td className="table-cell-left">{model.ploss_per_diff}</td>
-                      <td></td>
-                    </tr>
-                     <tr>
-                      <td>Nitrate Leaching</td>
-                      <td className="table-cell-left">{base.nitrate}</td>
-                      <td>{model.nitrate}</td>
-                      <td>lb/acre/year</td>
-                      <td className="table-cell-left">{base.nitrate_total}</td>
-                      <td>{model.nitrate_total}</td>
-                      <td>lb/year</td>
-                      <td className="table-cell-left">{model.nitrate_per_diff}</td>
-                      <td></td>
-                    </tr>
-                   <tr>
-                      <td>Runoff (3 inch Storm)</td>
-                      <td className="table-cell-left"> {base.runoff}</td>
-                      <td>{model.runoff}</td>
-                      <td>inches</td>
-                      <td className="table-cell-left">{base.runoff_total}</td>
-                      <td>{model.runoff_total}</td>
-                      <td>acre-ft</td>
-                      <td className="table-cell-left">{model.runoff_per_diff}</td>
-                      <td></td>
-                   </tr>
-                   <tr>
-                      <td>Honey Bee Toxicity</td>
-                      <td className="table-cell-left">{base.insect}</td>
-                      <td>{model.insect}</td>
-                      <td>insecticide index</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{model.insect_per_diff}</td>
-                      <td></td>
-                   </tr>
-                   <tr>
-                      <td>Curve Number</td>
-                      <td className="table-cell-left">{base.cn}</td>
-                      <td>{model.cn}</td>
-                      <td>curve number</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{model.cn_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Bird Friendliness</td>
-                      <td className="table-cell-left">{base.bird}</td>
-                      <td>{model.bird}</td>
-                      <td>bird friendliness index</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{model.bird_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Production Cost</td>
-                      <td className="table-cell-left">{base.econ}</td>
-                      <td>{model.econ}</td>
-                      <td>$/acre/year</td>
-                      <td className="table-cell-left">{base.econ_total}</td>
-                      <td>{model.econ_total}</td>
-                      <td>$/year</td>
-                      <td className="table-cell-left">{model.econ_per_diff}</td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-            <h4>By Watershed</h4>
-
-              <Table striped bordered hover size="sm" responsive>
-                  <thead>
-                  <tr style={{textAlign:"center"}}>
-                      <th></th>
-                      <th className="table-cell-left" colSpan={3}>Per Acre</th>
-                      <th className="table-cell-left" colSpan={3}>Total</th>
-                      <th className="table-cell-left" colSpan={2}></th>
-                    </tr>
-                    <tr style={{textAlign:"center"}}>
-                      <th  >Variable</th>
-                      <th className="table-cell-left">Base</th>
-                      <th>Transformation</th>
-                      <th>Units</th>
-                      <th className="table-cell-left">Base</th>
-                      <th>Transformation</th>
-                      <th>Units</th>
-                      <th className="table-cell-left">Relative Change</th>
-                      <th>Help</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Yield</td>
-                      <td className="table-cell-left">{baseWatershed.yield}</td>
-                      <td>{modelWatershed.yield}</td>
-                      <td>tons-dry matter/acre/year</td>
-                      <td className="table-cell-left">{baseWatershed.yield_total}</td>
-                      <td>{modelWatershed.yield_total}</td>
-                      <td>tons-dry matter/year</td>
-                      <td className="table-cell-left">{modelWatershed.yield_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Erosion</td>
-                      <td className="table-cell-left">{baseWatershed.ero}</td>
-                      <td>{modelWatershed.ero}</td>
-                      <td>tons/acre/year</td>
-                      <td className="table-cell-left">{baseWatershed.ero_total}</td>
-                      <td>{modelWatershed.ero_total}</td>
-                      <td>tons/year</td>
-                      <td className="table-cell-left">{modelWatershed.ero_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Phosphorus Loss</td>
-                      <td className="table-cell-left">{baseWatershed.ploss}</td>
-                      <td>{modelWatershed.ploss}</td>
-                      <td>lb/acre/year</td>
-                      <td className="table-cell-left">{baseWatershed.ploss_total}</td>
-                      <td>{modelWatershed.ploss_total}</td>
-                      <td>lb/year</td>
-                      <td className="table-cell-left">{modelWatershed.ploss_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Nitrate Leaching</td>
-                      <td className="table-cell-left">{baseWatershed.nitrate}</td>
-                      <td>{modelWatershed.nitrate}</td>
-                      <td>lb/acre/year</td>
-                      <td className="table-cell-left">{baseWatershed.nitrate_total}</td>
-                      <td>{modelWatershed.nitrate_total}</td>
-                      <td>lb/year</td>
-                      <td className="table-cell-left">{modelWatershed.nitrate_per_diff}</td>
-                      <td></td>
-                    </tr>
-                   <tr>
-                      <td>Runoff (3 inch Storm)</td>
-                      <td className="table-cell-left"> {baseWatershed.runoff}</td>
-                      <td>{modelWatershed.runoff}</td>
-                      <td>inches</td>
-                      <td className="table-cell-left">{baseWatershed.runoff_total}</td>
-                      <td>{modelWatershed.runoff_total}</td>
-                      <td>acre-ft</td>
-                      <td className="table-cell-left">{modelWatershed.runoff_per_diff}</td>
-                      <td></td>
-                   </tr>
-                   <tr>
-                      <td>Honey Bee Toxicity</td>
-                      <td className="table-cell-left">{baseWatershed.insect}</td>
-                      <td>{modelWatershed.insect}</td>
-                      <td>insecticide index</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{modelWatershed.insect_per_diff}</td>
-                      <td></td>
-                   </tr>
-                   <tr>
-                      <td>Curve Number</td>
-                      <td className="table-cell-left">{baseWatershed.cn}</td>
-                      <td>{modelWatershed.cn}</td>
-                      <td>curve number</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{modelWatershed.cn_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Bird Friendliness</td>
-                      <td className="table-cell-left">{baseWatershed.bird}</td>
-                      <td>{modelWatershed.bird}</td>
-                      <td>bird friendliness index</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{modelWatershed.bird_per_diff}</td>
-                      <td></td>
-
-                    </tr>
-                    <tr>
-                      <td>Production Cost</td>
-                      <td className="table-cell-left">{baseWatershed.econ}</td>
-                      <td>{modelWatershed.econ}</td>
-                      <td>$/acre/year</td>
-                      <td className="table-cell-left">{baseWatershed.econ_total}</td>
-                      <td>{modelWatershed.econ_total}</td>
-                      <td>$/year</td>
-                      <td className="table-cell-left">{modelWatershed.econ_per_diff}</td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Tab>
-              <Tab eventKey="gauges" title="Gauges">
-               <Row>
-               <h4>By Selection</h4>
-                <Col xs={6} id = "modalResults">
-
-                        <ZingChart data={configErosionGauge}/>
-
-                    </Col>
-                     <Col xs={6}>
-                        <ZingChart data={configPhosGauge}/>
-                     </Col>
-                 </Row>
-              </Tab>
-            </Tabs>
-            <div id = "chartPrintDiv" style = {{width:pageWidth/2}} hidden={true}>
-                <Bar id = "selChart1" options = {this.optionsYield} data={this.dataYield}/>
-                <Bar id = "selChart2" options = {optionsEro} data={dataEro}/>
-                <Bar id = "selChart3" options = {optionsPloss} data={dataPloss}/>
-                <Bar id = "selChart4" options = {optionsRun} data={dataRun}/>
-                <Bar id = "selChart5" options = {optionsInsect} data={dataInsect}/>
-                <Bar id = "selChart6" options = {optionsCN} data={dataCN}/>
-                <Bar id = "selChart7" options = {optionsBird} data={dataBird}/>
-                <Bar id = "selChart8" options = {optionsEcon} data={dataEcon}/>
-                <Bar id = "selChart8" options = {optionsNitrate} data={dataNitrate}/>
-
-                <Bar id = "watChart1" options = {this.optionsYield} data={dataYieldWatershed}/>
-                <Bar id = "watChart2" options = {optionsEro} data={dataEroWatershed}/>
-                <Bar id = "watChart3" options = {optionsPloss} data={dataPlossWatershed}/>
-                <Bar id = "watChart4" options = {optionsRun} data={dataRunWatershed}/>
-                <Bar id = "watChart5" options = {optionsInsect} data={dataInsectWatershed}/>
-                <Bar id = "watChart6" options = {optionsCN} data={dataCNWatershed}/>
-                <Bar id = "watChart7" options = {optionsBird} data={dataBirdWatershed}/>
-                <Bar id = "watChart8" options = {optionsEcon} data={dataEconWatershed}/>
-                <Bar id = "watChart8" options = {optionsNitrate} data={dataNitrateWatershed}/>
-
-                <Radar id = "comChart1" data={dataRadar}/>
-                <Bar id = "comChart2" options = {optionsBarPercent} data={dataBarPercent}/>
-                <Radar id = "comChart3" data={dataRadarWatershed}/>
-                <Bar id = "comChart4" options = {optionsBarPercent} data={dataBarPercentWatershed}/>
-            </div>
-
+        <div>
+            <Row>
+                <Form.Select aria-label="Default select example" ref={this.tillage}
+                    onChange={(e) => this.chartChange(e)}>
+                      <option value="default">Open this select menu</option>
+                        {Object.keys(this.state.displayReachList).map((key,index) => (
+                        <option value={key} key={index}>{key}</option>
+                      )
+                      )}
+                    </Form.Select>
+                    <div>Max Water Surface Elevation: {this.state.chart_data_wse}</div>
+                    <Line options = {this.state.chart_options_ts} data={this.state.chart_data_ts}/>
+             </Row>
         </div>
     )
   }
@@ -2383,8 +1414,8 @@ renderModal(){
             </Accordion>
             {/*
 
-                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             */}
+                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
 
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
