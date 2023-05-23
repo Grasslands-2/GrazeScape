@@ -213,62 +213,29 @@ def get_selection_criteria_raster(request):
         Contains output parameters needed for client
     """
     start = time.time()
-    print(" ", time.time() - start)
-    # print(request.POST)
     request_json = js.loads(request.body)
     folder_id = request_json["folderId"]
 
-    # folder_id = request.POST.get("folderId")
-    # trans_id = request.POST.get("transId")
     trans_id = request_json["transId"]
-    # print(request_json)
-    print("this is the folder id ", trans_id)
-    # print(field_id)
-    scenario_id = 1
-    farm_id = 1
-    print("field coors test")
-    # print(request_json["geometry"]["field_coors"][0])
-    # print(request_json["geometry"]["field_coors"][0][0])
-    # print(request_json["geometry"]["field_coors"][0][0][0])
-    f_name = "smartscape"
-    model_type = "smartscape"
-    scen = "smartscape"
     extents = request_json["geometry"]["extent"]
-    # slope1 = request_json["selectionCrit"]["selection"]["slope1"]
-    # slope2 = request_json["selectionCrit"]["selection"]["slope2"]
-
     field_coors = request_json["geometry"]["field_coors"]
     region = request_json["region"]
     field_coors_formatted = []
 
     for val in field_coors:
-        # print("###########################")
-        # print(val)
         field_coors_formatted.append(val[0][0])
-    # for val in field_coors_formatted:
-    #     print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-    #     print(val)
-    # format field geometry
-    # for x in range(int(field_coors_len)):
-    #     sub_field_coors = []
-    #     for input in request.POST:
-    #         if "geometry[field_coors]["+str(x)+"]" in input:
-    #             sub_field_coors.append(request.POST.getlist(input))
-    #     field_coors.append(sub_field_coors)
-    print("Printing field coordinates")
     # try:
+    print("intitaling rasters")
     geo_data = RasterDataSmartScape(extents, field_coors_formatted, folder_id, region)
     print("Create clipping boundary ", time.time() - start)
-
     geo_data.create_clip()
-    print("Clip raster ", time.time() - start)
-
+    print("Clip created ", time.time() - start)
     geo_data.clip_rasters(False)
-    print("done clipping ", time.time() - start)
+    print("done clipping rasters", time.time() - start)
 
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
     # geo_data.clean()
-
+    # time.sleep(5)
     model = SmartScape(request_json, trans_id, folder_id)
 
     model.bounds["x"] = geo_data.bounds["x"]
