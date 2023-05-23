@@ -22,6 +22,7 @@ import math
 import threading
 import shutil
 
+
 class RasterDataSmartScape:
     """
     Child class of RasterData. Specifically used to handel raster requests for SmartScape
@@ -32,6 +33,7 @@ class RasterDataSmartScape:
     layer_dic : str
         dict of local layer names and their names on geoserver
     """
+
     def __init__(self, extents, field_geom_array, field_id, region):
         """
         Constructor.
@@ -58,6 +60,7 @@ class RasterDataSmartScape:
             "om": "SmartScapeRaster_" + region + ":" + region + "_om_30m",
             "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
             "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
+            "hydgrp": "SmartScapeRaster_" + region + ":" + region + "_hydgrp_30m",
 
         }
         self.extents = extents
@@ -65,7 +68,7 @@ class RasterDataSmartScape:
         geo_server_url = settings.GEOSERVER_URL
 
         self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
-                             "request=GetCoverage&CoverageId="
+                                              "request=GetCoverage&CoverageId="
         self.field_geom_array = field_geom_array
         self.extents_string_x = ""
         self.extents_string_y = ""
@@ -73,8 +76,10 @@ class RasterDataSmartScape:
         self.no_data_aray = []
 
         if extents is not None:
-            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
-            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(
+                math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
+                math.ceil(float(extents[3]))) + ")"
         self.crs = "epsg:3857"
 
         self.no_data = -9999
@@ -95,7 +100,6 @@ class RasterDataSmartScape:
         field_geom_array = self.field_geom_array
         # create polygon for each selection
         for poly in field_geom_array:
-
             geom_array_float = []
             # for coor in poly:
             #     geom_array_float.append([float(coor[0]), float(coor[1])])
@@ -112,8 +116,6 @@ class RasterDataSmartScape:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
-
-
                 raise ValueError(raster +
                                  " dimensions do not match other rasters")
 
@@ -131,8 +133,6 @@ class RasterDataSmartScape:
         # layers.json")
 
         for layer in self.layer_dic:
-
-
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
@@ -187,7 +187,6 @@ class RasterDataSmartScape:
                     ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "_aoi-clipped.tif"), image,
                                         cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
                                         cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
-
 
     def get_clipped_rasters(self):
         raster_data_dic = {}

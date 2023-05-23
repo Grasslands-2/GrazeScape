@@ -18,7 +18,7 @@ import os
 
 # grab original .basin file from safe folder and copy to where HMS will pull from it. these copied .basin files
 # stored in their respective filepaths will edited below
-def prepare_model_runs(project_dir, modified_cn=None):
+def prepare_model_runs(project_dir, modified_cn=None, is_base=False):
     basin_file_path = os.path.join(project_dir, "Original_BasinFile", "Coon_Creek___No_Dams.basin")
     # 2yr
     shutil.copy2(basin_file_path,
@@ -69,12 +69,14 @@ def prepare_model_runs(project_dir, modified_cn=None):
     # bring in dictionary of subbasin experimental CNs
     CC_CNs_input = CN_Inputs('CC', project_dir)  # bring in module
     CC_CNs_input.reset()  # ensure values are reset, otherwise past replacements perpetuate
+    print("old cn", CC_CNs_input.CC_basin_CN_input)
     for cn in modified_cn:
         print(cn)
-        CC_CNs_input.replaceCN(cn, modified_cn[cn]) #if we wanted to change any CN values
+        CC_CNs_input.replaceCN(cn, modified_cn[cn])  # if we wanted to change any CN values
     # CC_CNs_input.replaceCN('Lower Coon Creek C', 67.99) #if we wanted to change any CN values
     CC_CNs = CC_CNs_input.get_basin_CN_input()  # this is a subbasin:CN dictionary
     print("print subbasins", CC_CNs)
+
     # define function to calculate lag (as referenced in part 630.1502a Hydrology National Engineering Handbook; see
     # above)
     def calcL(subbasin):
@@ -99,8 +101,9 @@ def prepare_model_runs(project_dir, modified_cn=None):
     ordered_CNs_template = []
     for ordered_subbasin in range(len(ordered_subbasins)):
         ordered_CNs_template.append(CC_CNs[f'{ordered_subbasins[ordered_subbasin]}'])
-    print("curve number dict", CC_CNs)
-    print("printing curve number", ordered_CNs_template)
+    # print("curve number dict", CC_CNs)
+    # print("printing curve number", ordered_CNs_template)
+
     # -----------------------------------------------------------------------------------------------------------
     # define replacement functions
     def replace_CN(m):

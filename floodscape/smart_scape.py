@@ -574,6 +574,37 @@ class SmartScape:
             # "econ": np.copy(watershed_land_use),
             # "nitrate": np.copy(watershed_land_use),
         }
+        hydgrp_filepath = os.path.join(self.geo_folder, "hydgrp_aoi-clipped.tif")
+        hydgrp_image = gdal.Open(hydgrp_filepath)
+        hydgrp_array = hydgrp_image.GetRasterBand(1).ReadAsArray()
+        # calculate cn of forest based on hydrologic soil type
+        # 	        hydgrpA	hydgrpB	hydgrpC	hydgrpD
+        # Forest	36	60	73	79
+        # hydgrp_array
+        # following grazescape convention we assume first letter is dominate
+        # hyro_dic = {
+        #     1: 'A',
+        #     1.5: 'A/D',
+        #     2: 'B',
+        #     2.5: 'B/D',
+        #     3: "C",
+        #     3.5: 'C/D',
+        #     4: 'D',
+        #     -9999: 'A'  # no data
+        # }
+        hyro_dic = {
+            1: 36,
+            1.5: 36,
+            2: 60,
+            2.5: 60,
+            3: 73,
+            3.5: 73,
+            4: 79,
+            -9999: -9999  # no data
+        }
+        replace_func = np.vectorize(lambda x: hyro_dic.get(x, x))
+        hydgrp_array_forest = replace_func(hydgrp_array)
+
         watershed_total = {
             1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93, "insect": 0.51,
                 "bird": 0, "econ": 0, "nitrate": 0},
@@ -602,7 +633,7 @@ class SmartScape:
                 "nitrate": 0},
             10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0,
                  "ploss": 0, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
-            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": hydgrp_array_forest, "insect": 0,
                  "bird": 0, "econ": 0, "nitrate": 0},
             12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0, "bird": 0,
                  "econ": 0, "nitrate": 0},

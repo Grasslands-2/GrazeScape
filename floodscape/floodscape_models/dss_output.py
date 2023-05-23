@@ -3,6 +3,7 @@ from pydsstools.heclib.dss.HecDss import Open
 import json
 from datetime import datetime
 from django.conf import settings
+from floodscape.floodscape_models.hide_print import HidePrint
 
 
 class DSSOutput:
@@ -63,15 +64,16 @@ class DSSOutput:
 
     def out_data(self, dss_file, event):
         return_dict = {}
-        with Open(dss_file, event) as fid:
-            for reach in self.reaches:
-                pathname_pattern = "//{}/FLOW/*/5Minute/RUN:MSE4 NO DAMS/".format(reach)
-                ts = fid.read_ts(pathname_pattern)
-                times = ts.times
-                # convert numpy array to list so we can serialize it
-                values = ts.values.tolist()
-                # return_dict[reach] = {"time": times, "values": values, "max_q": max(values)} #Matthew's work
-                return_dict[reach] = {"q": values, "max_q": max(values)}  # Paige's rework
+        with HidePrint():
+            with Open(dss_file, event) as fid:
+                for reach in self.reaches:
+                    pathname_pattern = "//{}/FLOW/*/5Minute/RUN:MSE4 NO DAMS/".format(reach)
+                    ts = fid.read_ts(pathname_pattern)
+                    times = ts.times
+                    # convert numpy array to list so we can serialize it
+                    values = ts.values.tolist()
+                    # return_dict[reach] = {"time": times, "values": values, "max_q": max(values)} #Matthew's work
+                    return_dict[reach] = {"q": values, "max_q": max(values)}  # Paige's rework
         return return_dict
 
     def run(self):

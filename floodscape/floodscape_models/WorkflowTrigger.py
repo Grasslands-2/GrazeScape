@@ -30,54 +30,18 @@ def hms_trigger(cn_dict):
         # t = r"C:\Program Files\HEC\HEC-HMS\4.6"
     # script_file = os.path.join(os.getcwd(), "CC_HMSRun.script")
     # script_file = os.path.join(os.getcwd(), "test.script")
-    script_file = os.path.join(settings.BASE_DIR, 'floodscape', "floodscape_models", "test.script")
-    os.chdir(hms_exe)
-    print(script_file)
+
+
+    # script_file = os.path.join(settings.BASE_DIR, 'floodscape', "floodscape_models", "test.script")
+    # os.chdir(hms_exe)
+    # print(script_file)
     # list_files = subprocess.run(
     #     ["hec-hms.exe", "-s", script_file],
     #     executable=os.path.join(hms_exe, "hec-hms.exe"))
-
-    # list_files = subprocess.run(["hec-hms.exe", "-s", script_file],stdout=subprocess.PIPE, executable=os.path.join(hms_exe, "hec-hms.exe"))
-    # print(list_files)
-    # print(list_files.stdout.decode('utf-8'))
-    # print(dir(list_files))
-    # print("The exit code to run STEP2 was %d" % list_files.returncode)
-    output = DSSOutput()
-    output.run()
-    compile_data.compile_data_to_json()
-    # time.sleep(2)
-    # if list_files.returncode == 0:
-    #     # STEP3: extract each HMS reach time series data from output .dss file, compile to .json file
-    #     list_files = subprocess.run("python CC_dss_output.py", cwd=r"C:\Users\paige\OneDrive\Documents\HMS_CC_Final")
-    #     print("The exit code to run STEP3 was %d" % list_files.returncode)
     #
-    #     time.sleep(2)
-    #     if list_files.returncode == 0:
-    #         # STEP4: compile time series, peak Q, peak WSE data to JSON file
-    #         list_files = subprocess.run("python CC_CompiledDataToJSON.py",
-    #                                     cwd=r"C:\Users\paige\OneDrive\Documents\HMS_CC_Final")
-    #         print("The exit code to run STEP4 was %d" % list_files.returncode)
+    # output = DSSOutput()
+    # output.run()
+    # compile_data.compile_data_to_json()
 
 
 
-
-
-
-
-
-# Define the HEC-HMS executable path and input file path
-# hechms_path = r'C:\Program Files (x86)\HEC\HEC-HMS\4.7.1\HEC-HMS.exe'
-# input_file = r'C:\HEC-HMS\Input\my_input_file.hms'
-#
-# # Define the command to run HEC-HMS with the input file
-# cmd = [hechms_path, input_file]
-#
-# # Create a subprocess and run the command
-# p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#
-# # Wait for the command to finish and get its output and error
-# output, error = p.communicate()
-#
-# # Print the output and error
-# print(output.decode())
-# print(error.decode())

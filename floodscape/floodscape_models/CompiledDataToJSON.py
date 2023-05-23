@@ -34,8 +34,8 @@ def compile_data_to_json():
     wse = re.findall(r"\n.*?,.*?,.*?,.*?,(\d*.\d*)", fdata)
     wse = [float(x) for x in wse]
     # print("stations",stations)
-    print("q_max", q_max)
-    print("wse", wse)
+    # print("q_max", q_max)
+    # print("wse", wse)
 
     # define slope and intercept functions
     def slope(x0, x1, y0, y1):
@@ -89,7 +89,7 @@ def compile_data_to_json():
                 # Handle non-numeric values if needed
                 pass
 
-    print(float_list)
+    # print(float_list)
     # with open(file_path, 'r') as f:
     #     fdata = f.read()
     # reaches = re.findall(r"\n.*?,.*?,.*?,.*?,.*?(.*?)\,", fdata)
