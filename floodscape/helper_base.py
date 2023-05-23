@@ -69,6 +69,7 @@ def download_base_rasters_helper(request, geo_folder):
     base_layer_dic["landuse"] = "" + region + "_WiscLand_30m"
     base_layer_dic["landuse" + "_whole_region"] = "" + region + "_WiscLand_30m"
     base_layer_dic["hyd_letter"] = "" + region + "_hydgrp_30m"
+    base_layer_dic["hyd_letter" + "_whole_region"] = "" + region + "_hydgrp_30m"
     # base_layer_dic["hayGrassland_Yield"] = "pasture_Yield_medium_" + region
     # base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_medium_" + region
     print(base_layer_dic)

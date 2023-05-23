@@ -391,7 +391,7 @@ class OLMapFragment extends React.Component {
         // select
         this.map.removeInteraction(this.select)
         this.map.removeInteraction(this.draw)
-        this.map.removeInteraction(this.dragBox)
+//        this.map.removeInteraction(this.dragBox)
         this.selectedFeatures.clear();
 //        this.boundaryLayer.getSource().clear();
         if (newSelection == 'watershed'){
@@ -787,36 +787,46 @@ class OLMapFragment extends React.Component {
             }
             console.log("done with add selection")
           });
-
+        this.dragBox = new DragBox({
+          condition: platformModifierKeyOnly, // Hold Ctrl to drag select
+        });
+        this.map.addInteraction(this.dragBox);
 
 
         // a DragBox interaction used to select features by drawing boxes
-        this.dragBox = new DragBox({
-//          condition: platformModifierKeyOnly,
-        });
+          this.dragBox.on('boxend', () => {
+            console.log("box end")
+              // Get the bounding extent of the drag box
+              const extent = this.dragBox.getGeometry().getExtent();
 
-        this.dragBox.on('boxend', () => this.drawRectangleBoundary(this.dragBox))
-        // clear selection when drawing a new box and when clicking on the map
-        this.dragBox.on('boxstart', function () {
-//          this.selectedFeatures.clear();
+              // Iterate through the features in the vector source
+              this.ccWatershed.getSource().forEachFeatureIntersectingExtent(extent, (feature) => {
+                // Add the feature to the selected features collection
+                this.selectedFeatures.push(feature);
+              });
+            });
 
-        });
-        const value = "Polygon";
+
+    this.dragBox.on('boxstart', () => {
+      // Clear the selected features collection
+      this.selectedFeatures.clear();
+    });
+    const value = "Polygon";
 //        this.source = new VectorSource({
 //            projection: 'EPSG:3857',
 //        })
 //        this.boundaryLayer.setSource(this.source)
-        this.draw = new Draw({
-          source: this.source,
-          type: value,
-        });
+    this.draw = new Draw({
+      source: this.source,
+      type: value,
+    });
 //        this.source.on('addfeature', function(evt){
 ////            start_drawing = true;
 //        });
-        this.draw.on('drawstart', function(evt){
+    this.draw.on('drawstart', function(evt){
 //            start_drawing = true;
-        });
-        this.draw.on('drawend', (evt) => {})
+    });
+    this.draw.on('drawend', (evt) => {})
 
     this.map.addInteraction(this.select);
     }

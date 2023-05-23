@@ -253,10 +253,10 @@ def get_selection_criteria_raster(request):
     geo_data = RasterDataSmartScape(extents, field_coors_formatted, folder_id, region)
     print("Create clipping boundary ", time.time() - start)
 
-    geo_data.create_clip()
+    # geo_data.create_clip()
     print("Clip raster ", time.time() - start)
 
-    geo_data.clip_rasters(False)
+    # geo_data.clip_rasters(False)
     print("done clipping ", time.time() - start)
 
     clipped_rasters, bounds = geo_data.get_clipped_rasters()

@@ -42,7 +42,7 @@ class CN_Inputs:
                 self.WFK_basin_CN_input[f'{subbasins_no_dams[basin]}'] = cn_no_dams[basin]
 
     def replaceCN(self, basin, newCN):
-        print("replacing cn")
+        # print("replacing cn")
         if self.watershed == 'CC':
             self.CC_basin_CN_input[basin] = newCN
         elif self.watershed == 'WFK':

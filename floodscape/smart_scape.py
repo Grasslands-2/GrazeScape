@@ -594,15 +594,21 @@ class SmartScape:
         # }
         hyro_dic = {
             1: 36,
+            1.25: 36,
             1.5: 36,
+            1.75: 36,
             2: 60,
+            2.25: 60,
             2.5: 60,
+            2.75: 60,
             3: 73,
+            3.25: 73,
             3.5: 73,
+            3.75: 73,
             4: 79,
             -9999: -9999  # no data
         }
-        replace_func = np.vectorize(lambda x: hyro_dic.get(x, x))
+        replace_func = np.vectorize(lambda x: hyro_dic.get(x))
         hydgrp_array_forest = replace_func(hydgrp_array)
 
         watershed_total = {
@@ -633,7 +639,8 @@ class SmartScape:
                 "nitrate": 0},
             10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0,
                  "ploss": 0, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
-            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": hydgrp_array_forest, "insect": 0,
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": hydgrp_array_forest,
+                 "insect": 0,
                  "bird": 0, "econ": 0, "nitrate": 0},
             12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0, "bird": 0,
                  "econ": 0, "nitrate": 0},
@@ -660,7 +667,8 @@ class SmartScape:
         for layer in layer_dic:
             for model in model_list_runoff:
                 inter_data = np.where(model_data[model] == layer, base_data[model], 0)
-                # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0,
+                # inter_data))
                 inter_data = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
                 model_data_gross[layer]["base"][model] = inter_data
 
@@ -738,12 +746,12 @@ class SmartScape:
 
         sum_model_cn_watershed = sum_model_cn_watershed + sum_model_cn
 
-
         # print("time to run models ", time.time() - start)
         print("cn for watershed with trans is", np.sum(sum_model_cn_watershed) / total_cells)
         # print("cn for watershed with trans is", sum_model_cn_watershed)
         #
-        # print("cn for watershed with trans is", np.sum(model_data_gross[1]["selection_watershed"]["cn"]) / total_cells)
+        # print("cn for watershed with trans is", np.sum(model_data_gross[1]["selection_watershed"]["cn"]) /
+        # total_cells)
 
         sum_model_cn_watershed = np.where(sum_model_cn_watershed == 0, self.no_data, sum_model_cn_watershed)
         print("old model cn", sum_model_cn_watershed / total_cells)
@@ -767,15 +775,14 @@ class SmartScape:
         outdata = None
         band = None
         ds = None
-        file_list = [os.path.join(base_dir, "landuse_whole_region.tif"), os.path.join(self.in_dir, "model_combined.tif")]
+        file_list = [os.path.join(base_dir, "landuse_whole_region.tif"),
+                     os.path.join(self.in_dir, "model_combined.tif")]
         options = gdal.WarpOptions(dstNodata=self.no_data, outputType=gc.GDT_Float32)
 
         ds_clip = gdal.Warp(os.path.join(self.in_dir, "landuse_cn.tif"), file_list, options=options)
         return_data = self.run_region_cn()
         # self.run_region_cn1()
         return return_data
-
-
 
     def run_region_cn(self):
         print("running cn for region")
@@ -787,6 +794,7 @@ class SmartScape:
         dairy_file = os.path.join(base_dir, "dairyRotation_CN_whole_region.tif")
         hay_file = os.path.join(base_dir, "hayGrassland_CN_whole_region.tif")
         pasture_file = os.path.join(base_dir, "pastureWatershed_CN_whole_region.tif")
+        hydr_file = os.path.join(base_dir, "hyd_letter_whole_region.tif")
 
         region_landuse_image = gdal.Open(landuse_file)
         region_landuse_arr = region_landuse_image.GetRasterBand(1).ReadAsArray()
@@ -805,6 +813,71 @@ class SmartScape:
 
         cont_pl_image = gdal.Open(pasture_file)
         pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+
+        hydgrp_image = gdal.Open(hydr_file)
+        hydgrp_array = hydgrp_image.GetRasterBand(1).ReadAsArray()
+        # calculate cn of forest based on hydrologic soil type
+        # 	        hydgrpA	hydgrpB	hydgrpC	hydgrpD
+        # Forest	36	60	73	79
+        # hydgrp_array
+        # following grazescape convention we assume first letter is dominate
+        # hyro_dic = {
+        #     1: 'A',
+        #     1.5: 'A/D',
+        #     2: 'B',
+        #     2.5: 'B/D',
+        #     3: "C",
+        #     3.5: 'C/D',
+        #     4: 'D',
+        #     -9999: 'A'  # no data
+        # }
+        hyro_dic = {
+            1: 36,
+            1.25: 36,
+            1.5: 36,
+            1.75: 36,
+            2: 60,
+            2.25: 60,
+            2.5: 60,
+            2.75: 60,
+            3: 73,
+            3.25: 73,
+            3.5: 73,
+            3.75: 73,
+            4: 79,
+            -9999: -9999  # no data
+        }
+        # print("soil group")
+        # unique_values, counts = np.unique(hydgrp_array, return_counts=True)
+        #
+        # # Print the unique values and their counts
+        # for value, count in zip(unique_values, counts):
+        #     print(f"Value: {value}, Count: {count}")
+        replace_func = np.vectorize(lambda x: hyro_dic.get(x))
+        hydgrp_array_forest = replace_func(hydgrp_array)
+
+        # [rows, cols] = pasture_cn_arr.shape
+        # driver = gdal.GetDriverByName("GTiff")
+        # outdata = driver.Create(os.path.join(self.in_dir, "forest_cn_test!!!!!!!!!.tif"), cols, rows, 1,
+        #                         gdal.GDT_Float32)
+        # # set metadata to an existing raster
+        # outdata.SetGeoTransform(
+        #     cont_pl_image.GetGeoTransform())  ##sets same geotransform as input
+        # outdata.SetProjection(
+        #     cont_pl_image.GetProjection())  ##sets same projection as input
+        # outdata.GetRasterBand(1).WriteArray(hydgrp_array_forest)
+        # outdata.GetRasterBand(1).SetNoDataValue(self.no_data)
+        # # write to disk
+        # outdata.FlushCache()
+        # outdata = None
+        # band = None
+        # ds = None
+        # print("new curve numbers")
+        # unique_values, counts = np.unique(hydgrp_array_forest, return_counts=True)
+        #
+        # # Print the unique values and their counts
+        # for value, count in zip(unique_values, counts):
+        #     print(f"Value: {value}, Count: {count}")
         watershed_total = {
             1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93,
                 "insect": 0.51,
@@ -835,7 +908,7 @@ class SmartScape:
                 "nitrate": 0},
             10: {"name": "hayGrassland", "is_calc": True, "yield": 0, "ero": 0,
                  "ploss": 0, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0},
-            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": hydgrp_array_forest, "insect": 0,
                  "bird": 0, "econ": 0, "nitrate": 0},
             12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0,
                  "bird": 0,
@@ -883,14 +956,13 @@ class SmartScape:
         with open(region_watershed_file, 'r') as f:
             data = json.load(f)
 
-
-        feature_list = ["Middle Coon Creek I","Middle Coon Creek M"]
-            # "Upper Coon Creek A",
-            # "COON CREEK 33",
-            # "COON CREEK 29",
-            # "Timber Coulee C",
-            # "Timber Coulee D",
-            # "Timber Coulee B"]
+        feature_list = ["Middle Coon Creek I", "Middle Coon Creek M"]
+        # "Upper Coon Creek A",
+        # "COON CREEK 33",
+        # "COON CREEK 29",
+        # "Timber Coulee C",
+        # "Timber Coulee D",
+        # "Timber Coulee B"]
         model_cn_dict = {}
         base_cn_dict = {}
         for feature in data['features']:
@@ -898,9 +970,8 @@ class SmartScape:
             # print(feature['properties'])
             feature_name = feature['properties']["name"]
             # print(feature_name)
-            if feature_name not in feature_list:
-
-                continue
+            # if feature_name not in feature_list:
+            #     continue
             # print(feature['geometry'])
             # print(feature['geometry']['coordinates'])
             geometry = feature['geometry']['coordinates'][0][0]
@@ -951,7 +1022,8 @@ class SmartScape:
                 0, base_data_watershed_local["cn"])
 
             base_data_watershed_local["cn_model"] = np.where(
-                np.logical_or(base_data_watershed_local["cn_model"] == self.no_data, base_data_watershed_local["cn_model"] < 0),
+                np.logical_or(base_data_watershed_local["cn_model"] == self.no_data,
+                              base_data_watershed_local["cn_model"] < 0),
                 0, base_data_watershed_local["cn_model"])
 
             total_cn = np.sum(base_data_watershed_local["cn"])
@@ -959,13 +1031,13 @@ class SmartScape:
             # print("total cn", total_cn)
             # print("total cells", total_cells)
 
-            print("base cn is ", total_cn / total_cells)
-            print("model cn is ", total_cn_model / total_cells)
+            # print("base cn is ", total_cn / total_cells)
+            # print("model cn is ", total_cn_model / total_cells)
             # feature_dict[feature_name] = {"model":total_cn_model / total_cells, "base": total_cn / total_cells}
             model_cn_dict[feature_name] = total_cn_model / total_cells
             base_cn_dict[feature_name] = total_cn / total_cells
         print("model cn dict", model_cn_dict)
-        print("base cn dict", base_cn_dict)
+        # print("base cn dict", base_cn_dict)
         print("time to run cn models ", time.time() - start)
         hms_trigger(model_cn_dict)
         project_dir = settings.HMS_MODEL_PATH
@@ -974,6 +1046,7 @@ class SmartScape:
         with open(os.path.join(project_dir, "CompiledRiverStationDataModel.json")) as f:
             data_base = json.load(f)
         return {"base": data_base, "model": data_model}
+
     # def run_region_cn1(self):
     #     base_dir = os.path.join(self.geo_folder, "base")
     #     # TODO this needs to be dynamic
@@ -1118,7 +1191,6 @@ class SmartScape:
     #
     #         print("total cells", total_cells)
     #         print("cn is ", total_cn / total_cells)
-
 
     def get_runoff_vectorized(self, cn, rain):
         cn = np.where(cn < 1, 1, cn)
