@@ -22,6 +22,7 @@ from django.conf import settings
 import math
 import threading
 import shutil
+import traceback
 
 
 class RasterDataSmartScape:
@@ -61,6 +62,7 @@ class RasterDataSmartScape:
             "om": "SmartScapeRaster_" + region + ":" + region + "_om_30m",
             "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
             "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
+            "hydgrp": "SmartScapeRaster_" + region + ":" + region + "_hydgrp_30m",
 
         }
         self.extents = extents
@@ -115,10 +117,9 @@ class RasterDataSmartScape:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
-                print(raster_shape)
+                print("raster shape to match", raster_shape)
                 print(raster_dic[raster].shape)
-                raise ValueError(raster +
-                                 " dimensions do not match other rasters")
+                raise ValueError(raster + " dimensions do not match other rasters")
 
         self.bounds["y"], self.bounds["x"] = raster_shape
         return
@@ -203,19 +204,29 @@ class RasterDataSmartScape:
                 # print("file paths!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 # print(os.path.join(self.dir_path, file))
                 # ds_clip = gdal.Open(os.path.join(self.dir_path, data_name + "_clipped.tif"))
-                ds_clip = gdal.Open(os.path.join(self.dir_path, file))
-                print("clippled file path", os.path.join(self.dir_path, file))
-                geoTransform = ds_clip.GetGeoTransform()
-                minx = geoTransform[0]
-                maxy = geoTransform[3]
-                maxx = minx + geoTransform[1] * ds_clip.RasterXSize
-                miny = maxy + geoTransform[5] * ds_clip.RasterYSize
-                bounds = [minx, miny, maxx, maxy]
-                band = ds_clip.GetRasterBand(1)
-                arr = np.asarray(band.ReadAsArray())
-                raster_data_dic[data_name] = arr
+                file_path = os.path.join(self.dir_path, file)
+                try:
+                    ds_clip = gdal.Open(file_path)
+                    # print("clippled file path", file_path)
+                    # print("ds_clip", ds_clip)
+                    geoTransform = ds_clip.GetGeoTransform()
+                    minx = geoTransform[0]
+                    maxy = geoTransform[3]
+                    maxx = minx + geoTransform[1] * ds_clip.RasterXSize
+                    miny = maxy + geoTransform[5] * ds_clip.RasterYSize
+                    bounds = [minx, miny, maxx, maxy]
+                    band = ds_clip.GetRasterBand(1)
+                    arr = np.asarray(band.ReadAsArray())
+                    raster_data_dic[data_name] = arr
 
-                ds_clip = None
-                band = None
+                    ds_clip = None
+                    band = None
+                except FileNotFoundError as e:
+                    print(e)
+                    print("file not found", file_path)
+                except Exception as e:
+                    print("Exception type:", type(e).__name__)
+                    traceback.print_exc()
+
         self.check_raster_data(raster_data_dic)
         return raster_data_dic, bounds

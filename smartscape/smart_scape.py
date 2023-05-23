@@ -128,10 +128,12 @@ class SmartScape:
         image1 = gdal.Open(os.path.join(self.geo_folder, "landuse-clipped.tif"))
         band = image1.GetRasterBand(1)
         arr_landuse = band.ReadAsArray()
-
+        # landuse_aoi-clipped.tif
         image1 = gdal.Open(os.path.join(self.geo_folder, "landuse_aoi-clipped.tif"))
         band = image1.GetRasterBand(1)
         arr_total_valid_cells = band.ReadAsArray()
+
+
         total_cells = np.count_nonzero(arr_total_valid_cells != self.no_data)
 
         driver = gdal.GetDriverByName("GTiff")
@@ -153,7 +155,8 @@ class SmartScape:
         if use_ft:
             stream_dist1 = float(stream_dist1) * Ft_To_Meters
             stream_dist2 = float(stream_dist2) * Ft_To_Meters
-
+        image1 = None
+        band = None
         # create empty 2d array for the png
         three_d = np.empty([rows, cols, 4])
         # create array to display red for selected cells
@@ -419,6 +422,10 @@ class SmartScape:
         total_cells = np.count_nonzero(arr > self.no_data)
         area_selected_total = aoi_area_total * np.count_nonzero(arr > 0) / np.count_nonzero(arr > self.no_data)
 
+        hydgrp_filepath = os.path.join(self.geo_folder, "hydgrp_aoi-clipped.tif")
+        hydgrp_image = gdal.Open(hydgrp_filepath)
+        hydgrp_array = hydgrp_image.GetRasterBand(1).ReadAsArray()
+
         om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
         om_image = gdal.Open(om_filepath)
         om_array = om_image.GetRasterBand(1).ReadAsArray()
@@ -455,7 +462,8 @@ class SmartScape:
                     "bird": 0,
                     "econ": 0,
                     "nitrate": 0,
-                    "total_cells": 0
+                    "total_cells": 0,
+                    "sci":0
                 }
                 result_list[result] = model
             model_data_gross[tran["rank"]] = result_list
@@ -652,6 +660,8 @@ class SmartScape:
         watershed_land_use_image = gdal.Open(os.path.join(self.geo_folder, "landuse_aoi-clipped.tif"))
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
         watershed_land_use = watershed_land_use_band.ReadAsArray()
+        watershed_land_use_image = None
+        watershed_land_use_band = None
         # need to fill in holes for erosion model inputs for nitrate model
         pasture_er_arr = np.where(np.logical_and(watershed_land_use != self.no_data, pasture_er_arr == self.no_data), 0,
                                   pasture_er_arr)
@@ -703,6 +713,52 @@ class SmartScape:
             "nitrate": np.copy(watershed_land_use),
             "sci": np.copy(watershed_land_use),
         }
+        # calculate cn of forest based on hydrologic soil type
+        # 	        hydgrpA	hydgrpB	hydgrpC	hydgrpD
+        # Forest	36	60	73	79
+        # hydgrp_array
+        # following grazescape convention we assume first letter is dominate
+        # hyro_dic = {
+        #     1: 'A',
+        #     1.5: 'A/D',
+        #     2: 'B',
+        #     2.5: 'B/D',
+        #     3: "C",
+        #     3.5: 'C/D',
+        #     4: 'D',
+        #     -9999: 'A'  # no data
+        # }
+        hyro_dic = {
+            1: 36,
+            1.5: 36,
+            2: 60,
+            2.5: 60,
+            3: 73,
+            3.5: 73,
+            4: 79,
+            -9999: -9999  # no data
+        }
+        replace_func = np.vectorize(lambda x: hyro_dic.get(x, x))
+        hydgrp_array_forest = replace_func(hydgrp_array)
+
+        # [rows, cols] = arr.shape
+        # driver = gdal.GetDriverByName("GTiff")
+        # outdata = driver.Create(os.path.join(self.in_dir, "forest_cn.tif"), cols, rows, 1,
+        #                         gdal.GDT_Float32)
+        # # set metadata to an existing raster
+        # outdata.SetGeoTransform(
+        #     cont_sci_image.GetGeoTransform())  ##sets same geotransform as input
+        # outdata.SetProjection(
+        #     cont_sci_image.GetProjection())  ##sets same projection as input
+        # outdata.GetRasterBand(1).WriteArray(hydgrp_array_forest)
+        # outdata.GetRasterBand(1).SetNoDataValue(self.no_data)
+        # # write to disk
+        # outdata.FlushCache()
+        # outdata = None
+        # band = None
+        # ds = None
+
+
         watershed_total = {
             1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93, "insect": 0.51,
                 "bird": 0, "econ": 0, "nitrate": 0, "sci": 0},
@@ -729,7 +785,7 @@ class SmartScape:
                 "nitrate": base_nitrate_data["pasture"], "sci": pasture_sci_arr},
             10: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr,
                  "ploss": hay_pl_arr, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0, "sci": 3},
-            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": 65, "insect": 0,
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": hydgrp_array_forest, "insect": 0,
                  "bird": 0, "econ": 0, "nitrate": 0, "sci": 3},
             12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0, "bird": 0,
                  "econ": 0, "nitrate": 0, "sci": 0},
