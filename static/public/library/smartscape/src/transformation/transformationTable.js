@@ -129,7 +129,12 @@ class TransformationTable extends Component {
     console.log("old values", prevProps)
     console.log("new values", this.props)
     if(prevProps.activeTrans.management.nitrogen != this.props.activeTrans.management.nitrogen){
+        if (prevProps.aoiFolderId == null){
+            return
+        }
         console.log("Nitrogen has changed, calculate new P")
+        console.log("Nitrogen has changed, calculate new P", prevProps.activeTrans.management.nitrogen)
+        console.log("Nitrogen has changed, calculate new P", this.props.activeTrans.management.nitrogen)
         this.getPhosValues()
     }
 
