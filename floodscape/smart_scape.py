@@ -969,6 +969,7 @@ class SmartScape:
             # Do something with each feature
             # print(feature['properties'])
             feature_name = feature['properties']["name"]
+            area = feature['properties']["area_sqkm"]
             # print(feature_name)
             # if feature_name not in feature_list:
             #     continue
@@ -983,10 +984,10 @@ class SmartScape:
             # print(polygon)
             sub_water_cut_file = os.path.join(base_dir, feature_name + ".shp")
             polygon.to_file(filename=sub_water_cut_file, driver="ESRI Shapefile")
-
+            # create files in memory
             output_filename_model = '/vsimem/output_model.tif'
             output_filename_base = '/vsimem/output_base.tif'
-            print(feature_name)
+            print(feature_name, area)
             ds_clip = gdal.Warp(output_filename_base,
                                 [os.path.join(self.in_dir, "cn_whole_region.tif")],
                                 cutlineDSName=sub_water_cut_file,
