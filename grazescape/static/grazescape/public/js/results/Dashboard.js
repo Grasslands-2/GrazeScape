@@ -1,3 +1,47 @@
+//
+//// Define an object to hold the variable
+//var variableObject = {
+//  value: 'Initial value',
+//  onChange: null, // Custom event handler
+//  set value(newValue) {
+//    this._value = newValue;
+//    if (typeof this.onChange === 'function') {
+//      this.onChange(newValue);
+//    }
+//  },
+//  get value() {
+//    return this._value;
+//  }
+//};
+//
+//// Custom event handler
+//variableObject.onChange = function(newValue) {
+//  console.log('Variable value changed:', newValue);
+//};
+//
+//// Update the variable value
+//variableObject.value = 'New value';
+//
+//function createHTMLTable(valuesList){
+//    let tableHeader = "<table id='test1'><tr>"+
+//        "<th style='border:1px solid black'>Occupancy</th>"+
+//        "<th style='border:1px solid black'>Low Yielding Variety</th>"+
+//        "<th style='border:1px solid black'>Medium Yielding Variety</th>"+
+//        "<th style='border:1px solid black'>High Yielding Variety</th></tr>"
+//    tableFooter = "</table>"
+//    for (let row in valuesList){
+//        console.log(row)
+//        tableHeader = tableHeader + "<tr>"
+//        for (let col in valuesList[row]){
+//            tableHeader = tableHeader +  "<th style='border:1px solid black'>"+valuesList[row][col]+"</th>"
+//        }
+//        tableHeader = tableHeader + "</tr>"
+//    }
+//    tableHeader = tableHeader + tableFooter
+//    return tableHeader
+//}
+//testTable113 = createHTMLTable([[0,1,2,3], [5,6,7]])
+
 var fieldArraystandin = []
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldSummaryStore',
@@ -847,7 +891,7 @@ var chartObj = {}
 //controls order of how datasets are displayed and with what colors
 var chartDatasetContainer = {}
 //https://personal.sron.nl/~pault/
-
+var grassMatrixTable = null
 var checkBoxScen = []
 var checkBoxField = []
 var hiddenData = {
@@ -978,6 +1022,28 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 		let me = this;
 		layer = DSS.layer.fields_1
+
+//		let testTable = ''
+//		<table>
+//          <tr>
+//            <th>Company</th>
+//            <th>Contact</th>
+//            <th>Country</th>
+//          </tr>
+//          <tr>
+//            <td>Alfreds Futterkiste</td>
+//            <td>Maria Anders</td>
+//            <td>Germany</td>
+//          </tr>
+//          <tr>
+//            <td>Centro comercial Moctezuma</td>
+//            <td>Francisco Chang</td>
+//            <td>Mexico</td>
+//          </tr>
+//        </table>
+//        '
+        // Create an HTML table
+
         
         if (this.runModel) {
             var modelruntime = ''
@@ -1135,47 +1201,48 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                                 }
                                 break
-                            case 'ploss':
-                                nut_pb.value = nut_pb.value + 1
-                                if(nut_pb.value==nut_pb.max){
-                                    nut_pb.hidden = true
-                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
-                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-                                    Ext.getCmp("nutTab").setDisabled(false)
-                                }
-                                ero_pb.value = ero_pb.value + 1
-                                if(ero_pb.value==ero_pb.max){
-                                    ero_pb.hidden = true
-                                    Ext.getCmp("eroTab").setDisabled(false)
-                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
-                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
-                                }
-                                break
-                            case 'runoff':
-                                runoff_pb.value = runoff_pb.value + 1
-                                if(runoff_pb.value == runoff_pb.max){
-                                    runoff_pb.hidden =true
-                                    Ext.getCmp("runoffTab").setDisabled(false)
-                                }
-                                break
-                            case 'bio':
-                                bio_pb.value = bio_pb.value + 1
-                                if(bio_pb.value == bio_pb.max){
-                                    bio_pb.hidden = true
-                                    Ext.getCmp("bioTab").setDisabled(false)
-                                }
-                                break
-                            case 'econ':
-                                econ_pb.value = econ_pb.value + 1
-                                if(econ_pb.value == econ_pb.max){
-                                    econ_pb.hidden = true
-                                    Ext.getCmp("econTab").setDisabled(false)
-                                    Ext.getCmp("econFarmConvert").setDisabled(false)
-                                    Ext.getCmp("econFieldConvert").setDisabled(false)
-                                }
-                                break
-
+//                            case 'ploss':
+//                                nut_pb.value = nut_pb.value + 1
+//                                if(nut_pb.value==nut_pb.max){
+//                                    nut_pb.hidden = true
+//                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
+//                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
+//                                    Ext.getCmp("nutTab").setDisabled(false)
+//                                }
+//                                ero_pb.value = ero_pb.value + 1
+//                                if(ero_pb.value==ero_pb.max){
+//                                    ero_pb.hidden = true
+//                                    Ext.getCmp("eroTab").setDisabled(false)
+//                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
+//                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
+//                                }
+//                                break
+//                            case 'runoff':
+//                                runoff_pb.value = runoff_pb.value + 1
+//                                if(runoff_pb.value == runoff_pb.max){
+//                                    runoff_pb.hidden =true
+//                                    Ext.getCmp("runoffTab").setDisabled(false)
+//                                }
+//                                break
+//                            case 'bio':
+//                                bio_pb.value = bio_pb.value + 1
+//                                if(bio_pb.value == bio_pb.max){
+//                                    bio_pb.hidden = true
+//                                    Ext.getCmp("bioTab").setDisabled(false)
+//                                }
+//                                break
+//                            case 'econ':
+//                                econ_pb.value = econ_pb.value + 1
+//                                if(econ_pb.value == econ_pb.max){
+//                                    econ_pb.hidden = true
+//                                    Ext.getCmp("econTab").setDisabled(false)
+//                                    Ext.getCmp("econFarmConvert").setDisabled(false)
+//                                    Ext.getCmp("econFieldConvert").setDisabled(false)
+//                                }
+//                                break
                         }
+
+
                         totalFields = totalFields - 1
                         if(totalFields == 0){
                             Ext.getCmp("btnRunModels").setDisabled(false)
@@ -1719,103 +1786,41 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         border:0,
                     },
                     items:[
-                    {
-                        xtype: 'radiogroup',
-                        id: 'yieldFarmConvert',
-                        vertical: true,
-                        columns:2,
-                        items: [
-                            {
-                                boxLabel  : 'Yield',
-                                inputValue: 'a',
-                                checked:true
-                            }, {
-                                boxLabel  : 'Production',
-                                inputValue: 't',
-                            },
-                        ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            displayAlternate("grass_yield_farm", e.id)
-                            displayAlternate("corn_yield_farm", e.id)
-                            displayAlternate("corn_silage_yield_farm", e.id)
-                            displayAlternate("soy_yield_farm", e.id)
-                            displayAlternate("oat_yield_farm", e.id)
-                            displayAlternate("alfalfa_yield_farm", e.id)
-                            displayAlternate("rotation_yield_farm", e.id)
-                            console.log(chartObj)
-                         }},
-                    },
 
-                    {
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="rotation_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="grass_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_silage_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="soy_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="oat_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="alfalfa_yield_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        {
+                            xtype: 'container',
+                            html: "<div id='grassMatrixDiv'></div>"
+                        },
+                        {
+                        xtype: 'button',
+                        cls: 'button-text-pad',
+                        componentCls: 'button-margin',
+                        text: 'Copy Table',
+                        handler: function(self) {
+//                            var table = document.getElementById('grassMatrix');
+//                            console.log(table)
+//                            // Create a range object to select the table content
+//                            var range = document.createRange();
+//                            range.selectNode(table);
+//
+//                            // Add the range to the current selection
+//                            window.getSelection().addRange(range);
+//
+//                            // Execute the "copy" command to copy the selected content
+//                            document.execCommand('copy');
+//
+//                            // Clear the selection
+//                            window.getSelection().removeAllRanges();
+                            document.getElementById("grassMatrixDiv").innerHTML = "hello world";
+
+                        }
                     },
                     ],
                     scope: this,
                     listeners:{activate: async function() {
-                        console.log("activated farm")
-                        if(!chartObj.grass_yield_farm.show){document.getElementById('grass_yield_farm').style.display="none"};
-                        if(!chartObj.corn_yield_farm.show){document.getElementById('corn_yield_farm').style.display="none"}
-                        if(!chartObj.corn_silage_yield_farm.show){document.getElementById('corn_silage_yield_farm').style.display="none"}
-                        if(!chartObj.soy_yield_farm.show){document.getElementById('soy_yield_farm').style.display="none"}
-                        if(!chartObj.oat_yield_farm.show){document.getElementById('oat_yield_farm').style.display="none"}
-                        if(!chartObj.alfalfa_yield_farm.show){document.getElementById('alfalfa_yield_farm').style.display="none"}
-                        if(!chartObj.rotation_yield_farm.show){document.getElementById('rotation_yield_farm').style.display="none"}
+                        console.log("grass matrix tab")
+                        document.getElementById("grassMatrixDiv").innerHTML = grassMatrixTable;
 
-                         if (chartObj["rotation_yield_farm"].chart !== null){
-                         return
-                        }
-                        //------------------------------------
-                        //This bit of code is used to clean up datasets in order to ensure they will chart
-                        var farmYeildChartArray = [chartObj.grass_yield_farm,chartObj.corn_yield_farm,chartObj.corn_silage_yield_farm,
-                            chartObj.soy_yield_farm,chartObj.oat_yield_farm,chartObj.alfalfa_yield_farm,chartObj.rotation_yield_farm]
-                        for (chart in farmYeildChartArray){
-                            console.log(farmYeildChartArray[chart])
-                            if(chart == "grass_yield_farm"||"corn_yield_farm"||"corn_silage_yield_farm"||"soy_yield_farm"||"oat_yield_farm"||"alfalfa_yield_farm"||"rotation_yield_farm")
-                            {
-                                console.log("Yield Chart Hit")
-                                for(i in farmYeildChartArray[chart].chartData.datasets){
-                                    console.log(farmYeildChartArray[chart].chartData.datasets[i].data)
-                                    if(farmYeildChartArray[chart].chartData.datasets[i].data.length > 2){
-                                        farmYeildChartArray[chart].chartData.datasets[i].data = [null,null];
-                                        console.log("found bad chart input")
-                                    }
-                                }
-                            }
-                        }
-                        //--------------------------------------------
-                        chartObj.grass_yield_farm.chart = create_graph(chartObj.grass_yield_farm, 'Grass Yield', document.getElementById('grass_yield_farm').getContext('2d'));
-                        chartObj.corn_yield_farm.chart = create_graph(chartObj.corn_yield_farm, 'Corn Grain Yield', document.getElementById('corn_yield_farm').getContext('2d'));
-                        chartObj.corn_silage_yield_farm.chart = create_graph(chartObj.corn_silage_yield_farm, 'Corn Silage Yield', document.getElementById('corn_silage_yield_farm').getContext('2d'));
-                        chartObj.soy_yield_farm.chart = create_graph(chartObj.soy_yield_farm, 'Soy Yield', document.getElementById('soy_yield_farm').getContext('2d'));
-                        chartObj.oat_yield_farm.chart = create_graph(chartObj.oat_yield_farm, 'Oat Yield', document.getElementById('oat_yield_farm').getContext('2d'));
-                        chartObj.alfalfa_yield_farm.chart = create_graph(chartObj.alfalfa_yield_farm, 'Alfalfa Yield', document.getElementById('alfalfa_yield_farm').getContext('2d'));
-                        chartObj.rotation_yield_farm.chart = create_graph(chartObj.rotation_yield_farm, 'Total Yield', document.getElementById('rotation_yield_farm').getContext('2d'));
-                        // await chartObj.grass_yield_farm.chart.update()
-						// await chartObj.corn_yield_farm.chart.update()
-						// await chartObj.corn_silage_yield_farm.chart.update()
-						// await chartObj.soy_yield_farm.chart.update()
-						// await chartObj.oat_yield_farm.chart.update()
-						// await chartObj.alfalfa_yield_farm.chart.update()
-						// await chartObj.rotation_yield_farm.chart.update()
                     }
                 }
                 },
@@ -2154,7 +2159,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             }
             //TODO update
 
-            var feedoutput = {
+        var feedoutput = {
                 title: '<i class="fab fa-pagelines"></i> Feed Breakdown<br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=bio_pb >50%</progress>',
                 plain: true,
                 id:"feedTab",

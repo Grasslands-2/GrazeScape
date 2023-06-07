@@ -101,7 +101,27 @@ function populateChartObj(scenList, fieldList, allField, allScen){
         chartObj[chartName].show = false
     }
 }
-
+function createHTMLTable(valuesList){
+    let tableHeader = "<table id='grassMatrix'><tr>"+
+        "<th style='border:1px solid black'>Occupancy</th>"+
+        "<th style='border:1px solid black'>Low Yielding Variety</th>"+
+        "<th style='border:1px solid black'>Medium Yielding Variety</th>"+
+        "<th style='border:1px solid black'>High Yielding Variety</th></tr>"
+    tableFooter = "</table>"
+    console.log("in create table")
+    console.log(valuesList)
+    for (let row in valuesList){
+        console.log(valuesList[row])
+        tableHeader = tableHeader + "<tr>"
+        for (let col in valuesList[row]){
+            console.log(valuesList[row][col])
+            tableHeader = tableHeader +  "<th style='border:1px solid black'>"+valuesList[row][col]+"</th>"
+        }
+        tableHeader = tableHeader + "</tr>"
+    }
+    tableHeader = tableHeader + tableFooter
+    return tableHeader
+}
 function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,pManureResults){
     //Try building in a way to get the scenario specific costs data from each fields scenario.
     let runModel = false
@@ -646,6 +666,14 @@ function get_model_data(data){
                         pmanureReturn_array.push([obj.f_name,obj.field_id,obj.area,obj.crop_ro,obj.p_manure_Results,obj.grass_ro])
                     }
                     format_chart_data(obj)
+                }
+                if(responses[response].model_type == "grassMatrix"){
+                    let inputValues = responses[response].matrix
+                    console.log(inputValues)
+                    console.log(grassMatrixTable)
+                    console.log("creating table")
+                    grassMatrixTable = createHTMLTable(inputValues[0])
+                    console.log(grassMatrixTable)
                 }
             }
             resolve(responses);

@@ -34,12 +34,17 @@ def run_model_tier2(model, manure_results, ero_node, yield_node, output_dict):
     output_dict[model.__class__.__name__] = model_result
 
 
-def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_results, model_sci):
+def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_results, model_sci,model_grass1, model_grass2):
     # first run yield, rain, ero
     # second run phos, nit
     # Create a list to hold the processes
     processes = []
-    inputs = [(model_yield, p_manure_results), (model_rain, p_manure_results), (model_ero, p_manure_results)]
+    if model_grass1 is None:
+        inputs = [(model_yield, p_manure_results), (model_rain, p_manure_results), (model_ero, p_manure_results)]
+    else:
+        inputs = [(model_yield, p_manure_results), (model_rain, p_manure_results), (model_ero, p_manure_results),
+                  (model_grass1, p_manure_results), (model_grass2, p_manure_results)]
+
     # Create a queue to hold the outputs
     # output_queue = multiprocessing.Queue()
     manager = multiprocessing.Manager()
@@ -66,7 +71,11 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
     ero_data = results_dict["Erosion"][0]
     rain_data = results_dict["Runoff"]
     if "GrassYield" in results_dict:
-        yield_data = results_dict["GrassYield"]
+        for val in results_dict:
+            print(results_dict["GrassYield"][val].model_type)
+            if "matrix" not in results_dict["GrassYield"][val].model_type:
+                print("got yield")
+                yield_data = results_dict["GrassYield"]
     else:
         yield_data = results_dict["CropYield"]
     # print(ero_data)
