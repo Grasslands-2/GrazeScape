@@ -1038,6 +1038,7 @@ class SmartScape:
             model_cn_dict[feature_name] = total_cn_model / total_cells
             base_cn_dict[feature_name] = total_cn / total_cells
         print("model cn dict", model_cn_dict)
+        print("model cn dict", base_cn_dict)
         # print("base cn dict", base_cn_dict)
         print("time to run cn models ", time.time() - start)
         hms_trigger(model_cn_dict)

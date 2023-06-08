@@ -29,19 +29,20 @@ def hms_trigger(cn_dict):
         # must cd to installation folder of HEC
         # t = r"C:\Program Files\HEC\HEC-HMS\4.6"
     # script_file = os.path.join(os.getcwd(), "CC_HMSRun.script")
-    # script_file = os.path.join(os.getcwd(), "test.script")
 
-
-    # script_file = os.path.join(settings.BASE_DIR, 'floodscape', "floodscape_models", "test.script")
     # os.chdir(hms_exe)
     # print(script_file)
     # list_files = subprocess.run(
     #     ["hec-hms.exe", "-s", script_file],
     #     executable=os.path.join(hms_exe, "hec-hms.exe"))
     #
-    # output = DSSOutput()
-    # output.run()
-    # compile_data.compile_data_to_json()
+
+    script_file = os.path.join(os.getcwd(), "test.script")
+    script_file = os.path.join(settings.BASE_DIR, 'floodscape', "floodscape_models", "test.script")
+
+    output = DSSOutput()
+    output.run()
+    compile_data.compile_data_to_json()
 
 
 
