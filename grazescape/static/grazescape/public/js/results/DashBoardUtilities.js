@@ -101,7 +101,57 @@ function populateChartObj(scenList, fieldList, allField, allScen){
         chartObj[chartName].show = false
     }
 }
+function copyGrassTable(input){
+    console.log("this is input", input)
+    let tableName = input + '_grassMatrix'
+    var contentElement = document.getElementById(tableName);
+//   var contentElement = document.getElementById("content");
+      var contentText = contentElement.innerText || contentElement.textContent;
 
+      navigator.clipboard.writeText(contentText)
+}
+function createHTMLTable(valuesList){
+    let fieldName = valuesList["grass_matrix_Bluegrass-clover"].f_name
+    let scenName = valuesList["grass_matrix_Bluegrass-clover"].scen
+    let lowYield = valuesList["grass_matrix_Bluegrass-clover"].avg
+    let medYield = valuesList["grass_matrix_Timothy-clover"].avg
+    let highYield = valuesList["grass_matrix_Orchardgrass-clover"].avg
+    let tableName = fieldName + "_" + scenName
+    let tableHeader = "<b>Field Name: "+fieldName+" Scenario: "+scenName+"</b><table id="+tableName+"_grassMatrix><tr>"+
+        "<th style='border:1px solid black'>Occupancy</th>"+
+        "<th style='border:1px solid black'>Low Yielding Variety</th>"+
+        "<th style='border:1px solid black'>Medium Yielding Variety</th>"+
+        "<th style='border:1px solid black'>High Yielding Variety</th></tr>"
+    let tableButton = `<button onclick="copyGrassTable('`+tableName+`')">Copy Table</button><p></p>`
+    let tableFooter = "</table>" + tableButton
+    console.log("in create table")
+    console.log(valuesList)
+    let occMult = [1.2, 1, 0.95, 0.75, 0.65]
+    let rowList = ["<1 day","1 day","3 days","7 days","Continuous"]
+    for (let row in occMult){
+        let mult = occMult[row]
+        console.log(row)
+        console.log(mult)
+        console.log(rowList[row])
+        console.log(mult * lowYield.toFixed(2))
+        console.log(mult * medYield.toFixed(2))
+        console.log(mult * highYield.toFixed(2))
+        console.log(mult * highYield.toFixed(2))
+        tableHeader = tableHeader + "<tr>"
+        tableHeader = tableHeader +  "<th style='border:1px solid black'>"+rowList[row]+"</th>"
+        tableHeader = tableHeader +  "<th style='border:1px solid black'>"+(mult * lowYield).toFixed(2)+"</th>"
+        tableHeader = tableHeader +  "<th style='border:1px solid black'>"+(mult * medYield).toFixed(2)+"</th>"
+        tableHeader = tableHeader +  "<th style='border:1px solid black'>"+(mult * highYield).toFixed(2)+"</th>"
+//        for (let col in valuesList[row]){
+//            console.log(valuesList[row][col])
+//            tableHeader = tableHeader +  "<th style='border:1px solid black'>"+valuesList[row][col]+"</th>"
+//        }
+        tableHeader = tableHeader + "</tr>"
+    }
+    tableHeader = tableHeader + tableFooter
+    console.log(tableHeader)
+    return tableHeader
+}
 function build_model_request(f, geometry, modelChoice,modelruntime,activeScenario,pManureResults){
     //Try building in a way to get the scenario specific costs data from each fields scenario.
     let runModel = false
@@ -308,7 +358,6 @@ function format_chart_data(model_data){
                 chartTypeField = chartObj.ploss_field
                 chartTypeFarm = chartObj.ploss_farm
                 if(model_data.scen_id == DSS.activeScenario){
-                    console.log(model_data.extent)
                     if(model_data.extent !== undefined){
                         DSS.plossBol = false
                         var plextent = model_data.extent
@@ -345,7 +394,6 @@ function format_chart_data(model_data){
                 chartTypeField = chartObj.nleaching_field
                 chartTypeFarm = chartObj.nleaching_farm
                 if(model_data.scen_id == DSS.activeScenario){
-                    console.log(model_data.extent)
                     if(model_data.extent !== undefined){
                         DSS.nleachingBol = false
                         var plextent = model_data.extent
@@ -364,7 +412,6 @@ function format_chart_data(model_data){
                 chartTypeField = chartObj.nwater_field
                 chartTypeFarm = chartObj.nwater_farm
 //                if(model_data.scen_id == DSS.activeScenario){
-//                    console.log(model_data.extent)
 //                    if(model_data.extent !== undefined){
 //                        DSS.nleachingBol = false
 //                        var plextent = model_data.extent
@@ -425,7 +472,6 @@ function format_chart_data(model_data){
             break
             }
             if(model_data.scen_id == DSS.activeScenario){
-                console.log(model_data.extent)
                 if(model_data.extent !== undefined){
                     DSS.yieldBol = false
                     var plextent = model_data.extent
@@ -625,7 +671,8 @@ function get_model_data(data){
         success: async function(responses, opts) {
             delete $.ajaxSetup().headers
             console.log("full model output", responses)
-
+            let grassMatrixList = {}
+            let hasGrass = false
             if(responses == null){
                 resolve([]);
             }
@@ -647,6 +694,19 @@ function get_model_data(data){
                     }
                     format_chart_data(obj)
                 }
+                if(responses[response].type == "grassMatrix"){
+                    hasGrass = true
+                    let data = responses[response]
+                    grassMatrixList[data.model_type] = data
+
+                }
+            }
+//            Ext.getCmp("grassYieldPrediction").setDisabled(true)
+
+            if (hasGrass){
+//                Ext.getCmp("grassYieldPrediction").setDisabled(false)
+                grassMatrixTable = grassMatrixTable + createHTMLTable(grassMatrixList)
+
             }
             resolve(responses);
         },

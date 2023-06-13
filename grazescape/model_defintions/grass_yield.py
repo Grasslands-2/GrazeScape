@@ -14,6 +14,8 @@ import time
 class GrassYield(ModelBase):
     def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
+        self.main_type = None
+        self.grass_type = None
         self.model_name = "tidyPastureALLWInoCec.rds"
         # self.model_name = "tidyPastureALLWI.rds"
         # self.model_file_path = os.path.join(settings.MODEL_PATH,
@@ -29,31 +31,34 @@ class GrassYield(ModelBase):
         # self.units = "Dry Mass tons/ac"
 
     def run_model(self, manure_results):
+        return_data = []
+        grass = self.grass_type
         start = time.time()
-        grass_yield = OutputDataNode("Grass", "Grass yield (tons-dry-matter/ac/yr)", 'Grass production (tons-dry-matter/yr)','Grass yield (tons-dry-matter/ac/yr)','Grass production (tons-dry-matter/yr)')
-        rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)", "Total dry matter production (tons/yr)","Total dry matter yield (tons/ac/yr)","Total dry matter yield (tons/ac/yr)")
+        print("running grass yield", grass)
+        if self.main_type:
+            grass_yield = OutputDataNode("Grass", "Grass yield (tons-dry-matter/ac/yr)",
+                                         'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                         'Grass production (tons-dry-matter/yr)')
+            rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)",
+                                          "Total dry matter production (tons/yr)",
+                                          "Total dry matter yield (tons/ac/yr)", "Total dry matter yield (tons/ac/yr)")
+            return_data.append(rotation_avg)
 
+        else:
+            grass_yield = OutputDataNode("grass_matrix_" + grass, "Grass yield (tons-dry-matter/ac/yr)",
+                                         'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                         'Grass production (tons-dry-matter/yr)')
 
-        nitrate_array = []
         crop_ro = self.model_parameters["crop"] + '-' + self.model_parameters["rotation"]
         print("crop rotation", crop_ro)
-        return_data = []
         return_data.append(grass_yield)
-        return_data.append(rotation_avg)
 
         # path to R instance
-        grass = ''
         n_loss_h20 = 0
         # print("self.model_parameters")
         # print(self.model_parameters)
         # print(self.model_parameters["grass_type"])
         r = R(RCMD=self.r_file_path, use_pandas=True)
-        if 'bluegrass' in self.model_parameters["grass_type"].lower():
-            grass = "Bluegrass-clover"
-        elif 'orchard' in self.model_parameters["grass_type"].lower():
-            grass = "Orchardgrass-clover"
-        elif 'timothy' in self.model_parameters["grass_type"].lower():
-            grass = "Timothy-clover"
 
         slope = self.raster_inputs["slope"].flatten()
         slope_length = self.raster_inputs["slope_length"].flatten()
@@ -110,6 +115,8 @@ class GrassYield(ModelBase):
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
+        print(float(self.model_parameters["fert"]))
+        print(slope)
 
         r("library(randomForest)")
         r("library(dplyr)")
@@ -132,6 +139,7 @@ class GrassYield(ModelBase):
         pred = pred * float(self.model_parameters["graze_factor"])
         grass_yield.set_data(pred.flatten())
         grass_yield.set_data_alternate(pred.flatten())
-        rotation_avg.set_data(pred.flatten())
+        if self.main_type:
+            rotation_avg.set_data(pred.flatten())
 
         return return_data

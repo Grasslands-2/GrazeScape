@@ -14,6 +14,7 @@ from grazescape.model_defintions.econ import Econ
 from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown
 from grazescape.model_defintions.manage_raster_visuals import retreiveRaster
 import json
+from grazescape.model_defintions.model_base import OutputDataNode
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.erosion import Erosion
@@ -457,13 +458,41 @@ def get_model_results(request):
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
     print("done downloading ", time.time() - start)
     p_manure_Results = get_P_Manure_Results(request, clipped_rasters)
-
+    is_grass = False
+    model_grass1 = None
+    model_grass2 = None
     try:
         field_exists = db_has_field(field_id)
 
         crop_ro = request.POST.get('model_parameters[crop]')
         if crop_ro == 'pt' or crop_ro == 'ps':
-            model_yield = GrassYield(request, active_region)
+            # create models for each of our grass types
+            model_yield_blue = GrassYield(request, active_region)
+            model_yield_orch = GrassYield(request, active_region)
+            model_yield_tim = GrassYield(request, active_region)
+            # figure out which model the user has actually selected
+            if 'bluegrass' in model_yield_blue.model_parameters["grass_type"].lower():
+                model_yield_blue.main_type = True
+                model_yield = model_yield_blue
+                model_grass1 = model_yield_orch
+                model_grass2 = model_yield_tim
+            elif 'orchard' in model_yield_blue.model_parameters["grass_type"].lower():
+                model_yield_orch.main_type = True
+                model_yield = model_yield_orch
+                model_grass1 = model_yield_blue
+                model_grass2 = model_yield_tim
+            elif 'timothy' in model_yield_blue.model_parameters["grass_type"].lower():
+                model_yield_tim.main_type = True
+                model_yield = model_yield_tim
+                model_grass1 = model_yield_orch
+                model_grass2 = model_yield_blue
+
+            model_yield_blue.grass_type = "Bluegrass-clover"
+            model_yield_orch.grass_type = "Orchardgrass-clover"
+            model_yield_tim.grass_type = "Timothy-clover"
+            model_grass1.raster_inputs = clipped_rasters
+            model_grass2.raster_inputs = clipped_rasters
+            is_grass = True
         elif crop_ro == 'dl':
             model_yield = DryLot(request, active_region)
         else:
@@ -491,8 +520,15 @@ def get_model_results(request):
         # loop here to build a response for all the model types
         print("models start running ", time.time() - start)
         results = []
+        test_matrix = [[5, 6, 7, 8], [9, 10, 11, 12]]
         if model_type == 'yield':
-            results = run_parallel(model_yield,model_rain,model_ero,model_phos,model_nit,p_manure_Results,model_sci)
+            results = run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_Results,
+                                   model_sci, model_grass1, model_grass2)
+
+            econ_results = model_econ.run_model()
+            insect_results = model_insect.run_model()
+            results.append(econ_results[0])
+            results.append(insect_results[0])
 
             # start1 = time.time()
             # yield_results = model_yield.run_model(p_manure_Results)
@@ -501,8 +537,6 @@ def get_model_results(request):
             # model_rain_results = model_rain.run_model(p_manure_Results)
             # print("runoff model ran", time.time() - start1)
 
-            econ_results = model_insect.run_model()
-            insect_results = model_insect.run_model()
             # ero_results = model_ero.run_model(p_manure_Results)[0]
             # sci_results = model_sci.run_model(p_manure_Results, ero_results, None)
             # print(sci_results)
@@ -516,15 +550,22 @@ def get_model_results(request):
             # results.append(nitrogen_results[0])
             # results.append(nitrogen_results[1])
             # results.append(sci_results[0])
-
-            results.append(econ_results[0])
-            results.append(insect_results[0])
+        #
+        # matrix_out = OutputDataNode("grass_matrix", "", "", "", "")
+        # matrix_out.set_data(test_matrix)
+        # results.append(matrix_out)
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.get('model_parameters[area]'))
         # probably use threads here and use numpy in the png creation
         print("models done running ", time.time() - start)
+        print(results)
         for result in results:
+            # if result.model_type == "grass_matrix":
+            #     data = {"matrix": result.data, "model_type": "grassMatrix", "type": "grassMatrix"}
+            #     return_data.append(data)
+            #     continue
+
             # print('RESULT HERE!!!')
             # print(result.model_type)
             if result.model_type == "insect" or result.model_type == "econ":
@@ -533,6 +574,7 @@ def get_model_results(request):
                 count = 1
                 palette = []
                 values_legend = []
+
             else:
                 # print(geo_data.bounds)
                 # print(result.data)
@@ -543,6 +585,17 @@ def get_model_results(request):
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
+            if "grass_matrix_Bluegrass-clover" == result.model_type or \
+                    "grass_matrix_Orchardgrass-clover" == result.model_type or \
+                    "grass_matrix_Timothy-clover" == result.model_type:
+                data = {"model_type": result.model_type, "avg": round(avg, 2), "type": "grassMatrix","f_name": f_name,"scen": scen,}
+                return_data.append(data)
+                continue
+            if "Grass" == result.model_type:
+                data = {"model_type": "grass_matrix_" + model_yield.model_parameters["grass_type"],
+                        "avg": round(avg, 2), "type": "grassMatrix", "f_name": f_name,"scen": scen,}
+                return_data.append(data)
+
             data = {
                 "extent": [*bounds],
                 "palette": palette,
@@ -574,16 +627,16 @@ def get_model_results(request):
             }
             # print("field data ", data)
             # move this outside of the loop or make it async
-            if field_exists:
-                update_field_results_async(field_id, scenario_id, farm_id, data, False)
-            else:
-                update_field_results_async(field_id, scenario_id, farm_id, data, True)
+            # if field_exists:
+            #     update_field_results_async(field_id, scenario_id, farm_id, data, False)
+            # else:
+            #     update_field_results_async(field_id, scenario_id, farm_id, data, True)
             return_data.append(data)
         print("Results Loop Done ", time.time() - start)
-        update_field_dirty(field_id, scenario_id, farm_id)
-        png_handler.remove_pngs(field_id, model_run_timestamp)
+        # update_field_dirty(field_id, scenario_id, farm_id)
+        # png_handler.remove_pngs(field_id, model_run_timestamp)
 
-        png_handler.upload_gcs_model_result_blob(field_id, model_run_timestamp)
+        # png_handler.upload_gcs_model_result_blob(field_id, model_run_timestamp)
         print("done with models ", time.time() - start)
         return JsonResponse(return_data, safe=False)
     except KeyError as e:

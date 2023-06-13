@@ -1,6 +1,6 @@
 import multiprocessing
 import pickle
-
+from grazescape.model_defintions.model_base import OutputDataNode
 
 # Define the functions that will run in parallel
 def func1(x, output_queue):
@@ -23,7 +23,15 @@ def run_model_tier1(model, manure_results, output_dict):
     print("running model", model)
     # output_dict[model.__class__.__name__] = []
     model_result = model.run_model(manure_results)
-    output_dict[model.__class__.__name__] = model_result
+    model_name = model.__class__.__name__
+    # print(output_dict)
+    # print(model_name)
+    # print(model_name in output_dict)
+    if model_name == "GrassYield":
+        print("adding to existing model")
+        output_dict[model.grass_type] = model_result
+    else:
+        output_dict[model_name] = model_result
     # for result in model_result:
     #     output_dict[model.__class__.__name__].append(result)
 
@@ -34,12 +42,17 @@ def run_model_tier2(model, manure_results, ero_node, yield_node, output_dict):
     output_dict[model.__class__.__name__] = model_result
 
 
-def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_results, model_sci):
+def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_results, model_sci,model_grass1, model_grass2):
     # first run yield, rain, ero
     # second run phos, nit
     # Create a list to hold the processes
     processes = []
-    inputs = [(model_yield, p_manure_results), (model_rain, p_manure_results), (model_ero, p_manure_results)]
+    if model_grass1 is None:
+        inputs = [(model_yield, p_manure_results), (model_rain, p_manure_results), (model_ero, p_manure_results)]
+    else:
+        inputs = [(model_yield, p_manure_results), (model_rain, p_manure_results), (model_ero, p_manure_results),
+                  (model_grass1, p_manure_results), (model_grass2, p_manure_results)]
+
     # Create a queue to hold the outputs
     # output_queue = multiprocessing.Queue()
     manager = multiprocessing.Manager()
@@ -65,10 +78,29 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
     print("output$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$", results_dict)
     ero_data = results_dict["Erosion"][0]
     rain_data = results_dict["Runoff"]
-    if "GrassYield" in results_dict:
-        yield_data = results_dict["GrassYield"]
-    else:
+    is_grass = False
+    grass_array = []
+    grass_matrix = [
+                    ["<1 day", 0, 0, 0],
+                    ["1 day", 0, 0, 0],
+                    ["3 days", 0, 0, 0],
+                    ["7 days", 0, 0, 0],
+                    ["Continuous", 0, 0, 0]
+    ]
+    for val in results_dict:
+        print("checking for grass values", val)
+        if "Bluegrass-clover" == val or "Orchardgrass-clover" == val or "Timothy-clover" == val:
+            is_grass = True
+            if len(results_dict[val]) == 2:
+                print("got primary yield", val)
+                yield_data = results_dict[val]
+            else:
+                grass_array.append(results_dict[val][0])
+    if not is_grass:
         yield_data = results_dict["CropYield"]
+
+    # matrix_out = OutputDataNode("grass_matrix", "", "", "", "")
+    # matrix_out.set_data(test_matrix)
     # print(ero_data)
     # print(yield_data)
     # # start second tier
@@ -104,7 +136,7 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
     nitrate_data = results_dict["NitrateLeeching"]
     phos_data = results_dict["PhosphorousLoss"]
     sci_data = results_dict["SoilIndex"]
-    outputs = [*yield_data, ero_data, *rain_data, *nitrate_data, *phos_data, *sci_data]
+    outputs = [*yield_data, ero_data, *rain_data, *nitrate_data, *phos_data, *sci_data, *grass_array]
     # start second tier
     return outputs
 

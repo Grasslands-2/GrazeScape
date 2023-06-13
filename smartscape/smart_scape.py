@@ -758,7 +758,6 @@ class SmartScape:
         # band = None
         # ds = None
 
-
         watershed_total = {
             1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93, "insect": 0.51,
                 "bird": 0, "econ": 0, "nitrate": 0, "sci": 0},

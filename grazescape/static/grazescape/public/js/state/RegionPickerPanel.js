@@ -1,6 +1,40 @@
 
 var regionsList = [{text: "Ridge and Valley"}, {text: "Clover Belt"},{text: "Driftless"},{text: "Northeast"}]
 DSS.activeRegion = "southWestWI";
+//var testTable = document.createElement('table');
+//function createHTMLTable(valuesList){
+//    let tableHeader = "<table id='test1'><tr>"+
+//        "<th style='border:1px solid black'>Occupancy</th>"+
+//        "<th style='border:1px solid black'>Low Yielding Variety</th>"+
+//        "<th style='border:1px solid black'>Medium Yielding Variety</th>"+
+//        "<th style='border:1px solid black'>High Yielding Variety</th></tr>"
+//    tableFooter = "</table>"
+//    for (let row in valuesList){
+//        console.log(row)
+//        tableHeader = tableHeader + "<tr>"
+//        for (let col in valuesList[row]){
+//            tableHeader = tableHeader +  "<th style='border:1px solid black'>"+valuesList[row][col]+"</th>"
+//        }
+//        tableHeader = tableHeader + "</tr>"
+//    }
+//    tableHeader = tableHeader + tableFooter
+//    return tableHeader
+//}
+//testTable11 = createHTMLTable([[0,1,2,3], [5,6,7]])
+// Add some rows and columns to the table
+//for (var i = 0; i < 5; i++) {
+//    var row = testTable.insertRow();
+//        for (var j = 0; j < 3; j++) {
+//          var cell = row.insertCell();
+//          cell.textContent = 'Row ' + (i + 1) + ', Column ' + (j + 1);
+//        }
+//}
+//console.log("table!!!", testTable11)
+//let test = "hi"
+//var component = Ext.create('Ext.Component', {
+//    renderTo: Ext.getBody(),
+//    html: `<button onclick="copyGrassTable('`+test+`')">Click me</button>`
+//  });
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.RegionPickerPanel', {
 //------------------------------------------------------------------------------
@@ -32,7 +66,38 @@ Ext.define('DSS.state.RegionPickerPanel', {
 				cls: 'information med-text',
 				html: 'Region Selection'
 			},
-				{
+//			{
+//				xtype: 'component',
+//				html: testTable11
+//			},
+//			{
+//                xtype: 'button',
+//                cls: 'button-text-pad',
+//                componentCls: 'button-margin',
+//                text: 'Copy Table',
+//                handler: function(self) {
+//                    var table = document.getElementById('test1');
+//                      // Create a range object to select the table content
+//                      var range = document.createRange();
+//                      range.selectNode(table);
+//
+//                      // Add the range to the current selection
+//                      window.getSelection().addRange(range);
+//
+//                      // Execute the "copy" command to copy the selected content
+//                      document.execCommand('copy');
+//
+//                      // Clear the selection
+//                      window.getSelection().removeAllRanges();
+//                }
+//            },
+//			{
+//				xtype: 'component',
+//				cls: 'information med-text',
+//				html: "teststastst"
+//			},
+//			component,
+            {
 				xtype: 'container',
 				width: '100%',
 				layout: 'absolute',
