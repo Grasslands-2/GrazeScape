@@ -30,12 +30,11 @@ DSS.activeRegion = "southWestWI";
 //        }
 //}
 //console.log("table!!!", testTable11)
-var component = Ext.create('Ext.Component', {
-    renderTo: Ext.getBody(),
-    html: "<table>" +
-   " <tr><th style='border:1px solid black'>abcdedfg</th><th>12345</th></tr>"+
-   "<tr><th>abcdedfg</th></tr></table>"
-  });
+//let test = "hi"
+//var component = Ext.create('Ext.Component', {
+//    renderTo: Ext.getBody(),
+//    html: `<button onclick="copyGrassTable('`+test+`')">Click me</button>`
+//  });
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.RegionPickerPanel', {
 //------------------------------------------------------------------------------
@@ -92,12 +91,12 @@ Ext.define('DSS.state.RegionPickerPanel', {
 //                      window.getSelection().removeAllRanges();
 //                }
 //            },
-			{
-				xtype: 'component',
-				cls: 'information med-text',
-				html: "teststastst"
-			},
-			component,
+//			{
+//				xtype: 'component',
+//				cls: 'information med-text',
+//				html: "teststastst"
+//			},
+//			component,
             {
 				xtype: 'container',
 				width: '100%',

@@ -520,7 +520,7 @@ def get_model_results(request):
         # loop here to build a response for all the model types
         print("models start running ", time.time() - start)
         results = []
-        test_matrix = [[5,6,7,8],[9,10,11,12]]
+        test_matrix = [[5, 6, 7, 8], [9, 10, 11, 12]]
         if model_type == 'yield':
             results = run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_Results,
                                    model_sci, model_grass1, model_grass2)
@@ -530,15 +530,12 @@ def get_model_results(request):
             results.append(econ_results[0])
             results.append(insect_results[0])
 
-
-
             # start1 = time.time()
             # yield_results = model_yield.run_model(p_manure_Results)
             # print("yield model ran", time.time() - start1)
             # start1 = time.time()
             # model_rain_results = model_rain.run_model(p_manure_Results)
             # print("runoff model ran", time.time() - start1)
-
 
             # ero_results = model_ero.run_model(p_manure_Results)[0]
             # sci_results = model_sci.run_model(p_manure_Results, ero_results, None)
@@ -553,21 +550,21 @@ def get_model_results(request):
             # results.append(nitrogen_results[0])
             # results.append(nitrogen_results[1])
             # results.append(sci_results[0])
-
-
-        matrix_out = OutputDataNode("grass_matrix","","","","")
-        matrix_out.set_data(test_matrix)
-        results.append(matrix_out)
+        #
+        # matrix_out = OutputDataNode("grass_matrix", "", "", "", "")
+        # matrix_out.set_data(test_matrix)
+        # results.append(matrix_out)
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.get('model_parameters[area]'))
         # probably use threads here and use numpy in the png creation
         print("models done running ", time.time() - start)
+        print(results)
         for result in results:
-            if result.model_type == "grass_matrix":
-                data = {"matrix": result.data, "model_type": "grassMatrix"}
-                return_data.append(data)
-                continue
+            # if result.model_type == "grass_matrix":
+            #     data = {"matrix": result.data, "model_type": "grassMatrix", "type": "grassMatrix"}
+            #     return_data.append(data)
+            #     continue
 
             # print('RESULT HERE!!!')
             # print(result.model_type)
@@ -577,7 +574,6 @@ def get_model_results(request):
                 count = 1
                 palette = []
                 values_legend = []
-
 
             else:
                 # print(geo_data.bounds)
@@ -589,6 +585,17 @@ def get_model_results(request):
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
+            if "grass_matrix_Bluegrass-clover" == result.model_type or \
+                    "grass_matrix_Orchardgrass-clover" == result.model_type or \
+                    "grass_matrix_Timothy-clover" == result.model_type:
+                data = {"model_type": result.model_type, "avg": round(avg, 2), "type": "grassMatrix","f_name": f_name,"scen": scen,}
+                return_data.append(data)
+                continue
+            if "Grass" == result.model_type:
+                data = {"model_type": "grass_matrix_" + model_yield.model_parameters["grass_type"],
+                        "avg": round(avg, 2), "type": "grassMatrix", "f_name": f_name,"scen": scen,}
+                return_data.append(data)
+
             data = {
                 "extent": [*bounds],
                 "palette": palette,

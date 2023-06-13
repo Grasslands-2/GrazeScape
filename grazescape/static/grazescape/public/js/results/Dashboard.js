@@ -103,8 +103,6 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                             landCost:fieldArrayItem.landCost,
                         })
                     }else if(pmr[5] == "rt"){
-                        console.log("in else")
-                        console.log(pmr[4])
                         assembledArray.push({
                             field_name: pmr[0],
                             crop_ro: "Rotational Pasture",
@@ -891,7 +889,7 @@ var chartObj = {}
 //controls order of how datasets are displayed and with what colors
 var chartDatasetContainer = {}
 //https://personal.sron.nl/~pault/
-var grassMatrixTable = null
+var grassMatrixTable = ""
 var checkBoxScen = []
 var checkBoxField = []
 var hiddenData = {
@@ -1047,6 +1045,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         
         if (this.runModel) {
             var modelruntime = ''
+            grassMatrixTable = ""
             //assign model run timestamp
             modelruntimeOrig = String(new Date().valueOf())
 			console.log(modelruntime)
@@ -1545,6 +1544,16 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     bodyBorder: false
                 },
                 scrollable: true,
+                listeners:{
+//                     activate: function() {
+//                        if(grassMatrixTable == ""){
+//                            Ext.getCmp("grassYieldPrediction").hide()
+//                        }
+//                        else{
+//                            Ext.getCmp("grassYieldPrediction").show()
+//                        }
+//                     }
+                 },
 
 //                inner tabs for farm and field scale
                 items:[
@@ -1553,8 +1562,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     title: '<i class="fas fa-seedling"></i></i>  Field',
                     border: false,
                     id: 'yieldFieldTab',
-    //                    disabled: true,
-                                    scrollable: true,
+                    scrollable: true,
 
                     layout: {
                         type: 'table',
@@ -1567,23 +1575,23 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         border:0,
                     },
                     items:[
-                        {
-                        xtype: 'button',
-                        cls: 'button-text-pad',
-                        componentCls: 'button-margin',
-                        text: 'Manually Adjust Yields',
-                        handler: async function(self) {
-                            console.log(chartObj)
-                            console.log(fieldYieldArray)
-                            await gatherYieldTableData()
-
-                            Ext.destroy('DSS.results.YieldAdjustment');
-                            DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment');
-                            DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);
-
-                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
-                        }
-                    },
+//                        {
+//                        xtype: 'button',
+//                        cls: 'button-text-pad',
+//                        componentCls: 'button-margin',
+//                        text: 'Manually Adjust Yields',
+//                        handler: async function(self) {
+//                            console.log(chartObj)
+//                            console.log(fieldYieldArray)
+//                            await gatherYieldTableData()
+//
+//                            Ext.destroy('DSS.results.YieldAdjustment');
+//                            DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment');
+//                            DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);
+//
+//                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+//                        }
+//                    },
                     {
                         xtype: 'radiogroup',
                         id: 'yieldFieldConvert',
@@ -1599,16 +1607,18 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                 inputValue: 't',
                             },
                         ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            console.log("yield alternate pushed")
-                            displayAlternate("grass_yield_field", e.id)
-                            displayAlternate("corn_yield_field", e.id)
-                            displayAlternate("corn_silage_yield_field", e.id)
-                            displayAlternate("soy_yield_field", e.id)
-                            displayAlternate("oat_yield_field", e.id)
-                            displayAlternate("alfalfa_yield_field", e.id)
-                            displayAlternate("rotation_yield_field", e.id)
-                         }},
+                         listeners:{
+                             change: function(e, newValue, oldValue, eOpts) {
+                                console.log("yield alternate pushed")
+                                displayAlternate("grass_yield_field", e.id)
+                                displayAlternate("corn_yield_field", e.id)
+                                displayAlternate("corn_silage_yield_field", e.id)
+                                displayAlternate("soy_yield_field", e.id)
+                                displayAlternate("oat_yield_field", e.id)
+                                displayAlternate("alfalfa_yield_field", e.id)
+                                displayAlternate("rotation_yield_field", e.id)
+                             }
+                         },
                     },
                     //----------------------------------------------------------------------------------------------------
                     {
@@ -1773,8 +1783,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                 {
                     xtype: 'container',
-                    title: 'GrassYield',
+                    title: 'Grass Yield Prediction',
+                    id:"grassYieldPrediction",
+                    tooltip: 'Grass Matrix for use in Compass Tools. Will only appear if at least one field is pasture',
+
                     border: false,
+                    scrollable: true,
                     layout: {
                         type: 'table',
                         // The total column count must be specified here
@@ -1789,40 +1803,21 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                         {
                             xtype: 'container',
-                            html: "<div id='grassMatrixDiv'></div>"
+                            html: "Grass Matrix for use in Compass Tools. Will only appear if at least one field is pasture.<p><div id='grassMatrixDiv'></div>"
                         },
-                        {
-                        xtype: 'button',
-                        cls: 'button-text-pad',
-                        componentCls: 'button-margin',
-                        text: 'Copy Table',
-                        handler: function(self) {
-//                            var table = document.getElementById('grassMatrix');
-//                            console.log(table)
-//                            // Create a range object to select the table content
-//                            var range = document.createRange();
-//                            range.selectNode(table);
-//
-//                            // Add the range to the current selection
-//                            window.getSelection().addRange(range);
-//
-//                            // Execute the "copy" command to copy the selected content
-//                            document.execCommand('copy');
-//
-//                            // Clear the selection
-//                            window.getSelection().removeAllRanges();
-                            document.getElementById("grassMatrixDiv").innerHTML = "hello world";
 
-                        }
-                    },
                     ],
                     scope: this,
-                    listeners:{activate: async function() {
-                        console.log("grass matrix tab")
-                        document.getElementById("grassMatrixDiv").innerHTML = grassMatrixTable;
+                    listeners:{
+                        activate: async function(){
+                            console.log("grass matrix tab")
+                            document.getElementById("grassMatrixDiv").innerHTML = grassMatrixTable;
+
+
+                        },
+
 
                     }
-                }
                 },
                 
         ],
@@ -2860,7 +2855,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                     editable: false,
                                     hideable: false,  minWidth: 24,
                                     locked: true,
-                                    tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
+                                    tooltip: '<b>Field Name:</b> Can be edited and relabeled here.',
                                 },
                                 {
                                     text: 'Crop Rotation', dataIndex: 'crop_ro', width: 150, 
