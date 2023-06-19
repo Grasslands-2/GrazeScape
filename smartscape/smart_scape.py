@@ -469,6 +469,7 @@ class SmartScape:
             model_data_gross[tran["rank"]] = result_list
 
         # layer holds the file names for each transformation
+        sci_data = None
         for layer in layer_dic:
             cell_count_trans = np.count_nonzero(model_base_data == layer)
             model_data_gross[layer]["selection"]["number_cells"] = cell_count_trans
@@ -483,7 +484,7 @@ class SmartScape:
                         np.logical_and(model_data[model] == layer, om_array != self.no_data), om_array, 0
                     )
 
-                    # tranformation is a row crop
+                    # transformation is a row crop
                     if "soy" in layer_dic[layer]:
                         field_yield = self.calculate_yield_field(base_dir)
                         inter_data_yield = np.where(model_data["yield"] == layer,
@@ -564,7 +565,12 @@ class SmartScape:
                         inter_data = y
                     else:
                         inter_data = np.where(model_data[model] == layer, model_arr, 0)
-                inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                # sci can have negative values
+                if model == "sci":
+                    inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data == -88), 0, inter_data))
+
+                else:
+                    inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
                 if cell_count_trans > 0:
                     model_data_gross[layer]["selection"][model] = inter_data
 
@@ -741,23 +747,6 @@ class SmartScape:
         replace_func = np.vectorize(lambda x: hyro_dic.get(x, x))
         hydgrp_array_forest = replace_func(hydgrp_array)
 
-        # [rows, cols] = arr.shape
-        # driver = gdal.GetDriverByName("GTiff")
-        # outdata = driver.Create(os.path.join(self.in_dir, "forest_cn.tif"), cols, rows, 1,
-        #                         gdal.GDT_Float32)
-        # # set metadata to an existing raster
-        # outdata.SetGeoTransform(
-        #     cont_sci_image.GetGeoTransform())  ##sets same geotransform as input
-        # outdata.SetProjection(
-        #     cont_sci_image.GetProjection())  ##sets same projection as input
-        # outdata.GetRasterBand(1).WriteArray(hydgrp_array_forest)
-        # outdata.GetRasterBand(1).SetNoDataValue(self.no_data)
-        # # write to disk
-        # outdata.FlushCache()
-        # outdata = None
-        # band = None
-        # ds = None
-
         watershed_total = {
             1: {"name": "highUrban", "is_calc": False, "yield": 0, "ero": 2, "ploss": 1.34, "cn": 93, "insect": 0.51,
                 "bird": 0, "econ": 0, "nitrate": 0, "sci": 0},
@@ -784,8 +773,8 @@ class SmartScape:
                 "nitrate": base_nitrate_data["pasture"], "sci": pasture_sci_arr},
             10: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr,
                  "ploss": hay_pl_arr, "cn": hay_cn_arr, "insect": 0, "bird": 0, "econ": 0, "nitrate": 0, "sci": 3},
-            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": hydgrp_array_forest, "insect": 0,
-                 "bird": 0, "econ": 0, "nitrate": 0, "sci": 3},
+            11: {"name": "forest", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0.067, "cn": hydgrp_array_forest,
+                 "insect": 0, "bird": 0, "econ": 0, "nitrate": 0, "sci": 3},
             12: {"name": "water", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 98, "insect": 0, "bird": 0,
                  "econ": 0, "nitrate": 0, "sci": 0},
             13: {"name": "wetland", "is_calc": False, "yield": 0, "ero": 0, "ploss": 0, "cn": 85, "insect": 0,
@@ -806,7 +795,9 @@ class SmartScape:
                                            base_data["runoff"])
             base_data["cn"] = cn_final
             base_data["ero"] = np.where(base_data["ero"] == land, watershed_total[land]["ero"], base_data["ero"])
+
             base_data["sci"] = np.where(base_data["sci"] == land, watershed_total[land]["sci"], base_data["sci"])
+
             base_data["insect"] = np.where(base_data["insect"] == land, watershed_total[land]["insect"],
                                            base_data["insect"])
             base_data["yield"] = np.where(base_data["yield"] == land, watershed_total[land]["yield"],
@@ -817,6 +808,8 @@ class SmartScape:
             base_data["nitrate"] = np.where(base_data["nitrate"] == land, watershed_total[land]["nitrate"],
                                             base_data["nitrate"])
         model_list_runoff = ["yield", "ero", "ploss", "cn", "insect", "econ", "runoff", "nitrate", "sci"]
+        total_cells_sci = np.count_nonzero(base_data["sci"] > self.no_data)
+
         for layer in layer_dic:
             for model in model_list_runoff:
                 inter_data = np.where(model_data[model] == layer, base_data[model], 0)
@@ -843,9 +836,12 @@ class SmartScape:
             np.logical_or(base_data["insect"] == self.no_data, base_data["insect"] < 0),
             0, (base_data["insect"]))
         sum_base_insect = np.sum(base_data["insect"])
+
         base_data["sci"] = np.where(
-            base_data["sci"] == self.no_data, 0, (base_data["sci"]))
-        sum_base_sci = np.sum(base_data["insect"])
+            np.logical_or(base_data["sci"] == self.no_data, base_data["sci"] == -88),
+            0, base_data["sci"])
+        sum_base_sci = np.sum(base_data["sci"])
+
         landuse_yield = np.where(
             np.logical_or(base_data["yield"] == self.no_data, base_data["yield"] < 0),
             0, base_data["yield"])
@@ -1052,6 +1048,29 @@ class SmartScape:
 
         model_econ = check_ero_pl(sum_model_econ / selected_cells)
         model_econ_water = check_ero_pl(sum_model_econ_watershed / total_cells)
+        print("number selected cells", total_cells)
+        print("number sci cells", total_cells_sci)
+        # print("sum of sci", np.sum(base_data_watershed["cn"]))
+        sci_arry = base_data_watershed["sci"]
+        # print(model_data_gross[1]["selection"]["sci"])
+        # sci_arry = model_data_gross[1]["selection"]["sci"]
+        # sci_arry = sci_data
+        [rows, cols] = sci_arry.shape
+        driver = gdal.GetDriverByName("GTiff")
+        outdata = driver.Create(os.path.join(self.in_dir, "sci_output.tif"), cols, rows, 1,
+                                gdal.GDT_Float32)
+        # set metadata to an existing raster
+        outdata.SetGeoTransform(
+            cont_sci_image.GetGeoTransform())  ##sets same geotransform as input
+        outdata.SetProjection(
+            cont_sci_image.GetProjection())  ##sets same projection as input
+        outdata.GetRasterBand(1).WriteArray(sci_arry)
+        outdata.GetRasterBand(1).SetNoDataValue(self.no_data)
+        # write to disk
+        outdata.FlushCache()
+        outdata = None
+        band = None
+        ds = None
 
         return {
             "base": {
@@ -1099,8 +1118,8 @@ class SmartScape:
                 "sci": {
                     "total": "{:,.2f}".format(sum_base_sci / selected_cells),
                     "total_per_area": str("%.2f" % (sum_base_sci / selected_cells)),
-                    "total_watershed": "{:,.2f}".format(np.sum(base_data_watershed["sci"]) / total_cells),
-                    "total_per_area_watershed": str("%.2f" % (np.sum(base_data_watershed["sci"]) / total_cells)),
+                    "total_watershed": "{:,.2f}".format(np.sum(base_data_watershed["sci"]) / total_cells_sci),
+                    "total_per_area_watershed": str("%.2f" % (np.sum(base_data_watershed["sci"]) / total_cells_sci)),
                     "units": ""
                 },
                 "runoff": {
@@ -1171,8 +1190,8 @@ class SmartScape:
                 "sci": {
                     "total": "{:,.2f}".format(sum_model_sci / selected_cells),
                     "total_per_area": str("%.2f" % (sum_model_sci / selected_cells)),
-                    "total_watershed": "{:,.2f}".format(sum_model_sci_watershed / total_cells),
-                    "total_per_area_watershed": str("%.2f" % (sum_model_sci_watershed / total_cells)),
+                    "total_watershed": "{:,.2f}".format(sum_model_sci_watershed / total_cells_sci),
+                    "total_per_area_watershed": str("%.2f" % (sum_model_sci_watershed / total_cells_sci)),
                     "units": ""
                 },
 
