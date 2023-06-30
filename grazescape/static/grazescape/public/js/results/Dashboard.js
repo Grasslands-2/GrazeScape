@@ -931,6 +931,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 	runModel: true,
     scope: this,
     closable: true,
+    userSelectable: {
+     element: true,       // allow the element to be user selectable
+     bodyElement: true    // allow the component's body element to be user selectable
+    },
     listeners:{
         enable: function(){
             console.log("ENABLE")
@@ -1783,6 +1787,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
                 {
                     xtype: 'container',
+                    style: 'user-select: text;',
                     title: 'Grass Yield Prediction',
                     id:"grassYieldPrediction",
                     tooltip: 'Grass Matrix for use in Compass Tools. Will only appear if at least one field is pasture',
@@ -1803,6 +1808,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                         {
                             xtype: 'container',
+                            style: 'user-select: text;',
+                            userSelectable: {
+                              bodyElement: 'text'
+                            },
+                            viewConfig: {
+                                enableTextSelection: true
+                              },
                             html: "Grass Matrix for use in Compass Tools. Will only appear if at least one field is pasture.<p><div id='grassMatrixDiv'></div>"
                         },
 
@@ -1815,6 +1827,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 
                         },
+                        afterrender: function(container) {
+                            container.el.setStyle('user-select', 'text');
+                          }
 
 
                     }

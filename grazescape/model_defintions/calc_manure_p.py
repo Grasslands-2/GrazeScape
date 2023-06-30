@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import time
 import csv
+import os
 
 
 def getRotText(crop, legume_text, animal_density_text):
@@ -156,12 +157,34 @@ class CalcManureP(ModelBase):
         super().__init__(request, file_name)
         # C:\Users\zjhas\Documents\GrazeScape\grazescape\static\grazescape\public
         self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
-        self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
-        self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
+        # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        # self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
+
+    def load_nrec(self):
+
+        csv_filename = os.path.join("grazescape", "static", "grazescape", "public", "nitrate_tables", "NmodelInputs_final.csv")
+        output_dict = {}
+
+        # fertNrec_soil1	fertNrec_soil2	fertNrec_soil3	fertNrec_om1	fertNrec_om2 fertNrec_om3
+        with open(csv_filename) as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                cover = row["coverAbbr"]
+
+                dict_key = row["RotationName"] + "_" + row["CropName"] + "_" + cover + "_" + row["rasterLookup"] + \
+                           "_" + row["rasterVals"]
+                dict_key = dict_key.replace(" ", "")
+
+                output_dict[dict_key] = {"fertN": row["fertN"], "ManureN": row["ManureN"], "Pneeds": row["Pneeds"],
+                                         "grazedManureN": row["grazedManureN"],
+                                         "NfixPct": row["NfixPct"],
+                                         "Nharv_content": row["Nharv_content"],
+                                         "NH3loss": row["NH3loss"],
+
+                                         }
+        self.nrec_dict = output_dict
 
     def run_model(self):
-
-
         start = time.time()
         if self.model_parameters["crop"] == "pt" or self.model_parameters["crop"] == "dl":
             cover_crop = 'nc'
@@ -187,15 +210,10 @@ class CalcManureP(ModelBase):
                 max_index = i
         cell_nresponse = str(values[max_index])
 
-
-
         rot_yrs_crop = getRotYers(crop_ro)[1]
-
 
         nitrate_inputs = getfertNrec_values(rot_yrs_crop, crop_ro, legume_text, animal_density_text,
                                             self.fertNrec, getOMText(float(self.model_parameters["om"])),
                                             cell_nresponse,
                                             cover_crop, manure_n_perc)
-
-
         return nitrate_inputs

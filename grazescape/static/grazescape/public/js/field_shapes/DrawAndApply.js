@@ -128,15 +128,29 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	if(DSS.activeRegion == "cloverBeltWI"){
 		console.log("Clover Belt has hit")
 		soilPVal = 40 
-	}if(DSS.activeRegion == "northeastWI"){
+	}
+	else if(DSS.activeRegion == "northeastWI"){
 		console.log("Clover Belt has hit")
 		soilPVal = 36 
-	}if(DSS.activeRegion == "uplandsWI"){
+	}
+	else if(DSS.activeRegion == "uplandsWI"){
 		console.log("Clover Belt has hit")
-		soilPVal = 466
-	}if(DSS.activeRegion == "southWestWI"){
+		soilPVal = 46
+	}
+	else if(DSS.activeRegion == "southWestWI"){
 		console.log("Clover Belt has hit")
-		soilPVal = 466
+		soilPVal = 35
+	}
+	else if(DSS.activeRegion == "redCedarWI"){
+		console.log("Clover Belt has hit")
+		soilPVal = 50
+	}
+	else if(DSS.activeRegion == "pineRiverWI"){
+		console.log("Clover Belt has hit")
+		soilPVal = 50
+	}
+	else{
+	    soilPVal = 0
 	}
 	// DSS.draw = new ol.interaction.Draw({
 	// 	source: source,
@@ -192,19 +206,19 @@ async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_
 	})     
 }
 //------------------select defaults by region--------------
-function defaultDataByRegion(soilPVal){
-	console.log("defaultDataByRegion")
-	//var soilPVal = 0
-	if(DSS.activeRegion == "cloverBeltWI"){
-		console.log("Clover Belt has hit")
-		soilPVal = 40
-		return 
-	}else{
-		console.log("Else has hit")
-		soilPVal = 35
-	}
-	//return soilPVal
-}
+//function defaultDataByRegion(soilPVal){
+//	console.log("defaultDataByRegion")
+//	//var soilPVal = 0
+//	if(DSS.activeRegion == "cloverBeltWI"){
+//		console.log("Clover Belt has hit")
+//		soilPVal = 40
+//		return
+//	}else{
+//		console.log("Else has hit")
+//		soilPVal = 35
+//	}
+//	//return soilPVal
+//}
 
 //------------------working variables--------------------
 var type = "Polygon";

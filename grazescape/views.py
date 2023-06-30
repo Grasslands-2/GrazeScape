@@ -458,6 +458,7 @@ def get_model_results(request):
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
     print("done downloading ", time.time() - start)
     p_manure_Results = get_P_Manure_Results(request, clipped_rasters)
+    print("p_manure_results!!!!!!!!!!!!!", p_manure_Results)
     is_grass = False
     model_grass1 = None
     model_grass2 = None

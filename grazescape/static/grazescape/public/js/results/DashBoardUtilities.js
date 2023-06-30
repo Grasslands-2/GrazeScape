@@ -110,6 +110,17 @@ function copyGrassTable(input){
 
       navigator.clipboard.writeText(contentText)
 }
+function selectGrassTable(input){
+    console.log("this is input", input)
+    let tableName = input + '_grassMatrix'
+    var contentElement = document.getElementById(tableName);
+//   var contentElement = document.getElementById("content");
+    const range = document.createRange(); // Create a new range object
+    range.selectNodeContents(contentElement); // Select the contents of the table
+    const selection = window.getSelection(); // Get the current selection object
+    selection.removeAllRanges(); // Clear any existing selections
+    selection.addRange(range); // Add the new range to the selection
+}
 function createHTMLTable(valuesList){
     let fieldName = valuesList["grass_matrix_Bluegrass-clover"].f_name
     let scenName = valuesList["grass_matrix_Bluegrass-clover"].scen
@@ -117,13 +128,14 @@ function createHTMLTable(valuesList){
     let medYield = valuesList["grass_matrix_Timothy-clover"].avg
     let highYield = valuesList["grass_matrix_Orchardgrass-clover"].avg
     let tableName = fieldName + "_" + scenName
-    let tableHeader = "<b>Field Name: "+fieldName+" Scenario: "+scenName+"</b><table id="+tableName+"_grassMatrix><tr>"+
+    let tableHeader = "<b>Field Name: "+fieldName+" Scenario: "+scenName+"</b><table id="+tableName+"_grassMatrix style='-webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;'><tr>"+
         "<th style='border:1px solid black'>Occupancy</th>"+
         "<th style='border:1px solid black'>Low Yielding Variety</th>"+
         "<th style='border:1px solid black'>Medium Yielding Variety</th>"+
         "<th style='border:1px solid black'>High Yielding Variety</th></tr>"
-    let tableButton = `<button onclick="copyGrassTable('`+tableName+`')">Copy Table</button><p></p>`
-    let tableFooter = "</table>" + tableButton
+    let tableButton = `<button style="display: inline-block; margin-right: 10px;" onclick="selectGrassTable('`+tableName+`')">Select Table</button>`
+    let tableButtonCopy = `<button style="display: inline-block; margin-right: 10px;" onclick="copyGrassTable('`+tableName+`')">Copy Table</button><p></p>`
+    let tableFooter = "</table>" + tableButton +tableButtonCopy
     console.log("in create table")
     console.log(valuesList)
     let occMult = [1.2, 1, 0.95, 0.75, 0.65]

@@ -82,13 +82,17 @@ def get_region_precip(active_region):
         return 43
     elif active_region == 'northeastWI':
         return 35
+    elif active_region == 'redCedarWI':
+        return 39
+    elif active_region == 'pineRiverMN':
+        return 39
 
 
 class NitrateLeeching(ModelBase):
     def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
-        self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
-        self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        # self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
+        # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
         self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
         # original units are in  [bushels/acre x 10]
         # (to keep values in integer)
@@ -157,14 +161,6 @@ class NitrateLeeching(ModelBase):
 
         getRotText_Value = getRotText(crop_ro, legume_text, animal_density_text)
 
-        # rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)",
-        #                               "Total dry matter production (tons/yr)", "Total dry matter yield (tons/ac/yr)",
-        #                               "Total dry matter production (tons/yr)")
-        # return_data.append(rotation_avg)
-        # flat_corn = self.raster_inputs["corn"].flatten()
-        # flat_soy = self.raster_inputs["soy"].flatten()
-        # todo get rid of this loop by using vectors
-        # for y in range(0, len(flat_corn)):
         leached_N_Total = 0
         n_loss_h20 = 0
 
