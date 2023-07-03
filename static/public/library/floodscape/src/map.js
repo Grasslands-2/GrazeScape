@@ -532,6 +532,18 @@ class OLMapFragment extends React.Component {
               color: 'rgba(0, 0, 255, 0.0)',
             }),
           })]
+          this.redPointStyle = new Style({
+              image: new CircleStyle({
+                radius: 6,
+                fill: new Fill({
+                  color: 'red'
+                }),
+                stroke: new Stroke({
+                  color: 'white',
+                  width: 2
+                })
+              })
+            });
           //todo move bing api key
         this.bing_key = 'Anug_v1v0dwJiJPxdyrRWz0BBv_p2sm5XA72OW-ypA064_JoUViwpDXZl3v7KZC1'
         // layer to hold the users aoi selection
@@ -539,7 +551,7 @@ class OLMapFragment extends React.Component {
           name: "aoi",
           zIndex: 10,
           source: new VectorSource({
-            projection: 'EPSG:6609',
+            projection: 'EPSG:3857',
             }),
             style:this.stylesBoundary,
         });
@@ -550,7 +562,7 @@ class OLMapFragment extends React.Component {
           source:new VectorSource({
               url: static_global_folder + 'floodscape/gis/CC_GIS/CC_OutlineFinal.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:6609',
+               projection: 'EPSG:3857',
             }),
             style: this.stylesBoundary,
         });
@@ -559,9 +571,9 @@ class OLMapFragment extends React.Component {
           renderMode: 'image',
           name: "ccWatershed",
           source:new VectorSource({
-              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_fixed.geojson',
+              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_subBasins.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:6609',
+               projection: 'EPSG:3857',
             }),
             style: this.stylesBoundary,
             visible: false,
@@ -580,9 +592,9 @@ class OLMapFragment extends React.Component {
           renderMode: 'image',
           name: "wfkWatershed",
           source:new VectorSource({
-              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_fixed.geojson',
+              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_subBasins.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:6609',
+               projection: 'EPSG:3857',
             }),
             style: this.stylesBoundary,
             visible: false,
@@ -591,9 +603,9 @@ class OLMapFragment extends React.Component {
           renderMode: 'image',
           name: "ccRivers",
           source:new VectorSource({
-              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_Rivers.geojson',
+              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_rivers.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:6609',
+               projection: 'EPSG:3857',
             }),
             style: this.stylesBoundaryRiver,
         });
@@ -601,9 +613,29 @@ class OLMapFragment extends React.Component {
           renderMode: 'image',
           name: "wfkRivers",
           source:new VectorSource({
-              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_Rivers.geojson',
+              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_rivers.geojson',
               format: new GeoJSON(),
-               projection: 'EPSG:6609',
+               projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundaryRiver,
+        });
+         this.ccStations = new VectorLayer({
+          renderMode: 'image',
+          name: "ccRivers",
+          source:new VectorSource({
+              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_riverStations.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            }),
+            style:  this.redPointStyle,
+        });
+        this.wfkStations = new VectorLayer({
+          renderMode: 'image',
+          name: "ccRivers",
+          source:new VectorSource({
+              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_riverStations.geojson',
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
             }),
             style: this.stylesBoundaryRiver,
         });
@@ -619,13 +651,15 @@ class OLMapFragment extends React.Component {
               }),
             }),
 
-            this.ccBoundary,
-            this.ccWatershed,
-//            this.wfkBoundary,
-//            this.wfkWatershed,
-            this.ccRivers,
-//            this.wfkRivers,
-            this.boundaryLayerAOI,
+//            this.ccBoundary,
+//            this.ccWatershed,
+////            this.wfkBoundary,
+////            this.wfkWatershed,
+//            this.ccRivers,
+////            this.wfkRivers,
+//            this.boundaryLayerAOI,
+            this.ccStations,
+            this.wfkStations,
 //            this.waterSheds1,
 //            this.huc10Layer,
 //            this.waterSheds,
@@ -636,6 +670,18 @@ class OLMapFragment extends React.Component {
             position: [-10008338,5525100],
             element: document.getElementById('overlay2')
         });
+
+
+    // Create a tooltip overlay
+    let tooltipOverlay = new Overlay({
+      element: document.getElementById('tooltip'),
+      positioning: 'bottom-center',
+      offset: [0, -10],
+      stopEvent: false
+    });
+
+// Add the tooltip overlay to the map
+
         // Create an Openlayer Map instance
         this.map = new Map({
             //  Display the map in the div with the id of map
@@ -670,6 +716,31 @@ class OLMapFragment extends React.Component {
 //				extent:[-10132000, 5353000, -10103000, 5397000]
             })
         })
+        this.map.addOverlay(tooltipOverlay);
+
+        this.map.on('pointermove', function(event) {
+//            console.log(event)
+//            console.log(event.pixel)
+//            console.log(event.map.getCoordinateFromPixel(event.pixel))
+          var feature = event.map.forEachFeatureAtPixel(event.pixel, function(feature) {
+            return feature;
+          });
+            console.log(feature)
+          if (feature) {
+//            var coordinates = feature.getGeometry().getCoordinates();
+//            tooltipOverlay.setPosition(coordinates);
+            tooltipOverlay.setPosition(event.coordinate);
+            console.log(tooltipOverlay)
+            tooltipOverlay.getElement().innerHTML = 'Tooltip content'; // Replace with your tooltip content
+//            tooltipOverlay.setVisible(true);
+//            tooltipOverlay.getElement().style.display = 'block';
+          } else {
+            tooltipOverlay.setVisible(false);
+          }
+        });
+        this.map.on('click', function() {
+          tooltipOverlay.getElement().style.display = 'none';
+        });
         this.map.addControl(new ZoomSlider());
         this.map.addControl(new ScaleLine());
 //        this.map.addControl(zoomslider);
@@ -895,7 +966,7 @@ class OLMapFragment extends React.Component {
                 Loading
                 </div>
 			<div id='map' style={style}>
-
+            <div id="tooltip" className="tooltip"></div>
 			</div>
 
             <div id="overlay2" >hizsfdsfafasdfsadfasdfsadfdf3434343</div>
