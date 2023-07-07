@@ -91,13 +91,13 @@ class Runoff(ModelBase):
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
 
-        r.assign("cc_erosion_file", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
-        r.assign("cg_erosion_file", os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
-        r.assign("cso_erosion_file", os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
-        r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
-        r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
-        r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
-        r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
+        # r.assign("cc_erosion_file", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
+        # r.assign("cg_erosion_file", os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
+        # r.assign("cso_erosion_file", os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
+        # r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
+        # r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
+        # r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
+        # r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
 
         r.assign("cc_cn_file", os.path.join(self.model_file_path, ContCornTidyffcn + regionRDS))
         r.assign("cg_cn_file", os.path.join(self.model_file_path, cornGrainTidyffcn + regionRDS))
@@ -106,7 +106,7 @@ class Runoff(ModelBase):
         r.assign("ps_cn_file", os.path.join(self.model_file_path, pastureSeedingTidyffcn + regionRDS))
         r.assign("pt_cn_file", os.path.join(self.model_file_path, pastureTidyffcn + regionRDS))
         r.assign("dl_cn_file", os.path.join(self.model_file_path, dryLotTidyffcn + regionRDS))
-        r(f"""
+        print(r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
         #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
         #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
@@ -293,7 +293,7 @@ class Runoff(ModelBase):
 
         }}
 
-        """)
+        """))
 
         pred = r.get("curve_num").to_numpy()
         rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)","Storm event runoff (inches)","Storm event runoff (inches)")

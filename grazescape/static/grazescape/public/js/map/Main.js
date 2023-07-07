@@ -1674,7 +1674,7 @@ Ext.define('DSS.map.Main', {
 			units: 'us',
 //			units: 'metric'
 		}));
-		me.map.addControl(new ol.control.MousePosition({}));
+//		me.map.addControl(new ol.control.MousePosition({}));
 		proj4.defs('urn:ogc:def:crs:EPSG::3071', "+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 		proj4.defs('EPSG:3071', "+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 		ol.proj.proj4.register(proj4);	

@@ -19,8 +19,8 @@ class ModelBase:
         model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
         model_type = request.POST.get('model_parameters[model_type]')
         active_region = request.POST.get('model_parameters[active_region]')
-        self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
-        self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        # self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
+        # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
         # self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
 
         if file_name is None:
@@ -60,7 +60,7 @@ class ModelBase:
         if active_region == "redCedarWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'redCedarWI')
         if active_region == "pineRiverMN":
-            self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'redCedarWI')
+            self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'pineRiverMN')
 
         self.color_ramp_hex = []
         self.data_range = []

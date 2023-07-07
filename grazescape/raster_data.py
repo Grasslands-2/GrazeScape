@@ -184,7 +184,7 @@ class RasterData:
                 "soy": "InputRasters:pineRiverMN_soy_10m",
                 "hydgrp": "InputRasters:pineRiverMN_hydgrp_10m",
                 "drain_class": "InputRasters:pineRiverMN_drainClass_10m",
-                "Nresponse": "InputRasters:pineRiverMN_nResponse_10m",
+                # "Nresponse": "InputRasters:pineRiverMN_nResponse_10m",
             }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
