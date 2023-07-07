@@ -1,6 +1,7 @@
 
-var regionsList = [{text: "Ridge and Valley"}, {text: "Clover Belt"},{text: "Driftless"},{text: "Northeast"}]
-DSS.activeRegion = "southWestWI";
+var regionsList = [{text: "Ridge and Valley"}, {text: "Clover Belt"},{text: "Driftless"},{text: "Northeast"},
+{text: "Red Cedar"}, {text: "Pine River"}]
+//DSS.activeRegion = "southWestWI";
 //var testTable = document.createElement('table');
 //function createHTMLTable(valuesList){
 //    let tableHeader = "<table id='test1'><tr>"+
@@ -141,7 +142,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								let extent = [-10221386, 5467295, -9843661, 5750901]
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
-							if(item.text == "Ridge and Valley"){
+							else if(item.text == "Ridge and Valley"){
 								DSS.activeRegion = "southWestWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -161,7 +162,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								let extent = [-10258162, 5258487, -9967076, 5520900]
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
-							if(item.text == "Northeast"){
+							else if(item.text == "Northeast"){
 								DSS.activeRegion = "northeastWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -181,7 +182,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								let extent = [-9841119, 5448671, -9726548, 5571254]
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
-							if(item.text == "Driftless"){
+							else if(item.text == "Driftless"){
 								DSS.activeRegion = "uplandsWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -200,6 +201,46 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								})
 								let extent = [-10247529, 5226215, -9938170, 5420242]
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
+							}
+							else if(item.text == "Red Cedar"){
+								DSS.activeRegion = "redCedarWI";
+								AppEvents.triggerEvent('hide_region_picker_indicator')
+								DSS.map.un('pointermove', regionHighlighter)
+								AppEvents.triggerEvent('hide_region_picker_indicator')
+								DSS.layer.regionLabels.setVisible(false)
+								DSS.layer.farms_1.setVisible(true)
+								DSS.ApplicationFlow.instance.showFarmPickerPage();
+								DSS.map.removeInteraction(DSS.selectRP);
+                                let extent = [-10364871.915906506, 5523673.41766168, -10069499.539759004,5831321.534259069]
+                                let view = new ol.View({
+                                    center: [-10217185.73, 5677497.476],
+                                    zoom: 8,
+                                    maxZoom: 30,
+                                    minZoom: 8,
+                                    constrainOnlyCenter: false,
+                                    extent:extent
+                                })
+                                await DSS.MapState.zoomToRealExtentRP(extent,view)
+							}
+							else if(item.text == "Pine River"){
+								DSS.activeRegion = "pineRiverMN";
+								AppEvents.triggerEvent('hide_region_picker_indicator')
+								DSS.map.un('pointermove', regionHighlighter)
+								AppEvents.triggerEvent('hide_region_picker_indicator')
+								DSS.layer.regionLabels.setVisible(false)
+								DSS.layer.farms_1.setVisible(true)
+								DSS.ApplicationFlow.instance.showFarmPickerPage();
+								DSS.map.removeInteraction(DSS.selectRP);
+                                let extent = [ -10595719.33,	5805080.059,	-10358718.96,	6020899.352]
+                                let view = new ol.View({
+                                    center: [-10458132.990856137, 5891167.715123995],
+                                    zoom: 8,
+                                    maxZoom: 30,
+                                    minZoom: 8,
+                                    constrainOnlyCenter: false,
+                                    extent:extent
+                                })
+                                await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
 							DSS.map.removeInteraction(DSS.selectRP);
 						}

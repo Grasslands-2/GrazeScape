@@ -16,17 +16,18 @@ class GrassYield(ModelBase):
         super().__init__(request, active_region, file_name)
         self.main_type = None
         self.grass_type = None
+        # all regions use the same pasture model
         self.model_name = "tidyPastureALLWInoCec.rds"
         # self.model_name = "tidyPastureALLWI.rds"
         # self.model_file_path = os.path.join(settings.MODEL_PATH,
         #                                     self.model_name)
         self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', self.model_name)
-        self.model_file_path2 = os.path.join(settings.MODEL_PATH, 'GrazeScape', active_region)
-        self.fertNrec = pd.read_csv(
-            r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
+        # self.model_file_path2 = os.path.join(settings.MODEL_PATH, 'GrazeScape', active_region)
+        # self.fertNrec = pd.read_csv(
+        #     r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
         # self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NmodelInputs_final.csv")
-        self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
-        self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
+        # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        # self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
         self.grass_type = self.model_parameters['grass_type']
         # self.units = "Dry Mass tons/ac"
 
@@ -117,7 +118,7 @@ class GrassYield(ModelBase):
         r.assign("om", float(self.model_parameters["om"]))
         print(float(self.model_parameters["fert"]))
         print(slope)
-
+        print("model file path", self.model_file_path)
         r("library(randomForest)")
         r("library(dplyr)")
         r("library(tidymodels)")

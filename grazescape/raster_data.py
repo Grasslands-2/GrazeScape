@@ -142,6 +142,50 @@ class RasterData:
                 "drain_class": "InputRasters:uplandsWI_drainClass_10m",
                 "Nresponse": "InputRasters:uplandsWI_nResponse_10m",
             }
+        if self.active_region == "redCedarWI":
+            self.layer_dic = {
+                "elevation": "InputRasters:redCedarWI_elev_10m",
+                "slope": "InputRasters:redCedarWI_slopePer_10m",
+                "sand": "InputRasters:redCedarWI_sand_10m",
+                "silt": "InputRasters:redCedarWI_silt_10m",
+                "clay": "InputRasters:redCedarWI_clay_10m",
+                "k": "InputRasters:redCedarWI_kfact_10m",
+                "ksat": "InputRasters:redCedarWI_ksat_10m",
+                "om": "InputRasters:redCedarWI_om_10m",
+                # "cec": "InputRasters:redCedarWI_cec_10m",
+                "ph": "InputRasters:redCedarWI_ph_10m",
+                "total_depth": "InputRasters:redCedarWI_depth_10m",
+                "slope_length": "InputRasters:redCedarWI_slopelen_10m",
+                "awc": "InputRasters:redCedarWI_awc_10m",
+                "ls": "InputRasters:redCedarWI_ls_10m",
+                "corn": "InputRasters:redCedarWI_corn_10m",
+                "soy": "InputRasters:redCedarWI_soy_10m",
+                "hydgrp": "InputRasters:redCedarWI_hydgrp_10m",
+                "drain_class": "InputRasters:redCedarWI_drainClass_10m",
+                "Nresponse": "InputRasters:redCedarWI_nResponse_10m",
+            }
+        if self.active_region == "pineRiverMN":
+            self.layer_dic = {
+                "elevation": "InputRasters:pineRiverMN_elev_10m",
+                "slope": "InputRasters:pineRiverMN_slopePer_10m",
+                "sand": "InputRasters:pineRiverMN_sand_10m",
+                "silt": "InputRasters:pineRiverMN_silt_10m",
+                "clay": "InputRasters:pineRiverMN_clay_10m",
+                "k": "InputRasters:pineRiverMN_kfact_10m",
+                "ksat": "InputRasters:pineRiverMN_ksat_10m",
+                "om": "InputRasters:pineRiverMN_om_10m",
+                # "cec": "InputRasters:pineRiverMN_cec_10m",
+                "ph": "InputRasters:pineRiverMN_ph_10m",
+                "total_depth": "InputRasters:pineRiverMN_depth_10m",
+                "slope_length": "InputRasters:pineRiverMN_slopelen_10m",
+                "awc": "InputRasters:pineRiverMN_awc_10m",
+                "ls": "InputRasters:pineRiverMN_ls_10m",
+                "corn": "InputRasters:pineRiverMN_corn_10m",
+                "soy": "InputRasters:pineRiverMN_soy_10m",
+                "hydgrp": "InputRasters:pineRiverMN_hydgrp_10m",
+                "drain_class": "InputRasters:pineRiverMN_drainClass_10m",
+                # "Nresponse": "InputRasters:pineRiverMN_nResponse_10m",
+            }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []

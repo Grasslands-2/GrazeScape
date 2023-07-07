@@ -133,7 +133,6 @@ class SmartScape:
         band = image1.GetRasterBand(1)
         arr_total_valid_cells = band.ReadAsArray()
 
-
         total_cells = np.count_nonzero(arr_total_valid_cells != self.no_data)
 
         driver = gdal.GetDriverByName("GTiff")
@@ -463,7 +462,7 @@ class SmartScape:
                     "econ": 0,
                     "nitrate": 0,
                     "total_cells": 0,
-                    "sci":0
+                    "sci": 0
                 }
                 result_list[result] = model
             model_data_gross[tran["rank"]] = result_list
@@ -567,10 +566,12 @@ class SmartScape:
                         inter_data = np.where(model_data[model] == layer, model_arr, 0)
                 # sci can have negative values
                 if model == "sci":
-                    inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data == -88), 0, inter_data))
+                    inter_data = np.sum(
+                        np.where(np.logical_or(inter_data == self.no_data, inter_data == -88), 0, inter_data))
 
                 else:
-                    inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                    inter_data = np.sum(
+                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
                 if cell_count_trans > 0:
                     model_data_gross[layer]["selection"][model] = inter_data
 
@@ -759,7 +760,7 @@ class SmartScape:
                 "cn": base_arr_corngrain_cn, "insect": 0.51, "bird": 0, "econ": econ_cost["cornGrain"],
                 "nitrate": base_nitrate_data["cash_grain"], "sci": corn_sci_arr},
             5: {"name": "dairyRotation", "is_calc": True, "yield": dairy_yield, "ero": dairy_er_arr,
-                "ploss": dairy_pl_arr,"cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0,
+                "ploss": dairy_pl_arr, "cn": base_arr_dairy_cn, "insect": 0.12, "bird": 0,
                 "econ": econ_cost["dairyRotation"], "nitrate": base_nitrate_data["dairy"], "sci": dairy_sci_arr},
             6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
                 "bird": 0,
@@ -817,7 +818,8 @@ class SmartScape:
                     # sci can have negative values
                     inter_data = np.sum(np.where(inter_data == self.no_data, 0, inter_data))
                 else:
-                    inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                    inter_data = np.sum(
+                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
                 model_data_gross[layer]["base"][model] = inter_data
 
         base_cn = np.where(
@@ -1005,7 +1007,7 @@ class SmartScape:
             sum_model_insect_watershed = sum_model_insect_watershed + \
                                          model_data_gross[trans_layer]["selection_watershed"]["insect"]
             sum_model_sci_watershed = sum_model_sci_watershed + \
-                                         model_data_gross[trans_layer]["selection_watershed"]["sci"]
+                                      model_data_gross[trans_layer]["selection_watershed"]["sci"]
             sum_model_econ_watershed = sum_model_econ_watershed + model_data_gross[trans_layer]["selection_watershed"][
                 "econ"]
             sum_model_nitrate_watershed = sum_model_nitrate_watershed + \
@@ -1381,7 +1383,7 @@ class SmartScape:
                 cn_name = "pasture_CN_" + tran["management"]["density"] + "_" + \
                           manure_p + "_" + region
                 sci_name = "pasture_SCI_" + tran["management"]["density"] + "_" + \
-                          manure_p + "_" + region
+                           manure_p + "_" + region
                 layer_dic[tran["rank"]]["yield"] = yield_name
                 land_id = 9
 
@@ -1412,8 +1414,8 @@ class SmartScape:
                           tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
                           tran["management"]["contour"] + "_" + manure_p + "_" + region
                 sci_name = "" + tran["management"]["rotationType"] + "_SCI_" + \
-                          tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
-                          tran["management"]["contour"] + "_" + manure_p + "_" + region
+                           tran["management"]["cover"] + "_" + tran["management"]["tillage"] + "_" + \
+                           tran["management"]["contour"] + "_" + manure_p + "_" + region
             layer_dic[tran["rank"]]["ero"] = ero_name
             layer_dic[tran["rank"]]["sci"] = sci_name
             layer_dic[tran["rank"]]["ploss"] = ploss_name
@@ -1952,7 +1954,7 @@ class SmartScape:
         dairy_yield = 1 / 5 * silage_yield + 1 / 5 * corn_arr + 3 / 5 * alfalfa_yield
 
         oat_yield = corn_arr * 0.42 * 32 * (1 - 0.14) / 2000
-        dairy2_yield = 1/3 * soy_arr + 1/3 * silage_yield + 1/3 * oat_yield
+        dairy2_yield = 1 / 3 * soy_arr + 1 / 3 * silage_yield + 1 / 3 * oat_yield
         # landuse_yield = np.where(landuse_yield == 4, cont_yield, landuse_yield)
         # landuse_yield = np.where(landuse_yield == 3, corn_yield, landuse_yield)
         # landuse_yield = np.where(landuse_yield == 5, dairy_yield, landuse_yield)
@@ -2135,9 +2137,9 @@ class SmartScape:
                           0.2 * nitrate_sum_dict["nrec_trans_alfalfa_values"]["inter_data_sum"] + \
                           0.4 * nitrate_sum_dict["nrec_trans_alfalfa_seed_values"]["inter_data_sum"]
         elif len(nitrate_sum_dict) == 3:
-            total_leach = 1/3 * nitrate_sum_dict["nrec_trans_soy_values"]["inter_data_sum"] + \
-                          1/3 * nitrate_sum_dict["nrec_trans_silage_values"]["inter_data_sum"] + \
-                          1/3 * nitrate_sum_dict["nrec_trans_oat_values"]["inter_data_sum"]
+            total_leach = 1 / 3 * nitrate_sum_dict["nrec_trans_soy_values"]["inter_data_sum"] + \
+                          1 / 3 * nitrate_sum_dict["nrec_trans_silage_values"]["inter_data_sum"] + \
+                          1 / 3 * nitrate_sum_dict["nrec_trans_oat_values"]["inter_data_sum"]
         else:
             for val in nitrate_sum_dict:
                 total_leach = nitrate_sum_dict[val]["inter_data_sum"]
