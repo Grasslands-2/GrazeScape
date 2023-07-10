@@ -651,11 +651,11 @@ class OLMapFragment extends React.Component {
               }),
             }),
 
-//            this.ccBoundary,
-//            this.ccWatershed,
+            this.ccBoundary,
+            this.ccWatershed,
 ////            this.wfkBoundary,
 ////            this.wfkWatershed,
-//            this.ccRivers,
+            this.ccRivers,
 ////            this.wfkRivers,
 //            this.boundaryLayerAOI,
             this.ccStations,
@@ -718,29 +718,29 @@ class OLMapFragment extends React.Component {
         })
         this.map.addOverlay(tooltipOverlay);
 
-        this.map.on('pointermove', function(event) {
-//            console.log(event)
-//            console.log(event.pixel)
-//            console.log(event.map.getCoordinateFromPixel(event.pixel))
-          var feature = event.map.forEachFeatureAtPixel(event.pixel, function(feature) {
-            return feature;
-          });
-            console.log(feature)
-          if (feature) {
-//            var coordinates = feature.getGeometry().getCoordinates();
-//            tooltipOverlay.setPosition(coordinates);
-            tooltipOverlay.setPosition(event.coordinate);
-            console.log(tooltipOverlay)
-            tooltipOverlay.getElement().innerHTML = 'Tooltip content'; // Replace with your tooltip content
-//            tooltipOverlay.setVisible(true);
-//            tooltipOverlay.getElement().style.display = 'block';
-          } else {
-            tooltipOverlay.setVisible(false);
-          }
-        });
-        this.map.on('click', function() {
-          tooltipOverlay.getElement().style.display = 'none';
-        });
+//        this.map.on('pointermove', function(event) {
+////            console.log(event)
+////            console.log(event.pixel)
+////            console.log(event.map.getCoordinateFromPixel(event.pixel))
+//          var feature = event.map.forEachFeatureAtPixel(event.pixel, function(feature) {
+//            return feature;
+//          });
+//            console.log(feature)
+//          if (feature) {
+////            var coordinates = feature.getGeometry().getCoordinates();
+////            tooltipOverlay.setPosition(coordinates);
+//            tooltipOverlay.setPosition(event.coordinate);
+//            console.log(tooltipOverlay)
+//            tooltipOverlay.getElement().innerHTML = 'Tooltip content'; // Replace with your tooltip content
+////            tooltipOverlay.setVisible(true);
+////            tooltipOverlay.getElement().style.display = 'block';
+//          } else {
+//            tooltipOverlay.setVisible(false);
+//          }
+//        });
+//        this.map.on('click', function() {
+//          tooltipOverlay.getElement().style.display = 'none';
+//        });
         this.map.addControl(new ZoomSlider());
         this.map.addControl(new ScaleLine());
 //        this.map.addControl(zoomslider);

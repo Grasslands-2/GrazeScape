@@ -503,7 +503,8 @@ class SmartScape:
 
                 else:
                     inter_data = np.where(model_data[model] == layer, model_arr, 0)
-                # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                # inter_data = np.sum(np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0,
+                # inter_data))
                 inter_data = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
                 if cell_count_trans > 0:
                     model_data_gross[layer]["selection"][model] = inter_data
@@ -952,7 +953,7 @@ class SmartScape:
         ds_clip = None
 
         # TODO this needs to be dynamic
-        region_watershed_file = os.path.join(self.watershed_folder, "CC_GIS", "CC_fixed.geojson")
+        region_watershed_file = os.path.join(self.watershed_folder, "CC_GIS", "CC_subBasins.geojson")
         with open(region_watershed_file, 'r') as f:
             data = json.load(f)
 
@@ -1038,7 +1039,7 @@ class SmartScape:
             model_cn_dict[feature_name] = total_cn_model / total_cells
             base_cn_dict[feature_name] = total_cn / total_cells
         print("model cn dict", model_cn_dict)
-        print("model cn dict", base_cn_dict)
+        print("base_cn_dict", base_cn_dict)
         # print("base cn dict", base_cn_dict)
         print("time to run cn models ", time.time() - start)
         hms_trigger(model_cn_dict)
