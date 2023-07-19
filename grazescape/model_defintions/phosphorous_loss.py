@@ -30,10 +30,11 @@ class PhosphorousLoss(ModelBase):
         total_depth = self.raster_inputs["total_depth"].flatten()
 
         r.assign("slope_length", slope_length)
-        r.assign("k", k)
+
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
-        r.assign("slope", slope)
+        # r.assign("slope", slope)
+        r.assign("slope", 5)
         r.assign("elevation", elevation)
         r.assign("sand", sand)
         r.assign("silt", silt)
@@ -42,14 +43,15 @@ class PhosphorousLoss(ModelBase):
         r.assign("ph", ph)
         r.assign("awc", awc)
         r.assign("total_depth", total_depth)
-        r.assign("slope", slope)
-        r.assign("slope_length", slope_length)
+        # r.assign("slope_length", slope_length)
+        r.assign("slope_length", 151)
         r.assign("sand", sand)
         r.assign("silt", silt)
         r.assign("clay", clay)
         r.assign("k", k)
         r.assign("total_depth", total_depth)
-        r.assign("ls", ls)
+        # r.assign("ls", ls)
+        r.assign("ls", .66)
 
         r.assign("p_need", float(manure_results["avg"]["p_needs"]))
         r.assign("manure", float(manure_results["avg"]["man_p_per"]))
@@ -84,8 +86,9 @@ class PhosphorousLoss(ModelBase):
         r.assign("ps_pi_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
         r.assign("pt_pi_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
         r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
-        print("ploss #####")
-        r(f"""
+        print("ploss #####", self.scenario_id)
+        r.assign("scen_id", self.scenario_id)
+        print(r(f"""
 
                     library(tidyverse)
                     library(tidymodels)
@@ -288,10 +291,11 @@ class PhosphorousLoss(ModelBase):
                     }}
 
                     print("ploss !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print(scen_id)
                     print(pred_df)
 
 
-                """)
+                """))
 
         ploss = r.get("pi").to_numpy()
         ploss = ploss.flatten()

@@ -63,149 +63,147 @@ function setFeatureAttributes(feature,af,as){
     })
     })
 }
-async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
-
-	//Starter values for dependant variables
-	cropDisp='';
-	tillageDisp='';
-	grassDisp='Low Yielding';
-	grassVal='Bluegrass-clover';
-	rotationFreqVal = 0.65;
-	rotationFreqdisp = 'Continuous',
-	grazeDensityVal = 'lo',
-	grazeDensityDisp = 'low'
-	//--------------------Setting Display Values------------------
-	if(crop=='pt-cn'){
-		cropDisp ='Continuous Pasture';
-		grassDisp='Low Yielding';
-		grassVal='Bluegrass-clover';
-		rotationFreqVal = 0.65;
-		rotationFreqdisp = 'Continuous',
-		grazeDensityVal = 'lo',
-		grazeDensityDisp = 'low'
-
-	}
-	else if(crop=='pt-rt'){
-		cropDisp ='Rotational Pasture'
-		grassDisp='Bluegrass-clover';
-		grassVal='Bluegrass';
-
-		rotationFreqVal = 0.65;
-		rotationFreqdisp = 'Continuous';
-	}
-	else if(crop=='ps'){
-		cropDisp ='New Pasture'}
-	else if(crop=='dl'){
-		cropDisp ='Dry Lot'}
-	else if(crop=='cc'){
-		cropDisp ='Continuous Corn'}
-	else if(crop=='cg'){
-		cropDisp ='Cash Grain (corn/soy)'}
-	else if(crop=='dr'){
-		cropDisp ='Corn Silage to Corn Grain to Alfalfa 3 yrs'}
-	else if(crop=='cso'){
-		cropDisp ='Corn Silage to Soybeans to Oats'}
-
-	if(tillageInput=='nt'){
-		tillageDisp = 'No-Till'}
-	else if(tillageInput=='su'){
-		tillageDisp = 'Spring Cultivation'}
-	else if(tillageInput=='sc'){
-		tillageDisp = 'Spring Chisel + Disk'}
-	else if(tillageInput=='sn'){
-		tillageDisp = 'Spring Chisel No Disk'}
-	else if(tillageInput=='sv'){
-		tillageDisp = 'Spring Vertical'}
-	else if(tillageInput=='smb'){
-		tillageDisp = 'Spring Moldboard Plow'}
-	else if(tillageInput=='fc'){
-		tillageDisp = 'Fall Chisel + Disk'}
-	else if(tillageInput=='fm'){
-		tillageDisp = 'Fall Moldboard Plow'}
-
-//-------------------Now for the actual function-----------------
-	var soilPVal = 0
-	print("active region $$$$$$$$$$$$$$$$$$$$$$", DSS.activeRegion)
-	if(DSS.activeRegion == "cloverBeltWI"){
-		console.log("Clover Belt has hit")
-		soilPVal = 40 
-	}
-	else if(DSS.activeRegion == "northeastWI"){
-		console.log("northeastWI has hit")
-		soilPVal = 36 
-	}
-	else if(DSS.activeRegion == "uplandsWI"){
-		console.log("uplandsWI has hit")
-		soilPVal = 46
-	}
-	else if(DSS.activeRegion == "southWestWI"){
-		console.log("outhWestWI has hit")
-		soilPVal = 35
-	}
-	else if(DSS.activeRegion == "redCedarWI"){
-		console.log("Red Cedar has hit")
-		soilPVal = 50
-	}
-	else if(DSS.activeRegion == "pineRiverWI"){
-		console.log("Pine River has hit")
-		soilPVal = 50
-	}
-	else{
-	    soilPVal = -9999
-	}
-	// DSS.draw = new ol.interaction.Draw({
-	// 	source: source,
-	// 	type: 'MultiPolygon',
-	// 	geometryName: 'geom'
-	// });
-	// DSS.map.addInteraction(DSS.draw);
-	// console.log("draw is on");
-	// var af = parseInt(DSS.activeFarm,10);
-	// var as = DSS.activeScenario;
-	// console.log('This is the active scenario#: ');
-
-	DSS.draw.on('drawend', function (e,) {
-		//fieldArea = e.feature.values_.geom.getArea();
-        // get default OM value
-        console.log(e)
-		console.log(e.feature)
-        e.feature.setProperties({
-                id: af,
-                farm_id: af,
-                scenario_id: as,
-                field_name: field_nameInput,
-                soil_p: soilPVal,//soil_pInput,
-                rotation: crop,
-                rotation_disp: cropDisp,
-                graze_beef_cattle: beef,
-                graze_dairy_lactating: lac,
-                graze_dairy_non_lactating: non_lac,
-                tillage: tillageInput,
-                tillage_disp:tillageDisp,
-                cover_crop:'nc',
-                cover_crop_disp:'No Cover',
-                rotational_density:0,
-                area:fieldArea * 0.000247105,
-                //this changes the square meters to acres
-                perc_fert_p:0,
-                perc_manure_p:0,
-                spread_confined_manure_on_pastures: false,
-                on_contour: false,
-                interseeded_clover: false,
-                pasture_grazing_rot_cont:false,
-				grass_speciesval: grassVal,
-		 		grass_speciesdisp: grassDisp,
-				rotational_freq_val: rotationFreqVal,
-				rotational_freq_disp: rotationFreqdisp,
-				grazingdensityval: grazeDensityVal,
-				grazingdensitydisp: grazeDensityDisp,
-                is_dirty:true
-            })
-        setFeatureAttributes(e.feature)
-		addFieldAcreage(e.feature)
-		alert('Field Added!')
-	})     
-}
+//async function createField(lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput){
+//    console.log("create field firing")
+//	//Starter values for dependant variables
+//	cropDisp='';
+//	tillageDisp='';
+//	grassDisp='Low Yielding';
+//	grassVal='Bluegrass-clover';
+//	rotationFreqVal = 0.65;
+//	rotationFreqdisp = 'Continuous',
+//	grazeDensityVal = 'lo',
+//	grazeDensityDisp = 'low'
+//	//--------------------Setting Display Values------------------
+//	if(crop=='pt-cn'){
+//		cropDisp ='Continuous Pasture';
+//		grassDisp='Low Yielding';
+//		grassVal='Bluegrass-clover';
+//		rotationFreqVal = 0.65;
+//		rotationFreqdisp = 'Continuous',
+//		grazeDensityVal = 'lo',
+//		grazeDensityDisp = 'low'
+//
+//	}
+//	else if(crop=='pt-rt'){
+//		cropDisp ='Rotational Pasture'
+//		grassDisp='Bluegrass-clover';
+//		grassVal='Bluegrass';
+//
+//		rotationFreqVal = 0.65;
+//		rotationFreqdisp = 'Continuous';
+//	}
+//	else if(crop=='ps'){
+//		cropDisp ='New Pasture'}
+//	else if(crop=='dl'){
+//		cropDisp ='Dry Lot'}
+//	else if(crop=='cc'){
+//		cropDisp ='Continuous Corn'}
+//	else if(crop=='cg'){
+//		cropDisp ='Cash Grain (corn/soy)'}
+//	else if(crop=='dr'){
+//		cropDisp ='Corn Silage to Corn Grain to Alfalfa 3 yrs'}
+//	else if(crop=='cso'){
+//		cropDisp ='Corn Silage to Soybeans to Oats'}
+//
+//	if(tillageInput=='nt'){
+//		tillageDisp = 'No-Till'}
+//	else if(tillageInput=='su'){
+//		tillageDisp = 'Spring Cultivation'}
+//	else if(tillageInput=='sc'){
+//		tillageDisp = 'Spring Chisel + Disk'}
+//	else if(tillageInput=='sn'){
+//		tillageDisp = 'Spring Chisel No Disk'}
+//	else if(tillageInput=='sv'){
+//		tillageDisp = 'Spring Vertical'}
+//	else if(tillageInput=='smb'){
+//		tillageDisp = 'Spring Moldboard Plow'}
+//	else if(tillageInput=='fc'){
+//		tillageDisp = 'Fall Chisel + Disk'}
+//	else if(tillageInput=='fm'){
+//		tillageDisp = 'Fall Moldboard Plow'}
+//
+////-------------------Now for the actual function-----------------
+//	var soilPVal = 0
+//	print("active region $$$$$$$$$$$$$$$$$$$$$$", DSS.activeRegion)
+//	if(DSS.activeRegion == "cloverBeltWI"){
+//		console.log("Clover Belt has hit")
+//		soilPVal = 40
+//	}
+//	else if(DSS.activeRegion == "northeastWI"){
+//		console.log("northeastWI has hit")
+//		soilPVal = 36
+//	}
+//	else if(DSS.activeRegion == "uplandsWI"){
+//		console.log("uplandsWI has hit")
+//		soilPVal = 46
+//	}
+//	else if(DSS.activeRegion == "southWestWI"){
+//		console.log("southWestWI has hit")
+//		soilPVal = 35
+//	}
+//	else if(DSS.activeRegion == "redCedarWI"){
+//		console.log("Red Cedar has hit")
+//		soilPVal = 50
+//	}
+//	else if(DSS.activeRegion == "pineRiverMN"){
+//		console.log("Pine River has hit")
+//		soilPVal = 50
+//	}
+//
+//	// DSS.draw = new ol.interaction.Draw({
+//	// 	source: source,
+//	// 	type: 'MultiPolygon',
+//	// 	geometryName: 'geom'
+//	// });
+//	// DSS.map.addInteraction(DSS.draw);
+//	// console.log("draw is on");
+//	// var af = parseInt(DSS.activeFarm,10);
+//	// var as = DSS.activeScenario;
+//	// console.log('This is the active scenario#: ');
+//
+//	DSS.draw.on('drawend', function (e,) {
+//		//fieldArea = e.feature.values_.geom.getArea();
+//        // get default OM value
+//        console.log(e)
+//		console.log(e.feature)
+//        e.feature.setProperties({
+//                id: af,
+//                farm_id: af,
+//                scenario_id: as,
+//                field_name: field_nameInput,
+//                soil_p: soilPVal,//soil_pInput,
+//                rotation: crop,
+//                rotation_disp: cropDisp,
+//                graze_beef_cattle: beef,
+//                graze_dairy_lactating: lac,
+//                graze_dairy_non_lactating: non_lac,
+//                tillage: tillageInput,
+//                tillage_disp:tillageDisp,
+//                cover_crop:'nc',
+//                cover_crop_disp:'No Cover',
+//                rotational_density:0,
+//                area:fieldArea * 0.000247105,
+//                //this changes the square meters to acres
+//                perc_fert_p:0,
+//                perc_manure_p:0,
+//                spread_confined_manure_on_pastures: false,
+//                on_contour: false,
+//                interseeded_clover: false,
+//                pasture_grazing_rot_cont:false,
+//				grass_speciesval: grassVal,
+//		 		grass_speciesdisp: grassDisp,
+//				rotational_freq_val: rotationFreqVal,
+//				rotational_freq_disp: rotationFreqdisp,
+//				grazingdensityval: grazeDensityVal,
+//				grazingdensitydisp: grazeDensityDisp,
+//                is_dirty:true
+//            })
+//        setFeatureAttributes(e.feature)
+//		addFieldAcreage(e.feature)
+//		alert('Field Added!')
+//	})
+//}
 
 
 //------------------working variables--------------------
@@ -218,10 +216,10 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 	extend: 'Ext.Container',
 	alias: 'widget.field_draw_apply',
     alternateClassName: 'DSS.DrawFieldShapes',
-    singleton: true,	
-	
+    singleton: true,
+
     autoDestroy: false,
-    
+
     scrollable: 'y',
 
 	requires: [
@@ -235,16 +233,16 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 		'DSS.field_shapes.apply.GrazeAnimals',
 		'DSS.field_shapes.apply.RotationalFreq'
 	],
-	
+
 	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
 
 		if (!DSS['viewModel']) DSS['viewModel'] = {}
 		DSS.viewModel.drawAndApply = new Ext.app.ViewModel({
-			
+
 			formulas: {
-				tillageValue: { 
+				tillageValue: {
 					bind: '{tillage.value}',
 					get: function(value) { return {tillage: value }; 			},
 					set: function(value) { this.set('tillage.value', value); 	}
@@ -280,9 +278,9 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 				}*/
 			}
 		})
-		
+
 		me.setViewModel(DSS.viewModel.drawAndApply);
-		
+
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'component',
@@ -355,12 +353,12 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 		});
 		me.callParent(arguments);
 	},
-	
+
 	//--------------------------------------------------------------------------
 	addModeControl: function() {
 		let me = this;
 		let c = DSS_viewport.down('#DSS-mode-controls');
-		
+
 		if (!c.items.has(me)) {
 			Ext.suspendLayouts();
 				c.removeAll(false);
@@ -368,12 +366,12 @@ Ext.define('DSS.field_shapes.DrawAndApply', {
 			Ext.resumeLayouts(true);
 		}
 	}
-	
+
 });
 
 //TODO: move to a better place...
 let getToggle = function(owner, stateRef, activatedHandler, deactivatedHandler) {
-	
+
 	return {
 		xtype: 'component',
 		style: 'right: 1px; top: 2px',
@@ -384,11 +382,11 @@ let getToggle = function(owner, stateRef, activatedHandler, deactivatedHandler) 
 				let vm = owner.lookupViewModel();
 				let active = vm.get(stateRef) ;
 				c.addCls(active ? 'to-close' : 'to-add')
-				
+
 				let ct = owner.down('#contents');
 				let ht = owner.DSS_sectionHeight;
 				ct.setHeight(active ? ht : 0);
-				
+
 				c.getEl().getFirstChild().el.on({
 					click: function(self) {
 						if (c.hasCls('to-add')) {
@@ -420,10 +418,10 @@ let getToggle = function(owner, stateRef, activatedHandler, deactivatedHandler) 
 							if (typeof deactivatedHandler === 'function') {
 								deactivatedHandler.call()
 							}
-						}	
+						}
 					}
 				});
 			}
-		}					
-	}	
+		}
+	}
 }
