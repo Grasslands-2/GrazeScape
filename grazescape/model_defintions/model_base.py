@@ -19,6 +19,7 @@ class ModelBase:
         model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
         model_type = request.POST.get('model_parameters[model_type]')
         active_region = request.POST.get('model_parameters[active_region]')
+        self.scenario_id = request.POST.getlist("scenario_id")[0]
         # self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
         # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
         # self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
@@ -70,6 +71,9 @@ class ModelBase:
         self.raster_inputs = {}
 
     def parse_model_parameters(self, request):
+        om = float(request.POST.getlist("model_parameters[om]")[0])
+        if om > 20:
+            om = 20
         parameters = {
             "f_name": request.POST.getlist("model_parameters[f_name]")[0],
             "grass_type": request.POST.getlist("model_parameters[grass_type]")[
@@ -87,7 +91,7 @@ class ModelBase:
             "density": request.POST.getlist("model_parameters[density]")[0],
             "graze_factor": request.POST.getlist("model_parameters[graze_factor]")[0],
             "area": request.POST.getlist("model_parameters[land_area]")[0],
-            "om": request.POST.getlist("model_parameters[om]")[0],
+            "om": om,
             "legume": request.POST.getlist("model_parameters[legume]")[0],
             "alfalfaMachCost": request.POST.getlist("model_parameters[alfalfaMachCost]")[0],
             "alfalfaMachCostY1": request.POST.getlist("model_parameters[alfalfaMachCostY1]")[0],

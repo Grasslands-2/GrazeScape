@@ -397,7 +397,10 @@ def get_default_om(request):
             sum = sum + val
             count = count + 1
     # print("average om is ", round(sum / count, 2))
-    return JsonResponse({"om": round(sum / count, 2)}, safe=False)
+    avg_val = sum / count
+    if avg_val > 20:
+        avg_val = 20
+    return JsonResponse({"om": round(avg_val, 2)}, safe=False)
 
 
 # This gets the model results from the model results table

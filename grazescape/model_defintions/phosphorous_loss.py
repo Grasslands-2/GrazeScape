@@ -30,7 +30,7 @@ class PhosphorousLoss(ModelBase):
         total_depth = self.raster_inputs["total_depth"].flatten()
 
         r.assign("slope_length", slope_length)
-        r.assign("k", k)
+
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
         r.assign("slope", slope)
@@ -42,7 +42,6 @@ class PhosphorousLoss(ModelBase):
         r.assign("ph", ph)
         r.assign("awc", awc)
         r.assign("total_depth", total_depth)
-        r.assign("slope", slope)
         r.assign("slope_length", slope_length)
         r.assign("sand", sand)
         r.assign("silt", silt)
@@ -84,7 +83,8 @@ class PhosphorousLoss(ModelBase):
         r.assign("ps_pi_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
         r.assign("pt_pi_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
         r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
-        print("ploss #####")
+        print("ploss #####", self.scenario_id)
+        r.assign("scen_id", self.scenario_id)
         r(f"""
 
                     library(tidyverse)
@@ -288,6 +288,7 @@ class PhosphorousLoss(ModelBase):
                     }}
 
                     print("ploss !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print(scen_id)
                     print(pred_df)
 
 
