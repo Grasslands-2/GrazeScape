@@ -162,6 +162,8 @@ class CalcManureP(ModelBase):
         for i in rot_yrs_crop:
             if mn:
                 print("in minnesota")
+                print(i)
+
                 if i == 'pt_rt':
                     crop_key = f"{crop}_{legume_text}_{crop}_{legume_text}_NA_NA_NA"
                 elif i == 'pt_cn':
@@ -182,10 +184,12 @@ class CalcManureP(ModelBase):
                 else:
                     crop_key = f"{crop}_{i}_{cover_crop}_NA_NA"
             else:
+                print("wisconsin")
+                print(i)
                 if i == 'pt_rt':
                     crop_key = crop + "_" + legume_text + "_" + crop + "_" + legume_text + "_" + cover_crop + "_" + om_text
                 elif i == 'pt_cn':
-                    crop_key = crop + "_" + legume_text + "_" + crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + om_text
+                    crop_key = crop + "_" + animal_density_text + "_" + legume_text + "_" + crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + om_text
 
                 elif i == 'dl':
                     crop_key = crop + "_" + animal_density_text + "_" + cover_crop + "_" + cell_nresponse

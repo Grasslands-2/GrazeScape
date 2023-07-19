@@ -106,7 +106,7 @@ class Runoff(ModelBase):
         r.assign("ps_cn_file", os.path.join(self.model_file_path, pastureSeedingTidyffcn + regionRDS))
         r.assign("pt_cn_file", os.path.join(self.model_file_path, pastureTidyffcn + regionRDS))
         r.assign("dl_cn_file", os.path.join(self.model_file_path, dryLotTidyffcn + regionRDS))
-        print(r(f"""
+        r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
         #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
         #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
@@ -293,7 +293,7 @@ class Runoff(ModelBase):
 
         }}
 
-        """))
+        """)
 
         pred = r.get("curve_num").to_numpy()
         rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)","Storm event runoff (inches)","Storm event runoff (inches)")

@@ -75,6 +75,8 @@ class PhosphorousLoss(ModelBase):
         pastureTidyploss = "pt_ploss_"
         dryLotTidyploss = "dl_ploss_"
         regionRDS = self.active_region + '.rds'
+        print("pt_pi_file model file!!!", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
+
         r.assign("cc_pi_file", os.path.join(self.model_file_path, ContCornTidyploss + regionRDS))
         r.assign("cg_pi_file", os.path.join(self.model_file_path, cornGrainTidyploss + regionRDS))
         r.assign("cso_pi_file", os.path.join(self.model_file_path, cornSoyOatTidyploss + regionRDS))
@@ -82,6 +84,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("ps_pi_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
         r.assign("pt_pi_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
         r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
+        print("ploss #####")
         r(f"""
 
                     library(tidyverse)
@@ -167,7 +170,7 @@ class PhosphorousLoss(ModelBase):
 
                       pred_df <- df %>%
                         filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
-
+                        
                       pi <- round(predict(cg_pi, pred_df),2)
 
                     }} else if (full_df$crop == "cso") {{
@@ -252,7 +255,7 @@ class PhosphorousLoss(ModelBase):
                         slice(rep(1:n(), each=nrow(level_df)))
 
                       df <- cbind(level_df, df) 
-
+                        
                       if(full_df$rotational == "rt"){{
                         pred_df <- df %>%
                           filter(rotational == full_df$rotational, density == "rt")
@@ -284,7 +287,8 @@ class PhosphorousLoss(ModelBase):
 
                     }}
 
-
+                    print("ploss !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print(pred_df)
 
 
                 """)
