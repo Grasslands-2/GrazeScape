@@ -18,7 +18,7 @@ import os
 
 # grab original .basin file from safe folder and copy to where HMS will pull from it. these copied .basin files
 # stored in their respective filepaths will edited below
-def prepare_model_runs(project_dir, modified_cn=None, is_base=False):
+def prepare_model_runs(project_dir, cn_dict_model, cn_dict_base):
     basin_file_path = os.path.join(project_dir, "Original_BasinFile", "Coon_Creek___No_Dams.basin")
     # 2yr
     shutil.copy2(basin_file_path,
@@ -69,12 +69,23 @@ def prepare_model_runs(project_dir, modified_cn=None, is_base=False):
     # bring in dictionary of subbasin experimental CNs
     CC_CNs_input = CN_Inputs('CC', project_dir)  # bring in module
     CC_CNs_input.reset()  # ensure values are reset, otherwise past replacements perpetuate
-    print("old cn")
-    for cn in CC_CNs_input.CC_basin_CN_input:
-        print(cn, CC_CNs_input.CC_basin_CN_input[cn])
-    for cn in modified_cn:
-        # print(cn, modified_cn[cn])
-        CC_CNs_input.replaceCN(cn, modified_cn[cn])  # if we wanted to change any CN values
+    # print("cn from basin files")
+    # for cn in CC_CNs_input.CC_basin_CN_input:
+    #     print(cn, CC_CNs_input.CC_basin_CN_input[cn])
+    # cn_dict_model, cn_dict_base
+    for cn in cn_dict_model:
+        # calculate percent change between base and model and apply it to the basin cn values to get new cn
+        change = (cn_dict_model[cn] - cn_dict_base[cn]) / cn_dict_base[cn]
+        if change < 0:
+            new_value = CC_CNs_input.CC_basin_CN_input[cn] - (abs(change) * CC_CNs_input.CC_basin_CN_input[cn])
+        else:
+            new_value = CC_CNs_input.CC_basin_CN_input[cn] + (abs(change) * CC_CNs_input.CC_basin_CN_input[cn])
+        print(cn)
+        print("old value", CC_CNs_input.CC_basin_CN_input[cn])
+        print("change", change)
+        print("new value", new_value)
+        print("*********************************************")
+        CC_CNs_input.replaceCN(cn, new_value)  # if we wanted to change any CN values
     # CC_CNs_input.replaceCN('Lower Coon Creek C', 67.99) #if we wanted to change any CN values
     CC_CNs = CC_CNs_input.get_basin_CN_input()  # this is a subbasin:CN dictionary
     # print("print subbasins", CC_CNs)
@@ -84,6 +95,7 @@ def prepare_model_runs(project_dir, modified_cn=None, is_base=False):
         print(cn, CC_CNs[cn])
     # define function to calculate lag (as referenced in part 630.1502a Hydrology National Engineering Handbook; see
     # above)
+
     def calcL(subbasin):
         S = (1000 / CC_CNs[subbasin]) - 10
         L = (((CC_params[subbasin][0] ** 0.8) * (S + 1) ** 0.7) / (1900 * CC_params[subbasin][1] ** 0.5)) * 60

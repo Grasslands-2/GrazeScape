@@ -626,8 +626,8 @@ def compile_data_to_json():
     print("comiled river station")
     print("key_station", key_station)
     for station in range(len(key_station)):  # 51 instances
-        print("station", station)
-        print("key station", key_station[station])
+        # print("station", station)
+        # print("key station", key_station[station])
         reach_name = CC.get_reach(f'{key_station[station]}').upper()
         if reach_name == "JUNCTION - MCC O":
             reach_name = "Junction - MCC O"

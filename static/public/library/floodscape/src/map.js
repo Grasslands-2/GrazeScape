@@ -621,7 +621,7 @@ class OLMapFragment extends React.Component {
         });
          this.ccStations = new VectorLayer({
           renderMode: 'image',
-          name: "ccRivers",
+          name: "ccStations",
           source:new VectorSource({
               url: static_global_folder + 'floodscape/gis/CC_GIS/CC_riverStations.geojson',
               format: new GeoJSON(),
@@ -631,7 +631,7 @@ class OLMapFragment extends React.Component {
         });
         this.wfkStations = new VectorLayer({
           renderMode: 'image',
-          name: "ccRivers",
+          name: "wfkStations",
           source:new VectorSource({
               url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_riverStations.geojson',
               format: new GeoJSON(),
@@ -658,8 +658,8 @@ class OLMapFragment extends React.Component {
             this.ccRivers,
 ////            this.wfkRivers,
 //            this.boundaryLayerAOI,
-            this.ccStations,
             this.wfkStations,
+            this.ccStations,
 //            this.waterSheds1,
 //            this.huc10Layer,
 //            this.waterSheds,
@@ -758,8 +758,11 @@ class OLMapFragment extends React.Component {
                 if (layer.get('name') == "ccBoundary" ||
                     layer.get('name') == "ccWatershed" ||
                     layer.get('name') == "wfkBoundary"||
-                    layer.get('name') == "wfkWatershed")
-                    {
+                    layer.get('name') == "wfkWatershed"||
+                    layer.get('name') == "ccStations"||
+                    layer.get('name') == "wfkStations"
+                    )
+                {
                     return true
                 }
 //                console.log(layer)
@@ -787,6 +790,14 @@ class OLMapFragment extends React.Component {
             console.log(f.target.item(0))
             console.log(f.target.item(0).get("NAME"))
             console.log(f.target.item(0).get("name"))
+            let feature_name = f.target.item(0).get("name")
+            if(f.target.item(0).get("River_Stat")){
+                let station = f.target.item(0).get("River_Stat")
+                console.log("selected station!!", station)
+//              this.selectedFeatures.clear();
+                return
+
+            }
 //            large areas
             if(f.target.item(0).get("name") == "West Fork Kickapoo Main" ||
             f.target.item(0).get("name") == "COON CREEK Main"){

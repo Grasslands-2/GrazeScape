@@ -980,7 +980,7 @@ class SmartScape:
             geometry_poly = [Polygon(geometry)]
             # print(geometry_poly)
             df = pd.DataFrame({'geometry': geometry_poly})
-            crs = {'init': "epsg:6609"}
+            crs = {'init': "epsg:3857"}
             polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
             # print(polygon)
             sub_water_cut_file = os.path.join(base_dir, feature_name + ".shp")
@@ -988,11 +988,12 @@ class SmartScape:
             # create files in memory
             output_filename_model = '/vsimem/output_model.tif'
             output_filename_base = '/vsimem/output_base.tif'
-            print(feature_name, area)
+            # baseline curve number for whole region
             ds_clip = gdal.Warp(output_filename_base,
                                 [os.path.join(self.in_dir, "cn_whole_region.tif")],
                                 cutlineDSName=sub_water_cut_file,
                                 cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
+            # model curve number for whole region
 
             ds_clip = gdal.Warp(output_filename_model,
                                 [os.path.join(self.in_dir, "cn_whole_region_model.tif")],
@@ -1038,11 +1039,13 @@ class SmartScape:
             # feature_dict[feature_name] = {"model":total_cn_model / total_cells, "base": total_cn / total_cells}
             model_cn_dict[feature_name] = total_cn_model / total_cells
             base_cn_dict[feature_name] = total_cn / total_cells
+            # print(feature_name, area, total_cn, total_cells, total_cn / total_cells)
+
         print("model cn dict", model_cn_dict)
         print("base_cn_dict", base_cn_dict)
         # print("base cn dict", base_cn_dict)
         print("time to run cn models ", time.time() - start)
-        hms_trigger(model_cn_dict)
+        hms_trigger(model_cn_dict, base_cn_dict)
         project_dir = settings.HMS_MODEL_PATH
         with open(os.path.join(project_dir, "CompiledRiverStationDataModel.json")) as f:
             data_model = json.load(f)

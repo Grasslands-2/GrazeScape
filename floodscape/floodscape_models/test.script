@@ -1,14 +1,1 @@
 import sys
-
-sys.stdout.write("output goes here\n")
-
-from hms.model.JythonHms import *
-import sys
-#input_data = sys.stdin.readline()
-
-# Process the input
-# ...
-
-# Write output to stdout
-OpenProject("CC_2yrStorm", "C:\\Users\\mmbay\\Work\\Floodscape\\hydro-automate\\HMS_CC_Final\\CC_2yrStorm")
-Compute("MSE4 No Dams")
