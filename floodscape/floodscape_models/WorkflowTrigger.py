@@ -37,16 +37,31 @@ def hms_trigger(cn_dict_model, cn_dict_base):
 
 
 
-    # script_file = os.path.join(os.getcwd(), "test.script")
-    script_file = os.path.join(settings.BASE_DIR, 'floodscape', "floodscape_models", "test.script")
-    print(script_file)
-    print(os.path.join(hms_exe, "hec-hms.exe"))
+    # # script_file = os.path.join(os.getcwd(), "test.script")
+    # script_file = os.path.join(settings.BASE_DIR, 'floodscape', "floodscape_models", "test.script")
+    # print(script_file)
+    # print(os.path.join(hms_exe, "hec-hms.exe"))
+    print(os.path.join(hms_exe, "HEC-HMS.cmd"))
     # list_files = subprocess.run(
-    #     ["hec-hms.exe", "-s", script_file],
+    #     ["./hec-hms.exe", "-s", script_file],
     #     executable=os.path.join(hms_exe, "HEC-HMS.exe"))
-    output = DSSOutput()
-    output.run()
-    compile_data.compile_data_to_json()
+
+    # cmd = ["./" + os.path.join(hms_exe, 'hec-hms.exe'), '-s', script_file]
+    cmd = ["C://Program Files/HEC/HEC-HMS/4.9/HEC-HMS.exe", "-script", "C://Program Files/HEC/HEC-HMS/4.9/test.script"]
+    print(cmd)
+    # Run the command and capture the output
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        print("HEC-HMS execution successful.")
+        print("Output:")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"HEC-HMS execution failed with error: {e}")
+        print("Error output:")
+        print(e.stderr)
+    # output = DSSOutput()
+    # output.run()
+    # compile_data.compile_data_to_json()
 
 
 
