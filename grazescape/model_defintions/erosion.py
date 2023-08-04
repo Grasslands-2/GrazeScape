@@ -285,6 +285,6 @@ class Erosion(ModelBase):
                 )
         ero = r.get("erosion").to_numpy()
         ero = ero.flatten()
-        ero = np.where(ero < 0.01, .01, ero)
+        # ero = np.where(ero < 0.01, .01, ero)
         erosion.set_data(ero)
         return [erosion]

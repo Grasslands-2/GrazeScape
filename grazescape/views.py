@@ -572,6 +572,13 @@ def get_model_results(request):
 
             # print('RESULT HERE!!!')
             # print(result.model_type)
+
+            # if "ero" == result.model_type:
+            #     old_data = result.data[0]
+            #     print(result)
+            #     print(old_data)
+            #     new_data = np.where(old_data < 0.01, .01, old_data)
+            #     result.set_data(new_data)
             if result.model_type == "insect" or result.model_type == "econ":
                 sum = result.data[0]
                 avg = sum
