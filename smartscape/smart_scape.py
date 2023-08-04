@@ -172,7 +172,7 @@ class SmartScape:
         if slope1 is not None and slope2 is not None:
             datanm_slope = self.raster_inputs["slope"]
             datanm_slope = np.where(
-                np.logical_and(datanm_slope > float(slope1), float(slope2) > datanm_slope), -99, datanm_slope
+                np.logical_and(datanm_slope >= float(slope1), float(slope2) >= datanm_slope), -99, datanm_slope
             )
             has_slope = True
             datanm = np.where(np.logical_and(datanm == -99, datanm_slope == -99), -99, self.no_data)
@@ -181,7 +181,7 @@ class SmartScape:
         if stream_dist1 is not None and stream_dist2 is not None:
             datanm_stream = self.raster_inputs["stream_dist"]
             datanm_stream = np.where(
-                np.logical_and(datanm_stream > float(stream_dist1), float(stream_dist2) > datanm_stream), -99,
+                np.logical_and(datanm_stream >= float(stream_dist1), float(stream_dist2) >= datanm_stream), -99,
                 datanm_stream
             )
             has_stream = True
