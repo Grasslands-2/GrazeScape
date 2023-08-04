@@ -85,7 +85,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
         print("ploss #####", self.scenario_id)
         r.assign("scen_id", self.scenario_id)
-        r(f"""
+        print(r(f"""
 
                     library(tidyverse)
                     library(tidymodels)
@@ -289,10 +289,12 @@ class PhosphorousLoss(ModelBase):
 
                     print("ploss !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     print(scen_id)
-                    print(pred_df)
+                    pred_df_na_omit <- na_if(pred_df, -9999)
+                    print(pred_df_na_omit)
+                    print(summary(pred_df_na_omit))
 
 
-                """)
+                """))
 
         ploss = r.get("pi").to_numpy()
         ploss = ploss.flatten()
