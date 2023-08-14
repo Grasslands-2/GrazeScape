@@ -47,11 +47,17 @@ def hms_trigger(cn_dict_model, cn_dict_base):
     #     executable=os.path.join(hms_exe, "HEC-HMS.exe"))
 
     # cmd = ["./" + os.path.join(hms_exe, 'hec-hms.exe'), '-s', script_file]
-    cmd = ["C://Program Files/HEC/HEC-HMS/4.9/HEC-HMS.exe", "-script", "C://Program Files/HEC/HEC-HMS/4.9/test.script"]
-    print(cmd)
+    # cmd = ["C://Program Files/HEC/HEC-HMS/4.9/HEC-HMS.exe", "-script", "C://Program Files/HEC/HEC-HMS/4.9/test.script"]
+    # print(cmd)
+
+    print(os.getcwd())
+    cur_dir = os.getcwd()
+    os.chdir("C://Program Files/HEC/HEC-HMS/4.9/")
+    print(os.getcwd())
+    command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
     # Run the command and capture the output
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
         print("HEC-HMS execution successful.")
         print("Output:")
         print(result.stdout)
@@ -59,9 +65,10 @@ def hms_trigger(cn_dict_model, cn_dict_base):
         print(f"HEC-HMS execution failed with error: {e}")
         print("Error output:")
         print(e.stderr)
-    # output = DSSOutput()
-    # output.run()
-    # compile_data.compile_data_to_json()
-
-
+    output = DSSOutput()
+    output.run()
+    model_file_path = compile_data.compile_data_to_json()
+    base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
+    os.chdir(cur_dir)
+    return model_file_path, base_file_path
 

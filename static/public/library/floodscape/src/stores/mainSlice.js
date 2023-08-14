@@ -16,6 +16,7 @@ export const mainSlice = createSlice({
     aoiExtents:null,
     aoiCoors:null,
     aoiArea:0,
+    station:null,
   },
   // functions to interact with redux store
   reducers: {
@@ -33,6 +34,13 @@ export const mainSlice = createSlice({
      */
     setActiveRegion: (state, action) => {
         state.region = action.payload
+    },
+     /**
+     * Set active station
+     * @param  {Transformation} action.payload The new active transformation
+     */
+    setActiveStation: (state, action) => {
+        state.station = action.payload
     },
     /**
      * Set visibility of the accordion for creating aoi
@@ -64,6 +72,7 @@ export const {setActiveRegion,
                 setAoiFolderId,
                 setAoiExtentsCoors,
                 setAoiArea,
+                setActiveStation,
                  } = mainSlice.actions
 
 export default mainSlice.reducer

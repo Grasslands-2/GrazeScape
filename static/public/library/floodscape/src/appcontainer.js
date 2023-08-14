@@ -99,6 +99,7 @@ class AppContainer extends React.Component{
         baseEro: "hello world",
         modelEro: "hello world",
         modelOutputs: {},
+        showAlert:true
         };
   }
 componentDidUpdate(prevProps) {
@@ -131,6 +132,9 @@ componentDidUpdate(prevProps) {
             <Header user = {user_info.user_name}
                 text={this.state.text}
             />
+            <Alert key='success ' variant='success ' show={this.state.showAlert} dismissible onClose={() => this.setState({"showAlert":false})}>
+          Select a station point on the map to see scenario results
+        </Alert>
             <div>
                 <Row xs= '7' className = 'row-height'>
                   <Col xs='3' className='sidePanelCol'>

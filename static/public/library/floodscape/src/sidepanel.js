@@ -16,7 +16,7 @@ import CSRFToken from './csrf';
 import Spinner from 'react-bootstrap/Spinner'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import TooltipBootstrap from 'react-bootstrap/Tooltip'
-
+import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Table from 'react-bootstrap/Table'
@@ -69,6 +69,7 @@ import html2canvas from 'html2canvas';
 import ReactSpeedometer from "react-d3-speedometer"
 import ZingChart from 'zingchart-react';
 import "zingchart/es6";
+import {formatChartData} from "./reachChart"
 const sqKilToSqAc = 247.105
 const mapStateToProps = state => {
     return{
@@ -82,6 +83,7 @@ const mapStateToProps = state => {
     extents:state.main.aoiExtents,
     aoiCoors:state.main.aoiCoors,
     aoiArea:state.main.aoiArea,
+    station:state.main.station,
 }}
 var selectionTime = 0
 //const domain = [0, 700];
@@ -125,6 +127,7 @@ let rasterDownloaded = false
 
 class SidePanel extends React.Component{
     constructor(props){
+
         super(props)
         this.user = props.user
         this.runModels = this.runModels.bind(this);
@@ -273,8 +276,43 @@ class SidePanel extends React.Component{
 
 
             chart_data_ts:data,
+            chart_table:{},
             chart_options_ts:options,
-            displayReachList:{"1":{"data":"hi"},"2":{"data":"hi"}}
+            displayReachList:{"5":{"data":"hi"},"6":{"data":"hi"}},
+            reach_data_model:null,
+//            {
+//                "2yr":{
+//                    "19036.03":{
+//                        "time series":[1,2,3,4],
+//                        "Qmax":25,
+//                        "WSE": 99
+//                    }
+//                },
+//                "5yr":{
+//                    "19036.03":{
+//                        "time series":[5,6,7,8],
+//                        "Qmax":38,
+//                        "WSE": 204
+//                    }
+//                }
+//            } ,
+            reach_data_base:null
+//            {
+//                "2yr":{
+//                    "19036.03":{
+//                        "time series":[2,3,4,5],
+//                        "Qmax":4,
+//                        "WSE": 34
+//                    }
+//                },
+//                "5yr":{
+//                    "19036.03":{
+//                        "time series":[4,5,6,7],
+//                        "Qmax":35,
+//                        "WSE": 34
+//                    }
+//                }
+//            } ,
         }
     }
     // fires anytime state or props are updated
@@ -283,6 +321,10 @@ class SidePanel extends React.Component{
         document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
         if(prevProps.activeTrans.id != this.props.activeTrans.id){
             this.setState({selectWatershed:false})
+        }
+        if(prevProps.station != this.props.station){
+           console.log("new station ", this.props.station)
+           this.handleOpenModal()
         }
         // set selection criteria to active scenario
 
@@ -696,6 +738,7 @@ class SidePanel extends React.Component{
   handleOpenModal(){
     console.log(this.basePloss)
     this.setState({outputModalShow: true})
+    this.chartChange()
 //    this.basePloss.current.value = "hello world"
   }
     // load rasters for aoi in background
@@ -878,8 +921,10 @@ class SidePanel extends React.Component{
                 console.log("done with model runs")
                 console.log(responses)
                 this.setState({modelOutputs:responses})
-                this.setState({outputModalShow:true})
-
+//                this.setState({outputModalShow:true})
+                this.setState({reach_data_model:responses["model"]})
+                this.setState({reach_data_base:responses["base"]})
+                this.setState({modelsLoading:false})
 
             },
 
@@ -945,40 +990,60 @@ class SidePanel extends React.Component{
             }
         })
   }
-   chartChange(e){
+   chartChange(){
+        let data_table = formatChartData(this.state.reach_data_model, this.state.reach_data_base, this.props.station)
+        if (data_table == null){
+            return
+        }
+        console.log(data_table)
+        let data = data_table[0]
+        let table = data_table[1]
         console.log("changing chart")
-        console.log(e)
-        let data = {
-          labels:['January', 'February', 'March'],
-          datasets: [
-            {
-              label: 'Dataset 1',
-              data: [100,50,60],
-              borderColor: 'rgb(255, 99, 132)',
-              backgroundColor: 'rgba(255, 99, 132, 0.5)',
-            },
-            {
-              label: 'Dataset 2',
-              data: [140,150,200],
-              borderColor: 'rgb(53, 162, 235)',
-              backgroundColor: 'rgba(53, 162, 235, 0.5)',
-            },
-          ],
-        };
+//        let data = {
+//          labels:['January', 'February', 'March'],
+////          labels:[],
+//          datasets: [
+//            {
+//              label: 'Dataset 1',
+//              data: [100,50,60],
+//              borderColor: 'rgb(255, 99, 132)',
+//              backgroundColor: 'rgba(255, 99, 132, 0.5)',
+//              hidden:true,
+//            },
+//            {
+//              label: 'Dataset 2',
+//              data: [140,150,200],
+//              borderColor: 'rgb(53, 162, 235)',
+//              backgroundColor: 'rgba(53, 162, 235, 0.5)',
+//            },
+//          ],
+//        };
         let options = {
             responsive: true,
             plugins: {
               legend: {
                 position: 'top',
+                align: 'start'
               },
+              scales: {
+            x: {
+//                display: false, // Hide the x-axis labels
+                title: "Time (min)"
+            },
+            y: {
+                // Other y-axis options
+                title: "Flow (cfs)"
+            }
+        },
               title: {
                 display: true,
-                text: 'Current Reach'
+                text: "Station: " + this.props.station
               }
             }
         };
 
         this.setState({chart_data_ts:data})
+        this.setState({chart_table:table})
         this.setState({displayReachList:{"5":{"data":"hi"},"6":{"data":"hi"}}})
         this.setState({chart_options_ts:options})
         this.setState({chart_data_wse:40})
@@ -1001,16 +1066,36 @@ renderModal(){
     return(
         <div>
             <Row>
-                <Form.Select aria-label="Default select example" ref={this.tillage}
-                    onChange={(e) => this.chartChange(e)}>
-                      <option value="default">Open this select menu</option>
-                        {Object.keys(this.state.displayReachList).map((key,index) => (
-                        <option value={key} key={index}>{key}</option>
+                Station: {this.props.station}
+                < Line options = {this.state.chart_options_ts} data={this.state.chart_data_ts}/>
+                <Table striped bordered hover size="sm" responsive>
+                  <thead>
+                  <tr style={{textAlign:"center"}}>
+                      <th></th>
+                      <th className="table-cell-left" colSpan={2}>Baseline</th>
+                      <th className="table-cell-left" colSpan={2}>Scenario</th>
+                    </tr>
+                    <tr style={{textAlign:"center"}}>
+                      <th>Storm</th>
+                      <th  className="table-cell-left">Q Max (cfs)</th>
+                      <th>Water Surface Elevation (in)</th>
+                      <th className="table-cell-left">Q Max (cfs)</th>
+                      <th>Water Surface Elevation (in)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                     {Object.keys(this.state.chart_table).map((key,index) => (
+                         <tr>
+                          <td>{key}</td>
+                          <td className="table-cell-left" >{this.state.chart_table[key].qBase}</td>
+                          <td>{this.state.chart_table[key].wseBase}</td>
+                          <td className="table-cell-left">{this.state.chart_table[key].qModel}</td>
+                          <td>{this.state.chart_table[key].wseModel}</td>
+                        </tr>
                       )
-                      )}
-                    </Form.Select>
-                    <div>Max Water Surface Elevation: {this.state.chart_data_wse}</div>
-                    <Line options = {this.state.chart_options_ts} data={this.state.chart_data_ts}/>
+                     )}
+                    </tbody>
+                </Table>
              </Row>
         </div>
     )
@@ -1394,15 +1479,15 @@ renderModal(){
 
                      <Stack gap={3}>
                      {/*
+                      <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
 
-                     */}
                      <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+                     */}
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
                         Loading...
                      </Button>
-                      <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
 
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
 
@@ -1413,9 +1498,9 @@ renderModal(){
               </Accordion.Item>
             </Accordion>
             {/*
+                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
 
             */}
-                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
 
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
@@ -1570,19 +1655,19 @@ renderModal(){
                 </Modal.Footer>
             </Modal>
             <Modal show={this.state.outputModalShow} onHide={this.handleCloseModal} dialogClassName="modal-90w">
-            <Modal.Header closeButton>
-              <Modal.Title>Transformation Results</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+                <Modal.Header closeButton>
+                  <Modal.Title>Scenario Results</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
 
-                {this.renderModal()}
-            </Modal.Body >
-            <Modal.Footer>
-              <Button variant="secondary" onClick={this.handleCloseModal}>
-                Close
-              </Button>
+                    {this.renderModal()}
+                </Modal.Body >
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={this.handleCloseModal}>
+                    Close
+                  </Button>
 
-            </Modal.Footer>
+                </Modal.Footer>
           </Modal>
             </Container>
         )}

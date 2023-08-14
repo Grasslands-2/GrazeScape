@@ -77,7 +77,7 @@ import { useSelector, useDispatch, connect  } from 'react-redux'
 import{setActiveTrans,setActiveTransOL, updateTransList,updateAreaSelectionType,
 updateActiveTransProps,setVisibilityMapLayer, updateActiveBaseProps,reset} from '/src/stores/transSlice'
 import configureStore from './stores/store'
-import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea} from '/src/stores/mainSlice'
+import{setVisibilityAOIAcc, setVisibilityTransAcc, setAoiExtentsCoors, setActiveRegion, setAoiArea, setActiveStation} from '/src/stores/mainSlice'
 import {RotateNorthControl} from '/src/mapControls/controlTransSummary'
 import { BallTriangle,RotatingLines, } from  'react-loader-spinner'
 
@@ -112,6 +112,7 @@ const mapStateToProps = state => {
         areaSelectionType: state.transformation.areaSelectionType,
         layerVisible: state.transformation.layerVisible,
         activeDisplayProps: state.transformation.activeDisplayProps,
+        station: state.main.station,
     }
 }
 // map functions from redux store to local props
@@ -124,6 +125,7 @@ const mapDispatchToProps = (dispatch) => {
         setVisibilityTransAcc: (type)=> dispatch(setVisibilityTransAcc(type)),
         updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
         reset: ()=> dispatch(reset()),
+        setActiveStation: (type)=> dispatch(setActiveStation(type)),
 
 //        getTrans: (value)=> dispatch(getTrans(value)),
         updateAreaSelectionType: (value)=> dispatch(updateAreaSelectionType(value)),
@@ -153,6 +155,7 @@ class OLMapFragment extends React.Component {
         this.getMapLayer = this.getMapLayer.bind(this)
 
         this.state = {isDrawing:false,activeTransLayer:null}
+
     }
     // updates when props have been changed
     componentDidUpdate(prevProps) {
@@ -221,6 +224,7 @@ class OLMapFragment extends React.Component {
       if(prevProps.layerVisible != this.props.layerVisible){
             let layers = this.map.getLayers().getArray()
             this.props.updateAreaSelectionType(null);
+//          no need to select anymore except for stations
             this.map.removeInteraction(this.select);
             for (let ly in this.props.layerVisible){
                 for (let layer in layers){
@@ -229,6 +233,7 @@ class OLMapFragment extends React.Component {
                     }
                 }
             }
+            this.map.addInteraction(this.selectStations);
             if(this.props.layerVisible[0].name == "subHuc12" && this.props.layerVisible[0].visible == true){
 //                this.getHuc12FromHuc10()
             }
@@ -347,39 +352,39 @@ class OLMapFragment extends React.Component {
     }
     //   clip  the huc 12 watersheds to our aoi
 
-    getHuc12FromHuc10(){
-        let vectorSource = new VectorSource({projection: 'EPSG:3071',});
-        this.map.removeInteraction(this.select)
-        this.selectedFeatures.clear();
-        this.map.addInteraction(this.select);
-        let huc12Features = this.huc12.getSource().getFeatures()
-        let aoiFeatures = this.boundaryLayerAOI.getSource().getFeatures()
-//        console.log(jsts)
-         const parser = new jsts.io.OL3Parser();
-         parser.inject(
-          Point,
-          LineString,
-          LinearRing,
-          Polygon,
-          MultiPoint,
-          MultiLineString,
-          MultiPolygon
-        );
-
-//        vectorSource.addFeature(feature)
-        for (let feature in huc12Features){
-            for (let aoiFeature in aoiFeatures){
-                let jstsGeomAoi = parser.read(aoiFeatures[aoiFeature].getGeometry());
-                let jstsGeom = parser.read(huc12Features[feature].getGeometry());
-                var contains = jstsGeomAoi.contains(jstsGeom); // should work
-                if (contains){
-                    vectorSource.addFeature(huc12Features[feature])
-                    break
-                }
-            }
-        }
-        this.subSelectHuc12.setSource(vectorSource)
-    }
+//    getHuc12FromHuc10(){
+//        let vectorSource = new VectorSource({projection: 'EPSG:3071',});
+//        this.map.removeInteraction(this.select)
+//        this.selectedFeatures.clear();
+//        this.map.addInteraction(this.select);
+//        let huc12Features = this.huc12.getSource().getFeatures()
+//        let aoiFeatures = this.boundaryLayerAOI.getSource().getFeatures()
+////        console.log(jsts)
+//         const parser = new jsts.io.OL3Parser();
+//         parser.inject(
+//          Point,
+//          LineString,
+//          LinearRing,
+//          Polygon,
+//          MultiPoint,
+//          MultiLineString,
+//          MultiPolygon
+//        );
+//
+////        vectorSource.addFeature(feature)
+//        for (let feature in huc12Features){
+//            for (let aoiFeature in aoiFeatures){
+//                let jstsGeomAoi = parser.read(aoiFeatures[aoiFeature].getGeometry());
+//                let jstsGeom = parser.read(huc12Features[feature].getGeometry());
+//                var contains = jstsGeomAoi.contains(jstsGeom); // should work
+//                if (contains){
+//                    vectorSource.addFeature(huc12Features[feature])
+//                    break
+//                }
+//            }
+//        }
+//        this.subSelectHuc12.setSource(vectorSource)
+//    }
     addLayer(layer){
         this.map.addLayer(layer);
     }
@@ -770,7 +775,38 @@ class OLMapFragment extends React.Component {
            },
 
         });
+        this.selectStations = new Select({
+            condition: click,
+//             multi: true,
+           layers:function(layer){
+//           console.log("32$$#$#$#$#$$###$")
+//               if (layer.get('name') == "aoi"){
+//                    return false
+//                }
+//              which layers can be selected
+                if (
+                    layer.get('name') == "ccStations"||
+                    layer.get('name') == "wfkStations"
+                    )
+                {
+                    return true
+                }
+//                console.log(layer)
+            return false
+           },
 
+        });
+        this.selectedFeaturesStation = this.selectStations.getFeatures();
+         this.selectedFeaturesStation.on(['add'], (f)=> {
+            if(f.target.item(0).get("River_Stat")){
+                let station = f.target.item(0).get("River_Stat")
+                console.log("selected station!!", station)
+//              this.selectedFeatures.clear();
+                this.props.setActiveStation(station)
+                return
+
+            }
+          });
         // get selected features from map
         this.selectedFeatures = this.select.getFeatures();
         this.selectedFeatures.on(['remove'], (f)=> {
@@ -795,6 +831,7 @@ class OLMapFragment extends React.Component {
                 let station = f.target.item(0).get("River_Stat")
                 console.log("selected station!!", station)
 //              this.selectedFeatures.clear();
+                this.props.setActiveStation(station)
                 return
 
             }

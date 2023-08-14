@@ -1045,11 +1045,12 @@ class SmartScape:
         print("base_cn_dict", base_cn_dict)
         # print("base cn dict", base_cn_dict)
         print("time to run cn models ", time.time() - start)
-        hms_trigger(model_cn_dict, base_cn_dict)
+        model_path, base_path = hms_trigger(model_cn_dict, base_cn_dict)
         project_dir = settings.HMS_MODEL_PATH
-        with open(os.path.join(project_dir, "CompiledRiverStationDataModel.json")) as f:
+        print("Cn comparison paths",  model_path, base_path)
+        with open(model_path) as f:
             data_model = json.load(f)
-        with open(os.path.join(project_dir, "CompiledRiverStationDataModel.json")) as f:
+        with open(base_path) as f:
             data_base = json.load(f)
         return {"base": data_base, "model": data_model}
 

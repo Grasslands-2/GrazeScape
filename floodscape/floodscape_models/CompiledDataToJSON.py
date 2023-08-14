@@ -109,6 +109,7 @@ def compile_data_to_json():
 
     # returns JSON object as a dictionary
     CompiledDataFromDSS = json.load(f)
+    f.close()
     CompiledDataFromDSS['5']['MCC A - MCC B']['max_q']
 
     # WSE CALCULATION
@@ -690,3 +691,4 @@ def compile_data_to_json():
     # Writing to sample.json
     with open(file_path, "w") as outfile:
         outfile.write(json_object)
+    return file_path
