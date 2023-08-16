@@ -63,6 +63,7 @@ class RasterDataSmartScape:
             "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
             "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
             "hydgrp": "SmartScapeRaster_" + region + ":" + region + "_hydgrp_30m",
+            "pDel": "SmartScapeRaster_" + region + ":" + region + "_pDelivFactor_30m",
 
         }
         self.extents = extents

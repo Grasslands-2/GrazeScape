@@ -428,6 +428,10 @@ class SmartScape:
         om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
         om_image = gdal.Open(om_filepath)
         om_array = om_image.GetRasterBand(1).ReadAsArray()
+
+        p_del_filepath = os.path.join(self.geo_folder, "pDel_aoi-clipped.tif")
+        p_del_image = gdal.Open(p_del_filepath)
+        p_del_array = p_del_image.GetRasterBand(1).ReadAsArray()
         # open model results raster
         model_list = ["ploss", "cn", "insect", "econ", "nitrate", "sci"]
         # {1:{"yield":"filename", "ero": "filename:}}
@@ -570,8 +574,10 @@ class SmartScape:
                         np.where(np.logical_or(inter_data == self.no_data, inter_data == -88), 0, inter_data))
 
                 else:
-                    inter_data = np.sum(
-                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                    sum_values = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
+                    if model == "ploss":
+                        sum_values = sum_values * p_del_array
+                    inter_data = np.sum(sum_values)
                 if cell_count_trans > 0:
                     model_data_gross[layer]["selection"][model] = inter_data
 
@@ -818,8 +824,10 @@ class SmartScape:
                     # sci can have negative values
                     inter_data = np.sum(np.where(inter_data == self.no_data, 0, inter_data))
                 else:
-                    inter_data = np.sum(
-                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                    zero_value = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
+                    if model == "ploss":
+                        zero_value = zero_value * p_del_array
+                    inter_data = np.sum(zero_value)
                 model_data_gross[layer]["base"][model] = inter_data
 
         base_cn = np.where(
@@ -848,10 +856,13 @@ class SmartScape:
             np.logical_or(base_data["yield"] == self.no_data, base_data["yield"] < 0),
             0, base_data["yield"])
         sum_base_yield = np.sum(landuse_yield)
+
         landuse_arr_sel = np.where(
             np.logical_or(base_data["ploss"] == self.no_data, base_data["ploss"] < 0),
             0, base_data["ploss"])
+        landuse_arr_sel = landuse_arr_sel * p_del_array
         sum_base = np.sum(landuse_arr_sel)
+
         landuse_arr_sel = np.where(
             np.logical_or(base_data["econ"] == self.no_data, base_data["econ"] < 0),
             0, base_data["econ"])
@@ -913,9 +924,12 @@ class SmartScape:
                     0, model_data_watershed[model])
             # zero out bad cells
             else:
+
                 inter_data = np.where(
                     np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
                     0, model_data_watershed[model])
+                if model == "ploss":
+                    inter_data = inter_data * p_del_array
             inter_data = np.sum(inter_data)
             #
             # put all data in first trans because already calculated the data for each trans
@@ -1040,6 +1054,7 @@ class SmartScape:
         model_ero_water = check_ero_pl(sum_model_ero_watershed / total_cells)
 
         base_pl = check_ero_pl(sum_base / selected_cells)
+        base_data_watershed["ploss"] = base_data_watershed["ploss"] * p_del_array
         base_pl_water = check_ero_pl(np.sum(base_data_watershed["ploss"]) / total_cells)
 
         model_pl = check_ero_pl(sum_model_ploss / selected_cells)
