@@ -364,7 +364,10 @@ class SmartScape:
         start = time.time()
         mm_to_ac = 0.000247105
         bird_window_size = 13
-
+        ploss_water_base = None
+        ploss_water_model = None
+        ploss_water_region_base = None
+        ploss_water_region_model = None
         # conversion from value / ac to value of cell at 30 m resolution
         # ac_to_m = 900 / 4046.86
         trans = self.request_json['trans']
@@ -428,6 +431,10 @@ class SmartScape:
         om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
         om_image = gdal.Open(om_filepath)
         om_array = om_image.GetRasterBand(1).ReadAsArray()
+
+        p_del_filepath = os.path.join(self.geo_folder, "pDel_aoi-clipped.tif")
+        p_del_image = gdal.Open(p_del_filepath)
+        p_del_array = p_del_image.GetRasterBand(1).ReadAsArray()
         # open model results raster
         model_list = ["ploss", "cn", "insect", "econ", "nitrate", "sci"]
         # {1:{"yield":"filename", "ero": "filename:}}
@@ -436,6 +443,7 @@ class SmartScape:
             "yield": np.copy(arr),
             "ero": np.copy(arr),
             "ploss": np.copy(arr),
+            # "ploss_water": np.copy(arr),
             "cn": np.copy(arr),
             "runoff": np.copy(arr),
             "insect": np.copy(arr),
@@ -454,7 +462,8 @@ class SmartScape:
                 model = {
                     "yield": 0,
                     "ero": 0,
-                    "ploss": 0,
+                    "ploss": {"ploss":0, "ploss_water":0},
+                    # "ploss_water": 0,
                     "cn": 0,
                     "runoff": 0,
                     "insect": 0,
@@ -570,9 +579,18 @@ class SmartScape:
                         np.where(np.logical_or(inter_data == self.no_data, inter_data == -88), 0, inter_data))
 
                 else:
-                    inter_data = np.sum(
-                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
-                if cell_count_trans > 0:
+                    sum_values = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
+
+                    if model == "ploss":
+                        ploss_data = sum_values
+                        ploss_data_water = sum_values * p_del_array
+
+                        model_data_gross[layer]["selection"]["ploss"]["ploss"] = np.sum(ploss_data)
+                        model_data_gross[layer]["selection"]["ploss"]["ploss_water"] = np.sum(ploss_data_water)
+
+                    inter_data = np.sum(sum_values)
+
+                if cell_count_trans > 0 and model != "ploss":
                     model_data_gross[layer]["selection"][model] = inter_data
 
                 model_image = None
@@ -818,9 +836,15 @@ class SmartScape:
                     # sci can have negative values
                     inter_data = np.sum(np.where(inter_data == self.no_data, 0, inter_data))
                 else:
-                    inter_data = np.sum(
-                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
-                model_data_gross[layer]["base"][model] = inter_data
+                    zero_value = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
+                    if model == "ploss":
+                        zero_value = zero_value
+                        zero_value_water = zero_value * p_del_array
+                        model_data_gross[layer]["base"]["ploss"]["ploss"] = np.sum(zero_value)
+                        model_data_gross[layer]["base"]["ploss"]["ploss_water"] = np.sum(zero_value_water)
+                    inter_data = np.sum(zero_value)
+                if model != "ploss":
+                    model_data_gross[layer]["base"][model] = inter_data
 
         base_cn = np.where(
             np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
@@ -848,10 +872,13 @@ class SmartScape:
             np.logical_or(base_data["yield"] == self.no_data, base_data["yield"] < 0),
             0, base_data["yield"])
         sum_base_yield = np.sum(landuse_yield)
+
         landuse_arr_sel = np.where(
             np.logical_or(base_data["ploss"] == self.no_data, base_data["ploss"] < 0),
             0, base_data["ploss"])
         sum_base = np.sum(landuse_arr_sel)
+        sum_base_pl_water = np.sum(landuse_arr_sel * p_del_array)
+
         landuse_arr_sel = np.where(
             np.logical_or(base_data["econ"] == self.no_data, base_data["econ"] < 0),
             0, base_data["econ"])
@@ -896,7 +923,6 @@ class SmartScape:
             "sci": np.copy(base_data_watershed["sci"]),
         }
         for model in model_data_watershed:
-            # replace base cells with transformed cells
             if model == "runoff":
                 model_data_watershed[model] = np.where(
                     model_data[model] > 0, 0,
@@ -913,13 +939,20 @@ class SmartScape:
                     0, model_data_watershed[model])
             # zero out bad cells
             else:
+
                 inter_data = np.where(
                     np.logical_or(model_data_watershed[model] == self.no_data, model_data_watershed[model] < 0),
                     0, model_data_watershed[model])
+                if model == "ploss":
+                    inter_data = inter_data
+                    inter_data_water = inter_data * p_del_array
+                    model_data_gross[1]["selection_watershed"]["ploss"]["ploss"] = np.sum(inter_data)
+                    model_data_gross[1]["selection_watershed"]["ploss"]["ploss_water"] = np.sum(inter_data_water)
             inter_data = np.sum(inter_data)
             #
-            # put all data in first trans because already calculated the data for each trans
-            model_data_gross[1]["selection_watershed"][model] = inter_data
+            # put all data in first trans because already calculated the data for each tran
+            if model != "ploss":
+                model_data_gross[1]["selection_watershed"][model] = inter_data
 
         model_data_gross[1]["selection_watershed"]["total_cells"] = total_cells
         # remove zeros from watershed base
@@ -939,6 +972,7 @@ class SmartScape:
         sum_model_yield = 0
         sum_model_ero = 0
         sum_model_ploss = 0
+        sum_model_ploss_del = 0
         sum_model_cn = 0
         sum_model_runoff = 0
         sum_model_insect = 0
@@ -950,6 +984,7 @@ class SmartScape:
         sum_model_yield_watershed = 0
         sum_model_ero_watershed = 0
         sum_model_ploss_watershed = 0
+        sum_model_ploss_del_watershed = 0
         sum_model_cn_watershed = 0
         sum_model_runoff_watershed = 0
         sum_model_insect_watershed = 0
@@ -973,8 +1008,12 @@ class SmartScape:
                                                  model_data_gross[trans_layer]["base"]["yield"] * base_adpotion)
             sum_model_ero = sum_model_ero + (model_data_gross[trans_layer]["selection"]["ero"] * trans_adpotion +
                                              model_data_gross[trans_layer]["base"]["ero"] * base_adpotion)
-            sum_model_ploss = sum_model_ploss + (model_data_gross[trans_layer]["selection"]["ploss"] * trans_adpotion +
-                                                 model_data_gross[trans_layer]["base"]["ploss"] * base_adpotion)
+
+            sum_model_ploss = sum_model_ploss + (model_data_gross[trans_layer]["selection"]["ploss"]["ploss"] * trans_adpotion +
+                                                 model_data_gross[trans_layer]["base"]["ploss"]["ploss"] * base_adpotion)
+            sum_model_ploss_del = sum_model_ploss_del + (model_data_gross[trans_layer]["selection"]["ploss"]["ploss_water"] * trans_adpotion +
+                                                 model_data_gross[trans_layer]["base"]["ploss"]["ploss_water"] * base_adpotion)
+
             sum_model_cn = sum_model_cn + (model_data_gross[trans_layer]["selection"]["cn"] * trans_adpotion +
                                            model_data_gross[trans_layer]["base"]["cn"] * base_adpotion)
             sum_model_runoff = sum_model_runoff + (
@@ -1000,7 +1039,10 @@ class SmartScape:
             sum_model_ero_watershed = sum_model_ero_watershed + model_data_gross[trans_layer]["selection_watershed"][
                 "ero"]
             sum_model_ploss_watershed = sum_model_ploss_watershed + \
-                                        model_data_gross[trans_layer]["selection_watershed"]["ploss"]
+                                        model_data_gross[trans_layer]["selection_watershed"]["ploss"]["ploss"]
+            sum_model_ploss_del_watershed = sum_model_ploss_del_watershed + \
+                                        model_data_gross[trans_layer]["selection_watershed"]["ploss"]["ploss_water"]
+
             sum_model_cn_watershed = sum_model_cn_watershed + model_data_gross[trans_layer]["selection_watershed"]["cn"]
             sum_model_runoff_watershed = sum_model_runoff_watershed + \
                                          model_data_gross[trans_layer]["selection_watershed"]["runoff"]
@@ -1016,7 +1058,10 @@ class SmartScape:
 
         sum_model_yield_watershed = sum_model_yield_watershed + sum_model_yield
         sum_model_ero_watershed = sum_model_ero_watershed + sum_model_ero
+
         sum_model_ploss_watershed = sum_model_ploss_watershed + sum_model_ploss
+        sum_model_ploss_del_watershed = sum_model_ploss_del_watershed + sum_model_ploss_del
+
         sum_model_cn_watershed = sum_model_cn_watershed + sum_model_cn
         sum_model_runoff_watershed = sum_model_runoff_watershed + sum_model_runoff
         sum_model_insect_watershed = sum_model_insect_watershed + sum_model_insect
@@ -1042,8 +1087,14 @@ class SmartScape:
         base_pl = check_ero_pl(sum_base / selected_cells)
         base_pl_water = check_ero_pl(np.sum(base_data_watershed["ploss"]) / total_cells)
 
+        base_pl_del = check_ero_pl(sum_base_pl_water / selected_cells)
+        ploss_pl_del_water = check_ero_pl(np.sum(base_data_watershed["ploss"] * p_del_array) / total_cells)
+
         model_pl = check_ero_pl(sum_model_ploss / selected_cells)
         model_pl_water = check_ero_pl(sum_model_ploss_watershed / total_cells)
+
+        model_pl_del = check_ero_pl(sum_model_ploss_del / selected_cells)
+        model_pl_del_water = check_ero_pl(sum_model_ploss_del_watershed / total_cells)
 
         base_econ = check_ero_pl(sum_base_econ / selected_cells)
         base_econ_water = check_ero_pl(np.sum(base_data_watershed["econ"]) / total_cells)
@@ -1054,8 +1105,7 @@ class SmartScape:
         print("number sci cells", total_cells_sci)
         # print("sum of sci", np.sum(base_data_watershed["cn"]))
         sci_arry = base_data_watershed["sci"]
-        # print(model_data_gross[1]["selection"]["sci"])
-        # sci_arry = model_data_gross[1]["selection"]["sci"]
+
         # sci_arry = sci_data
         [rows, cols] = sci_arry.shape
         driver = gdal.GetDriverByName("GTiff")
@@ -1080,6 +1130,12 @@ class SmartScape:
                           "total_per_area": str("%.2f" % base_pl),
                           "total_watershed": "{:,.2f}".format(base_pl_water * area_watershed),
                           "total_per_area_watershed": str("%.2f" % base_pl_water),
+                          "units": "Phosphorus Runoff (lb/year)"
+                          },
+                "ploss_water": {"total": "{:,.2f}".format(base_pl_del * area_selected),
+                          "total_per_area": str("%.2f" % base_pl_del),
+                          "total_watershed": "{:,.2f}".format(ploss_pl_del_water * area_watershed),
+                          "total_per_area_watershed": str("%.2f" % ploss_pl_del_water),
                           "units": "Phosphorus Runoff (lb/year)"
                           },
                 "ero": {"total": "{:,.2f}".format(base_ero * area_selected),
@@ -1152,6 +1208,13 @@ class SmartScape:
                     "total_per_area": str("%.2f" % model_pl),
                     "total_watershed": "{:,.2f}".format(model_pl_water * area_watershed),
                     "total_per_area_watershed": str("%.2f" % model_pl_water),
+                    "units": "Phosphorus Runoff (lb/year)"
+                },
+                "ploss_water": {
+                    "total": "{:,.2f}".format(model_pl_del * area_selected),
+                    "total_per_area": str("%.2f" % model_pl_del),
+                    "total_watershed": "{:,.2f}".format(model_pl_del_water * area_watershed),
+                    "total_per_area_watershed": str("%.2f" % model_pl_del_water),
                     "units": "Phosphorus Runoff (lb/year)"
                 },
                 "ero": {
