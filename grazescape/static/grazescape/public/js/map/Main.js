@@ -94,6 +94,12 @@ Ext.define('DSS.map.Main', {
 							if(DSS.activeRegion == "southWestWI"){
 								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
 							}
+							if(DSS.activeRegion == "redCedarWI"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
+							if(DSS.activeRegion == "pineRiverMN"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
 						}
 					});
 				}
@@ -284,6 +290,42 @@ Ext.define('DSS.map.Main', {
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
 				url: '/static/grazescape/public/shapeFiles/Clover_Belt_Border2.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
+		DSS.layer.redCedarBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/redCedarWI.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
+		DSS.layer.pineRiverBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/pineRiverMN.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
@@ -1591,6 +1633,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.northeastBorder,
 				DSS.layer.uplandBorder,
 				DSS.layer.cloverBeltBorder,
+				DSS.layer.redCedarBorder,
+				DSS.layer.pineRiverBorder,
 				DSS.layer.kickapoowatershed,
 				//DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
@@ -1608,9 +1652,10 @@ Ext.define('DSS.map.Main', {
 				],
 				//------------------------------------------------------------------------
 			view: new ol.View({
-				center: [-9941844.56,5428891.48],
-				//10000312.33 5506092.31 
-				//9,941,844.56W 5,428,891.48N m 
+//				center: [-9941844.56,5428891.48],
+				center: [-10090575.706307484, 5552204.392540871],
+				//10000312.33 5506092.31
+				//9,941,844.56W 5,428,891.48N m
 				zoom: 8,
 				maxZoom: 30,
 				minZoom: 4,//10,
@@ -1629,6 +1674,7 @@ Ext.define('DSS.map.Main', {
 			units: 'us',
 //			units: 'metric'
 		}));
+//		me.map.addControl(new ol.control.MousePosition({}));
 		proj4.defs('urn:ogc:def:crs:EPSG::3071', "+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 		proj4.defs('EPSG:3071', "+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 		ol.proj.proj4.register(proj4);	
@@ -1847,7 +1893,7 @@ var CanvasLayer = /*@__PURE__*/(function (Layer) {
 	
 	    var center = ol.proj.toLonLat(ol.extent.getCenter(frameState.extent), projection);
 	    d3Projection.scale(scale).center(center).translate([width / 2, height / 2]);
-	
+
 	    d3Path = d3Path.projection(d3Projection);
 	    d3Path(this.features);
 	

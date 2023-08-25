@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from PIL import Image
 import numpy as np
 # np.set_printoptions(threshold=np.inf)
-from pyper import R
 from django.conf import settings
 import os
 import pandas as pd
@@ -20,9 +19,10 @@ class ModelBase:
         model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
         model_type = request.POST.get('model_parameters[model_type]')
         active_region = request.POST.get('model_parameters[active_region]')
-        self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
-        self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
-        self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
+        self.scenario_id = request.POST.getlist("scenario_id")[0]
+        # self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
+        # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        # self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
 
         if file_name is None:
             file_name = model_type + field_id + '_' + model_run_timestamp  ##+'_'+ str(uuid.uuid1())##
@@ -49,7 +49,7 @@ class ModelBase:
             r = R(RCMD=self.r_file_path, use_pandas=True)
         except FileNotFoundError as e:
             raise FileNotFoundError("R file path is incorrect")
-
+        self.active_region = active_region
         if active_region == "cloverBeltWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'cloverBeltWI')
         if active_region == "southWestWI":
@@ -58,6 +58,10 @@ class ModelBase:
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'uplandsWI')
         if active_region == "northeastWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'northeastWI')
+        if active_region == "redCedarWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'redCedarWI')
+        if active_region == "pineRiverMN":
+            self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'pineRiverMN')
 
         self.color_ramp_hex = []
         self.data_range = []
@@ -67,6 +71,9 @@ class ModelBase:
         self.raster_inputs = {}
 
     def parse_model_parameters(self, request):
+        om = float(request.POST.getlist("model_parameters[om]")[0])
+        if om > 20:
+            om = 20
         parameters = {
             "f_name": request.POST.getlist("model_parameters[f_name]")[0],
             "grass_type": request.POST.getlist("model_parameters[grass_type]")[
@@ -84,7 +91,7 @@ class ModelBase:
             "density": request.POST.getlist("model_parameters[density]")[0],
             "graze_factor": request.POST.getlist("model_parameters[graze_factor]")[0],
             "area": request.POST.getlist("model_parameters[land_area]")[0],
-            "om": request.POST.getlist("model_parameters[om]")[0],
+            "om": om,
             "legume": request.POST.getlist("model_parameters[legume]")[0],
             "alfalfaMachCost": request.POST.getlist("model_parameters[alfalfaMachCost]")[0],
             "alfalfaMachCostY1": request.POST.getlist("model_parameters[alfalfaMachCostY1]")[0],
@@ -210,7 +217,7 @@ class ModelBase:
                         min_val = data[y][x]
                     sum_val = sum_val + data[y][x]
                     count = count + 1
-        print("The cell count is ", count)
+        # print("The cell count is ", count)
         return min_val, max_val, sum_val / count, sum_val, count
 
     def sum_count(self, data, no_data_array):
@@ -280,13 +287,16 @@ class OutputDataNode:
         self.default_units = default_units
         self.default_title = default_title
         self.alternate_title = alternate_title
+        self.alternate_data = []
         self.data = []
         self.P2O5_fert = None
         self.N_fert = None
 
-
     def set_data(self, data):
         self.data.append(data)
+
+    def set_data_alternate(self, data):
+        self.alternate_data.append(data)
 
     def get_model_type(self):
         return self.model_type

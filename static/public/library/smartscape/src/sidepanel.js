@@ -423,6 +423,7 @@ class SidePanel extends React.Component{
       }
     showModal(){
         console.log("showing modal")
+        console.log("Phos fert is ", this.props.baseTrans.management.phos_fertilizer)
         this.getPhosValuesBase()
         console.log(this.props)
 //        this.rotationType.current.value = this.props.baseTrans.management.rotationType
@@ -433,6 +434,7 @@ class SidePanel extends React.Component{
 //        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
         this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
         this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
+        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
 
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
@@ -608,14 +610,16 @@ class SidePanel extends React.Component{
 //        this.setState({showHuc10:false})
         this.setState({showHuc12:false})
         this.props.setActiveRegion(null)
-        this.props.setVisibilityMapLayer([
-            {'name':'southWest', 'visible':true},
-            {'name':'southCentral', 'visible':true},
-            {'name':'cloverBelt', 'visible':true},
-            {'name':'subHuc12', 'visible':false},
-//            {'name':'huc10', 'visible':true},
-            {'name':'huc12', 'visible':true}
-            ])
+//        this.props.setVisibilityMapLayer([
+//            {'name':'southWest', 'visible':true},
+//            {'name':'southCentral', 'visible':true},
+//            {'name':'redCedar', 'visible':true},
+//            {'name':'cloverBelt', 'visible':true},
+//            {'name':'cloverBelt', 'visible':true},
+//            {'name':'subHuc12', 'visible':false},
+////            {'name':'huc10', 'visible':true},
+//            {'name':'huc12', 'visible':true}
+//            ])
         this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
@@ -623,6 +627,7 @@ class SidePanel extends React.Component{
         this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+        this.props.updateActiveBaseProps({"name":"p_manure_cat", "value":"0", "type":"mang"})
         this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
         console.log("huc 10 vis ", this.state.showHuc10)
         this.setState({aoiOrDisplayLoading:false})
@@ -953,18 +958,26 @@ class SidePanel extends React.Component{
 //                let phos_options = response.response["base"].p_choices
                 let phos_options = response.response["base"].p_choices
                 let manure_value = response.response["base"].p_manure
+                let p_manure_cat = response.response["base"].p_manure_cat
 //                let manure_value = response.response["base"].p_manure
                 console.log(phos_options, manure_value)
-
+                let phosOpt = phos_options[0]
+                console.log("phosOpt")
+                console.log(phosOpt)
+                console.log(this.phos_fertilizer.current.value)
+                console.log(phos_options.includes(parseInt(this.phos_fertilizer.current.value)))
+                if (phos_options.includes(parseInt(this.phos_fertilizer.current.value))){
+                    phosOpt = this.phos_fertilizer.current.value
+                }
                 this.props.updateActiveBaseProps({"name":"phos_manure", "value": manure_value, "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_manure_cat", "value": p_manure_cat, "type":"mang"})
 //                this.props.updateActiveBaseProps({"name":"phos_fert_options", "value": phos_options, "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phos_options[0], "type":"mang"})
+                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phosOpt, "type":"mang"})
 
 //                this.phos_fert_options_holder = ["6","8","9"]
                 this.setState({phos_fert_options_holder:phos_options})
                 this.phos_manure.current.value = manure_value
-                this.phos_fertilizer.current.value = phos_options[0]
-
+                this.phos_fertilizer.current.value = phosOpt
                 console.log(this.phos_fertilizer )
 
             },
@@ -1199,25 +1212,28 @@ renderModal(){
     var pdf = new jsPDF('p', 'pt',"letter" )
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
-        'Phosphorus Loss', 'Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Nitrate Leaching"
+        'Phosphorus Loss', 'P Delivery to Water','Runoff',
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Total Nitrogen Loss to Water", "Soil Conditioning Index"
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "ploss_del":null, "ploss_del_total":null,"ploss_del_per_diff":null,
         "econ":null, "econ_total":null,"econ_per_diff":null,
         "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
         "cn":null,"cn_per_diff":null,
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let base = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "ploss_del":null, "ploss_del_total":null,"ploss_del_per_diff":null,
         "econ":null, "econ_total":null,"econ_per_diff":null,
          "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
 
@@ -1225,11 +1241,13 @@ renderModal(){
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let modelWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "ploss_del":null, "ploss_del_total":null,"ploss_del_per_diff":null,
          "econ":null, "econ_total":null,"econ_per_diff":null,
         "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
 
@@ -1237,11 +1255,13 @@ renderModal(){
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let baseWatershed = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
         "ploss":null, "ploss_total":null,"ploss_per_diff":null,
+        "ploss_del":null, "ploss_del_total":null,"ploss_del_per_diff":null,
          "econ":null, "econ_total":null,"econ_per_diff":null,
       "nitrate":null, "nitrate_total":null,"nitrate_per_diff":null,
 
@@ -1249,47 +1269,54 @@ renderModal(){
         "runoff":null,"runoff_per_diff":null,
         "insect":null,"insect_per_diff":null,
         "bird":null,"bird_per_diff":null,
+        "sci":null,"sci_per_diff":null,
     }
     let areaCalc = 0
     let area = 0
     let areaWatershed = 0
     let areaWatershedCalc = 0
-    let radarData = [[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2]]
+    let radarData = [[1,1,1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2,2,2]]
     let dataRadar = charts.getChartDataRadar(labels, radarData)
     let dataRadarWatershed = charts.getChartDataRadar(labels, radarData)
-    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40,40])
-    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40,40])
+    let dataBarPercent = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40, 40, 40,40,40,40])
+    let dataBarPercentWatershed = charts.getChartDataBarPercent(labels, [0, 59, 80, -81, 56, 55, 40,40, 40,40,40,40])
 
     this.dataYield = charts.getChartDataBar([1,null], [null,5])
     let dataEro= dataBarPercent
     let dataPloss= dataBarPercent
+    let dataPlossDel= dataBarPercent
     let dataRun= dataBarPercent
     let dataInsect= dataBarPercent
     let dataCN = dataBarPercent
     let dataBird = dataBarPercent
     let dataEcon = dataBarPercent
     let dataNitrate = dataBarPercent
+    let dataSCI = dataBarPercent
 
     let dataYieldWatershed = dataBarPercent
     let dataEroWatershed= dataBarPercent
     let dataPlossWatershed= dataBarPercent
+    let dataPlossDelWatershed= dataBarPercent
     let dataRunWatershed= dataBarPercent
     let dataInsectWatershed= dataBarPercent
     let dataCNWatershed = dataBarPercent
     let dataBirdWatershed = dataBarPercent
     let dataEconWatershed = dataBarPercent
     let dataNitrateWatershed = dataBarPercent
+    let dataSCIWatershed = dataBarPercent
 
     let optionsBarPercent = charts.getOptionsBarPercent()
     this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
     let optionsEro = optionsBarPercent
     let optionsPloss = optionsBarPercent
+    let optionsPlossDel = optionsBarPercent
     let optionsRun = optionsBarPercent
     let optionsInsect = optionsBarPercent
     let optionsCN = optionsBarPercent
     let optionsBird= optionsBarPercent
     let optionsEcon= optionsBarPercent
     let optionsNitrate= optionsBarPercent
+    let optionsSCI= optionsBarPercent
     let configErosionGauge = {
       type: "gauge",
       legend: {
@@ -1362,6 +1389,10 @@ renderModal(){
         model.ero_total = this.state.modelOutputs.model.ero.total
         model.ploss = this.state.modelOutputs.model.ploss.total_per_area
         model.ploss_total = this.state.modelOutputs.model.ploss.total
+
+        model.ploss_del = this.state.modelOutputs.model.ploss_water.total_per_area
+        model.ploss_del_total = this.state.modelOutputs.model.ploss_water.total
+
         model.econ = this.state.modelOutputs.model.econ.total_per_area
         model.econ_total = this.state.modelOutputs.model.econ.total
         model.nitrate = this.state.modelOutputs.model.nitrate.total_per_area
@@ -1372,6 +1403,7 @@ renderModal(){
         model.runoff_total = this.state.modelOutputs.model.runoff.total
         model.insect = this.state.modelOutputs.model.insect.total_per_area
         model.bird = this.state.modelOutputs.model.bird.total_per_area
+        model.sci = this.state.modelOutputs.model.sci.total_per_area
 
         base.yield = this.state.modelOutputs.base.yield.total_per_area
         base.yield_total = this.state.modelOutputs.base.yield.total
@@ -1379,6 +1411,8 @@ renderModal(){
         base.ero_total = this.state.modelOutputs.base.ero.total
         base.ploss = this.state.modelOutputs.base.ploss.total_per_area
         base.ploss_total = this.state.modelOutputs.base.ploss.total
+        base.ploss_del = this.state.modelOutputs.base.ploss_water.total_per_area
+        base.ploss_del_total = this.state.modelOutputs.base.ploss_water.total
         base.econ = this.state.modelOutputs.base.econ.total_per_area
         base.econ_total = this.state.modelOutputs.base.econ.total
         base.nitrate = this.state.modelOutputs.base.nitrate.total_per_area
@@ -1389,6 +1423,7 @@ renderModal(){
         base.runoff_total = this.state.modelOutputs.base.runoff.total
         base.insect = this.state.modelOutputs.base.insect.total_per_area
         base.bird = this.state.modelOutputs.base.bird.total_per_area
+        base.sci = this.state.modelOutputs.base.sci.total_per_area
 
 
         modelWatershed.yield = this.state.modelOutputs.model.yield.total_per_area_watershed
@@ -1397,6 +1432,8 @@ renderModal(){
         modelWatershed.ero_total = this.state.modelOutputs.model.ero.total_watershed
         modelWatershed.ploss = this.state.modelOutputs.model.ploss.total_per_area_watershed
         modelWatershed.ploss_total = this.state.modelOutputs.model.ploss.total_watershed
+        modelWatershed.ploss_del = this.state.modelOutputs.model.ploss_water.total_per_area_watershed
+        modelWatershed.ploss_del_total = this.state.modelOutputs.model.ploss_water.total_watershed
         modelWatershed.econ = this.state.modelOutputs.model.econ.total_per_area_watershed
         modelWatershed.econ_total = this.state.modelOutputs.model.econ.total_watershed
         modelWatershed.nitrate = this.state.modelOutputs.model.nitrate.total_per_area_watershed
@@ -1407,6 +1444,7 @@ renderModal(){
         modelWatershed.runoff_total = this.state.modelOutputs.model.runoff.total_watershed
         modelWatershed.insect = this.state.modelOutputs.model.insect.total_per_area_watershed
         modelWatershed.bird = this.state.modelOutputs.model.bird.total_per_area_watershed
+        modelWatershed.sci = this.state.modelOutputs.model.sci.total_per_area_watershed
 
         baseWatershed.yield = this.state.modelOutputs.base.yield.total_per_area_watershed
         baseWatershed.yield_total = this.state.modelOutputs.base.yield.total_watershed
@@ -1414,6 +1452,8 @@ renderModal(){
         baseWatershed.ero_total = this.state.modelOutputs.base.ero.total_watershed
         baseWatershed.ploss = this.state.modelOutputs.base.ploss.total_per_area_watershed
         baseWatershed.ploss_total = this.state.modelOutputs.base.ploss.total_watershed
+        baseWatershed.ploss_del = this.state.modelOutputs.base.ploss_water.total_per_area_watershed
+        baseWatershed.ploss_del_total = this.state.modelOutputs.base.ploss_water.total_watershed
         baseWatershed.econ = this.state.modelOutputs.base.econ.total_per_area_watershed
         baseWatershed.econ_total = this.state.modelOutputs.base.econ.total_watershed
         baseWatershed.nitrate = this.state.modelOutputs.base.nitrate.total_per_area_watershed
@@ -1424,6 +1464,7 @@ renderModal(){
         baseWatershed.runoff_total = this.state.modelOutputs.base.runoff.total_watershed
         baseWatershed.insect = this.state.modelOutputs.base.insect.total_per_area_watershed
         baseWatershed.bird = this.state.modelOutputs.base.bird.total_per_area_watershed
+        baseWatershed.sci = this.state.modelOutputs.base.sci.total_per_area_watershed
 
         area = this.state.modelOutputs.land_stats.area
         areaCalc = this.state.modelOutputs.land_stats.area_calc
@@ -1435,7 +1476,7 @@ renderModal(){
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1446,12 +1487,14 @@ renderModal(){
                   model.yield/base.yield,
                   model.ero/base.ero,
                   model.ploss/base.ploss,
+                  model.ploss_water/base.ploss_water,
                   model.runoff/base.runoff ,
                   model.insect/base.insect,
                   model.cn/base.cn,
                   model.bird/base.bird,
                   model.econ/base.econ,
                   model.nitrate/base.nitrate,
+                  model.sci/base.sci,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1464,7 +1507,7 @@ renderModal(){
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1],
+              data: [1,1,1,1,1,1,1,1,1,1,1],
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -1475,12 +1518,14 @@ renderModal(){
                   modelWatershed.yield/baseWatershed.yield,
                   modelWatershed.ero/baseWatershed.ero,
                   modelWatershed.ploss/baseWatershed.ploss,
+                  modelWatershed.ploss_water/baseWatershed.ploss_water,
                   modelWatershed.runoff/baseWatershed.runoff ,
                   modelWatershed.insect/baseWatershed.insect,
                   modelWatershed.cn/baseWatershed.cn,
                   modelWatershed.bird/baseWatershed.bird,
                   modelWatershed.econ/baseWatershed.econ,
                   modelWatershed.nitrate/baseWatershed.nitrate,
+                  modelWatershed.sci/baseWatershed.sci,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -1491,7 +1536,7 @@ renderModal(){
 
 
 
-        let models = ["yield","ero","ploss","cn","insect","runoff","bird","econ","nitrate" ]
+        let models = ["yield","ero","ploss","ploss_del","cn","insect","runoff","bird","econ","nitrate", "sci"]
         let v1, v2 = 0
         let model_name = ""
 //        calculate percent difference
@@ -1547,12 +1592,14 @@ renderModal(){
                 model.yield_per_diff,
                 model.ero_per_diff,
                 model.ploss_per_diff,
+                model.ploss_del_per_diff,
                 model.runoff_per_diff,
                 model.insect_per_diff,
                 model.cn_per_diff,
                 model.bird_per_diff,
                 model.econ_per_diff,
                 model.nitrate_per_diff,
+                model.sci_per_diff,
 
             ],
             fill: false,
@@ -1566,6 +1613,8 @@ renderModal(){
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
               'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)',
             ],
             borderColor: [
               'rgb(255, 99, 132)',
@@ -1577,6 +1626,8 @@ renderModal(){
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
               'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)',
             ],
             borderWidth: 1
           }]
@@ -1590,12 +1641,14 @@ renderModal(){
                 modelWatershed.yield_per_diff,
                 modelWatershed.ero_per_diff,
                 modelWatershed.ploss_per_diff,
+                modelWatershed.ploss_del_per_diff,
                 modelWatershed.runoff_per_diff,
                 modelWatershed.insect_per_diff,
                 modelWatershed.cn_per_diff,
                 modelWatershed.bird_per_diff,
                 modelWatershed.econ_per_diff,
                 modelWatershed.nitrate_per_diff,
+                modelWatershed.sci_per_diff,
 
             ],
             fill: false,
@@ -1609,6 +1662,8 @@ renderModal(){
               'rgba(136, 34, 85, 0.2)',
               'rgba(153, 153, 51, 0.2)',
               'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)',
 
             ],
             borderColor: [
@@ -1621,6 +1676,8 @@ renderModal(){
               'rgb(136, 34, 85)',
               'rgb(153, 153, 51)',
               'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)',
             ],
             borderWidth: 1
           }]
@@ -1628,32 +1685,38 @@ renderModal(){
         this.dataYield = charts.getChartDataBar([base.yield,null], [null,model.yield])
         dataEro= charts.getChartDataBar([base.ero,null],[ null,model.ero])
         dataPloss= charts.getChartDataBar([base.ploss,null], [null,model.ploss])
+        dataPlossDel= charts.getChartDataBar([base.ploss_del,null], [null,model.ploss_del])
         dataRun= charts.getChartDataBar([base.runoff,null], [null,model.runoff])
         dataInsect= charts.getChartDataBar([base.insect,null], [null,model.insect])
         dataCN = charts.getChartDataBar([base.cn,null], [null,model.cn])
         dataBird = charts.getChartDataBar([base.bird,null], [null,model.bird])
         dataEcon = charts.getChartDataBar([base.econ,null], [null,model.econ])
         dataNitrate = charts.getChartDataBar([base.nitrate,null], [null,model.nitrate])
+        dataSCI = charts.getChartDataBar([base.sci,null], [null,model.sci])
 
         dataYieldWatershed = charts.getChartDataBar([baseWatershed.yield,null], [null,modelWatershed.yield])
         dataEroWatershed= charts.getChartDataBar([baseWatershed.ero,null],[ null,modelWatershed.ero])
         dataPlossWatershed= charts.getChartDataBar([baseWatershed.ploss,null], [null,modelWatershed.ploss])
+        dataPlossDelWatershed= charts.getChartDataBar([baseWatershed.ploss_del,null], [null,modelWatershed.ploss_del])
         dataRunWatershed= charts.getChartDataBar([baseWatershed.runoff,null], [null,modelWatershed.runoff])
         dataInsectWatershed= charts.getChartDataBar([baseWatershed.insect,null], [null,modelWatershed.insect])
         dataCNWatershed = charts.getChartDataBar([baseWatershed.cn,null], [null,modelWatershed.cn])
         dataBirdWatershed = charts.getChartDataBar([baseWatershed.bird,null], [null,modelWatershed.bird])
         dataEconWatershed = charts.getChartDataBar([baseWatershed.econ,null], [null,modelWatershed.econ])
         dataNitrateWatershed = charts.getChartDataBar([baseWatershed.nitrate,null], [null,modelWatershed.nitrate])
+        dataSCIWatershed = charts.getChartDataBar([baseWatershed.sci,null], [null,modelWatershed.sci])
 
         this.optionsYield = charts.getOptionsBar("Yield", "tons-dry matter/acre/year")
         optionsEro = charts.getOptionsBar("Erosion", "tons/acre/year")
         optionsPloss = charts.getOptionsBar("Phosphorus Loss", "lb/acre/year")
+        optionsPlossDel = charts.getOptionsBar("P Delivery to Water", "lb/acre/year")
         optionsRun = charts.getOptionsBar("Runoff (3 inch Storm)", "inches")
         optionsInsect = charts.getOptionsBar("Honey Bee Toxicity", "honey bee toxicity index")
         optionsCN = charts.getOptionsBar("Curve Number", "curve number index")
         optionsBird = charts.getOptionsBar("Bird Friendliness", "bird friendliness index")
         optionsEcon = charts.getOptionsBar("Cost per Ton-Dry Matter", "$/acre/year")
-        optionsNitrate = charts.getOptionsBar("Nitrate Leaching", "lb/acre/year")
+        optionsNitrate = charts.getOptionsBar("Total Nitrogen Loss to Water", "lb/acre/year")
+        optionsSCI = charts.getOptionsBar("Soil Conditioning Index", "sci")
         configErosionGauge = {
   type: "gauge",
   'scale-r': {
@@ -1743,6 +1806,15 @@ renderModal(){
                         <Bar options = {optionsNitrate} data={dataNitrate}/>
                     </Col>
                     <Col xs={6}>
+                        <Bar options = {optionsSCI} data={dataSCI}/>
+                    </Col>
+
+                </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsPlossDel} data={dataPlossDel}/>
+                    </Col>
+                    <Col xs={6}>
                     </Col>
 
                 </Row>
@@ -1783,6 +1855,14 @@ renderModal(){
                 <Row>
                     <Col xs={6}>
                         <Bar options = {optionsNitrate} data={dataNitrateWatershed}/>
+                    </Col>
+                    <Col xs={6}>
+                        <Bar options = {optionsSCI} data={dataSCIWatershed}/>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col xs={6}>
+                        <Bar options = {optionsPlossDel} data={dataPlossDelWatershed}/>
                     </Col>
                     <Col xs={6}>
                     </Col>
@@ -1866,7 +1946,7 @@ renderModal(){
                       <td></td>
                     </tr>
                      <tr>
-                      <td>Nitrate Leaching</td>
+                      <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{base.nitrate}</td>
                       <td>{model.nitrate}</td>
                       <td>lb/acre/year</td>
@@ -1874,6 +1954,17 @@ renderModal(){
                       <td>{model.nitrate_total}</td>
                       <td>lb/year</td>
                       <td className="table-cell-left">{model.nitrate_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Soil Conditioning Index</td>
+                      <td className="table-cell-left">{base.sci}</td>
+                      <td>{model.sci}</td>
+                      <td>sci</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{model.sci_per_diff}</td>
                       <td></td>
                     </tr>
                    <tr>
@@ -1929,6 +2020,17 @@ renderModal(){
                       <td>{model.econ_total}</td>
                       <td>$/year</td>
                       <td className="table-cell-left">{model.econ_per_diff}</td>
+                      <td></td>
+                    </tr>
+                     <tr>
+                      <td>P Delivery to Water</td>
+                      <td className="table-cell-left">{base.ploss_del}</td>
+                      <td>{model.ploss_del}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{base.ploss_del_total}</td>
+                      <td>{model.ploss_del_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{model.ploss_del_per_diff}</td>
                       <td></td>
                     </tr>
                   </tbody>
@@ -1990,7 +2092,7 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
-                      <td>Nitrate Leaching</td>
+                      <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{baseWatershed.nitrate}</td>
                       <td>{modelWatershed.nitrate}</td>
                       <td>lb/acre/year</td>
@@ -2000,7 +2102,18 @@ renderModal(){
                       <td className="table-cell-left">{modelWatershed.nitrate_per_diff}</td>
                       <td></td>
                     </tr>
-                   <tr>
+                    <tr>
+                      <td>Soil Conditioning Index</td>
+                      <td className="table-cell-left">{baseWatershed.sci}</td>
+                      <td>{modelWatershed.sci}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.sci_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
                       <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {baseWatershed.runoff}</td>
                       <td>{modelWatershed.runoff}</td>
@@ -2056,6 +2169,17 @@ renderModal(){
                       <td className="table-cell-left">{modelWatershed.econ_per_diff}</td>
                       <td></td>
                     </tr>
+                    <tr>
+                      <td>P Delivery to Water</td>
+                      <td className="table-cell-left">{baseWatershed.ploss_del}</td>
+                      <td>{modelWatershed.ploss_del}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.ploss_del_total}</td>
+                      <td>{modelWatershed.ploss_del_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{modelWatershed.ploss_del_per_diff}</td>
+                      <td></td>
+                    </tr>
                   </tbody>
                 </Table>
               </Tab>
@@ -2085,6 +2209,8 @@ renderModal(){
                 <Bar id = "selChart7" options = {optionsBird} data={dataBird}/>
                 <Bar id = "selChart8" options = {optionsEcon} data={dataEcon}/>
                 <Bar id = "selChart8" options = {optionsNitrate} data={dataNitrate}/>
+                <Bar id = "selChart9" options = {optionsSCI} data={dataSCI}/>
+                <Bar id = "selChart9" options = {optionsPlossDel} data={dataPlossDel}/>
 
                 <Bar id = "watChart1" options = {this.optionsYield} data={dataYieldWatershed}/>
                 <Bar id = "watChart2" options = {optionsEro} data={dataEroWatershed}/>
@@ -2095,6 +2221,8 @@ renderModal(){
                 <Bar id = "watChart7" options = {optionsBird} data={dataBirdWatershed}/>
                 <Bar id = "watChart8" options = {optionsEcon} data={dataEconWatershed}/>
                 <Bar id = "watChart8" options = {optionsNitrate} data={dataNitrateWatershed}/>
+                <Bar id = "watChart8" options = {optionsSCI} data={dataSCIWatershed}/>
+                <Bar id = "watChart8" options = {optionsPlossDel} data={dataPlossDelWatershed}/>
 
                 <Radar id = "comChart1" data={dataRadar}/>
                 <Bar id = "comChart2" options = {optionsBarPercent} data={dataBarPercent}/>
@@ -2487,8 +2615,8 @@ renderModal(){
                      <Stack gap={3}>
                      {/*
 
-                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      */}
+                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
@@ -2608,7 +2736,7 @@ renderModal(){
 
                     <OverlayTrigger key="top3" placement="top"
                             overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
                     </OverlayTrigger>
                     <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
 

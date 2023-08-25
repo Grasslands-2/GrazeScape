@@ -12,12 +12,10 @@ cimport cython
 def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
                                                   numpy.ndarray[numpy.float32_t, ndim=2] selection, int padding_size,
                                                  numpy.ndarray[numpy.float32_t, ndim=2] selected_landuse,int num_tr ans):
-    print("starting window")
     results_holder = []
     cdef int count
     for count in range(num_trans + 1):
         results_holder.append(0)
-    print(results_holder)
     window_size = padding_size * 2 + 1
     no_data = -9999
     total_window_cells = window_size * window_size
@@ -96,18 +94,5 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
                         results_holder[land_code] = results_holder[land_code] + arr_index[iy, ix]
                     else:
                         index_sum = index_sum + inner3 / 0.67
-                    # print(arr_index[iy, ix])
-                    # print("######")
 
-    # print(arr_ag)
-    # print("########")
-    # print(arr_grass)
-    # print("########")
-    # print(arr_9999)
-    # print(arr_index)
-    # print(index_sum/index_count)
-    # print("done with bird")
-    print("results new ", results_holder)
-    print("results old ", index_sum)
-    print(index_count)
     return [index_sum,results_holder]

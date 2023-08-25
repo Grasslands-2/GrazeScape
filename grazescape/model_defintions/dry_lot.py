@@ -98,7 +98,7 @@ class DryLot(ModelBase):
         self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
         # self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NmodelInputs_final.csv")
         self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
-        self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
+        # self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
         # original units are in  [bushels/acre x 10]0
         # (to keep values in integer)
         # self.units = "Dry Mass tons/ac"

@@ -606,6 +606,16 @@ class OLMapFragment extends React.Component {
             }),
             style: this.stylesBoundary,
         });
+        this.redCedar = new VectorLayer({
+            renderMode: 'image',
+            name: "redCedar",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/redCedarWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
         // base map
         this.layers = [
             new TileLayer({
@@ -619,9 +629,10 @@ class OLMapFragment extends React.Component {
             }),
 
             this.cloverBelt,
-//            this.northEast,
+            this.northEast,
             this.southWest,
-//            this.uplands,
+            this.uplands,
+            this.redCedar,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
@@ -682,11 +693,13 @@ class OLMapFragment extends React.Component {
 //               if (layer.get('name') == "aoi"){
 //                    return false
 //                }
+                console.log("selecting layer", layer.get('name'))
                 if (layer.get('name') == "subHuc12" || layer.get('name') == "huc10" ||
                     layer.get('name') == "huc12"||
                     layer.get('name') == "southWest"||
                     layer.get('name') == "cloverBelt"||
                     layer.get('name') == "northEast"||
+                    layer.get('name') == "redCedar"||
                     layer.get('name') == "Driftless"){
                     return true
                 }
@@ -730,11 +743,13 @@ class OLMapFragment extends React.Component {
             let area = 0
 //            console.log(f.target.item(0).getGeometry())
 //          selecting by county
-            console.log(f.target)
+            console.log("getting target", f.target)
+            console.log('f.target.item(0)', f.target.item(0))
+            console.log('f.target.item(0).get("NAME")', f.target.item(0).get("NAME"))
             if(f.target.item(0).get("NAME") != undefined){
                 console.log("selecting a county!!!!!")
                 var extent = f.target.item(0).getGeometry().getExtent()
-                console.log(extent)
+//                console.log(extent)
                 extent = this.add10PerExtent(extent)
                 console.log(extent)
 
@@ -750,6 +765,9 @@ class OLMapFragment extends React.Component {
                 }
                 else if (f.target.item(0).get("NAME") == "Grant"){
                     region = "uplandsWI"
+                }
+                else if (f.target.item(0).get("NAME") == "Barron"){
+                    region = "redCedarWI"
                 }
                 this.setActiveRegion(region)
 

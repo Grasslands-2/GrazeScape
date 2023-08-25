@@ -126,10 +126,15 @@ class TransformationTable extends Component {
     this.phos_fert_options_holder = []
   }
   componentDidUpdate(prevProps) {
-        console.log("old values", prevProps)
-        console.log("new values", this.props)
+    console.log("old values", prevProps)
+    console.log("new values", this.props)
     if(prevProps.activeTrans.management.nitrogen != this.props.activeTrans.management.nitrogen){
+        if (prevProps.aoiFolderId == null){
+            return
+        }
         console.log("Nitrogen has changed, calculate new P")
+        console.log("Nitrogen has changed, calculate new P", prevProps.activeTrans.management.nitrogen)
+        console.log("Nitrogen has changed, calculate new P", this.props.activeTrans.management.nitrogen)
         this.getPhosValues()
     }
 
@@ -202,7 +207,7 @@ class TransformationTable extends Component {
                 showTillageNT:true,
                 showTillageSU:true,
             })
-            if (rot == "dairyRotation"){
+            if (rot == "dairyRotation" || rot == "cornSoyOat"){
                 this.setState({
                     showTillageSC:true
                 })
@@ -317,6 +322,10 @@ class TransformationTable extends Component {
                     nitrogen_fert = "100"
                     break;
                 case "dairyRotation":
+                   nitrogen = "100"
+                   nitrogen_fert = "25"
+                   break;
+                case "cornSoyOat":
                    nitrogen = "100"
                    nitrogen_fert = "25"
                    break;
@@ -443,13 +452,28 @@ class TransformationTable extends Component {
                     list[item].management.phos_manure = manure_value
 
                     list[item].management.phos_fert_options = phos_options
-                    list[item].management.phos_fertilizer = phos_options[0]
+                    let phosOpt = phos_options[0]
+                    console.log("phosOpt")
+                    console.log(phosOpt)
+                    console.log(list[item].management.phos_fertilizer)
+
+                    console.log(parseInt(list[item].management.phos_fertilizer))
+                    console.log(phos_options.includes(parseInt(list[item].management.phos_fertilizer)))
+
+                    if (phos_options.includes(parseInt(list[item].management.phos_fertilizer))){
+                            console.log("phos was a match")
+                            phosOpt = list[item].management.phos_fertilizer
+                    }
+                     console.log("after if check", phosOpt)
+
+                    list[item].management.phos_fertilizer = phosOpt
 //                    if (this.props.activeTrans.id == item.id){
 //                  update active trans with new phos options
                     if (this.props.activeTrans.id == transId){
                         this.phos_fert_options_holder = phos_options
                         this.phos_manure.current.value = manure_value
-                        this.phos_fertilizer.current.value = phos_options[0]
+                        this.phos_fertilizer.current.value = phosOpt
+//                        list[item].management.phos_fertilizer = phosOpt
                     }
                 }
                  this.props.updateTransList(list);
@@ -531,6 +555,7 @@ class TransformationTable extends Component {
                       <option value="contCorn">Continuous Corn</option>
                       <option value="cornGrain">Cash Grain</option>
                       <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa 3 yrs)</option>
+                      <option value="cornSoyOat">Dairy Rotation II (Corn Silage to Soy Beans to Oats)</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
 
@@ -629,7 +654,7 @@ class TransformationTable extends Component {
 
                      <OverlayTrigger key="top3" placement="top"
                             overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
                     </OverlayTrigger>
                     <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
 

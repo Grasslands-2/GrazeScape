@@ -10,9 +10,9 @@ from shapely.geometry import Polygon
 
 class PhosphorousLoss(ModelBase):
     def __init__(self, request, active_region, file_name=None):
-        super().__init__(request,active_region, file_name)
+        super().__init__(request, active_region, file_name)
 
-    def run_model(self, active_region, manure_results, ero):
+    def run_model(self, manure_results, ero, placeholder):
         r = R(RCMD=self.r_file_path, use_pandas=True)
         pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
 
@@ -30,7 +30,7 @@ class PhosphorousLoss(ModelBase):
         total_depth = self.raster_inputs["total_depth"].flatten()
 
         r.assign("slope_length", slope_length)
-        r.assign("k", k)
+
         r.assign("total_depth", total_depth)
         r.assign("ls", ls)
         r.assign("slope", slope)
@@ -42,7 +42,6 @@ class PhosphorousLoss(ModelBase):
         r.assign("ph", ph)
         r.assign("awc", awc)
         r.assign("total_depth", total_depth)
-        r.assign("slope", slope)
         r.assign("slope_length", slope_length)
         r.assign("sand", sand)
         r.assign("silt", silt)
@@ -66,7 +65,7 @@ class PhosphorousLoss(ModelBase):
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
 
-        r.assign("erosion", ero)
+        r.assign("erosion", ero.data)
         ContCornTidyploss = "cc_ploss_"
         cornGrainTidyploss = "cg_ploss_"
         cornSoyOatTidyploss = "cso_ploss_"
@@ -74,14 +73,18 @@ class PhosphorousLoss(ModelBase):
         pastureSeedingTidyploss = "ps_ploss_"
         pastureTidyploss = "pt_ploss_"
         dryLotTidyploss = "dl_ploss_"
-        regionRDS = active_region + '.rds'
-        r.assign("cc_pi_file", os.path.join(self.model_file_path2, ContCornTidyploss + regionRDS))
-        r.assign("cg_pi_file", os.path.join(self.model_file_path2, cornGrainTidyploss + regionRDS))
-        r.assign("cso_pi_file", os.path.join(self.model_file_path2, cornSoyOatTidyploss + regionRDS))
-        r.assign("dr_pi_file", os.path.join(self.model_file_path2, dairyRotationTidyploss + regionRDS))
-        r.assign("ps_pi_file", os.path.join(self.model_file_path2, pastureSeedingTidyploss + regionRDS))
-        r.assign("pt_pi_file", os.path.join(self.model_file_path2, pastureTidyploss + regionRDS))
-        r.assign("dl_pi_file", os.path.join(self.model_file_path2, dryLotTidyploss + regionRDS))
+        regionRDS = self.active_region + '.rds'
+        print("pt_pi_file model file!!!", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
+
+        r.assign("cc_pi_file", os.path.join(self.model_file_path, ContCornTidyploss + regionRDS))
+        r.assign("cg_pi_file", os.path.join(self.model_file_path, cornGrainTidyploss + regionRDS))
+        r.assign("cso_pi_file", os.path.join(self.model_file_path, cornSoyOatTidyploss + regionRDS))
+        r.assign("dr_pi_file", os.path.join(self.model_file_path, dairyRotationTidyploss + regionRDS))
+        r.assign("ps_pi_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
+        r.assign("pt_pi_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
+        r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
+        print("ploss #####", self.scenario_id)
+        r.assign("scen_id", self.scenario_id)
         print(r(f"""
 
                     library(tidyverse)
@@ -167,7 +170,7 @@ class PhosphorousLoss(ModelBase):
 
                       pred_df <- df %>%
                         filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
-
+                        
                       pi <- round(predict(cg_pi, pred_df),2)
 
                     }} else if (full_df$crop == "cso") {{
@@ -252,7 +255,7 @@ class PhosphorousLoss(ModelBase):
                         slice(rep(1:n(), each=nrow(level_df)))
 
                       df <- cbind(level_df, df) 
-
+                        
                       if(full_df$rotational == "rt"){{
                         pred_df <- df %>%
                           filter(rotational == full_df$rotational, density == "rt")
@@ -284,15 +287,19 @@ class PhosphorousLoss(ModelBase):
 
                     }}
 
-
+                    print("ploss !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print(scen_id)
+                    pred_df_na_omit <- na_if(pred_df, -9999)
+                    print(pred_df_na_omit)
+                    print(summary(pred_df_na_omit))
 
 
                 """))
 
         ploss = r.get("pi").to_numpy()
+        ploss = ploss.flatten()
         print("ploss", ploss)
         ploss = np.where(ploss < 0.01, .01, ploss)
         pl.set_data(ploss)
         return [pl]
-
 

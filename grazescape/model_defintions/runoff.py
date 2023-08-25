@@ -26,7 +26,7 @@ class Runoff(ModelBase):
         }
         return hyro_dic[group_num]
 
-    def run_model(self, active_region, manure_results):
+    def run_model(self, manure_results):
         print("start runoff")
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
@@ -63,7 +63,7 @@ class Runoff(ModelBase):
         pastureTidyffcn = "pt_ffcn_"
         dryLotTidyffcn = "dl_ffcn_"
 
-        regionRDS = active_region + '.rds'
+        regionRDS = self.active_region + '.rds'
 
         r.assign("slope", slope)
         r.assign("slope_length", slope_length)
@@ -91,13 +91,13 @@ class Runoff(ModelBase):
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
 
-        r.assign("cc_erosion_file", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
-        r.assign("cg_erosion_file", os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
-        r.assign("cso_erosion_file", os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
-        r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
-        r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
-        r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
-        r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
+        # r.assign("cc_erosion_file", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
+        # r.assign("cg_erosion_file", os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
+        # r.assign("cso_erosion_file", os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
+        # r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
+        # r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
+        # r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
+        # r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
 
         r.assign("cc_cn_file", os.path.join(self.model_file_path, ContCornTidyffcn + regionRDS))
         r.assign("cg_cn_file", os.path.join(self.model_file_path, cornGrainTidyffcn + regionRDS))

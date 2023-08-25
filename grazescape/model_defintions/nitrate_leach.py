@@ -1,256 +1,420 @@
-from abc import ABC
-import os
-import sys
-import csv
-sys.path.append('/grazescape/model_defintions')
-from osgeo import gdal
-from osgeo import gdalconst as gc
-from osgeo import ogr
-import matplotlib.pyplot as plt
-import requests
-import numpy as np
 import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Polygon
-from django.conf import settings
-from pyper import R
-from django.conf import settings
-
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import *
 import numpy as np
-import math
 
-    #you need to cycle through each crop from each 
+
+# you need to cycle through each crop from each
+def getOMText(omraw, text_needed):
+    if omraw <= 2:
+        OM_denitloss = '<2'
+        OM_fertrecs = '<2'
+    elif 2 < omraw <= 10:
+        OM_denitloss = '2-5.0'
+        OM_fertrecs = '2-9.9'
+    elif 10 < omraw:
+        OM_denitloss = '>5'
+        OM_fertrecs = '10-20.0'
+    # return [OM_denitloss,OM_fertrecs]
+    if text_needed == "denitr":
+        return OM_denitloss
+    else:
+        return OM_fertrecs
+
+
+def getAnimaleDensity(animal_density):
+    if animal_density == 'lo':
+        return 'lo'
+    else:
+        return 'hi'
+
+
+def getLegumeTest(legume):
+    if legume == 'true':
+        return "lg"
+    else:
+        return "nl"
+
+
+def getRotText(crop, legume_text, animal_density_text):
+    if crop == 'pt-rt':
+        return 'pt_rt' + '_' + legume_text
+    elif crop == 'pt-cn':
+        return 'pt_cn' + '_' + animal_density_text + '_' + legume_text
+    elif crop == 'dl':
+        return crop + '_' + legume_text
+    else:
+        return crop
+
+
+def getRotYers(crop):
+
+    if crop == 'pt':
+        rot_yrs = 1
+        rot_yrs_crop = ['pt_rt']
+    if crop == 'pt-rt':
+        rot_yrs = 1
+        rot_yrs_crop = ['pt_rt']
+    if crop == 'pt-cn':
+        rot_yrs = 1
+        rot_yrs_crop = ['pt_cn']
+    if crop == 'cc':
+        rot_yrs = 1
+        rot_yrs_crop = ['cn']
+    if crop == 'cg':
+        rot_yrs = 2
+        rot_yrs_crop = ['cn', 'sb']
+    if crop == 'cso':
+        rot_yrs = 3
+        rot_yrs_crop = ['cs', 'sb', 'ot']
+    if crop == 'dr':
+        rot_yrs = 5
+        rot_yrs_crop = ['cs', 'cn', 'as', 'af', 'af']
+    if crop == 'dl':
+        rot_yrs = 1
+        rot_yrs_crop = ['dl']
+
+    return [rot_yrs, rot_yrs_crop]
+
+
+def get_region_precip(active_region):
+    if active_region == 'cloverBeltWI':
+        return 38
+    elif active_region == 'southWestWI':
+        return 44
+    elif active_region == 'uplandsWI':
+        return 43
+    elif active_region == 'northeastWI':
+        return 35
+    elif active_region == 'redCedarWI':
+        return 39
+    elif active_region == 'pineRiverMN':
+        return 39
+
 
 class NitrateLeeching(ModelBase):
-    def __init__(self, request, file_name=None):
-        super().__init__(request, file_name)
-        print('NITRATE LEECHING INIT!!!!!!')
-        self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NitrogenFertRecs_zjh_edits.csv")
-        self.denitLoss = pd.read_csv(r"grazescape\model_defintions\denitr.csv")
-        self.Nvars = pd.read_csv(r"grazescape\model_defintions\Nvars.csv")
-        print('NITRATE Tables read in!!!!!!')
+    def __init__(self, request, active_region, file_name=None):
+        super().__init__(request, active_region, file_name)
+        # self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NitrogenFertRecs_zjh_edits.csv")
+        # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
+        self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
         # original units are in  [bushels/acre x 10]
         # (to keep values in integer)
         # self.units = "Dry Mass tons/ac"
         # list of CropYieldDataNode
-        #self.crop_list = []
-    def getOMText(self,omraw,text_needed):
-        print(omraw)
-        
-        if omraw <= 2:
-            OM_denitloss = '<2'
-            OM_fertrecs = '<2'
-        elif omraw > 2 and omraw < 5:
-            OM_denitloss = '2-5.0'
-            OM_fertrecs = '2-9.9'
-        elif omraw > 5 and omraw < 10:
-            OM_denitloss = '>5'
-            OM_fertrecs = '2-9.9'
-        elif omraw > 10 and omraw < 20:
-            OM_denitloss = '>5'
-            OM_fertrecs = '10-20.0'
-        #return [OM_denitloss,OM_fertrecs]
-        if text_needed == "denitr":
-            return OM_denitloss
-        else: return OM_fertrecs
-    def getAnimaleDensity(self,animal_density):
-        if animal_density == 'lo':
-            return 'lo'
+        # self.crop_list = []
+
+    @staticmethod
+    def calculate_denitloss(om_average, drain_response_average):
+        drain_round = drain_response_average
+        if drain_round > 7:
+            drain_round = 7
+        if drain_round < 1:
+            drain_round = 1
+        if om_average < 2:
+            drain_dict = {1: 3, 2: 9, 3: 20, 4: 3, 5: 13, 6: 20, 7: 6}
+        elif 2 <= om_average <= 5:
+            drain_dict = {1: 6, 2: 13, 3: 30, 4: 6, 5: 17.5, 6: 30, 7: 10}
         else:
-            return 'hi'
-    def getLegumeTest(self,legume):
-        if legume == 'true':
-            return "lg"
-        else: 
-            return "nl"
-    def getRotText(self,crop,legume_text,animal_density_text):
-        print("in getRotText")
-        print(crop)
-        if crop == 'pt-rt':
-            return crop + '_'+ legume_text
-        elif crop == 'pt-cn':
-            return crop + '_'+ animal_density_text + '_'+legume_text
-        elif crop == 'dl':
-            return crop + '_' + legume_text
-        else:
-            print("getRotText else hit")
-            return str(crop)
-    def getRotYers(self,crop):
-        print("in getRotYers")
-        if crop == 'pt-rt':
-            rot_yrs = 1
-            rot_yrs_crop = ['pt_rt']
-        if crop == 'pt-cn':
-            rot_yrs = 1
-            rot_yrs_crop = ['pt_cn']
-        if crop == 'cc':
-            rot_yrs = 1
-            rot_yrs_crop = ['cc']
-        if crop == 'cg':
-            rot_yrs = 2
-            rot_yrs_crop = ['cn','sb']
-        if crop == 'cso':
-            rot_yrs = 3
-            rot_yrs_crop = ['cs','sb','ot']
-        if crop == 'dr':
-            rot_yrs = 5
-            rot_yrs_crop = ['cs','cc','af','af','af']
-        return [rot_yrs,rot_yrs_crop]
-    def getNFertRecs(self,rot_yrs_crop,crop,legume_text,animal_density_text,fertNrec,om_text,nResponse_raw):
-        print("in getNFertRecs")
-        nrecValue_array = []
-        RotationAbbr = self.getRotText(crop,legume_text,animal_density_text)
-        print("RotationAbbr: "+RotationAbbr)
-        NFertRecs_RotationAbbr = self.fertNrec[self.fertNrec["RotationAbbr"] == RotationAbbr]
-        print(NFertRecs_RotationAbbr)
-        for i in rot_yrs_crop:
-            print("in the rot years crop loop")
-            print("rot_yrs_crop[i]: "+ i)
-            
-            CropAbbr = ''
-            rasterLookUp = ''
-            print("in raster look")
-            if i == 'pt_rt':
-                CropAbbr = i + '_' + legume_text
-                rasterLookUp = 'om'
-                rasterVal = om_text
-            elif i == 'pt_cn':
-                CropAbbr = i + '_' + animal_density_text + '_' + legume_text
-                rasterLookUp = 'om'
-                rasterVal = om_text
-            elif i == 'dl':
-                CropAbbr = i + '_' + animal_density_text
-                rasterLookUp = 'nResponse'
-                rasterVal = nResponse_raw
+            drain_dict = {1: 8, 2: 17.5, 3: 40, 4: 8, 5: 25, 6: 40, 7: 13}
+        return drain_dict[drain_round]
+
+    def run_model(self, manure_results, ero, yield_result):
+        nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)",
+                                 "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)")
+        nitrate_water = OutputDataNode("nwater", "Total Nitrogen Loss To Water (lb/ac/yr)",
+                                       "Total Nitrogen Loss To Water (lb/yr)",
+                                       "Total Nitrogen Loss To Water (lb/ac/yr)",
+                                       "Total Nitrogen Loss To Water (lb/yr)")
+        yield_dic = {}
+        for res in yield_result:
+            if res.model_type == "Corn Grain":
+                yield_dic["cn"] = res
+            elif res.model_type == "Soy":
+                yield_dic["sb"] = res
+            elif res.model_type == "Corn Silage":
+                yield_dic["cs"] = res
+            elif res.model_type == "Alfalfa":
+                yield_dic["af"] = res
+            elif res.model_type == "Oats":
+                yield_dic["ot"] = res
+            elif res.model_type == "Grass":
+                yield_dic["pt"] = res
+            elif res.model_type == "Dry Lot":
+                yield_dic["dl"] = res
             else:
-                print("in raster look up else")
-                CropAbbr = i
-                print(CropAbbr)
-                if i == 'ot' or i == 'as':
-                    rasterLookUp = 'om'
-                    rasterVal = om_text
-                else: 
-                    rasterLookUp = 'nResponse'
-                    rasterVal = str(nResponse_raw)
-
-            #You need to account for rotation, since the legumes and especially SOY can effect the Nrec results
-            #Of other crops for that year.
-            
-            NFertRecs_CropAbbr = NFertRecs_RotationAbbr[NFertRecs_RotationAbbr["CropAbbr"] == str(CropAbbr)]
-            print(NFertRecs_CropAbbr)
-            NFertRecs_RasterLookup = NFertRecs_CropAbbr[NFertRecs_CropAbbr["rasterLookup"] == rasterLookUp]
-            print(NFertRecs_RasterLookup)
-            print(rasterVal)
-            NFertRecs_Row = pd.concat([NFertRecs_RasterLookup[NFertRecs_RasterLookup["rasterVals"] == rasterVal]])
-            #NFertRecs_Row = NFertRecs_RasterLookup[NFertRecs_RasterLookup["rasterVals"]== rasterVal]
-            print(NFertRecs_Row)
-            nrecValue = str(NFertRecs_Row["Nrec"].values[0])
-            print(nrecValue)
-            nrecValue_array.append(str(NFertRecs_Row["Nrec"].values[0]))
-            print(nrecValue_array)
-        return (nrecValue_array)
-    def run_model(self,):
-        
-        print('NITRATE LEECHING MODEL PARAS!!!!!!')
-        print(self.model_parameters)
-        #print(erodatanm)
-        # user defined variables
+                pass
+        return_data = [nitrate, nitrate_water]
         crop_ro = self.model_parameters["crop"]
-        rot_yrs = 0
-        rot_yrs_crop = []
-        
-        rot_yrs = self.getRotYers(crop_ro)[0]
-        rot_yrs_crop = self.getRotYers(crop_ro)[1]
-        print("rot_yrs: ")
-        print(rot_yrs)
-        print("rot_yrs_crop: ")
-        print(rot_yrs_crop)
-        legume = self.model_parameters["legume"]
-        legume_text = self.getLegumeTest(legume)
+        # initial storage for crop data
+        rot_yrs_crop = getRotYers(crop_ro)[1]
+        # legume = self.model_parameters["legume"]
+        # legume_text = getLegumeTest(legume)
 
-        animal_density = self.model_parameters["density"]
-        animal_density_text = self.getAnimaleDensity(animal_density)
+        # animal_density = self.model_parameters["density"]
+        # animal_density_text = getAnimaleDensity(animal_density)
+        # cover_crop = self.model_parameters["crop_cover"]
+        PctFertN = float(self.model_parameters["fert_n_perc"]) / 100
+        PctManrN = float(self.model_parameters["manure_n_perc"]) / 100
+        # Pneeds = self.model_parameters["p_need"]
+        precip = get_region_precip(self.active_region)
+        precN = 0.5 * precip * 0.226  ## precipitation N inputs in lb/ac
+        dryN = precN  ## assume dry deposition is equal to precipitation, lb/ac
 
-        cover_crop = self.model_parameters["crop_cover"]
-        PctFertN = self.model_parameters["fert_n_perc"]
-        PctManrN = self.model_parameters["manure_n_perc"]
-        Pneeds = self.model_parameters["p_need"]
-        # raster defined variables
-        om_raster = self.raster_inputs["om"].flatten()
-        drain_class = self.raster_inputs["drain_class"].flatten()
-        Nresponse = self.raster_inputs["Nresponse"].flatten()
-        #place holder for raster gathered value
-        om_raw = 1
-        
-        #place holder for raster gathered value
-        
-        drain_class_raw = 1
+        drain_class_flattened = self.raster_inputs["drain_class"].flatten()
 
-        #place holder for raster gathered value
-        nResponse_raw = 1
-        
-        #Model result defined variables
-        #erosion = self.erodatmn[0]
-        print("ERO datanm[y][x] In nitrate model")
-        print("")
-        for y in range(0, self.bounds["y"]):
-            for x in range(0, self.bounds["x"]):
-                # [bushels/acre x 10] original units
-                #print(self.raster_inputs["om"][y][x] / 10)
-                #print(self.raster_inputs["drain_class"][y][x])
-                #print(self.raster_inputs["Nresponse"][y][x])
-                #print(erodatanm[y][x])
-                print(x)
-                print(y)
+        # getRotText_Value = getRotText(crop_ro, legume_text, animal_density_text)
 
-        
-        #fetched variables from csvs
-        #self.fertNrec = pd.read_csv(r"grazescape\model_defintions\NitrogenFertRecs_zjh_edits.csv")
-        
-        fertNrec_Values_Array = self.getNFertRecs(rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,self.getOMText(om_raw,"Nrec"),nResponse_raw)
-        # for i in range(0, rot_yrs-1):
-        #     fertNrec_Value = self.getNFertRecs(i,rot_yrs_crop,crop_ro,legume_text,animal_density_text,self.fertNrec,self.getOMText(om_raw,"Nrec"),nResponse_raw)
-        #     print("in for loop through rot_yrs")
-        #     print(i)  
-        #     print("Nrec VALUE: " + fertNrec_Value)
-        print(fertNrec_Values_Array)
-        #used for denitloss
-        print("start denitlossDC read")
-        #print(self.denitLoss)
-        OM_texts_denit = self.getOMText(om_raw,"denitr")
-        denitlossDC = self.denitLoss[self.denitLoss["DrainClass_num"] == drain_class_raw]
-        print(denitlossDC)
-        Denitr_Row = pd.concat([denitlossDC[denitlossDC["OM"] == OM_texts_denit]])
-        #Denitr_Row = denitlossDC[denitlossDC["OM"] == OM_texts]
-        print(Denitr_Row)
-        #Denitr_Value = eval(Denitr_Row["Denitr"])
-        print(Denitr_Row["Denitr"][0])
-        Denitr_Value = Denitr_Row["Denitr"][0]
-        #Denitr_Value = (eval(Denitr_Row["Denitr"][1]))
-        print("DENITR VALUE: " + str(Denitr_Value))
-        
-        #used for NfixPct and NH3loss
-        for i in range(0, rot_yrs-1):
-            NvarsRot = self.Nvars[self.Nvars['RotationAbbr'] == self.getRotText(crop_ro,legume_text,animal_density_text)]
-            NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
-            #Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == rot_yrs_crop[i]]])
-            Nvars_Row = pd.concat([NvarsCover[NvarsCover["CropAbbr"] == rot_yrs_crop[i]]])
-            NfixPct = str(Nvars_Row["NfixPct"].values[0])
-            NH3loss = str(Nvars_Row["NH3loss"].values[0])
-            Nharv_content = str(Nvars_Row["Nharv_content"].values[0])
-            grazed_manureN = str(Nvars_Row["grazedManureN"].values[0])
-            print("NfixPct VALUE: " + NfixPct)
-            print("NH3loss VALUE: " + NH3loss)
-            print("Nharv_content VALUE: " + Nharv_content)
-            print("grazed_manureN VALUE: " + grazed_manureN)
-        #NfixPct # (Nvars.csv)
-        #NH3loss # (Nvars.csv)
-        #Nharv_content # (Nvars.csv)
-        #grazed_manureN # (Ninputs tab)
-#fish out the variables from the tables by filtering with the the variables from the model paras
+        leached_N_Total = 0
+        n_loss_h20 = 0
 
-        #variable calcs
-        return "Nitrate Ran"
-        
+        # [bushels/acre x 10] original units
+        # corn_yield_raw = flat_corn / 10
+        # soy_yield_raw = flat_soy / 10
+        om = float(self.model_parameters["om"])
+        ero = ero.data
+        ero = np.where(drain_class_flattened != self.no_data, ero, 0)
+        cell_count = np.count_nonzero(drain_class_flattened != self.no_data)
+
+        erosN = np.sum(ero / cell_count) * om * 2
+
+        calculate_denitloss_vector = np.vectorize(self.calculate_denitloss)
+        Calc_N_Leach_Vector = np.vectorize(self.Calc_N_Leach)
+        Denitr_Value = np.where(drain_class_flattened != self.no_data,
+                                calculate_denitloss_vector(om, drain_class_flattened), drain_class_flattened)
+        # NvarsRot = self.Nvars[self.Nvars['RotationAbbr'] == getRotText_Value]
+        # NvarsCover = NvarsRot[NvarsRot["cover"] == cover_crop]
+        # Nvar variabels can be collected on a crop year basis not by cell.
+        # corn_yield = corn_yield_raw
+        # corn_yield_tonDMac = corn_yield_raw * 56 * (1 - 0.155) / 2000
+        #
+        # soy_yield = soy_yield_raw
+        # soy_yield_tonDMac = soy_yield * 60 * 0.792 * 0.9008 / 2000
+        # TODO this section can be collapsed further
+        # cont corn
+        if crop_ro == "cc":
+            # corn_yield = corn_yield_raw
+            # corn_yield_tonDMac = corn_yield * 56 * (1 - 0.155) / 2000
+            # rotation_avg_tonDMac = corn_yield_tonDMac
+            for i in rot_yrs_crop:
+                yield_crop_data = yield_dic[i].alternate_data
+                print("rotating through", i)
+                fertN = PctFertN * manure_results[i]["n_rec"]
+                manrN = PctManrN * manure_results[i]["n_man"]
+
+                NfixPct = manure_results[i]["NfixPct"]
+                NH3loss = manure_results[i]["NH3loss"]
+                Nharv_content = manure_results[i]["Nharv_content"]
+                grazed_manureN = manure_results[i]["grazedManureN"]
+            leachN_Calced = np.where(drain_class_flattened != self.no_data,
+                                     Calc_N_Leach_Vector(yield_crop_data, fertN, manrN, NfixPct, NH3loss,
+                                                         Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
+                                                         erosN),
+                                     0)
+            leachN_avg = np.sum(leachN_Calced) / cell_count
+            # rotation avg is not less than zero
+            if leachN_avg < 0:
+                leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
+            nitrate_water.set_data(n_loss_h20)
+
+            leached_N_Total = leached_N_Total + leachN_Calced
+            nitrate.set_data(leached_N_Total)
+
+        elif crop_ro == "dl":
+
+            yield_crop_data = 0
+            for i in rot_yrs_crop:
+                yield_crop_data = yield_dic[i].alternate_data
+                print("rotating through", i)
+                fertN = PctFertN * manure_results[i]["n_rec"]
+                manrN = PctManrN * manure_results[i]["n_man"]
+
+                NfixPct = manure_results[i]["NfixPct"]
+                NH3loss = manure_results[i]["NH3loss"]
+                Nharv_content = manure_results[i]["Nharv_content"]
+                grazed_manureN = manure_results[i]["grazedManureN"]
+            leachN_Calced = np.where(drain_class_flattened != self.no_data,
+                                     Calc_N_Leach_Vector(yield_crop_data, fertN, manrN, NfixPct, NH3loss,
+                                                         Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
+                                                         erosN),
+                                     0)
+            leachN_avg = np.sum(leachN_Calced) / cell_count
+            # rotation avg is not less than zero
+            if leachN_avg < 0:
+                leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+            leached_N_Total = leached_N_Total + leachN_Calced
+
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
+            nitrate_water.set_data([n_loss_h20])
+
+            nitrate.set_data([leached_N_Total])
+        #     cash grain
+        elif crop_ro == "cg":
+            for i in rot_yrs_crop:
+                yield_crop_data = yield_dic[i].alternate_data
+                print("rotating through", i)
+                fertN = PctFertN * manure_results[i]["n_rec"]
+                manrN = PctManrN * manure_results[i]["n_man"]
+
+                NfixPct = manure_results[i]["NfixPct"]
+                NH3loss = manure_results[i]["NH3loss"]
+                Nharv_content = manure_results[i]["Nharv_content"]
+                grazed_manureN = manure_results[i]["grazedManureN"]
+
+                leachN_Calced = np.where(drain_class_flattened != self.no_data,
+                                         Calc_N_Leach_Vector(yield_crop_data, fertN, manrN, NfixPct, NH3loss,
+                                                             Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
+                                                             erosN),
+                                         0)
+                leachN_avg = np.sum(leachN_Calced) / cell_count
+                # rotation avg is not less than zero
+                if leachN_avg < 0:
+                    leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+                leached_N_Total = leached_N_Total + leachN_Calced
+
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
+            nitrate_water.set_data(n_loss_h20 / 2)
+
+            leached_N_Total = leached_N_Total / 2
+
+            nitrate.set_data([leached_N_Total])
+
+        #     corn silage to corn grain to alfalfa x 3
+        elif crop_ro == "dr":
+
+            for i in rot_yrs_crop:
+                if i == "as":
+                    yield_crop_data = yield_dic["af"].alternate_data
+                else:
+                    yield_crop_data = yield_dic[i].alternate_data
+                print("rotating through", i)
+                fertN = PctFertN * manure_results[i]["n_rec"]
+                manrN = PctManrN * manure_results[i]["n_man"]
+
+                NfixPct = manure_results[i]["NfixPct"]
+                NH3loss = manure_results[i]["NH3loss"]
+                Nharv_content = manure_results[i]["Nharv_content"]
+                grazed_manureN = manure_results[i]["grazedManureN"]
+
+                leachN_Calced = np.where(drain_class_flattened != self.no_data,
+                                         Calc_N_Leach_Vector(yield_crop_data, fertN, manrN, NfixPct, NH3loss,
+                                                             Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
+                                                             erosN),
+                                         0)
+                leachN_avg = np.sum(leachN_Calced) / cell_count
+
+                # rotation avg is not less than zero
+                if leachN_avg < 0:
+                    leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
+                leached_N_Total = leached_N_Total + leachN_Calced
+
+            nitrate_water.set_data(n_loss_h20 / 5)
+            leached_N_Total = leached_N_Total / 5
+
+            nitrate.set_data([leached_N_Total])
+
+        elif crop_ro == "cso":
+
+            for i in rot_yrs_crop:
+                print("rotating through", i)
+                yield_crop_data = yield_dic[i].alternate_data
+                fertN = PctFertN * manure_results[i]["n_rec"]
+                manrN = PctManrN * manure_results[i]["n_man"]
+
+                NfixPct = manure_results[i]["NfixPct"]
+                NH3loss = manure_results[i]["NH3loss"]
+                Nharv_content = manure_results[i]["Nharv_content"]
+                grazed_manureN = manure_results[i]["grazedManureN"]
+                leachN_Calced = np.where(drain_class_flattened != self.no_data,
+                                         Calc_N_Leach_Vector(yield_crop_data, fertN, manrN, NfixPct, NH3loss,
+                                                             Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
+                                                             erosN),
+                                         0)
+                leachN_avg = np.sum(leachN_Calced) / cell_count
+
+                if leachN_avg < 0:
+                    leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+                leached_N_Total = leached_N_Total + leachN_Calced
+                runoffN = 0
+                n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
+
+            nitrate_water.set_data(n_loss_h20 / 3)
+            leached_N_Total = leached_N_Total / 3
+            nitrate.set_data([leached_N_Total])
+        elif "pt" == self.model_parameters["crop"]:
+
+            crop_ro = self.model_parameters["crop"] + '-' + self.model_parameters["rotation"]
+
+            rot_yrs_crop = getRotYers(crop_ro)[1]
+            # getRotText_Value = getRotText(crop_ro, legume_text, animal_density_text)
+            yield_crop_data = yield_dic["pt"].alternate_data
+            #
+            for i in rot_yrs_crop:
+                print("rotating through", i)
+                fertN = PctFertN * manure_results[i]["n_rec"]
+                manrN = PctManrN * manure_results[i]["n_man"]
+
+                NfixPct = manure_results[i]["NfixPct"]
+                NH3loss = manure_results[i]["NH3loss"]
+                Nharv_content = manure_results[i]["Nharv_content"]
+                grazed_manureN = manure_results[i]["grazedManureN"]
+
+            leachN_Calced = np.where(drain_class_flattened != self.no_data,
+                                     Calc_N_Leach_Vector(yield_crop_data, fertN, manrN, NfixPct, NH3loss,
+                                                         Nharv_content, grazed_manureN, Denitr_Value, precN, dryN,
+                                                         erosN),
+                                     0)
+            #
+
+            leachN_avg = np.sum(leachN_Calced) / cell_count
+            #
+            # rotation avg is not less than zero
+            if leachN_avg < 0:
+                leachN_Calced = np.where(drain_class_flattened != self.no_data, 0, self.no_data)
+            runoffN = 0
+            n_loss_h20 = n_loss_h20 + (leachN_Calced + (erosN + runoffN))
+            nitrate_water.set_data([n_loss_h20])
+            #
+            nitrate.set_data([leachN_Calced])
+
+        # rotation_avg.set_data(rotation_avg_tonDMac)
+
+        return return_data
+
+    def Calc_N_Leach(self, yeild_crop_data, fertN, manrN, NfixPct, NH3loss, Nharv_content, grazed_manureN,
+                     Denitr_Value, precN, dryN, erosN):
+        #
+        NH3N = fertN * NH3loss / 100  ## ammonia loss output, lb/ac
+        #
+        #
+        harvN = yeild_crop_data * 2000 * Nharv_content  ## harvested N output, lb/ac (crop yield in tons dm, convert to lbs dm) # dry lot yield = 0
+        #
+        #
+        fixN = harvN * NfixPct / 100 + 3  ## N fixation input, lb/ac
+        #
+        #
+        denitN = fertN * Denitr_Value / 100  ## denitrification loss,
+        #
+        #
+        inputsN = fertN + manrN + precN + dryN + fixN + grazed_manureN
+        #
+        #
+        gasN = 0.01 * inputsN  ## misc gases are estimated as 1% of inputs
+        #
+        #
+        NH3senN = 8  ## ammonia loss at senescence
+        runoffN = 0
+        #
+        #
+        outputsN = harvN + NH3N + denitN + erosN + gasN + NH3senN + runoffN
+
+        leachN = inputsN - outputsN
+        #
+        #
+        return leachN
