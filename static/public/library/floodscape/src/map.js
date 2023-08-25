@@ -642,7 +642,7 @@ class OLMapFragment extends React.Component {
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
-            style: this.stylesBoundaryRiver,
+            style: this.redPointStyle,
         });
         // base map
         this.layers = [
@@ -656,15 +656,15 @@ class OLMapFragment extends React.Component {
               }),
             }),
 
-            this.ccBoundary,
-            this.ccWatershed,
-////            this.wfkBoundary,
-////            this.wfkWatershed,
-            this.ccRivers,
-////            this.wfkRivers,
+//            this.ccBoundary,
+//            this.ccWatershed,
+            this.wfkBoundary,
+            this.wfkWatershed,
+//            this.ccRivers,
+            this.wfkRivers,
 //            this.boundaryLayerAOI,
             this.wfkStations,
-            this.ccStations,
+//            this.ccStations,
 //            this.waterSheds1,
 //            this.huc10Layer,
 //            this.waterSheds,
@@ -920,6 +920,10 @@ class OLMapFragment extends React.Component {
 
               // Iterate through the features in the vector source
               this.ccWatershed.getSource().forEachFeatureIntersectingExtent(extent, (feature) => {
+                // Add the feature to the selected features collection
+                this.selectedFeatures.push(feature);
+              });
+              this.wfkWatershed.getSource().forEachFeatureIntersectingExtent(extent, (feature) => {
                 // Add the feature to the selected features collection
                 this.selectedFeatures.push(feature);
               });

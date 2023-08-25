@@ -1479,10 +1479,10 @@ renderModal(){
 
                      <Stack gap={3}>
                      {/*
-                      <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
 
-                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      */}
+                      <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
+                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />

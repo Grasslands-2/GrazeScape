@@ -4,71 +4,53 @@ import time
 import floodscape.floodscape_models.cn_adjustments as cn_adjust
 from floodscape.floodscape_models.dss_output import DSSOutput
 import floodscape.floodscape_models.CompiledDataToJSON as compile_data
+
+import floodscape.floodscape_models.WFK_cn_adjustments as wfk_cn_adjust
+from floodscape.floodscape_models.WFK_dss_output import WFKDSSOutput
+import floodscape.floodscape_models.WFK_CompiledDataToJSON as wfk_compile_data
 from django.conf import settings
 
 
-def hms_trigger(cn_dict_model, cn_dict_base):
-    # utility: trigger full workflow, one-off
-    # in_dir = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files',
-                               # 'raster_inputs', self.file_name)
-    # project_dir = os.path.join(os.getcwd(), "HMS_CC_FINAL")
-    project_dir = settings.HMS_MODEL_PATH
-    # hms_exe = r"C://Program Files/HEC/HEC-HMS/4.9"
-    # hms_exe = r"C://Program Files\HEC\HEC-HMS\4.9"
+def hms_trigger(cn_dict_model, cn_dict_base, watershed):
+    if watershed == "COON CREEK Main":
+        project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_CC_Final")
+        command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/cc.script"
+        cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
+    elif watershed == "West Fork Kickapoo Main":
+        project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_WFK_Final")
+        command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/wf.script"
+        wfk_cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
+    else:
+        raise ValueError("watershed region is not correct")
     hms_exe = settings.HMS_PATH
     print("hms model directory", project_dir)
-
-    # STEP1: adjust CN and lag values in HMS .basin file
-    # list_files = subprocess.run("python CC_cn_adjustments.py", cwd=r"C:\Users\paige\OneDrive\Documents\HMS_CC_Final")
-    list_files = cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
-    # # time.sleep(2)
-    # print("The exit code to run STEP1 was %d" % list_files.returncode)
-
-    # if list_files == 0:
-        # STEP2: run all storm scenarios
-        # must cd to installation folder of HEC
-        # t = r"C:\Program Files\HEC\HEC-HMS\4.6"
-    # script_file = os.path.join(os.getcwd(), "CC_HMSRun.script")
-
-    # os.chdir(hms_exe)
-    # print(script_file)
-
-
-
-
-
-    # # script_file = os.path.join(os.getcwd(), "test.script")
-    # script_file = os.path.join(settings.BASE_DIR, 'floodscape', "floodscape_models", "test.script")
-    # print(script_file)
-    # print(os.path.join(hms_exe, "hec-hms.exe"))
-    print(os.path.join(hms_exe, "HEC-HMS.cmd"))
-    # list_files = subprocess.run(
-    #     ["./hec-hms.exe", "-s", script_file],
-    #     executable=os.path.join(hms_exe, "HEC-HMS.exe"))
-
-    # cmd = ["./" + os.path.join(hms_exe, 'hec-hms.exe'), '-s', script_file]
-    # cmd = ["C://Program Files/HEC/HEC-HMS/4.9/HEC-HMS.exe", "-script", "C://Program Files/HEC/HEC-HMS/4.9/test.script"]
-    # print(cmd)
-
     print(os.getcwd())
     cur_dir = os.getcwd()
-    os.chdir("C://Program Files/HEC/HEC-HMS/4.9/")
+    os.chdir(hms_exe)
     print(os.getcwd())
-    command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
-    # Run the command and capture the output
-    try:
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
-        print("HEC-HMS execution successful.")
-        print("Output:")
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"HEC-HMS execution failed with error: {e}")
-        print("Error output:")
-        print(e.stderr)
-    output = DSSOutput()
-    output.run()
-    model_file_path = compile_data.compile_data_to_json()
-    base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
+
+    # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
+    # # Run the command and capture the output
+    # try:
+    #     result = subprocess.run(command, capture_output=True, text=True, check=True)
+    #     print("HEC-HMS execution successful.")
+    #     print("Output:")
+    #     print(result.stdout)
+    # except subprocess.CalledProcessError as e:
+    #     print(f"HEC-HMS execution failed with error: {e}")
+    #     print("Error output:")
+    #     print(e.stderr)
+
+    if watershed == "COON CREEK Main":
+        output = DSSOutput(project_dir)
+        output.run()
+        model_file_path = compile_data.compile_data_to_json(project_dir)
+        base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
+    elif watershed == "West Fork Kickapoo Main":
+        # output = WFKDSSOutput(project_dir)
+        # output.run()
+        model_file_path = wfk_compile_data.compile_data_to_json(project_dir)
+        base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
     os.chdir(cur_dir)
     return model_file_path, base_file_path
 

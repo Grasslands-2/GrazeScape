@@ -7,7 +7,7 @@ from floodscape.floodscape_models.hide_print import HidePrint
 
 
 class DSSOutput:
-    def __init__(self):
+    def __init__(self, project_dir):
         self.reaches = ['MCC A - MCC B',
                         'MCC B MCC C',
                         'MCC C - MCC D',
@@ -60,7 +60,7 @@ class DSSOutput:
                         'JUNCTION - LCC J',
                         'LCC A - LCC C']
         self.events = ["2", "5", "10", "25", "50", "200", "500"]
-        self.project_dir = settings.HMS_MODEL_PATH
+        self.project_dir = project_dir
 
     def out_data(self, dss_file, event):
         return_dict = {}

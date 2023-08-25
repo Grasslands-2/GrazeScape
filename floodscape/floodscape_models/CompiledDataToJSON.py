@@ -19,8 +19,8 @@ import csv
 # reach, river station, profile, Q Total and W.S. Elev columns;
 # .csv should have no extra spaces, keep headings
 
-def compile_data_to_json():
-    project_dir = settings.HMS_MODEL_PATH
+def compile_data_to_json(project_dir):
+    # project_dir = settings.HMS_MODEL_PATH
     file_path = os.path.join(project_dir, "PeakFlow_WSE_Correlations_RiverStations_CC_081722.csv")
     with open(file_path,
               'r') as f:
