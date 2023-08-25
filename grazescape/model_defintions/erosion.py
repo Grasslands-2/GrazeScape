@@ -281,6 +281,9 @@ class Erosion(ModelBase):
                 erosion <- round(predict(dl_erosion, pred_df),2)
 
             }} 
+                      pred_df_na_omit <- na_if(pred_df, -9999)
+                    print(pred_df_na_omit)
+                    print(summary(pred_df_na_omit))
               """
                 )
         ero = r.get("erosion").to_numpy()

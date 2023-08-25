@@ -83,7 +83,7 @@ class SoilIndex(ModelBase):
         r.assign("ps_sci_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
         r.assign("pt_sci_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
         r.assign("dl_sci_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
-        print(r(f"""
+        r(f"""
 
             library(tidyverse)
             library(tidymodels)
@@ -316,11 +316,13 @@ class SoilIndex(ModelBase):
 
             }} 
 
+            pred_df_na_omit <- na_if(pred_df, -9999)
+                    print(pred_df_na_omit)
+                    print(summary(pred_df_na_omit))
 
 
 
-
-                """))
+                """)
 
         sci = r.get("sci").to_numpy()
         print("sci", sci)

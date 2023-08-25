@@ -83,20 +83,12 @@ class PhosphorousLoss(ModelBase):
         r.assign("ps_pi_file", os.path.join(self.model_file_path, pastureSeedingTidyploss + regionRDS))
         r.assign("pt_pi_file", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
         r.assign("dl_pi_file", os.path.join(self.model_file_path, dryLotTidyploss + regionRDS))
-        print("ploss #####", self.scenario_id)
         r.assign("scen_id", self.scenario_id)
-        print(r(f"""
+        r(f"""
 
                     library(tidyverse)
                     library(tidymodels)
-                    print(crop)
-                    print(cover)
-                    print(tillage)
-                    print(contour)
-                    print(rotational)
-                    print(density)
-                    print(initialP)
-                    print(om)
+
 
                     # input/load data
                     user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), Contour = c(contour), 
@@ -294,7 +286,7 @@ class PhosphorousLoss(ModelBase):
                     print(summary(pred_df_na_omit))
 
 
-                """))
+                """)
 
         ploss = r.get("pi").to_numpy()
         ploss = ploss.flatten()
