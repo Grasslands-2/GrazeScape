@@ -53,139 +53,141 @@ class RasterData:
         self.crs = "epsg:3857"
         self.threads = []
         self.no_data = -9999
-        if self.active_region == "cloverBeltWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:cloverBelt_DEM_10m_v2",
-                "slope": "InputRasters:cloverBelt_slope_10m_v2",
-                "sand": "InputRasters:cloverBelt_sand_10m_v2",
-                "silt": "InputRasters:cloverBelt_silt_10m_v2",
-                "clay": "InputRasters:cloverBelt_clay_10m_v2",
-                "k": "InputRasters:cloverBelt_kfact_10m_v2",
-                "ksat": "InputRasters:cloverBelt_ksat_10m_v2",
-                "om": "InputRasters:cloverBelt_om_10m_v2",
-                # "cec": "InputRasters:cloverBelt_cec_10m_v2",
-                "ph": "InputRasters:cloverBelt_ph_10m_v2",
-                "total_depth": "InputRasters:cloverBelt_depth_10m_v2",
-                "slope_length": "InputRasters:cloverBelt_slopelen_10m_v2",
-                "awc": "InputRasters:cloverBelt_awc_10m_v2",
-                "ls": "InputRasters:cloverBelt_LS_10m_v2",
-                "corn": "InputRasters:cloverBelt_corn_10m_v2",
-                "soy": "InputRasters:cloverBelt_soy_10m_v2",
-                "hydgrp": "InputRasters:cloverBelt_hydgrp_10m_v2",
-                "drain_class": "InputRasters:CloverBeltWI_drainClass_10m",
-                "Nresponse": "InputRasters:CloverBeltWI_nResponse_10m",
-            }
+        # if self.active_region == "cloverBeltWI":
+        self.layer_dic = {
+            "elevation": "InputRasters:" + self.active_region + "_elev_10m",
+            "slope": "InputRasters:" + self.active_region + "_slopePer_10m",
+            "sand": "InputRasters:" + self.active_region + "_sand_10m",
+            "silt": "InputRasters:" + self.active_region + "_silt_10m",
+            "clay": "InputRasters:" + self.active_region + "_clay_10m",
+            "k": "InputRasters:" + self.active_region + "_kfact_10m",
+            "ksat": "InputRasters:" + self.active_region + "_ksat_10m",
+            "om": "InputRasters:" + self.active_region + "_om_10m",
+            # "cec": "InputRasters:cloverBelt_cec_10m_v2",
+            "ph": "InputRasters:" + self.active_region + "_ph_10m",
+            "total_depth": "InputRasters:" + self.active_region + "_depth_10m",
+            "slope_length": "InputRasters:" + self.active_region + "_slopelen_10m",
+            "awc": "InputRasters:" + self.active_region + "_awc_10m",
+            "ls": "InputRasters:" + self.active_region + "_ls_10m",
+            "corn": "InputRasters:" + self.active_region + "_corn_10m",
+            "soy": "InputRasters:" + self.active_region + "_soy_10m",
+            "hydgrp": "InputRasters:" + self.active_region + "_hydgrp_10m",
+            "drain_class": "InputRasters:" + self.active_region + "_drainClass_10m",
+            # "Nresponse": "InputRasters:" + self.active_region + "_nResponse_10m",
+        }
+        if self.active_region != "pineRiverMN":
+            self.layer_dic["Nresponse"] = "InputRasters:" + self.active_region + "_nResponse_10m"
 
-        if self.active_region == "southWestWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:southWestWI_DEM_10m_2",
-                "slope": "InputRasters:southWestWI_slopePer_10m_2",
-                "sand": "InputRasters:southWestWI_sand10m",
-                "silt": "InputRasters:southWestWI_silt_10m",
-                "clay": "InputRasters:southWestWI_clay_10m_2",
-                "k": "InputRasters:southWestWI_kfact_10m",
-                "ksat": "InputRasters:southWestWI_ksat_10m",
-                "om": "InputRasters:southWestWI_om_10m",
-                # "cec": "InputRasters:southWestWI_cec_10m",
-                "ph": "InputRasters:southWestWI_ph_10m_2",
-                "total_depth": "InputRasters:southWestWI_depth_10m",
-                "slope_length": "InputRasters:southWestWI_slopelen_10m",
-                "awc": "InputRasters:southWestWI_awc_10m",
-                "ls": "InputRasters:southWestWI_LS_10m_2",
-                "corn": "InputRasters:southWestWIcorn_10m2",
-                "soy": "InputRasters:southWestWIsoy_10m2",
-                "hydgrp": "InputRasters:southWestWI_hydgrp_10m",
-                "drain_class": "InputRasters:southWestWI_drainClass_10m",
-                "Nresponse": "InputRasters:southWestWI_nResponse_10m",
-            }
-        if self.active_region == "northeastWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:northeastWI_elev_10m",
-                "slope": "InputRasters:northeastWI_slopePer_10m",
-                "sand": "InputRasters:northeastWI_sand_10m",
-                "silt": "InputRasters:northeastWI_silt_10m",
-                "clay": "InputRasters:northeastWI_clay_10m",
-                "k": "InputRasters:northeastWI_kfact_10m",
-                "ksat": "InputRasters:northeastWI_ksat_10m",
-                "om": "InputRasters:northeastWI_om_10m",
-                # "cec": "InputRasters:northeastWI_cec_10m",
-                "ph": "InputRasters:northeastWI_ph_10m",
-                "total_depth": "InputRasters:northeastWI_depth_10m",
-                "slope_length": "InputRasters:northeastWI_slopelen_10m",
-                "awc": "InputRasters:northeastWI_awc_10m",
-                "ls": "InputRasters:northeastWI_ls_10m",
-                "corn": "InputRasters:northeastWI_corn_10m",
-                "soy": "InputRasters:northeastWI_soy_10m",
-                "hydgrp": "InputRasters:northeastWI_hydgrp_10m",
-                "drain_class": "InputRasters:northeastWI_drainClass_10m",
-                "Nresponse": "InputRasters:northeastWI_nResponse_10m",
-            }
-        if self.active_region == "uplandsWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:uplandsWI_elev_10m",
-                "slope": "InputRasters:uplandsWI_slopePer_10m",
-                "sand": "InputRasters:uplandsWI_sand_10m",
-                "silt": "InputRasters:uplandsWI_silt_10m",
-                "clay": "InputRasters:uplandsWI_clay_10m",
-                "k": "InputRasters:uplandsWI_kfact_10m",
-                "ksat": "InputRasters:uplandsWI_ksat_10m",
-                "om": "InputRasters:uplandsWI_om_10m",
-                # "cec": "InputRasters:uplandsWI_cec_10m",
-                "ph": "InputRasters:uplandsWI_ph_10m",
-                "total_depth": "InputRasters:uplandsWI_depth_10m",
-                "slope_length": "InputRasters:uplandsWI_slopelen_10m",
-                "awc": "InputRasters:uplandsWI_awc_10m",
-                "ls": "InputRasters:uplandsWI_ls_10m",
-                "corn": "InputRasters:uplandsWI_corn_10m",
-                "soy": "InputRasters:uplandsWI_soy_10m",
-                "hydgrp": "InputRasters:uplandsWI_hydgrp_10m",
-                "drain_class": "InputRasters:uplandsWI_drainClass_10m",
-                "Nresponse": "InputRasters:uplandsWI_nResponse_10m",
-            }
-        if self.active_region == "redCedarWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:redCedarWI_elev_10m",
-                "slope": "InputRasters:redCedarWI_slopePer_10m",
-                "sand": "InputRasters:redCedarWI_sand_10m",
-                "silt": "InputRasters:redCedarWI_silt_10m",
-                "clay": "InputRasters:redCedarWI_clay_10m",
-                "k": "InputRasters:redCedarWI_kfact_10m",
-                "ksat": "InputRasters:redCedarWI_ksat_10m",
-                "om": "InputRasters:redCedarWI_om_10m",
-                # "cec": "InputRasters:redCedarWI_cec_10m",
-                "ph": "InputRasters:redCedarWI_ph_10m",
-                "total_depth": "InputRasters:redCedarWI_depth_10m",
-                "slope_length": "InputRasters:redCedarWI_slopelen_10m",
-                "awc": "InputRasters:redCedarWI_awc_10m",
-                "ls": "InputRasters:redCedarWI_ls_10m",
-                "corn": "InputRasters:redCedarWI_corn_10m",
-                "soy": "InputRasters:redCedarWI_soy_10m",
-                "hydgrp": "InputRasters:redCedarWI_hydgrp_10m",
-                "drain_class": "InputRasters:redCedarWI_drainClass_10m",
-                "Nresponse": "InputRasters:redCedarWI_nResponse_10m",
-            }
-        if self.active_region == "pineRiverMN":
-            self.layer_dic = {
-                "elevation": "InputRasters:pineRiverMN_elev_10m",
-                "slope": "InputRasters:pineRiverMN_slopePer_10m",
-                "sand": "InputRasters:pineRiverMN_sand_10m",
-                "silt": "InputRasters:pineRiverMN_silt_10m",
-                "clay": "InputRasters:pineRiverMN_clay_10m",
-                "k": "InputRasters:pineRiverMN_kfact_10m",
-                "ksat": "InputRasters:pineRiverMN_ksat_10m",
-                "om": "InputRasters:pineRiverMN_om_10m",
-                # "cec": "InputRasters:pineRiverMN_cec_10m",
-                "ph": "InputRasters:pineRiverMN_ph_10m",
-                "total_depth": "InputRasters:pineRiverMN_depth_10m",
-                "slope_length": "InputRasters:pineRiverMN_slopelen_10m",
-                "awc": "InputRasters:pineRiverMN_awc_10m",
-                "ls": "InputRasters:pineRiverMN_ls_10m",
-                "corn": "InputRasters:pineRiverMN_corn_10m",
-                "soy": "InputRasters:pineRiverMN_soy_10m",
-                "hydgrp": "InputRasters:pineRiverMN_hydgrp_10m",
-                "drain_class": "InputRasters:pineRiverMN_drainClass_10m",
-                # "Nresponse": "InputRasters:pineRiverMN_nResponse_10m",
-            }
+        # if self.active_region == "southWestWI":
+        #     self.layer_dic = {
+        #         "elevation": "InputRasters:southWestWI_DEM_10m_2",
+        #         "slope": "InputRasters:southWestWI_slopePer_10m_2",
+        #         "sand": "InputRasters:southWestWI_sand10m",
+        #         "silt": "InputRasters:southWestWI_silt_10m",
+        #         "clay": "InputRasters:southWestWI_clay_10m_2",
+        #         "k": "InputRasters:southWestWI_kfact_10m",
+        #         "ksat": "InputRasters:southWestWI_ksat_10m",
+        #         "om": "InputRasters:southWestWI_om_10m",
+        #         # "cec": "InputRasters:southWestWI_cec_10m",
+        #         "ph": "InputRasters:southWestWI_ph_10m_2",
+        #         "total_depth": "InputRasters:southWestWI_depth_10m",
+        #         "slope_length": "InputRasters:southWestWI_slopelen_10m",
+        #         "awc": "InputRasters:southWestWI_awc_10m",
+        #         "ls": "InputRasters:southWestWI_LS_10m_2",
+        #         "corn": "InputRasters:southWestWIcorn_10m2",
+        #         "soy": "InputRasters:southWestWIsoy_10m2",
+        #         "hydgrp": "InputRasters:southWestWI_hydgrp_10m",
+        #         "drain_class": "InputRasters:southWestWI_drainClass_10m",
+        #         "Nresponse": "InputRasters:southWestWI_nResponse_10m",
+        #     }
+        # if self.active_region == "northeastWI":
+        #     self.layer_dic = {
+        #         "elevation": "InputRasters:northeastWI_elev_10m",
+        #         "slope": "InputRasters:northeastWI_slopePer_10m",
+        #         "sand": "InputRasters:northeastWI_sand_10m",
+        #         "silt": "InputRasters:northeastWI_silt_10m",
+        #         "clay": "InputRasters:northeastWI_clay_10m",
+        #         "k": "InputRasters:northeastWI_kfact_10m",
+        #         "ksat": "InputRasters:northeastWI_ksat_10m",
+        #         "om": "InputRasters:northeastWI_om_10m",
+        #         # "cec": "InputRasters:northeastWI_cec_10m",
+        #         "ph": "InputRasters:northeastWI_ph_10m",
+        #         "total_depth": "InputRasters:northeastWI_depth_10m",
+        #         "slope_length": "InputRasters:northeastWI_slopelen_10m",
+        #         "awc": "InputRasters:northeastWI_awc_10m",
+        #         "ls": "InputRasters:northeastWI_ls_10m",
+        #         "corn": "InputRasters:northeastWI_corn_10m",
+        #         "soy": "InputRasters:northeastWI_soy_10m",
+        #         "hydgrp": "InputRasters:northeastWI_hydgrp_10m",
+        #         "drain_class": "InputRasters:northeastWI_drainClass_10m",
+        #         "Nresponse": "InputRasters:northeastWI_nResponse_10m",
+        #     }
+        # if self.active_region == "uplandsWI":
+        #     self.layer_dic = {
+        #         "elevation": "InputRasters:uplandsWI_elev_10m",
+        #         "slope": "InputRasters:uplandsWI_slopePer_10m",
+        #         "sand": "InputRasters:uplandsWI_sand_10m",
+        #         "silt": "InputRasters:uplandsWI_silt_10m",
+        #         "clay": "InputRasters:uplandsWI_clay_10m",
+        #         "k": "InputRasters:uplandsWI_kfact_10m",
+        #         "ksat": "InputRasters:uplandsWI_ksat_10m",
+        #         "om": "InputRasters:uplandsWI_om_10m",
+        #         # "cec": "InputRasters:uplandsWI_cec_10m",
+        #         "ph": "InputRasters:uplandsWI_ph_10m",
+        #         "total_depth": "InputRasters:uplandsWI_depth_10m",
+        #         "slope_length": "InputRasters:uplandsWI_slopelen_10m",
+        #         "awc": "InputRasters:uplandsWI_awc_10m",
+        #         "ls": "InputRasters:uplandsWI_ls_10m",
+        #         "corn": "InputRasters:uplandsWI_corn_10m",
+        #         "soy": "InputRasters:uplandsWI_soy_10m",
+        #         "hydgrp": "InputRasters:uplandsWI_hydgrp_10m",
+        #         "drain_class": "InputRasters:uplandsWI_drainClass_10m",
+        #         "Nresponse": "InputRasters:uplandsWI_nResponse_10m",
+        #     }
+        # if self.active_region == "redCedarWI":
+        #     self.layer_dic = {
+        #         "elevation": "InputRasters:redCedarWI_elev_10m",
+        #         "slope": "InputRasters:redCedarWI_slopePer_10m",
+        #         "sand": "InputRasters:redCedarWI_sand_10m",
+        #         "silt": "InputRasters:redCedarWI_silt_10m",
+        #         "clay": "InputRasters:redCedarWI_clay_10m",
+        #         "k": "InputRasters:redCedarWI_kfact_10m",
+        #         "ksat": "InputRasters:redCedarWI_ksat_10m",
+        #         "om": "InputRasters:redCedarWI_om_10m",
+        #         # "cec": "InputRasters:redCedarWI_cec_10m",
+        #         "ph": "InputRasters:redCedarWI_ph_10m",
+        #         "total_depth": "InputRasters:redCedarWI_depth_10m",
+        #         "slope_length": "InputRasters:redCedarWI_slopelen_10m",
+        #         "awc": "InputRasters:redCedarWI_awc_10m",
+        #         "ls": "InputRasters:redCedarWI_ls_10m",
+        #         "corn": "InputRasters:redCedarWI_corn_10m",
+        #         "soy": "InputRasters:redCedarWI_soy_10m",
+        #         "hydgrp": "InputRasters:redCedarWI_hydgrp_10m",
+        #         "drain_class": "InputRasters:redCedarWI_drainClass_10m",
+        #         "Nresponse": "InputRasters:redCedarWI_nResponse_10m",
+        #     }
+        # if self.active_region == "pineRiverMN":
+        #     self.layer_dic = {
+        #         "elevation": "InputRasters:pineRiverMN_elev_10m",
+        #         "slope": "InputRasters:pineRiverMN_slopePer_10m",
+        #         "sand": "InputRasters:pineRiverMN_sand_10m",
+        #         "silt": "InputRasters:pineRiverMN_silt_10m",
+        #         "clay": "InputRasters:pineRiverMN_clay_10m",
+        #         "k": "InputRasters:pineRiverMN_kfact_10m",
+        #         "ksat": "InputRasters:pineRiverMN_ksat_10m",
+        #         "om": "InputRasters:pineRiverMN_om_10m",
+        #         # "cec": "InputRasters:pineRiverMN_cec_10m",
+        #         "ph": "InputRasters:pineRiverMN_ph_10m",
+        #         "total_depth": "InputRasters:pineRiverMN_depth_10m",
+        #         "slope_length": "InputRasters:pineRiverMN_slopelen_10m",
+        #         "awc": "InputRasters:pineRiverMN_awc_10m",
+        #         "ls": "InputRasters:pineRiverMN_ls_10m",
+        #         "corn": "InputRasters:pineRiverMN_corn_10m",
+        #         "soy": "InputRasters:pineRiverMN_soy_10m",
+        #         "hydgrp": "InputRasters:pineRiverMN_hydgrp_10m",
+        #         "drain_class": "InputRasters:pineRiverMN_drainClass_10m",
+        #         # "Nresponse": "InputRasters:pineRiverMN_nResponse_10m",
+        #     }
         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []
@@ -301,15 +303,15 @@ class RasterData:
     def get_clipped_rasters(self):
         raster_data_dic = {}
         bounds = 0
-        if os.path.exists(os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs', self.file_name)):
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', self.file_name)):
             print("field raster_input folder exists")
             # self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
             #                          'data_files', 'raster_inputs',
             #                          self.file_name)
         else:
-            os.mkdir(os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name))
-        
-        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape','data_files', 'raster_inputs',self.file_name)
+            os.mkdir(os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', self.file_name))
+
+        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', self.file_name)
         for file in os.listdir(self.dir_path):
             if '-clipped.tif' in file:
                 data_name = file.split(".")[0]
