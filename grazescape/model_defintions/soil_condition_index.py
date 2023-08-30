@@ -12,6 +12,7 @@ class SoilIndex(ModelBase):
     def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
+    @ModelBase.log_start_end
     def run_model(self, manure_results, ero, placeholder):
         r = R(RCMD=self.r_file_path, use_pandas=True)
         sci_output = OutputDataNode("soil_index", "Soil Condition Index (lb/ac/yr)", "Soil Condition Index (lb/yr)",
@@ -325,7 +326,6 @@ class SoilIndex(ModelBase):
                 """)
 
         sci = r.get("sci").to_numpy()
-        print("sci", sci)
         ploss = np.where(sci < 0.01, .01, sci)
         sci_output.set_data(ploss)
         return [sci_output]

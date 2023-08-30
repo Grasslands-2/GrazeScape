@@ -12,6 +12,7 @@ class PhosphorousLoss(ModelBase):
     def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
+    @ModelBase.log_start_end
     def run_model(self, manure_results, ero, placeholder):
         r = R(RCMD=self.r_file_path, use_pandas=True)
         pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)","Phosphorus runoff (lb/ac/yr)","Phosphorus runoff (lb/yr)")
@@ -74,7 +75,6 @@ class PhosphorousLoss(ModelBase):
         pastureTidyploss = "pt_ploss_"
         dryLotTidyploss = "dl_ploss_"
         regionRDS = self.active_region + '.rds'
-        print("pt_pi_file model file!!!", os.path.join(self.model_file_path, pastureTidyploss + regionRDS))
 
         r.assign("cc_pi_file", os.path.join(self.model_file_path, ContCornTidyploss + regionRDS))
         r.assign("cg_pi_file", os.path.join(self.model_file_path, cornGrainTidyploss + regionRDS))
@@ -290,7 +290,6 @@ class PhosphorousLoss(ModelBase):
 
         ploss = r.get("pi").to_numpy()
         ploss = ploss.flatten()
-        print("ploss", ploss)
         ploss = np.where(ploss < 0.01, .01, ploss)
         pl.set_data(ploss)
         return [pl]

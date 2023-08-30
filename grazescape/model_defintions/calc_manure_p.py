@@ -95,7 +95,6 @@ class CalcManureP(ModelBase):
             return '>3'
 
     def load_nrec(self):
-        print(self.active_region)
         output_dict = {}
         if self.active_region == "pineRiverMN":
 
@@ -108,7 +107,6 @@ class CalcManureP(ModelBase):
                                         "WI_Nitrogen.csv")
             nitrate_define_char = "rasterVals"
 
-        print(csv_filename)
         with open(csv_filename) as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -120,7 +118,6 @@ class CalcManureP(ModelBase):
                     dict_key = row["RotationAbbr"] + "_" + row["CropAbbr"] + "_" + cover + "_" + row[nitrate_define_char]
                 # dict_key = row["RotationAbbr"] + "_" + row["CropAbbr"] + "_" + cover + "_" + row["sand_percent"]
                 dict_key = dict_key.replace(" ", "")
-                print(dict_key)
                 output_dict[dict_key] = {"fertN": row["FertN"], "ManureN": row["ManureN"],
                                          "Pneeds": row["Pneeds"],
                                          "grazedManureN": row["grazedManureN"],
@@ -158,11 +155,9 @@ class CalcManureP(ModelBase):
             "NH3loss": NH3loss,
         }}
         crop_key = crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + cell_nresponse + "_" + om_text
-        print("crop_key", crop_key)
         for i in rot_yrs_crop:
             if mn:
-                print("in minnesota")
-                print(i)
+
 
                 if i == 'pt_rt':
                     crop_key = f"{crop}_{legume_text}_{crop}_{legume_text}_NA_NA_NA"
@@ -184,8 +179,7 @@ class CalcManureP(ModelBase):
                 else:
                     crop_key = f"{crop}_{i}_{cover_crop}_NA_NA"
             else:
-                print("wisconsin")
-                print(i)
+
                 if i == 'pt_rt':
                     crop_key = crop + "_" + legume_text + "_" + crop + "_" + legume_text + "_" + cover_crop + "_" + om_text
                 elif i == 'pt_cn':
@@ -200,8 +194,7 @@ class CalcManureP(ModelBase):
                         crop_key = crop + "_" + i + "_" + cover_crop + "_" + cell_nresponse
 
             # alfalfa has two rotation years
-            print("crop_key for rotation", i, crop_key)
-            print(self.nrec_dict[crop_key])
+
             nrecValue = float(self.nrec_dict[crop_key]["fertN"])
             nManureValue = float(self.nrec_dict[crop_key]["ManureN"])
             pNeedsValue = float(self.nrec_dict[crop_key]["Pneeds"])
@@ -251,6 +244,7 @@ class CalcManureP(ModelBase):
 
         return n_fert_values
 
+    @ModelBase.log_start_end
     def run_model(self):
         start = time.time()
         if self.model_parameters["crop"] == "pt" or self.model_parameters["crop"] == "dl":
@@ -273,7 +267,6 @@ class CalcManureP(ModelBase):
         # nresponse is only for wisconsin
         if self.active_region != "pineRiverMN":
             values, counts = np.unique(self.raster_inputs["Nresponse"], return_counts=True)
-            print("values", values, counts)
             for i in range(1, len(values)):
 
                 if counts[i] > max_val:
@@ -286,10 +279,6 @@ class CalcManureP(ModelBase):
         sand_values = np.where(self.raster_inputs["sand"] == self.no_data, 0, self.raster_inputs["sand"])
         sand_values_sum = np.sum(sand_values)
         sand_mean = sand_values_sum/sand_count
-        # sand_mean = np.sum(self.raster_inputs["sand"])
-        # print("sand_count", sand_count)
-        # print("sand_count", sand_values)
-        # print("sand_mean", sand_values_sum/sand_count)
 
         sand_string = self.get_sand_string(sand_mean)
         om_mn_string = self.get_om_mn(sand_mean)

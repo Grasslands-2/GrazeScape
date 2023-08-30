@@ -31,11 +31,11 @@ class GrassYield(ModelBase):
         self.grass_type = self.model_parameters['grass_type']
         # self.units = "Dry Mass tons/ac"
 
+    @ModelBase.log_start_end
     def run_model(self, manure_results):
         return_data = []
         grass = self.grass_type
         start = time.time()
-        print("running grass yield", grass)
         if self.main_type:
             grass_yield = OutputDataNode("Grass", "Grass yield (tons-dry-matter/ac/yr)",
                                          'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
@@ -51,14 +51,11 @@ class GrassYield(ModelBase):
                                          'Grass production (tons-dry-matter/yr)')
 
         crop_ro = self.model_parameters["crop"] + '-' + self.model_parameters["rotation"]
-        print("crop rotation", crop_ro)
         return_data.append(grass_yield)
 
         # path to R instance
         n_loss_h20 = 0
-        # print("self.model_parameters")
-        # print(self.model_parameters)
-        # print(self.model_parameters["grass_type"])
+
         r = R(RCMD=self.r_file_path, use_pandas=True)
 
         slope = self.raster_inputs["slope"].flatten()
@@ -116,9 +113,7 @@ class GrassYield(ModelBase):
         r.assign("density", self.model_parameters["density"])
         r.assign("initialP", float(self.model_parameters["soil_p"]))
         r.assign("om", float(self.model_parameters["om"]))
-        print(float(self.model_parameters["fert"]))
-        print(slope)
-        print("model file path", self.model_file_path)
+
         r("library(randomForest)")
         r("library(dplyr)")
         r("library(tidymodels)")
