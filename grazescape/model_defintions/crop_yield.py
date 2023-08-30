@@ -8,6 +8,7 @@ class CropYield(ModelBase):
     def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
+    @ModelBase.log_start_end
     def run_model(self, manure_results):
 
         crop_ro = self.model_parameters["crop"]

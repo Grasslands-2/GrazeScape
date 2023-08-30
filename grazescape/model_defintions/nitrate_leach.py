@@ -118,6 +118,7 @@ class NitrateLeeching(ModelBase):
             drain_dict = {1: 8, 2: 17.5, 3: 40, 4: 8, 5: 25, 6: 40, 7: 13}
         return drain_dict[drain_round]
 
+    @ModelBase.log_start_end
     def run_model(self, manure_results, ero, yield_result):
         nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)",
                                  "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)")
@@ -197,7 +198,6 @@ class NitrateLeeching(ModelBase):
             # rotation_avg_tonDMac = corn_yield_tonDMac
             for i in rot_yrs_crop:
                 yield_crop_data = yield_dic[i].alternate_data
-                print("rotating through", i)
                 fertN = PctFertN * manure_results[i]["n_rec"]
                 manrN = PctManrN * manure_results[i]["n_man"]
 
@@ -227,7 +227,6 @@ class NitrateLeeching(ModelBase):
             yield_crop_data = 0
             for i in rot_yrs_crop:
                 yield_crop_data = yield_dic[i].alternate_data
-                print("rotating through", i)
                 fertN = PctFertN * manure_results[i]["n_rec"]
                 manrN = PctManrN * manure_results[i]["n_man"]
 
@@ -255,7 +254,6 @@ class NitrateLeeching(ModelBase):
         elif crop_ro == "cg":
             for i in rot_yrs_crop:
                 yield_crop_data = yield_dic[i].alternate_data
-                print("rotating through", i)
                 fertN = PctFertN * manure_results[i]["n_rec"]
                 manrN = PctManrN * manure_results[i]["n_man"]
 
@@ -291,7 +289,6 @@ class NitrateLeeching(ModelBase):
                     yield_crop_data = yield_dic["af"].alternate_data
                 else:
                     yield_crop_data = yield_dic[i].alternate_data
-                print("rotating through", i)
                 fertN = PctFertN * manure_results[i]["n_rec"]
                 manrN = PctManrN * manure_results[i]["n_man"]
 
@@ -322,7 +319,6 @@ class NitrateLeeching(ModelBase):
         elif crop_ro == "cso":
 
             for i in rot_yrs_crop:
-                print("rotating through", i)
                 yield_crop_data = yield_dic[i].alternate_data
                 fertN = PctFertN * manure_results[i]["n_rec"]
                 manrN = PctManrN * manure_results[i]["n_man"]
@@ -356,7 +352,6 @@ class NitrateLeeching(ModelBase):
             yield_crop_data = yield_dic["pt"].alternate_data
             #
             for i in rot_yrs_crop:
-                print("rotating through", i)
                 fertN = PctFertN * manure_results[i]["n_rec"]
                 manrN = PctManrN * manure_results[i]["n_man"]
 
