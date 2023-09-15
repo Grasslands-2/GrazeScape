@@ -47,7 +47,6 @@ def getRotText(crop, legume_text, animal_density_text):
 
 
 def getRotYers(crop):
-
     if crop == 'pt':
         rot_yrs = 1
         rot_yrs_crop = ['pt_rt']
@@ -126,6 +125,9 @@ class NitrateLeeching(ModelBase):
                                        "Total Nitrogen Loss To Water (lb/yr)",
                                        "Total Nitrogen Loss To Water (lb/ac/yr)",
                                        "Total Nitrogen Loss To Water (lb/yr)")
+        # self.model_parameters["crop_cover"]
+        cover_crop_adj_dict = {"cc": 0.75, "gcis": 0.5, "gcds": 0.6, "nc": 1}
+        cover_adj = cover_crop_adj_dict[self.model_parameters["crop_cover"]]
         yield_dic = {}
         for res in yield_result:
             if res.model_type == "Corn Grain":
@@ -140,6 +142,8 @@ class NitrateLeeching(ModelBase):
                 yield_dic["ot"] = res
             elif res.model_type == "Grass":
                 yield_dic["pt"] = res
+                # grass doesn't have cover crops
+                cover_adj = 1
             elif res.model_type == "Dry Lot":
                 yield_dic["dl"] = res
             else:
@@ -379,6 +383,12 @@ class NitrateLeeching(ModelBase):
             nitrate.set_data([leachN_Calced])
 
         # rotation_avg.set_data(rotation_avg_tonDMac)
+        # return_data[0].data = return_data[0].data * cover_adj
+        # return_data[1].data = return_data[1].data * cover_adj
+        print(nitrate.data)
+        nitrate.data = [nitrate.data[0] * cover_adj]
+        nitrate_water.data = [nitrate_water.data[0] * cover_adj]
+
 
         return return_data
 

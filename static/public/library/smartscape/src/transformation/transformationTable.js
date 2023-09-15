@@ -61,6 +61,7 @@ const mapStateToProps = state => {
         listTrans: state.transformation.listTrans,
         baseTrans:state.transformation.baseTrans,
         aoiFolderId:state.main.aoiFolderId,
+        region:state.main.region,
 
 }}
 
@@ -426,6 +427,7 @@ class TransformationTable extends Component {
                 baseTrans:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 base_calc: false,
+                region: this.props.region,
             }
         console.log(payload)
         payload = JSON.stringify(payload)

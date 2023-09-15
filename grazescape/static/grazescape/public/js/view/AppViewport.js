@@ -153,12 +153,12 @@ Ext.define('DSS.view.AppViewport', {
 		DSS_viewport = me;
 		
 		// Terrible image cache
-		Ext.create('Ext.container.Container', {
-			style: 'background:url("/static/grazescape/public/images/graze_logo.png")',
-			width: 1, height: 1,
-			floating: true, 
-			shadow: false,
-		}).showAt(-1,-1);
+//		Ext.create('Ext.container.Container', {
+//			style: 'background:url("/static/grazescape/public/images/graze_logo.png")',
+//			width: 1, height: 1,
+//			floating: true,
+//			shadow: false,
+//		}).showAt(-1,-1);
 		
 		/*setTimeout(function() {
 			Ext.create('DSS.results.ResultsMain').show().center().maximize(true);

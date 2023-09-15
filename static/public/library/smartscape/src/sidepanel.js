@@ -943,6 +943,7 @@ class SidePanel extends React.Component{
                 baseTrans:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 base_calc: true,
+                region: this.props.region,
             }
         console.log(payload)
         payload = JSON.stringify(payload)
@@ -1091,9 +1092,21 @@ class SidePanel extends React.Component{
 //            pdf.html(document.getElementById("selChart1")).then(() => pdf.save('fileName.pdf'));
           var width = document.getElementById("map").offsetWidth
           var scale = (pageWidth / width)
+            let areaWatershed = this.state.modelOutputs.land_stats.area_watershed
+            let areaCalc = this.state.modelOutputs.land_stats.area_calc
+            let areaWatershedCalc = this.state.modelOutputs.land_stats.area_watershed_calc
+            let percentArea = (parseFloat(areaCalc)/parseFloat(areaWatershedCalc) * 100).toFixed(2)
+            let area = this.state.modelOutputs.land_stats.area
             console.log(width, scale)
+            console.log("font size", pdf)
+            let fontSize = pdf.getFontSize()
+            let newFontSize = 12
+            pdf.setFontSize(newFontSize)
 //            html2canvas(document.getElementById("map"),{scale:0.25}).then(function(canvasMap) {
 //                pdf.addPage(imgData,'l')
+
+                pdf.text("Total area Transformed: " + area + " acres ("+percentArea+"%)", 20, 20)
+                pdf.text("Total area in Work Area: "+ areaWatershed+ " acres", 20, 40)
                 pdf.autoTable({
                     html: '#transResultsTable',
                     styles: {
@@ -1101,9 +1114,11 @@ class SidePanel extends React.Component{
                      textColor:[0, 0, 0],
                      lineColor:[0, 0, 0],
                      lineWidth:1
-                     }
-                })
-
+                     },
+                     startY: 70,
+                }
+                )
+                pdf.setFontSize(fontSize)
 //
 //                var newCanvas = canvasMap.cloneNode(true);
 //                var ctx = newCanvas.getContext('2d');
@@ -1190,8 +1205,21 @@ class SidePanel extends React.Component{
 
 
                 pdf.addPage(imgData,'l')
+                pdf.text("By Selection", 20, 20)
                 pdf.autoTable({
                     html: '#summaryTable',
+                    styles: {
+                    fillColor: [0, 0, 0,0],
+                     textColor:[0, 0, 0],
+                     lineColor:[0, 0, 0],
+                     lineWidth:1
+                     }
+                })
+
+                pdf.addPage(imgData,'l')
+                pdf.text("By Watershed", 20, 20)
+                pdf.autoTable({
+                    html: '#summaryTable2',
                     styles: {
                     fillColor: [0, 0, 0,0],
                      textColor:[0, 0, 0],
@@ -1924,6 +1952,17 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
+                      <td>Cost per Ton-Dry Matter</td>
+                      <td className="table-cell-left">{base.econ}</td>
+                      <td>{model.econ}</td>
+                      <td>$/acre/year</td>
+                      <td className="table-cell-left">{base.econ_total}</td>
+                      <td>{model.econ_total}</td>
+                      <td>$/year</td>
+                      <td className="table-cell-left">{model.econ_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
                       <td>Erosion</td>
                       <td className="table-cell-left">{base.ero}</td>
                       <td>{model.ero}</td>
@@ -1932,6 +1971,17 @@ renderModal(){
                       <td>{model.ero_total}</td>
                       <td>tons/year</td>
                       <td className="table-cell-left">{model.ero_per_diff}</td>
+                      <td></td>
+                    </tr>
+                     <tr>
+                      <td>Soil Conditioning Index</td>
+                      <td className="table-cell-left">{base.sci}</td>
+                      <td>{model.sci}</td>
+                      <td>sci</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{model.sci_per_diff}</td>
                       <td></td>
                     </tr>
                     <tr>
@@ -1946,6 +1996,17 @@ renderModal(){
                       <td></td>
                     </tr>
                      <tr>
+                      <td>P Delivery to Water</td>
+                      <td className="table-cell-left">{base.ploss_del}</td>
+                      <td>{model.ploss_del}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{base.ploss_del_total}</td>
+                      <td>{model.ploss_del_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{model.ploss_del_per_diff}</td>
+                      <td></td>
+                    </tr>
+                     <tr>
                       <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{base.nitrate}</td>
                       <td>{model.nitrate}</td>
@@ -1956,17 +2017,7 @@ renderModal(){
                       <td className="table-cell-left">{model.nitrate_per_diff}</td>
                       <td></td>
                     </tr>
-                    <tr>
-                      <td>Soil Conditioning Index</td>
-                      <td className="table-cell-left">{base.sci}</td>
-                      <td>{model.sci}</td>
-                      <td>sci</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{model.sci_per_diff}</td>
-                      <td></td>
-                    </tr>
+
                    <tr>
                       <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {base.runoff}</td>
@@ -1978,6 +2029,17 @@ renderModal(){
                       <td className="table-cell-left">{model.runoff_per_diff}</td>
                       <td></td>
                    </tr>
+                    <tr>
+                      <td>Curve Number</td>
+                      <td className="table-cell-left">{base.cn}</td>
+                      <td>{model.cn}</td>
+                      <td>curve number</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{model.cn_per_diff}</td>
+                      <td></td>
+                    </tr>
                    <tr>
                       <td>Honey Bee Toxicity</td>
                       <td className="table-cell-left">{base.insect}</td>
@@ -1989,17 +2051,7 @@ renderModal(){
                       <td className="table-cell-left">{model.insect_per_diff}</td>
                       <td></td>
                    </tr>
-                   <tr>
-                      <td>Curve Number</td>
-                      <td className="table-cell-left">{base.cn}</td>
-                      <td>{model.cn}</td>
-                      <td>curve number</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{model.cn_per_diff}</td>
-                      <td></td>
-                    </tr>
+
                     <tr>
                       <td>Bird Friendliness</td>
                       <td className="table-cell-left">{base.bird}</td>
@@ -2011,33 +2063,13 @@ renderModal(){
                       <td className="table-cell-left">{model.bird_per_diff}</td>
                       <td></td>
                     </tr>
-                    <tr>
-                      <td>Cost per Ton-Dry Matter</td>
-                      <td className="table-cell-left">{base.econ}</td>
-                      <td>{model.econ}</td>
-                      <td>$/acre/year</td>
-                      <td className="table-cell-left">{base.econ_total}</td>
-                      <td>{model.econ_total}</td>
-                      <td>$/year</td>
-                      <td className="table-cell-left">{model.econ_per_diff}</td>
-                      <td></td>
-                    </tr>
-                     <tr>
-                      <td>P Delivery to Water</td>
-                      <td className="table-cell-left">{base.ploss_del}</td>
-                      <td>{model.ploss_del}</td>
-                      <td>lb/acre/year</td>
-                      <td className="table-cell-left">{base.ploss_del_total}</td>
-                      <td>{model.ploss_del_total}</td>
-                      <td>lb/year</td>
-                      <td className="table-cell-left">{model.ploss_del_per_diff}</td>
-                      <td></td>
-                    </tr>
+
+
                   </tbody>
                 </Table>
             <h4>By Watershed</h4>
 
-              <Table striped bordered hover size="sm" responsive>
+              <Table id = "summaryTable2" striped bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
                       <th></th>
@@ -2046,7 +2078,7 @@ renderModal(){
                       <th className="table-cell-left" colSpan={2}></th>
                     </tr>
                     <tr style={{textAlign:"center"}}>
-                      <th  >Variable</th>
+                      <th >Variable</th>
                       <th className="table-cell-left">Base</th>
                       <th>Transformation</th>
                       <th>Units</th>
@@ -2070,6 +2102,17 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
+                      <td>Cost per Ton-Dry Matter</td>
+                      <td className="table-cell-left">{baseWatershed.econ}</td>
+                      <td>{modelWatershed.econ}</td>
+                      <td>$/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.econ_total}</td>
+                      <td>{modelWatershed.econ_total}</td>
+                      <td>$/year</td>
+                      <td className="table-cell-left">{modelWatershed.econ_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
                       <td>Erosion</td>
                       <td className="table-cell-left">{baseWatershed.ero}</td>
                       <td>{modelWatershed.ero}</td>
@@ -2078,6 +2121,17 @@ renderModal(){
                       <td>{modelWatershed.ero_total}</td>
                       <td>tons/year</td>
                       <td className="table-cell-left">{modelWatershed.ero_per_diff}</td>
+                      <td></td>
+                    </tr>
+                     <tr>
+                      <td>Soil Conditioning Index</td>
+                      <td className="table-cell-left">{baseWatershed.sci}</td>
+                      <td>{modelWatershed.sci}</td>
+                      <td>sci</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.sci_per_diff}</td>
                       <td></td>
                     </tr>
                     <tr>
@@ -2092,6 +2146,17 @@ renderModal(){
                       <td></td>
                     </tr>
                     <tr>
+                      <td>P Delivery to Water</td>
+                      <td className="table-cell-left">{baseWatershed.ploss_del}</td>
+                      <td>{modelWatershed.ploss_del}</td>
+                      <td>lb/acre/year</td>
+                      <td className="table-cell-left">{baseWatershed.ploss_del_total}</td>
+                      <td>{modelWatershed.ploss_del_total}</td>
+                      <td>lb/year</td>
+                      <td className="table-cell-left">{modelWatershed.ploss_del_per_diff}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
                       <td>Total Nitrogen Loss to Water</td>
                       <td className="table-cell-left">{baseWatershed.nitrate}</td>
                       <td>{modelWatershed.nitrate}</td>
@@ -2102,17 +2167,7 @@ renderModal(){
                       <td className="table-cell-left">{modelWatershed.nitrate_per_diff}</td>
                       <td></td>
                     </tr>
-                    <tr>
-                      <td>Soil Conditioning Index</td>
-                      <td className="table-cell-left">{baseWatershed.sci}</td>
-                      <td>{modelWatershed.sci}</td>
-                      <td>lb/acre/year</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{modelWatershed.sci_per_diff}</td>
-                      <td></td>
-                    </tr>
+
                     <tr>
                       <td>Runoff (3 inch Storm)</td>
                       <td className="table-cell-left"> {baseWatershed.runoff}</td>
@@ -2122,17 +2177,6 @@ renderModal(){
                       <td>{modelWatershed.runoff_total}</td>
                       <td>acre-ft</td>
                       <td className="table-cell-left">{modelWatershed.runoff_per_diff}</td>
-                      <td></td>
-                   </tr>
-                   <tr>
-                      <td>Honey Bee Toxicity</td>
-                      <td className="table-cell-left">{baseWatershed.insect}</td>
-                      <td>{modelWatershed.insect}</td>
-                      <td>insecticide index</td>
-                      <td className="table-cell-left">NA</td>
-                      <td>NA</td>
-                      <td>NA</td>
-                      <td className="table-cell-left">{modelWatershed.insect_per_diff}</td>
                       <td></td>
                    </tr>
                    <tr>
@@ -2146,6 +2190,18 @@ renderModal(){
                       <td className="table-cell-left">{modelWatershed.cn_per_diff}</td>
                       <td></td>
                     </tr>
+                   <tr>
+                      <td>Honey Bee Toxicity</td>
+                      <td className="table-cell-left">{baseWatershed.insect}</td>
+                      <td>{modelWatershed.insect}</td>
+                      <td>insecticide index</td>
+                      <td className="table-cell-left">NA</td>
+                      <td>NA</td>
+                      <td>NA</td>
+                      <td className="table-cell-left">{modelWatershed.insect_per_diff}</td>
+                      <td></td>
+                   </tr>
+
                     <tr>
                       <td>Bird Friendliness</td>
                       <td className="table-cell-left">{baseWatershed.bird}</td>
@@ -2158,28 +2214,8 @@ renderModal(){
                       <td></td>
 
                     </tr>
-                    <tr>
-                      <td>Cost per Ton-Dry Matter</td>
-                      <td className="table-cell-left">{baseWatershed.econ}</td>
-                      <td>{modelWatershed.econ}</td>
-                      <td>$/acre/year</td>
-                      <td className="table-cell-left">{baseWatershed.econ_total}</td>
-                      <td>{modelWatershed.econ_total}</td>
-                      <td>$/year</td>
-                      <td className="table-cell-left">{modelWatershed.econ_per_diff}</td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>P Delivery to Water</td>
-                      <td className="table-cell-left">{baseWatershed.ploss_del}</td>
-                      <td>{modelWatershed.ploss_del}</td>
-                      <td>lb/acre/year</td>
-                      <td className="table-cell-left">{baseWatershed.ploss_del_total}</td>
-                      <td>{modelWatershed.ploss_del_total}</td>
-                      <td>lb/year</td>
-                      <td className="table-cell-left">{modelWatershed.ploss_del_per_diff}</td>
-                      <td></td>
-                    </tr>
+
+
                   </tbody>
                 </Table>
               </Tab>
@@ -2257,8 +2293,8 @@ renderModal(){
                  <div hidden={!this.state.showHuc12}> Hold shift to select multiple watersheds </div>
                   </InputGroup>
                   <h6>*All land transformations will reside in the work area</h6>
-                   <Button hidden={!this.state.showHuc12} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>
 
+                     {/*<Button hidden={!this.state.showHuc12} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>*/}
               </Row>
 
 
@@ -2615,8 +2651,8 @@ renderModal(){
                      <Stack gap={3}>
                      {/*
 
-                     */}
                      <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+                     */}
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />

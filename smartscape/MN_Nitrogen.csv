@@ -1,0 +1,69 @@
+RotationName,RotationAbbr,CropName,CropAbbr,coverAbbr,sand_percent,om_percent,rotation,density,legume,rotYrs,cropYear,FertN,ManureN,manureOnly,crop,cover,NfixPct,Nharv_content,NH3loss,grazedManureN,Pneeds,grazed_DM_lbs,grazed_P2O5_lbs
+cash grain,cg,corn grain,cn,gcds,>90,NA,NA,NA,NA,2,1,60,150,No,Corn grain to soybeans,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+cash grain,cg,corn grain,cn,gcds,<90,NA,NA,NA,NA,2,1,140,150,No,Corn grain to soybeans,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+cash grain,cg,corn grain,cn,gcis,>90,NA,NA,NA,NA,2,1,60,150,No,Corn grain to soybeans,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+cash grain,cg,corn grain,cn,gcis,<90,NA,NA,NA,NA,2,1,140,150,No,Corn grain to soybeans,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+cash grain,cg,corn grain,cn,nc,>90,NA,NA,NA,NA,2,1,60,150,No,Corn grain to soybeans,None,0,0.0155,5,0,60,0,0
+cash grain,cg,corn grain,cn,nc,<90,NA,NA,NA,NA,2,1,140,150,No,Corn grain to soybeans,None,0,0.0155,5,0,60,0,0
+cash grain,cg,corn grain,cn,cc,>90,NA,NA,NA,NA,2,1,60,150,No,Corn grain to soybeans,Small grain,0,0.0155,5,0,60,0,0
+cash grain,cg,corn grain,cn,cc,<90,NA,NA,NA,NA,2,1,140,150,No,Corn grain to soybeans,Small grain,0,0.0155,5,0,60,0,0
+cash grain,cg,soybeans,sb,gcds,NA,NA,NA,NA,NA,2,2,0,155,Yes,Corn grain to soybeans,Grazed cover,50,0.065,5,3,30,196.8,4.92
+cash grain,cg,soybeans,sb,gcis,NA,NA,NA,NA,NA,2,2,0,155,Yes,Corn grain to soybeans,Grazed cover,50,0.065,5,3,30,196.8,4.92
+cash grain,cg,soybeans,sb,nc,NA,NA,NA,NA,NA,2,2,0,155,Yes,Corn grain to soybeans,None,50,0.065,5,0,40,0,0
+cash grain,cg,soybeans,sb,cc,NA,NA,NA,NA,NA,2,2,0,155,Yes,Corn grain to soybeans,Small grain,50,0.065,5,0,40,0,0
+continuous corn,cc,corn grain,cn,gcds,>90,NA,NA,NA,NA,1,1,90,195,No,Continuous corn grain,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+continuous corn,cc,corn grain,cn,gcds,<90,NA,NA,NA,NA,1,1,175,195,No,Continuous corn grain,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+continuous corn,cc,corn grain,cn,gcis,>90,NA,NA,NA,NA,1,1,90,195,No,Continuous corn grain,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+continuous corn,cc,corn grain,cn,gcis,<90,NA,NA,NA,NA,1,1,175,195,No,Continuous corn grain,Grazed cover,0,0.0155,5,3,65,196.8,4.92
+continuous corn,cc,corn grain,cn,nc,>90,NA,NA,NA,NA,1,1,90,195,No,Continuous corn grain,None,0,0.0155,5,0,60,0,0
+continuous corn,cc,corn grain,cn,nc,<90,NA,NA,NA,NA,1,1,175,195,No,Continuous corn grain,None,0,0.0155,5,0,60,0,0
+continuous corn,cc,corn grain,cn,cc,>90,NA,NA,NA,NA,1,1,90,195,No,Continuous corn grain,Small grain,0,0.0155,5,0,60,0,0
+continuous corn,cc,corn grain,cn,cc,<90,NA,NA,NA,NA,1,1,175,195,No,Continuous corn grain,Small grain,0,0.0155,5,0,60,0,0
+corn silage-soy-oats,cso,corn silage,cs,gcds,>90,NA,NA,NA,NA,3,1,90,195,No,Corn silage to soybeans to oats,Grazed cover,0,0.0125,5,3,80,64.8,1.62
+corn silage-soy-oats,cso,corn silage,cs,gcds,<90,NA,NA,NA,NA,3,1,175,195,No,Corn silage to soybeans to oats,Grazed cover,0,0.0125,5,3,80,64.8,1.62
+corn silage-soy-oats,cso,corn silage,cs,gcis,>90,NA,NA,NA,NA,3,1,90,195,No,Corn silage to soybeans to oats,Grazed cover,0,0.0125,5,3,80,64.8,1.62
+corn silage-soy-oats,cso,corn silage,cs,gcis,<90,NA,NA,NA,NA,3,1,175,195,No,Corn silage to soybeans to oats,Grazed cover,0,0.0125,5,3,80,64.8,1.62
+corn silage-soy-oats,cso,corn silage,cs,nc,>90,NA,NA,NA,NA,3,1,90,195,No,Corn silage to soybeans to oats,None,0,0.0125,5,0,80,0,0
+corn silage-soy-oats,cso,corn silage,cs,nc,<90,NA,NA,NA,NA,3,1,175,195,No,Corn silage to soybeans to oats,None,0,0.0125,5,0,80,0,0
+corn silage-soy-oats,cso,corn silage,cs,cc,>90,NA,NA,NA,NA,3,1,90,195,No,Corn silage to soybeans to oats,Small grain,0,0.0125,5,0,80,0,0
+corn silage-soy-oats,cso,corn silage,cs,cc,<90,NA,NA,NA,NA,3,1,175,195,No,Corn silage to soybeans to oats,Small grain,0,0.0125,5,0,80,0,0
+corn silage-soy-oats,cso,oats,ot,gcds,NA,<3,NA,NA,NA,3,3,40,40,No,Corn silage to soybeans to oats,Grazed cover,0,0.022,5,0,20,64.8,1.62
+corn silage-soy-oats,cso,oats,ot,gcds,NA,>3,NA,NA,NA,3,3,30,30,No,Corn silage to soybeans to oats,Grazed cover,0,0.022,5,0,20,64.8,1.62
+corn silage-soy-oats,cso,oats,ot,gcis,NA,<3,NA,NA,NA,3,3,40,40,No,Corn silage to soybeans to oats,Grazed cover,0,0.022,5,0,20,64.8,1.62
+corn silage-soy-oats,cso,oats,ot,gcis,NA,>3,NA,NA,NA,3,3,30,30,No,Corn silage to soybeans to oats,Grazed cover,0,0.022,5,0,20,64.8,1.62
+corn silage-soy-oats,cso,oats,ot,nc,NA,<3,NA,NA,NA,3,3,40,40,No,Corn silage to soybeans to oats,None,0,0.022,5,0,20,0,0
+corn silage-soy-oats,cso,oats,ot,nc,NA,>3,NA,NA,NA,3,3,30,30,No,Corn silage to soybeans to oats,None,0,0.022,5,0,20,0,0
+corn silage-soy-oats,cso,oats,ot,cc,NA,<3,NA,NA,NA,3,3,40,40,No,Corn silage to soybeans to oats,Small grain,0,0.022,5,0,20,0,0
+corn silage-soy-oats,cso,oats,ot,cc,NA,>3,NA,NA,NA,3,3,30,30,No,Corn silage to soybeans to oats,Small grain,0,0.022,5,0,20,0,0
+corn silage-soy-oats,cso,soybeans,sb,gcds,NA,NA,NA,NA,NA,3,2,0,155,Yes,Corn silage to soybeans to oats,Grazed cover,50,0.065,5,0,40,64.8,1.62
+corn silage-soy-oats,cso,soybeans,sb,gcis,NA,NA,NA,NA,NA,3,2,0,155,Yes,Corn silage to soybeans to oats,Grazed cover,50,0.065,5,0,40,64.8,1.62
+corn silage-soy-oats,cso,soybeans,sb,nc,NA,NA,NA,NA,NA,3,2,0,155,Yes,Corn silage to soybeans to oats,None,50,0.065,5,0,40,0,0
+corn silage-soy-oats,cso,soybeans,sb,cc,NA,NA,NA,NA,NA,3,2,0,155,Yes,Corn silage to soybeans to oats,Small grain,50,0.065,5,0,40,0,0
+dairy rotation,dr,alfalfa,af,gcds,NA,NA,NA,NA,NA,5,4,0,155,Yes,Corn silage to corn grain to alfalfa (3x),Grazed cover,70,0.029,5,0,40,38.4,0.96
+dairy rotation,dr,alfalfa,af,gcds,NA,NA,NA,NA,NA,5,5,0,155,Yes,Corn silage to corn grain to alfalfa (3x),Grazed cover,70,0.029,5,0,40,38.4,0.96
+dairy rotation,dr,alfalfa,af,gcis,NA,NA,NA,NA,NA,5,4,0,155,Yes,Corn silage to corn grain to alfalfa (3x),Grazed cover,70,0.029,5,0,40,38.4,0.96
+dairy rotation,dr,alfalfa,af,gcis,NA,NA,NA,NA,NA,5,5,0,155,Yes,Corn silage to corn grain to alfalfa (3x),Grazed cover,70,0.029,5,0,40,38.4,0.96
+dairy rotation,dr,alfalfa,af,nc,NA,NA,NA,NA,NA,5,4,0,155,Yes,Corn silage to corn grain to alfalfa (3x),None,70,0.029,5,0,40,0,0
+dairy rotation,dr,alfalfa,af,nc,NA,NA,NA,NA,NA,5,5,0,155,Yes,Corn silage to corn grain to alfalfa (3x),None,70,0.029,5,0,40,0,0
+dairy rotation,dr,alfalfa,af,cc,NA,NA,NA,NA,NA,5,4,0,155,Yes,Corn silage to corn grain to alfalfa (3x),Small grain,70,0.029,5,0,40,0,0
+dairy rotation,dr,alfalfa,af,cc,NA,NA,NA,NA,NA,5,5,0,155,Yes,Corn silage to corn grain to alfalfa (3x),Small grain,70,0.029,5,0,40,0,0
+dairy rotation,dr,alfalfa seeding spring,as,gcds,NA,NA,NA,NA,NA,5,3,25,100,Yes,Corn silage to corn grain to alfalfa (3x),Grazed cover,70,0.029,5,0,25,38.4,0.96
+dairy rotation,dr,alfalfa seeding spring,as,gcis,NA,NA,NA,NA,NA,5,3,25,100,Yes,Corn silage to corn grain to alfalfa (3x),Grazed cover,70,0.029,5,0,25,38.4,0.96
+dairy rotation,dr,alfalfa seeding spring,as,nc,NA,NA,NA,NA,NA,5,3,25,100,Yes,Corn silage to corn grain to alfalfa (3x),None,70,0.029,5,0,25,0,0
+dairy rotation,dr,alfalfa seeding spring,as,cc,NA,NA,NA,NA,NA,5,3,25,100,Yes,Corn silage to corn grain to alfalfa (3x),Small grain,70,0.029,5,0,25,0,0
+dairy rotation,dr,corn grain,cn,gcds,NA,NA,NA,NA,NA,5,2,80,80,No,Corn silage to corn grain to alfalfa (3x),Grazed cover,0,0.0155,5,0,60,38.4,0.96
+dairy rotation,dr,corn grain,cn,gcis,NA,NA,NA,NA,NA,5,2,80,80,No,Corn silage to corn grain to alfalfa (3x),Grazed cover,0,0.0155,5,0,60,38.4,0.96
+dairy rotation,dr,corn grain,cn,nc,NA,NA,NA,NA,NA,5,2,80,80,No,Corn silage to corn grain to alfalfa (3x),None,0,0.0155,5,0,60,0,0
+dairy rotation,dr,corn grain,cn,cc,NA,NA,NA,NA,NA,5,2,80,80,No,Corn silage to corn grain to alfalfa (3x),Small grain,0,0.0155,5,0,60,0,0
+dairy rotation,dr,corn silage,cs,gcds,NA,NA,NA,NA,NA,5,1,20,40,No,Corn silage to corn grain to alfalfa (3x),Grazed cover,0,0.0125,5,3,80,38.4,0.96
+dairy rotation,dr,corn silage,cs,gcis,NA,NA,NA,NA,NA,5,1,20,40,No,Corn silage to corn grain to alfalfa (3x),Grazed cover,0,0.0125,5,3,80,38.4,0.96
+dairy rotation,dr,corn silage,cs,nc,NA,NA,NA,NA,NA,5,1,20,40,No,Corn silage to corn grain to alfalfa (3x),None,0,0.0125,5,0,80,0,0
+dairy rotation,dr,corn silage,cs,cc,NA,NA,NA,NA,NA,5,1,20,40,No,Corn silage to corn grain to alfalfa (3x),Small grain,0,0.0125,5,0,80,0,0
+dry lot-high,dl_hi,dry lot,dl_hi,NA,NA,NA,NA,high,NA,1,1,0,0,No,Dry lot,NA,0,0,5,360,0,24009.6,600.24
+dry lot-low,dl_lo,dry lot,dl_lo,NA,NA,NA,NA,low,NA,1,1,0,0,No,Dry lot,NA,0,0,5,72,0,4802.4,120.06
+pasture_ cont_ high_ legume,pt_cn_hi_lg,pasture,pt_cn_hi_lg,NA,NA,NA,cn,high,yes,1,1,0,80,Yes,Pasture,NA,70,0.021,5,54,40,3602.4,90.06
+pasture_ cont_ high_ no legume,pt_cn_hi_nl,pasture,pt_cn_hi_nl,NA,NA,NA,cn,high,no,1,1,60,110,No,Pasture,NA,0,0.0176,5,54,40,3602.4,90.06
+pasture_ cont_ low_ legume,pt_cn_lo_lg,pasture,pt_cn_lo_lg,NA,NA,NA,cn,low,yes,1,1,0,80,Yes,Pasture,NA,70,0.021,5,18,40,1200,30
+pasture_ cont_ low_ no legume,pt_cn_lo_nl,pasture,pt_cn_lo_nl,NA,NA,NA,cn,low,no,1,1,60,110,No,Pasture,NA,0,0.0176,5,18,40,1200,30
+pasture_ rotational_ legume,pt_rt_lg,pasture,pt_rt_lg,NA,NA,NA,rt,NA,yes,1,1,0,80,Yes,Pasture,NA,70,0.021,5,36,40,2400,60
+pasture_ rotational_ no legume,pt_rt_nl,pasture,pt_rt_nl,NA,NA,NA,rt,NA,no,1,1,60,110,No,Pasture,NA,0,0.0176,5,36,40,2400,60
