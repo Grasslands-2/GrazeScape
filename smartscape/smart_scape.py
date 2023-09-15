@@ -796,7 +796,7 @@ class SmartScape:
                 "econ": econ_cost["dairyRotation"], "nitrate": base_nitrate_data["dairy"], "sci": dairy_sci_arr},
             6: {"name": "potVeg", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12,
                 "bird": 0,
-                "econ": econ_cost["contCorn"], "nitrate": 0, "sci": 0},
+                "econ": econ_cost["contCorn"], "nitrate": 53, "sci": 0},
             7: {"name": "cran", "is_calc": False, "yield": 0, "ero": 0, "ploss": 2, "cn": 75, "insect": 0.12, "bird": 0,
                 "econ": econ_cost["contCorn"], "nitrate": 0, "sci": 0},
             8: {"name": "hayGrassland", "is_calc": True, "yield": hay_yield_arr, "ero": hay_er_arr, "ploss": hay_pl_arr,
