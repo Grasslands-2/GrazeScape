@@ -157,8 +157,6 @@ class CalcManureP(ModelBase):
         crop_key = crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + cell_nresponse + "_" + om_text
         for i in rot_yrs_crop:
             if mn:
-
-
                 if i == 'pt_rt':
                     crop_key = f"{crop}_{legume_text}_{crop}_{legume_text}_NA_NA_NA"
                 elif i == 'pt_cn':
@@ -174,7 +172,6 @@ class CalcManureP(ModelBase):
                     crop_key = f"{crop}_{i}_{cover_crop}_{sand_string}_NA"
                 elif crop == "cso" and i == "ot":
                     crop_key = f"{crop}_{i}_{cover_crop}_NA_{om_mn_string}"
-
                 # all dr and cso (only soy bean)
                 else:
                     crop_key = f"{crop}_{i}_{cover_crop}_NA_NA"
@@ -184,7 +181,6 @@ class CalcManureP(ModelBase):
                     crop_key = crop + "_" + legume_text + "_" + crop + "_" + legume_text + "_" + cover_crop + "_" + om_text
                 elif i == 'pt_cn':
                     crop_key = crop + "_" + animal_density_text + "_" + legume_text + "_" + crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + om_text
-
                 elif i == 'dl':
                     crop_key = crop + "_" + animal_density_text + "_" + cover_crop + "_" + cell_nresponse
                 else:

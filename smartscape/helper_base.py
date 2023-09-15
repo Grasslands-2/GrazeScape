@@ -26,10 +26,11 @@ import numpy as np
 
 def download_base_rasters_helper(request, geo_folder):
     print("starting to download base rasters")
-    manure_options = get_phos_fert_options(request, True)
     request_json = js.loads(request.body)
     # geo_folder = request_json["folderId"]
     region = request_json['region']
+    manure_options = get_phos_fert_options(request, True, region)
+    print("manure options", manure_options)
     base_scen = request_json['baseTrans']
     geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                               'raster_inputs', geo_folder)
@@ -90,6 +91,7 @@ def download_base_rasters_helper(request, geo_folder):
                                      "srsName=EPSG:3071&request=GetCoverage&CoverageId="
     workspace = "SmartScapeRaster_" + region + ":"
     threads_list = []
+    print("geofolder file path", geo_folder)
     folder_base = os.path.join(geo_folder, "base")
     if not os.path.exists(folder_base):
         os.makedirs(folder_base)
@@ -115,7 +117,7 @@ def download(link, filelocation):
                 f.write(chunk)
 
 
-def get_phos_fert_options(request, base_calc):
+def get_phos_fert_options(request, base_calc, region):
     """
     Calculate p manure and avialable p fert options for each transformation and base case
     Parameters
@@ -155,10 +157,17 @@ def get_phos_fert_options(request, base_calc):
             return False
         dir_list = os.listdir(geo_folder_func)
         print(dir_list)
-        if "om.tif" in dir_list and "drainClass.tif" in dir_list and "nResponse.tif" in dir_list:
-            return True
+        if region != "pineRiverMN":
+            if "om.tif" in dir_list and "drainClass.tif" in dir_list and "nResponse.tif" in dir_list:
+                return True
+            else:
+                return False
         else:
-            return False
+            print("region", region)
+            if "om.tif" in dir_list and "drainClass.tif" in dir_list:
+                return True
+            else:
+                return False
 
     files_loaded = check_file_path(geo_folder)
     while not files_loaded:
@@ -168,7 +177,7 @@ def get_phos_fert_options(request, base_calc):
 
     model = SmartScape(request_json, folder_id, folder_id)
     model.geo_folder = geo_folder
-    model.load_nrec()
+    model.load_nrec(region)
     arr_holder = []
     if not base_calc:
         trans = request_json['trans']
@@ -186,7 +195,10 @@ def get_phos_fert_options(request, base_calc):
             cell_count_trans = np.count_nonzero(arr == float(layer_rank))
             print(np.unique(arr, return_counts=True))
             print("cell count for transition ", cell_count_trans)
-            n_parameters = model.get_nitrate_params(tran, arr, layer_rank)
+            if region == "pineRiverMN":
+                n_parameters = model.get_nitrate_params_mn(tran, arr, layer_rank)
+            else:
+                n_parameters = model.get_nitrate_params(tran, arr, layer_rank)
             print("n_parameters", n_parameters)
             manure_p_bounds, manure_value = model.calc_p(tran, n_parameters["nirate_inputs"])
             manure_p = str(manure_p_bounds)
@@ -207,10 +219,13 @@ def get_phos_fert_options(request, base_calc):
         total_total_cell = np.count_nonzero(arr > -9999)
         print("crop cells", total_cells)
         print("total cells", np.count_nonzero(arr > -9999))
-        # n_parameters = model.get_nitrate_params_base(base, arr, total_cells)
         # print(n_parameters)
         # looks at whole raster so use all valid cells here but final value only uses crop land cells
-        n_parameters = model.get_nitrate_params_base(base, arr, total_total_cell)
+        if region == "pineRiverMN":
+            n_parameters = model.get_nitrate_params_base_mn(base, arr, total_total_cell)
+        else:
+            n_parameters = model.get_nitrate_params_base(base, arr, total_total_cell)
+        print("done with n parameters!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(n_parameters)
 
         def calc_p_local(tran, nrec_trans, name):

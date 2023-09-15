@@ -23,9 +23,10 @@ class Header extends React.Component{
                 <img
                   alt=""
                   src= {static_logo}
-                  width="50%"
+                  width="30%"
                   className="d-inline-block align-top"
                 />
+                v 0.1
                 </Navbar.Brand>
                 <Nav className="justify-content-center ">
                   <Nav.Link href="/">Main Menu</Nav.Link>

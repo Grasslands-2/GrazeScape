@@ -100,30 +100,21 @@ Ext.define('DSS.state.ApplicationFlow', {
 		Ext.applyIf(me, {
 			items: [{
 				xtype: 'container',
-				layout: DSS.utils.layout('hbox', 'start', 'stretch'),
+				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 				
 				// Top Section (Logo, Titles, MenuWidgets, and general application flow controls)
 				//----------------------------------------------------------------------------------
-				items: [{
+				items: [
+				{
 					xtype: 'component',
-					cls: 'accent-text section-title',
-					padding: '4 8',
-					html: '<i class="fas fa-bars"></i>',
-					listeners: {
-						render: function(c) {
-							c.getEl().getFirstChild().el.on({
-								click: function() {
-									Ext.create({xtype: 'navigation_menu'}).showMenu();
-								}
-							});
-						}
-					}					
+					height: 80,
+					style: 'background-image: url("/static/grazescape/public/images/GrazeScape-icon-title.png"); background-size: contain; background-repeat: no-repeat',
 				},
 				{
 					xtype: 'component',
-					flex: 1,
-					height: 114, margin: '8 8 0 -12',
-					style: 'background-image: url("/static/grazescape/public/images/graze_logo.png"); background-size: contain; background-repeat: no-repeat',
+					html: '  v 0.2',
+					cls: 'information med-text',
+
 				},
 			]
 			},{

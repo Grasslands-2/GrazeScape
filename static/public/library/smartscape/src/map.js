@@ -589,7 +589,7 @@ class OLMapFragment extends React.Component {
         this.cloverBelt = new VectorLayer({
             renderMode: 'image',
             name: "cloverBelt",
-          source:new VectorSource({
+            source:new VectorSource({
               url: static_global_folder + 'smartscape/gis/LearningHubs/cloverBelt.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
@@ -616,6 +616,16 @@ class OLMapFragment extends React.Component {
             }),
             style: this.stylesBoundary,
         });
+        this.pineRiver = new VectorLayer({
+            renderMode: 'image',
+            name: "redCedar",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/pineRiverMN.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
         // base map
         this.layers = [
             new TileLayer({
@@ -633,6 +643,7 @@ class OLMapFragment extends React.Component {
             this.southWest,
             this.uplands,
             this.redCedar,
+            this.pineRiver,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
@@ -769,6 +780,13 @@ class OLMapFragment extends React.Component {
                 else if (f.target.item(0).get("NAME") == "Barron"){
                     region = "redCedarWI"
                 }
+                 else if (f.target.item(0).get("NAME") == "pineRiverMN"){
+                    region = "pineRiverMN"
+                }
+                else{
+                    throw new Error("Invalid region");
+                }
+                console.log("region@@@@@@@@@@@@@", f.target.item(0).get("NAME"), region)
                 this.setActiveRegion(region)
 
                 return
