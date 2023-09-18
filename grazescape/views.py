@@ -311,7 +311,6 @@ def geoserver_request(request):
     if "field_2" in pay_load and request_type == "delete":
         payloadstr = str(pay_load)
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
-        print(resultdel.group(1))
 
         # PngHandler seems to be missing from PngHandler script ask Matt about that
         png_handler = pgh
@@ -325,22 +324,11 @@ def geoserver_request(request):
 
     if request_type == "insert_farm":
 
-        # print("URL HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-        # if request_type == "insert_farm":
-        print('IN INSERT FARM!!!!!#######################!')
-        # print(str(url))
-        # if "farm_2" in str(url):
-        # print('IN INSERT FARM!!!!!! MAKEREQUEST RESULTS RIGHT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print("RESULT AND resultstr in insert farm backend")
-        print(result)
         resultstr = str(result)
         if "farm_2" in resultstr:
             pattern = 'farm_2.(.*?)"/>'
             feature_id = re.search(pattern, resultstr).group(1)
-            print("feature_id in insert_farm geoserver request")
-            print(feature_id)
-            print(request.user.id)
             # feature_id = 9675
 
             # pull gid from the results text.  Also, find a way to limit the update_user_farms to only farm_2 inserts
@@ -350,45 +338,36 @@ def geoserver_request(request):
             update_user_farms(request.user.id, feature_id)
 
     if request_type == "source_farm":
-        print("source Farm result!!!!!!!!")
-        print(result)
+
         input_dict = json.loads(result)
         # current_user = request.user
-        # print("\n \n")
         features = input_dict["features"]
         # farm_ids = get_user_farms(current_user.id)
         # Filter python objects with list comprehensions
-        # print(features[0]["properties"])
-        print("FARM_IDS FROM SOURCE_FARM!!!!!!")
-        print(farm_ids)
+
         output_dict = [x for x in features if x["properties"]['gid'] in farm_ids]
         input_dict["features"] = output_dict
         # Transform python object back into json
         output_json = json.dumps(input_dict)
         result = output_json
-        # print("source Farm result!!!!!!!!")
-        # print(result)
+
     return JsonResponse({"data": result}, safe=False)
 
 
 # Gets OM from OM raster layer
 @login_required
 def get_default_om(request):
-    # print(request.POST)
     field_id = str(uuid.uuid4())
     active_region = request.POST.getlist("active_region")[0]
     extents = request.POST.getlist("extents[]")
-    # print("the extents are ", extents)
     field_coors = []
     for coor in request.POST:
         if "coordinates" in coor:
             field_coors.append(request.POST.getlist(coor))
-    # print(field_coors)
 
     geo_data = RasterData(extents, field_coors, field_id, active_region, True, True)
 
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
-    # print(clipped_rasters)
     om = clipped_rasters["om"].flatten()
     sum = 0
     count = 0
@@ -396,7 +375,6 @@ def get_default_om(request):
         if val != geo_data.no_data:
             sum = sum + val
             count = count + 1
-    # print("average om is ", round(sum / count, 2))
     avg_val = sum / count
     if avg_val > 20:
         avg_val = 20
@@ -405,7 +383,6 @@ def get_default_om(request):
 
 # This gets the model results from the model results table
 def get_P_Manure_Results(request, clipped_rasters):
-    print(" in pmanure")
     try:
         P_Manure_Model = CalcManureP(request)
         P_Manure_Model.raster_inputs = clipped_rasters
@@ -461,7 +438,6 @@ def get_model_results(request):
     clipped_rasters, bounds = geo_data.get_clipped_rasters()
     print("done downloading ", time.time() - start)
     p_manure_Results = get_P_Manure_Results(request, clipped_rasters)
-    print("p_manure_results!!!!!!!!!!!!!", p_manure_Results)
     is_grass = False
     model_grass1 = None
     model_grass2 = None
@@ -524,7 +500,6 @@ def get_model_results(request):
         # loop here to build a response for all the model types
         print("models start running ", time.time() - start)
         results = []
-        test_matrix = [[5, 6, 7, 8], [9, 10, 11, 12]]
         if model_type == 'yield':
             results = run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_Results,
                                    model_sci, model_grass1, model_grass2)
@@ -534,51 +509,13 @@ def get_model_results(request):
             results.append(econ_results[0])
             results.append(insect_results[0])
 
-            # start1 = time.time()
-            # yield_results = model_yield.run_model(p_manure_Results)
-            # print("yield model ran", time.time() - start1)
-            # start1 = time.time()
-            # model_rain_results = model_rain.run_model(p_manure_Results)
-            # print("runoff model ran", time.time() - start1)
-
-            # ero_results = model_ero.run_model(p_manure_Results)[0]
-            # sci_results = model_sci.run_model(p_manure_Results, ero_results, None)
-            # print(sci_results)
-            # phos_results = model_phos.run_model(p_manure_Results, ero_results, yield_results)
-            # nitrogen_results = model_nit.run_model(p_manure_Results, ero_results, yield_results)
-            # results = yield_results
-            # results.append(model_rain_results[0])
-            # results.append(model_rain_results[1])
-            # results.append(ero_results)
-            # results.append(phos_results[0])
-            # results.append(nitrogen_results[0])
-            # results.append(nitrogen_results[1])
-            # results.append(sci_results[0])
-        #
-        # matrix_out = OutputDataNode("grass_matrix", "", "", "", "")
-        # matrix_out.set_data(test_matrix)
-        # results.append(matrix_out)
         return_data = []
         # convert area from sq meters to acres
         area = float(request.POST.get('model_parameters[area]'))
         # probably use threads here and use numpy in the png creation
         print("models done running ", time.time() - start)
-        print(results)
         for result in results:
-            # if result.model_type == "grass_matrix":
-            #     data = {"matrix": result.data, "model_type": "grassMatrix", "type": "grassMatrix"}
-            #     return_data.append(data)
-            #     continue
 
-            # print('RESULT HERE!!!')
-            # print(result.model_type)
-
-            # if "ero" == result.model_type:
-            #     old_data = result.data[0]
-            #     print(result)
-            #     print(old_data)
-            #     new_data = np.where(old_data < 0.01, .01, old_data)
-            #     result.set_data(new_data)
             if result.model_type == "insect" or result.model_type == "econ":
                 sum = result.data[0]
                 avg = sum
@@ -587,8 +524,7 @@ def get_model_results(request):
                 values_legend = []
 
             else:
-                # print(geo_data.bounds)
-                # print(result.data)
+
                 avg, sum, count = model_yield.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
                 palette, values_legend = model_yield.get_legend()
                 # this part takes about 45% of the total time
@@ -636,12 +572,7 @@ def get_model_results(request):
                 "model_run_timestamp": model_run_timestamp,
                 "p_manure_Results": p_manure_Results
             }
-            # print("field data ", data)
-            # move this outside of the loop or make it async
-            # if field_exists:
-            #     update_field_results_async(field_id, scenario_id, farm_id, data, False)
-            # else:
-            #     update_field_results_async(field_id, scenario_id, farm_id, data, True)
+
             return_data.append(data)
         print("Results Loop Done ", time.time() - start)
         # update_field_dirty(field_id, scenario_id, farm_id)

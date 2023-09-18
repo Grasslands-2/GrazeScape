@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from PIL import Image
 import numpy as np
-# np.set_printoptions(threshold=np.inf)
 from django.conf import settings
 import os
 import pandas as pd
@@ -10,7 +9,8 @@ import uuid
 import grazescape.model_defintions.utilities as ut
 import pickle
 from pyper import R
-
+import functools
+import time
 
 class ModelBase:
     def __init__(self, request, active_region, file_name=None):
@@ -20,12 +20,9 @@ class ModelBase:
         model_type = request.POST.get('model_parameters[model_type]')
         active_region = request.POST.get('model_parameters[active_region]')
         self.scenario_id = request.POST.getlist("scenario_id")[0]
-        # self.fertNrec = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/NmodelInputs_final_grazed.csv")
-        # self.denitLoss = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/denitr.csv")
-        # self.Nvars = pd.read_csv(r"grazescape/static/grazescape/public/nitrate_tables/Nvars.csv")
-
+        print("file name is ", file_name)
         if file_name is None:
-            file_name = model_type + field_id + '_' + model_run_timestamp  ##+'_'+ str(uuid.uuid1())##
+            file_name = model_type + field_id
         self.file_name = file_name
         self.field_id = field_id
         self.model_run_timestamp = model_run_timestamp
@@ -69,6 +66,19 @@ class ModelBase:
         self.no_data = -9999
         self.model_parameters = self.parse_model_parameters(request)
         self.raster_inputs = {}
+
+    def log_start_end(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            start = time.time()
+            # print(f"Function '{func}' started.")
+            result = func(*args, **kwargs)
+            end = time.time() - start
+
+            print(f"Function '{func}' ended.", end)
+            return result
+
+        return wrapper
 
     def parse_model_parameters(self, request):
         om = float(request.POST.getlist("model_parameters[om]")[0])
@@ -138,6 +148,7 @@ class ModelBase:
         return self.file_name
 
     @abstractmethod
+    @log_start_end
     def run_model(self):
         pass
 
@@ -217,7 +228,6 @@ class ModelBase:
                         min_val = data[y][x]
                     sum_val = sum_val + data[y][x]
                     count = count + 1
-        # print("The cell count is ", count)
         return min_val, max_val, sum_val / count, sum_val, count
 
     def sum_count(self, data, no_data_array):

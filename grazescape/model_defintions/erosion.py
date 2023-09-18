@@ -10,6 +10,7 @@ class Erosion(ModelBase):
     def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
+    @ModelBase.log_start_end
     def run_model(self, manure_results):
         r = R(RCMD=self.r_file_path, use_pandas=True)
         erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)", "Soil loss (tons/ac/yr)",
@@ -81,7 +82,6 @@ class Erosion(ModelBase):
         r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
         r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
 
-        print("cc file path for erosion", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
 
         r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")

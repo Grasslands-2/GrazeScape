@@ -53,6 +53,7 @@ class RasterDataSmartScape:
         self.dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
                                      'data_files', 'raster_inputs',
                                      self.file_name)
+
         self.layer_dic = {
             "slope": "SmartScapeRaster_" + region + ":" + region + "_slopePer_30m",
             "landuse": "SmartScapeRaster_" + region + ":" + region + "_WiscLand_30m",
@@ -61,11 +62,13 @@ class RasterDataSmartScape:
             "farm_class": "SmartScapeRaster_" + region + ":" + region + "_farmClass_30m",
             "om": "SmartScapeRaster_" + region + ":" + region + "_om_30m",
             "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
-            "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
+            # "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
             "hydgrp": "SmartScapeRaster_" + region + ":" + region + "_hydgrp_30m",
             "pDel": "SmartScapeRaster_" + region + ":" + region + "_pDelivFactor_30m",
-
+            "sand": "SmartScapeRaster_" + region + ":" + region + "_sand_30m",
         }
+        if region != "pineRiverMN":
+            self.layer_dic["nResponse"] = "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m"
         self.extents = extents
         self.field_id = field_id
         geo_server_url = settings.GEOSERVER_URL

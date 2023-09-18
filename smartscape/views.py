@@ -25,8 +25,11 @@ import smartscape.helper_base
 import numpy as np
 from osgeo import gdalconst as gc
 
+
 def offline(request):
     return render(request, 'offline.html')
+
+
 @login_required
 def index(request):
     """
@@ -57,8 +60,9 @@ def index(request):
         "uplandsWI_Huc12",
         "northeastWI_Huc12",
         "redCedarWI_Huc12",
+        "pineRiverMN_Huc12",
     ]
-    threads =[]
+    threads = []
     for name in file_names:
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
         print("downloading", url)
@@ -193,8 +197,10 @@ def get_phos_fert_options(request):
             Contains the trans/base id and the p values
     """
     request_json = js.loads(request.body)
+    print(request_json)
     base_calc = request_json['base_calc']
-    return_data = smartscape.helper_base.get_phos_fert_options(request, base_calc)
+    region = request_json["region"]
+    return_data = smartscape.helper_base.get_phos_fert_options(request, base_calc, region)
     return JsonResponse({"response": return_data}, safe=False)
 
 

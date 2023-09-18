@@ -37,9 +37,7 @@ class Econ(ModelBase):
         # fert_n_perc = request.POST.get("model_parameters[fert_n_perc]")/100
 
 
-        print('IN ECON MODAL PYTHON SCRIPT!!!')
         return_data = []
-        print(self.model_parameters)
         #sceanrio variables
         alfalfaMachCost = float(self.model_parameters["alfalfaMachCost"])
         alfalfaMachCostY1 = float(self.model_parameters["alfalfaMachCostY1"])
@@ -66,11 +64,7 @@ class Econ(ModelBase):
         cover_crop = self.model_parameters["crop_cover"]
         fert_p_perc = float(self.model_parameters["fert_p_perc"])/100
         fert_n_perc = float(self.model_parameters["fert_n_perc"])/100
-        print("fert_n_perc decimal check!!!!")
-        print(fert_n_perc)
-        print(fert_p_perc)
-        print('CROP!!!')
-        print(crop)
+
         cost_of_field = 0
         cost_per_acre = 0
         cost_of_fert_per_acre = 0
@@ -169,8 +163,8 @@ class Econ(ModelBase):
         # data_array.append(cost_per_acre)
         # print(cost_of_fert_per_acre)
         # print(cost_of_field)
-        print("COST PER ACRE!")
-        print(cost_per_acre)
+        # print("COST PER ACRE!")
+        # print(cost_per_acre)
         #data = [cost_per_acre]
         #return_data.append(data)
         #return_data.append(model_type)
