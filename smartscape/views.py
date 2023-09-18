@@ -55,10 +55,10 @@ def index(request):
         os.makedirs(dir_path)
     # download the watersheds for the learning hubs
     file_names = [
-        "CloverBeltWI_Huc12",
+        "cloverBeltWI_Huc12",
         "southWestWI_Huc12",
         "uplandsWI_Huc12",
-        "northEastWI_Huc12",
+        "northeastWI_Huc12",
         "redCedarWI_Huc12",
         "pineRiverMN_Huc12",
     ]
