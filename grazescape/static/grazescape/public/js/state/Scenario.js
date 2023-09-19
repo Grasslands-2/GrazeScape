@@ -482,14 +482,14 @@ Ext.define('DSS.state.Scenario', {
 				],
 			  },
 			  {
-				xtype: "component",
-				cls: "information med-text",
-				html: "Farm: " + DSS.farmName,
+				xtype: 'component',
+				cls: 'information',
+				html: 'Farm: '+ DSS.farmName.bold(),
 			  },
 			  {
 				xtype: "component",
-				cls: "information med-text",
-				html: "Scenario: " + DSS.scenarioName,
+				cls: "information",
+				html: "Scenario: " + DSS.scenarioName.bold(),
 			  },
 			  {
 				xtype: "component",
