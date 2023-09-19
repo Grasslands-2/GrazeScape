@@ -437,471 +437,464 @@ Ext.define('DSS.state.Scenario', {
 			  margin: "1rem",
 			},
 			items: [
-			  {
-				xtype: "container",
-				layout: DSS.utils.layout("hbox", "start", "begin"),
-				items: [
-				  {
-					xtype: "component",
-					cls: "back-button",
-					tooltip: "Back",
-					html: '<i class="fas fa-reply"></i>',
-					listeners: {
-					  render: function (c) {
-						c.getEl()
-						  .getFirstChild()
-						  .el.on({
-							click: async function (self) {
-							  await geoServer.getWFSScenario(
-								"&CQL_filter=gid=" + DSS.activeScenario
-							  );
-							  DSS.ApplicationFlow.instance.showManageOperationPage();
-							  //resetting model result layers
-							  DSS.MapState.destroyLegend();
-							  DSS.layer.erosionGroup.setVisible(false);
-							  DSS.layer.nleachingGroup.setVisible(false);
-							  DSS.layer.yieldGroup.setVisible(false);
-							  DSS.MapState.hideFieldsandInfra();
-							  AppEvents.triggerEvent("hide_field_grid");
-							  AppEvents.triggerEvent("hide_infra_grid");
-							  DSS.layer.PLossGroup.values_.layers.array_ = [];
-							  DSS.layer.erosionGroup.values_.layers.array_ = [];
-							  DSS.layer.nleachingGroup.values_.layers.array_ = [];
-							  DSS.layer.yieldGroup.values_.layers.array_ = [];
+				{
+					xtype: "container",
+					layout: DSS.utils.layout("hbox", "start", "begin"),
+					items: [
+						{
+							xtype: "component",
+							cls: "back-button",
+							tooltip: "Back",
+							html: '<i class="fas fa-reply"></i>',
+							listeners: {
+								render: function (c) {
+									c.getEl()
+										.getFirstChild()
+										.el.on({
+											click: async function (self) {
+												await geoServer.getWFSScenario(
+													"&CQL_filter=gid=" + DSS.activeScenario
+												);
+												DSS.ApplicationFlow.instance.showManageOperationPage();
+												//resetting model result layers
+												DSS.MapState.destroyLegend();
+												DSS.layer.erosionGroup.setVisible(false);
+												DSS.layer.nleachingGroup.setVisible(false);
+												DSS.layer.yieldGroup.setVisible(false);
+												DSS.MapState.hideFieldsandInfra();
+												AppEvents.triggerEvent("hide_field_grid");
+												AppEvents.triggerEvent("hide_infra_grid");
+												DSS.layer.PLossGroup.values_.layers.array_ = [];
+												DSS.layer.erosionGroup.values_.layers.array_ = [];
+												DSS.layer.nleachingGroup.values_.layers.array_ = [];
+												DSS.layer.yieldGroup.values_.layers.array_ = [];
+											},
+										});
+								},
 							},
-						  });
-					  },
-					},
-				  },
-				  {
+						},
+						{
+							xtype: "component",
+							flex: 1,
+							cls: "section-title accent-text right-pad",
+							html: "Scenario Design",
+						},
+					],
+				},
+				{
+					xtype: 'component',
+					cls: 'information',
+					html: 'Farm: ' + DSS.farmName.bold(),
+				},
+				{
 					xtype: "component",
-					flex: 1,
-					cls: "section-title accent-text right-pad",
-					html: "Scenario Design",
-				  },
-				],
-			  },
-			  {
-				xtype: 'component',
-				cls: 'information',
-				html: 'Farm: '+ DSS.farmName.bold(),
-			  },
-			  {
-				xtype: "component",
-				cls: "information",
-				html: "Scenario: " + DSS.scenarioName.bold(),
-			  },
-			  {
-				xtype: "component",
-				cls: "information",
-				html: "Draw or Delete Features",
-			  },
-			  {
-				xtype: "button",
-				name: "Fields",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				text: "Add/Delete Fields",
-				allowDepress: false,
-				menu: {
-				  defaults: {
+					cls: "information",
+					html: "Scenario: " + DSS.scenarioName.bold(),
+				},
+				{
+					xtype: "component",
+					cls: "information",
+					html: "Draw or Delete Features",
+				},
+				{
+					xtype: "button",
+					name: "Fields",
+					cls: "button-text-pad",
+					componentCls: "button-margin",
+					text: "Add/Delete Fields",
+					allowDepress: false,
+					menu: {
+						defaults: {
+							xtype: "button",
+							cls: "button-text-pad",
+							componentCls: "button-margin",
+							hideOnClick: true,
+						},
+						items: [
+							{
+								text: "Place a Field",
+								handler: function (self) {
+									self.setActiveCounter(0);
+									self.setActive(false);
+									Ext.getCmp("EditFieldsButton").toggle(false);
+									Ext.getCmp("EditInfrastructureButton").toggle(false);
+
+									DSS.MapState.removeMapInteractions();
+									//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
+									DSS.mapClickFunction = undefined;
+									DSS.mouseMoveFunction = undefined;
+
+									DSS.draw = new ol.interaction.Draw({
+										source: source,
+										type: "MultiPolygon",
+										geometryName: "geom",
+										style: new ol.style.Style({
+											stroke: new ol.style.Stroke({
+												color: "#bfac32",
+												width: 4,
+											}),
+											fill: new ol.style.Fill({
+												color: "rgba(255, 255, 255, 0.5)",
+											}),
+											image: new ol.style.Icon({
+												anchor: [0, 1],
+												//size: [96,96],
+												scale: 0.03,
+												src: "/static/grazescape/public/images/pencil-png-653.png",
+											}),
+										}),
+									});
+									DSS.map.addInteraction(DSS.draw);
+									AppEvents.triggerEvent("hide_infra_draw_mode_indicator");
+									AppEvents.triggerEvent("show_field_draw_mode_indicator");
+									document.body.style.cursor = "none";
+									DSS.draw.on("drawend", function (e) {
+										document.body.style.cursor = "default";
+										fieldArea = e.feature.values_.geom.getArea();
+										AppEvents.triggerEvent("hide_field_draw_mode_indicator");
+										DSS.MapState.removeMapInteractions();
+										DSS.dialogs.FieldApplyPanel = Ext.create(
+											"DSS.field_shapes.FieldApplyPanel"
+										);
+										DSS.dialogs.FieldApplyPanel.show().center().setY(100);
+										inputFieldObj = e;
+									});
+								},
+							},
+							{
+								text: "Delete a Field",
+								handler: function (self) {
+									self.setActiveCounter(0);
+									AppEvents.triggerEvent("hide_infra_draw_mode_indicator");
+									selectFieldDelete();
+								},
+							},
+							{
+								text: "Upload GeoJSON",
+								handler: function (self) {
+									DSS.dialogs.GeoJSONFieldUpload = Ext.create(
+										"DSS.field_shapes.GeoJSONFieldUpload"
+									);
+									DSS.dialogs.GeoJSONFieldUpload.show().center().setY(100);
+								},
+							},
+							{
+								text: "Upload Shapefile",
+								handler: function (self) {
+									console.log("Upload Shapefiles clicked");
+									DSS.dialogs.ShpFileFieldUpload = Ext.create(
+										"DSS.field_shapes.ShpFileFieldUpload"
+									);
+									DSS.dialogs.ShpFileFieldUpload.show().center().setY(100);
+								},
+							},
+						],
+					},
+					addModeControl: function () {
+						let me = this;
+						let c = DSS_viewport.down("#DSS-mode-controls");
+
+						if (!c.items.has(me)) {
+							Ext.suspendLayouts();
+							c.removeAll(false);
+							c.add(me);
+							Ext.resumeLayouts(true);
+						}
+					},
+				},
+				{
 					xtype: "button",
 					cls: "button-text-pad",
 					componentCls: "button-margin",
-					hideOnClick: true,
-				  },
-				  items: [
-					{
-					  text: "Place a Field",
-					  handler: function (self) {
-						self.setActiveCounter(0);
-						self.setActive(false);
-						Ext.getCmp("EditFieldsButton").toggle(false);
-						Ext.getCmp("EditInfrastructureButton").toggle(false);
-	  
-						DSS.MapState.removeMapInteractions();
-						//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
-						DSS.mapClickFunction = undefined;
-						DSS.mouseMoveFunction = undefined;
-	  
-						DSS.draw = new ol.interaction.Draw({
-						  source: source,
-						  type: "MultiPolygon",
-						  geometryName: "geom",
-						  style: new ol.style.Style({
-							stroke: new ol.style.Stroke({
-							  color: "#bfac32",
-							  width: 4,
-							}),
-							fill: new ol.style.Fill({
-							  color: "rgba(255, 255, 255, 0.5)",
-							}),
-							image: new ol.style.Icon({
-							  anchor: [0, 1],
-							  //size: [96,96],
-							  scale: 0.03,
-							  src: "/static/grazescape/public/images/pencil-png-653.png",
-							}),
-						  }),
-						});
-						DSS.map.addInteraction(DSS.draw);
-						AppEvents.triggerEvent("hide_infra_draw_mode_indicator");
-						AppEvents.triggerEvent("show_field_draw_mode_indicator");
-						document.body.style.cursor = "none";
-						DSS.draw.on("drawend", function (e) {
-						  document.body.style.cursor = "default";
-						  fieldArea = e.feature.values_.geom.getArea();
-						  AppEvents.triggerEvent("hide_field_draw_mode_indicator");
-						  DSS.MapState.removeMapInteractions();
-						  DSS.dialogs.FieldApplyPanel = Ext.create(
-							"DSS.field_shapes.FieldApplyPanel"
-						  );
-						  DSS.dialogs.FieldApplyPanel.show().center().setY(100);
-						  inputFieldObj = e;
-						});
-					  },
+					name: "Infrastructure",
+					text: "Add/Delete Infrastructure",
+					allowDepress: false,
+					menu: {
+						defaults: {
+							xtype: "button",
+							cls: "button-text-pad",
+							componentCls: "button-margin",
+							hideOnClick: true,
+						},
+						items: [
+							{
+								text: "Place Infrastructure",
+								handler: function (self) {
+									self.setActiveCounter(0);
+									self.setActive(false);
+									Ext.getCmp("EditFieldsButton").toggle(false);
+									Ext.getCmp("EditInfrastructureButton").toggle(false);
+									DSS.MapState.removeMapInteractions();
+									//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
+									DSS.mapClickFunction = undefined;
+									DSS.mouseMoveFunction = undefined;
+
+									DSS.draw = new ol.interaction.Draw({
+										source: source,
+										type: "LineString",
+										geometryName: "geom",
+										style: new ol.style.Style({
+											stroke: new ol.style.Stroke({
+												color: "#0072fc",
+												width: 4,
+											}),
+											image: new ol.style.Icon({
+												anchor: [0, 1],
+												//size: [96,96],
+												scale: 0.03,
+												src: "/static/grazescape/public/images/pencil-png-653.png",
+											}),
+										}),
+									});
+									DSS.map.addInteraction(DSS.draw);
+									AppEvents.triggerEvent("hide_field_draw_mode_indicator");
+									AppEvents.triggerEvent("show_infra_draw_mode_indicator");
+									document.body.style.cursor = "none";
+
+									DSS.draw.on("drawend", function (e) {
+										document.body.style.cursor = "default";
+										infraLength = e.feature.values_.geom.getLength() * 3.28084;
+										AppEvents.triggerEvent("hide_infra_draw_mode_indicator");
+										DSS.MapState.removeMapInteractions();
+										DSS.dialogs.InfraApplyPanel = Ext.create(
+											"DSS.infra_shapes.InfraApplyPanel"
+										);
+										DSS.dialogs.InfraApplyPanel.show().center().setY(100);
+										inputInfraObj = e;
+									});
+								},
+							},
+							{
+								text: "Delete Infrastructure",
+								handler: function (self) {
+									self.setActiveCounter(0);
+									AppEvents.triggerEvent("hide_field_draw_mode_indicator");
+									selectInfraDelete();
+								},
+							},
+						],
 					},
-					{
-					  text: "Delete a Field",
-					  handler: function (self) {
-						self.setActiveCounter(0);
-						AppEvents.triggerEvent("hide_infra_draw_mode_indicator");
-						selectFieldDelete();
-					  },
+					addModeControl: function () {
+						let me = this;
+						let c = DSS_viewport.down("#DSS-mode-controls");
+
+						if (!c.items.has(me)) {
+							Ext.suspendLayouts();
+							c.removeAll(false);
+							c.add(me);
+							Ext.resumeLayouts(true);
+						}
 					},
-					{
-					  text: "Upload GeoJSON",
-					  handler: function (self) {
-						DSS.dialogs.GeoJSONFieldUpload = Ext.create(
-						  "DSS.field_shapes.GeoJSONFieldUpload"
-						);
-						DSS.dialogs.GeoJSONFieldUpload.show().center().setY(100);
-					  },
-					},
-					{
-					  text: "Upload Shapefile",
-					  handler: function (self) {
-						console.log("Upload Shapefiles clicked");
-						DSS.dialogs.ShpFileFieldUpload = Ext.create(
-						  "DSS.field_shapes.ShpFileFieldUpload"
-						);
-						DSS.dialogs.ShpFileFieldUpload.show().center().setY(100);
-					  },
-					},
-				  ],
 				},
-				addModeControl: function () {
-				  let me = this;
-				  let c = DSS_viewport.down("#DSS-mode-controls");
-	  
-				  if (!c.items.has(me)) {
-					Ext.suspendLayouts();
-					c.removeAll(false);
-					c.add(me);
-					Ext.resumeLayouts(true);
-				  }
+				{
+					xtype: "component",
+					cls: "information",
+					html: "Edit Scenario Attributes",
 				},
-			  },
-			  {
-				xtype: "button",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				name: "Infrastructure",
-				text: "Add/Delete Infrastructure",
-				allowDepress: false,
-				menu: {
-				  defaults: {
+				{
+					xtype: "button",
+					id: "EditFieldsButton",
+					cls: "button-text-pad",
+					componentCls: "button-margin",
+					toggleGroup: "create-scenario",
+					allowDepress: true,
+					text: "Edit Field Attributes",
+					toggleHandler: async function (self, pressed) {
+						if (pressed) {
+							DSS.MapState.destroyLegend();
+							DSS.MapState.removeMapInteractions();
+							pastAcreage = 0;
+							cropAcreage = 0;
+							await gatherTableData();
+							AppEvents.triggerEvent("show_field_grid");
+							AppEvents.triggerEvent("hide_field_shape_mode");
+							AppEvents.triggerEvent("hide_infra_line_mode");
+						} else {
+							fieldChangeList = Ext.getCmp("fieldTable")
+								.getStore()
+								.getUpdatedRecords();
+							AppEvents.triggerEvent("hide_field_grid");
+							DSS.field_grid.FieldGrid.store.clearData();
+							selectInteraction.getFeatures().clear();
+							DSS.map.removeInteraction(selectInteraction);
+							selectedFields = [];
+							runFieldUpdate();
+						}
+					},
+				},
+				{
+					xtype: "button",
+					id: "EditInfrastructureButton",
+					cls: "button-text-pad",
+					componentCls: "button-margin",
+					toggleGroup: "create-scenario",
+					allowDepress: true,
+					text: "Edit Infrastructure Attributes",
+					toggleHandler: function (self, pressed) {
+						if (pressed) {
+							DSS.MapState.destroyLegend();
+							DSS.MapState.removeMapInteractions();
+							gatherInfraTableData();
+							AppEvents.triggerEvent("show_infra_grid");
+							AppEvents.triggerEvent("hide_field_shape_mode");
+							AppEvents.triggerEvent("hide_infra_line_mode");
+						} else {
+							AppEvents.triggerEvent("hide_infra_grid");
+							DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
+							runInfraUpdate();
+							console.log(infraArray);
+						}
+					},
+				},
+				{
 					xtype: "button",
 					cls: "button-text-pad",
 					componentCls: "button-margin",
-					hideOnClick: true,
-				  },
-				  items: [
-					{
-					  text: "Place Infrastructure",
-					  handler: function (self) {
-						self.setActiveCounter(0);
-						self.setActive(false);
+					text: "Edit Production Costs",
+					allowDepress: false,
+					handler: function (self) {
+						if (Ext.getCmp("CostDialog")) {
+							DSS.dialogs.CostsDialog = Ext.getCmp("CostDialog").show();
+							DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);
+							DSS.dialogs.CostsDialog.show().center().setY(25);
+							console.log("cost dialog destroyed");
+						} else {
+							DSS.dialogs.CostsDialog = Ext.create(
+								"DSS.state.scenario.CostsDialog"
+							);
+							DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);
+							DSS.dialogs.CostsDialog.show().center().setY(25);
+						}
+					},
+				},
+				{
+					xtype: "component",
+					cls: "information",
+					html: "Run Models, and View Results",
+				},
+				{
+					xtype: "button",
+					cls: "button-text-pad",
+					componentCls: "button-margin",
+					id: "btnRunModels",
+					text: "Run Models",
+					disabled: true,
+					handler: async function (self) {
+						await getWFSScenarioSP();
+						if (fieldArray.length < 1) {
+							await gatherTableData();
+							console.log("Field Array was empty. Running gatherTableData");
+						}
+						//DSS.layer.PLossGroup.setVisible(false);
+						DSS.layer.erosionGroup.setVisible(false);
+						DSS.layer.nleachingGroup.setVisible(false);
+						DSS.layer.yieldGroup.setVisible(false);
+						DSS.layer.PLossGroup.values_.layers.array_ = [];
+						DSS.layer.erosionGroup.values_.layers.array_ = [];
+						DSS.layer.nleachingGroup.values_.layers.array_ = [];
+						DSS.layer.yieldGroup.values_.layers.array_ = [];
+						fieldChangeList = [];
+						fieldChangeList = Ext.getCmp("fieldTable")
+							.getStore()
+							.getUpdatedRecords();
 						Ext.getCmp("EditFieldsButton").toggle(false);
 						Ext.getCmp("EditInfrastructureButton").toggle(false);
-						DSS.MapState.removeMapInteractions();
-						//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
-						DSS.mapClickFunction = undefined;
-						DSS.mouseMoveFunction = undefined;
-	  
-						DSS.draw = new ol.interaction.Draw({
-						  source: source,
-						  type: "LineString",
-						  geometryName: "geom",
-						  style: new ol.style.Style({
-							stroke: new ol.style.Stroke({
-							  color: "#0072fc",
-							  width: 4,
-							}),
-							image: new ol.style.Icon({
-							  anchor: [0, 1],
-							  //size: [96,96],
-							  scale: 0.03,
-							  src: "/static/grazescape/public/images/pencil-png-653.png",
-							}),
-						  }),
-						});
-						DSS.map.addInteraction(DSS.draw);
-						AppEvents.triggerEvent("hide_field_draw_mode_indicator");
-						AppEvents.triggerEvent("show_infra_draw_mode_indicator");
-						document.body.style.cursor = "none";
-	  
-						DSS.draw.on("drawend", function (e) {
-						  document.body.style.cursor = "default";
-						  infraLength = e.feature.values_.geom.getLength() * 3.28084;
-						  AppEvents.triggerEvent("hide_infra_draw_mode_indicator");
-						  DSS.MapState.removeMapInteractions();
-						  DSS.dialogs.InfraApplyPanel = Ext.create(
-							"DSS.infra_shapes.InfraApplyPanel"
-						  );
-						  DSS.dialogs.InfraApplyPanel.show().center().setY(100);
-						  inputInfraObj = e;
-						});
-					  },
+						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
+						DSS.field_grid.FieldGrid.store.clearData();
+						await runFieldUpdate();
+						await runInfraUpdate();
+						if (DSS["viewModel"].scenario.data != null) {
+							console.log("updating scenario data");
+							runScenarioUpdate();
+							console.log("done updating scenario data");
+						}
+						Ext.getCmp("btnOpenDashboard").setDisabled(false);
+
+						Ext.getCmp("btnRunModels").setDisabled(true);
+						if (!Ext.getCmp("dashboardWindow")) {
+							let dash = Ext.create("DSS.results.Dashboard", {
+								runModel: true,
+								// any other option you like...
+							});
+							Ext.getCmp("btnRunModels").setText("Rerun Models");
+							Ext.getCmp("dashboardWindow").show().center();
+						} else {
+							await getWFSScenarioSP();
+							modelError = false;
+							modelErrorMessages = [];
+							chartObj = {};
+							//controls order of how datasets are displayed and with what colors
+							chartDatasetContainer = {};
+							//https://personal.sron.nl/~pault/
+							checkBoxScen = [];
+							checkBoxField = [];
+							hiddenData = {
+								fields: [],
+								scens: [],
+							};
+							scenariosStore = Ext.create("Ext.data.Store", {
+								fields: ["name", "dbID"],
+								data: [],
+							});
+							Ext.getCmp("dashboardContainer").destroy();
+							Ext.getCmp("dashboardWindow").destroy();
+							DSS.MapState.destroyLegend();
+							DSS.layer.yieldGroup.setVisible(false);
+							DSS.layer.erosionGroup.setVisible(false);
+							DSS.layer.nleachingGroup.setVisible(false);
+							DSS.layer.runoffGroup.setVisible(false);
+							DSS.layer.PLossGroup.setVisible(false);
+							DSS.layer.PLossGroup.values_.layers.array_ = [];
+							DSS.layer.erosionGroup.values_.layers.array_ = [];
+							DSS.layer.nleachingGroup.values_.layers.array_ = [];
+							DSS.layer.yieldGroup.values_.layers.array_ = [];
+							DSS.layer.runoffGroup.values_.layers.array_ = [];
+							let dash = Ext.create("DSS.results.Dashboard", {
+								runModel: true,
+							});
+							Ext.getCmp("dashboardWindow").show().center();
+						}
 					},
-					{
-					  text: "Delete Infrastructure",
-					  handler: function (self) {
-						self.setActiveCounter(0);
-						AppEvents.triggerEvent("hide_field_draw_mode_indicator");
-						selectInfraDelete();
-					  },
+				},
+				{
+					xtype: "button",
+					cls: "button-text-pad",
+					componentCls: "button-margin",
+					text: "View Results",
+					id: "btnOpenDashboard",
+					disabled: true,
+					handler: function () {
+						Ext.getCmp("dashboardWindow").show();
+						DSS.layer.yieldGroup.setVisible(false);
+						// DSS.layer.erosionGroup.setVisible(false);
+						// DSS.layer.nleachingGroup.setVisible(false);
+						// DSS.layer.runoffGroup.setVisible(false);
+						// DSS.layer.PLossGroup.setVisible(false);
+						// DSS.layer.PLossGroup.values_.layers.array_ = [];
+						// DSS.layer.erosionGroup.values_.layers.array_ = [];
+						// DSS.layer.nleachingGroup.values_.layers.array_ = [];
+						// DSS.layer.yieldGroup.values_.layers.array_ = [];
+						// DSS.layer.runoffGroup.values_.layers.array_ = [];
 					},
-				  ],
 				},
-				addModeControl: function () {
-				  let me = this;
-				  let c = DSS_viewport.down("#DSS-mode-controls");
-	  
-				  if (!c.items.has(me)) {
-					Ext.suspendLayouts();
-					c.removeAll(false);
-					c.add(me);
-					Ext.resumeLayouts(true);
-				  }
+				{
+					xtype: "component",
+					cls: "information",
+					html: "Create a New Scenario",
 				},
-			  },
-			  {
-				xtype: "component",
-				cls: "information",
-				html: "Edit Scenario Attributes",
-			  },
-			  {
-				xtype: "button",
-				id: "EditFieldsButton",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				toggleGroup: "create-scenario",
-				allowDepress: true,
-				text: "Edit Field Attributes",
-				toggleHandler: async function (self, pressed) {
-				  if (pressed) {
-					DSS.MapState.destroyLegend();
-					DSS.MapState.removeMapInteractions();
-					pastAcreage = 0;
-					cropAcreage = 0;
-					await gatherTableData();
-					AppEvents.triggerEvent("show_field_grid");
-					AppEvents.triggerEvent("hide_field_shape_mode");
-					AppEvents.triggerEvent("hide_infra_line_mode");
-				  } else {
-					fieldChangeList = Ext.getCmp("fieldTable")
-					  .getStore()
-					  .getUpdatedRecords();
-					AppEvents.triggerEvent("hide_field_grid");
-					DSS.field_grid.FieldGrid.store.clearData();
-					selectInteraction.getFeatures().clear();
-					DSS.map.removeInteraction(selectInteraction);
-					selectedFields = [];
-					runFieldUpdate();
-				  }
+				{
+					xtype: "button",
+					cls: "button-text-pad",
+					componentCls: "button-margin",
+					toggleGroup: "create-scenario",
+					text: "Create New Scenario",
+					handler: function (self) {
+						DSS.dialogs.NewScenPickWindow = Ext.create(
+							"DSS.state.NewScenPickWindow"
+						);
+						DSS.dialogs.NewScenPickWindow.show().center().setY(100);
+					},
 				},
-			  },
-			  {
-				xtype: "button",
-				id: "EditInfrastructureButton",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				toggleGroup: "create-scenario",
-				allowDepress: true,
-				text: "Edit Infrastructure Attributes",
-				toggleHandler: function (self, pressed) {
-				  if (pressed) {
-					DSS.MapState.destroyLegend();
-					DSS.MapState.removeMapInteractions();
-					gatherInfraTableData();
-					AppEvents.triggerEvent("show_infra_grid");
-					AppEvents.triggerEvent("hide_field_shape_mode");
-					AppEvents.triggerEvent("hide_infra_line_mode");
-				  } else {
-					AppEvents.triggerEvent("hide_infra_grid");
-					DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
-					runInfraUpdate();
-					console.log(infraArray);
-				  }
-				},
-			  },
-			  {
-				xtype: "button",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				text: "Edit Production Costs",
-				allowDepress: false,
-				handler: function (self) {
-				  if (Ext.getCmp("CostDialog")) {
-					DSS.dialogs.CostsDialog = Ext.getCmp("CostDialog").show();
-					DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);
-					DSS.dialogs.CostsDialog.show().center().setY(25);
-					console.log("cost dialog destroyed");
-				  } else {
-					DSS.dialogs.CostsDialog = Ext.create(
-					  "DSS.state.scenario.CostsDialog"
-					);
-					DSS.dialogs.CostsDialog.setViewModel(DSS.viewModel.scenario);
-					DSS.dialogs.CostsDialog.show().center().setY(25);
-				  }
-				},
-			  },
-			  {
-				xtype: "component",
-				cls: "information",
-				html: "Run Models, and View Results",
-			  },
-			  {
-				xtype: "button",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				id: "btnRunModels",
-				text: "Run Models",
-				disabled: true,
-				handler: async function (self) {
-				  await getWFSScenarioSP();
-				  if (fieldArray.length < 1) {
-					await gatherTableData();
-					console.log("Field Array was empty. Running gatherTableData");
-				  }
-				  //DSS.layer.PLossGroup.setVisible(false);
-				  DSS.layer.erosionGroup.setVisible(false);
-				  DSS.layer.nleachingGroup.setVisible(false);
-				  DSS.layer.yieldGroup.setVisible(false);
-				  DSS.layer.PLossGroup.values_.layers.array_ = [];
-				  DSS.layer.erosionGroup.values_.layers.array_ = [];
-				  DSS.layer.nleachingGroup.values_.layers.array_ = [];
-				  DSS.layer.yieldGroup.values_.layers.array_ = [];
-				  fieldChangeList = [];
-				  fieldChangeList = Ext.getCmp("fieldTable")
-					.getStore()
-					.getUpdatedRecords();
-				  Ext.getCmp("EditFieldsButton").toggle(false);
-				  Ext.getCmp("EditInfrastructureButton").toggle(false);
-				  DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
-				  DSS.field_grid.FieldGrid.store.clearData();
-				  await runFieldUpdate();
-				  await runInfraUpdate();
-				  console.log("updates");
-				  console.log(DSS["viewModel"].scenario);
-				  console.log(DSS["viewModel"].scenario.data);
-				  if (DSS["viewModel"].scenario.data != null) {
-					console.log("updating scenario data");
-					runScenarioUpdate();
-					console.log("done updating scenario data");
-				  }
-				  Ext.getCmp("btnOpenDashboard").setDisabled(false);
-	  
-				  Ext.getCmp("btnRunModels").setDisabled(true);
-				  if (!Ext.getCmp("dashboardWindow")) {
-					let dash = Ext.create("DSS.results.Dashboard", {
-					  runModel: true,
-					  // any other option you like...
-					});
-					Ext.getCmp("btnRunModels").setText("Rerun Models");
-					Ext.getCmp("dashboardWindow").show().center();
-				  } else {
-					await getWFSScenarioSP();
-					modelError = false;
-					modelErrorMessages = [];
-					chartObj = {};
-					//controls order of how datasets are displayed and with what colors
-					chartDatasetContainer = {};
-					//https://personal.sron.nl/~pault/
-					checkBoxScen = [];
-					checkBoxField = [];
-					hiddenData = {
-					  fields: [],
-					  scens: [],
-					};
-					scenariosStore = Ext.create("Ext.data.Store", {
-					  fields: ["name", "dbID"],
-					  data: [],
-					});
-					Ext.getCmp("dashboardContainer").destroy();
-					Ext.getCmp("dashboardWindow").destroy();
-					DSS.MapState.destroyLegend();
-					DSS.layer.yieldGroup.setVisible(false);
-					DSS.layer.erosionGroup.setVisible(false);
-					DSS.layer.nleachingGroup.setVisible(false);
-					DSS.layer.runoffGroup.setVisible(false);
-					DSS.layer.PLossGroup.setVisible(false);
-					DSS.layer.PLossGroup.values_.layers.array_ = [];
-					DSS.layer.erosionGroup.values_.layers.array_ = [];
-					DSS.layer.nleachingGroup.values_.layers.array_ = [];
-					DSS.layer.yieldGroup.values_.layers.array_ = [];
-					DSS.layer.runoffGroup.values_.layers.array_ = [];
-					let dash = Ext.create("DSS.results.Dashboard", {
-					  //                                numberOfLines: 20,
-	  
-					  runModel: true,
-					  // any other option you like...
-					});
-					//                            DSS.dialogs.Dashboard.setViewModel(DSS.viewModel.scenario);
-					Ext.getCmp("dashboardWindow").show().center();
-				  }
-				},
-			  },
-			  {
-				xtype: "button",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				text: "View Results",
-				id: "btnOpenDashboard",
-				disabled: true,
-				handler: function () {
-				  Ext.getCmp("dashboardWindow").show();
-				  DSS.layer.yieldGroup.setVisible(false);
-				  // DSS.layer.erosionGroup.setVisible(false);
-				  // DSS.layer.nleachingGroup.setVisible(false);
-				  // DSS.layer.runoffGroup.setVisible(false);
-				  // DSS.layer.PLossGroup.setVisible(false);
-				  // DSS.layer.PLossGroup.values_.layers.array_ = [];
-				  // DSS.layer.erosionGroup.values_.layers.array_ = [];
-				  // DSS.layer.nleachingGroup.values_.layers.array_ = [];
-				  // DSS.layer.yieldGroup.values_.layers.array_ = [];
-				  // DSS.layer.runoffGroup.values_.layers.array_ = [];
-				},
-			  },
-			  {
-				xtype: "component",
-				cls: "information",
-				html: "Create a New Scenario",
-			  },
-			  {
-				xtype: "button",
-				cls: "button-text-pad",
-				componentCls: "button-margin",
-				toggleGroup: "create-scenario",
-				text: "Create New Scenario",
-				handler: function (self) {
-				  DSS.dialogs.NewScenPickWindow = Ext.create(
-					"DSS.state.NewScenPickWindow"
-				  );
-				  DSS.dialogs.NewScenPickWindow.show().center().setY(100);
-				},
-			  },
 			],
 		  });
 		me.callParent(arguments);
