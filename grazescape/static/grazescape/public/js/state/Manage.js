@@ -152,7 +152,7 @@ Ext.define('DSS.state.Manage', {
 			height: 30,
 			//margin: '4 2 2 4',
 			componentCls: 'button-margin-large',
-			text: '<p style="font-size:15px;"> Create New Scenario</p>',
+			text: 'Create New Scenario',
 			handler: function(self) {
 				DSS.dialogs.NewScenPickWindow = Ext.create('DSS.state.NewScenPickWindow'); 				
 				DSS.dialogs.NewScenPickWindow.show().center().setY(100);
