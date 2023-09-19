@@ -10,7 +10,7 @@ DSS.utils.addStyle('.drop:after {overflow: visible!important; display: block; po
 
 DSS.utils.addStyle('.accent-text { color: #48b;}')
 DSS.utils.addStyle('.light-text { color: #ddd;}')
-DSS.utils.addStyle('.med-text { color: #999;}')
+DSS.utils.addStyle('.med-text { color: #444;}')
 DSS.utils.addStyle('.left1-text { text-align: left; color: #999;}')
 DSS.utils.addStyle('.box {box-sizing: border-box; float: left; width: 50%; height: 50%;}')
 DSS.utils.addStyle('.custom-tab {.x-panel-body-default {border-width: 0px;}}')
@@ -22,7 +22,7 @@ DSS.utils.addStyle('.bold { font-weight: bold}');
 DSS.utils.addStyle('.box-underline { border-bottom: 1px solid rgba(0,120,180,0.5) }');
 
 DSS.utils.addStyle('.x-mask { background-color: rgba(102,102,102,0.6);}')
-DSS.utils.addStyle('.footer-text {border-top: 1px solid rgba(0,0,0,0.15); background: rgba(0,0,0,0.5);padding: 0.72rem; color: #fff; font-size: 0.8rem; text-align: center}')
+DSS.utils.addStyle('.footer-text {border-top: 1px solid rgba(0,0,0,0.15); background: #6F6E67;padding: 0.72rem; color: #fff; font-size: 0.8rem; text-align: center}')
 
 DSS.utils.addStyle('.button-margin { margin: 0.5rem 1.75rem 0.75rem;}')
 DSS.utils.addStyle('.button-margin-large { margin: 0.5rem 0.5rem 0.5rem;}')
@@ -112,7 +112,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 				},
 				{
 					xtype: 'component',
-					html: '  v 0.2',
+					html: '  v 1.0',
 					cls: 'information med-text',
 
 				},
@@ -139,7 +139,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 				//----------------------------------------------------------------------------------
 				xtype: 'component',
 				cls: 'footer-text',
-				html: 'GrazeScape<br>Copyright ©2022'
+				html: 'GrazeScape<br>Copyright ©2023'
 			}]
 		});
 		

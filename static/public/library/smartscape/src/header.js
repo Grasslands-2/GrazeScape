@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import Image from 'react-bootstrap/Image'
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import CSRFToken from './csrf';
 import { DoorOpen } from 'react-bootstrap-icons';
@@ -19,14 +20,9 @@ class Header extends React.Component{
         return(
         <Navbar bg="light" variant="light">
             <Container>
-                <Navbar.Brand href="https://grasslandag.org/" target="_blank">
-                <img
-                  alt=""
-                  src= {static_logo}
-                  width="30%"
-                  className="d-inline-block align-top"
-                />
-                v 0.1
+                <Navbar.Brand>
+                <img alt="" src= {static_logo} width="30%" className="d-inline-block align-top"/>
+                v 1.0
                 </Navbar.Brand>
                 <Nav className="justify-content-center ">
                   <Nav.Link href="/">Main Menu</Nav.Link>
