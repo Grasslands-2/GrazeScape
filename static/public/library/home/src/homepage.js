@@ -12,7 +12,6 @@ import Alert from 'react-bootstrap/Alert'
 import './App.css';
 import CSRFToken from './csrf';
 var error_message = '';
-
 var homeState = {
   'showSign': true,
   'showReg': false,
@@ -87,7 +86,7 @@ const App = (props) => (
 
     <div className='main_container'>
       <div className='header1'>
-        <h4 className="header">Welcome To The Grassland 2.0 App Portal</h4>
+        <h1 className="header pt-2 h4">Welcome To The Grassland 2.0 App Portal</h1>
       </div>
       <Alert key='danger' variant='danger' className={homeState.showError ? "" : "d-none"}>
         {error_message}
@@ -161,11 +160,10 @@ const App = (props) => (
           <Col xs='3'>
           </Col>
           <Col xs='6' className="appRegion">
-            <h5 className="header">Please select an app to begin</h5>
+            <h2 className="header h5">Please select an app to begin</h2>
             <Row className="appSelect">
               <a href="/grazescape"><Image className="shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
             </Row>
-
             <Row className="appInfo">
               <Col><a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ" target="_blank">User Manual</a></Col>
               <Col><a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a></Col>
@@ -192,7 +190,7 @@ const App = (props) => (
       </Container>
     </div>
 
-    <div id='footer'>
+    <footer id='footer'>
       <Container>
         Grassland 2.0 is a collaborative group of farmers, researchers, and public and private sector leaders working to develop pathways for increased farmer profitability, yield stability and nutrient and water efficiency, while improving water quality, soil health, biodiversity, and climate resilience through grassland-based agriculture.
         <p></p>
@@ -200,21 +198,28 @@ const App = (props) => (
         <br></br>
         By using this website and the associated apps, you agree to this privacy policy.
         <p></p>*This project is based at UW–Madison and the work is supported by the Sustainable Agriculture Systems Coordinated Agricultural Program grant no. 2019-68012-29852 from the USDA National Institute of Food and Agriculture.
-        <Row >
-          <Col xs={6}>
-          </Col>
-          <Col xs={6}>
+        <h2 className="h5 mt-3">Accessibility Statement for Grasslands 2.0</h2>
+        <p>
+          Despite our best efforts to ensure accessibility of Grasslands 2.0, there may be some limitations. Below is a description of known limitations. Please contact us if you observe an issue not listed below.
+        </p>
+        <p>
+          Known limitations for Grasslands 2.0:
+        </p>
+        <ol>
+          <li><strong>Users with visual disabilities</strong>: Visual elements are not described correctly using screen readers.</li>
+          <li><strong>Keyboard navigation</strong>: Some parts of the application may not be navigable using keyboard.</li>
+          <li><strong>Smaller screens</strong>: The application may not display properly on small screens (i.e. tablets and phones).</li>
+          <li><strong>Zooming</strong>: The application may not display properly if zoom level is above 150%.</li>
+        </ol>
+        <div class="tile-image-container">
             <img
               alt=""
               src="static/public/library/images/Maptiler1.png"
-              width="30%"
-              margin-left="auto"
-              margin-right="auto"
+              width="175px"
             />
-          </Col>
-        </Row>
+        </div>
       </Container>
-    </div>
+    </footer>
   </div>
 );
 
