@@ -5,6 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './homepage';
 
 ReactDOM.render(
-  <App />,
-  document.getElementById("root")
+    <App />,
+    document.getElementById("root")
 );
