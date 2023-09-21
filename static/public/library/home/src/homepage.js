@@ -54,14 +54,13 @@ manageSignIn();
 const App = (props) => (
     <div id='main'>
         <Navbar bg="light" variant="light">
-            <Container>
+            <Container className="flex-wrap">
                 <Navbar.Brand className="justify-content-left " href="https://grasslandag.org/" target="_blank">
                     <img
-                        alt=""
+                        alt="Grassland 2.0 Logo"
                         src="static/public/library/images/color-flush-Grassland2.0-logo-web.svg"
-                        width="50%"
-                        className="d-inline-block align-top"
-                    />{' '}
+                        className="d-inline-block align-top grassland-logo"
+                    />
                 </Navbar.Brand>
                 <Nav className="justify-content-center ">
                     <Nav.Link href="https://github.com/Grasslands-2" target="_blank">Source Code</Nav.Link>
@@ -70,7 +69,6 @@ const App = (props) => (
                     <Navbar.Text>
                         Signed in as:  <u>{user_info.user_name}</u>
                     </Navbar.Text>
-
                 </Nav>
                 <Nav className="justify-content-end ">
                     <Form method="POST" className="d-flex">
@@ -91,11 +89,12 @@ const App = (props) => (
             <Alert key='danger' variant='danger' className={homeState.showError ? "" : "d-none"}>
                 {error_message}
             </Alert>
+            <Alert variant='warning' className="d-md-none m-4">Warning: Some features may not work correctly on small devices!</Alert>
             <CSRFToken />
-            <Row xs='7'>
+            <Row>
                 <Col xs='1' ></Col>
-                <Col xs='5' >
-                    <Container id='sign_in_form' className={'form ' + (homeState.showSign ? "" : "d-none")}>
+                <Col xs='11' md='5'>
+                    <Container id='sign_in_form' className={'form mb-4 ' + (homeState.showSign ? "" : "d-none")}>
                         <h6 className="header  text-left">Please Sign In</h6>
                         <Form method="POST" id="sign_in_form">
                             <CSRFToken />
@@ -120,7 +119,7 @@ const App = (props) => (
                             </Button>
                         </Form>
                     </Container>
-                    <Container id='register_form' className={'form ' + (homeState.showReg ? "" : "d-none")}>
+                    <Container id='register_form' className={'form mb-4 ' + (homeState.showReg ? "" : "d-none")}>
                         <h6 className="header text-left">Please Register</h6>
                         <Form method="POST" id="sign_in_form">
                             <CSRFToken />
@@ -157,12 +156,18 @@ const App = (props) => (
             {/*/Container for app links*/}
             <Container className={(homeState.showApps ? "" : "d-none")}>
                 <Row>
-                    <Col xs='3'>
+                    <Col xs='3' className='d-none d-md-block'>
                     </Col>
-                    <Col xs='6' className="appRegion">
+                    <Col xs='12' md='6' className="appRegion">
                         <h2 className="header h5">Please select an app to begin</h2>
                         <Row className="appSelect">
-                            <a href="/grazescape"><Image className="shadow-lg app_click image" fluid src="static/public/library/images/graze-logo.png" rounded /></a>
+                            <a href="/grazescape">
+                                <Image className="shadow-lg app_click image" 
+                                    src="static/public/library/images/graze-logo.png" 
+                                    alt="GrazeScape Logo"
+                                    fluid 
+                                    rounded />
+                            </a>
                         </Row>
                         <Row className="appInfo">
                             <Col><a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ" target="_blank">User Manual</a></Col>
@@ -171,7 +176,12 @@ const App = (props) => (
                         </Row>
                         <Row > </Row>
                         <Row className="appSelect">
-                            <a href="/smartscape"><Image className="shadow-lg app_click image" fluid src="static/public/library/images/dss_logo.png" rounded /></a>
+                            <a href="/smartscape">
+                                <Image className="shadow-lg app_click image" 
+                                    src="static/public/library/images/dss_logo.png" 
+                                    alt="SmartScape Logo"
+                                    fluid 
+                                    rounded /></a>
                         </Row>
                         <Row className="appInfo">
                             <Col><a >User Manual</a></Col>
@@ -184,7 +194,7 @@ const App = (props) => (
                     */}
                         </Row>
                     </Col>
-                    <Col xs='3'>
+                    <Col xs='3' className='d-none d-md-block'>
                     </Col>
                 </Row>
             </Container>
@@ -198,20 +208,18 @@ const App = (props) => (
                 <br></br>
                 By using this website and the associated apps, you agree to this privacy policy.
                 <p></p>*This project is based at UW–Madison and the work is supported by the Sustainable Agriculture Systems Coordinated Agricultural Program grant no. 2019-68012-29852 from the USDA National Institute of Food and Agriculture.
-                <h2 className="h5 mt-3">Accessibility Statement for Grasslands 2.0</h2>
-                <p>
-                    Despite our best efforts to ensure accessibility of Grasslands 2.0, there may be some limitations. Below is a description of known limitations. Please contact us if you observe an issue not listed below.
+                <p className="mt-3">
+                    <strong>Accessibility Statement for Grasslands 2.0</strong>: Despite our best efforts to ensure accessibility of Grasslands 2.0, there may be some limitations. Below is a description of known limitations. Please contact us if you observe an issue not listed below.
                 </p>
                 <p>
                     Known limitations for Grasslands 2.0:
+                    <ol>
+                        <li><strong>Screen readers</strong>: Visual elements are not described correctly using screen readers.</li>
+                        <li><strong>Keyboard navigation</strong>: Some parts of the application may not be navigable using keyboard.</li>
+                        <li><strong>Smaller screens</strong>: The application may not display properly on small screens (i.e. tablets and phones).</li>
+                        <li><strong>Zooming</strong>: The application may not display properly if zoom level is above 150%.</li>
+                    </ol>
                 </p>
-                <ol>
-                    <li><strong>Users with visual disabilities</strong>: Visual elements are not described correctly using screen readers.</li>
-                    <li><strong>Keyboard navigation</strong>: Some parts of the application may not be navigable using keyboard.</li>
-                    <li><strong>Smaller screens</strong>: The application may not display properly on small screens (i.e. tablets and phones).</li>
-                    <li><strong>Zooming</strong>: The application may not display properly if zoom level is above 150%.</li>
-                </ol>
-               
             </Container>
         </footer>
     </div>

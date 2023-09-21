@@ -82,7 +82,22 @@ div.image {
 }
 
 .tile-image-container{
-  position: absolute;
   right: 76px;
   bottom: 16px;
+}
+
+@media (min-width: 1024px) {
+  .tile-image-container {
+    position: absolute;
+  }
+}
+
+.grassland-logo {
+  height: 24px;
+}
+
+@media (min-width: 768px) {
+  .grassland-logo {
+    height: 30px;
+  }
 }

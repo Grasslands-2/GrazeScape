@@ -5,34 +5,25 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Grasslands 2.0</title>
-
 </head>
 <body>
-
     <div id="root"></div>
     <script>
-     var user_info = {{user_info|safe}}
-    // working with the variable courses
+      var user_info = {{user_info|safe}}
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
-      <script src='https://www.google.com/recaptcha/api.js?render=6LearYccAAAAAGOllENw60SzeR5qsK0f4rDAAmib'></script>
+    <script src='https://www.google.com/recaptcha/api.js?render=6LearYccAAAAAGOllENw60SzeR5qsK0f4rDAAmib'></script>
     <script src="{% static 'public/library/home/dist/main.js' %}"></script>
-      <script>
-        //global grecaptcha
-        grecaptcha.ready(function() {
-          grecaptcha.execute('6LearYccAAAAAGOllENw60SzeR5qsK0f4rDAAmib', {action: "/contact/"}).then(function(token) {
-            document.getElementById('g-recaptcha-response_signin').value = token;
-            document.getElementById('g-recaptcha-response_register').value = token;
-          });
+    <script>
+      //global grecaptcha
+      grecaptcha.ready(function() {
+        grecaptcha.execute('6LearYccAAAAAGOllENw60SzeR5qsK0f4rDAAmib', {action: "/contact/"}).then(function(token) {
+          document.getElementById('g-recaptcha-response_signin').value = token;
+          document.getElementById('g-recaptcha-response_register').value = token;
         });
-      </script>
-
-<!--		<script src="static/index-bundle.js"></script>-->
-
-<!--    <div>Welcome to the Grasslands 2.0 Project</div>-->
-<!--    <div><a href="/grazescape"  >GrazeScape</a></div>-->
-<!--    <a href="/homepage/accounts/register"  >Click here to register.</a>-->
-
+      });
+    </script>
 </body>
 </html>
