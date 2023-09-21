@@ -171,8 +171,8 @@ const App = (props) => (
                         </Row>
                         <Row className="appInfo">
                             <Col><a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ" target="_blank">User Manual</a></Col>
-                            <Col><a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a></Col>
-                            <Col><a href="https://forms.gle/4jy4acwjTe2mzJLw7" target="_blank">Feedback Form</a></Col>
+                            <Col><a href="https://www.youtube.com/watch?v=JXEAUtKwKMQ&ab_channel=Grassland2.0" target="_blank">Video Tutorial</a></Col>
+                            <Col><a href="https://docs.google.com/forms/d/e/1FAIpQLSe64LQF0Y4znZFKGSq74o57ZiqZBCqxiJ6oEKdky2s0Tq58OQ/viewform" target="_blank">Feedback Form</a></Col>
                         </Row>
                         <Row > </Row>
                         <Row className="appSelect">
@@ -185,12 +185,10 @@ const App = (props) => (
                         </Row>
                         <Row className="appInfo">
                             <Col><a >User Manual</a></Col>
-                            <Col><a >Video Tutorial</a></Col>
-                            <Col><a>Feedback Form</a></Col>
+                            <Col><a href="https://www.youtube.com/watch?v=13JnvVrC3wQ&ab_channel=Grassland2.0" target="_blank">Video Tutorial</a></Col>
+                            <Col><a href="https://docs.google.com/forms/d/e/1FAIpQLSeepvWI47vuCdV8OTutrOAKpztHDXgMoYkxEXvHwqNZFZVpmQ/viewform" target="_blank">Feedback Form</a></Col>
                             {/*
                     <Col><a href="https://docs.google.com/document/d/147LGZV9sGDFgub-B_s6EUCtVAF_oDruvF08ZiEiZyCQ"target="_blank">User Manual</a></Col>
-                    <Col><a href="https://www.youtube.com/watch?v=3g7c-tB19EU" target="_blank">Video Tutorial</a></Col>
-                    <Col><a href="https://forms.gle/4jy4acwjTe2mzJLw7" target="_blank">Feedback Form</a></Col>
                     */}
                         </Row>
                     </Col>
