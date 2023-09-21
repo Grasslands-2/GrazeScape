@@ -211,13 +211,7 @@ const App = (props) => (
                     <li><strong>Smaller screens</strong>: The application may not display properly on small screens (i.e. tablets and phones).</li>
                     <li><strong>Zooming</strong>: The application may not display properly if zoom level is above 150%.</li>
                 </ol>
-                <div class="tile-image-container">
-                    <img
-                        alt=""
-                        src="static/public/library/images/Maptiler1.png"
-                        width="175px"
-                    />
-                </div>
+               
             </Container>
         </footer>
     </div>
