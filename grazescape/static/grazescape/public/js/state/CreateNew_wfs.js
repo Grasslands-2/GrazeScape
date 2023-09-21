@@ -245,6 +245,20 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							form.findField('owner').getSubmitValue(),
 							form.findField('address').getSubmitValue());
 						resetFarmSearchState(self);
+						const searchResults = self.up("operation_create").down("#search_results");
+						searchResults.add({ 
+							xtype: 'component',
+							cls: 'information',
+							style: {
+								padding: "8px 16px",
+								margin: "8px 0px 0px 0px",
+								color: "#155724",
+								backgroundColor: "#d4edda",
+								border: "1px solid #c3e6cb",
+								borderRadius: "8px"
+							},
+							html: "💡 Click on the map to place the farm."
+						});
 					}
 				},{
 					fieldLabel: 'Find by Address',
