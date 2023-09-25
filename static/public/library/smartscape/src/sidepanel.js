@@ -2774,8 +2774,8 @@ renderModal(){
             </Accordion>
             {/*
 
-            */}
                 <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
+            */}
 
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
