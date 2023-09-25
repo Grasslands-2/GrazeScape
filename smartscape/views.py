@@ -77,13 +77,13 @@ def index(request):
     input_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                               'raster_inputs')
     now = time.time()
-    for f in os.listdir(input_path):
-        try:
-            f = os.path.join(input_path, f)
-            if os.stat(f).st_mtime < now - 3600:
-                shutil.rmtree(f)
-        except OSError as e:
-            print("Error: %s : %s" % (f, e.strerror))
+    # for f in os.listdir(input_path):
+    #     try:
+    #         f = os.path.join(input_path, f)
+    #         if os.stat(f).st_mtime < now - 3600:
+    #             shutil.rmtree(f)
+    #     except OSError as e:
+    #         print("Error: %s : %s" % (f, e.strerror))
 
     return render(request, 'smartscape_home.html', context=context)
 
