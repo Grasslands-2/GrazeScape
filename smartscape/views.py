@@ -65,7 +65,7 @@ def index(request):
     threads = []
     for name in file_names:
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
-        print("downloading", url)
+        print("downloading: ",name, url)
         raster_file_path = os.path.join(dir_path, name + ".geojson")
         thread = createNewDownloadThread(url, raster_file_path)
         threads.append(thread)
