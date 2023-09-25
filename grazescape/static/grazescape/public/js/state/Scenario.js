@@ -495,6 +495,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: "component",
 					cls: "information",
 					html: "Draw or Delete Features",
+					margin: '8 0 0 0'
 				},
 				{
 					xtype: "button",
@@ -690,6 +691,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: "component",
 					cls: "information",
 					html: "Edit Scenario Attributes",
+					margin: '16 0 0 0'
 				},
 				{
 					xtype: "button",
@@ -770,14 +772,15 @@ Ext.define('DSS.state.Scenario', {
 				{
 					xtype: "component",
 					cls: "information",
-					html: "Run Models, and View Results",
+					html: "Run Models and View Results",
+					margin: '16 0 0 0'
 				},
 				{
 					xtype: "button",
 					cls: "button-text-pad",
 					componentCls: "button-margin",
 					id: "btnRunModels",
-					text: "Run Models",
+					text: "<i class='fas fa-play' style='font-size: 11pt;'></i> Run Models",
 					disabled: true,
 					handler: async function (self) {
 						await getWFSScenarioSP();
@@ -816,7 +819,7 @@ Ext.define('DSS.state.Scenario', {
 								runModel: true,
 								// any other option you like...
 							});
-							Ext.getCmp("btnRunModels").setText("Rerun Models");
+							Ext.getCmp("btnRunModels").setText("<i class='fas fa-play' style='font-size: 11pt;'></i> Rerun Models");
 							Ext.getCmp("dashboardWindow").show().center();
 						} else {
 							await getWFSScenarioSP();
@@ -881,6 +884,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: "component",
 					cls: "information",
 					html: "Create a New Scenario",
+					margin: '16 0 0 0'
 				},
 				{
 					xtype: "button",
