@@ -188,7 +188,7 @@ Ext.define('DSS.state.CreateNew_wfs', {
 						render: function(c) {
 							c.getEl().getFirstChild().el.on({
 								click: function(self) {
-									DSS.ApplicationFlow.instance.showLandingPage();
+									DSS.ApplicationFlow.instance.showFarmPickerPage();
 								}
 							});
 						}
