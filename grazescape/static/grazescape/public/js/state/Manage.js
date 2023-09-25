@@ -128,7 +128,7 @@ Ext.define('DSS.state.Manage', {
 						{
 							xtype: "component",
 							flex: 1,
-							cls: "section-title accent-text right-pad",
+							cls: "section-title accent-text",
 							html: "Scenario Management",
 						},
 					],
@@ -143,6 +143,12 @@ Ext.define('DSS.state.Manage', {
 							html: "Farm: " + DSS.farmName.bold(),
 						},
 					],
+				},
+				{
+					xtype: "component",
+					cls: "information",
+					html: "Create a new scenario, or select an existing scenario to edit it.",
+					margin: '8 0 0 0'
 				},
 				{
 					xtype: "button",
@@ -160,23 +166,8 @@ Ext.define('DSS.state.Manage', {
 				{
 					xtype: "component",
 					cls: "information",
-					html: "Or",
-				},
-				{
-					xtype: "container",
-					width: "100%",
-					layout: "absolute",
-					items: [
-						{
-							xtype: "component",
-							x: 0,
-							y: -6,
-							width: "100%",
-							height: 30,
-							cls: "information",
-							html: "Select and edit an existing scenario",
-						},
-					],
+					html: "Available scenarios:",
+					margin: '16 0 0 0'
 				},
 				{
 					xtype: "container",
@@ -196,7 +187,7 @@ Ext.define('DSS.state.Manage', {
 									for (i in menuItems) {
 										if (menuItems[i].id == item.id) {
 											menuItems[i].setStyle({
-												backgroundColor: "#EE6677",
+												backgroundColor: "#d2e9fa",
 											});
 										} else {
 											menuItems[i].setStyle({

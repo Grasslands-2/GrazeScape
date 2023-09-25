@@ -60,44 +60,13 @@ Ext.define('DSS.state.RegionPickerPanel', {
 				x: 0, y: -6,
 				width: '100%',
 				height: 50,
-				cls: 'information accent-text bold',
+				cls: 'section-title accent-text',
 				html: "Welcome to GrazeScape!",
 			},{
 				xtype: 'component',
-				cls: 'information med-text',
+				cls: 'section-title accent-text',
 				html: 'Region Selection'
 			},
-//			{
-//				xtype: 'component',
-//				html: testTable11
-//			},
-//			{
-//                xtype: 'button',
-//                cls: 'button-text-pad',
-//                componentCls: 'button-margin',
-//                text: 'Copy Table',
-//                handler: function(self) {
-//                    var table = document.getElementById('test1');
-//                      // Create a range object to select the table content
-//                      var range = document.createRange();
-//                      range.selectNode(table);
-//
-//                      // Add the range to the current selection
-//                      window.getSelection().addRange(range);
-//
-//                      // Execute the "copy" command to copy the selected content
-//                      document.execCommand('copy');
-//
-//                      // Clear the selection
-//                      window.getSelection().removeAllRanges();
-//                }
-//            },
-//			{
-//				xtype: 'component',
-//				cls: 'information med-text',
-//				html: "teststastst"
-//			},
-//			component,
             {
 				xtype: 'container',
 				width: '100%',
@@ -107,10 +76,10 @@ Ext.define('DSS.state.RegionPickerPanel', {
 						x: 0, y: -6,
 						width: '100%',
 						height: 75,
-						cls: 'information accent-text bold',
+						cls: 'information med-text',
 						html: "Please choose to work in one of the regions below, or click on the region on the map.",
 					}],
-				},
+			},
 				Ext.create('Ext.menu.Menu', {
 					width: 100,
 					id: "RegionMenu",

@@ -32,7 +32,7 @@ DSS.utils.addStyle('.button-text-pad-large { padding: 0.2rem;}')
 DSS.utils.addStyle('.information-scenlabel { padding: 0.5rem 0 0.25rem 0; font-size: 1.1rem; text-align: center; font-weight: bold}')
 DSS.utils.addStyle('.information { padding: 0.5rem 0 0.25rem 0; font-size: 0.9rem; text-align: center}')
 DSS.utils.addStyle('.information-compact { padding: 0.1rem 0 0.1rem 0; font-size: 0.9rem; text-align: center}')
-DSS.utils.addStyle('.section-title { padding: 0.5rem; font-size: 1.2rem; text-align: center; font-weight: bold}');
+DSS.utils.addStyle('.section-title { padding: 0.5rem; font-size: 1.1rem; text-align: center; font-weight: bold}');
 DSS.utils.addStyle('.section { margin: 0.5rem; margin-bottom: 1rem; padding: 0.75rem; background-color: #fff; border: 1px solid #bbb; border-radius: 0.3rem; box-shadow: 0px 4px 8px rgba(0,0,0,0.25) }')
 
 DSS.utils.addStyle('.back-button { padding: 0.23rem; color: rgba(34,114,204,0.5); font-size: 1.25rem; cursor: pointer;}');
