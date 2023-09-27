@@ -10,7 +10,7 @@ class GeoServer{
         this.geoUpdate_Url =this.geoScen_Url
     }
     DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
-//    returns a geojson of the Scenarios
+
     setScenariosSource(parameter = ""){
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             DSS.layer.scenarios.getSource().clear()
@@ -20,24 +20,26 @@ class GeoServer{
                 {featureProjection: 'EPSG:3857'}
             );
             DSS.layer.scenarios.getSource().addFeatures(myGeoJsonFeatures)
-//            DSS.layer.scenarios.getSource().refresh();
         })
     }
-//    returns a geojson of the farms
-    setFarmSource(parameter = ""){
+
+    setFarmSource(parameter = "") {
         console.log("IN SET FARM!!!")
         console.log(parameter)
-        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
-            console.log(geoJson)
+        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function (geoJson) {
             DSS.layer.farms_1.getSource().clear()
             var format = new ol.format.GeoJSON();
-           
+
             var myGeoJsonFeatures = format.readFeatures(
                 geoJson.geojson,
-                {featureProjection: 'EPSG:3857'}
+                { featureProjection: 'EPSG:3857' }
             );
-           console.log(myGeoJsonFeatures)
-           DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
+
+            console.log("farm features:", myGeoJsonFeatures)
+            DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
+
+            DSS.utils.assignFarmsToRegions();
+            DSS.utils.updateFarmPickerItems();
         })
     }
     setFieldsAfterImport(parameter = ""){

@@ -301,6 +301,7 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+
 		DSS.layer.redCedarBorder = new ol.layer.Vector({
 			visible: true,
 			updateWhileAnimating: true,
@@ -394,6 +395,23 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+
+		// Utility to reference all the regions, since they are each in their own layers.
+		DSS.allRegionLayers = [
+			DSS.layer.cloverBeltBorder,
+			DSS.layer.redCedarBorder,
+			DSS.layer.pineRiverBorder,
+			DSS.layer.northeastBorder,
+			DSS.layer.uplandBorder,
+			DSS.layer.swwiBorder
+		];
+		
+		for(var region of DSS.allRegionLayers) {
+			region.getSource().on("addfeature", function() {
+				DSS.utils.assignFarmsToRegions()
+			})
+		}
+
 		//--------------------------------------------------------------		
 		DSS.layer.tainterwatershed = new ol.layer.Vector({
 			visible: false,//DSS.layer['tainterwatershed:visible'],

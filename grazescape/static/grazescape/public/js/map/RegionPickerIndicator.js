@@ -1,37 +1,26 @@
 var regionHighlighter = function(e) {
 	let pixel = DSS.map.getEventPixel(e.originalEvent);
 	let fs = DSS.map.getFeaturesAtPixel(pixel);
-	//console.log(fs)
 	hitRegion = false
 	if(fs.length > 0){
 		hitRegion = true
-		console.log(fs[0])
         let region_name = fs[0].get("Name") || fs[0].get("NAME");
-//		console.log("hit is", region_name)
-//		console.log("hit is", fs[0].Name)
-//		console.log("hit is", fs[0].NAME)
 		if(region_name == 'CB_WI'){
-			//console.log("CB_WI hit")
 			DSS.layer.cloverBeltBorder.setStyle(selectStyle)
 		}
 		else if(region_name == 'SW_WI'){
-			//console.log("SW_WI hit")
 			DSS.layer.swwiBorder.setStyle(selectStyle)
 		}
 		else if(region_name == 'NE_WI'){
-			console.log("NE_WI hit")
 			DSS.layer.northeastBorder.setStyle(selectStyle)
 		}
 		else if(region_name == 'UL_WI'){
-			console.log("UL_WI hit")
 			DSS.layer.uplandBorder.setStyle(selectStyle)
 		}
 		else if(region_name == 'redCedarWI'){
-			console.log("red cedar hit")
 			DSS.layer.redCedarBorder.setStyle(selectStyle)
 		}
 		else if(region_name == 'pineRiverMN'){
-			console.log("pineRiverMN hit")
 			DSS.layer.pineRiverBorder.setStyle(selectStyle)
 		}
 		else{
@@ -52,9 +41,6 @@ var regionHighlighter = function(e) {
 
 
 const selectStyle = new ol.style.Style({
-	// fill: new ol.style.Fill({
-	//   color: '#eeeeee',
-	// }),
 	stroke: new ol.style.Stroke({
 	  color: 'rgba(255, 255, 255, 0.7)',
 	  width: 6,
@@ -117,8 +103,10 @@ function regionPickerFunc() {
 		DSS.layer.northeastBorder.setStyle(unslectStyle)
 		DSS.layer.redCedarBorder.setStyle(unslectStyle)
 		DSS.layer.pineRiverBorder.setStyle(unslectStyle)
-		//DSS.MapState.removeMapInteractions()
+
 		AppEvents.triggerEvent('hide_region_picker_indicator')
+
+		DSS.utils.filterFarmsLayerByRegion(selectedRegion);
 
 		if(region_name == 'CB_WI'){
 			DSS.activeRegion = "cloverBeltWI";
@@ -130,7 +118,6 @@ function regionPickerFunc() {
 			DSS.layer.uplandBorder.setVisible(false)
             DSS.layer.redCedarBorder.setVisible(false)
             DSS.layer.pineRiverBorder.setVisible(false)
-
 
 			DSS.layer.regionLabels.setVisible(false)
 			DSS.layer.farms_1.setVisible(true)

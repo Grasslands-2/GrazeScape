@@ -49,6 +49,73 @@ Ext.define('DSS.utils', {
 					console.error("Unknown infrastructure type: ", infraType);
 					return 0;
 			}
+		},
+
+		assignFarmsToRegions() {
+			try {
+				const farms = DSS.layer.farms_1.getSource().getFeatures();
+
+				for (var farm of farms) {
+					// Continue if farm already assigned to region.
+					if (farm.get("region") != undefined) continue;
+
+					const farmCoord = farm.getGeometry().getCoordinates();
+					const farmRegion = DSS.allRegionLayers.find(rL => rL.getSource().getFeaturesAtCoordinate(farmCoord).length > 0);
+					if (farmRegion) {
+						const region = farmRegion.getSource().getFeatures()[0];
+						const regionName = region.get("Name") || region.get("NAME");
+						farm.set("region", regionName);
+						console.log("Set region " + regionName + " for farm " + farm.get("farm_name"))
+					}
+				}
+			} catch (e) {
+				console.error(e);
+			}
+		},
+
+		updateFarmPickerItems() {
+			const farmFeatures = DSS.layer.farms_1.getSource().getFeatures();
+			// Reset the farms menu in the sidebar if it's visible
+            if (Ext.getCmp("farmsMenu")) {
+                Ext.getCmp("farmsMenu").removeAll()
+                for (i in farmFeatures) {
+					if(!selectedRegion || selectedRegion.get("Name") == farmFeatures[i].get("region")){
+						Ext.getCmp("farmsMenu").add({
+							text: `${farmFeatures[i].get("farm_name")} <i>${farmFeatures[i].get("farm_owner")}</i>`,
+							farm_id: farmFeatures[i].get("gid"),
+							farm_name: farmFeatures[i].get("farm_name")
+						})
+					}
+                }
+            }
+		},
+
+		filterFarmsLayerByRegion(selectedRegion) {			
+			const hiddenStyle = new ol.style.Style({
+				image: new ol.style.Circle({
+					radius: 1,
+					fill: new ol.style.Fill({
+						color: 'rgba(32,96,160,0.9)'
+					}),
+					stroke: new ol.style.Stroke({
+						color: 'rgba(255,255,255,0.75)',
+						width: 1
+					}),
+					opacity: 0
+				})
+			});
+
+			const regionName = selectedRegion.get("Name") || selectedRegion.get("NAME");
+			console.log("Selected region: " + regionName )
+			const farmFeatures = DSS.layer.farms_1.getSource().getFeatures();
+			for (i in farmFeatures) {
+				if (farmFeatures[i].get("region") != undefined
+				&& farmFeatures[i].get("region") != regionName) {	
+					farmFeatures[i].setStyle(hiddenStyle);
+				} else {
+					farmFeatures[i].setStyle();
+				}
+			}
 		}
 	},
 		
@@ -102,7 +169,6 @@ Ext.define('AppEvents', {
 		
 		var res = this._events[registeredHandle.eventName];
 		if (res) {
-		//	console.log(' an item was removed from the listener', registeredHandle);
 			delete res[registeredHandle.id];
 		}
 	},
