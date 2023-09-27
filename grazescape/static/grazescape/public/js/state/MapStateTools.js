@@ -131,7 +131,6 @@ Ext.define('DSS.state.MapStateTools', {
     //-------------------------------------------------------------
 	showNewFarm: function() {
 		console.log(DSS.activeFarm)
-		//geoServer.setFarmSource()
 	    geoServer.setFarmSource('&CQL_filter=gid='+DSS.activeFarm)
 		console.log("setFarmSource in MapStateTools.js within showNewFarm")
 		DSS.layer.farms_1.setOpacity(1);
@@ -351,8 +350,7 @@ Ext.define('DSS.state.MapStateTools', {
 		console.log("in active farm handler")
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
-		//gatherfarmTableData()
-		console.log('in scenario picker model')
+
 		DSS.viewModel.scenario = new Ext.app.ViewModel({})
     	
     	let me = this;
@@ -367,60 +365,35 @@ Ext.define('DSS.state.MapStateTools', {
 				let g = f.getGeometry();
 
 				if (g && g.getType() === "Point") {
-					//if (DSS.activeFarm == null){
-//					    cleanDB()
-						DSS.activeFarm = f.get("gid");
-						DSS.farmName = f.get("farm_name")
-						
-						let pos = g.getFirstCoordinate()
-						console.log(pos)
-						me.setPinMarker(pos);
-						console.log("pin set in activatefarmhandler")
-						console.log(DSS.activeFarm)
-						//DSS.map.addLayer(DSS.layer.fields_1);
-						//DSS.layer.fields_1.setVisible(true);
-						
-						// DSS.layer.fieldsLabels
-						// DSS.map.RotationLayer;
-						let ex = ol.extent;
-						let extent = [pos[0], pos[1], pos[0], pos[1]];
-						//DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-						//	extent = ex.extend(extent, f.getGeometry().getExtent());
-						//});
-						ex.buffer(extent, 600, extent);
-						console.log("clickActivateFarmHandler")
-						me.zoomToRealExtent(extent);
-						
-						// if results were already being computed (extents chosen and model), then trigger a recompute
-					//	DSS.StatsPanel.computeResults(undefined, DSS.layer.ModelResult);
-	//					AppEvents.triggerEvent('set_inspector_bounds', extent);
-						
-						DSS.map.getViewport().style.cursor = '';
-						AppEvents.triggerEvent('activate_operation')
-	//					console.log(DSS.layer.fields_1.getSource());
-						//DSS.ApplicationFlow.instance.showManageOperationPage(f.get("name"));
-						DSS.MapState.removeMapInteractions()
-						//DSS.layer.farms_1.getSource().refresh();
-						
-						//----------launching scenario picker---------------
-							// DSS.dialogs.ScenarioPicker = Ext.create('DSS.state.ScenarioPicker'); 
-							// DSS.dialogs.ScenarioPicker.setViewModel(DSS.viewModel.scenario);
-							// //DSS.layer.fields_1.setVisible(true);	
-							// DSS.dialogs.ScenarioPicker.show().center().setY(0);
-							// console.log(DSS.dialogs.ScenarioPicker);
-							//DSS.map.addLayer(DSS.layer.scenarios);
-							DSS.ApplicationFlow.instance.showManageOperationPage();
-							// DSS.layer.fields_1.setVisible(true);
-							break;
-						//}
-					//}
-					
-					
+					DSS.activeFarm = f.get("gid");
+					DSS.farmName = f.get("farm_name")
+					DSS.MapState.editSelectedFarm(g);
 					break;
 				}
 			}
 		}
     },
+
+	// g: geometry object for selected farm
+	editSelectedFarm: function(g) {
+		let pos = g.getFirstCoordinate()
+		DSS.MapState.setPinMarker(pos);
+		console.log("pin set in activatefarmhandler")
+		console.log(DSS.activeFarm)
+
+		let extent = [pos[0], pos[1], pos[0], pos[1]];
+		ol.extent.buffer(extent, 600, extent);
+
+		console.log("clickActivateFarmHandler")
+		DSS.MapState.zoomToRealExtent(extent);
+
+		DSS.map.getViewport().style.cursor = '';
+		AppEvents.triggerEvent('activate_operation')
+
+		DSS.MapState.removeMapInteractions()
+		
+		DSS.ApplicationFlow.instance.showManageOperationPage();
+	},
 
     // FIXME: TODO: ideally zoom to extent instead?
     //-------------------------------------------------------------

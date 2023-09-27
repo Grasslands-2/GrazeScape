@@ -9,6 +9,10 @@ Ext.define("DSS.state.BrowseOrCreate", {
 	initComponent: function () {
 		let me = this;
 
+		// TODO this is all farms, not just the ones in the region :(
+		const farms = DSS.layer.farms_1.getSource().getFeatures();
+		console.log("Farms:", farms);
+
 		Ext.applyIf(me, {
 			defaults: {
 				margin: "1rem",
@@ -53,6 +57,64 @@ Ext.define("DSS.state.BrowseOrCreate", {
 						DSS.ApplicationFlow.instance.showNewOperationPage();
 						DSS.MapState.removeMapInteractions();
 					},
+				},
+				{
+					xtype: "component",
+					cls: "information",
+					html: "Available farms:",
+					margin: '16 0 0 0'
+				},
+				{   
+					xtype: "menu",
+					width: 80,
+					scrollable: true,
+					id: "farmsMenu",
+					floating: false,
+					listeners: {
+						click: async function (menu, item, e, eOpts) {
+							let menuItems = Ext.getCmp("farmsMenu").items.items;
+							for (i in menuItems) {
+								if (menuItems[i].id == item.id) {
+									menuItems[i].setStyle({
+										backgroundColor: "#d2e9fa",
+									});
+								} else {
+									menuItems[i].setStyle({
+										backgroundColor: "white",
+									});
+								}
+							}
+							DSS.activeFarm = item.farm_id;
+							DSS.farmName = item.farm_name;
+							console.log("Active farm is:", item.farm_id);
+							Ext.getCmp("editCurFarm")?.setDisabled(false);
+						}
+					},
+					items: farms.map(function(f){
+						return {
+							text: `${f.values_.farm_name} <i>${f.values_.farm_owner}</i>`,
+							farm_id: f.values_.gid,
+							farm_name: f.values_.farm_name
+						};
+					})
+				},
+				{
+					xtype: "button",
+					cls: "button-text-pad",
+					id: "editCurFarm",
+					componentCls: "button-margin",
+					text: "Edit Selected Farm",
+					disabled: true,
+					handler: function () {
+						var farmFeature = DSS.layer.farms_1.getSource().getFeatures()
+							.find(f => f.values_.gid == DSS.activeFarm);
+							
+						if(!farmFeature) {
+							console.error("Couldn't find farm!");
+							return;
+						}
+						DSS.MapState.editSelectedFarm(farmFeature.getGeometry());
+					}
 				},
 				{
 					xtype: "component",

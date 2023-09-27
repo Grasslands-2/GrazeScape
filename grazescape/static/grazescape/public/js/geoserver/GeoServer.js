@@ -23,21 +23,34 @@ class GeoServer{
 //            DSS.layer.scenarios.getSource().refresh();
         })
     }
-//    returns a geojson of the farms
-    setFarmSource(parameter = ""){
+
+    setFarmSource(parameter = "") {
         console.log("IN SET FARM!!!")
         console.log(parameter)
-        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
+        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function (geoJson) {
             console.log(geoJson)
             DSS.layer.farms_1.getSource().clear()
             var format = new ol.format.GeoJSON();
-           
+
             var myGeoJsonFeatures = format.readFeatures(
                 geoJson.geojson,
-                {featureProjection: 'EPSG:3857'}
+                { featureProjection: 'EPSG:3857' }
             );
-           console.log(myGeoJsonFeatures)
-           DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
+            console.log(myGeoJsonFeatures)
+            DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
+            const farms = JSON.parse(geoJson.geojson);
+
+            // Reset the farms menu in the sidebar if it's visible
+            if (Ext.getCmp("farmsMenu")) {
+                Ext.getCmp("farmsMenu").removeAll()
+                for (i in farms.features) {
+                    Ext.getCmp("farmsMenu").add({
+                        text: `${farms.features[i].properties.farm_name} <i>${farms.features[i].properties.farm_owner}</i>`,
+                        farm_id: farms.features[i].properties.gid,
+                        farm_name: farms.features[i].properties.farm_name
+                    })
+                }
+            }
         })
     }
     setFieldsAfterImport(parameter = ""){
