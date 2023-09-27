@@ -9,9 +9,12 @@ Ext.define("DSS.state.BrowseOrCreate", {
 	initComponent: function () {
 		let me = this;
 
-		// TODO this is all farms, not just the ones in the region :(
-		const farms = DSS.layer.farms_1.getSource().getFeatures();
+		const farms = DSS.layer.farms_1.getSource().getFeatures().filter(function(farm){
+			if(!farm.get("region")) return true;
+			return selectedRegion.get("Name") == farm.get("region") || selectedRegion.get("NAME") == farm.get("region");
+		});
 		console.log("Farms:", farms);
+		console.log("Selected Region:", selectedRegion);
 
 		Ext.applyIf(me, {
 			defaults: {
@@ -108,7 +111,7 @@ Ext.define("DSS.state.BrowseOrCreate", {
 					handler: function () {
 						var farmFeature = DSS.layer.farms_1.getSource().getFeatures()
 							.find(f => f.values_.gid == DSS.activeFarm);
-							
+
 						if(!farmFeature) {
 							console.error("Couldn't find farm!");
 							return;

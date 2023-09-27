@@ -10,7 +10,7 @@ class GeoServer{
         this.geoUpdate_Url =this.geoScen_Url
     }
     DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
-//    returns a geojson of the Scenarios
+
     setScenariosSource(parameter = ""){
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             DSS.layer.scenarios.getSource().clear()
@@ -20,7 +20,6 @@ class GeoServer{
                 {featureProjection: 'EPSG:3857'}
             );
             DSS.layer.scenarios.getSource().addFeatures(myGeoJsonFeatures)
-//            DSS.layer.scenarios.getSource().refresh();
         })
     }
 
@@ -39,17 +38,8 @@ class GeoServer{
             console.log("farm features:", myGeoJsonFeatures)
             DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
 
-            // Reset the farms menu in the sidebar if it's visible
-            if (Ext.getCmp("farmsMenu")) {
-                Ext.getCmp("farmsMenu").removeAll()
-                for (i in myGeoJsonFeatures) {
-                    Ext.getCmp("farmsMenu").add({
-                        text: `${myGeoJsonFeatures[i]._values.farm_name} <i>${myGeoJsonFeatures[i]._values.farm_owner}</i>`,
-                        farm_id: myGeoJsonFeatures[i]._values.gid,
-                        farm_name: myGeoJsonFeatures[i]._values.farm_name
-                    })
-                }
-            }
+            DSS.utils.assignFarmsToRegions();
+            DSS.utils.updateFarmPickerItems();
         })
     }
     setFieldsAfterImport(parameter = ""){

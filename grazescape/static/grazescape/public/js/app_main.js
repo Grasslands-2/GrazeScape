@@ -65,3 +65,5 @@ window.onbeforeunload = function(e){
         }
     }
 }
+
+var selectedRegion;

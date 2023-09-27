@@ -1,6 +1,12 @@
 
-var regionsList = [{text: "Ridge and Valley"}, {text: "Clover Belt"},{text: "Driftless"},{text: "Northeast"},
-{text: "Red Cedar"}, {text: "Pine River"}]
+var regionsList = [
+	{text: "Ridge and Valley", regionCode: "UL_WI"}, 
+	{text: "Clover Belt", regionCode: "CB_WI"},
+	{text: "Driftless", regionCode: "SW_WI"},
+	{text: "Northeast", regionCode: "NE_WI"},
+	{text: "Red Cedar", regionCode: "redCedarWI"}, 
+	{text: "Pine River", regionCode: "pineRiverMN"}
+];
 //DSS.activeRegion = "southWestWI";
 //var testTable = document.createElement('table');
 //function createHTMLTable(valuesList){
@@ -93,6 +99,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 							DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
 							console.log(DSS.map.getView())
 							if(item.text == "Clover Belt"){
+								selectedRegion = DSS.layer.cloverBeltBorder.getSource().getFeatures()[0];
 								DSS.activeRegion = "cloverBeltWI";
 								DSS.map.un('pointermove', regionHighlighter)
 								AppEvents.triggerEvent('hide_region_picker_indicator')
@@ -112,6 +119,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
 							else if(item.text == "Ridge and Valley"){
+								selectedRegion = DSS.layer.swwiBorder.getSource().getFeatures()[0];
 								DSS.activeRegion = "southWestWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -132,6 +140,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
 							else if(item.text == "Northeast"){
+								selectedRegion = DSS.layer.northeastBorder.getSource().getFeatures()[0];
 								DSS.activeRegion = "northeastWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -152,6 +161,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
 							else if(item.text == "Driftless"){
+								selectedRegion = DSS.layer.uplandBorder.getSource().getFeatures()[0];
 								DSS.activeRegion = "uplandsWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -172,6 +182,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
 								await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
 							else if(item.text == "Red Cedar"){
+								selectedRegion = DSS.layer.redCedarBorder.getSource().getFeatures()[0];
 								DSS.activeRegion = "redCedarWI";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -192,6 +203,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
                                 await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
 							else if(item.text == "Pine River"){
+								selectedRegion = DSS.layer.pineRiverBorder.getSource().getFeatures()[0];
 								DSS.activeRegion = "pineRiverMN";
 								AppEvents.triggerEvent('hide_region_picker_indicator')
 								DSS.map.un('pointermove', regionHighlighter)
@@ -211,6 +223,7 @@ Ext.define('DSS.state.RegionPickerPanel', {
                                 })
                                 await DSS.MapState.zoomToRealExtentRP(extent,view)
 							}
+							DSS.utils.filterFarmsLayerByRegion(selectedRegion);
 							DSS.map.removeInteraction(DSS.selectRP);
 						}
 					}
