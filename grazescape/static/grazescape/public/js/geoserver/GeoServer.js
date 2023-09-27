@@ -28,7 +28,6 @@ class GeoServer{
         console.log("IN SET FARM!!!")
         console.log(parameter)
         this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function (geoJson) {
-            console.log(geoJson)
             DSS.layer.farms_1.getSource().clear()
             var format = new ol.format.GeoJSON();
 
@@ -36,18 +35,18 @@ class GeoServer{
                 geoJson.geojson,
                 { featureProjection: 'EPSG:3857' }
             );
-            console.log(myGeoJsonFeatures)
+
+            console.log("farm features:", myGeoJsonFeatures)
             DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
-            const farms = JSON.parse(geoJson.geojson);
 
             // Reset the farms menu in the sidebar if it's visible
             if (Ext.getCmp("farmsMenu")) {
                 Ext.getCmp("farmsMenu").removeAll()
-                for (i in farms.features) {
+                for (i in myGeoJsonFeatures) {
                     Ext.getCmp("farmsMenu").add({
-                        text: `${farms.features[i].properties.farm_name} <i>${farms.features[i].properties.farm_owner}</i>`,
-                        farm_id: farms.features[i].properties.gid,
-                        farm_name: farms.features[i].properties.farm_name
+                        text: `${myGeoJsonFeatures[i]._values.farm_name} <i>${myGeoJsonFeatures[i]._values.farm_owner}</i>`,
+                        farm_id: myGeoJsonFeatures[i]._values.gid,
+                        farm_name: myGeoJsonFeatures[i]._values.farm_name
                     })
                 }
             }
