@@ -1,5 +1,4 @@
-
-
+// TODO investigate possibly unused component:
 //------------------------------------------------------------------------------
 Ext.define('DSS.state.operation.FieldShapeMode', {
 //------------------------------------------------------------------------------
@@ -39,9 +38,7 @@ Ext.define('DSS.state.operation.FieldShapeMode', {
 					if (pressed) {
 						DSS.MapState.removeMapInteractions();
 						DSS.DrawFieldShapes.addModeControl(me);	
-						//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
-						DSS.mapClickFunction = undefined;
-						DSS.mouseMoveFunction = undefined;
+						DSS.MapState.deactivateFarmsMapHandlers();
 					}
 					else {
 						DSS.mouseMoveFunction = undefined;

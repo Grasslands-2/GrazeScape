@@ -95,9 +95,8 @@ Ext.define('DSS.state.RegionPickerPanel', {
 					items: regionsList,
 					listeners:{
 						click: async function( menu, item, e, eOpts ) {
-							DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
-							DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
-							console.log(DSS.map.getView())
+							// DSS.MapState.activateFarmsMapHandlers();
+							// console.log(DSS.map.getView())
 							if(item.text == "Clover Belt"){
 								selectedRegion = DSS.layer.cloverBeltBorder.getSource().getFeatures()[0];
 								DSS.activeRegion = "cloverBeltWI";

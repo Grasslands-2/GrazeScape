@@ -292,33 +292,9 @@ Ext.define('DSS.state.MapStateTools', {
 						break;
 					}
 				}
-				// if (g.getType() === "MultiPolygon") {
-				// 	console.log("multipoly")
-				// 	if (f.get('owner_id') != undefined) {
-				// 		cursor = 'pointer';
-				// 		hitAny = true;
-				// 		//console.log(f)
-				// 		if (lastFp !== f) {
-				// 			DSS.popupOverlay.setPosition(evt.coordinate);
-				// 			DSS.popupContainer.update('Soil P: ' + f.get('soil_p') + '<br>' +
-				// 					'Rotation: ' + f.get('rotation') + '<br>' +
-				// 					'Owner : ' + f.get('id') + '<br>');
-				// 			lastFp = f;
-				// 		}
-				// 		/*if (lastF !== f) {
-				// 			DSS.layer.fields_1.getSource().setUrl("get_fields?field="+ f.get("id"));
-				// 			DSS.layer.fields_1.getSource().refresh();
-				// 			DSS.layer.fieldsLabels.getSource().refresh();
-				// 			DSS.MapState.showFields(0.9);
-				// 			lastF = f;
-				// 		}*/
-				// 		break;
-				// 	}
-				// }
 			}
 			if (!hitAny) {
 				DSS.popupOverlay.setPosition(false);
-			//	lastF = undefined;
 				lastFp = undefined;
 			}
 			DSS.map.getViewport().style.cursor = cursor;
@@ -326,12 +302,10 @@ Ext.define('DSS.state.MapStateTools', {
     },
     
     // TODO: deal with multiple overlapping bits
-	//	console.log("TODO: many farms at the click location: " + fs.length);
     //-------------------------------------------------------------
 	zoomToActiveFarm: function(){
 		let me = this;
 		DSS.layer.scenarios.getSource().forEachFeature(function(f) {
-			//console.log(f)
 			if(f.values_.gid == DSS.activeScenario){
 				let g = f.getGeometry();
 				let pos = g.getFirstCoordinate()
@@ -345,15 +319,12 @@ Ext.define('DSS.state.MapStateTools', {
 		})
 	},
 
-	//-------------------------------------------------------------
     clickActivateFarmHandler: function(evt) {
 		console.log("in active farm handler")
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
 
 		DSS.viewModel.scenario = new Ext.app.ViewModel({})
-    	
-    	let me = this;
     	
 		return function(evt) {
 			let pixel = DSS.map.getEventPixel(evt.originalEvent);
@@ -373,6 +344,16 @@ Ext.define('DSS.state.MapStateTools', {
 			}
 		}
     },
+
+	activateFarmsMapHandlers: function() {
+		DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
+		DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
+	},
+
+	deactivateFarmsMapHandlers: function() {
+		DSS.mouseMoveFunction = undefined;
+		DSS.mapClickFunction = undefined;
+	},
 
 	// g: geometry object for selected farm
 	editSelectedFarm: function(g) {
