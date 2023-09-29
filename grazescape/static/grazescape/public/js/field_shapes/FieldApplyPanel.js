@@ -2,7 +2,7 @@ DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); bor
 var dupname = false
 
 async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_pInput,field_nameInput){
-
+	console.log("Called createField from FieldApplyPanel");
 	//Starter values for dependant variables
 	cropDisp='';
 	tillageDisp='';
@@ -164,7 +164,6 @@ async function addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,fi
 	
 	setFeatureAttributes(e.feature)
 	addFieldAcreage(e.feature)
-	//alert('Field Added!')
 }
 
 var fieldData = {
@@ -199,6 +198,57 @@ var fieldData = {
 		extRecs: 100, // %
 		canManurePastures: true
 	}*/
+}
+
+function addFieldAcreage(feature) {
+    console.log(feature);
+    if (
+        feature.values_.rotation == "pt-cn" ||
+        feature.values_.rotation == "pt-rt"
+    ) {
+        pastAcreage = pastAcreage + feature.area;
+    }
+    if (
+        feature.values_.rotation == "cc" ||
+        feature.values_.rotation == "cg" ||
+        feature.values_.rotation == "dr" ||
+        feature.values_.rotation == "cso"
+    ) {
+        cropAcreage = cropAcreage + feature.area;
+    }
+}
+function setFeatureAttributes(feature) {
+    console.log(feature);
+    console.log(feature.getGeometry().getExtent());
+    console.log(feature.getGeometry().getCoordinates()[0]);
+    data = {
+        extents: feature.getGeometry().getExtent(),
+        coordinates: feature.getGeometry().getCoordinates()[0],
+        active_region: DSS.activeRegion,
+    };
+    var csrftoken = Cookies.get("csrftoken");
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": csrftoken },
+    });
+    return new Promise(function (resolve) {
+        $.ajax({
+            url: "/grazescape/get_default_om",
+            type: "POST",
+            data: data,
+            success: function (responses, opts) {
+                delete $.ajaxSetup().headers;
+                console.log(responses);
+                feature.setProperties({ om: responses["om"] });
+
+                DSS.MapState.removeMapInteractions();
+                geoServer.wfs_field_insert(feature);
+                resolve("done");
+            },
+            failure: function (response, opts) {
+                me.stopWorkerAnimation();
+            },
+        });
+    });
 }
 
 //------------------------------------------------------------------------------

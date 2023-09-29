@@ -154,22 +154,7 @@ function createinfra(e,infra_nameInput,
 				costPerFoot = 1.33}
 			}
 
-	//-------------------Now for the actual function-----------------
-
 	addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,water_pipeInput,lane_materialInput)
-	// DSS.draw = new ol.interaction.Draw({
-	// 	source: source,
-	// 	type: 'MultiPolygon',
-	// 	geometryName: 'geom'
-	// });
-	// DSS.map.addInteraction(DSS.draw);
-	// console.log("draw is on");
-	// var af = parseInt(DSS.activeFarm,10);
-	// var as = DSS.activeScenario;
-	// console.log('This is the active scenario#: ');
-	// setFeatureAttributes(e.feature)
-	// addFieldAcreage(e.feature)
-	// alert('Field Added!')
 }
 function addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,water_pipeInput,lane_materialInput) {
 	//		in meters convert to feet

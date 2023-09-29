@@ -186,17 +186,23 @@ class GeoServer{
             });
     }
 // used to insert fields into geoserver
-    wfs_field_insert(payLoad, feat, fType){
+    wfs_field_insert(feat){
+        var formatWFS = new ol.format.WFS();
+        var formatGML = new ol.format.GML({
+            featureNS: 'http://geoserver.org/GrazeScape_Vector',
+            Geometry: 'geom',
+            featureType: 'field_2',
+            srsName: 'EPSG:3857'
+        });
+        var node = formatWFS.writeTransaction([feat], null, null, formatGML);
+        var serializer = new XMLSerializer();
+        var payLoad = serializer.serializeToString(node);
+
         let requestType = ""
-        //Not sure why this is if statement is here.  this function never handles farms
-        if (fType == "farm_2"){
-            requestType = "insert_farm"
-        }
-         this.makeRequest(this.geoUpdate_Url, requestType, payLoad, this).then(function(returnData){
+
+        this.makeRequest(this.geoUpdate_Url, requestType, payLoad, this).then(function(returnData){
             DSS.MapState.removeMapInteractions()
             console.log(returnData)
-            let geoJson = returnData.geojson
-            let currObj = returnData.current
             console.log("wfs_field_insert")
 
             console.log("redraw fields")
@@ -204,8 +210,7 @@ class GeoServer{
             DSS.MapState.showInfraForScenario();
             DSS.MapState.zoomToActiveFarm()
             document.body.style.cursor = "default";
-         })
-
+        });
     }
     //Used to insert new infra after it is drawn
     wfs_infra_insert(payLoad, feat){

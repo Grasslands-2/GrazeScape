@@ -29,7 +29,6 @@ Ext.define('DSS.view.AppViewport', {
 		'DSS.state.ApplicationFlow',
         'DSS.map.Main',
 		'DSS.map.LayerMenu',
-		'DSS.field_shapes.DrawAndApply',
 		'DSS.field_shapes.Split',
 		'DSS.field_shapes.Join',
 		'DSS.field_shapes.Delete',
