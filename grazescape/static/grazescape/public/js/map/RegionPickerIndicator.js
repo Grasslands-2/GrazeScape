@@ -29,7 +29,6 @@ var regionHighlighter = function(e) {
 	}
 	if(fs.length < 1){
 		hitRegion = false
-		//console.log("no region hit")
 		DSS.layer.cloverBeltBorder.setStyle(unslectStyle)
 		DSS.layer.swwiBorder.setStyle(unslectStyle)
 		DSS.layer.northeastBorder.setStyle(unslectStyle)
@@ -38,7 +37,6 @@ var regionHighlighter = function(e) {
 		DSS.layer.pineRiverBorder.setStyle(unslectStyle)
 	}
 }
-
 
 const selectStyle = new ol.style.Style({
 	stroke: new ol.style.Stroke({
@@ -68,10 +66,7 @@ function regionPickerFunc() {
 		maxZoom: 30,
 		minZoom: 4,
 		constrainOnlyCenter: false,
-		//extent:[-10143258, 5510000,-9913236,5702859]
 	}))
-	//DSS.MapState.removeMapInteractions()
-	let lastF = undefined, lastFp = undefined;
 
 	DSS.map.on('pointermove', regionHighlighter)
 	DSS.selectRP = new ol.interaction.Select({
@@ -267,6 +262,7 @@ function regionPickerFunc() {
 		DSS.map.removeInteraction(DSS.selectRP);
 	})
 }
+
 //------------------------------------------------------------------------------
 Ext.define('DSS.map.RegionPickerIndicator', {
 //------------------------------------------------------------------------------

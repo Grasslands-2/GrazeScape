@@ -90,6 +90,7 @@ Ext.define("DSS.state.BrowseOrCreate", {
 							DSS.activeFarm = item.farm_id;
 							DSS.farmName = item.farm_name;
 							console.log("Active farm is:", item.farm_id);
+							DSS.utils.highlightSelectedFarm(item.farm_id)
 							Ext.getCmp("editCurFarm")?.setDisabled(false);
 						}
 					},

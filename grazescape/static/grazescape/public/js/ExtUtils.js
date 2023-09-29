@@ -79,7 +79,7 @@ Ext.define('DSS.utils', {
             if (Ext.getCmp("farmsMenu")) {
                 Ext.getCmp("farmsMenu").removeAll()
                 for (i in farmFeatures) {
-					if(!selectedRegion || selectedRegion.get("Name") == farmFeatures[i].get("region")){
+					if(!selectedRegion || selectedRegion.get("Name") == farmFeatures[i].get("region") || selectedRegion.get("NAME") == farmFeatures[i].get("region")){
 						Ext.getCmp("farmsMenu").add({
 							text: `${farmFeatures[i].get("farm_name")} <i>${farmFeatures[i].get("farm_owner")}</i>`,
 							farm_id: farmFeatures[i].get("gid"),
@@ -111,11 +111,50 @@ Ext.define('DSS.utils', {
 			for (i in farmFeatures) {
 				if (farmFeatures[i].get("region") != undefined
 				&& farmFeatures[i].get("region") != regionName) {	
+					farmFeatures[i].set("isInRegion", false);
 					farmFeatures[i].setStyle(hiddenStyle);
 				} else {
+					farmFeatures[i].set("isInRegion", true);
 					farmFeatures[i].setStyle();
 				}
 			}
+		},
+
+		highlightSelectedFarm(farmId) {
+			var farms_selected_style = function(_, resolution) {
+				let r = 4.0 - resolution / 94.0;
+				if (r < 0) r = 0
+				else if (r > 1) r = 1
+				// value from 3 to 16
+				r = Math.round(Math.pow(r, 3) * 13 + 3)
+
+				let sw = Math.floor(Math.sqrt(r));
+				if (sw < 1) sw = 1;
+				var newStyle = new ol.style.Style({
+					image: new ol.style.Circle({
+						radius: r * 1.2,
+						fill: new ol.style.Fill({
+							color: 'rgba(99, 159, 219,0.9)'
+						}),
+						stroke: new ol.style.Stroke({
+							color: 'rgba(255,255,255,0.75)',
+							width: sw
+						}),
+					})
+				});
+
+				return newStyle;
+			}
+
+			DSS.layer.farms_1.getSource().getFeatures().forEach(field => {
+				if(!field.get("isInRegion")) return;
+
+				if(field.get("gid")== farmId){
+					field.setStyle(farms_selected_style);
+				} else {
+					field.setStyle();
+				}
+			})
 		}
 	},
 		
