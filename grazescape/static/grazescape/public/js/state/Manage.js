@@ -58,8 +58,6 @@ Ext.define('DSS.state.Manage', {
 		'DSS.state.DeleteScenario',
 		'DSS.state.NewScenario',
 		'DSS.state.NewDupScenario',
-		'DSS.state.operation.InfraShapeMode',
-		'DSS.state.operation.FieldShapeMode',
 		'DSS.state.Scenario',
 	],
 	

@@ -154,22 +154,7 @@ function createinfra(e,infra_nameInput,
 				costPerFoot = 1.33}
 			}
 
-	//-------------------Now for the actual function-----------------
-
 	addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,water_pipeInput,lane_materialInput)
-	// DSS.draw = new ol.interaction.Draw({
-	// 	source: source,
-	// 	type: 'MultiPolygon',
-	// 	geometryName: 'geom'
-	// });
-	// DSS.map.addInteraction(DSS.draw);
-	// console.log("draw is on");
-	// var af = parseInt(DSS.activeFarm,10);
-	// var as = DSS.activeScenario;
-	// console.log('This is the active scenario#: ');
-	// setFeatureAttributes(e.feature)
-	// addFieldAcreage(e.feature)
-	// alert('Field Added!')
 }
 function addInfraProps(e,infra_nameInput,infra_typeInput,fence_materialInput,water_pipeInput,lane_materialInput) {
 	//		in meters convert to feet
@@ -249,17 +234,6 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 	titleAlign: 'center',
 	title: 'Choose your new Infrastructures Options',
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
-	requires: [
-		//'DSS.ApplicationFlow.activeFarm',
-		//'DSS.infra_shapes.apply.infraName',
-		//'DSS.infra_shapes.apply.infraType',
-		'DSS.infra_shapes.apply.fenceMaterial',
-		'DSS.infra_shapes.apply.waterPipe',
-		'DSS.infra_shapes.apply.laneMaterial'
-	],
-	
-
-	
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
@@ -353,9 +327,8 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 						height: 7,
 						cls: 'information accent-text bold',
 						html: "Infrastructure Type",
-					},
-					//getToggle(this, 'infraType.is_active') 
-				]},
+					}]
+				},
 				{
 					xtype: 'radiogroup',
 					//id: 'ITcontents',
@@ -603,7 +576,6 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 					text: 'Add Infrastructure',
 					formBind: true,
 					handler: async function() {
-						//console.log(DSS.infra_shapes.apply.infraType.getValue())
 						var form =  this.up('form').getForm(); 
 						var data = me.viewModel.data;
 						dupname = false
@@ -611,7 +583,6 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 						console.log(DSS.draw.style)
 						if(form.isValid()){
 							DSS.map.removeInteraction(DSS.select);
-							//console.log(DSS.activeFarm);
 							await dupNameCheck(data.infraName.value,DSS.layer.infrastructure,"infra")
 							if(dupname){
 								alert("You already have infrastructure with that name in this scenario!")

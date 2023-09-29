@@ -12,8 +12,6 @@ Ext.define('DSS.state.NewScenPickWindow', {
 		'DSS.state.DeleteScenario',
 		'DSS.state.NewScenario',
 		'DSS.state.NewDupScenario',
-		'DSS.state.operation.InfraShapeMode',
-		'DSS.state.operation.FieldShapeMode',
 		'DSS.state.Scenario'
 		
 	],
