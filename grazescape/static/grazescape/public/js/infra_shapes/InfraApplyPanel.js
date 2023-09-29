@@ -249,17 +249,6 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 	titleAlign: 'center',
 	title: 'Choose your new Infrastructures Options',
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
-	requires: [
-		//'DSS.ApplicationFlow.activeFarm',
-		//'DSS.infra_shapes.apply.infraName',
-		//'DSS.infra_shapes.apply.infraType',
-		'DSS.infra_shapes.apply.fenceMaterial',
-		'DSS.infra_shapes.apply.waterPipe',
-		'DSS.infra_shapes.apply.laneMaterial'
-	],
-	
-
-	
 	
 	//--------------------------------------------------------------------------
 	initComponent: function() {
@@ -353,9 +342,8 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 						height: 7,
 						cls: 'information accent-text bold',
 						html: "Infrastructure Type",
-					},
-					//getToggle(this, 'infraType.is_active') 
-				]},
+					}]
+				},
 				{
 					xtype: 'radiogroup',
 					//id: 'ITcontents',
@@ -603,7 +591,6 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 					text: 'Add Infrastructure',
 					formBind: true,
 					handler: async function() {
-						//console.log(DSS.infra_shapes.apply.infraType.getValue())
 						var form =  this.up('form').getForm(); 
 						var data = me.viewModel.data;
 						dupname = false
@@ -611,7 +598,6 @@ Ext.define('DSS.infra_shapes.InfraApplyPanel', {
 						console.log(DSS.draw.style)
 						if(form.isValid()){
 							DSS.map.removeInteraction(DSS.select);
-							//console.log(DSS.activeFarm);
 							await dupNameCheck(data.infraName.value,DSS.layer.infrastructure,"infra")
 							if(dupname){
 								alert("You already have infrastructure with that name in this scenario!")

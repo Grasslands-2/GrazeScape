@@ -29,9 +29,7 @@ Ext.define('DSS.field_shapes.apply.ModelSelection', {
 					height: 28,
 					cls: 'information accent-text bold',
 					html: "Choose Model",
-				},
-					//getToggle(me, 'modelSelection.is_active') // Helper defined in DrawAndApply.js
-				]
+				}]
 			},{
 				xtype: 'radiogroup',
 				itemId: 'contents',

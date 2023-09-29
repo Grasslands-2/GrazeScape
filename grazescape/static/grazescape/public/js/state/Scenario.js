@@ -405,8 +405,6 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.state.scenario.CropNutrientMode',
 		'DSS.state.scenario.AnimalDialog',
 		'DSS.state.scenario.PerimeterDialog',
-		'DSS.state.operation.InfraDrawModeIndicator',
-		'DSS.state.operation.FieldDrawModeIndicator',
 		'DSS.field_shapes.FieldApplyPanel',
 		'DSS.infra_shapes.InfraApplyPanel',
 		'DSS.field_shapes.Delete',

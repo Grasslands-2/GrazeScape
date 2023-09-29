@@ -203,7 +203,6 @@ var fieldData = {
 
 //------------------------------------------------------------------------------
 Ext.define('DSS.field_shapes.FieldApplyPanel', {
-//------------------------------------------------------------------------------
 	extend: 'Ext.window.Window',
 	alias: 'widget.field_apply_panel',
 	id: "fieldApplyPanel",
@@ -220,13 +219,8 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 	titleAlign: 'center',
 	title: "Choose your new Field's Name and Crop Rotation",
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
-	requires: ['DSS.field_shapes.apply.RotationalFreq'
-],
+	requires: ['DSS.field_shapes.apply.FieldName'],	
 	
-
-	
-	
-	//--------------------------------------------------------------------------
 	initComponent: function() {
 		let me = this;
 
@@ -286,7 +280,6 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 				height: 28
 				},
 				{
-				//xtype: 'container',
 				xtype: 'form',
 				url: 'create_field', // brought in for form test
 				jsonSubmit: true,// brought in for form test
@@ -302,16 +295,12 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 				},
 				items: [{
 					xtype: 'component',
-					//width: '100%',
-					//layout: 'absolute',
 					cls: 'information light-text text-drp-20',
 					html: 'Add Field Options',
-				},{
+				},
+				{
 					xtype: 'field_shapes_apply_field_name'
 				},
-				// {
-				// 	xtype: 'field_shapes_apply_landcover'
-				// },
 				{
 					xtype: 'container',
 					width: '100%',
@@ -320,12 +309,10 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 						xtype: 'component',
 						x: 0, y: -6,
 						width: '100%',
-						//height: 500,
 						cls: 'information accent-text bold',
 						html: "Set Crop / Landcover",
-					},
-						getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
-					]},
+					}]
+				},
 					{
 					xtype: 'radiogroup',
 					//itemId: 'contents',
@@ -378,18 +365,9 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 						}
 					},
 					items: [
-					// 	{
-					// 	boxLabel: 'Continuous Pasture', 			inputValue: 'pt-cn',
-					// },
-					// {
-					// 	boxLabel: 'Rotational Pasture', 			inputValue: 'pt-rt',
-					// },
 					{
 						boxLabel: 'Pasture', 			inputValue: 'pt',
 					},
-					// { 
-					// 	boxLabel: 'New Pasture', 			inputValue: 'ps',
-					// },
 					{ 
 						boxLabel: 'Dry Lot', 			inputValue: 'dl',
 					},{
@@ -418,9 +396,7 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 						cls: 'information accent-text bold',
 						//html: "Set Rotatonal Frequency",
 						html: "",
-					},
-						//getToggle(me, 'crop.is_active') // Helper defined in DrawAndApply.js
-					]
+					}]
 				},{
 					xtype: 'radiogroup',
 					//itemId: 'contents',
@@ -473,10 +449,6 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 						boxLabel: 'Never (Continuous grazing)',	inputValue: "0.65",
 					}]
 				},
-
-				// {
-				// 	xtype: 'field_shapes_apply_rot_freq'
-				// },
 				{
 					xtype: 'button',
 					cls: 'button-text-pad',
@@ -485,19 +457,12 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 					formBind: true,
 					handler: async function() {
 						var form =  this.up('form').getForm();
-						//var data = fieldData;
 						var data = me.viewModel.data;
 						dupname = false
 						console.log(data)
 						if(form.isValid()){
 							DSS.map.removeInteraction(DSS.select);
-							//console.log(e)
 							console.log(inputFieldObj)
-							// DSS.layer.fields_1.getSource().forEachFeature(function(f) {
-							// 	if(f.values_.field_name == data.field_name.value){
-							// 		dupname = true
-							// 	}
-							// })
 							await dupNameCheck(data.field_name.value,DSS.layer.fields_1,"field")
 							if(dupname){
 								alert("You already have a field with that name in this scenario!")
