@@ -79,7 +79,7 @@ Ext.define('DSS.utils', {
             if (Ext.getCmp("farmsMenu")) {
                 Ext.getCmp("farmsMenu").removeAll()
                 for (i in farmFeatures) {
-					if(!selectedRegion || selectedRegion.get("Name") == farmFeatures[i].get("region")){
+					if(!selectedRegion || selectedRegion.get("Name") == farmFeatures[i].get("region") || selectedRegion.get("NAME") == farmFeatures[i].get("region")){
 						Ext.getCmp("farmsMenu").add({
 							text: `${farmFeatures[i].get("farm_name")} <i>${farmFeatures[i].get("farm_owner")}</i>`,
 							farm_id: farmFeatures[i].get("gid"),
