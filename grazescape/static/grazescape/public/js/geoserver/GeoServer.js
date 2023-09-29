@@ -40,6 +40,7 @@ class GeoServer{
 
             DSS.utils.assignFarmsToRegions();
             DSS.utils.updateFarmPickerItems();
+            if(selectedRegion) DSS.utils.filterFarmsLayerByRegion(selectedRegion);
         })
     }
     setFieldsAfterImport(parameter = ""){

@@ -519,9 +519,7 @@ Ext.define('DSS.state.Scenario', {
 									Ext.getCmp("EditInfrastructureButton").toggle(false);
 
 									DSS.MapState.removeMapInteractions();
-									//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
-									DSS.mapClickFunction = undefined;
-									DSS.mouseMoveFunction = undefined;
+									DSS.MapState.deactivateFarmsMapHandlers();
 
 									DSS.draw = new ol.interaction.Draw({
 										source: source,
@@ -624,9 +622,7 @@ Ext.define('DSS.state.Scenario', {
 									Ext.getCmp("EditFieldsButton").toggle(false);
 									Ext.getCmp("EditInfrastructureButton").toggle(false);
 									DSS.MapState.removeMapInteractions();
-									//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
-									DSS.mapClickFunction = undefined;
-									DSS.mouseMoveFunction = undefined;
+									DSS.MapState.deactivateFarmsMapHandlers();
 
 									DSS.draw = new ol.interaction.Draw({
 										source: source,
