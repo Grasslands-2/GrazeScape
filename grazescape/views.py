@@ -12,9 +12,7 @@ from grazescape.raster_data import RasterData
 from grazescape.model_defintions.infra_profile_tool import InfraTrueLength
 from grazescape.model_defintions.econ import Econ
 from grazescape.model_defintions.feed_breakdown import HeiferFeedBreakdown
-from grazescape.model_defintions.manage_raster_visuals import retreiveRaster
 import json
-from grazescape.model_defintions.model_base import OutputDataNode
 from grazescape.model_defintions.grass_yield import GrassYield
 from grazescape.model_defintions.phosphorous_loss import PhosphorousLoss
 from grazescape.model_defintions.erosion import Erosion
@@ -25,21 +23,13 @@ from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.nitrate_leach import NitrateLeeching
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.model_defintions.soil_condition_index import SoilIndex
-
 from grazescape.geoserver_connect import GeoServer
 from grazescape.multiprocessing_helper import run_parallel
 from grazescape.db_connect import *
-from grazescape.users import *
-from google.cloud import storage
 import pandas as pd
-import json as js
-import geopandas as gpd
 import fiona as fiona
-import sys
 import time
-import sys
 import shutil
-import math
 from datetime import datetime
 from grazescape.png_handler import PngHandler as pgh
 
@@ -324,7 +314,6 @@ def geoserver_request(request):
 
     if request_type == "insert_farm":
 
-
         resultstr = str(result)
         if "farm_2" in resultstr:
             pattern = 'farm_2.(.*?)"/>'
@@ -526,9 +515,7 @@ def get_model_results(request):
             else:
 
                 avg, sum, count = model_yield.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
-                palette, values_legend = model_yield.get_legend()
                 # this part takes about 45% of the total time
-
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
@@ -545,7 +532,7 @@ def get_model_results(request):
 
             data = {
                 "extent": [*bounds],
-                "palette": palette,
+                # "palette": palette,
                 "url": model_yield.file_name + '_' + model_run_timestamp + ".png",
                 "values": values_legend,
                 "units": result.default_units,
