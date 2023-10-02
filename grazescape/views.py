@@ -534,7 +534,7 @@ def get_model_results(request):
                 "extent": [*bounds],
                 # "palette": palette,
                 "url": model_yield.file_name + '_' + model_run_timestamp + ".png",
-                "values": values_legend,
+                # "values": values_legend,
                 "units": result.default_units,
                 "units_alternate": result.alternate_units,
                 "title": result.default_title,

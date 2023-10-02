@@ -27,7 +27,6 @@ urlpatterns = [
     path('field_png_lookup', views.field_png_lookup, name='field_png_lookup'),
     path('upload/', views.upload_file, name='upload_file'),
     path('upload_file_test', views.upload_file_test, name='upload_file_test'),
-    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('grazescape/public/images/favicon.ico')))
     #path('run_econ_model', views.run_econ_model, name='run_econ_model'),
     # path('chart_data', views.chart, name='chart'),
     # path('point_elevations', views.point_elevation    s, name='point_elevations'),
