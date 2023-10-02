@@ -207,10 +207,10 @@ const App = (props) => (
                 By using this website and the associated apps, you agree to this privacy policy.
                 <p></p>*This project is based at UW–Madison and the work is supported by the Sustainable Agriculture Systems Coordinated Agricultural Program grant no. 2019-68012-29852 from the USDA National Institute of Food and Agriculture.
                 <p className="mt-3">
-                    <strong>Accessibility Statement for Grasslands 2.0</strong>: Despite our best efforts to ensure accessibility of Grasslands 2.0, there may be some limitations. Below is a description of known limitations. Please contact us if you observe an issue not listed below.
+                    <strong>Accessibility Statement for Grassland 2.0 Apps</strong>: Despite our best efforts to ensure accessibility of Grassland 2.0 Apps, there may be some limitations. Below is a description of known limitations. Please contact us if you observe an issue not listed below.
                 </p>
                 <p>
-                    Known limitations for Grasslands 2.0:
+                    Known limitations for Grassland 2.0 Apps:
                     <ol>
                         <li><strong>Screen readers</strong>: Visual elements are not described correctly using screen readers.</li>
                         <li><strong>Keyboard navigation</strong>: Some parts of the application may not be navigable using keyboard.</li>

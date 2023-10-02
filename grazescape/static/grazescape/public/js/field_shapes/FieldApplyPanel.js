@@ -26,8 +26,8 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 	if(crop=='pt' && rotfreq == "0.65"){
 		crop='pt-cn'
 		cropDisp ='Pasture';
-		grassDisp='Low Yielding';
-		grassVal='Bluegrass-clover';
+		grassDisp='Medium Yielding';
+		grassVal='Timothy-clover';
 		rotationFreqVal = rotfreq;
 		rotationFreqdisp = 'Continuous',
 		grazeDensityVal = 'lo',
@@ -37,14 +37,14 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 	else if(crop=='pt' && rotfreq != "0.65"){
 		crop='pt-rt'
 		cropDisp ='Pasture'
-		grassDisp='Low Yielding';
-		grassVal='Bluegrass-clover';
+		grassDisp='Medium Yielding';
+		grassVal='Timothy-clover';
 		rotationFreqVal = rotfreq;
 		if(rotfreq == 1){
-			rotationFreqdisp = 'More than once a day'
+			rotationFreqdisp = 'Once a day'
 		}
 		else if(rotfreq == "1.2"){
-			rotationFreqdisp = 'Once a day'
+			rotationFreqdisp = 'More than once a day'
 		}
 		else if(rotfreq == "0.95"){
 			rotationFreqdisp = 'Every 3 days'
