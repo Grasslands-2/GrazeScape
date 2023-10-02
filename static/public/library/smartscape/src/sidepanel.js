@@ -2459,7 +2459,7 @@ renderModal(){
                 </div>
                 <div hidden ={!this.state.landTypeSelected}>
                 <div className = "criteriaSections">
-                    <Form.Label>2) Optional Selection Options</Form.Label>
+                    <Form.Label>2) Additional Selection Options</Form.Label>
                      <Accordion>
                       <Accordion.Item eventKey="4">
                         <Accordion.Header>Land Classification</Accordion.Header>
@@ -2535,7 +2535,7 @@ renderModal(){
                         <Accordion.Header>Slope</Accordion.Header>
                         <Accordion.Body>
                         <Form.Group as={Row}>
-                            <Form.Label>Slope Range</Form.Label>
+                            <Form.Label>Slope Range (%)</Form.Label>
                              <Col xs="12">
                                  <div style={{ margin: "5%", }}>
                                     <Slider
@@ -2595,14 +2595,14 @@ renderModal(){
                              <Form.Group as={Row}>
 
                                 <Col xs="5">
-                                <Form.Label>Min Slope</Form.Label>
+                                <Form.Label>Min Slope (%)</Form.Label>
                                   <Form.Control value={this.state.slop1} size='sm'
                                     onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope1", "reg", e.currentTarget.value, "box")}
 //                                    onChange={(e) => this.handleSelectionChange("slope1", e)}
                                   />
                                 </Col>
                                 <Col xs="5">
-                            <Form.Label>Max Slope</Form.Label>
+                            <Form.Label>Max Slope (%)</Form.Label>
                                   <Form.Control value={this.state.slop2} size='sm'
                                     onChange={(e) => this.handleSelectionChangeGeneralNumeric("slope2", "reg", e.currentTarget.value, "box")}
 //                                    onChange={(e) => this.handleSelectionChange("slope2", e)}

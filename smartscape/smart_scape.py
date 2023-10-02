@@ -103,6 +103,7 @@ class SmartScape:
         ----------
 
         """
+        print("starting model png")
         datanm_slope = self.raster_inputs["slope"]
         # create an array with all true values so that and-ing it with actual data will work
         datanm = np.copy(datanm_slope)
