@@ -198,7 +198,7 @@ class ModelBase:
 
     def calculate_color(self, color_ramp, value):
         if value == self.no_data:
-            return (256, 256, 256)
+            return 256, 256, 256
         for index, val in enumerate(color_ramp):
             if val[1] >= value:
                 return val[2]

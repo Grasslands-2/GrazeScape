@@ -8,6 +8,7 @@ from django.conf import settings
 from psycopg2.errors import UniqueViolation
 import threading
 
+
 def multifindcoordsJson(string):
     values = []
     # while True:
@@ -137,7 +138,7 @@ def update_user_farms(user_id, farm_id):
         conn.close()
 
 
-# If a fields attributes have been changed.  This function updates the the fields_2 table
+# If a fields attributes have been changed.  This function updates the fields_2 table
 def update_field_dirty(field_id, scenario_id, farm_id):
     """
 
@@ -178,19 +179,6 @@ def update_field_dirty(field_id, scenario_id, farm_id):
     # Not in use
 
 
-def null_out_yield_results(data):
-    if data['crop_ro'] == 'pt' and data['value_type'] != 'Grass':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'cc' and data['value_type'] != 'Corn Grain':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'cg' and data['value_type'] != 'Corn Grain' or 'Soy':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or 'Corn Grain' or 'Alfalfa':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or 'Soy' or 'Oats':
-        data['sum_cells'] = None
-
-
 # Nulls out yeild totals before new models are run.  This is to ensure that no old yield data is being held onto
 def clear_yield_values(field_id):
     cur, conn = get_db_conn()
@@ -213,10 +201,14 @@ def clear_yield_values(field_id):
         conn.commit()
         conn.close()
 
+
 def update_field_results_async(field_id, scenario_id, farm_id, data, insert_field):
-    download_thread = threading.Thread(target=update_field_results, args=(field_id, scenario_id, farm_id, data, insert_field))
+    download_thread = threading.Thread(target=update_field_results,
+                                       args=(field_id, scenario_id, farm_id, data, insert_field))
     download_thread.start()
     # self.threads.append(download_thread)
+
+
 # Used to update field model results when models are rerun
 def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     """
@@ -453,56 +445,11 @@ def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, 
                                "title": "Production costs",
                                "title_alternate": "Production costs",
                                "type": "econ"},
-            # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
-            #                            "type": "'costs_per_ton_dm"},
+
         },
 
-
-
     },
-        # 'ploss': {
-        #     "P_runoff_lbs_per_acre": {
-        #         "units": "Phosphorus Runoff (lb/acre/year)",
-        #         "units_alternate": "Phosphorus Runoff (lb/year)",
-        #         "title": "Phosphorus runoff (lb/ac/yr)",
-        #         "title_alternate": "Phosphorus runoff (lb/yr)",
-        #         "type": "ploss"},
-        #     "soil_erosion_tons_per_acre": {
-        #         "units": "Soil Erosion (ton/acre/year)",
-        #         "units_alternate": "Soil Erosion (tons of soil/year",
-        #         "title": "Soil loss (tons/ac/yr)",
-        #         "title_alternate": "Soil loss (tons/yr)",
-        #         "type": "ero"}
-        # },
-        # 'runoff': {
-        #     "runoff": {"units": "Runoff (in)",
-        #                "units_alternate": "Runoff (in)",
-        #                "title": "Total dry matter yield (tons/ac/yr)",
-        #                 "title_alternate": "Total dry matter yield (tons/ac/yr)",
-        #                "type": "Runoff"},
-        #     "runoff_curve_number": {"units": "Curve Number",
-        #                             "units_alternate": "Curve Number",
-        #                             "title": "Total dry matter yield (tons/ac/yr)",
-        #                             "title_alternate": "Total dry matter yield (tons/ac/yr)",
-        #                             "type": "Curve Number"}
-        # },
-        # 'bio': {
-        #     "honey_bee_toxicity": {"units": "Insecticide Index",
-        #                            "units_alternate": "Insecticide Index",
-        #                            "title": "Total dry matter yield (tons/ac/yr)",
-        #                            "title_alternate": "Total dry matter yield (tons/ac/yr)",
-        #                            "type": "insect"}
-        # },
-        # 'econ': {
-        #     "costs_per_acre": {"units": "Costs (dollars/acre/year)",
-        #                        "units_alternate": "Costs (dollars/year)",
-        #                        "units_alternate_2": "Costs (dollars/Tons DM)",
-        #                        "title": "Total dry matter yield (tons/ac/yr)",
-        #                        "title_alternate": "Total dry matter yield (tons/ac/yr)",
-        #                        "type": "econ"},
-        #     # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
-        #     #                            "type": "'costs_per_ton_dm"},
-        # },
+
     }
 
     return_data = []
@@ -605,7 +552,7 @@ def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, 
                         "grass_type": grass_type,
                         "till": tillage,
                         "model_run_timestamp": model_run_timestamp,
-                        "p_manure_Results":p_manure_Results
+                        "p_manure_Results": p_manure_Results
 
                     }
                     return_data.append(data)

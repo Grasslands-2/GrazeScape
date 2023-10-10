@@ -31,7 +31,6 @@ import fiona as fiona
 import time
 import shutil
 from datetime import datetime
-from grazescape.png_handler import PngHandler as pgh
 
 credential_path = os.path.join(settings.BASE_DIR, 'keys', 'cals-grazescape-files-63e6-4f2fc53201e6.json')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
@@ -302,16 +301,6 @@ def geoserver_request(request):
         payloadstr = str(pay_load)
         resultdel = re.search('fid="field_2.(.*)"/>', payloadstr)
 
-        # PngHandler seems to be missing from PngHandler script ask Matt about that
-        png_handler = pgh
-        try:
-            png_handler.delete_gcs_model_result_blob(resultdel.group(1))
-        except:
-            print(
-                "png_handler.delete_gcs_model_result_blob(resultdel.group(1)) failed likely due to no png in cloud for this field")
-    # if request_type == "insert_farm" and feature_id != "" and "farm_2" in url :
-    # if "farm_2" in str(url):
-
     if request_type == "insert_farm":
 
         resultstr = str(result)
@@ -416,7 +405,7 @@ def get_model_results(request):
     active_scen = request.POST.get('model_parameters[active_scen]')
     active_region = request.POST.get('model_parameters[active_region]')
     field_coors = []
-
+    print("field id", field_id, "farm id", farm_id, "scen id", scenario_id)
     png_handler.remove_old_pngs_from_local(field_id)
     for input in request.POST:
         if "field_coors" in input:
@@ -613,100 +602,101 @@ def get_model_results(request):
 @login_required
 @csrf_protect
 def adjust_field_yields(yield_data):
-    print('INSIDE ADJUST FIELD YIELDS!!!!!!!&&&&&&$$$$$$&&&#&&#&#&#&#&#&#&')
-    data = {
-        "area": yield_data.POST.get('area'),
-        "value_type": yield_data.POST.getlist('yieldTypes[]'),
-        "f_name": yield_data.POST.get('name'),
-        "scen": yield_data.POST.get('scenName'),
-        "counted_cells": yield_data.POST.get('cellCount'),
-        "sum_cells": yield_data.POST.getlist('cellSums[]'),
-        "farm_id": yield_data.POST.get('farmId'),
-        "scen_id": yield_data.POST.get('scenId'),
-        "field_id": yield_data.POST.get('id'),
-        "crop_ro": yield_data.POST.get('rotationVal1'),
-        "grass_ro": yield_data.POST.get('rotationVal2'),
-        "grass_type": yield_data.POST.get('grassType'),
-        "till": yield_data.POST.get('till'),
-    }
-    data2 = {
-        "area": yield_data.POST.get('area'),
-        "value_type": yield_data.POST.getlist('yieldTypes[]'),
-        "f_name": yield_data.POST.get('name'),
-        "scen": yield_data.POST.get('scenName'),
-        "counted_cells": yield_data.POST.get('cellCount'),
-        "sum_cells": yield_data.POST.getlist('cellSums[]'),
-        "farm_id": yield_data.POST.get('farmId'),
-        "scen_id": yield_data.POST.get('scenId'),
-        "field_id": yield_data.POST.get('id'),
-        "crop_ro": yield_data.POST.get('rotationVal1'),
-        "grass_ro": yield_data.POST.get('rotationVal2'),
-        "grass_type": yield_data.POST.get('grassType'),
-        "till": yield_data.POST.get('till'),
-    }
-    if data.get("crop_ro") == 'pt':  # grass
-        data2['value_type'] = str(data['value_type'][0])
-        data2['sum_cells'] = str(data['sum_cells'][0])
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        data2['value_type'] = 'Rotational Average'
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    if data.get("crop_ro") == 'cc':  # corn
-        data2['value_type'] = str(data['value_type'][0])
-        data2['sum_cells'] = str(data['sum_cells'][0])
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        data2['value_type'] = 'Rotational Average'
-        data2['sum_cells'] = str(float(data['sum_cells'][0]) * 56 * 0.855 / 2000)
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    if data.get("crop_ro") == 'cg':  # corn, soy
-        data2['value_type'] = str(data['value_type'][0])
-        data2['sum_cells'] = str(data['sum_cells'][0])
-        corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        data2['value_type'] = str(data['value_type'][1])
-        data2['sum_cells'] = str(data['sum_cells'][1])
-        soy_yield_tonDMac = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        rotation_avg_cg = 0.5 * corn_yield_tonDMac + 0.5 * soy_yield_tonDMac
-        data2['sum_cells'] = str(rotation_avg_cg)
-        data2['value_type'] = 'Rotational Average'
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    if data.get("crop_ro") == 'dr':  # corn, silage, alfalfa
-        data2['value_type'] = str(data['value_type'][0])
-        data2['sum_cells'] = str(data['sum_cells'][0])
-        corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        data2['value_type'] = str(data['value_type'][1])
-        data2['sum_cells'] = str(data['sum_cells'][1])
-        silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        data2['value_type'] = str(data['value_type'][2])
-        data2['sum_cells'] = str(data['sum_cells'][2])
-        alfalfa_yield_tonDMac = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        rotation_avg_dr = 1 / 5 * silage_yield_tonDMac + 1 / 5 * corn_yield_tonDMac + 3 / 5 * alfalfa_yield_tonDMac
-        data2['sum_cells'] = str(rotation_avg_dr)
-        data2['value_type'] = 'Rotational Average'
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    if data.get("crop_ro") == 'cso':  # soy, silage, oats
-        data2['value_type'] = str(data['value_type'][0])
-        data2['sum_cells'] = str(data['sum_cells'][0])
-        soy_yield_tonDMac = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        data2['value_type'] = str(data['value_type'][1])
-        data2['sum_cells'] = str(data['sum_cells'][1])
-        silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        data2['value_type'] = str(data['value_type'][2])
-        data2['sum_cells'] = str(data['sum_cells'][2])
-        oat_yield_tonDMac = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-        rotation_avg_cso = 1 / 3 * silage_yield_tonDMac + 1 / 3 * soy_yield_tonDMac + 1 / 3 * oat_yield_tonDMac
-        data2['sum_cells'] = str(rotation_avg_cso)
-        data2['value_type'] = 'Rotational Average'
-        update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    else:
-        print('No fields were updated')
-    return JsonResponse({"Adjustements": "finished"})
+    raise ValueError("function no longer valid.")
+    # print('INSIDE ADJUST FIELD YIELDS!!!!!!!&&&&&&$$$$$$&&&#&&#&#&#&#&#&#&')
+    # data = {
+    #     "area": yield_data.POST.get('area'),
+    #     "value_type": yield_data.POST.getlist('yieldTypes[]'),
+    #     "f_name": yield_data.POST.get('name'),
+    #     "scen": yield_data.POST.get('scenName'),
+    #     "counted_cells": yield_data.POST.get('cellCount'),
+    #     "sum_cells": yield_data.POST.getlist('cellSums[]'),
+    #     "farm_id": yield_data.POST.get('farmId'),
+    #     "scen_id": yield_data.POST.get('scenId'),
+    #     "field_id": yield_data.POST.get('id'),
+    #     "crop_ro": yield_data.POST.get('rotationVal1'),
+    #     "grass_ro": yield_data.POST.get('rotationVal2'),
+    #     "grass_type": yield_data.POST.get('grassType'),
+    #     "till": yield_data.POST.get('till'),
+    # }
+    # data2 = {
+    #     "area": yield_data.POST.get('area'),
+    #     "value_type": yield_data.POST.getlist('yieldTypes[]'),
+    #     "f_name": yield_data.POST.get('name'),
+    #     "scen": yield_data.POST.get('scenName'),
+    #     "counted_cells": yield_data.POST.get('cellCount'),
+    #     "sum_cells": yield_data.POST.getlist('cellSums[]'),
+    #     "farm_id": yield_data.POST.get('farmId'),
+    #     "scen_id": yield_data.POST.get('scenId'),
+    #     "field_id": yield_data.POST.get('id'),
+    #     "crop_ro": yield_data.POST.get('rotationVal1'),
+    #     "grass_ro": yield_data.POST.get('rotationVal2'),
+    #     "grass_type": yield_data.POST.get('grassType'),
+    #     "till": yield_data.POST.get('till'),
+    # }
+    # if data.get("crop_ro") == 'pt':  # grass
+    #     data2['value_type'] = str(data['value_type'][0])
+    #     data2['sum_cells'] = str(data['sum_cells'][0])
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     data2['value_type'] = 'Rotational Average'
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    # if data.get("crop_ro") == 'cc':  # corn
+    #     data2['value_type'] = str(data['value_type'][0])
+    #     data2['sum_cells'] = str(data['sum_cells'][0])
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     data2['value_type'] = 'Rotational Average'
+    #     data2['sum_cells'] = str(float(data['sum_cells'][0]) * 56 * 0.855 / 2000)
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    # if data.get("crop_ro") == 'cg':  # corn, soy
+    #     data2['value_type'] = str(data['value_type'][0])
+    #     data2['sum_cells'] = str(data['sum_cells'][0])
+    #     corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     data2['value_type'] = str(data['value_type'][1])
+    #     data2['sum_cells'] = str(data['sum_cells'][1])
+    #     soy_yield_tonDMac = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     rotation_avg_cg = 0.5 * corn_yield_tonDMac + 0.5 * soy_yield_tonDMac
+    #     data2['sum_cells'] = str(rotation_avg_cg)
+    #     data2['value_type'] = 'Rotational Average'
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    # if data.get("crop_ro") == 'dr':  # corn, silage, alfalfa
+    #     data2['value_type'] = str(data['value_type'][0])
+    #     data2['sum_cells'] = str(data['sum_cells'][0])
+    #     corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     data2['value_type'] = str(data['value_type'][1])
+    #     data2['sum_cells'] = str(data['sum_cells'][1])
+    #     silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     data2['value_type'] = str(data['value_type'][2])
+    #     data2['sum_cells'] = str(data['sum_cells'][2])
+    #     alfalfa_yield_tonDMac = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     rotation_avg_dr = 1 / 5 * silage_yield_tonDMac + 1 / 5 * corn_yield_tonDMac + 3 / 5 * alfalfa_yield_tonDMac
+    #     data2['sum_cells'] = str(rotation_avg_dr)
+    #     data2['value_type'] = 'Rotational Average'
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    # if data.get("crop_ro") == 'cso':  # soy, silage, oats
+    #     data2['value_type'] = str(data['value_type'][0])
+    #     data2['sum_cells'] = str(data['sum_cells'][0])
+    #     soy_yield_tonDMac = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     data2['value_type'] = str(data['value_type'][1])
+    #     data2['sum_cells'] = str(data['sum_cells'][1])
+    #     silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     data2['value_type'] = str(data['value_type'][2])
+    #     data2['sum_cells'] = str(data['sum_cells'][2])
+    #     oat_yield_tonDMac = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    #     rotation_avg_cso = 1 / 3 * silage_yield_tonDMac + 1 / 3 * soy_yield_tonDMac + 1 / 3 * oat_yield_tonDMac
+    #     data2['sum_cells'] = str(rotation_avg_cso)
+    #     data2['value_type'] = 'Rotational Average'
+    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
+    # else:
+    #     print('No fields were updated')
+    return JsonResponse({"Adjustements": "error"})
 
 
 @csrf_protect
