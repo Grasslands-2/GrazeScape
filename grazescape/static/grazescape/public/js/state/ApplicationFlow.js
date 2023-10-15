@@ -223,7 +223,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 	},
 	
 	//----------------------------------------------------------------------------------
-	showManageOperationPage: function(operationName) {
+	showManageOperationPage: function() {
 		let me = this;
 		
 		Ext.suspendLayouts();
@@ -232,14 +232,13 @@ Ext.define('DSS.state.ApplicationFlow', {
 			]);
 		Ext.resumeLayouts(true);
 		
-		DSS.mouseMoveFunction = undefined;
-		
+		DSS.MapState.deactivateFarmsMapHandlers();
 		DSS.MapState.showNewFarm();
 		DSS.popupOverlay.setPosition(false);
 	},
 
 	//----------------------------------------------------------------------------------
-	showScenarioPage: async function(operationName) {
+	showScenarioPage: async function() {
 		let me = this;
 		await gatherScenarioTableData()
 		Ext.suspendLayouts();
