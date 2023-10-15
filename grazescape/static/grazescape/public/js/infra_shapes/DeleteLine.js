@@ -87,11 +87,9 @@ Ext.define('DSS.infra_shapes.DeleteLine', {
 	width: 500,
 	resizable: true,
 	bodyPadding: 8,
-	//singleton: true,	
     autoDestroy: false,
     scrollable: 'y',
 	titleAlign: 'center',
-	//title: 'Choose your new Fields Name and Crop Rotation',
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	//--------------------------------------------------------------------------
