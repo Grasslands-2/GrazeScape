@@ -2588,13 +2588,14 @@ div.x-form-text-grow .x-form-textarea {
 }
 .x-btn-focus.x-btn-default-small {
   background-image: none;
-  background-color: #2777B0;
+  background-color: #5E99C9;
   -webkit-box-shadow: #d7e9f6 0 1px 0px 0 inset, #d7e9f6 0 -1px 0px 0 inset,
     #d7e9f6 -1px 0 0px 0 inset, #d7e9f6 1px 0 0px 0 inset;
   -moz-box-shadow: #d7e9f6 0 1px 0px 0 inset, #d7e9f6 0 -1px 0px 0 inset,
     #d7e9f6 -1px 0 0px 0 inset, #d7e9f6 1px 0 0px 0 inset;
   box-shadow: #d7e9f6 0 1px 0px 0 inset, #d7e9f6 0 -1px 0px 0 inset,
     #d7e9f6 -1px 0 0px 0 inset, #d7e9f6 1px 0 0px 0 inset;
+  outline: 1px solid #43a2e5;
 }
 .x-btn-default-small .x-btn-arrow-el {
   position: absolute;
@@ -2637,7 +2638,9 @@ div.x-form-text-grow .x-form-textarea {
 }
 .x-btn.x-btn-disabled.x-btn-default-small {
   background-image: none;
-  background-color: #2777B0;
+  background-color: #919999;
+  opacity: 1;
+  border-color: #c3ccd2;
 }
 .x-btn-focus .x-btn-default-small-tl,
 .x-btn-focus .x-btn-default-small-bl,
