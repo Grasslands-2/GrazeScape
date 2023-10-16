@@ -191,7 +191,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.allRegionLayers.forEach(layer => layer.setVisible(true));
 		
 		//Region Picker 
-		regionPickerFunc()
+		DSS.MapState.activateRegionSelect();
 		AppEvents.triggerEvent('show_region_picker_indicator')
 		DSS.layer.regionLabels.setVisible(true)
 		DSS.layer.farms_1.setVisible(false)

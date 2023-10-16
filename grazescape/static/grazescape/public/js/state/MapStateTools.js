@@ -10,8 +10,6 @@ Ext.define('DSS.state.MapStateTools', {
 	requires: [
 		'DSS.map.Legend',
 		'DSS.state.ScenarioPicker'
-		//'DSS.field_grid.FieldGrid',
-		//'DSS.infra_grid.InfraGrid'
 	],
 	
     // Style elements
@@ -93,7 +91,6 @@ Ext.define('DSS.state.MapStateTools', {
 		cashGrainFill: new ol.style.Style({
 			fill: new ol.style.Fill({
 				color: 'rgba(0, 0, 0, 0.2)'
-//				color: 'rgba(48, 32, 0, 0.33)'
 			})
 		}),
 	},
@@ -151,7 +148,6 @@ Ext.define('DSS.state.MapStateTools', {
 		console.log("showfieldsforfarm ran");
     },
     
-    //----------------------------------------
 	showInfrasForFarm: function(farmId, opacity) {
     	geoServer.setInfrastructureSource('&CQL_filter=scenario_id='+DSS.activeScenario)
     },
@@ -355,6 +351,59 @@ Ext.define('DSS.state.MapStateTools', {
 		DSS.mapClickFunction = undefined;
 	},
 
+	activateRegionSelect: function() {
+		console.log("activateRegionSelect")
+		DSS.map.setView(new ol.View({
+			center: [-10090575.706307484, 5552204.392540871],
+			zoom: 7,
+			maxZoom: 30,
+			minZoom: 4,
+			constrainOnlyCenter: false,
+		}))
+	
+		DSS.map.on('pointermove', regionHighlighter)
+		DSS.selectRP = new ol.interaction.Select({
+			features: new ol.Collection(),
+			toggleCondition: ol.events.condition.never,
+			layers: [
+				DSS.layer.cloverBeltBorder,
+				DSS.layer.swwiBorder,
+				DSS.layer.northeastBorder,
+				DSS.layer.uplandBorder,
+				DSS.layer.redCedarBorder,
+				DSS.layer.pineRiverBorder
+			],
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: 'rgba(255, 255, 255, 0.7)',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(0,0,0,0)'
+				}),
+				zIndex: 5
+			})
+		});
+		DSS.map.addInteraction(DSS.selectRP);
+
+		console.log("select is on")
+		DSS.selectRP.on('select', async function(f) {
+			let region_name = f.selected[0].get("Name") || f.selected[0].get("NAME");
+			console.log('select on', region_name);
+
+			DSS.layer.cloverBeltBorder.setStyle(unslectStyle)
+			DSS.layer.swwiBorder.setStyle(unslectStyle)
+			DSS.layer.uplandBorder.setStyle(unslectStyle)
+			DSS.layer.northeastBorder.setStyle(unslectStyle)
+			DSS.layer.redCedarBorder.setStyle(unslectStyle)
+			DSS.layer.pineRiverBorder.setStyle(unslectStyle)
+			
+			await DSS.utils.selectRegion(region_name);
+			
+			DSS.map.removeInteraction(DSS.selectRP);
+		})
+	},
+
 	// g: geometry object for selected farm
 	editSelectedFarm: function(g) {
 		let pos = g.getFirstCoordinate()
@@ -448,27 +497,16 @@ Ext.define('DSS.state.MapStateTools', {
 		me.DSS_legend.setX(cmp.getX() + cmp.getWidth() - (me.DSS_legend.getWidth() + 8))
     },
 
-    
-    //-------------------------------------------------------------
     destroyLegend: function() {
     	
     	var me = this;
 		if (me.DSS_legend) me.DSS_legend.destroy();
     },
-	//------------------------------------------------------------
+
 	initViewModel: function() {
-		//gatherfarmTableData()
-		/*if (DSS && DSS.viewModel && DSS.viewModel.scenario)
-		return;
-		
-		if (!DSS['viewModel'])*/ 
 		DSS['viewModel'] = {}
 		DSS.dialogs = {}
-		//gatherfarmTableData()
 		console.log('in scenario picker model')
-		DSS.viewModel.scenario = new Ext.app.ViewModel({
-			
-		})
-		//console.log(DSS['viewModel'].scenario.data.dairy.dry);
+		DSS.viewModel.scenario = new Ext.app.ViewModel({})
 	}
 });
