@@ -1,40 +1,46 @@
 var regionHighlighter = function(e) {
 	let pixel = DSS.map.getEventPixel(e.originalEvent);
 	let fs = DSS.map.getFeaturesAtPixel(pixel);
-	hitRegion = false
+	const regionLayers = [
+		DSS.layer.cloverBeltBorder,
+		DSS.layer.swwiBorder,
+		DSS.layer.northeastBorder,
+		DSS.layer.uplandBorder,
+		DSS.layer.redCedarBorder,
+		DSS.layer.pineRiverBorder
+	]
+	let regionToHighlight = null;
+
 	if(fs.length > 0){
-		hitRegion = true
         let region_name = fs[0].get("Name") || fs[0].get("NAME");
 		if(region_name == 'CB_WI'){
-			DSS.layer.cloverBeltBorder.setStyle(selectStyle)
+			regionToHighlight = DSS.layer.cloverBeltBorder;
 		}
 		else if(region_name == 'SW_WI'){
-			DSS.layer.swwiBorder.setStyle(selectStyle)
+			regionToHighlight = DSS.layer.swwiBorder;
 		}
 		else if(region_name == 'NE_WI'){
-			DSS.layer.northeastBorder.setStyle(selectStyle)
+			regionToHighlight = DSS.layer.northeastBorder;
 		}
 		else if(region_name == 'UL_WI'){
-			DSS.layer.uplandBorder.setStyle(selectStyle)
+			regionToHighlight = DSS.layer.uplandBorder;
 		}
 		else if(region_name == 'redCedarWI'){
-			DSS.layer.redCedarBorder.setStyle(selectStyle)
+			regionToHighlight = DSS.layer.redCedarBorder;
 		}
 		else if(region_name == 'pineRiverMN'){
-			DSS.layer.pineRiverBorder.setStyle(selectStyle)
-		}
-		else{
-
+			regionToHighlight = DSS.layer.pineRiverBorder;
+		} else {
+			return;
 		}
 	}
-	if(fs.length < 1){
-		hitRegion = false
-		DSS.layer.cloverBeltBorder.setStyle(unslectStyle)
-		DSS.layer.swwiBorder.setStyle(unslectStyle)
-		DSS.layer.northeastBorder.setStyle(unslectStyle)
-		DSS.layer.uplandBorder.setStyle(unslectStyle)
-		DSS.layer.redCedarBorder.setStyle(unslectStyle)
-		DSS.layer.pineRiverBorder.setStyle(unslectStyle)
+
+	for (const layer of regionLayers) {
+		if(layer == regionToHighlight) {
+			layer.setStyle(selectStyle);
+		} else {
+			layer.setStyle(unslectStyle);
+		}
 	}
 }
 
