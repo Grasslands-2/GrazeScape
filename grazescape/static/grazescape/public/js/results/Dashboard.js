@@ -1204,45 +1204,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                                 }
                                 break
-//                            case 'ploss':
-//                                nut_pb.value = nut_pb.value + 1
-//                                if(nut_pb.value==nut_pb.max){
-//                                    nut_pb.hidden = true
-//                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
-//                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-//                                    Ext.getCmp("nutTab").setDisabled(false)
-//                                }
-//                                ero_pb.value = ero_pb.value + 1
-//                                if(ero_pb.value==ero_pb.max){
-//                                    ero_pb.hidden = true
-//                                    Ext.getCmp("eroTab").setDisabled(false)
-//                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
-//                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
-//                                }
-//                                break
-//                            case 'runoff':
-//                                runoff_pb.value = runoff_pb.value + 1
-//                                if(runoff_pb.value == runoff_pb.max){
-//                                    runoff_pb.hidden =true
-//                                    Ext.getCmp("runoffTab").setDisabled(false)
-//                                }
-//                                break
-//                            case 'bio':
-//                                bio_pb.value = bio_pb.value + 1
-//                                if(bio_pb.value == bio_pb.max){
-//                                    bio_pb.hidden = true
-//                                    Ext.getCmp("bioTab").setDisabled(false)
-//                                }
-//                                break
-//                            case 'econ':
-//                                econ_pb.value = econ_pb.value + 1
-//                                if(econ_pb.value == econ_pb.max){
-//                                    econ_pb.hidden = true
-//                                    Ext.getCmp("econTab").setDisabled(false)
-//                                    Ext.getCmp("econFarmConvert").setDisabled(false)
-//                                    Ext.getCmp("econFieldConvert").setDisabled(false)
-//                                }
-//                                break
                         }
 
 
@@ -1400,64 +1361,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 scrollable: true,
 
 //                inner tabs for farm and field scale
-                items:[{ xtype: 'panel',
-                    title: '<i class="fas fa-seedling"></i></i>  Field',
-                    id: 'eroFieldTab',
-//                    disabled: true,
-                    border: false,
-                    scrollable: true,
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
-
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'radiogroup',
-                        id: 'erosionFieldConvert',
-                        vertical: true,
-                        columns:2,
-                        items: [
-                            {
-                                boxLabel  : 'Erosion / Area',
-                                inputValue: 'a',
-                                checked:true
-                            }, {
-                                boxLabel  : 'Total Erosion',
-                                inputValue: 't',
-                            },
-                        ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            displayAlternate("soil_loss_field", e.id)
-//                            displayAlternate("sci_field", e.id)
-                         }},
-                    },
-                    {
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-
-                    {
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="sci_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-
-                    ],
-                    listeners:{activate: function() {
-                        console.log("activated field")
-                        if (chartObj["soil_loss_field"].chart !== null){
-                            return
-                        }
-                        console.log("chartObj", chartObj)
-                        chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
-                        chartObj.sci_field.chart = create_graph(chartObj.sci_field, 'Soil Condition Index', document.getElementById('sci_field').getContext('2d'));
-
-                    }}
-                },{
+                items:[ {
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
                     border: false,
@@ -1468,9 +1372,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     },
                     defaults: {
 
-                    style: 'padding:10px; ',
-                    border:0,
-                },
+                        style: 'padding:10px; ',
+                        border:0,
+                    },
                     items:[{
                         xtype: 'radiogroup',
                         id: 'erosionFarmConvert',
@@ -1499,15 +1403,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="sci_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
-//                    {
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="net_return_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    },{
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-////                        html: '<div id="container"><canvas  id="milk_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    }
+
                     ],
                     scope: this,
                     listeners:{activate: function() {
@@ -1521,7 +1417,67 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                     }}
 
-                }],
+                },
+                    {
+                        xtype: 'panel',
+                        title: '<i class="fas fa-seedling"></i></i>  Field',
+                        id: 'eroFieldTab',
+    //                    disabled: true,
+                        border: false,
+                        scrollable: true,
+                        layout: {
+                            type: 'table',
+                            // The total column count must be specified here
+                            columns: 1
+                        },
+                        defaults: {
+
+                            style: 'padding:10px; ',
+                            border:0,
+                        },
+                        items:[{
+                            xtype: 'radiogroup',
+                            id: 'erosionFieldConvert',
+                            vertical: true,
+                            columns:2,
+                            items: [
+                                {
+                                    boxLabel  : 'Erosion / Area',
+                                    inputValue: 'a',
+                                    checked:true
+                                }, {
+                                    boxLabel  : 'Total Erosion',
+                                    inputValue: 't',
+                                },
+                            ],
+                             listeners:{change: function(e, newValue, oldValue, eOpts) {
+                                displayAlternate("soil_loss_field", e.id)
+    //                            displayAlternate("sci_field", e.id)
+                             }},
+                        },
+                        {
+                            xtype: 'container',
+                            html: '<div id="container" ><canvas id="soil_loss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        },
+
+                        {
+                            xtype: 'container',
+                            html: '<div id="container" ><canvas id="sci_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        },
+
+                        ],
+                        listeners:{activate: function() {
+                            console.log("activated field")
+                            if (chartObj["soil_loss_field"].chart !== null){
+                                return
+                            }
+                            console.log("chartObj", chartObj)
+                            chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
+                            chartObj.sci_field.chart = create_graph(chartObj.sci_field, 'Soil Condition Index', document.getElementById('sci_field').getContext('2d'));
+
+                        }}
+                    },
+               ],
 
             }
             //TODO update
@@ -1562,114 +1518,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                inner tabs for farm and field scale
                 items:[
                     //-------------------------Yield Field Tab-------------------------------------
-                { xtype: 'panel',
-                    title: '<i class="fas fa-seedling"></i></i>  Field',
-                    border: false,
-                    id: 'yieldFieldTab',
-                    scrollable: true,
 
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
-
-                        style: 'padding:10px; ',
-                        border:0,
-                    },
-                    items:[
-//                        {
-//                        xtype: 'button',
-//                        cls: 'button-text-pad',
-//                        componentCls: 'button-margin',
-//                        text: 'Manually Adjust Yields',
-//                        handler: async function(self) {
-//                            console.log(chartObj)
-//                            console.log(fieldYieldArray)
-//                            await gatherYieldTableData()
-//
-//                            Ext.destroy('DSS.results.YieldAdjustment');
-//                            DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment');
-//                            DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);
-//
-//                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
-//                        }
-//                    },
-                    {
-                        xtype: 'radiogroup',
-                        id: 'yieldFieldConvert',
-                        vertical: true,
-                        columns:2,
-                        items: [
-                            {
-                                boxLabel  : 'Yield  ',
-                                inputValue: 'a',
-                                checked:true
-                            }, {
-                                boxLabel  : 'Production',
-                                inputValue: 't',
-                            },
-                        ],
-                         listeners:{
-                             change: function(e, newValue, oldValue, eOpts) {
-                                console.log("yield alternate pushed")
-                                displayAlternate("grass_yield_field", e.id)
-                                displayAlternate("corn_yield_field", e.id)
-                                displayAlternate("corn_silage_yield_field", e.id)
-                                displayAlternate("soy_yield_field", e.id)
-                                displayAlternate("oat_yield_field", e.id)
-                                displayAlternate("alfalfa_yield_field", e.id)
-                                displayAlternate("rotation_yield_field", e.id)
-                             }
-                         },
-                    },
-                    //----------------------------------------------------------------------------------------------------
-                    {
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="grass_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="corn_silage_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="soy_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="oat_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="alfalfa_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-                    ],
-                    listeners:{activate: function() {
-                        console.log("activated field")
-                        if(!chartObj.grass_yield_field.show){document.getElementById('grass_yield_field').style.display="none"};
-                        if(!chartObj.corn_yield_field.show){document.getElementById('corn_yield_field').style.display="none"}
-                        if(!chartObj.corn_silage_yield_field.show){document.getElementById('corn_silage_yield_field').style.display="none"}
-                        if(!chartObj.soy_yield_field.show){document.getElementById('soy_yield_field').style.display="none"}
-                        if(!chartObj.oat_yield_field.show){document.getElementById('oat_yield_field').style.display="none"}
-                        if(!chartObj.alfalfa_yield_field.show){document.getElementById('alfalfa_yield_field').style.display="none"}
-                        if(!chartObj.rotation_yield_field.show){document.getElementById('rotation_yield_field').style.display="none"}
-                        if (chartObj["grass_yield_field"].chart !== null){
-                            return
-                        }
-                        chartObj.grass_yield_field.chart = create_graph(chartObj.grass_yield_field, 'Grass Yield', document.getElementById('grass_yield_field').getContext('2d'));
-                        chartObj.corn_yield_field.chart = create_graph(chartObj.corn_yield_field, 'Corn Yield', document.getElementById('corn_yield_field').getContext('2d'));
-                        chartObj.corn_silage_yield_field.chart = create_graph(chartObj.corn_silage_yield_field, 'Corn Silage', document.getElementById('corn_silage_yield_field').getContext('2d'));
-                        chartObj.soy_yield_field.chart = create_graph(chartObj.soy_yield_field, 'Soy Yield', document.getElementById('soy_yield_field').getContext('2d'));
-                        chartObj.oat_yield_field.chart = create_graph(chartObj.oat_yield_field, 'Oat Yield', document.getElementById('oat_yield_field').getContext('2d'));
-                        chartObj.alfalfa_yield_field.chart = create_graph(chartObj.alfalfa_yield_field, 'Alfalfa Yield', document.getElementById('alfalfa_yield_field').getContext('2d'));
-                        chartObj.rotation_yield_field.chart = create_graph(chartObj.rotation_yield_field, 'Total Yield', document.getElementById('rotation_yield_field').getContext('2d'));
-                    },
-                }
-            },
                 {
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
@@ -1785,6 +1634,114 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     }
                 }
                 },
+                   { xtype: 'panel',
+                    title: '<i class="fas fa-seedling"></i></i>  Field',
+                    border: false,
+                    id: 'yieldFieldTab',
+                    scrollable: true,
+
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                        style: 'padding:10px; ',
+                        border:0,
+                    },
+                    items:[
+//                        {
+//                        xtype: 'button',
+//                        cls: 'button-text-pad',
+//                        componentCls: 'button-margin',
+//                        text: 'Manually Adjust Yields',
+//                        handler: async function(self) {
+//                            console.log(chartObj)
+//                            console.log(fieldYieldArray)
+//                            await gatherYieldTableData()
+//
+//                            Ext.destroy('DSS.results.YieldAdjustment');
+//                            DSS.dialogs.YieldAdjustment = Ext.create('DSS.results.YieldAdjustment');
+//                            DSS.dialogs.YieldAdjustment.setViewModel(DSS.viewModel.scenario);
+//
+//                            DSS.dialogs.YieldAdjustment.show().center().setY(0);
+//                        }
+//                    },
+                    {
+                        xtype: 'radiogroup',
+                        id: 'yieldFieldConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Yield  ',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Production',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{
+                             change: function(e, newValue, oldValue, eOpts) {
+                                console.log("yield alternate pushed")
+                                displayAlternate("grass_yield_field", e.id)
+                                displayAlternate("corn_yield_field", e.id)
+                                displayAlternate("corn_silage_yield_field", e.id)
+                                displayAlternate("soy_yield_field", e.id)
+                                displayAlternate("oat_yield_field", e.id)
+                                displayAlternate("alfalfa_yield_field", e.id)
+                                displayAlternate("rotation_yield_field", e.id)
+                             }
+                         },
+                    },
+                    //----------------------------------------------------------------------------------------------------
+                    {
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="rotation_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="grass_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="corn_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="corn_silage_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="soy_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="oat_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="alfalfa_yield_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    ],
+                    listeners:{activate: function() {
+                        console.log("activated field")
+                        if(!chartObj.grass_yield_field.show){document.getElementById('grass_yield_field').style.display="none"};
+                        if(!chartObj.corn_yield_field.show){document.getElementById('corn_yield_field').style.display="none"}
+                        if(!chartObj.corn_silage_yield_field.show){document.getElementById('corn_silage_yield_field').style.display="none"}
+                        if(!chartObj.soy_yield_field.show){document.getElementById('soy_yield_field').style.display="none"}
+                        if(!chartObj.oat_yield_field.show){document.getElementById('oat_yield_field').style.display="none"}
+                        if(!chartObj.alfalfa_yield_field.show){document.getElementById('alfalfa_yield_field').style.display="none"}
+                        if(!chartObj.rotation_yield_field.show){document.getElementById('rotation_yield_field').style.display="none"}
+                        if (chartObj["grass_yield_field"].chart !== null){
+                            return
+                        }
+                        chartObj.grass_yield_field.chart = create_graph(chartObj.grass_yield_field, 'Grass Yield', document.getElementById('grass_yield_field').getContext('2d'));
+                        chartObj.corn_yield_field.chart = create_graph(chartObj.corn_yield_field, 'Corn Yield', document.getElementById('corn_yield_field').getContext('2d'));
+                        chartObj.corn_silage_yield_field.chart = create_graph(chartObj.corn_silage_yield_field, 'Corn Silage', document.getElementById('corn_silage_yield_field').getContext('2d'));
+                        chartObj.soy_yield_field.chart = create_graph(chartObj.soy_yield_field, 'Soy Yield', document.getElementById('soy_yield_field').getContext('2d'));
+                        chartObj.oat_yield_field.chart = create_graph(chartObj.oat_yield_field, 'Oat Yield', document.getElementById('oat_yield_field').getContext('2d'));
+                        chartObj.alfalfa_yield_field.chart = create_graph(chartObj.alfalfa_yield_field, 'Alfalfa Yield', document.getElementById('alfalfa_yield_field').getContext('2d'));
+                        chartObj.rotation_yield_field.chart = create_graph(chartObj.rotation_yield_field, 'Total Yield', document.getElementById('rotation_yield_field').getContext('2d'));
+                    },
+                }
+            },
                 {
                     xtype: 'container',
                     style: 'user-select: text;',
@@ -1837,7 +1794,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 
         ],
         }
-            //TODO update
         var economics = {
 
                 title: '<i class="fa fa-money fa-lg"></i> Production Costs <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=econ_pb >50%</progress>',
@@ -1864,7 +1820,66 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 scrollable: true,
 
 //                inner tabs for farm and field scale
-                items:[{ xtype: 'panel',
+                items:[
+                {
+                    xtype: 'container',
+                    title: '<i class="fas fa-warehouse"></i>  Farm',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'econFarmConvert',
+                        vertical: true,
+                        columns:3,
+                        items: [
+                            {
+                                boxLabel  : 'Cost / Acre',
+                                inputValue: 'a',
+                                checked:true
+                            },
+                            {
+                                boxLabel  : 'Total Cost',
+                                inputValue: 't',
+                            },
+                            {
+                                boxLabel  : 'Cost/Ton DM',
+                                inputValue: 'd',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue,   eOpts) {
+                            displayAlternateEcon("econ_farm", oldValue.econFarmConvert,newValue.econFarmConvert)
+                        }},
+                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="econ_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+
+                ],
+                    scope: this,
+                    listeners:{activate: function() {
+                       console.log("activated farm")
+                         if (chartObj["econ_farm"].chart !== null){
+                           return
+//                            chartObj["econ_farm"].chart.destroy()
+//                            chartObj["net_return_farm"].chart.destroy()
+                       }
+                       chartObj.econ_farm.chart = create_graph(chartObj.econ_farm, 'Costs', document.getElementById('econ_farm').getContext('2d'));
+                       //chartObj.net_return_farm.chart = create_graph(chartObj.econ_farm, 'Net Return per Acre', document.getElementById('net_return_farm').getContext('2d'));
+                      // create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_farm').getContext('2d'));
+
+                    }}
+
+                },
+                { xtype: 'panel',
                 title: '<i class="fas fa-seedling"></i></i>  Field',
                 id: 'econFieldTab',
                 border: false,
@@ -1906,17 +1921,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                     xtype: 'container',
                         html: '<div id="container" ><canvas id="econ_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
-//                 {
-//                     xtype: 'container',
-// //                        html: '<div id="container"><canvas  id="net_return_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                 },
-//                 {
-//                     xtype: 'container',
-//                 },
-//                 {
-//                     xtype: 'container',
-// //                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                 }
+
             ],
                 listeners:{activate: function() {
                        console.log("activated field")
@@ -1930,74 +1935,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                            create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_field').getContext('2d'));
                     }
                 }
-            },{
-                    xtype: 'container',
-                    title: '<i class="fas fa-warehouse"></i>  Farm',
-                    border: false,
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'radiogroup',
-                        id: 'econFarmConvert',
-                        vertical: true,
-                        columns:3,
-                        items: [
-                            {
-                                boxLabel  : 'Cost / Acre',
-                                inputValue: 'a',
-                                checked:true
-                            },
-                            {
-                                boxLabel  : 'Total Cost',
-                                inputValue: 't',
-                            },
-                            {
-                                boxLabel  : 'Cost/Ton DM',
-                                inputValue: 'd',
-                            },
-                        ],
-                         listeners:{change: function(e, newValue, oldValue,   eOpts) {
-                            displayAlternateEcon("econ_farm", oldValue.econFarmConvert,newValue.econFarmConvert)
-                        }},
-                    },
-                    {
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="econ_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-                    // {
-                    //     xtype: 'container',
-                    //     html: '<div id="container"><canvas  id="net_return_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                    // },
-                    // {
-                    //     xtype: 'container',
-                    // },{
-                    //     xtype: 'container',
-                    //     html: '<div id="container"><canvas  id="milk_farm" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-                    // }
-                ],
-                    scope: this,
-                    listeners:{activate: function() {
-                       console.log("activated farm")
-                         if (chartObj["econ_farm"].chart !== null){
-                           return
-//                            chartObj["econ_farm"].chart.destroy()
-//                            chartObj["net_return_farm"].chart.destroy()
-                       }
-                       chartObj.econ_farm.chart = create_graph(chartObj.econ_farm, 'Costs', document.getElementById('econ_farm').getContext('2d'));
-                       //chartObj.net_return_farm.chart = create_graph(chartObj.econ_farm, 'Net Return per Acre', document.getElementById('net_return_farm').getContext('2d'));
-                      // create_graph(barChartData, 'test units', 'test title', document.getElementById('milk_farm').getContext('2d'));
+            },
 
-                    }}
-
-                },
-                
             ],
 
             }
@@ -2024,76 +1963,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 scrollable: true,
 //                inner tabs for farm and field scale
                 items:[
-                    { xtype: 'panel',
-                    title: '<i class="fas fa-seedling"></i></i>  Field',
-                     border: false,
-//                   disabled: true,
-                    id: 'nutFieldTab',
-                    scrollable: true,
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
 
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'radiogroup',
-                        id: 'nutrientsFieldConvert',
-                        vertical: true,
-                        columns:2,
-                        items: [
-                            {
-                                boxLabel  : 'Nutrients / Area',
-                                inputValue: 'a',
-                                checked:true
-                            }, {
-                                boxLabel  : 'Total Nutrients',
-                                inputValue: 't',
-                            },
-                        ],
-                         listeners:{change: function(e, newValue, oldValue, eOpts) {
-                            displayAlternate("ploss_field", e.id)
-                            displayAlternate("nleaching_field", e.id)
-                            displayAlternate("nwater_field", e.id)
-                         }},
-                    },
-                    {
-
-                        xtype: 'container',
-                    },{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="ploss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-                    {
-                        xtype: 'container',
-                        html: '<div id="container"><canvas  id="nwater_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-                    {
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                    },
-//                    {
-//                        xtype: 'container',
-//                    },{
-//                        xtype: 'container',
-//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
-//                    }
-                    ],
-                         listeners:{activate: function() {
-                            if (chartObj["ploss_field"].chart !== null){
-
-                                return
-                            }
-                            chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
-                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
-                            chartObj.nwater_field.chart = create_graph(chartObj.nwater_field, 'Nitrogen Lost to Water', document.getElementById('nwater_field').getContext('2d'));
-
-                    }}
-                },
                 {
                     xtype: 'container',
                     title: '<i class="fas fa-warehouse"></i>  Farm',
@@ -2163,6 +2033,76 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             chartObj.nwater_farm.chart = create_graph(chartObj.nwater_farm, 'Nitrogen Lost to Water', document.getElementById('nwater_farm').getContext('2d'));
                     }}
 
+                },
+                { xtype: 'panel',
+                    title: '<i class="fas fa-seedling"></i></i>  Field',
+                     border: false,
+//                   disabled: true,
+                    id: 'nutFieldTab',
+                    scrollable: true,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'radiogroup',
+                        id: 'nutrientsFieldConvert',
+                        vertical: true,
+                        columns:2,
+                        items: [
+                            {
+                                boxLabel  : 'Nutrients / Area',
+                                inputValue: 'a',
+                                checked:true
+                            }, {
+                                boxLabel  : 'Total Nutrients',
+                                inputValue: 't',
+                            },
+                        ],
+                         listeners:{change: function(e, newValue, oldValue, eOpts) {
+                            displayAlternate("ploss_field", e.id)
+                            displayAlternate("nleaching_field", e.id)
+                            displayAlternate("nwater_field", e.id)
+                         }},
+                    },
+                    {
+
+                        xtype: 'container',
+                    },{
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="ploss_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container"><canvas  id="nwater_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="nleaching_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+//                    {
+//                        xtype: 'container',
+//                    },{
+//                        xtype: 'container',
+//                        html: '<div id="container"><canvas  id="milk_field" style = "width:'+chart_width+';height:'+chart_height+';"></canvas></div>',
+//                    }
+                    ],
+                         listeners:{activate: function() {
+                            if (chartObj["ploss_field"].chart !== null){
+
+                                return
+                            }
+                            chartObj.ploss_field.chart = create_graph(chartObj.ploss_field, 'Phosphorus Loss', document.getElementById('ploss_field').getContext('2d'));
+                            chartObj.nleaching_field.chart = create_graph(chartObj.nleaching_field, 'Nitrate Leaching', document.getElementById('nleaching_field').getContext('2d'));
+                            chartObj.nwater_field.chart = create_graph(chartObj.nwater_field, 'Nitrogen Lost to Water', document.getElementById('nwater_field').getContext('2d'));
+
+                    }}
                 },
             ],
 
@@ -2246,7 +2186,37 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 },
 //                scrollable: true,
 //                inner tabs for farm and field scale
-                items:[{ xtype: 'panel',
+                items:[
+
+            {
+                    xtype: 'container',
+                    title: '<i class="fas fa-warehouse"></i>  Farm',
+                    border: false,
+                    layout: {
+                        type: 'table',
+                        // The total column count must be specified here
+                        columns: 1
+                    },
+                    defaults: {
+
+                    style: 'padding:10px; ',
+                    border:0,
+                },
+                    items:[{
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="insecticide_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        },
+                    ],
+                    listeners:{activate: function() {
+                        if (chartObj["insecticide_farm"].chart !== null){
+                            return
+                        }
+                        chartObj.insecticide_farm.chart = create_graph(chartObj.insecticide_farm, 'Honey Bee Toxicity', document.getElementById('insecticide_farm').getContext('2d'));
+
+                    }}
+
+                },
+                { xtype: 'panel',
                 title: '<i class="fas fa-seedling"></i></i>  Field',
                  border: false,
                  id: 'insectFieldTab',
@@ -2282,34 +2252,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                 }}
             },
-            {
-                    xtype: 'container',
-                    title: '<i class="fas fa-warehouse"></i>  Farm',
-                    border: false,
-                    layout: {
-                        type: 'table',
-                        // The total column count must be specified here
-                        columns: 1
-                    },
-                    defaults: {
-
-                    style: 'padding:10px; ',
-                    border:0,
-                },
-                    items:[{
-                        xtype: 'container',
-                        html: '<div id="container" ><canvas id="insecticide_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
-                        },
-                    ],
-                    listeners:{activate: function() {
-                        if (chartObj["insecticide_farm"].chart !== null){
-                            return
-                        }
-                        chartObj.insecticide_farm.chart = create_graph(chartObj.insecticide_farm, 'Honey Bee Toxicity', document.getElementById('insecticide_farm').getContext('2d'));
-
-                    }}
-
-                },
                 
                 ],
             }

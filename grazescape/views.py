@@ -42,6 +42,7 @@ import shutil
 import math
 from datetime import datetime
 from grazescape.png_handler import PngHandler as pgh
+import tracemalloc
 
 credential_path = os.path.join(settings.BASE_DIR, 'keys', 'cals-grazescape-files-63e6-4f2fc53201e6.json')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
@@ -413,7 +414,7 @@ def get_P_Manure_Results(request, clipped_rasters):
 
 def get_model_results(request):
     print("starting model request")
-
+    tracemalloc.start()
     start = time.time()
     png_handler = pgh()
     field_id = request.POST.getlist("field_id")[0]  # str(request_json["field_id"])
@@ -450,6 +451,7 @@ def get_model_results(request):
             model_yield_blue = GrassYield(request, active_region)
             model_yield_orch = GrassYield(request, active_region)
             model_yield_tim = GrassYield(request, active_region)
+            print("model parameters", model_yield_blue.model_parameters)
             # figure out which model the user has actually selected
             if 'bluegrass' in model_yield_blue.model_parameters["grass_type"].lower():
                 model_yield_blue.main_type = True
@@ -608,6 +610,12 @@ def get_model_results(request):
 
         traceback.print_exc()
         print("end of error*************************")
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+
+        print("[ Top 10 ]")
+        for stat in top_stats[:10]:
+            print(stat)
     data = {
         # overall model type crop, ploss, bio, runoff
         "model_type": model_type,
