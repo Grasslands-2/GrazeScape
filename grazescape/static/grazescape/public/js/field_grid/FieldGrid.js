@@ -615,24 +615,36 @@ Ext.define('DSS.field_grid.FieldGrid', {
 						
 						if(value.data.value.includes('pt')){
 							console.log('pt hit')
-							if(record.data.rotationFreqDisp == 'Continuous'){
-								record.set('rotationVal','pt-cn')
-								record.set('rotationDisp', value.get('display'));
-								record.set('manuPercN',fertDefaultArray.fertDefaults[0])
-								record.set('fertPercN',fertDefaultArray.fertDefaults[1])
-								record.set('fertPercP',fertDefaultArray.fertDefaults[2])
-								record.set('interseededClover',true)
-								console.log('pt-cn')
-								
-							}else{
-								record.set('rotationVal','pt-rt')
-								record.set('rotationDisp', value.get('display'));
-								record.set('manuPercN',fertDefaultArray.fertDefaults[0])
-								record.set('fertPercN',fertDefaultArray.fertDefaults[1])
-								record.set('fertPercP',fertDefaultArray.fertDefaults[2])
-								record.set('interseededClover',true)
-								console.log('pt-rt')
-							}
+//							if(record.data.rotationFreqDisp == 'Continuous'){
+//								record.set('rotationVal','pt-cn')
+//								record.set('rotationDisp', value.get('display'));
+//								record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+//								record.set('fertPercN',fertDefaultArray.fertDefaults[1])
+//								record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+//								record.set('interseededClover',true)
+//								console.log('pt-cn')
+//
+//							}else{
+//								record.set('rotationVal','pt-rt')
+//								record.set('rotationDisp', value.get('display'));
+//								record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+//								record.set('fertPercN',fertDefaultArray.fertDefaults[1])
+//								record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+//								record.set('interseededClover',true)
+//								console.log('pt-rt')
+//							}
+                            console.log("Select value", value)
+							record.set('rotationVal','pt-rt')
+                            record.set('rotationDisp', value.get('display'));
+                            record.set('manuPercN',fertDefaultArray.fertDefaults[0])
+                            record.set('fertPercN',fertDefaultArray.fertDefaults[1])
+                            record.set('fertPercP',fertDefaultArray.fertDefaults[2])
+                            record.set('interseededClover',true)
+                            record.set('grassSpeciesVal', "Timothy-clover")
+                            record.set('grassSpeciesDisp',"Medium Yielding")
+                            record.set('rotationFreqVal',1)
+                            record.set('rotationFreqDisp',"Once a day")
+//                            console.log('pt-cn')
 							console.log(record)
 						} 
 						else if(value.data.value.includes('dl')){

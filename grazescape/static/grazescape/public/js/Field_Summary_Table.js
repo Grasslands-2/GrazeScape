@@ -33,7 +33,7 @@ Ext.define('DSS.Field_Summary_Table', {
                 text: 'Field', dataIndex: 'name', width: 120, 
                 editable: false,
                 hideable: false,  minWidth: 24,
-                tooltip: '<b>Field Name:</b> Can be editted and relabeled here.',
+                tooltip: '<b>Field Name:</b> Can be edited and relabeled here.',
             },
             {
                 xtype: 'numbercolumn',
