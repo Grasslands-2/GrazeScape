@@ -133,10 +133,6 @@ class RasterData:
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             # r = requests.get(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            # print("done downloading")
-            # print("raster_file_path", raster_file_path)
-            # with open(raster_file_path, "wb") as f:
-            #     f.write(r.content)
             self.createNewDownloadThread(url, raster_file_path)
         self.joinThreads()
 

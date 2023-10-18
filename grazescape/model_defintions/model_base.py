@@ -12,7 +12,9 @@ from pyper import R
 import functools
 import time
 
+
 class ModelBase:
+
     def __init__(self, request, active_region, file_name=None):
         # request_json = js.loads(request.body)
         field_id = request.POST.getlist("field_id")[0]
@@ -20,7 +22,7 @@ class ModelBase:
         model_type = request.POST.get('model_parameters[model_type]')
         active_region = request.POST.get('model_parameters[active_region]')
         self.scenario_id = request.POST.getlist("scenario_id")[0]
-        print("file name is ", file_name)
+        # print("file name is ", file_name)
         if file_name is None:
             file_name = model_type + field_id
         self.file_name = file_name
@@ -42,10 +44,11 @@ class ModelBase:
 
         self.r_file_path = settings.R_PATH
 
-        try:
-            r = R(RCMD=self.r_file_path, use_pandas=True)
-        except FileNotFoundError as e:
-            raise FileNotFoundError("R file path is incorrect")
+        # try:
+        #     r = R(RCMD=self.r_file_path)
+        # except FileNotFoundError as e:
+        #     raise FileNotFoundError("R file path is incorrect")
+        # del r
         self.active_region = active_region
         if active_region == "cloverBeltWI":
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'cloverBeltWI')

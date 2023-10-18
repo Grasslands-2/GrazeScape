@@ -292,5 +292,6 @@ class PhosphorousLoss(ModelBase):
         ploss = ploss.flatten()
         ploss = np.where(ploss < 0.01, .01, ploss)
         pl.set_data(ploss)
+        del r
         return [pl]
 
