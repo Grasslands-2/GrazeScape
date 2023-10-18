@@ -1,5 +1,5 @@
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import *
+from grazescape.model_defintions.pyper_local import *
 import numpy as np
 import pandas as pd
 import geopandas as gpd
