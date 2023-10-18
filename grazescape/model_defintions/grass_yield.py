@@ -131,11 +131,12 @@ class GrassYield(ModelBase):
         r("new_df <- cbind(cropname, df_repeated)")
         r("pred_df <- new_df %>% filter(cropname == '" + grass + "')")
         r("pred <- predict(savedRF, pred_df)")
+
         pred = r.get("pred").to_numpy()
         pred = pred * float(self.model_parameters["graze_factor"])
         grass_yield.set_data(pred.flatten())
         grass_yield.set_data_alternate(pred.flatten())
         if self.main_type:
             rotation_avg.set_data(pred.flatten())
-
+        del r
         return return_data

@@ -328,6 +328,7 @@ class Runoff(ModelBase):
                 event.append(round(runoff, 2))
                 # CNout(i, 2) = runoff;
             rain_fall.set_data(event)
+        del r
         return [curve, rain_fall]
 
     def get_cn_ad(self, id):
