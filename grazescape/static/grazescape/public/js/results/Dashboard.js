@@ -1024,28 +1024,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
 		let me = this;
 		layer = DSS.layer.fields_1
-
-//		let testTable = ''
-//		<table>
-//          <tr>
-//            <th>Company</th>
-//            <th>Contact</th>
-//            <th>Country</th>
-//          </tr>
-//          <tr>
-//            <td>Alfreds Futterkiste</td>
-//            <td>Maria Anders</td>
-//            <td>Germany</td>
-//          </tr>
-//          <tr>
-//            <td>Centro comercial Moctezuma</td>
-//            <td>Francisco Chang</td>
-//            <td>Mexico</td>
-//          </tr>
-//        </table>
-//        '
-        // Create an HTML table
-
         
         if (this.runModel) {
             var modelruntime = ''
@@ -1098,8 +1076,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             await layer.getSource().forEachFeature(function(f) {
                 layerList.push(f)
             })
+            //					    todo remove this function call
+
             let fieldIter = await retrieveAllFieldsDataGeoserver()
             fieldIter = await fieldIter
+            //					    todo remove this function call
+
             let download = await downloadRasters(fieldIter)
             
             download = await download
@@ -1143,7 +1125,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             
 //          get parameters for the active scenario fields from the layer display
 //          if fields arent in the active scenario then use the values from the database
-//          we have to do it this because the inactive layers don't store the geographic properities that are needed to calculate area and extents for running the models
+//          we have to do it this because the inactive layers don't store the geographic properties that are needed to calculate area and extents for running the models
 //          while the inactive fields are just retrieving their models results from the db
             for(item in fieldIter){
                 f = fieldIter[item]
@@ -1204,48 +1186,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                                 }
                                 break
-//                            case 'ploss':
-//                                nut_pb.value = nut_pb.value + 1
-//                                if(nut_pb.value==nut_pb.max){
-//                                    nut_pb.hidden = true
-//                                    Ext.getCmp("nutrientsFarmConvert").setDisabled(false)
-//                                    Ext.getCmp("nutrientsFieldConvert").setDisabled(false)
-//                                    Ext.getCmp("nutTab").setDisabled(false)
-//                                }
-//                                ero_pb.value = ero_pb.value + 1
-//                                if(ero_pb.value==ero_pb.max){
-//                                    ero_pb.hidden = true
-//                                    Ext.getCmp("eroTab").setDisabled(false)
-//                                    Ext.getCmp("erosionFarmConvert").setDisabled(false)
-//                                    Ext.getCmp("erosionFieldConvert").setDisabled(false)
-//                                }
-//                                break
-//                            case 'runoff':
-//                                runoff_pb.value = runoff_pb.value + 1
-//                                if(runoff_pb.value == runoff_pb.max){
-//                                    runoff_pb.hidden =true
-//                                    Ext.getCmp("runoffTab").setDisabled(false)
-//                                }
-//                                break
-//                            case 'bio':
-//                                bio_pb.value = bio_pb.value + 1
-//                                if(bio_pb.value == bio_pb.max){
-//                                    bio_pb.hidden = true
-//                                    Ext.getCmp("bioTab").setDisabled(false)
-//                                }
-//                                break
-//                            case 'econ':
-//                                econ_pb.value = econ_pb.value + 1
-//                                if(econ_pb.value == econ_pb.max){
-//                                    econ_pb.hidden = true
-//                                    Ext.getCmp("econTab").setDisabled(false)
-//                                    Ext.getCmp("econFarmConvert").setDisabled(false)
-//                                    Ext.getCmp("econFieldConvert").setDisabled(false)
-//                                }
-//                                break
                         }
-
-
                         totalFields = totalFields - 1
                         if(totalFields == 0){
                             Ext.getCmp("btnRunModels").setDisabled(false)

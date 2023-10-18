@@ -777,6 +777,7 @@ Ext.define('DSS.state.Scenario', {
 					text: "<i class='fas fa-play' style='font-size: 11pt;'></i> Run Models",
 					disabled: true,
 					handler: async function (self) {
+//					    todo remove this function call
 						await getWFSScenarioSP();
 						if (fieldArray.length < 1) {
 							await gatherTableData();
@@ -798,10 +799,16 @@ Ext.define('DSS.state.Scenario', {
 						Ext.getCmp("EditInfrastructureButton").toggle(false);
 						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 						DSS.field_grid.FieldGrid.store.clearData();
+						//					    todo remove this function call
+
 						await runFieldUpdate();
+						//					    todo remove this function call
+
 						await runInfraUpdate();
 						if (DSS["viewModel"].scenario.data != null) {
 							console.log("updating scenario data");
+							//					    todo remove this function call
+
 							runScenarioUpdate();
 							console.log("done updating scenario data");
 						}
@@ -815,7 +822,11 @@ Ext.define('DSS.state.Scenario', {
 							});
 							Ext.getCmp("btnRunModels").setText("<i class='fas fa-play' style='font-size: 11pt;'></i> Rerun Models");
 							Ext.getCmp("dashboardWindow").show().center();
-						} else {
+						}
+//						if rerunning models
+						else {
+						//					    todo remove this function call
+
 							await getWFSScenarioSP();
 							modelError = false;
 							modelErrorMessages = [];

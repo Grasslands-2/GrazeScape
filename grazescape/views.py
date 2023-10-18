@@ -391,9 +391,7 @@ def get_P_Manure_Results(request, clipped_rasters):
 
 def get_model_results(request):
     print("starting model request")
-
     start = time.time()
-    png_handler = pgh()
     field_id = request.POST.getlist("field_id")[0]  # str(request_json["field_id"])
     scenario_id = request.POST.getlist("scenario_id")[0]  # request_json["scenario_id"]
     farm_id = request.POST.getlist("farm_id")[0]
@@ -406,7 +404,6 @@ def get_model_results(request):
     active_region = request.POST.get('model_parameters[active_region]')
     field_coors = []
     print("field id", field_id, "farm id", farm_id, "scen id", scenario_id)
-    png_handler.remove_old_pngs_from_local(field_id)
     for input in request.POST:
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
@@ -552,9 +549,7 @@ def get_model_results(request):
             return_data.append(data)
         print("Results Loop Done ", time.time() - start)
         # update_field_dirty(field_id, scenario_id, farm_id)
-        # png_handler.remove_pngs(field_id, model_run_timestamp)
 
-        # png_handler.upload_gcs_model_result_blob(field_id, model_run_timestamp)
         print("done with models ", time.time() - start)
         return JsonResponse(return_data, safe=False)
     except KeyError as e:
