@@ -75,10 +75,6 @@ DEBUG model:
     method "get" allows wild values for variables that does not exists in R.
     Then the R expression will always be wrapped in "try()" to avoid R crashing
     if the method "get" is called.
-
-    Updates for GrazeScape Project
-    added a terminate call to the process as the current cleanup was generating zombie process on linux machines
-
 '''
 
 # the module "subprocess" requires Python 2.4
@@ -640,7 +636,7 @@ class R(object):  # "del r.XXX" fails on FePy-r7 (IronPython 1.1 on .NET 2.0.507
                 childstderr = sys.stderr._file
             else:  # Give up and point child stderr at nul
                 childstderr = file('nul', 'a')
-
+        # print("start up info", info)
         self.__dict__['prog'] = Popen(RCMD, stdin=PIPE, stdout=PIPE, stderr=return_err and _STDOUT or childstderr,
                                       startupinfo=info)
         self.__call__(self.Rfun)
@@ -755,7 +751,16 @@ class R(object):  # "del r.XXX" fails on FePy-r7 (IronPython 1.1 on .NET 2.0.507
             except:
                 pass
             # self.prog = None
-        self.prog.terminate()
+        print("terminating process")
+        print(self.prog)
+
+        # self.prog.terminate()
+        self.prog.communicate()
+        print(self.prog)
+        self.prog.wait()
+        print("Process return code", self.prog.returncode)
+        # stdout, stderr = self.prog.communicate()
+        # print(stdout, stderr)
 
     def __getattr__(self, obj, use_dict=None):  # to model object attribute: "r.XXX"
         '''
