@@ -32,7 +32,7 @@ DSS.utils.addStyle('.button-text-pad-large { padding: 0.2rem;}')
 DSS.utils.addStyle('.information-scenlabel { padding: 0.5rem 0 0.25rem 0; font-size: 1.1rem; text-align: center; font-weight: bold}')
 DSS.utils.addStyle('.information { padding: 0.5rem 0 0.25rem 0; font-size: 0.9rem; text-align: center}')
 DSS.utils.addStyle('.information-compact { padding: 0.1rem 0 0.1rem 0; font-size: 0.9rem; text-align: center}')
-DSS.utils.addStyle('.section-title { padding: 0.5rem; font-size: 1.2rem; text-align: center; font-weight: bold}');
+DSS.utils.addStyle('.section-title { padding: 0.5rem; font-size: 1.1rem; text-align: center; font-weight: bold}');
 DSS.utils.addStyle('.section { margin: 0.5rem; margin-bottom: 1rem; padding: 0.75rem; background-color: #fff; border: 1px solid #bbb; border-radius: 0.3rem; box-shadow: 0px 4px 8px rgba(0,0,0,0.25) }')
 
 DSS.utils.addStyle('.back-button { padding: 0.23rem; color: rgba(34,114,204,0.5); font-size: 1.25rem; cursor: pointer;}');
@@ -114,7 +114,6 @@ Ext.define('DSS.state.ApplicationFlow', {
 					xtype: 'component',
 					html: '  v 1.0',
 					cls: 'information med-text',
-
 				},
 			]
 			},{
@@ -127,13 +126,6 @@ Ext.define('DSS.state.ApplicationFlow', {
 					afterrender: function(self) { me.DSS_App['FlowContainer'] = self }
 				}			
 			},
-			// {
-			// 	xtype: 'component',
-			// 	flex: 1,
-			// 	cls:'footer',
-			// 	height: 114, margin: '8 8 0 -12',
-			// 	style: 'background-image: url("/static/grazescape/public/images/Maptiler1.png"); background-size: contain; background-repeat: no-repeat',
-			// },
 			{
 				// Footer, possibly should hide when not on the "landing" portion of the grazescape application 
 				//----------------------------------------------------------------------------------
@@ -166,12 +158,11 @@ Ext.define('DSS.state.ApplicationFlow', {
 		
 		Ext.suspendLayouts();
 		//This sets the opertion browse panel in the landing page.  Change this to a region picker menu
-			me.setControlBlock({xtype:'operation_browse_create'});
-			//me.setControlBlock({xtype:'region_picker_panel'});
+		me.setControlBlock({xtype:'operation_browse_create'});
+
 		Ext.resumeLayouts(true);
 		
-		DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
-		DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
+		DSS.MapState.activateFarmsMapHandlers();
 		DSS.MapState.zoomToExtent();
 		
 		DSS.MapState.disableFieldDraw();
@@ -179,15 +170,6 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.layer.farms_1.setVisible(true);
 		DSS.layer.farms_1.setOpacity(1);
 		DSS.layer.markers.setVisible(false);
-		//Region Picker 
-		
-		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
-		// DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
-		// DSS.dialogs.RegionPicker.show().center().setY(100);
-		//regionPickerFunc()
-		//AppEvents.triggerEvent('show_region_picker_indicator')
-		//DSS.layer.regionLabels.setVisible(true)
-		//DSS.layer.farms_1.setVisible(false)
 	},
 	//----------------------------------------------------------------------------------
 	showLandingPage: function() {
@@ -195,30 +177,21 @@ Ext.define('DSS.state.ApplicationFlow', {
 		console.log('IM THE LANDING PAGE!!')
 		
 		Ext.suspendLayouts();
-		//This sets the opertion browse panel in the landing page.  Change this to a region picker menu
-			//me.setControlBlock({xtype:'operation_browse_create'});
-			me.setControlBlock({xtype:'region_picker_panel'});
+
+		me.setControlBlock({xtype:'region_picker_panel'});
 		Ext.resumeLayouts(true);
 		
-		// DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
-		// DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
 		DSS.MapState.zoomToExtent();
-		
 		DSS.MapState.disableFieldDraw();
+		DSS.MapState.deactivateFarmsMapHandlers();
 		
 		DSS.layer.farms_1.setVisible(true);
 		DSS.layer.farms_1.setOpacity(1);
 		DSS.layer.markers.setVisible(false);
-		DSS.layer.cloverBeltBorder.setVisible(true)
-		DSS.layer.swwiBorder.setVisible(true)
-		DSS.layer.northeastBorder.setVisible(true)
-		DSS.layer.uplandBorder.setVisible(true)
-		//Region Picker 
+		DSS.allRegionLayers.forEach(layer => layer.setVisible(true));
 		
-		// DSS.dialogs.RegionPicker = Ext.create('DSS.map.RegionPicker'); 				
-		// DSS.dialogs.RegionPicker.setViewModel(DSS.viewModel.scenario);
-		// DSS.dialogs.RegionPicker.show().center().setY(100);
-		regionPickerFunc()
+		//Region Picker 
+		DSS.MapState.activateRegionSelect();
 		AppEvents.triggerEvent('show_region_picker_indicator')
 		DSS.layer.regionLabels.setVisible(true)
 		DSS.layer.farms_1.setVisible(false)
@@ -241,19 +214,17 @@ Ext.define('DSS.state.ApplicationFlow', {
 		
 		Ext.suspendLayouts();
 			me.setControlBlock({xtype:'operation_delete'});
-			//DSS.MapState.clickActivateFarmHandler.setActive(false)
+
 			DSS.mouseMoveFunction = DSS.MapState.mouseoverFarmHandler();
-			//DSS.mapClickFunction = DSS.MapState.clickActivateFarmHandler();
+
 			DSS.mapClickFunction = undefined;
 			DSS.layer.farms_1.setOpacity(0.5);
 		Ext.resumeLayouts(true);
 	},
 	
 	//----------------------------------------------------------------------------------
-	showManageOperationPage: function(operationName) {
+	showManageOperationPage: function() {
 		let me = this;
-		
-//		operationName = operationName || "Grazing Acres";
 		
 		Ext.suspendLayouts();
 			me.setControlBlock([	
@@ -261,23 +232,13 @@ Ext.define('DSS.state.ApplicationFlow', {
 			]);
 		Ext.resumeLayouts(true);
 		
-		DSS.mouseMoveFunction = undefined;
-		//DSS.layer.farms_1.setVisible(true);
-		//DSS.layer.scenarios.setVisible(false);
-		
+		DSS.MapState.deactivateFarmsMapHandlers();
 		DSS.MapState.showNewFarm();
-		//DSS.MapState.showFieldsForFarm();
-		//DSS.MapState.showInfrasForFarm();
-
-		//var ext = DSS.layer.farms_1.getSource().getFeatures().forEach().getExtent();
-		//console.log(ext)
-		//DSS.map.getView().fit(ext);
-		//DSS.MapState.zoomToRealExtent(ext);
 		DSS.popupOverlay.setPosition(false);
 	},
 
 	//----------------------------------------------------------------------------------
-	showScenarioPage: async function(operationName) {
+	showScenarioPage: async function() {
 		let me = this;
 		await gatherScenarioTableData()
 		Ext.suspendLayouts();
@@ -285,16 +246,6 @@ Ext.define('DSS.state.ApplicationFlow', {
 			DSS.StateScenario.get()
 		]);
 		Ext.resumeLayouts(true);
+		DSS.MapState.deactivateFarmsMapHandlers();
 	},
-	
-	//----------------------------------------------------------------------------------
-	showManageFieldsPage: function() {
-		let me = this;
-		
-		Ext.suspendLayouts();
-			me.setControlBlock([
-				{xtype: 'field_shape_mgr'}
-			]);
-		Ext.resumeLayouts(true);
-	}	
 });

@@ -162,7 +162,7 @@ Ext.define('DSS.state.DeleteOperation', {
 					render: function(c) {
 						c.getEl().getFirstChild().el.on({
 							click: function(self) {
-								DSS.ApplicationFlow.instance.showLandingPage();
+								DSS.ApplicationFlow.instance.showFarmPickerPage();
 							}
 						});
 					}

@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from pyper import *
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
 
 

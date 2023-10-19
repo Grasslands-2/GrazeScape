@@ -405,8 +405,6 @@ Ext.define('DSS.state.Scenario', {
 		'DSS.state.scenario.CropNutrientMode',
 		'DSS.state.scenario.AnimalDialog',
 		'DSS.state.scenario.PerimeterDialog',
-		'DSS.state.operation.InfraDrawModeIndicator',
-		'DSS.state.operation.FieldDrawModeIndicator',
 		'DSS.field_shapes.FieldApplyPanel',
 		'DSS.infra_shapes.InfraApplyPanel',
 		'DSS.field_shapes.Delete',
@@ -495,6 +493,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: "component",
 					cls: "information",
 					html: "Draw or Delete Features",
+					margin: '8 0 0 0'
 				},
 				{
 					xtype: "button",
@@ -520,9 +519,7 @@ Ext.define('DSS.state.Scenario', {
 									Ext.getCmp("EditInfrastructureButton").toggle(false);
 
 									DSS.MapState.removeMapInteractions();
-									//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
-									DSS.mapClickFunction = undefined;
-									DSS.mouseMoveFunction = undefined;
+									DSS.MapState.deactivateFarmsMapHandlers();
 
 									DSS.draw = new ol.interaction.Draw({
 										source: source,
@@ -625,9 +622,7 @@ Ext.define('DSS.state.Scenario', {
 									Ext.getCmp("EditFieldsButton").toggle(false);
 									Ext.getCmp("EditInfrastructureButton").toggle(false);
 									DSS.MapState.removeMapInteractions();
-									//turns off clickActivateFarmHandler in mapstatetools needed for clean field drawing
-									DSS.mapClickFunction = undefined;
-									DSS.mouseMoveFunction = undefined;
+									DSS.MapState.deactivateFarmsMapHandlers();
 
 									DSS.draw = new ol.interaction.Draw({
 										source: source,
@@ -690,6 +685,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: "component",
 					cls: "information",
 					html: "Edit Scenario Attributes",
+					margin: '16 0 0 0'
 				},
 				{
 					xtype: "button",
@@ -770,14 +766,15 @@ Ext.define('DSS.state.Scenario', {
 				{
 					xtype: "component",
 					cls: "information",
-					html: "Run Models, and View Results",
+					html: "Run Models and View Results",
+					margin: '16 0 0 0'
 				},
 				{
 					xtype: "button",
 					cls: "button-text-pad",
 					componentCls: "button-margin",
 					id: "btnRunModels",
-					text: "Run Models",
+					text: "<i class='fas fa-play' style='font-size: 11pt;'></i> Run Models",
 					disabled: true,
 					handler: async function (self) {
 						await getWFSScenarioSP();
@@ -816,7 +813,7 @@ Ext.define('DSS.state.Scenario', {
 								runModel: true,
 								// any other option you like...
 							});
-							Ext.getCmp("btnRunModels").setText("Rerun Models");
+							Ext.getCmp("btnRunModels").setText("<i class='fas fa-play' style='font-size: 11pt;'></i> Rerun Models");
 							Ext.getCmp("dashboardWindow").show().center();
 						} else {
 							await getWFSScenarioSP();
@@ -881,6 +878,7 @@ Ext.define('DSS.state.Scenario', {
 					xtype: "component",
 					cls: "information",
 					html: "Create a New Scenario",
+					margin: '16 0 0 0'
 				},
 				{
 					xtype: "button",

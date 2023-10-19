@@ -260,6 +260,7 @@ def get_selection_criteria_raster(request):
         "transId": trans_id,
         "cellRatio": cell_ratio
     }
+    print("return data", data)
     return_data.append(data)
     return JsonResponse(return_data, safe=False)
     # except KeyError as e:

@@ -1,50 +1,55 @@
-html, body, #root, .App {
+html,
+body,
+#root,
+.App {
   height: 100%;
-   overflow-x: hidden;
+  overflow-x: hidden;
 }
-#root{
-height:100%;
+
+#root {
+  height: 100%;
 }
-#main{
-height:80%
+
+#main {
+  height: 80%;
 }
+
 .header {
   text-align: center;
-
 }
 
 div.image {
-   content:url("images/color-flush-Grassland2.0-logo-web.svg");
-    width:50%;
-
+  content: url("images/color-flush-Grassland2.0-logo-web.svg");
+  width: 50%;
 }
 
-.header1{
-background-image: linear-gradient(#EFF4CF, white);
-      padding-bottom: 40px
+.header1 {
+  background-image: linear-gradient(#eff4cf, white);
+  padding-bottom: 40px;
 }
-#main{
-    height: 100%;
-    overflow-y: hidden;
+
+#main {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
+
 .main_container {
-
-     height: 80%;
-    overflow-y: auto;
+  flex-grow: 1;
+  flex-shrink: 0;
 }
-#footer{
-    background:#373737;
-    color: #8E8E8E;
-     width: 100%;
-     height:10%;
-     overflow-y: auto;
 
+#footer {
+  background: #343434;
+  color: #b7b7b7;
+  width: 100%;
+  position: relative;
+  bottom: 0px;
+  padding: 16px;
+}
 
-          position: absolute;
-			bottom: 0px;
-
-
-
+#footer a {
+  color: #5C9DFF;
 }
 
 .text-left {
@@ -52,27 +57,36 @@ background-image: linear-gradient(#EFF4CF, white);
 }
 
 .appSelect {
-    border:4px solid black;
-    padding: 10px;
-    margin:20px
+  border: 4px solid black;
+  padding: 10px;
+  margin: 20px;
 }
 
-.appInfo{
-    padding: 10px;
-    margin:20px;
-     border:1px solid black;
+.appInfo {
+  padding: 10px;
+  margin: 20px;
+  border: 1px solid black;
 }
 
-.image:hover{
-  #opacity: 0.3;
+.image:hover {
   background-color: green;
 }
 
-.image{
-    padding:20px;
+.image {
+  padding: 20px;
 }
 
-.center{
-margin-left: auto;
+.center {
+  margin-left: auto;
   margin-right: auto;
+}
+
+.grassland-logo {
+  height: 24px;
+}
+
+@media (min-width: 768px) {
+  .grassland-logo {
+    height: 30px;
+  }
 }

@@ -1,7 +1,7 @@
 from abc import ABC
 
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import R
+from grazescape.model_defintions.pyper_local import R
 from django.conf import settings
 import os
 import numpy as np
@@ -131,11 +131,12 @@ class GrassYield(ModelBase):
         r("new_df <- cbind(cropname, df_repeated)")
         r("pred_df <- new_df %>% filter(cropname == '" + grass + "')")
         r("pred <- predict(savedRF, pred_df)")
+
         pred = r.get("pred").to_numpy()
         pred = pred * float(self.model_parameters["graze_factor"])
         grass_yield.set_data(pred.flatten())
         grass_yield.set_data_alternate(pred.flatten())
         if self.main_type:
             rotation_avg.set_data(pred.flatten())
-
+        del r
         return return_data

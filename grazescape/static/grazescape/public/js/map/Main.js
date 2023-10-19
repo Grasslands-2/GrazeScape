@@ -301,6 +301,7 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+
 		DSS.layer.redCedarBorder = new ol.layer.Vector({
 			visible: true,
 			updateWhileAnimating: true,
@@ -394,6 +395,23 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+
+		// Utility to reference all the regions, since they are each in their own layers.
+		DSS.allRegionLayers = [
+			DSS.layer.cloverBeltBorder,
+			DSS.layer.redCedarBorder,
+			DSS.layer.pineRiverBorder,
+			DSS.layer.northeastBorder,
+			DSS.layer.uplandBorder,
+			DSS.layer.swwiBorder
+		];
+		
+		for(var region of DSS.allRegionLayers) {
+			region.getSource().on("addfeature", function() {
+				DSS.utils.assignFarmsToRegions()
+			})
+		}
+
 		//--------------------------------------------------------------		
 		DSS.layer.tainterwatershed = new ol.layer.Vector({
 			visible: false,//DSS.layer['tainterwatershed:visible'],
@@ -1652,18 +1670,10 @@ Ext.define('DSS.map.Main', {
 				],
 				//------------------------------------------------------------------------
 			view: new ol.View({
-//				center: [-9941844.56,5428891.48],
 				center: [-10090575.706307484, 5552204.392540871],
-				//10000312.33 5506092.31
-				//9,941,844.56W 5,428,891.48N m
 				zoom: 8,
 				maxZoom: 30,
-				minZoom: 4,//10,
-			//	constrainRotation: false,
-			//	rotation: 0.009,
-				//constrainOnlyCenter: false,
-				//extent:[-10155160, 5323674, -10065237, 5450767]
-				//extent:[ -10168100, 5318380, -10055830, 5454227]
+				minZoom: 4,
 				extent:[-10132000, 5353000, -10103000, 5397000]
 			})
 		});
@@ -1672,7 +1682,6 @@ Ext.define('DSS.map.Main', {
 			bar: true, 
 			minwidth: 112,
 			units: 'us',
-//			units: 'metric'
 		}));
 //		me.map.addControl(new ol.control.MousePosition({}));
 		proj4.defs('urn:ogc:def:crs:EPSG::3071', "+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
@@ -1703,16 +1712,9 @@ Ext.define('DSS.map.Main', {
 		
 		//-----------------------------------------------------------
 		me.map.on('click', function(e) {
-			//document.getElementById('info').innerHTML = '';
-			let coords = me.map.getEventCoordinate(e.originalEvent);
-        var view = me.map.getView();
-        var viewResolution = view.getResolution();
-		
-        console.log(view)
-        console.log(viewResolution)
-		
-        var pixel1 = me.map.getPixelFromCoordinate(coords);
-        console.log(pixel1)
+			let coords = me.map.getEventCoordinate(e.originalEvent);			
+			var pixel1 = me.map.getPixelFromCoordinate(coords);
+			console.log(pixel1)
 			console.log(e, coords, ol.proj.transform(coords, 'EPSG:3857', 'EPSG:3071'));  
 			if (DSS.mapClickFunction) DSS.mapClickFunction(e, coords);
 		});
@@ -1724,21 +1726,18 @@ Ext.define('DSS.map.Main', {
 				return;
 			}
 		});
-		me.drawTools 	= Ext.create('DSS.map.DrawAndModify').instantiate(me.map, fields_1Source);
+
+		me.drawTools = Ext.create('DSS.map.DrawAndModify').instantiate(me.map, fields_1Source);
 		
 		me.boxModelTool = Ext.create('DSS.map.BoxModel').instantiate(me.map);
 		
 		me.addMarkerLayer(me.map);
-		//me.addWorkAreaMask(me.map);
 		me.addSelectionTools(me.map);
-		//me.map.addLayer(DSS.layer.fields_1);
 		
 		me.cropRotationOverlay = Ext.create('DSS.map.RotationLayer').instantiate(me.map);
 		me.map.addLayer(DSS.layer.fieldsLabels);
 		me.map.addLayer(DSS.layer.infrastructure);
-		//Ext.create('DSS.map.LayerMenu')
 	},
-	
 	
 	//---------------------------------------------------------------
 	addWorkAreaMask: function(map) {

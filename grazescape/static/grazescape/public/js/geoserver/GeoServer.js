@@ -10,7 +10,7 @@ class GeoServer{
         this.geoUpdate_Url =this.geoScen_Url
     }
     DEMExtent = [-10177439.3148999996483326, 5490395.3492000000551343, -10040089.3148999996483326, 5310185.3492000000551343]
-//    returns a geojson of the Scenarios
+
     setScenariosSource(parameter = ""){
         this.makeRequest(this.geoScen_Url + parameter, "source").then(function(geoJson){
             DSS.layer.scenarios.getSource().clear()
@@ -20,24 +20,27 @@ class GeoServer{
                 {featureProjection: 'EPSG:3857'}
             );
             DSS.layer.scenarios.getSource().addFeatures(myGeoJsonFeatures)
-//            DSS.layer.scenarios.getSource().refresh();
         })
     }
-//    returns a geojson of the farms
-    setFarmSource(parameter = ""){
+
+    setFarmSource(parameter = "") {
         console.log("IN SET FARM!!!")
         console.log(parameter)
-        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function(geoJson){
-            console.log(geoJson)
+        this.makeRequest(this.geoFarm_Url + parameter, "source_farm").then(function (geoJson) {
             DSS.layer.farms_1.getSource().clear()
             var format = new ol.format.GeoJSON();
-           
+
             var myGeoJsonFeatures = format.readFeatures(
                 geoJson.geojson,
-                {featureProjection: 'EPSG:3857'}
+                { featureProjection: 'EPSG:3857' }
             );
-           console.log(myGeoJsonFeatures)
-           DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
+
+            console.log("farm features:", myGeoJsonFeatures)
+            DSS.layer.farms_1.getSource().addFeatures(myGeoJsonFeatures)
+
+            DSS.utils.assignFarmsToRegions();
+            DSS.utils.updateFarmPickerItems();
+            if(selectedRegion) DSS.utils.filterFarmsLayerByRegion(selectedRegion);
         })
     }
     setFieldsAfterImport(parameter = ""){
@@ -184,17 +187,23 @@ class GeoServer{
             });
     }
 // used to insert fields into geoserver
-    wfs_field_insert(payLoad, feat, fType){
+    wfs_field_insert(feat){
+        var formatWFS = new ol.format.WFS();
+        var formatGML = new ol.format.GML({
+            featureNS: 'http://geoserver.org/GrazeScape_Vector',
+            Geometry: 'geom',
+            featureType: 'field_2',
+            srsName: 'EPSG:3857'
+        });
+        var node = formatWFS.writeTransaction([feat], null, null, formatGML);
+        var serializer = new XMLSerializer();
+        var payLoad = serializer.serializeToString(node);
+
         let requestType = ""
-        //Not sure why this is if statement is here.  this function never handles farms
-        if (fType == "farm_2"){
-            requestType = "insert_farm"
-        }
-         this.makeRequest(this.geoUpdate_Url, requestType, payLoad, this).then(function(returnData){
+
+        this.makeRequest(this.geoUpdate_Url, requestType, payLoad, this).then(function(returnData){
             DSS.MapState.removeMapInteractions()
             console.log(returnData)
-            let geoJson = returnData.geojson
-            let currObj = returnData.current
             console.log("wfs_field_insert")
 
             console.log("redraw fields")
@@ -202,8 +211,7 @@ class GeoServer{
             DSS.MapState.showInfraForScenario();
             DSS.MapState.zoomToActiveFarm()
             document.body.style.cursor = "default";
-         })
-
+        });
     }
     //Used to insert new infra after it is drawn
     wfs_infra_insert(payLoad, feat){

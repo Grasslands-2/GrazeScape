@@ -60,11 +60,9 @@ Ext.define('DSS.field_shapes.Delete', {
 	width: 500,
 	resizable: true,
 	bodyPadding: 8,
-	//singleton: true,	
     autoDestroy: true,
     scrollable: 'y',
 	titleAlign: 'center',
-	//title: 'Choose your new Fields Name and Crop Rotation',
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
 	
 	initComponent: function() {

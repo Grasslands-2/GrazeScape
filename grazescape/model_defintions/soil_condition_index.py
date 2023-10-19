@@ -1,11 +1,8 @@
 from abc import ABC
 
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import *
+from grazescape.model_defintions.pyper_local import *
 import numpy as np
-import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Polygon
 
 
 class SoilIndex(ModelBase):
@@ -324,9 +321,10 @@ class SoilIndex(ModelBase):
 
 
                 """)
-
         sci = r.get("sci").to_numpy()
         ploss = np.where(sci < 0.01, .01, sci)
         sci_output.set_data(ploss)
+        del r
+
         return [sci_output]
 

@@ -1,7 +1,7 @@
 from abc import ABC
 
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import R
+from grazescape.model_defintions.pyper_local import R
 from django.conf import settings
 import os
 import numpy as np
@@ -328,6 +328,7 @@ class Runoff(ModelBase):
                 event.append(round(runoff, 2))
                 # CNout(i, 2) = runoff;
             rain_fall.set_data(event)
+        del r
         return [curve, rain_fall]
 
     def get_cn_ad(self, id):
