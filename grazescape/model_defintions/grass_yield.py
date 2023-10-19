@@ -1,7 +1,7 @@
 from abc import ABC
 
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import R
+from grazescape.model_defintions.pyper_local import R
 from django.conf import settings
 import os
 import numpy as np

@@ -243,7 +243,8 @@ Ext.define('DSS.state.CreateNew_wfs', {
 						enablePlaceFarmMapInteraction(
 							form.findField('operation').getSubmitValue(),
 							form.findField('owner').getSubmitValue(),
-							form.findField('address').getSubmitValue());
+//							form.findField('address').getSubmitValue());
+                            null);
 						resetFarmSearchState(self);
 						const searchResults = self.up("operation_create").down("#search_results");
 						searchResults.add({ 

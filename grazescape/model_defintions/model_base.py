@@ -3,12 +3,6 @@ from PIL import Image
 import numpy as np
 from django.conf import settings
 import os
-import pandas as pd
-import json as js
-import uuid
-import grazescape.model_defintions.utilities as ut
-import pickle
-from pyper import R
 import functools
 import time
 
