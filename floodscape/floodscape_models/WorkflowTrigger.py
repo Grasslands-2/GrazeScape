@@ -14,33 +14,33 @@ from django.conf import settings
 def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     if watershed == "COON CREEK Main":
         project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_CC_Final")
-        command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/cc.script"
+        command = "hec-hms.exe -s M://Work/GrazeScape/floodscape/floodscape_models/cc.script"
         cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
     elif watershed == "West Fork Kickapoo Main":
         project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_WFK_Final")
-        command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/wf.script"
+        command = "hec-hms.exe -s M://Work/GrazeScape/floodscape/floodscape_models/wf.script"
         wfk_cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
     else:
         raise ValueError("watershed region is not correct")
     hms_exe = settings.HMS_PATH
     print("hms model directory", project_dir)
-    print(os.getcwd())
+    print("current dir", os.getcwd())
     cur_dir = os.getcwd()
     os.chdir(hms_exe)
-    print(os.getcwd())
+    print("current dir", os.getcwd())
 
     # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
-    # # Run the command and capture the output
-    # try:
-    #     result = subprocess.run(command, capture_output=True, text=True, check=True)
-    #     print("HEC-HMS execution successful.")
-    #     print("Output:")
-    #     print(result.stdout)
-    # except subprocess.CalledProcessError as e:
-    #     print(f"HEC-HMS execution failed with error: {e}")
-    #     print("Error output:")
-    #     print(e.stderr)
-
+    # Run the command and capture the output-
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        print("HEC-HMS execution successful.")
+        print("Output:")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"HEC-HMS execution failed with error: {e}")
+        print("Error output:")
+        print(e.stderr)
+    #
     if watershed == "COON CREEK Main":
         output = DSSOutput(project_dir)
         output.run()

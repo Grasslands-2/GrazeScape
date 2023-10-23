@@ -44,18 +44,18 @@ class Watershed:
             # HMS reach to all corresponding RAS reaches dictionary development crawl row by row, setting first element (HMS
             # reach) as key, following elements (all corresponding RAS reaches) as values CC
             self.CC_HMSreach_to_RASstations = {}
-            file_path = os.path.join(self.project_dir, "CC_KeyStation_MinorStation_230119.csv")
-            with open(file_path) as file_obj:
-                heading = next(file_obj)
-                reader_obj = csv.reader(file_obj)
-                for column in reader_obj:
-                    self.CC_HMSreach_to_RASstations[column[0]] = column[1:]
-
-            # algorithm for removing blanks inspired by: https://www.geeksforgeeks.org/python-remove-empty-strings-from-list-of
-            # -strings/
-            for key in self.CC_HMSreach_to_RASstations:
-                while ('' in self.CC_HMSreach_to_RASstations[key]):
-                    self.CC_HMSreach_to_RASstations[key].remove('')
+            # file_path = os.path.join(self.project_dir, "CC_KeyStation_MinorStation_230119.csv")
+            # with open(file_path) as file_obj:
+            #     heading = next(file_obj)
+            #     reader_obj = csv.reader(file_obj)
+            #     for column in reader_obj:
+            #         self.CC_HMSreach_to_RASstations[column[0]] = column[1:]
+            #
+            # # algorithm for removing blanks inspired by: https://www.geeksforgeeks.org/python-remove-empty-strings-from-list-of
+            # # -strings/
+            # for key in self.CC_HMSreach_to_RASstations:
+            #     while ('' in self.CC_HMSreach_to_RASstations[key]):
+            #         self.CC_HMSreach_to_RASstations[key].remove('')
 
         # WFK
         elif self.watershed == "WFK":
