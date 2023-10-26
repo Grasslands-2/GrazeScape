@@ -113,6 +113,9 @@ class RasterDataSmartScape:
         df = pd.DataFrame({'geometry': poly_list})
         crs = {'init': self.crs}
         polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
+        invalid_polygons = polygon[~polygon.geometry.is_valid]
+        fixed_polygons = invalid_polygons.geometry.buffer(0)
+        polygon.loc[invalid_polygons.index, 'geometry'] = fixed_polygons
         print(polygon)
         polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
 
