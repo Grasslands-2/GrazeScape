@@ -100,7 +100,7 @@ def download_base_rasters_helper(request, geo_folder):
         os.makedirs(folder_base)
 
     for layer in base_layer_dic:
-        print("downloading layer ", base_layer_dic[layer])
+        print("downloading layer base", base_layer_dic[layer])
         url = geoserver_url + workspace + base_layer_dic[layer] + extents_string_x + extents_string_y
         raster_file_path = os.path.join(geo_folder, "base", layer + ".tif")
         download_thread = threading.Thread(target=download, args=(url, raster_file_path))
