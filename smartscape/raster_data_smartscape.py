@@ -93,6 +93,7 @@ class RasterDataSmartScape:
             os.makedirs(self.dir_path)
 
         self.threads = []
+        self.na_om = 20
 
     def create_clip(self):
         """
@@ -142,7 +143,7 @@ class RasterDataSmartScape:
         # layers.json")
 
         for layer in self.layer_dic:
-            print("downloading layer ", layer)
+            print("downloading base layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
@@ -186,6 +187,22 @@ class RasterDataSmartScape:
             if '.tif' in file and "clipped.tif" not in file:
                 data_name = file.split(".")[0]
                 image = gdal.Open(os.path.join(self.dir_path, file))
+                if data_name == "om":
+                    input_array = image.GetRasterBand(1).ReadAsArray()
+                    input_array = np.where(input_array == -9999, self.na_om, input_array)
+                    [rows, cols] = input_array.shape
+                    driver = gdal.GetDriverByName("GTiff")
+                    outdata = driver.Create(os.path.join(self.dir_path, "om_filled" + ".tif"), cols, rows, 1,
+                                            gdal.GDT_Float32)
+                    outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
+                    outdata.SetProjection(image.GetProjection())  ##sets same projection as input
+                    outdata.GetRasterBand(1).WriteArray(input_array)
+                    outdata.GetRasterBand(1).SetNoDataValue(-9999)
+                    # write to disk
+                    outdata.FlushCache()
+                    outdata = None
+                    image = gdal.Open(os.path.join(self.dir_path, "om_filled.tif"))
+
                 # band = image.GetRasterBand(1)
                 # arr1 = np.asarray(band.ReadAsArray())
 
