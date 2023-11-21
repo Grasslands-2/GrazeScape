@@ -1072,22 +1072,20 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         //create dashboard model runs
         async function createDashBoard(dashboard){
             pmanureReturn_array = []
-            layerList = []
-            await layer.getSource().forEachFeature(function(f) {
-                layerList.push(f)
-            })
-            //					    todo remove this function call
-
+//            layerList = []
+//            await layer.getSource().forEachFeature(function(f) {
+//                layerList.push(f)
+//            })
+            console.log("getting field parameters")
             let fieldIter = await retrieveAllFieldsDataGeoserver()
             fieldIter = await fieldIter
-            //					    todo remove this function call
-
+            console.log(fieldIter)
+            console.log("download started")
             let download = await downloadRasters(fieldIter)
-            
+
             download = await download
             console.log("download done")
-            console.log("running model")
-            
+
 
             numbFields = fieldIter.length
             totalFields = numbFields * modelTypes.length
@@ -1097,27 +1095,6 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         yield_pb.max = numbFields
                         nut_pb.max = numbFields
                         ero_pb.max = numbFields
-                        break
-                    case 'ploss':
-                         nut_pb.max = numbFields
-                         ero_pb.max = numbFields
-                        break
-                    case 'runoff':
-                        runoff_pb.max = numbFields
-                        break
-                    case 'Feedoutput':
-                        runoff_pb.max = numbFields
-                        break
-                    case 'bio':
-                        bio_pb.max = numbFields
-                        break
-                    case 'econ':
-                        econ_pb.max = numbFields
-                        break
-                    case 'nitrate':
-                        //set up a call to a python function to run the nitrate model.  we'll worry about
-                        //presentation after the model works.
-                        nleaching_pb.max = numbFields
                         break
                 }
             }
@@ -1131,19 +1108,14 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 f = fieldIter[item]
                 console.log(f)
                 if(f.properties.is_dirty == true){
-                    //f.properties.model_time_stamp = modelruntimeOrig
                     console.log(f)
-                    DSS.layer.fields_1.getSource().forEachFeature(function(x) {
-                        if(x.values_.gid == f.properties.gid){
-                            x.setProperties({model_time_stamp : modelruntimeOrig})
-                            wfs_update(x,'field_2');
-                        }
-                    })
                 }
 
-//              for each layer run each model type: yield (grass or crop), ero, pl
+//              for each layer run each model type: yield (condensed to only one model type)
                 for (model in modelTypes){
                     let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])
+                    console.log("running model")
+                    console.log("model payload", f.properties, model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         //console.log(returnData[0].model_run_timestamp)
                         if(f.properties.is_dirty == false && returnData[0].model_type == 'ploss' && returnData[0].model_run_timestamp != modelruntimeOrig && returnData[0].scen_id == DSS.activeScenario.toString()){
@@ -3906,15 +3878,15 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             enable: function(){
                 console.log("ENABLE")
             },
-            afterrender: function(){
-                console.log("afterrender")
-            },
-            added: function(){
-                console.log("ADDED")
-            },
-            add: function(){
-                console.log("ADD")
-            },
+//            afterrender: function(){
+//                console.log("afterrender")
+//            },
+//            added: function(){
+//                console.log("ADDED")
+//            },
+//            add: function(){
+//                console.log("ADD")
+//            },
             hide: function(){
                 console.log("hide")
                 turnOffMappedResults()

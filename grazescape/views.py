@@ -489,6 +489,7 @@ def get_model_results(request):
         area = float(request.POST.get('model_parameters[area]'))
         # probably use threads here and use numpy in the png creation
         print("models done running ", time.time() - start)
+        print(results)
         for result in results:
 
             if result.model_type == "insect" or result.model_type == "econ":

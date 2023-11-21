@@ -301,7 +301,7 @@ async function runScenarioUpdate(){
 	//reSourcescenarios()
 	console.log('in run scen update')
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
-		console.log(f.values_.gid)
+		console.log("updating seed costs", f.values)
 		var scenarioFeature = f;
 		if(DSS.activeScenario === scenarioFeature.values_.gid){
 			console.log(scenarioArray[i]);
@@ -799,19 +799,7 @@ Ext.define('DSS.state.Scenario', {
 						Ext.getCmp("EditInfrastructureButton").toggle(false);
 						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 						DSS.field_grid.FieldGrid.store.clearData();
-						//					    todo remove this function call
 
-						await runFieldUpdate();
-						//					    todo remove this function call
-
-						await runInfraUpdate();
-						if (DSS["viewModel"].scenario.data != null) {
-							console.log("updating scenario data");
-							//					    todo remove this function call
-
-							runScenarioUpdate();
-							console.log("done updating scenario data");
-						}
 						Ext.getCmp("btnOpenDashboard").setDisabled(false);
 
 						Ext.getCmp("btnRunModels").setDisabled(true);
