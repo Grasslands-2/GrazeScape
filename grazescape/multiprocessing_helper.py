@@ -60,13 +60,7 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
     rain_data = results_dict["Runoff"]
     is_grass = False
     grass_array = []
-    grass_matrix = [
-                    ["<1 day", 0, 0, 0],
-                    ["1 day", 0, 0, 0],
-                    ["3 days", 0, 0, 0],
-                    ["7 days", 0, 0, 0],
-                    ["Continuous", 0, 0, 0]
-    ]
+
     for val in results_dict:
         if "Bluegrass-clover" == val or "Orchardgrass-clover" == val or "Timothy-clover" == val:
             is_grass = True
@@ -77,8 +71,6 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
     if not is_grass:
         yield_data = results_dict["CropYield"]
 
-    # matrix_out = OutputDataNode("grass_matrix", "", "", "", "")
-    # matrix_out.set_data(test_matrix)
 
     # # start second tier
     processes = []

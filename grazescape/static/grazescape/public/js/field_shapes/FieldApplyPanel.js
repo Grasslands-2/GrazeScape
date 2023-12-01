@@ -256,32 +256,28 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 	extend: 'Ext.window.Window',
 	alias: 'widget.field_apply_panel',
 	id: "fieldApplyPanel",
-//	autoDestroy: false,
-//	closeAction: 'hide',
 	constrain: false,
 	modal: true,
 	width: 500,
 	resizable: true,
 	bodyPadding: 8,
-	//singleton: true,	
-    autoDestroy: false,
-    scrollable: 'y',
+	autoDestroy: false,
+	scrollable: 'y',
 	titleAlign: 'center',
-	title: "Choose your new Field's Name and Crop Rotation",
+	title: "New Field",
 	layout: DSS.utils.layout('vbox', 'start', 'stretch'),
-	requires: ['DSS.field_shapes.apply.FieldName'],	
-	
-	initComponent: function() {
+	requires: ['DSS.field_shapes.apply.FieldName'],
+
+	initComponent: function () {
 		let me = this;
 
 		if (!DSS['viewModel']) DSS['viewModel'] = {}
 		DSS.viewModel.fieldApplyPanel = new Ext.app.ViewModel({
-			
 			formulas: {
-				tillageValue: { 
+				tillageValue: {
 					bind: '{tillage.value}',
-					get: function(value) { return {tillage: value }; 			},
-					set: function(value) { this.set('tillage.value', value); 	}
+					get: function (value) { return { tillage: value }; },
+					set: function (value) { this.set('tillage.value', value); }
 				}
 			},
 			data: {
@@ -303,7 +299,7 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 				},
 				tillage: {
 					is_active: false,
-					value: {tillage: 'su'}
+					value: { tillage: 'su' }
 				},
 				graze_animals: {
 					is_active: false,
@@ -311,246 +307,211 @@ Ext.define('DSS.field_shapes.FieldApplyPanel', {
 					dairy_nonlactating: false,
 					beef: false
 				},
-				/*fertilizer: {
-					is_active: false,
-					extRecs: 100, // %
-					canManurePastures: true
-				}*/
 			}
 		})
-		
+
 		me.setViewModel(DSS.viewModel.fieldApplyPanel);
-		
+
 		Ext.applyIf(me, {
 			items: [
 				{
-				xtype: 'component',
-				cls: 'section-title light-text text-drp-20',
-				html: 'Field Shapes <i class="fas fa-draw-polygon fa-fw accent-text text-drp-50"></i>',
-				height: 28
-				},
-				{
-				xtype: 'form',
-				url: 'create_field', // brought in for form test
-				jsonSubmit: true,// brought in for form test
-				header: false,// brought in for form test
-				border: false,// brought in for form test
-				style: 'background-color: #666; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.25); border-bottom-color:rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2)',
-				layout: DSS.utils.layout('vbox', 'start', 'stretch'),
-				margin: '8 4',
-				padding: '2 8 10 8',
-				activeItem: 2,
-				defaults: {
-					DSS_parent: me,
-				},
-				items: [{
-					xtype: 'component',
-					cls: 'information light-text text-drp-20',
-					html: 'Add Field Options',
-				},
-				{
-					xtype: 'field_shapes_apply_field_name'
-				},
-				{
-					xtype: 'container',
-					width: '100%',
-					layout: 'absolute',
-					items: [{
-						xtype: 'component',
-						x: 0, y: -6,
-						width: '100%',
-						cls: 'information accent-text bold',
-						html: "Set Crop / Landcover",
-					}]
-				},
-					{
-					xtype: 'radiogroup',
-					//itemId: 'contents',
-					style: 'padding: 0px; margin: 0px', // fixme: eh...
-					//hideEmptyLabel: false,
-					columns: 2, 
-					vertical: true,
-					allowBlank: false,
-					viewModel: {
-						formulas: {
-							cropValue: {
-								bind: '{crop.value}', // inherited from parent
-								get: function(val) {
-									let obj = {};
-									obj['crop'] = val;
-									return obj;
-								},
-								set: function(val) {
-									this.set('crop.value', val['crop']);
-								}
-							}
-						}
-					},
-					bind: '{cropValue}', // formula from viewModel above
+					xtype: 'form',
+					url: 'create_field',
+					jsonSubmit: true,
+					header: false,
+					border: false,
+					layout: DSS.utils.layout('vbox', 'start', 'stretch'),
+					padding: '8 8 8 8',
+					activeItem: 2,
 					defaults: {
-						name: 'crop',
-						listeners: {
-							afterrender: function(self) {
-								if ( self.boxLabelEl) {
-									self.boxLabelEl.setStyle('cursor', 'pointer')
-								}
-							},
-						}
-					//	boxLabelCls: 'hover'
-					},
-					listeners:{
-						change: function(){
-							selectedType = this.getValue().crop
-							CropTypeVar = selectedType
-							console.log(CropTypeVar)
-							console.log(this)
-							if(CropTypeVar == 'pt'){
-								console.log('pt hit')
-								Ext.getCmp('PTRotFreq').enable()
-								Ext.getCmp('PTRotFreqLabel').setHtml("Set Rotatonal Frequency")
-							}else{
-								Ext.getCmp('PTRotFreq').disable()
-								Ext.getCmp('PTRotFreqLabel').setHtml("")
-							}
-						}
+						DSS_parent: me,
 					},
 					items: [
-					{
-						boxLabel: 'Pasture', 			inputValue: 'pt',
-					},
-					{ 
-						boxLabel: 'Dry Lot', 			inputValue: 'dl',
-					},{
-						boxLabel: 'Continuous Corn',	inputValue: 'cc',
-					},{
-						boxLabel: 'Cash Grain',			inputValue: 'cg',
-						boxLabelAttrTpl: 'data-qtip="Two-year rotation: Corn Grain & Soybeans"',
-					},{
-						boxLabel: 'Dairy Rotation 1',	inputValue: 'dr',
-						boxLabelAttrTpl: 'data-qtip="Five-year rotation: Corn Grain, Corn Silage, Three years of Alfalfa"',
-					},{
-						boxLabel: 'Dairy Rotation 2', 	inputValue: 'cso',
-						boxLabelAttrTpl: 'data-qtip="Three-year rotation: Corn Silage, Soybeans, Oats"',
-					}]
-				},{
-					xtype: 'container',
-					width: '100%',
-					layout: 'absolute',
-					items: [{
-						xtype: 'component',
-						id: 'PTRotFreqLabel',
-						displayed: false,
-						x: 0, y: -6,
-						width: '100%',
-						height: 7,
-						cls: 'information accent-text bold',
-						//html: "Set Rotatonal Frequency",
-						html: "",
-					}]
-				},{
-					xtype: 'radiogroup',
-					//itemId: 'contents',
-					id: 'PTRotFreq',
-					padding: 15,
-					disabled: true,
-					columns: 1, 
-					style: 'padding: 0px; margin: 0px', // fixme: eh...
-					hideEmptyLabel: false,
-					vertical: true,
-					allowBlank: false,
-					html: "Set Rotatonal Frequency",
-					html: "",
-					viewModel: {
-						formulas: {
-							rotfreqValue: {
-								bind: '{rotfreq.value}', // inherited from parent
-								get: function(val) {
-									let obj = {};
-									obj['rotfreq'] = val;
-									return obj;
-								},
-								set: function(val) {
-									this.set('rotfreq.value', val['rotfreq']);
+						{
+							xtype: 'field_shapes_apply_field_name'
+						},
+						{
+							xtype: 'container',
+							width: '100%',
+							layout: 'absolute',
+							margin: '8 0 0 0',
+							items: [{
+								xtype: 'component',
+								x: 0, y: -6,
+								width: '100%',
+								cls: 'information accent-text bold',
+								html: "Set Crop / Landcover",
+							}]
+						},
+						{
+							xtype: 'radiogroup',
+							style: 'padding: 0px; margin: 0px', // fixme: eh...
+							columns: 2,
+							vertical: true,
+							allowBlank: false,
+							viewModel: {
+								formulas: {
+									cropValue: {
+										bind: '{crop.value}', // inherited from parent
+										get: function (val) {
+											let obj = {};
+											obj['crop'] = val;
+											return obj;
+										},
+										set: function (val) {
+											this.set('crop.value', val['crop']);
+										}
+									}
+								}
+							},
+							bind: '{cropValue}', // formula from viewModel above
+							defaults: {
+								name: 'crop',
+								listeners: {
+									afterrender: function (self) {
+										if (self.boxLabelEl) {
+											self.boxLabelEl.setStyle('cursor', 'pointer')
+										}
+									},
+								}
+							},
+							listeners: {
+								change: function () {
+									selectedType = this.getValue().crop
+									CropTypeVar = selectedType
+									console.log(CropTypeVar)
+									console.log(this)
+									if (CropTypeVar == 'pt') {
+										console.log('pt hit')
+										Ext.getCmp('PTRotFreq').enable()
+										Ext.getCmp('PTRotFreqLabel').setHtml("Set Rotatonal Frequency")
+									} else {
+										Ext.getCmp('PTRotFreq').disable()
+										Ext.getCmp('PTRotFreqLabel').setHtml("")
+									}
+								}
+							},
+							items: [
+								{ boxLabel: 'Pasture', inputValue: 'pt' },
+								{ boxLabel: 'Dry Lot', inputValue: 'dl' },
+								{ boxLabel: 'Continuous Corn', inputValue: 'cc' },
+								{ boxLabel: 'Cash Grain', inputValue: 'cg', boxLabelAttrTpl: 'data-qtip="Two-year rotation: Corn Grain & Soybeans"' },
+								{ boxLabel: 'Dairy Rotation 1', inputValue: 'dr', boxLabelAttrTpl: 'data-qtip="Five-year rotation: Corn Grain, Corn Silage, Three years of Alfalfa"' },
+								{ boxLabel: 'Dairy Rotation 2', inputValue: 'cso', boxLabelAttrTpl: 'data-qtip="Three-year rotation: Corn Silage, Soybeans, Oats"' }
+							]
+						},
+						{
+							xtype: 'container',
+							width: '100%',
+							layout: 'absolute',
+							items: [{
+								xtype: 'component',
+								id: 'PTRotFreqLabel',
+								displayed: false,
+								x: 0, y: -6,
+								width: '100%',
+								height: 7,
+								cls: 'information accent-text bold',
+								html: "",
+							}]
+						},
+						{
+							xtype: 'radiogroup',
+							id: 'PTRotFreq',
+							padding: 15,
+							disabled: true,
+							columns: 1,
+							style: 'padding: 0px; margin: 0px', // fixme: eh...
+							hideEmptyLabel: false,
+							vertical: true,
+							allowBlank: false,
+							html: "Set Rotatonal Frequency",
+							html: "",
+							viewModel: {
+								formulas: {
+									rotfreqValue: {
+										bind: '{rotfreq.value}', // inherited from parent
+										get: function (val) {
+											let obj = {};
+											obj['rotfreq'] = val;
+											return obj;
+										},
+										set: function (val) {
+											this.set('rotfreq.value', val['rotfreq']);
+										}
+									}
+								}
+							},
+							bind: '{rotfreqValue}', // formula from viewModel above
+							defaults: {
+								name: 'rotfreq',
+								listeners: {
+									afterrender: function (self) {
+										if (self.boxLabelEl) {
+											self.boxLabelEl.setStyle('cursor', 'pointer')
+										}
+									}
+								}
+							},
+							items: [
+								{ boxLabel: 'More than once a day', inputValue: "1.2" },
+								{ boxLabel: 'Once a day', inputValue: "1" },
+								{ boxLabel: 'Every 3 days', inputValue: "0.95" },
+								{ boxLabel: 'Every 7 days', inputValue: "0.75" },
+								{ boxLabel: 'Never (Continuous grazing)', inputValue: "0.65" }
+							]
+						},
+						{
+							xtype: 'button',
+							cls: 'button-text-pad',
+							componentCls: 'button-margin',
+							text: 'Add Field',
+							formBind: true,
+							handler: async function () {
+								var form = this.up('form').getForm();
+								var data = me.viewModel.data;
+								dupname = false
+								console.log(data)
+								if (form.isValid()) {
+									DSS.map.removeInteraction(DSS.select);
+									console.log(inputFieldObj)
+									await dupNameCheck(data.field_name.value, DSS.layer.fields_1, "field")
+									if (dupname) {
+										alert("You already have a field with that name in this scenario!")
+										form.reset()
+									} else {
+										createFieldAP(inputFieldObj, data.graze_animals.dairy_lactating,
+											data.graze_animals.dairy_nonlactating,
+											data.graze_animals.beef,
+											data.crop.value,
+											data.rotfreq.value,
+											data.tillage.value.tillage,
+											data.soil_p.value,
+											data.field_name.value,
+											//probably wrong, look up data schema
+											data.on_contour);
+										data.field_name.value = ''
+										document.body.style.cursor = "wait";
+										Ext.getCmp("btnRunModels").setDisabled(false)
+										this.up('window').destroy();
+									}
 								}
 							}
-						}
-					},
-					bind: '{rotfreqValue}', // formula from viewModel above
-					defaults: {
-						name: 'rotfreq',
-						listeners: {
-							afterrender: function(self) {
-								if ( self.boxLabelEl) {
-									self.boxLabelEl.setStyle('cursor', 'pointer')
-								}
-							}
-						}
-					//	boxLabelCls: 'hover'
-					},
-					items: [{
-						boxLabel: 'More than once a day', inputValue: "1.2",
-					},{
-						boxLabel: 'Once a day', inputValue: "1",
-					},{ 
-						boxLabel: 'Every 3 days', inputValue: "0.95",
-					},{
-						boxLabel: 'Every 7 days',	inputValue: "0.75",
-					},{
-						boxLabel: 'Never (Continuous grazing)',	inputValue: "0.65",
-					}]
-				},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Add Field',
-					formBind: true,
-					handler: async function() {
-						var form =  this.up('form').getForm();
-						var data = me.viewModel.data;
-						dupname = false
-						console.log(data)
-						if(form.isValid()){
-							DSS.map.removeInteraction(DSS.select);
-							console.log(inputFieldObj)
-							await dupNameCheck(data.field_name.value,DSS.layer.fields_1,"field")
-							if(dupname){
-								alert("You already have a field with that name in this scenario!")
-								form.reset()
-							}else{
-							createFieldAP(inputFieldObj,data.graze_animals.dairy_lactating,
-								data.graze_animals.dairy_nonlactating,
-								data.graze_animals.beef,
-								data.crop.value,
-								data.rotfreq.value,
-								data.tillage.value.tillage,
-								data.soil_p.value,
-								data.field_name.value,
-								//probably wrong, look up data schema
-								data.on_contour);
-								data.field_name.value = ''
-								//form.reset()
-								document.body.style.cursor = "wait";
-								Ext.getCmp("btnRunModels").setDisabled(false)
-								this.up('window').destroy();
-							}
-						}
-					}
-			    }]
-			}]
+						}]
+				}]
 		});
 		me.callParent(arguments);
 	},
-	
+
 	//--------------------------------------------------------------------------
-	addModeControl: function() {
+	addModeControl: function () {
 		let me = this;
 		let c = DSS_viewport.down('#DSS-mode-controls');
-		
+
 		if (!c.items.has(me)) {
 			Ext.suspendLayouts();
-				c.removeAll(false);
-				c.add(me);
+			c.removeAll(false);
+			c.add(me);
 			Ext.resumeLayouts(true);
 		}
 	}

@@ -243,7 +243,8 @@ Ext.define('DSS.state.CreateNew_wfs', {
 						enablePlaceFarmMapInteraction(
 							form.findField('operation').getSubmitValue(),
 							form.findField('owner').getSubmitValue(),
-							form.findField('address').getSubmitValue());
+//							form.findField('address').getSubmitValue());
+                            null);
 						resetFarmSearchState(self);
 						const searchResults = self.up("operation_create").down("#search_results");
 						searchResults.add({ 
@@ -260,98 +261,99 @@ Ext.define('DSS.state.CreateNew_wfs', {
 							html: "💡 Click on the map to place the farm."
 						});
 					}
-				},{
-					fieldLabel: 'Find by Address',
-					name: 'address',
-                    allowBlank: true,
-					margin: '12 0',
-					padding: 4,
-            	},
-				{
-					xtype: 'button',
-					cls: 'button-text-pad',
-					componentCls: 'button-margin',
-					text: 'Search',
-					formBind: true,
-					handler: async function(self) { 
-						var form = this.up('form').getForm();
-						if (form.isValid()) {
-							resetFarmSearchState(self);
-
-							const address = form.findField('address').getSubmitValue();
-							if(!address || address == "") {
-								const searchResults = self.up("operation_create").down("#search_results");
-								searchResults.add({ 
-									xtype: 'component',
-									cls: 'information',
-									style: {
-										color: "#FF0000",
-									},
-									html: "Address can't be empty."
-								});
-
-								return;
-							};
-						
-							const result = await geocodeLookup(address);
-							const coordinate = result.coordinate;
-
-							if(!coordinate) {
-								const searchResults = self.up("operation_create").down("#search_results");
-								const errorText = result.error 
-									? result.error + " Please place your farm by clicking 'Place Farm Manually', then clicking on the map."
-									: 'Error! Unable to find location. Try again with a different address, or place farm manually.';
-								searchResults.add({ 
-									xtype: 'component',
-									cls: 'information',
-									style: {
-										color: "#FF0000",
-									},
-									html: errorText
-								});
-								return;
-							}
-
-							const regionContainsPoint = selectedRegion.getGeometry().intersectsCoordinate(coordinate);
-							if(regionContainsPoint){
-								showFarmInStagingLayer(coordinate, form);
-
-								const searchResults = self.up("operation_create").down("#search_results");
-								searchResults.add({ 
-									xtype: 'component',
-									cls: 'information',
-									html: 'Location found. If this looks right, click Confirm. Otherwise, try another search or place farm manually.'
-								})
-								searchResults.add({
-									xtype: 'button',
-									cls: 'button-text-pad',
-									componentCls: 'button-margin',
-									text: 'Confirm',
-									handler: async function(self) { 
-										const feature = DSS.layer.newFarmStaging.getSource().getFeatures()[0];
-										if(!feature) {
-											alert("Error placing farm! Feature not found.");
-											return;
-										}
-										console.log(feature);
-										await createFarm(feature);
-										resetFarmSearchState(self);
-									}
-								});
-							} else {
-								const searchResults = self.up("operation_create").down("#search_results");
-								searchResults.add({ 
-									xtype: 'component',
-									cls: 'information',
-									style: {
-										color: "#FF0000",
-									},
-									html: 'Location was not inside the region. Try again with a different address, or place farm manually.'
-								});
-							}
-						}
-			        }
 				},
+//				{
+//					fieldLabel: 'Find by Address',
+//					name: 'address',
+//                    allowBlank: true,
+//					margin: '12 0',
+//					padding: 4,
+//            	},
+//				{
+//					xtype: 'button',
+//					cls: 'button-text-pad',
+//					componentCls: 'button-margin',
+//					text: 'Search',
+//					formBind: true,
+//					handler: async function(self) {
+//						var form = this.up('form').getForm();
+//						if (form.isValid()) {
+//							resetFarmSearchState(self);
+//
+//							const address = form.findField('address').getSubmitValue();
+//							if(!address || address == "") {
+//								const searchResults = self.up("operation_create").down("#search_results");
+//								searchResults.add({
+//									xtype: 'component',
+//									cls: 'information',
+//									style: {
+//										color: "#FF0000",
+//									},
+//									html: "Address can't be empty."
+//								});
+//
+//								return;
+//							};
+//
+//							const result = await geocodeLookup(address);
+//							const coordinate = result.coordinate;
+//
+//							if(!coordinate) {
+//								const searchResults = self.up("operation_create").down("#search_results");
+//								const errorText = result.error
+//									? result.error + " Please place your farm by clicking 'Place Farm Manually', then clicking on the map."
+//									: 'Error! Unable to find location. Try again with a different address, or place farm manually.';
+//								searchResults.add({
+//									xtype: 'component',
+//									cls: 'information',
+//									style: {
+//										color: "#FF0000",
+//									},
+//									html: errorText
+//								});
+//								return;
+//							}
+//
+//							const regionContainsPoint = selectedRegion.getGeometry().intersectsCoordinate(coordinate);
+//							if(regionContainsPoint){
+//								showFarmInStagingLayer(coordinate, form);
+//
+//								const searchResults = self.up("operation_create").down("#search_results");
+//								searchResults.add({
+//									xtype: 'component',
+//									cls: 'information',
+//									html: 'Location found. If this looks right, click Confirm. Otherwise, try another search or place farm manually.'
+//								})
+//								searchResults.add({
+//									xtype: 'button',
+//									cls: 'button-text-pad',
+//									componentCls: 'button-margin',
+//									text: 'Confirm',
+//									handler: async function(self) {
+//										const feature = DSS.layer.newFarmStaging.getSource().getFeatures()[0];
+//										if(!feature) {
+//											alert("Error placing farm! Feature not found.");
+//											return;
+//										}
+//										console.log(feature);
+//										await createFarm(feature);
+//										resetFarmSearchState(self);
+//									}
+//								});
+//							} else {
+//								const searchResults = self.up("operation_create").down("#search_results");
+//								searchResults.add({
+//									xtype: 'component',
+//									cls: 'information',
+//									style: {
+//										color: "#FF0000",
+//									},
+//									html: 'Location was not inside the region. Try again with a different address, or place farm manually.'
+//								});
+//							}
+//						}
+//			        }
+//				},
 				{
 					xtype: 'container',
 					layout: DSS.utils.layout('vbox', 'center', 'stretch'),

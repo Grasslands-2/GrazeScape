@@ -128,6 +128,7 @@ function createHTMLTable(valuesList){
     let medYield = valuesList["grass_matrix_Timothy-clover"].avg
     let highYield = valuesList["grass_matrix_Orchardgrass-clover"].avg
     let tableName = fieldName + "_" + scenName
+    tableName = tableName.split(" ").join("");
     let tableHeader = "<b>Field Name: "+fieldName+" Scenario: "+scenName+"</b><table id="+tableName+"_grassMatrix style='-webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;'><tr>"+
         "<th style='border:1px solid black'>Occupancy</th>"+
         "<th style='border:1px solid black'>Low Yielding Variety</th>"+

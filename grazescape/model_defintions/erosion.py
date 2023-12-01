@@ -1,5 +1,5 @@
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import *
+from grazescape.model_defintions.pyper_local import *
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -290,4 +290,5 @@ class Erosion(ModelBase):
         ero = ero.flatten()
         # ero = np.where(ero < 0.01, .01, ero)
         erosion.set_data(ero)
+        del r
         return [erosion]

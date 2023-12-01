@@ -191,7 +191,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 		DSS.allRegionLayers.forEach(layer => layer.setVisible(true));
 		
 		//Region Picker 
-		regionPickerFunc()
+		DSS.MapState.activateRegionSelect();
 		AppEvents.triggerEvent('show_region_picker_indicator')
 		DSS.layer.regionLabels.setVisible(true)
 		DSS.layer.farms_1.setVisible(false)
@@ -223,7 +223,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 	},
 	
 	//----------------------------------------------------------------------------------
-	showManageOperationPage: function(operationName) {
+	showManageOperationPage: function() {
 		let me = this;
 		
 		Ext.suspendLayouts();
@@ -232,14 +232,13 @@ Ext.define('DSS.state.ApplicationFlow', {
 			]);
 		Ext.resumeLayouts(true);
 		
-		DSS.mouseMoveFunction = undefined;
-		
+		DSS.MapState.deactivateFarmsMapHandlers();
 		DSS.MapState.showNewFarm();
 		DSS.popupOverlay.setPosition(false);
 	},
 
 	//----------------------------------------------------------------------------------
-	showScenarioPage: async function(operationName) {
+	showScenarioPage: async function() {
 		let me = this;
 		await gatherScenarioTableData()
 		Ext.suspendLayouts();
