@@ -1590,6 +1590,7 @@ function retrieveAllFieldsDataGeoserver(){
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     let responsesField = []
+    console.log("retrieving all fields associated with farm", fieldUrl1)
     return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
         let responses =JSON.parse(returnData.geojson)
         for(response in responses.features){
@@ -1840,15 +1841,16 @@ function downloadRasters(fieldIter){
         let numFields = fieldIter.length
         for(item in fieldIter){
             f = fieldIter[item].properties
-//            if(f["is_dirty"] == false){
-//                downloadCount = downloadCount + 1
-//                 if(downloadCount==numFields){
-//                    console.log(downloadCount, numFields)
-//                    console.log("All files downloaded")
-//                    resolve(downloadCount)
-//                }
-//                continue
-//            }
+            if(f["is_dirty"] == false){
+                downloadCount = downloadCount + 1
+                console.log("field has not been updated")
+                 if(downloadCount==numFields){
+                    console.log(downloadCount, numFields)
+                    console.log("All files downloaded")
+                    resolve(downloadCount)
+                }
+                continue
+            }
             geometry = fieldIter[item]
             model_para = {
                 f_name: f["field_name"],
@@ -2026,7 +2028,7 @@ class ChartDatasetContainer{
         let sets = null
         if (type == "field"){
             sets  = this.fields
-            console.log(this.fields)
+//            console.log(this.fields)
         }
         else if (type == "scen"){
             sets  = this.scenarios

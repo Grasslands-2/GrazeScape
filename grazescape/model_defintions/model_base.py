@@ -26,15 +26,10 @@ class ModelBase:
                                                    'grazescape', 'data_files',
                                                    'raster_outputs',
                                                    file_name + '.csv')
-
-        if not os.path.exists(
-                os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
-                             'raster_outputs')):
-            os.makedirs(
-                os.path.join(settings.BASE_DIR, 'grazescape', 'data_files',
-                             'raster_outputs'))
-        self.raster_image_file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'static', 'grazescape', 'public',
-                                                   'images', file_name + ".png")
+        self.file_name = "field_" + field_id
+        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs', self.file_name)
+        if not os.path.exists(self.dir_path):
+            os.makedirs(self.dir_path)
 
         self.r_file_path = settings.R_PATH
 
@@ -198,7 +193,7 @@ class ModelBase:
 
     def calculate_color(self, color_ramp, value):
         if value == self.no_data:
-            return (256, 256, 256)
+            return 256, 256, 256
         for index, val in enumerate(color_ramp):
             if val[1] >= value:
                 return val[2]
@@ -244,9 +239,8 @@ class ModelBase:
         return sum_val, valid_count
 
     def get_model_png(self, result, bounds, no_data_array):
-        file_name = result.model_type + self.field_id + '_' + self.model_run_timestamp
-        raster_image_file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'static', 'grazescape', 'public',
-                                              'images', file_name + ".png")
+        # file_name = result.model_type + self.field_id + '_' + self.model_run_timestamp
+        raster_image_file_path = os.path.join(self.dir_path, self.file_name + "_" + result.model_type + ".png")
         data = result.data
         rows = bounds["y"]
         cols = bounds["x"]
@@ -257,22 +251,22 @@ class ModelBase:
         datanm = self.reshape_model_output(data, bounds)
         min_v, max_v, mean, sum, count = self.min_max_avg(datanm, no_data_array)
         # we only want images of these models. The rest are yield models
-        if result.model_type in ["ero", "ploss", "nleaching", "Rotational Average", "Curve Number"]:
+        # if result.model_type in ["ero", "ploss", "nleaching", "Rotational Average", "Curve Number"]:
 
-            color_ramp = self.create_color_ramp(min_v, max_v, result)
-            for y in range(0, rows):
-                for x in range(0, cols):
-                    color = self.calculate_color(color_ramp, datanm[y][x])
-                    three_d[y][x][0] = color[0]
-                    three_d[y][x][1] = color[1]
-                    three_d[y][x][2] = color[2]
-                    three_d[y][x][3] = 255
-                    if no_data_array[y][x] == 1:
-                        three_d[y][x][3] = 0
-            three_d = three_d.astype(np.uint8)
-            im = Image.fromarray(three_d)
-            im.convert('RGBA')
-            im.save(raster_image_file_path)
+        color_ramp = self.create_color_ramp(min_v, max_v, result)
+        for y in range(0, rows):
+            for x in range(0, cols):
+                color = self.calculate_color(color_ramp, datanm[y][x])
+                three_d[y][x][0] = color[0]
+                three_d[y][x][1] = color[1]
+                three_d[y][x][2] = color[2]
+                three_d[y][x][3] = 255
+                if no_data_array[y][x] == 1:
+                    three_d[y][x][3] = 0
+        three_d = three_d.astype(np.uint8)
+        im = Image.fromarray(three_d)
+        im.convert('RGBA')
+        im.save(raster_image_file_path)
         return float(mean), float(sum), float(count)
 
     def get_legend(self):

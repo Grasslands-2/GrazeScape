@@ -301,7 +301,7 @@ async function runScenarioUpdate(){
 	//reSourcescenarios()
 	console.log('in run scen update')
 	DSS.layer.scenarios.getSource().getFeatures().forEach(function(f) {
-		console.log(f.values_.gid)
+		console.log("updating seed costs", f.values)
 		var scenarioFeature = f;
 		if(DSS.activeScenario === scenarioFeature.values_.gid){
 			console.log(scenarioArray[i]);
@@ -777,6 +777,7 @@ Ext.define('DSS.state.Scenario', {
 					text: "<i class='fas fa-play' style='font-size: 11pt;'></i> Run Models",
 					disabled: true,
 					handler: async function (self) {
+//					    todo remove this function call
 						await getWFSScenarioSP();
 						if (fieldArray.length < 1) {
 							await gatherTableData();
@@ -798,13 +799,7 @@ Ext.define('DSS.state.Scenario', {
 						Ext.getCmp("EditInfrastructureButton").toggle(false);
 						DSS.infrastructure_grid.InfrastructureGrid.store.clearData();
 						DSS.field_grid.FieldGrid.store.clearData();
-						await runFieldUpdate();
-						await runInfraUpdate();
-						if (DSS["viewModel"].scenario.data != null) {
-							console.log("updating scenario data");
-							runScenarioUpdate();
-							console.log("done updating scenario data");
-						}
+
 						Ext.getCmp("btnOpenDashboard").setDisabled(false);
 
 						Ext.getCmp("btnRunModels").setDisabled(true);
@@ -815,7 +810,11 @@ Ext.define('DSS.state.Scenario', {
 							});
 							Ext.getCmp("btnRunModels").setText("<i class='fas fa-play' style='font-size: 11pt;'></i> Rerun Models");
 							Ext.getCmp("dashboardWindow").show().center();
-						} else {
+						}
+//						if rerunning models
+						else {
+						//					    todo remove this function call
+
 							await getWFSScenarioSP();
 							modelError = false;
 							modelErrorMessages = [];
