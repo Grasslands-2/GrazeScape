@@ -209,27 +209,11 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     """
     # create values input
     results_dict = {}
-    print("sql_data_package", sql_data_package)
-    # Corn
-    # Grain
-    # Soy
-    # Rotational
-    # Average
-    # ero
-    # Curve
-    # Number
-    # Runoff
-    # nleaching
-    # nwater
-    # ploss
-    # soil_index
-    # econ
-    # insect
+    # print("sql_data_package", sql_data_package)
     for model_output in data:
-        # print(model_output.model_type, model_output.data)
         results_dict[model_output.model_type] = model_output
-    dry_matter = results_dict["Rotational Average"].data[0].tolist()
 
+    dry_matter = results_dict["Rotational Average"].data[0].tolist()
     grass = []
     grass_blue = []
     grass_tim = []
@@ -275,38 +259,32 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     area = sql_data_package["area"]
     p_needs = json.dumps(sql_data_package["p_needs"])
 
-    if insert_field:
-        pass
+    grass = [float(value) for value in grass]
+    grass_blue = [float(value) for value in grass_blue]
+    grass_tim = [float(value) for value in grass_tim]
+    grass_orch = [float(value) for value in grass_orch]
+    corn = [float(value) for value in corn]
+    soy = [float(value) for value in soy]
+    corn_silage = [float(value) for value in corn_silage]
+    alfalfa = [float(value) for value in alfalfa]
+    oats = [float(value) for value in oats]
+
+    ero = [float(value) for value in ero]
+    sci = [float(value) for value in sci]
+    ploss = [float(value) for value in ploss]
+    print("####")
+    print(ploss)
+    print(n_water)
+    print(n_leach)
+
+    n_water = [float(value) for value in n_water]
+    n_leach = [float(value) for value in n_leach]
+    # runoff = [float(value) for value in runoff]
+    cn = [float(value) for value in cn]
+    # no_data = [float(value) for value in no_data]
+
     cur, conn = get_db_conn()
-    # values = [
-    #     field_id,
-    #     scenario_id,
-    #
-    #     dry_matter,
-    #     grass,
-    #     corn,
-    #     soy,
-    #     corn_silage,
-    #     alfalfa,
-    #     oats,
-    #     ero,
-    #     sci,
-    #     ploss,
-    #     n_water,
-    #     n_leach,
-    #     runoff,
-    #     cn,
-    #     insect,
-    #     cost,
-    #     no_data,
-    #     x_bound,
-    #     y_bound,
-    #     area,
-    #     p_needs,
-    #     grass_blue,
-    #     grass_tim,
-    #     grass_orch
-    # ]
+
     values = [
         field_id,
         scenario_id,
