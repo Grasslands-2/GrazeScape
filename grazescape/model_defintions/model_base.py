@@ -220,6 +220,7 @@ class ModelBase:
                         min_val = data[y][x]
                     sum_val = sum_val + data[y][x]
                     count = count + 1
+        print(min_val, max_val, sum_val / count, sum_val, count)
         return min_val, max_val, sum_val / count, sum_val, count
 
     def sum_count(self, data, no_data_array):
@@ -245,6 +246,7 @@ class ModelBase:
         rows = bounds["y"]
         cols = bounds["x"]
         if result.model_type == 'Runoff':
+            # print("rainfall", data)
             sum, count = self.sum_count(data, no_data_array)
             return 0, sum, float(count)
         three_d = np.empty([rows, cols, 4])

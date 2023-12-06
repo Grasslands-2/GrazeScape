@@ -7,6 +7,8 @@ import os
 from django.conf import settings
 from psycopg2.errors import UniqueViolation
 import threading
+import json
+from grazescape.model_defintions.model_base import OutputDataNode
 
 
 def multifindcoordsJson(string):
@@ -159,7 +161,7 @@ def update_field_dirty(field_id, scenario_id, farm_id):
     -------
 
     """
-    print("updating dirty field")
+    print("updating dirty field", field_id, scenario_id, farm_id)
     cur, conn = get_db_conn()
     values = [field_id, scenario_id, farm_id]
     update_text = "UPDATE field_2 SET is_dirty = false WHERE gid = %s and scenario_id = %s and farm_id = %s"
@@ -179,29 +181,6 @@ def update_field_dirty(field_id, scenario_id, farm_id):
     # Not in use
 
 
-# Nulls out yeild totals before new models are run.  This is to ensure that no old yield data is being held onto
-def clear_yield_values(field_id):
-    cur, conn = get_db_conn()
-    nullvalue_list = "grass_yield_tons_per_ac = null, corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
-    nullout_text = "UPDATE field_model_results SET "
-    sql_where_text = " WHERE field_id = " + field_id
-    yield_clear_text = nullout_text + nullvalue_list + sql_where_text
-    print(yield_clear_text)
-    try:
-        cur.execute(yield_clear_text)
-    except Exception as e:
-        print(e)
-        print(type(e).__name__)
-        error = str(e)
-        print(error)
-        raise
-    finally:
-        cur.close()
-        # actual push to db
-        conn.commit()
-        conn.close()
-
-
 def update_field_results_async(field_id, scenario_id, farm_id, data, insert_field):
     download_thread = threading.Thread(target=update_field_results,
                                        args=(field_id, scenario_id, farm_id, data, insert_field))
@@ -210,7 +189,7 @@ def update_field_results_async(field_id, scenario_id, farm_id, data, insert_fiel
 
 
 # Used to update field model results when models are rerun
-def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
+def update_field_results(field_id, scenario_id, data, sql_data_package, insert_field):
     """
 
     Parameters
@@ -219,8 +198,6 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         The primary key of the field
     scenario_id : int
         The primary key of the current scenario
-    farm_id : int
-        The primary key of the current farm
     data : request object
         The POST request containing the input parameters to the model
     insert_field : bool
@@ -230,120 +207,166 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     -------
 
     """
+    # create values input
+    results_dict = {}
+    print("sql_data_package", sql_data_package)
+    # Corn
+    # Grain
+    # Soy
+    # Rotational
+    # Average
+    # ero
+    # Curve
+    # Number
+    # Runoff
+    # nleaching
+    # nwater
+    # ploss
+    # soil_index
+    # econ
+    # insect
+    for model_output in data:
+        # print(model_output.model_type, model_output.data)
+        results_dict[model_output.model_type] = model_output
+    dry_matter = results_dict["Rotational Average"].data[0].tolist()
+
+    grass = []
+    grass_blue = []
+    grass_tim = []
+    grass_orch = []
+    corn = []
+    soy = []
+    corn_silage = []
+    alfalfa = []
+    oats = []
+    if "Grass" in results_dict:
+        grass = results_dict["Grass"].data[0].tolist()
+    if "Corn Grain" in results_dict:
+        corn = results_dict["Corn Grain"].data[0].tolist()
+    if "Soy" in results_dict:
+        soy = results_dict["Soy"].data[0].tolist()
+    if "Corn Silage" in results_dict:
+        corn_silage = results_dict["Corn Silage"].data[0].tolist()
+    if "Alfalfa" in results_dict:
+        alfalfa = results_dict["Alfalfa"].data[0].tolist()
+    if "Oats" in results_dict:
+        oats = results_dict["Oats"].data[0].tolist()
+
+    if "grass_matrix_Bluegrass-clover" in results_dict:
+        grass_blue = results_dict["grass_matrix_Bluegrass-clover"].data[0].tolist()
+    if "grass_matrix_Timothy-clover" in results_dict:
+        grass_tim = results_dict["grass_matrix_Timothy-clover"].data[0].tolist()
+    if "grass_matrix_Orchardgrass-clover" in results_dict:
+        grass_orch = results_dict["grass_matrix_Orchardgrass-clover"].data[0].tolist()
+
+    ero = results_dict["ero"].data[0].tolist()
+    sci = results_dict["soil_index"].data[0].tolist()
+    ploss = results_dict["ploss"].data[0].tolist()
+    n_water = results_dict["nwater"].data[0].tolist()
+    n_leach = results_dict["nleaching"].data[0].tolist()
+    runoff = results_dict["Runoff"].data
+    cn = results_dict["Curve Number"].data[0].tolist()
+    insect = results_dict["insect"].data[0]
+    cost = results_dict["econ"].data[0]
+
+    no_data = sql_data_package["no_data"].tolist()
+    x_bound = sql_data_package["x_bound"]
+    y_bound = sql_data_package["y_bound"]
+    area = sql_data_package["area"]
+    p_needs = json.dumps(sql_data_package["p_needs"])
+
+    if insert_field:
+        pass
     cur, conn = get_db_conn()
-    sql_where = " WHERE field_id = %s and scenario_id = %s and farm_id = %s"
-    sql_values = ""
-    col_name = []
-    values = []
-    nullvalue_list = "grass_yield_tons_per_ac = null, corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
-    nullout_text = "UPDATE field_model_results SET "
-    update_text = "UPDATE field_model_results SET "
-    if insert_field:
-        update_text = "INSERT INTO field_model_results("
-        sql_values = " VALUES ("
-    values.append(data["sum_cells"])
-    if data["value_type"] == 'Grass':
-        col_name.append("grass_yield_tons_per_ac")
-    if data["value_type"] == 'Corn Grain':
-        col_name.append("corn_yield_brus_per_ac")
+    # values = [
+    #     field_id,
+    #     scenario_id,
+    #
+    #     dry_matter,
+    #     grass,
+    #     corn,
+    #     soy,
+    #     corn_silage,
+    #     alfalfa,
+    #     oats,
+    #     ero,
+    #     sci,
+    #     ploss,
+    #     n_water,
+    #     n_leach,
+    #     runoff,
+    #     cn,
+    #     insect,
+    #     cost,
+    #     no_data,
+    #     x_bound,
+    #     y_bound,
+    #     area,
+    #     p_needs,
+    #     grass_blue,
+    #     grass_tim,
+    #     grass_orch
+    # ]
+    values = [
+        field_id,
+        scenario_id,
 
-    if data["value_type"] == 'Corn Silage':
-        col_name.append("corn_silage_tons_per_ac")
-
-    if data["value_type"] == 'Soy':
-        col_name.append("soy_yield_brus_per_ac")
-
-    if data["value_type"] == 'Alfalfa':
-        col_name.append("alfalfa_yield_tons_per_acre")
-
-    if data["value_type"] == 'Oats':
-        col_name.append("oat_yield_brus_per_ac")
-
-    if data["value_type"] == 'Rotational Average':
-        col_name.append('"rotation_dry_matter_yield_kg-DM/ac/year"')
-
-    if data["value_type"] == 'ploss':
-        col_name.append('"P_runoff_lbs_per_acre"')
-
-    if data["value_type"] == 'nleaching':
-        col_name.append('"N_runoff_lbs_per_acre"')
-    if data["value_type"] == 'nwater':
-        col_name.append('"N_water_lbs_per_acre"')
-
-    if data["value_type"] == 'ero':
-        col_name.append("soil_erosion_tons_per_acre")
-
-    if data["value_type"] == 'Curve Number':
-        col_name.append("runoff_curve_number")
-
-    if data["value_type"] == 'Runoff':
-        rain_event = values[0]
-        col_name.append('"event_runoff_0.5_inch"')
-        col_name.append('event_runoff_1_inch')
-        col_name.append('"event_runoff_1.5_inch"')
-        col_name.append('event_runoff_2_inch')
-        col_name.append('"event_runoff_2.5_inch"')
-        col_name.append('event_runoff_3_inch')
-        col_name.append('"event_runoff_3.5_inch"')
-        col_name.append('event_runoff_4_inch')
-        col_name.append('"event_runoff_4.5_inch"')
-        col_name.append('event_runoff_5_inch')
-        col_name.append('"event_runoff_5.5_inch"')
-        col_name.append('event_runoff_6_inch')
-        values = []
-        for event in rain_event:
-            values.append(event)
-
-    if data["value_type"] == 'insect':
-        col_name.append("honey_bee_toxicity")
-    if data["value_type"] == 'econ':
-        col_name.append("costs_per_acre")
-    else:
-        col_name.append("cell_count")
-        values.append(data['counted_cells'])
-        col_name.append("area")
-        values.append(data['area'])
-
-    col_name.append("field_id")
-    col_name.append("scenario_id")
-    col_name.append("farm_id")
-
-    values.append(field_id)
-    values.append(scenario_id)
-    values.append(farm_id)
-    if not insert_field:
-        values.append(field_id)
-        values.append(scenario_id)
-        values.append(farm_id)
-
-    sql_request = update_text
-    for index, col in enumerate(col_name):
-        if insert_field:
-            sql_request = sql_request + col + ","
-            sql_values = sql_values + "%s" + ","
-            pass
-        else:
-            sql_values = sql_values + col + " = %s,"
-            pass
+        dry_matter,
+        grass,
+        corn,
+        soy,
+        corn_silage,
+        alfalfa,
+        oats,
+        ero,
+        sci,
+        ploss,
+        n_water,
+        n_leach,
+        runoff,
+        cn,
+        insect,
+        cost,
+        no_data,
+        x_bound,
+        y_bound,
+        area,
+        p_needs,
+        grass_blue,
+        grass_tim,
+        grass_orch
+    ]
+    # print(values)
+    sql_where = f" field_id = {field_id} and scen= {scenario_id}"
+    update_script = f"""
+        UPDATE
+        model_results
+        SET
+        field_id =%s, scen =%s, 
+        dry_matter =%s, grass =%s, corn =%s, soy =%s, corn_silage =%s, alfalfa =%s, oats =%s, ero =%s, sci =%s, 
+        ploss =%s, 
+        n_water =%s, n_leach =%s, runoff =%s, cn =%s, insect =%s, cost =%s, no_data =%s, x_bound =%s, y_bound =%s, 
+        area =%s, p_needs =%s, grass_blue =%s, grass_tim =%s, grass_orch =%s
+        WHERE {sql_where};
+    """
 
     if insert_field:
-        # replace last comma in list with a )
-        sql_request = sql_request[:-1]
-        sql_request = sql_request + ")"
-        sql_values = sql_values[:-1]
-        sql_values = sql_values + ")"
-        sql_request = sql_request + sql_values
-
-    else:
-        sql_values = sql_values[:-1]
-        sql_values = sql_values + ""
-        sql_request = sql_request + sql_values + sql_where
+        update_script = """
+    INSERT INTO model_results(
+        field_id, scen, dry_matter, grass, corn, soy, corn_silage, alfalfa, oats,
+        ero, sci, ploss, n_water, n_leach, runoff, cn, insect, cost, no_data, x_bound,
+        y_bound, area, p_needs, grass_blue, grass_tim, grass_orch)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s)
+"""
     # https://stackoverflow.com/questions/29186112/postgresql-python-ignore-duplicate-key-exception
     try:
-        cur.execute(sql_request, values)
+        cur.execute(update_script, values)
+        print("saving results")
+        # raise TypeError("just a test")
     except UniqueViolation as e:
         print("field already exists in table")
-        update_field_results(field_id, scenario_id, farm_id, data, False)
+        update_field_results(field_id, scenario_id, data, False)
 
     except Exception as e:
         print(e)
@@ -360,205 +383,140 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
 
 
 # Ran if no models are ran.  This pulls the data from the model results table.
-def get_values_db(field_id, scenario_id, farm_id, request, model_run_timestamp, p_manure_Results):
+def get_values_db(field_id, scenario_id):
     cur, conn = get_db_conn()
-    runoff_col = ['event_runoff_0.5_inch', 'event_runoff_1_inch',
-                  'event_runoff_1.5_inch', 'event_runoff_2_inch',
-                  'event_runoff_2.5_inch', 'event_runoff_3_inch',
-                  'event_runoff_3.5_inch', 'event_runoff_4_inch',
-                  'event_runoff_4.5_inch', 'event_runoff_5_inch',
-                  'event_runoff_5.5_inch', 'event_runoff_6_inch']
-    model_types = {'yield': {
-        "grass_yield_tons_per_ac": {"units": "Yield (tons/acre/year)",
-                                    "units_alternate": "'Yield (tons/year'",
-                                    "title": "Grass yield (tons-dry-matter/ac/yr)",
-                                    "title_alternate": "Grass production (tons-dry-matter/yr)",
-                                    "type": "Grass"},
-        "corn_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
-                                   "units_alternate": "Yield (bushels/year)",
-                                   "title": "Corn grain yield [bushels/ac/yr]",
-                                   "title_alternate": "Corn grain production [bushels/yr]",
-                                   "type": "Corn Grain"},
-        "corn_silage_tons_per_ac": {"units": "Yield (tons/ac/year)",
-                                    "units_alternate": "Yield (tons/year)",
-                                    "title": "Corn silage yield (tons/ac/yr)",
-                                    "title_alternate": "Corn silage production (tons/yr)",
-                                    "type": "Corn Silage"},
-        "soy_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
-                                  "units_alternate": "Yield (bushels/year)",
-                                  "title": "Soybean yield (bushels/ac/yr)",
-                                  "title_alternate": "Soybean production (bushels/yr)",
-                                  "type": "Soy"},
-        "alfalfa_yield_tons_per_acre": {"units": "Yield (tons/ac/year)",
-                                        "units_alternate": "Yield (tons/year)",
-                                        "title": "Alfalfa yield (tons/ac/yr)",
-                                        "title_alternate": "Alfalfa production (tons/yr)",
-                                        "type": "Alfalfa"},
-        "oat_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
-                                  "units_alternate": "Yield (bushels/year)",
-                                  "title": "Oat yield (bushels/ac/yr)",
-                                  "title_alternate": "Oat production (bushels/yr)",
-                                  "type": "Oats"},
-        "rotation_dry_matter_yield_kg-DM/ac/year": {
-            "units": "Yield (tons-Dry Matter/ac/year)",
-            "units_alternate": "Yield (tons-Dry Matter/year)",
-            "title": "Total dry matter yield (tons/ac/yr)",
-            "title_alternate": "Total dry matter yield (tons/ac/yr)",
-            "type": "Rotational Average"},
-        "P_runoff_lbs_per_acre": {
-            "units": "Phosphorus Runoff (lb/acre/year)",
-            "units_alternate": "Phosphorus Runoff (lb/year)",
-            "type": "ploss"},
-        "N_runoff_lbs_per_acre": {
-            "units": "Nitrate Leaching (lb/acre/year)",
-            "units_alternate": "Nitrate Leaching (lb/year)",
-            "title": "Nitrate-N leaching (lb/ac/yr)",
-            "title_alternate": "Nitrate-N leaching (lb/yr)",
-            "type": "nleaching"},
-        "soil_erosion_tons_per_acre": {
-            "units": "Soil Erosion (ton/acre/year)",
-            "units_alternate": "Soil Erosion (tons of soil/year",
-            "title": "Soil loss (tons/ac/yr)",
-            "title_alternate": "Soil loss (tons/yr)",
-            "type": "ero"},
-        "runoff": {"units": "Runoff (in)",
-                   "units_alternate": "Runoff (in)",
-                   "title": "Storm event runoff (inches)",
-                   "title_alternate": "Storm event runoff (inches)",
-                   "type": "Runoff"},
-        "runoff_curve_number": {"units": "Curve Number",
-                                "units_alternate": "Curve Number",
-                                "title": "Composite curve number",
-                                "title_alternate": "Composite curve number",
-                                "type": "Curve Number"},
-        'bio': {
-            "honey_bee_toxicity": {"units": "Insecticide Index",
-                                   "units_alternate": "Insecticide Index",
-                                   "title": "Honey bee toxicity",
-                                   "title_alternate": "Honey bee toxicity",
-                                   "type": "insect"}
-        },
-        'econ': {
-            "costs_per_acre": {"units": "Costs (dollars/acre/year)",
-                               "units_alternate": "Costs (dollars/year)",
-                               "units_alternate_2": "Costs (dollars/Tons DM)",
-                               "title": "Production costs",
-                               "title_alternate": "Production costs",
-                               "type": "econ"},
+    result = []
+    descrip = []
+    print("getting ids", field_id, scenario_id)
+    try:
+        cur.execute('SELECT * from model_results where field_id = %s and scen = %s '
+                    ,
+                    [field_id, scenario_id])
+        result = cur.fetchone()
+        descrip = cur.description
+    except Exception as e:
+        print(e)
+        print(type(e).__name__)
 
-        },
+        error = str(e)
+        print(error)
+        raise
+    finally:
+        cur.close()
+        conn.commit()
+        conn.close()
+    return result, descrip
 
-    },
 
-    }
-
+def format_db_values(sql_model_data, descrip):
     return_data = []
-    cur.execute('SELECT * from field_model_results,field_2 '
-                'where field_model_results.field_id = %s '
-                'and field_model_results.scenario_id = %s '
-                'and field_model_results.farm_id = %s '
-                'and field_2.gid = %s',
-                [field_id, scenario_id, farm_id, field_id])
-    result = cur.fetchone()
-    column_names = [desc[0] for desc in cur.description]
-    for model in model_types:
-        if model == request.POST.get('model_parameters[model_type]'):
+    econ = OutputDataNode("econ", "Production costs ($/ac/year)", "Production costs ($/year)",
+                          "Production costs", "Production costs")
+    erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)", "Soil loss (tons/ac/yr)",
+                             "Soil loss (tons/yr)")
+    corn = OutputDataNode("Corn Grain", "Corn grain yield [bu/ac/yr]", "Corn grain production [bu/yr]",
+                          "Corn grain yield [bushels/ac/yr]", "Corn grain production [bushels/yr]")
 
-            if result is None:
-                # print("the query return no results")
-                f_name = request.POST.get('model_parameters[f_name]')
-                scen = request.POST.get('model_parameters[scen]')
-                data = {  # overall model type crop, ploss, bio, runoff
-                    "model_type": model,
-                    # specific model for runs with multiple models like corn silage
-                    # "value_type": model_types[model][col]["type"],
-                    "f_name": f_name,
-                    "scen": scen,
-                    "scen_id": scenario_id,
-                    "field_id": field_id
-                }
-                return_data.append(data)
-            else:
-                for col in model_types[model]:
-                    if col == "runoff":
-                        sum1 = []
-                        for run_col in runoff_col:
-                            col_index = column_names.index(run_col)
-                            sum1.append(result[col_index])
+    soy = OutputDataNode("Soy", "Soybean yield (bushels/ac/yr)", "Soybean production (bu/yr)",
+                         'Soybean yield (bushels/ac/yr)', "Soybean production (bushels/yr)")
 
+    silage = OutputDataNode("Corn Silage", "Corn silage yield (tons/ac/yr)", "Corn silage production (tons/yr)",
+                            "Corn silage yield (tons/ac/yr)", "Corn silage production (tons/yr)")
 
-                    else:
-                        col_index = column_names.index(col)
-                        sum1 = result[col_index]
-                        if model == 'econ':
-                            print("ECON SUM1")
-                            print(sum1)
-                    units = model_types[model][col]["units"]
-                    units_alternate = model_types[model][col][
-                        "units_alternate"]
-                    title = model_types[model][col]["title"]
-                    alternate_title = model_types[model][col]["alternate_title"]
-                    if sum1 is None:
-                        sum1 = None
-                        units = ""
-                        units_alternate = ""
-                    col_index = column_names.index("area")
-                    area = result[col_index]
-                    col_index = column_names.index("cell_count")
-                    count = result[col_index]
+    alfalfa = OutputDataNode("Alfalfa", "Alfalfa yield (tons/ac/yr)", "Alfalfa production (tons/yr)",
+                             "Alfalfa yield (tons/ac/yr)", "Alfalfa production (tons/yr)")
 
-                    grass_index = column_names.index("grass_speciesval")
-                    grass_type = result[grass_index]
-                    rot_index = column_names.index("rotation")
-                    rotation = result[rot_index]
+    oats = OutputDataNode("Oats", "Oat yield (bushels/ac/yr)", "Oat production (bu/yr)",
+                          "Oat yield (bushels/ac/yr)", "Oat production (bushels/yr)")
+    rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)",
+                                  "Total dry matter production (tons/yr)", "Total dry matter yield (tons/ac/yr)",
+                                  "Total dry matter production (tons/yr)")
+    grass_yield = OutputDataNode("Grass", "Grass yield (tons-dry-matter/ac/yr)",
+                                 'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                 'Grass production (tons-dry-matter/yr)')
+    grass_blue = OutputDataNode("grass_matrix_Bluegrass-clover", "Grass yield (tons-dry-matter/ac/yr)",
+                                'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                'Grass production (tons-dry-matter/yr)')
+    grass_tim = OutputDataNode("grass_matrix_Timothy-clover", "Grass yield (tons-dry-matter/ac/yr)",
+                               'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                               'Grass production (tons-dry-matter/yr)')
+    grass_orch = OutputDataNode("grass_matrix_Orchardgrass-clover", "Grass yield (tons-dry-matter/ac/yr)",
+                                'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                'Grass production (tons-dry-matter/yr)')
 
-                    till_index = column_names.index("tillage")
-                    tillage = result[till_index]
-                    grass_rotation = ""
-                    if "pt-" in rotation or "cn-" in rotation:
-                        r = rotation.split("-")
-                        # rotation = rotation.split("-")[0]
-                        grass_rotation = r[1]
-                        rotation = r[0]
-                    if model == "bio":
-                        count = 1
-                    f_name = request.POST.get('model_parameters[f_name]')
-                    # f_name = "test"
-                    scen = request.POST.get('model_parameters[scen]')
-                    # scen = "farm"
-                    data = {
-                        # "extent": [*bounds],
-                        # "palette": palette,
-                        # "url": model.file_name + ".png",
-                        # "values": values_legend,
-                        "units": units,
-                        "units_alternate": units_alternate,
-                        # overall model type crop, ploss, bio, runoff
-                        "model_type": model,
-                        "title": title,
-                        "title_alternate": alternate_title,
-                        # specific model for runs with multiple models like corn silage
-                        "value_type": model_types[model][col]["type"],
-                        "f_name": f_name,
-                        "scen": scen,
-                        # "avg": round(avg, 2),
-                        "area": area,
-                        "counted_cells": count,
-                        "sum_cells": sum1,
-                        "scen_id": scenario_id,
-                        "field_id": field_id,
-                        "crop_ro": rotation,
-                        "grass_ro": grass_rotation,
-                        "grass_type": grass_type,
-                        "till": tillage,
-                        "model_run_timestamp": model_run_timestamp,
-                        "p_manure_Results": p_manure_Results
+    nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)",
+                             "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)")
+    nitrate_water = OutputDataNode("nwater", "Total Nitrogen Loss To Water (lb/ac/yr)",
+                                   "Total Nitrogen Loss To Water (lb/yr)",
+                                   "Total Nitrogen Loss To Water (lb/ac/yr)",
+                                   "Total Nitrogen Loss To Water (lb/yr)")
+    pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)", "Phosphorus runoff (lb/ac/yr)",
+                        "Phosphorus runoff (lb/yr)")
+    rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)", "Storm event runoff (inches)",
+                               "Storm event runoff (inches)")
+    curve = OutputDataNode("Curve Number", "Curve Number", "Curve Number", "Composite curve number",
+                           "Composite curve number")
+    sci_output = OutputDataNode("soil_index", "Soil Condition Index (lb/ac/yr)", "Soil Condition Index (lb/yr)",
+                                "Soil Condition Index (lb/ac/yr)", "Soil Condition Index (lb/yr)")
+    insect_node = OutputDataNode("insect", "Insecticide Index", "Insecticide Index", "Honey bee toxicity",
+                                 "Honey bee toxicity")
 
-                    }
-                    return_data.append(data)
-    cur.close()
-    conn.close()
-    return return_data
+    # result = cur.fetchone()
+    column_names = [desc[0] for desc in descrip]
+    # print("model results", sql_model_data)
+    # print("columns", column_names)
+    db_dict = {}
+    for index, val in enumerate(column_names):
+        # print(column_names[index], sql_model_data[index])
+        db_dict[column_names[index]] = sql_model_data[index]
+    # cur.close()
+    # conn.close()
+
+    return_data = [erosion, insect_node, sci_output, curve, rain_fall, pl, nitrate_water, nitrate, rotation_avg, econ]
+    erosion.set_data(db_dict["ero"])
+    insect_node.set_data(db_dict["insect"])
+    sci_output.set_data(db_dict["sci"])
+    curve.set_data(db_dict["cn"])
+    rain_fall.data = db_dict["runoff"]
+    pl.set_data(db_dict["ploss"])
+    nitrate_water.set_data(db_dict["n_water"])
+    nitrate.set_data(db_dict["n_leach"])
+    rotation_avg.set_data(db_dict["dry_matter"])
+    econ.set_data(db_dict["cost"])
+
+    corn.set_data(db_dict["corn"])
+    soy.set_data(db_dict["soy"])
+    silage.set_data(db_dict["corn_silage"])
+    alfalfa.set_data(db_dict["alfalfa"])
+    oats.set_data(db_dict["oats"])
+
+    grass_yield.set_data(db_dict["grass"])
+    grass_blue.set_data(db_dict["grass_blue"])
+    grass_tim.set_data(db_dict["grass_tim"])
+    grass_orch.set_data(db_dict["grass_orch"])
+
+    if db_dict["corn"]:
+        return_data.append(corn)
+    if db_dict["soy"]:
+        return_data.append(soy)
+    if db_dict["corn_silage"]:
+        return_data.append(silage)
+    if db_dict["alfalfa"]:
+        return_data.append(alfalfa)
+    if db_dict["oats"]:
+        return_data.append(oats)
+
+    if db_dict["grass"]:
+        return_data.append(grass_yield)
+    if db_dict["grass_blue"]:
+        return_data.append(grass_blue)
+    if db_dict["grass_tim"]:
+        return_data.append(grass_tim)
+    if db_dict["grass_orch"]:
+        return_data.append(grass_orch)
+
+    return return_data, {"x": int(db_dict["x_bound"]), "y": int(db_dict["y_bound"])}, db_dict["no_data"], db_dict[
+        "p_needs"]
 
 
 # SQl calls for clean data

@@ -1,72 +1,72 @@
 
 DSS.utils.addStyle('.sub-container {background-color: rgba(180,180,160,0.1); border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); margin: 4px}')
 var dbYieldUpdatesArray = [];
-async function prepYieldAdjustmentForDB(){
-	console.log(yieldmodelsDataArray)
-	function loop1(){
-		for(f in fieldYieldArray){
-		var fieldID = fieldYieldArray[f].id
-		var fieldRot = fieldYieldArray[f].rotationVal1
-			for(y in yieldmodelsDataArray){
-			var yieldmodelID = yieldmodelsDataArray[y].fieldId
-			var yieldmodelRot = yieldmodelsDataArray[y].cropRo
-				if (fieldID == yieldmodelID && fieldRot == yieldmodelRot){
-					fieldYieldArray[f].cellCount = yieldmodelsDataArray[y].cells
-					fieldYieldArray[f].area = yieldmodelsDataArray[y].area
-					fieldYieldArray[f].scenName = yieldmodelsDataArray[y].scenario
-					fieldYieldArray[f].scenId = yieldmodelsDataArray[y].scenarioId
-					fieldYieldArray[f].farmId = DSS.activeFarm
-					fieldYieldArray[f].till = yieldmodelsDataArray[y].till
-					fieldYieldArray[f].cellSums = []
-					fieldYieldArray[f].yieldTypes = []
-				}
-			}
-		}
-	}
-	function loop2(){
-		dbYieldUpdatesArray = []
-		for(i in fieldYieldArray){
-			fieldObj = fieldYieldArray[i]
-			if (fieldObj.rotationVal1 == 'cc'){
-				fieldObj.cellSums.push(fieldObj.cornGrainBrusdAc * fieldObj.cellCount)
-				fieldObj.yieldTypes.push('Corn Grain')
-			}
-			if(fieldObj.rotationVal1 == 'pt'){
-				fieldObj.cellSums.push(fieldObj.grassYieldTonsAc * fieldObj.cellCount)
-				fieldObj.yieldTypes.push('Grass')
-			}
-			if(fieldObj.rotationVal1 == 'cg'){
-				fieldObj.cellSums.push(fieldObj.cornGrainBrusdAc * fieldObj.cellCount)
-				fieldObj.yieldTypes.push('Corn Grain')
-				fieldObj.cellSums.push(fieldObj.soyGrainBrusAc * fieldObj.cellCount)
-				fieldObj.yieldTypes.push('Soy')
-			}
-			if(fieldObj.rotationVal1 == 'dr'){
-				fieldObj.cellSums.push(fieldObj.cornGrainBrusdAc * fieldObj.cellCount)
-				fieldObj.yieldTypes.push('Corn Grain')
-				fieldObj.cellSums.push(fieldYieldArray[i].cornSilageTonsAc * fieldYieldArray[i].cellCount)
-				fieldObj.yieldTypes.push('Corn Silage')
-				fieldObj.cellSums.push(fieldYieldArray[i].alfalfaYieldTonsAc * fieldYieldArray[i].cellCount)
-				fieldObj.yieldTypes.push('Alfalfa')
-			}
-			if(fieldObj.rotationVal1 == 'cso'){
-				fieldObj.cellSums.push(fieldYieldArray[i].soyGrainBrusAc * fieldYieldArray[i].cellCount)
-				fieldObj.yieldTypes.push('Soy')
-				fieldObj.cellSums.push(fieldYieldArray[i].cornSilageTonsAc * fieldYieldArray[i].cellCount)
-				fieldObj.yieldTypes.push('Corn Silage')
-				fieldObj.cellSums.push(fieldYieldArray[i].oatYieldBrusAc * fieldYieldArray[i].cellCount)
-				fieldObj.yieldTypes.push('Oats')
-			}
-		}
-	}
-	await loop1()
-	await loop2()
-	console.log(fieldYieldArray);
-	//console.log(dbYieldUpdatesArray)
-	for( r in fieldYieldArray){
-		await pushYieldAdjustmetsToDB(fieldYieldArray[r]);
-	}
-}
+//async function prepYieldAdjustmentForDB(){
+//	console.log(yieldmodelsDataArray)
+//	function loop1(){
+//		for(f in fieldYieldArray){
+//		var fieldID = fieldYieldArray[f].id
+//		var fieldRot = fieldYieldArray[f].rotationVal1
+//			for(y in yieldmodelsDataArray){
+//			var yieldmodelID = yieldmodelsDataArray[y].fieldId
+//			var yieldmodelRot = yieldmodelsDataArray[y].cropRo
+//				if (fieldID == yieldmodelID && fieldRot == yieldmodelRot){
+//					fieldYieldArray[f].cellCount = yieldmodelsDataArray[y].cells
+//					fieldYieldArray[f].area = yieldmodelsDataArray[y].area
+//					fieldYieldArray[f].scenName = yieldmodelsDataArray[y].scenario
+//					fieldYieldArray[f].scenId = yieldmodelsDataArray[y].scenarioId
+//					fieldYieldArray[f].farmId = DSS.activeFarm
+//					fieldYieldArray[f].till = yieldmodelsDataArray[y].till
+//					fieldYieldArray[f].cellSums = []
+//					fieldYieldArray[f].yieldTypes = []
+//				}
+//			}
+//		}
+//	}
+//	function loop2(){
+//		dbYieldUpdatesArray = []
+//		for(i in fieldYieldArray){
+//			fieldObj = fieldYieldArray[i]
+//			if (fieldObj.rotationVal1 == 'cc'){
+//				fieldObj.cellSums.push(fieldObj.cornGrainBrusdAc * fieldObj.cellCount)
+//				fieldObj.yieldTypes.push('Corn Grain')
+//			}
+//			if(fieldObj.rotationVal1 == 'pt'){
+//				fieldObj.cellSums.push(fieldObj.grassYieldTonsAc * fieldObj.cellCount)
+//				fieldObj.yieldTypes.push('Grass')
+//			}
+//			if(fieldObj.rotationVal1 == 'cg'){
+//				fieldObj.cellSums.push(fieldObj.cornGrainBrusdAc * fieldObj.cellCount)
+//				fieldObj.yieldTypes.push('Corn Grain')
+//				fieldObj.cellSums.push(fieldObj.soyGrainBrusAc * fieldObj.cellCount)
+//				fieldObj.yieldTypes.push('Soy')
+//			}
+//			if(fieldObj.rotationVal1 == 'dr'){
+//				fieldObj.cellSums.push(fieldObj.cornGrainBrusdAc * fieldObj.cellCount)
+//				fieldObj.yieldTypes.push('Corn Grain')
+//				fieldObj.cellSums.push(fieldYieldArray[i].cornSilageTonsAc * fieldYieldArray[i].cellCount)
+//				fieldObj.yieldTypes.push('Corn Silage')
+//				fieldObj.cellSums.push(fieldYieldArray[i].alfalfaYieldTonsAc * fieldYieldArray[i].cellCount)
+//				fieldObj.yieldTypes.push('Alfalfa')
+//			}
+//			if(fieldObj.rotationVal1 == 'cso'){
+//				fieldObj.cellSums.push(fieldYieldArray[i].soyGrainBrusAc * fieldYieldArray[i].cellCount)
+//				fieldObj.yieldTypes.push('Soy')
+//				fieldObj.cellSums.push(fieldYieldArray[i].cornSilageTonsAc * fieldYieldArray[i].cellCount)
+//				fieldObj.yieldTypes.push('Corn Silage')
+//				fieldObj.cellSums.push(fieldYieldArray[i].oatYieldBrusAc * fieldYieldArray[i].cellCount)
+//				fieldObj.yieldTypes.push('Oats')
+//			}
+//		}
+//	}
+//	await loop1()
+//	await loop2()
+//	console.log(fieldYieldArray);
+//	//console.log(dbYieldUpdatesArray)
+//	for( r in fieldYieldArray){
+//		await pushYieldAdjustmetsToDB(fieldYieldArray[r]);
+//	}
+//}
 function userUpdateYields(){
 	//use the array position of the obj with the active scen as the dbID to hold on to the right value for the following values.
 	var chartDataArray = chartObj.rotation_yield_farm.chartData.datasets
@@ -470,7 +470,7 @@ Ext.define('DSS.results.YieldAdjustment', {
 						// 	sorters: ['name'],
 						// 	data: fieldYieldArray
 						// });
-						await prepYieldAdjustmentForDB()
+//						await prepYieldAdjustmentForDB()
 						//fieldYieldArray = [] 
 						//Ext.data.StoreManager.clearData('yieldStore')
 						//DSS.results.YieldAdjustment.yieldStore.clearData();
@@ -489,27 +489,27 @@ Ext.define('DSS.results.YieldAdjustment', {
 		})
 	},
 });
-function pushYieldAdjustmetsToDB(data){
-    return new Promise(function(resolve) {
-    var csrftoken = Cookies.get('csrftoken');
-	console.log('data coming into ajax call')
-	console.log(data)
-    $.ajaxSetup({
-            headers: { "X-CSRFToken": csrftoken }
-        });
-    $.ajax({
-    'url' : '/grazescape/adjust_field_yields',
-    'type' : 'POST',
-    'data' : data,
-    success: function(responses) {
-		console.log(responses)
-		resolve([])
-	},
-	error: function(responses) {
-		console.log('python tool call error')
-		console.log(responses)
-	}
-	})
-	})
-}
+//function pushYieldAdjustmetsToDB(data){
+//    return new Promise(function(resolve) {
+//    var csrftoken = Cookies.get('csrftoken');
+//	console.log('data coming into ajax call')
+//	console.log(data)
+//    $.ajaxSetup({
+//            headers: { "X-CSRFToken": csrftoken }
+//        });
+//    $.ajax({
+//    'url' : '/grazescape/adjust_field_yields',
+//    'type' : 'POST',
+//    'data' : data,
+//    success: function(responses) {
+//		console.log(responses)
+//		resolve([])
+//	},
+//	error: function(responses) {
+//		console.log('python tool call error')
+//		console.log(responses)
+//	}
+//	})
+//	})
+//}
 

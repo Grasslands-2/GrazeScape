@@ -286,6 +286,7 @@ function runFieldUpdate(){
 					perc_manure_n: fieldArray[i].manuPercN,
 					land_cost: fieldArray[i].landCost
 				});
+				console.log("field submitted to be updated", feildFeature)
 				wfs_update(feildFeature,'field_2');
 				break;
 			}				
