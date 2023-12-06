@@ -9,7 +9,7 @@ from psycopg2.errors import UniqueViolation
 import threading
 import json
 from grazescape.model_defintions.model_base import OutputDataNode
-
+import numpy as np
 
 def multifindcoordsJson(string):
     values = []
@@ -223,6 +223,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     corn_silage = []
     alfalfa = []
     oats = []
+    print("testing", isinstance(results_dict["ero"], np.generic))
     if "Grass" in results_dict:
         grass = results_dict["Grass"].data[0].tolist()
     if "Corn Grain" in results_dict:
@@ -280,7 +281,16 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     n_water = [float(value) for value in n_water]
     n_leach = [float(value) for value in n_leach]
     # runoff = [float(value) for value in runoff]
+    runoff_float = []
+    for sublist in runoff:
+        float_sublist = [float(number) for number in sublist]
+        runoff_float.append(float_sublist)
+
     cn = [float(value) for value in cn]
+    no_data_float = []
+    for sublist in no_data:
+        float_sublist = [float(number) for number in sublist]
+        no_data_float.append(float_sublist)
     # no_data = [float(value) for value in no_data]
 
     cur, conn = get_db_conn()
@@ -301,21 +311,24 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
         ploss,
         n_water,
         n_leach,
-        runoff,
+        runoff_float,
         cn,
-        insect,
-        cost,
-        no_data,
-        x_bound,
-        y_bound,
-        area,
+        float(insect),
+        float(cost),
+        no_data_float,
+        float(x_bound),
+        float(y_bound),
+        float(area),
         p_needs,
         grass_blue,
         grass_tim,
         grass_orch
     ]
-    # print(values)
+    # print("values", values)
+    for val in values:
+        print(val, type(val), isinstance(val, np.generic))
     sql_where = f" field_id = {field_id} and scen= {scenario_id}"
+    # raise TypeError("test")
     update_script = f"""
         UPDATE
         model_results
