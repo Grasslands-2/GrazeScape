@@ -751,14 +751,14 @@ class R(object):  # "del r.XXX" fails on FePy-r7 (IronPython 1.1 on .NET 2.0.507
             except:
                 pass
             # self.prog = None
-        print("terminating process")
-        print(self.prog)
+        # print("terminating process")
+        # print(self.prog)
 
         # self.prog.terminate()
         self.prog.communicate()
-        print(self.prog)
+        # print(self.prog)
         self.prog.wait()
-        print("Process return code", self.prog.returncode)
+        # print("Process return code", self.prog.returncode)
         # stdout, stderr = self.prog.communicate()
         # print(stdout, stderr)
 

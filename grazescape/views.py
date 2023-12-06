@@ -31,7 +31,7 @@ import fiona as fiona
 import time
 import shutil
 from datetime import datetime
-
+import tracemalloc
 
 credential_path = os.path.join(settings.BASE_DIR, 'keys', 'cals-grazescape-files-63e6-4f2fc53201e6.json')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
@@ -222,8 +222,6 @@ def download_rasters(request):
     field_id = request.POST.getlist("field_id")[0]
     active_region = request.POST.getlist("active_region")[0]
     field_coors = []
-    if db_has_field(field_id):
-        clear_yield_values(field_id)
     for input in request.POST:
         if "field_coors" in input:
             field_coors.append(request.POST.getlist(input))
@@ -317,7 +315,6 @@ def geoserver_request(request):
             update_user_farms(request.user.id, feature_id)
 
     if request_type == "source_farm":
-
         input_dict = json.loads(result)
         # current_user = request.user
         features = input_dict["features"]
@@ -393,11 +390,9 @@ def get_P_Manure_Results(request, clipped_rasters):
 def get_model_results(request):
     print("starting model request")
 
-    tracemalloc.start()
-
     start = time.time()
-    field_id = request.POST.getlist("field_id")[0]  # str(request_json["field_id"])
-    scenario_id = request.POST.getlist("scenario_id")[0]  # request_json["scenario_id"]
+    field_id = request.POST.getlist("field_id")[0]
+    scenario_id = request.POST.getlist("scenario_id")[0]  #
     farm_id = request.POST.getlist("farm_id")[0]
     model_type = request.POST.get('model_parameters[model_type]')
     f_name = request.POST.get('model_parameters[f_name]')
@@ -406,127 +401,164 @@ def get_model_results(request):
     model_run_timestamp = request.POST.get('model_parameters[model_run_timestamp]')
     active_scen = request.POST.get('model_parameters[active_scen]')
     active_region = request.POST.get('model_parameters[active_region]')
+    is_dirty = request.POST.get('is_dirty')
+    area = float(request.POST.get('model_parameters[area]'))
     field_coors = []
-    print("field id", field_id, "farm id", farm_id, "scen id", scenario_id)
-    for input in request.POST:
-        if "field_coors" in input:
-            field_coors.append(request.POST.getlist(input))
-    geo_data = RasterData(request.POST.getlist('model_parameters[extent][]'), field_coors, field_id, active_region,
-                          False)
-
-    clipped_rasters, bounds = geo_data.get_clipped_rasters()
-    print("done downloading ", time.time() - start)
-    p_manure_Results = get_P_Manure_Results(request, clipped_rasters)
-    is_grass = False
-    model_grass1 = None
-    model_grass2 = None
+    return_data = []
+    print("field id", field_id, "farm id", farm_id, "scen id", scenario_id, "is_dirty", is_dirty)
+    print(not is_dirty)
+    need_download_rasters = False
     try:
-        field_exists = db_has_field(field_id)
+        db_results, db_des = get_values_db(field_id, scenario_id)
+        # print(db_results, db_des)
+        # raise ValueError("teting")
+        if is_dirty == "false" and db_results is not None:
+            # todo access database to retrieve results
+            print("accessing stored model results")
+            #     results = []
+            results = ""
+            # field_id1 = 1
+            # scenario_id1 = 122
+            results, geo_data_bounds, geo_data_no_data_aray, p_manure_Results = format_db_values(db_results, db_des)
 
-        crop_ro = request.POST.get('model_parameters[crop]')
-        if crop_ro == 'pt' or crop_ro == 'ps':
-            # create models for each of our grass types
-            model_yield_blue = GrassYield(request, active_region)
-            model_yield_orch = GrassYield(request, active_region)
-            model_yield_tim = GrassYield(request, active_region)
-            print("model parameters", model_yield_blue.model_parameters)
-            # figure out which model the user has actually selected
-            if 'bluegrass' in model_yield_blue.model_parameters["grass_type"].lower():
-                model_yield_blue.main_type = True
-                model_yield = model_yield_blue
-                model_grass1 = model_yield_orch
-                model_grass2 = model_yield_tim
-            elif 'orchard' in model_yield_blue.model_parameters["grass_type"].lower():
-                model_yield_orch.main_type = True
-                model_yield = model_yield_orch
-                model_grass1 = model_yield_blue
-                model_grass2 = model_yield_tim
-            elif 'timothy' in model_yield_blue.model_parameters["grass_type"].lower():
-                model_yield_tim.main_type = True
-                model_yield = model_yield_tim
-                model_grass1 = model_yield_orch
-                model_grass2 = model_yield_blue
+            # p_manure_Results = {'avg': {'n_rec': 0.0, 'n_man': 93.0, 'p_needs': 40.0, 'grazed_dm': 2400.0, 'grazed_p205': 60.0, 'man_p_per': 0.0, 'grazedManureN': 36.0, 'NfixPct': 70.0, 'Nharv_content': 0.021, 'NH3loss': 5.0}, 'pt_rt': {'n_rec': 0.0, 'n_man': 93.0, 'p_needs': 40.0, 'grazed_dm': 2400.0, 'grazed_p205': 60.0, 'man_p_per': 0.0, 'grazedManureN': 36.0, 'NfixPct': 70.0, 'Nharv_content': 0.021, 'NH3loss': 5.0}}
+            # geo_data_bounds = {"y":2, "x":2}
+            # geo_data_no_data_aray = [[0.0, 1.0], [0.0, 0.0]]
 
-            model_yield_blue.grass_type = "Bluegrass-clover"
-            model_yield_orch.grass_type = "Orchardgrass-clover"
-            model_yield_tim.grass_type = "Timothy-clover"
-            model_grass1.raster_inputs = clipped_rasters
-            model_grass2.raster_inputs = clipped_rasters
-            is_grass = True
-        elif crop_ro == 'dl':
-            model_yield = DryLot(request, active_region)
+            model_yield = GrassYield(request, active_region)
+            model_yield.bounds["x"] = geo_data_bounds["x"]
+            model_yield.bounds["y"] = geo_data_bounds["y"]
+            # time.sleep(2)
+            # raise ValueError("testing")
         else:
-            model_yield = CropYield(request, active_region)
-        model_rain = Runoff(request, active_region)
-        model_rain.raster_inputs = clipped_rasters
-        model_insect = Insecticide(request)
-        model_insect.raster_inputs = clipped_rasters
-        model_econ = Econ(request)
-        model_econ.raster_inputs = clipped_rasters
+            if db_results is None:
+                need_download_rasters = True
+            for input in request.POST:
+                if "field_coors" in input:
+                    field_coors.append(request.POST.getlist(input))
+            geo_data = RasterData(request.POST.getlist('model_parameters[extent][]'), field_coors, field_id,
+                                  active_region, need_download_rasters)
 
-        model_ero = Erosion(request, active_region)
-        model_ero.raster_inputs = clipped_rasters
-        model_phos = PhosphorousLoss(request, active_region)
-        model_phos.raster_inputs = clipped_rasters
-        model_nit = NitrateLeeching(request, active_region)
-        model_nit.raster_inputs = clipped_rasters
-        model_sci = SoilIndex(request, active_region)
-        model_sci.raster_inputs = clipped_rasters
+            clipped_rasters, bounds = geo_data.get_clipped_rasters()
+            print("done downloading ", time.time() - start)
+            p_manure_Results = get_P_Manure_Results(request, clipped_rasters)
+            is_grass = False
+            model_grass1 = None
+            model_grass2 = None
+            geo_data_bounds = geo_data.bounds
+            geo_data_no_data_aray = geo_data.no_data_aray
 
-        model_yield.bounds["x"] = geo_data.bounds["x"]
-        model_yield.bounds["y"] = geo_data.bounds["y"]
+            # field_exists = db_has_field(field_id)
 
-        model_yield.raster_inputs = clipped_rasters
-        # loop here to build a response for all the model types
-        print("models start running ", time.time() - start)
-        results = []
-        if model_type == 'yield':
-            results = run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_Results,
-                                   model_sci, model_grass1, model_grass2)
+            crop_ro = request.POST.get('model_parameters[crop]')
+            if crop_ro == 'pt' or crop_ro == 'ps':
+                # create models for each of our grass types
+                model_yield_blue = GrassYield(request, active_region)
+                model_yield_orch = GrassYield(request, active_region)
+                model_yield_tim = GrassYield(request, active_region)
+                # print("model parameters", model_yield_blue.model_parameters)
+                # figure out which model the user has actually selected
+                if 'bluegrass' in model_yield_blue.model_parameters["grass_type"].lower():
+                    model_yield_blue.main_type = True
+                    model_yield = model_yield_blue
+                    model_grass1 = model_yield_orch
+                    model_grass2 = model_yield_tim
+                elif 'orchard' in model_yield_blue.model_parameters["grass_type"].lower():
+                    model_yield_orch.main_type = True
+                    model_yield = model_yield_orch
+                    model_grass1 = model_yield_blue
+                    model_grass2 = model_yield_tim
+                elif 'timothy' in model_yield_blue.model_parameters["grass_type"].lower():
+                    model_yield_tim.main_type = True
+                    model_yield = model_yield_tim
+                    model_grass1 = model_yield_orch
+                    model_grass2 = model_yield_blue
 
-            econ_results = model_econ.run_model()
-            insect_results = model_insect.run_model()
-            results.append(econ_results[0])
-            results.append(insect_results[0])
+                model_yield_blue.grass_type = "Bluegrass-clover"
+                model_yield_orch.grass_type = "Orchardgrass-clover"
+                model_yield_tim.grass_type = "Timothy-clover"
+                model_grass1.raster_inputs = clipped_rasters
+                model_grass2.raster_inputs = clipped_rasters
+                is_grass = True
+            elif crop_ro == 'dl':
+                model_yield = DryLot(request, active_region)
+            else:
+                model_yield = CropYield(request, active_region)
+            model_rain = Runoff(request, active_region)
+            model_rain.raster_inputs = clipped_rasters
+            model_insect = Insecticide(request)
+            model_insect.raster_inputs = clipped_rasters
+            model_econ = Econ(request)
+            model_econ.raster_inputs = clipped_rasters
 
-        return_data = []
-        # convert area from sq meters to acres
-        area = float(request.POST.get('model_parameters[area]'))
-        # probably use threads here and use numpy in the png creation
-        print("models done running ", time.time() - start)
-        print(results)
+            model_ero = Erosion(request, active_region)
+            model_ero.raster_inputs = clipped_rasters
+            model_phos = PhosphorousLoss(request, active_region)
+            model_phos.raster_inputs = clipped_rasters
+            model_nit = NitrateLeeching(request, active_region)
+            model_nit.raster_inputs = clipped_rasters
+            model_sci = SoilIndex(request, active_region)
+            model_sci.raster_inputs = clipped_rasters
+
+            model_yield.bounds["x"] = geo_data.bounds["x"]
+            model_yield.bounds["y"] = geo_data.bounds["y"]
+
+            model_yield.raster_inputs = clipped_rasters
+            # loop here to build a response for all the model types
+            print("models start running ", time.time() - start)
+            results = []
+            if model_type == 'yield':
+                results = run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_manure_Results,
+                                       model_sci, model_grass1, model_grass2)
+
+                econ_results = model_econ.run_model()
+                insect_results = model_insect.run_model()
+                results.append(econ_results[0])
+                results.append(insect_results[0])
+            # convert area from sq meters to acres
+
+            # probably use threads here and use numpy in the png creation
+            print("models done running ", time.time() - start)
+            # todo store results from model runs into model_results and change is_dirty to false
+            # print(p_manure_Results)
+            sql_data_package = {"area": area, "no_data": geo_data.no_data_aray, "x_bound": geo_data.bounds["x"],
+                                "y_bound": geo_data.bounds["y"], "p_needs": p_manure_Results}
+
+            # field_id1 = 1
+            # scenario_id1 = 122
+            update_field_results(field_id, scenario_id, results, sql_data_package, need_download_rasters)
+            update_field_dirty(field_id, scenario_id, farm_id)
+
         for result in results:
-
+            # print(result.model_type)
             if result.model_type == "insect" or result.model_type == "econ":
                 sum = result.data[0]
                 avg = sum
                 count = 1
-                palette = []
-                values_legend = []
-
             else:
-
-                avg, sum, count = model_yield.get_model_png(result, geo_data.bounds, geo_data.no_data_aray)
+                # print(result.model_type, result.data)
+                # print("####")
+                avg, sum, count = model_yield.get_model_png(result, geo_data_bounds, geo_data_no_data_aray)
                 # this part takes about 45% of the total time
             # dealing with rain fall data
             if type(sum) is not list:
                 sum = round(sum, 2)
+
             if "grass_matrix_Bluegrass-clover" == result.model_type or \
                     "grass_matrix_Orchardgrass-clover" == result.model_type or \
                     "grass_matrix_Timothy-clover" == result.model_type:
-                data = {"model_type": result.model_type, "avg": round(avg, 2), "type": "grassMatrix","f_name": f_name,"scen": scen,}
+                data = {"model_type": result.model_type, "avg": round(avg, 2), "type": "grassMatrix", "f_name": f_name,
+                        "scen": scen, }
                 return_data.append(data)
                 continue
             if "Grass" == result.model_type:
                 data = {"model_type": "grass_matrix_" + model_yield.model_parameters["grass_type"],
-                        "avg": round(avg, 2), "type": "grassMatrix", "f_name": f_name,"scen": scen,}
+                        "avg": round(avg, 2), "type": "grassMatrix", "f_name": f_name, "scen": scen, }
                 return_data.append(data)
 
             data = {
-                "extent": [*bounds],
-                # "palette": palette,
+                # "extent": [*bounds],
                 "url": model_yield.file_name + '_' + model_run_timestamp + ".png",
-                # "values": values_legend,
                 "units": result.default_units,
                 "units_alternate": result.alternate_units,
                 "title": result.default_title,
@@ -554,7 +586,6 @@ def get_model_results(request):
 
             return_data.append(data)
         print("Results Loop Done ", time.time() - start)
-        # update_field_dirty(field_id, scenario_id, farm_id)
 
         print("done with models ", time.time() - start)
         return JsonResponse(return_data, safe=False)
@@ -585,12 +616,12 @@ def get_model_results(request):
 
         traceback.print_exc()
         print("end of error*************************")
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-
-        print("[ Top 10 ]")
-        for stat in top_stats[:10]:
-            print(stat)
+        # snapshot = tracemalloc.take_snapshot()
+        # top_stats = snapshot.statistics('lineno')
+        #
+        # print("[ Top 10 ]")
+        # for stat in top_stats[:10]:
+        #     print(stat)
     data = {
         # overall model type crop, ploss, bio, runoff
         "model_type": model_type,
@@ -603,107 +634,6 @@ def get_model_results(request):
         "error": error
     }
     return JsonResponse([data], safe=False)
-
-
-# Used to update the model results table when yields are adjusted.
-@login_required
-@csrf_protect
-def adjust_field_yields(yield_data):
-    raise ValueError("function no longer valid.")
-    # print('INSIDE ADJUST FIELD YIELDS!!!!!!!&&&&&&$$$$$$&&&#&&#&#&#&#&#&#&')
-    # data = {
-    #     "area": yield_data.POST.get('area'),
-    #     "value_type": yield_data.POST.getlist('yieldTypes[]'),
-    #     "f_name": yield_data.POST.get('name'),
-    #     "scen": yield_data.POST.get('scenName'),
-    #     "counted_cells": yield_data.POST.get('cellCount'),
-    #     "sum_cells": yield_data.POST.getlist('cellSums[]'),
-    #     "farm_id": yield_data.POST.get('farmId'),
-    #     "scen_id": yield_data.POST.get('scenId'),
-    #     "field_id": yield_data.POST.get('id'),
-    #     "crop_ro": yield_data.POST.get('rotationVal1'),
-    #     "grass_ro": yield_data.POST.get('rotationVal2'),
-    #     "grass_type": yield_data.POST.get('grassType'),
-    #     "till": yield_data.POST.get('till'),
-    # }
-    # data2 = {
-    #     "area": yield_data.POST.get('area'),
-    #     "value_type": yield_data.POST.getlist('yieldTypes[]'),
-    #     "f_name": yield_data.POST.get('name'),
-    #     "scen": yield_data.POST.get('scenName'),
-    #     "counted_cells": yield_data.POST.get('cellCount'),
-    #     "sum_cells": yield_data.POST.getlist('cellSums[]'),
-    #     "farm_id": yield_data.POST.get('farmId'),
-    #     "scen_id": yield_data.POST.get('scenId'),
-    #     "field_id": yield_data.POST.get('id'),
-    #     "crop_ro": yield_data.POST.get('rotationVal1'),
-    #     "grass_ro": yield_data.POST.get('rotationVal2'),
-    #     "grass_type": yield_data.POST.get('grassType'),
-    #     "till": yield_data.POST.get('till'),
-    # }
-    # if data.get("crop_ro") == 'pt':  # grass
-    #     data2['value_type'] = str(data['value_type'][0])
-    #     data2['sum_cells'] = str(data['sum_cells'][0])
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     data2['value_type'] = 'Rotational Average'
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    # if data.get("crop_ro") == 'cc':  # corn
-    #     data2['value_type'] = str(data['value_type'][0])
-    #     data2['sum_cells'] = str(data['sum_cells'][0])
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     data2['value_type'] = 'Rotational Average'
-    #     data2['sum_cells'] = str(float(data['sum_cells'][0]) * 56 * 0.855 / 2000)
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    # if data.get("crop_ro") == 'cg':  # corn, soy
-    #     data2['value_type'] = str(data['value_type'][0])
-    #     data2['sum_cells'] = str(data['sum_cells'][0])
-    #     corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     data2['value_type'] = str(data['value_type'][1])
-    #     data2['sum_cells'] = str(data['sum_cells'][1])
-    #     soy_yield_tonDMac = float(data['sum_cells'][1]) * 60 * 0.792 * 0.9008 / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     rotation_avg_cg = 0.5 * corn_yield_tonDMac + 0.5 * soy_yield_tonDMac
-    #     data2['sum_cells'] = str(rotation_avg_cg)
-    #     data2['value_type'] = 'Rotational Average'
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    # if data.get("crop_ro") == 'dr':  # corn, silage, alfalfa
-    #     data2['value_type'] = str(data['value_type'][0])
-    #     data2['sum_cells'] = str(data['sum_cells'][0])
-    #     corn_yield_tonDMac = float(data['sum_cells'][0]) * 56 * (1 - 0.155) / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     data2['value_type'] = str(data['value_type'][1])
-    #     data2['sum_cells'] = str(data['sum_cells'][1])
-    #     silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     data2['value_type'] = str(data['value_type'][2])
-    #     data2['sum_cells'] = str(data['sum_cells'][2])
-    #     alfalfa_yield_tonDMac = float(data['sum_cells'][2]) * 2000 * (1 - 0.13) / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     rotation_avg_dr = 1 / 5 * silage_yield_tonDMac + 1 / 5 * corn_yield_tonDMac + 3 / 5 * alfalfa_yield_tonDMac
-    #     data2['sum_cells'] = str(rotation_avg_dr)
-    #     data2['value_type'] = 'Rotational Average'
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    # if data.get("crop_ro") == 'cso':  # soy, silage, oats
-    #     data2['value_type'] = str(data['value_type'][0])
-    #     data2['sum_cells'] = str(data['sum_cells'][0])
-    #     soy_yield_tonDMac = float(data['sum_cells'][0]) * 60 * 0.792 * 0.9008 / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     data2['value_type'] = str(data['value_type'][1])
-    #     data2['sum_cells'] = str(data['sum_cells'][1])
-    #     silage_yield_tonDMac = float(data['sum_cells'][1]) * 2000 * (1 - 0.65) / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     data2['value_type'] = str(data['value_type'][2])
-    #     data2['sum_cells'] = str(data['sum_cells'][2])
-    #     oat_yield_tonDMac = float(data['sum_cells'][2]) * 32 * (1 - 0.14) / 2000
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    #     rotation_avg_cso = 1 / 3 * silage_yield_tonDMac + 1 / 3 * soy_yield_tonDMac + 1 / 3 * oat_yield_tonDMac
-    #     data2['sum_cells'] = str(rotation_avg_cso)
-    #     data2['value_type'] = 'Rotational Average'
-    #     update_field_results(data2["field_id"], data2['scen_id'], data2['farm_id'], data2, False)
-    # else:
-    #     print('No fields were updated')
-    return JsonResponse({"Adjustements": "error"})
 
 
 @csrf_protect

@@ -1033,7 +1033,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 			console.log(modelruntime)
             //modelruntimeOrig = modelruntime
             fieldChangeList = fieldChangeList.flat()
-            chartDatasetContainer = new ChartDatasetContainer()
+
             compCheckBoxes = compareChartCheckBox()
 //            get progress bars
 
@@ -1071,6 +1071,9 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
         }
         //create dashboard model runs
         async function createDashBoard(dashboard){
+            chartDatasetContainer = new ChartDatasetContainer()
+            console.log("getting fields and farms")
+            await chartDatasetContainer.getFieldsFarms()
             pmanureReturn_array = []
 //            layerList = []
 //            await layer.getSource().forEachFeature(function(f) {
@@ -1081,6 +1084,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             fieldIter = await fieldIter
             console.log(fieldIter)
             console.log("download started")
+//          will only download raster data if field data has been changed
             let download = await downloadRasters(fieldIter)
 
             download = await download
@@ -1115,6 +1119,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                 for (model in modelTypes){
                     let model_request_return = await build_model_request(f.properties, f, modelTypes[model],modelruntime,DSS.activeScenario,[])
                     console.log("running model")
+                    model_request_return["is_dirty"] = f.properties["is_dirty"]
                     console.log("model payload", f.properties, model_request_return)
                     get_model_data(model_request_return).then(returnData =>{
                         //console.log(returnData[0].model_run_timestamp)

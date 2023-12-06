@@ -323,7 +323,7 @@ class SoilIndex(ModelBase):
                 """)
         sci = r.get("sci").to_numpy()
         ploss = np.where(sci < 0.01, .01, sci)
-        sci_output.set_data(ploss)
+        sci_output.set_data(ploss.flatten())
         del r
 
         return [sci_output]

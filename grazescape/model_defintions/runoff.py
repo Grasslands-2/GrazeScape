@@ -295,7 +295,7 @@ class Runoff(ModelBase):
         pred = r.get("curve_num").to_numpy()
         rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)","Storm event runoff (inches)","Storm event runoff (inches)")
         curve = OutputDataNode("Curve Number", "Curve Number", "Curve Number","Composite curve number","Composite curve number")
-        curve.set_data(pred)
+        curve.set_data(pred.flatten())
         cn_adj = {"A": 0, "B": 0, "C": 0, "D": 0}
         crop = self.model_parameters["crop"]
         cover = self.model_parameters["crop_cover"]
