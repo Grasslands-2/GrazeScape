@@ -401,8 +401,8 @@ class NitrateLeeching(ModelBase):
             np.logical_or(drain_class_flattened == self.no_data, leached_N_Total < 0), 0,
             leached_N_Total)
 
-        nitrate_water.set_data(n_loss_h20 * cover_adj)
-        nitrate.set_data(leached_N_Total * cover_adj)
+        nitrate_water.set_data((n_loss_h20 * cover_adj).flatten())
+        nitrate.set_data((leached_N_Total * cover_adj).flatten())
         return return_data
 
     def Calc_N_Leach(self, yeild_crop_data, fertN, manrN, NfixPct, NH3loss, Nharv_content, grazed_manureN,
