@@ -330,9 +330,20 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
         grass_tim,
         grass_orch
     ]
+
+    def convert_to_float(value):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            # If the conversion fails, return the original value
+            return value
+
+    float_list = [convert_to_float(value) for value in values]
+
     # print("values", values)
-    for val in values:
-        print(val, type(val), isinstance(val, np.generic))
+    # for val in values:
+    #     print(val, type(val), isinstance(val, np.generic))
+    print("values", float_list)
     sql_where = f" field_id = {field_id} and scen= {scenario_id}"
     # raise TypeError("test")
     update_script = f"""
@@ -358,7 +369,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
 """
     # https://stackoverflow.com/questions/29186112/postgresql-python-ignore-duplicate-key-exception
     try:
-        cur.execute(update_script, values)
+        cur.execute(update_script, float_list)
         print("saving results")
         # raise TypeError("just a test")
     except UniqueViolation as e:
