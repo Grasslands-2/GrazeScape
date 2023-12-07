@@ -526,8 +526,11 @@ def get_model_results(request):
 
             # field_id1 = 1
             # scenario_id1 = 122
+            print("models done running", time.time() - start)
+            print("starting upload to database")
             update_field_results(field_id, scenario_id, results, sql_data_package, need_download_rasters)
             update_field_dirty(field_id, scenario_id, farm_id)
+            print("done uploading to db")
 
         for result in results:
             # print(result.model_type)
