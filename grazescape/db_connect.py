@@ -264,6 +264,12 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     grass_blue = [float(value) for value in grass_blue]
     grass_tim = [float(value) for value in grass_tim]
     grass_orch = [float(value) for value in grass_orch]
+
+    grass = [2.0, 3.0, 4.0, 5.0]
+    grass_blue = [2.0, 3.0, 4.0, 5.0]
+    grass_tim = [2.0, 3.0, 4.0, 5.0]
+    grass_orch = [2.0, 3.0, 4.0, 5.0]
+
     corn = [float(value) for value in corn]
     soy = [float(value) for value in soy]
     corn_silage = [float(value) for value in corn_silage]
