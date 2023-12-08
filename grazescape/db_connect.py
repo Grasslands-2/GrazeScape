@@ -213,7 +213,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     for model_output in data:
         results_dict[model_output.model_type] = model_output
 
-    dry_matter = results_dict["Rotational Average"].data[0].tolist()
+
     grass = []
     grass_blue = []
     grass_tim = []
@@ -224,6 +224,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     alfalfa = []
     oats = []
     print("testing", isinstance(results_dict["ero"], np.generic))
+    dry_matter = results_dict["Rotational Average"].data[0].tolist()
     if "Grass" in results_dict:
         grass = results_dict["Grass"].data[0].tolist()
     if "Corn Grain" in results_dict:
@@ -270,6 +271,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     grass_tim = [2.0, 3.0, 4.0, 5.0]
     grass_orch = [2.0, 3.0, 4.0, 5.0]
 
+    dry_matter = [float(value) for value in dry_matter]
     corn = [float(value) for value in corn]
     soy = [float(value) for value in soy]
     corn_silage = [float(value) for value in corn_silage]
@@ -279,14 +281,9 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     ero = [float(value) for value in ero]
     sci = [float(value) for value in sci]
     ploss = [float(value) for value in ploss]
-    print("####")
-    print(ploss)
-    print(n_water)
-    print(n_leach)
 
     n_water = [float(value) for value in n_water]
     n_leach = [float(value) for value in n_leach]
-    # runoff = [float(value) for value in runoff]
     runoff_float = []
     for sublist in runoff:
         float_sublist = [float(number) for number in sublist]
@@ -297,7 +294,6 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     for sublist in no_data:
         float_sublist = [float(number) for number in sublist]
         no_data_float.append(float_sublist)
-    # no_data = [float(value) for value in no_data]
 
     cur, conn = get_db_conn()
 
