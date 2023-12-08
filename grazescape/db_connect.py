@@ -223,7 +223,6 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     corn_silage = []
     alfalfa = []
     oats = []
-    print("testing", isinstance(results_dict["ero"], np.generic))
     dry_matter = results_dict["Rotational Average"].data[0].tolist()
     if "Grass" in results_dict:
         grass = results_dict["Grass"].data[0].tolist()
@@ -265,11 +264,6 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     grass_blue = [float(value) for value in grass_blue]
     grass_tim = [float(value) for value in grass_tim]
     grass_orch = [float(value) for value in grass_orch]
-    print(grass, grass_blue, grass_tim, grass_orch)
-    grass = [2.0, 3.0, 4.0, 5.0]
-    grass_blue = [2.0, 3.0, 4.0, 5.0]
-    grass_tim = [2.0, 3.0, 4.0, 5.0]
-    grass_orch = [2.0, 3.0, 4.0, 5.0]
 
     dry_matter = [float(value) for value in dry_matter]
     corn = [float(value) for value in corn]
@@ -336,10 +330,6 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
 
     float_list = [convert_to_float(value) for value in values]
 
-    # print("values", values)
-    # for val in values:
-    #     print(val, type(val), isinstance(val, np.generic))
-    print("values", float_list)
     sql_where = f" field_id = {field_id} and scen= {scenario_id}"
     # raise TypeError("test")
     update_script = f"""
