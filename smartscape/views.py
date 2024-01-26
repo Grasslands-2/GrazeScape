@@ -302,44 +302,17 @@ def get_transformed_land(request):
     # create a new folder for the model outputs
     trans_id = str(uuid.uuid4())
     folder_id = request_json["folderId"]
-    base_loaded = request_json["baseLoaded"]
+
+    geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
+                              'raster_inputs', folder_id, "base")
+
+    smartscape.helper_base.check_base_files_loaded(geo_folder, request_json['region'])
+
     model = SmartScape(request_json, trans_id, folder_id)
     return_data = model.run_models()
+    # return_data = []
     print("done running models")
-    #
-    # except KeyError as e:
-    #     error = str(e) + " while running models for field " + f_name
-    # except ValueError as e:
-    #     error = str(e) + " while running models for field " + f_name
-    # except TypeError as e:
-    #     print("type error")
-    #     error = str(e) + " while running models for field " + f_name
-    # except FileNotFoundError as e:
-    #     error = str(e)
-    # except Exception as e:
-    #     error = str(e) + " while running models for field " + f_name
-    #     print(type(e).__name__)
-    #     print(traceback.format_exc())
-    #     traceback.print_exc()
-    #     # error = "Unexpected error:", sys.exc_info()[0]
-    #     # error = "Unexpected error"
-    #     print(error)
-    # # data = {
-    # #     # overall model type crop, ploss, bio, runoff
-    # #     "model_type": model_type,
-    # #     # specific model for runs with multiple models like corn silage
-    # #     "value_type": "dry lot",
-    # #     "f_name": f_name,
-    # #     "scen": scen,
-    # #     "scen_id": scenario_id,
-    # #     "field_id": field_id,
-    # #     "error": error
-    # # }
-    # # data = {
-    # #     # overall model type crop, ploss, bio, runoff
-    # #     "model_type": "test1",
-    # # }
-    # print(return_data)
+
     return JsonResponse(return_data, safe=False)
 
 

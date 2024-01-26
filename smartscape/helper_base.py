@@ -23,6 +23,8 @@ from osgeo import gdal
 import math
 import numpy as np
 
+BASE_FOLDER_COUNT = 26
+
 
 def download_base_rasters_helper(request, geo_folder):
     print("starting to download base rasters")
@@ -37,7 +39,7 @@ def download_base_rasters_helper(request, geo_folder):
     base_layer_dic = {}
     # download layers for base case
     base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pastureWatershed")
-    model_names_base = ("Erosion", "PI", "CN",  "SCI")
+    model_names_base = ("Erosion", "PI", "CN", "SCI")
     # contCorn
     # create name of the layer that corresponds to geoserver for base case
     phos_fertilizer = base_scen["management"]["phos_fertilizer"]
@@ -105,8 +107,6 @@ def download_base_rasters_helper(request, geo_folder):
         raster_file_path = os.path.join(geo_folder, "base", layer + ".tif")
         download_thread = threading.Thread(target=download, args=(url, raster_file_path))
         download_thread.start()
-        # download_thread.join()
-        # createNewDownloadThread(url, raster_file_path)
 
 
 def download(link, filelocation):
@@ -148,6 +148,11 @@ def get_phos_fert_options(request, base_calc, region):
     geo_folder = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs', folder_id)
     data_dir = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files', 'raster_inputs')
     return_data = {}
+    image1 = gdal.Open(os.path.join(geo_folder, "landuse_aoi-clipped.tif"))
+    band = image1.GetRasterBand(1)
+    arr_total_valid_cells = band.ReadAsArray()
+
+    total_cells = np.count_nonzero(arr_total_valid_cells != -9999)
 
     # make sure files are loaded
     def check_file_path(geo_folder_func):
@@ -196,9 +201,9 @@ def get_phos_fert_options(request, base_calc, region):
             print(np.unique(arr, return_counts=True))
             print("cell count for transition ", cell_count_trans)
             if region == "pineRiverMN":
-                n_parameters = model.get_nitrate_params_mn(tran, arr, layer_rank)
+                n_parameters = model.get_nitrate_params_mn(tran, arr, layer_rank, total_cells)
             else:
-                n_parameters = model.get_nitrate_params(tran, arr, layer_rank)
+                n_parameters = model.get_nitrate_params(tran, arr, layer_rank,total_cells)
             print("n_parameters", n_parameters)
             manure_p_bounds, manure_value = model.calc_p(tran, n_parameters["nirate_inputs"])
             manure_p = str(manure_p_bounds)
@@ -297,3 +302,29 @@ def get_phos_fert_options(request, base_calc, region):
                                "p_manure_cat": p_manure_levels}
     print(return_data)
     return return_data
+
+
+def check_base_files_loaded(geo_folder, region):
+    # make sure files are loaded
+    print("geo_folder", geo_folder)
+    print("region", region)
+
+    def check_file_path(geo_folder_func):
+        folder_count = 0
+        print(geo_folder_func)
+        if not os.path.exists(geo_folder_func):
+            return False
+        dir_list = os.listdir(geo_folder_func)
+        for file in dir_list:
+            folder_count = folder_count + 1
+        print("Number of base files loaded", folder_count)
+        if folder_count != BASE_FOLDER_COUNT:
+            return False
+        return True
+
+    files_loaded = check_file_path(geo_folder)
+    while not files_loaded:
+        time.sleep(.5)
+        files_loaded = check_file_path(geo_folder)
+        print("file not loaded")
+    print("all base files are loaded")
