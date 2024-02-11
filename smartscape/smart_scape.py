@@ -392,6 +392,7 @@ class SmartScape:
         # get each transformation selection output raster
         base_dir = os.path.join(self.geo_folder, "base")
         field_yield = self.calculate_yield_field(base_dir)
+        print("calculated base yield")
         # download om and Nresponse
         # southWestWI_drainClass_30m
         # southWestWI_nResponse_30m
@@ -403,6 +404,8 @@ class SmartScape:
         # download layers for base case
         # create dictionary of base raster file names
         self.create_download_extents_boundary(file_list, trans)
+        print("created download extents")
+
         nitrate_cover_dict = {"cc": .75, "gcds": .6, "gcis": .5, "nc": 1}
         base_nitrate_cover_mult = nitrate_cover_dict[base_scen["management"]["cover"]]
         self.create_base_layers_dic(base_scen, region)
@@ -599,6 +602,7 @@ class SmartScape:
                         y1 = inter_data1
                         y2 = inter_data2
                         x_star = layer_dic[layer]["manure_outbounds"]
+                        print(" trans x1 x2 y1 y2 x_star", x1, x2, y1, y2, x_star)
                         # extrapolate and interpolate are the same since we assume linear condition
                         y = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
                         inter_data = y
@@ -655,6 +659,10 @@ class SmartScape:
 
         cont_pl_image = gdal.Open(os.path.join(base_dir, "pastureWatershed_PI.tif"))
         pasture_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
+      #Todo this will be needed once the baseline changes are implemented
+        # cont_pl_image = gdal.Open(os.path.join(base_dir, "pastureWatershed_PI2.tif"))
+        # pasture_pl_arr_2 = cont_pl_image.GetRasterBand(1).ReadAsArray()
+
         cont_pl_image = gdal.Open(os.path.join(base_dir, "pastureWatershed_CN.tif"))
         pasture_cn_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
 
@@ -692,12 +700,19 @@ class SmartScape:
         base_arr_corngrain_cn = base_image.GetRasterBand(1).ReadAsArray()
         base_image = gdal.Open(os.path.join(base_dir, "dairyRotation_CN.tif"))
         base_arr_dairy_cn = base_image.GetRasterBand(1).ReadAsArray()
+        #Ploss
         cont_pl_image = gdal.Open(os.path.join(base_dir, "contCorn_PI.tif"))
         cont_pl_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
         corn_pl_image = gdal.Open(os.path.join(base_dir, "cornGrain_PI.tif"))
         corn_pl_arr = corn_pl_image.GetRasterBand(1).ReadAsArray()
         dairy_pl_image = gdal.Open(os.path.join(base_dir, "dairyRotation_PI.tif"))
         dairy_pl_arr = dairy_pl_image.GetRasterBand(1).ReadAsArray()
+        cont_pl_image = gdal.Open(os.path.join(base_dir, "contCorn_PI2.tif"))
+        cont_pl_arr_2 = cont_pl_image.GetRasterBand(1).ReadAsArray()
+        corn_pl_image = gdal.Open(os.path.join(base_dir, "cornGrain_PI2.tif"))
+        corn_pl_arr_2 = corn_pl_image.GetRasterBand(1).ReadAsArray()
+        dairy_pl_image = gdal.Open(os.path.join(base_dir, "dairyRotation_PI2.tif"))
+        dairy_pl_arr_2 = dairy_pl_image.GetRasterBand(1).ReadAsArray()
         # Erosion
         cont_pl_image = gdal.Open(os.path.join(base_dir, "contCorn_Erosion.tif"))
         cont_er_arr = cont_pl_image.GetRasterBand(1).ReadAsArray()
@@ -718,6 +733,23 @@ class SmartScape:
         dairy_sci_arr = dairy_sci_image.GetRasterBand(1).ReadAsArray()
         cont_sci_image = gdal.Open(os.path.join(base_dir, "pastureWatershed_SCI.tif"))
         pasture_sci_arr = cont_sci_image.GetRasterBand(1).ReadAsArray()
+
+        #Interplotate Ploss values
+        base_nit_man = float(base_scen["management"]["nitrogen"])
+        # base_nit_fert= float(base_scen["management"]["nitrogen_fertilizer"])
+        base_phos_fert = float(base_scen["management"]["phos_fertilizer"])
+        base_phos_man = float(base_scen["management"]["phos_manure"])
+        manure_level = self.calc_manure_level(base_nit_man)
+        print("for base manure_level, base_phos_fert, base_nit_man", manure_level, base_phos_fert, base_phos_man)
+        man1, man2, phos1, phos2 = self.get_m_p_options(manure_level, base_phos_fert, base_phos_man)
+        print("base_man!!!!!!!!!!!!!!!!", man1, man2, phos1, phos2)
+        x1 = man1
+        x2 = man2
+        y2 = 0
+        y1 = 0
+        print("base x1 x2 y1 y2 x_star", x1, x2, y1, y2, manure_level)
+
+
 
         cont_yield = field_yield["contCorn"]
         corn_yield = field_yield["cornGrain"]
@@ -1378,6 +1410,8 @@ class SmartScape:
                                 base_scen["management"]["fertilizer"] + "_" + \
                                 region
                     base_layer_dic[name + "_" + model] = "" + file_name
+                    if model == "PI":
+                        base_layer_dic[name + "_" + "PI2"] = "" + file_name
         # download corn and soy rasters for yield
         corn = "corn_Yield_" + region
         soy = "soy_Yield_" + region
@@ -1395,18 +1429,11 @@ class SmartScape:
 
     def create_trans_layers_dic(self, trans, region):
         layer_dic = {}
-        # file_list = []
         layer_area_dic = {}
         # download om, drainclass, and nresponse
         image = gdal.Open(os.path.join(self.in_dir, "trans_with_aoi.tif"))
         band = image.GetRasterBand(1)
-        # geoTransform = image.GetGeoTransform()
         arr = band.ReadAsArray()
-        # layer_dic_om = {"0": {
-        #     "om": region + "_om_30m",
-        #     "drainClass": region + "_drainClass_30m",
-        #     "nResponse": region + "_nResponse_30m",
-        # }}
 
         # based on the available rasters for smartscape
         phos_choices = {"0": [0, 50, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
@@ -1415,66 +1442,27 @@ class SmartScape:
         for tran1 in trans:
             tran = trans[tran1]
             layer_rank = tran1
-            if region == "pineRiverMN":
-                n_parameters = self.get_nitrate_params_mn(tran, arr, layer_rank, total_cells)
-            else:
-                n_parameters = self.get_nitrate_params(tran, arr, layer_rank, total_cells)
-            manure_p_bounds, manure_value = self.calc_p(tran, n_parameters["nirate_inputs"])
-            phos_fert = tran["management"]["phos_fertilizer"]
+            #
+            # if region == "pineRiverMN":
+            #     n_parameters = self.get_nitrate_params_mn(tran, arr, layer_rank, total_cells)
+            # else:
+            #     n_parameters = self.get_nitrate_params(tran, arr, layer_rank, total_cells)
+            # manure_p_bounds, manure_value = self.calc_p(tran, n_parameters["nirate_inputs"])
+            # phos_fert = tran["management"]["phos_fertilizer"]
+            #
+            # if phos_fert == "default":
+            #     phos_fert = phos_choices[str(manure_p_bounds)][0]
 
-            if phos_fert == "default":
-                phos_fert = phos_choices[str(manure_p_bounds)][0]
+            # man1, man2, phos1, phos2 = self.get_m_p_options(manure_p_bounds, phos_fert, manure_value)
+            base_nit_man = float(tran["management"]["nitrogen"])
+            # base_nit_fert= float(base_scen["management"]["nitrogen_fertilizer"])
+            base_phos_fert = float(tran["management"]["phos_fertilizer"])
+            base_phos_man = float(tran["management"]["phos_manure"])
+            manure_level = self.calc_manure_level(base_nit_man)
+            print("ploss paramters ")
+            print("manure_level, base_phos_fert, base_nit_man",manure_level, base_phos_fert, base_phos_man)
+            man1, man2, phos1, phos2 = self.get_m_p_options(manure_level, base_phos_fert, base_phos_man)
 
-            def get_m_p_options(manure_val, phos_val, man_actual):
-                m1, m2, p1, p2 = 0, 0, 0, 0
-                phos_val = float(phos_val)
-                if manure_val == 0:
-                    if phos_val == 0:
-                        m1, m2, p1, p2 = 0, 0, 0, 50
-                    elif phos_val == 50:
-                        m1, m2, p1, p2 = 0, 0, 50, 100
-                    # need to extrapolate
-                    elif phos_val == 100:
-                        m1, m2, p1, p2 = 0, 0, 100, 50
-                    else:
-                        raise ValueError("P phos is wrong value")
-                elif manure_val == 25:
-                    if phos_val == 50:
-                        m1, m2, p1, p2 = 25, 50, 50, 50
-                    else:
-                        raise ValueError("P phos is wrong value")
-                elif manure_val == 50:
-                    if phos_val == 50:
-                        m1, m2, p1, p2 = 50, 25, 50, 50
-                    else:
-                        raise ValueError("P phos is wrong value")
-                elif manure_val == 100:
-                    if phos_val == 0:
-                        m1, m2, p1, p2 = 100, 150, 0, 0
-                    else:
-                        raise ValueError("P phos is wrong value")
-                elif manure_val == 150:
-                    if man_actual < manure_val:
-                        if phos_val == 0:
-                            m1, m2, p1, p2 = 150, 100, 0, 0
-                        else:
-                            raise ValueError("P phos is wrong value")
-                    else:
-                        if phos_val == 0:
-                            m1, m2, p1, p2 = 150, 200, 0, 0
-                        else:
-                            raise ValueError("P phos is wrong value")
-                elif manure_val == 200:
-                    if phos_val == 0:
-                        m1, m2, p1, p2 = 200, 150, 0, 0
-                    else:
-                        raise ValueError("P phos is wrong value")
-                else:
-                    raise ValueError("P manure is not one of the available options")
-                return m1, m2, p1, p2
-
-            man1, man2, phos1, phos2 = get_m_p_options(manure_p_bounds, phos_fert, manure_value)
-            print("manure values for rasters")
             manure_p = str(man1) + "_" + str(phos1)
             manure_p2 = str(man2) + "_" + str(phos2)
             # setting our x interpolatation value
@@ -1541,7 +1529,7 @@ class SmartScape:
             layer_dic[tran["rank"]]["ploss2"] = ploss_name2
             layer_dic[tran["rank"]]["cn"] = cn_name
             layer_dic[tran["rank"]]["land_id"] = land_id
-            layer_dic[tran["rank"]]["manure_outbounds"] = manure_value
+            layer_dic[tran["rank"]]["manure_outbounds"] = base_phos_man
             layer_dic[tran["rank"]]["manure_p1"] = man1
             layer_dic[tran["rank"]]["manure_p2"] = man2
             layer_dic[tran["rank"]]["nitrate_cover_mod"] = nitrate_cover_mod
@@ -2700,3 +2688,68 @@ class SmartScape:
         # filled_array = raster_array
         filled_array = np.where(raster_array == self.no_data, na_replace_value, raster_array)
         return filled_array
+
+    def get_m_p_options(self, manure_val, phos_val, man_actual):
+        """
+
+        Parameters
+        ----------
+        manure_val float categorical nitrogen manure value (should be lower bound of range)
+        phos_val float categorical phos fert value
+        man_actual float the actual calculated value of percent phos manure
+
+        Returns
+        -------
+        m1 manure for raster 1
+        m2 manure for raster 2
+        p1 phos for raster 1
+        p2 phos for raster 2
+
+        """
+
+        m1, m2, p1, p2 = 0, 0, 0, 0
+        phos_val = float(phos_val)
+        if manure_val == 0:
+            if phos_val == 0:
+                m1, m2, p1, p2 = 0, 0, 0, 50
+            elif phos_val == 50:
+                m1, m2, p1, p2 = 0, 0, 50, 100
+            # need to extrapolate
+            elif phos_val == 100:
+                m1, m2, p1, p2 = 0, 0, 100, 50
+            else:
+                raise ValueError("P phos is wrong value")
+        elif manure_val == 25:
+            if phos_val == 50:
+                m1, m2, p1, p2 = 25, 50, 50, 50
+            else:
+                raise ValueError("P phos is wrong value")
+        elif manure_val == 50:
+            if phos_val == 50:
+                m1, m2, p1, p2 = 50, 25, 50, 50
+            else:
+                raise ValueError("P phos is wrong value")
+        elif manure_val == 100:
+            if phos_val == 0:
+                m1, m2, p1, p2 = 100, 150, 0, 0
+            else:
+                raise ValueError("P phos is wrong value")
+        elif manure_val == 150:
+            if man_actual < manure_val:
+                if phos_val == 0:
+                    m1, m2, p1, p2 = 150, 100, 0, 0
+                else:
+                    raise ValueError("P phos is wrong value")
+            else:
+                if phos_val == 0:
+                    m1, m2, p1, p2 = 150, 200, 0, 0
+                else:
+                    raise ValueError("P phos is wrong value")
+        elif manure_val == 200:
+            if phos_val == 0:
+                m1, m2, p1, p2 = 200, 150, 0, 0
+            else:
+                raise ValueError("P phos is wrong value")
+        else:
+            raise ValueError("P manure is not one of the available options")
+        return m1, m2, p1, p2
