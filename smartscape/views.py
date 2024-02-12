@@ -197,7 +197,7 @@ def get_phos_fert_options(request):
             Contains the trans/base id and the p values
     """
     request_json = js.loads(request.body)
-    print(request_json)
+    # print(request_json)
     base_calc = request_json['base_calc']
     region = request_json["region"]
     return_data = smartscape.helper_base.get_phos_fert_options(request, base_calc, region)

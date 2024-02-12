@@ -28,7 +28,8 @@ import RangeSlider from 'react-bootstrap-range-slider';
 import './App.css';
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
-setVisibilityMapLayer,updateActiveBaseProps, setActiveTransDisplay,updateTransList} from '/src/stores/transSlice'
+setVisibilityMapLayer,updateActiveBaseProps, setActiveTransDisplay,updateTransList,updateActiveBaseManagementProps}
+from '/src/stores/transSlice'
 import * as mainSlice from '/src/stores/mainSlice'
 import * as charts from '/src/utilities/charts'
 import { Doughnut } from 'react-chartjs-2';
@@ -110,6 +111,7 @@ const mapDispatchToProps = (dispatch) => {
         updateActiveTransProps: (type)=> dispatch(updateActiveTransProps(type)),
         setVisibilityMapLayer: (type)=> dispatch(setVisibilityMapLayer(type)),
         updateActiveBaseProps: (type)=> dispatch(updateActiveBaseProps(type)),
+        updateActiveBaseManagementProps: (type)=> dispatch(updateActiveBaseManagementProps(type)),
         setActiveTransDisplay: (type)=> dispatch(setActiveTransDisplay(type)),
         updateTransList: (type)=> dispatch(updateTransList(type)),
 
@@ -148,6 +150,7 @@ class SidePanel extends React.Component{
         this.sliderChangeStream = this.sliderChangeStream.bind(this);
         this.getPhosValuesBase = this.getPhosValuesBase.bind(this);
         this.setTillage = this.setTillage.bind(this);
+        this.updateActiveBaseManagementPropsDensity = this.updateActiveBaseManagementPropsDensity.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
@@ -181,16 +184,40 @@ class SidePanel extends React.Component{
         this.feet = React.createRef();
         this.meters = React.createRef();
 
-        this.rotationType = React.createRef();
-        this.cover = React.createRef();
-        this.tillage = React.createRef();
-        this.density = React.createRef();
-        this.contour = React.createRef();
-//        this.fertilizer = React.createRef();
-        this.nitrogen = React.createRef();
-        this.nitrogen_fertilizer = React.createRef();
-        this.phos_fertilizer = React.createRef();
-        this.phos_manure = React.createRef();
+        this.coverCont = React.createRef();
+        this.tillageCont = React.createRef();
+        this.contourCont = React.createRef();
+        this.nitrogenCont = React.createRef();
+        this.nitrogen_fertilizerCont = React.createRef();
+        this.phos_fertilizerCont = React.createRef();
+        this.phos_manureCont = React.createRef();
+
+        this.coverCorn = React.createRef();
+        this.tillageCorn = React.createRef();
+        this.contourCorn = React.createRef();
+        this.nitrogenCorn = React.createRef();
+        this.nitrogen_fertilizerCorn = React.createRef();
+        this.phos_fertilizerCorn = React.createRef();
+        this.phos_manureCorn = React.createRef();
+
+        this.coverDairy = React.createRef();
+        this.tillageDairy = React.createRef();
+        this.contourDairy = React.createRef();
+        this.nitrogenDairy = React.createRef();
+        this.nitrogen_fertilizerDairy = React.createRef();
+        this.phos_fertilizerDairy = React.createRef();
+        this.phos_manureDairy = React.createRef();
+
+        this.rotationTypePasture = React.createRef();
+        this.yieldPasture = React.createRef();
+        this.legumePasture = React.createRef();
+        this.densityPasture = React.createRef();
+        this.contourPasture = React.createRef();
+        this.nitrogenPasture = React.createRef();
+        this.nitrogen_fertilizerPasture = React.createRef();
+        this.phos_fertilizerPasture = React.createRef();
+        this.phos_manurePasture = React.createRef();
+
 
         this.p2o5 = React.createRef();
         this.nFert = React.createRef();
@@ -234,7 +261,7 @@ class SidePanel extends React.Component{
             modelEro: "hello world",
             modelOutputs: {},
             aoiOrDisplayLoading:false,
-            phos_fert_options_holder:[],
+
             modelsLoading:false,
             showViewResults:false,
             showHuc10:false,
@@ -243,14 +270,36 @@ class SidePanel extends React.Component{
             speedometerWidth:window.innerWidth*.7/2,
             speedometerHeight:window.innerWidth*.7/2/2,
             landTypeSelected:false,
-            showTillageFC:true,
-            showTillageFM:true,
-            showTillageNT:true,
-            showTillageSC:false,
-            showTillageSN:true,
-            showTillageSU:true,
-            showTillageSV:true,
-            tillageBlank:false,
+            showRotFreq:false,
+            phos_fert_options_holderCont:[],
+            phos_fert_options_holderCorn:[],
+            phos_fert_options_holderDairy:[],
+            phos_fert_options_holderPast:[],
+
+            showTillageFCCont:true,
+            showTillageFMCont:true,
+            showTillageNTCont:true,
+            showTillageSCCont:false,
+            showTillageSNCont:true,
+            showTillageSUCont:true,
+            showTillageSVCont:true,
+
+            showTillageFCCorn:true,
+            showTillageFMCorn:true,
+            showTillageNTCorn:true,
+            showTillageSCCorn:false,
+            showTillageSNCorn:true,
+            showTillageSUCorn:true,
+            showTillageSVCorn:true,
+
+            showTillageFCDairy:true,
+            showTillageFMDairy:true,
+            showTillageNTDairy:true,
+            showTillageSCDairy:false,
+            showTillageSNDairy:true,
+            showTillageSUDairy:true,
+            showTillageSVDairy:true,
+
         }
     }
     // fires anytime state or props are updated
@@ -290,10 +339,6 @@ class SidePanel extends React.Component{
         else if (!displayNext && this.state.landTypeSelected == true && this.props.listTrans == 1){
             this.setState({landTypeSelected:false})
         }
-//        if (landCoverCounter == Object.keys(this.props.activeTrans.selection.landCover).length){
-//            console.log("hide everything")
-//            this.setState({landTypeSelected:false})
-//        }
 
         this.land1.current.checked = this.props.activeTrans.selection.landClass.land1
         this.land2.current.checked = this.props.activeTrans.selection.landClass.land2
@@ -303,9 +348,6 @@ class SidePanel extends React.Component{
         this.land6.current.checked = this.props.activeTrans.selection.landClass.land6
         this.land7.current.checked = this.props.activeTrans.selection.landClass.land7
         this.land8.current.checked = this.props.activeTrans.selection.landClass.land8
-//        this.landErosion = React.createRef();
-//        this.landRoot = React.createRef();
-//        this.landWater = React.createRef();
 
         this.prime.current.checked = this.props.activeTrans.selection.farmClass.prime
         this.stateFarm.current.checked = this.props.activeTrans.selection.farmClass.stateFarm
@@ -314,10 +356,6 @@ class SidePanel extends React.Component{
         this.prime2.current.checked = this.props.activeTrans.selection.farmClass.prime2
         this.prime3.current.checked = this.props.activeTrans.selection.farmClass.prime3
 
-
-
-//        this.setState({sDist1:this.props.activeTrans.selection.streamDist1})
-//        this.setState({sDist2:this.props.activeTrans.selection.streamDist2})
 //       which unit to use for steam distance
         if (this.props.activeTrans.selection.useFt){
             this.feet.current.checked = true
@@ -328,37 +366,53 @@ class SidePanel extends React.Component{
             this.feet.current.checked = false
         }
 
-
-
-
-        if(prevProps.baseTrans.management.nitrogen != this.props.baseTrans.management.nitrogen){
-            console.log("Nitrogen has changed, calculate new P")
+        if(prevProps.baseTrans.managementCont.nitrogen != this.props.baseTrans.managementCont.nitrogen){
+            console.log("cont Nitrogen has changed, calculate new P")
+            this.getPhosValuesBase()
+        }
+        if(prevProps.baseTrans.managementCorn.nitrogen != this.props.baseTrans.managementCorn.nitrogen){
+            console.log("corn Nitrogen has changed, calculate new P")
+            this.getPhosValuesBase()
+        }
+        if(prevProps.baseTrans.managementDairy.nitrogen != this.props.baseTrans.managementDairy.nitrogen){
+            console.log("dairy Nitrogen has changed, calculate new P")
+            this.getPhosValuesBase()
+        }
+        if(prevProps.baseTrans.managementPast.nitrogen != this.props.baseTrans.managementPast.nitrogen){
+            console.log("past Nitrogen has changed, calculate new P")
             this.getPhosValuesBase()
         }
 //        if region is changed show huc 10
         if (prevProps.region != this.props.region){
             if(this.props.region != null){
-                if(this.props.region == "southWestWI"){
-                    this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
 
-                    this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
-                }
-//                clover belt for now
-               else{
-                    this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"contour", "value":"0", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"fertilizer", "value":"0_100", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
-                    this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+                this.props.updateActiveBaseManagementProps({"prop":"cover", "value": "nc", "name":"managementCont"})
+                this.props.updateActiveBaseManagementProps({"prop":"tillage", "value": "su", "name":"managementCont"})
+                this.props.updateActiveBaseManagementProps({"prop":"contour", "value": "1", "name":"managementCont"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "0", "name":"managementCont"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value":"125", "name":"managementCont"})
 
-                    this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
-               }
+                this.props.updateActiveBaseManagementProps({"prop":"cover", "value": "nc", "name":"managementCorn"})
+                this.props.updateActiveBaseManagementProps({"prop":"tillage", "value": "su", "name":"managementCorn"})
+                this.props.updateActiveBaseManagementProps({"prop":"contour", "value": "1", "name":"managementCorn"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "0", "name":"managementCorn"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value": "125", "name":"managementCorn"})
+
+                this.props.updateActiveBaseManagementProps({"prop":"cover", "value": "nc", "name":"managementDairy"})
+                this.props.updateActiveBaseManagementProps({"prop":"tillage", "value": "su", "name":"managementDairy"})
+                this.props.updateActiveBaseManagementProps({"prop":"contour", "value": "1", "name":"managementDairy"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "100", "name":"managementDairy"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value": "25", "name":"managementDairy"})
+
+                this.props.updateActiveBaseManagementProps({"prop":"grassYield", "value": "medium", "name":"managementPast"})
+                this.props.updateActiveBaseManagementProps({"prop":"density", "value": "cn_hi", "name":"managementPast"})
+                this.props.updateActiveBaseManagementProps({"prop":"rotFreq", "value": "1", "name":"managementPast"})
+                this.props.updateActiveBaseManagementProps({"prop":"legume", "value": "false", "name":"managementPast"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "0", "name":"managementPast"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value": "0", "name":"managementPast"})
+
+
+
                 this.setState({showHuc12:true})
             }
         }
@@ -426,15 +480,45 @@ class SidePanel extends React.Component{
         console.log("Phos fert is ", this.props.baseTrans.management.phos_fertilizer)
         this.getPhosValuesBase()
         console.log(this.props)
-//        this.rotationType.current.value = this.props.baseTrans.management.rotationType
-        this.cover.current.value = this.props.baseTrans.management.cover
-        this.tillage.current.value = this.props.baseTrans.management.tillage
-//        this.density.current.value = this.props.baseTrans.management.density
-        this.contour.current.value = this.props.baseTrans.management.contour
-//        this.fertilizer.current.value = this.props.baseTrans.management.fertilizer
-        this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
-        this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
-        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
+//        this.cover.current.value = this.props.baseTrans.management.cover
+//        this.tillage.current.value = this.props.baseTrans.management.tillage
+//        this.contour.current.value = this.props.baseTrans.management.contour
+//        this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
+//        this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
+//        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
+
+
+        this.coverCont.current.value = this.props.baseTrans.managementCont.cover
+        this.tillageCont.current.value = this.props.baseTrans.managementCont.tillage
+        this.contourCont.current.value = this.props.baseTrans.managementCont.contour
+        this.nitrogenCont.current.value = this.props.baseTrans.managementCont.nitrogen
+        this.nitrogen_fertilizerCont.current.value = this.props.baseTrans.managementCont.nitrogen_fertilizer
+        this.phos_fertilizerCont.current.value = this.props.baseTrans.managementCont.phos_fertilizer
+
+        this.coverCorn.current.value = this.props.baseTrans.managementCorn.cover
+        this.tillageCorn.current.value = this.props.baseTrans.managementCorn.tillage
+        this.contourCorn.current.value = this.props.baseTrans.managementCorn.contour
+        this.nitrogenCorn.current.value = this.props.baseTrans.managementCorn.nitrogen
+        this.nitrogen_fertilizerCorn.current.value = this.props.baseTrans.managementCorn.nitrogen_fertilizer
+        this.phos_fertilizerCorn.current.value = this.props.baseTrans.managementCorn.phos_fertilizer
+
+        this.coverDairy.current.value = this.props.baseTrans.managementDairy.cover
+        this.tillageDairy.current.value = this.props.baseTrans.managementDairy.tillage
+        this.contourDairy.current.value = this.props.baseTrans.managementDairy.contour
+        this.nitrogenDairy.current.value = this.props.baseTrans.managementDairy.nitrogen
+        this.nitrogen_fertilizerDairy.current.value = this.props.baseTrans.managementDairy.nitrogen_fertilizer
+        this.phos_fertilizerDairy.current.value = this.props.baseTrans.managementDairy.phos_fertilizer
+
+        this.rotationTypePasture.current.value = this.props.baseTrans.managementPast.rotFreq
+        this.yieldPasture.current.value = this.props.baseTrans.managementPast.grassYield
+        this.legumePasture.current.value = this.props.baseTrans.managementPast.legume
+        this.densityPasture.current.value = this.props.baseTrans.managementPast.density
+        this.nitrogenPasture.current.value = this.props.baseTrans.managementPast.nitrogen
+        this.nitrogen_fertilizerPasture.current.value = this.props.baseTrans.managementPast.nitrogen_fertilizer
+        this.phos_fertilizerPasture.current.value = this.props.baseTrans.managementPast.phos_fertilizer
+
+
+
 
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
@@ -506,6 +590,9 @@ class SidePanel extends React.Component{
     updateActiveBaseProps(type, e){
         this.props.updateActiveBaseProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
         console.log(this.props)
+    }
+    updateActiveBaseManagementProps(prop, name, e){
+        this.props.updateActiveBaseManagementProps({"name":name, "value":e.currentTarget.value, "prop":prop})
     }
     updateActiveBaseEcon(type, e){
         this.props.updateActiveBaseProps({"name":type, "value":e.currentTarget.value, "type":"econ"})
@@ -605,32 +692,32 @@ class SidePanel extends React.Component{
 
     }
     reset(){
-//      clear any selection criteria
-        this.clearSelection("all")
-//        this.setState({showHuc10:false})
-        this.setState({showHuc12:false})
-        this.props.setActiveRegion(null)
-//        this.props.setVisibilityMapLayer([
-//            {'name':'southWest', 'visible':true},
-//            {'name':'southCentral', 'visible':true},
-//            {'name':'redCedar', 'visible':true},
-//            {'name':'cloverBelt', 'visible':true},
-//            {'name':'cloverBelt', 'visible':true},
-//            {'name':'subHuc12', 'visible':false},
-////            {'name':'huc10', 'visible':true},
-//            {'name':'huc12', 'visible':true}
-//            ])
-        this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"p_manure_cat", "value":"0", "type":"mang"})
-        this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
-        console.log("huc 10 vis ", this.state.showHuc10)
-        this.setState({aoiOrDisplayLoading:false})
+////      clear any selection criteria
+//        this.clearSelection("all")
+////        this.setState({showHuc10:false})
+//        this.setState({showHuc12:false})
+//        this.props.setActiveRegion(null)
+////        this.props.setVisibilityMapLayer([
+////            {'name':'southWest', 'visible':true},
+////            {'name':'southCentral', 'visible':true},
+////            {'name':'redCedar', 'visible':true},
+////            {'name':'cloverBelt', 'visible':true},
+////            {'name':'cloverBelt', 'visible':true},
+////            {'name':'subHuc12', 'visible':false},
+//////            {'name':'huc10', 'visible':true},
+////            {'name':'huc12', 'visible':true}
+////            ])
+//        this.props.updateActiveBaseProps({"name":"cover", "value":"nc", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"tillage", "value":"su", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"contour", "value":"1", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"fertilizer", "value":"50_50", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"nitrogen", "value":"125", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"nitrogen_fertilizer", "value":"25", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"phos_manure", "value":"0", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"p_manure_cat", "value":"0", "type":"mang"})
+//        this.props.updateActiveBaseProps({"name":"legume", "value":"false", "type":"mang"})
+//        console.log("huc 10 vis ", this.state.showHuc10)
+//        this.setState({aoiOrDisplayLoading:false})
 //        document.getElementById("loaderDiv").hidden = !this.state.aoiOrDisplayLoading
 
 //        remove all transformations
@@ -953,33 +1040,57 @@ class SidePanel extends React.Component{
             data : payload,
             success: (response, opts) => {
                 delete $.ajaxSetup().headers
-                console.log("done with model runs")
+                console.log("done with getting phos manure calc")
                 console.log(response)
 
-//                let phos_options = response.response["base"].p_choices
-                let phos_options = response.response["base"].p_choices
-                let manure_value = response.response["base"].p_manure
-                let p_manure_cat = response.response["base"].p_manure_cat
-//                let manure_value = response.response["base"].p_manure
-                console.log(phos_options, manure_value)
-                let phosOpt = phos_options[0]
-                console.log("phosOpt")
-                console.log(phosOpt)
-                console.log(this.phos_fertilizer.current.value)
-                console.log(phos_options.includes(parseInt(this.phos_fertilizer.current.value)))
-                if (phos_options.includes(parseInt(this.phos_fertilizer.current.value))){
-                    phosOpt = this.phos_fertilizer.current.value
-                }
-                this.props.updateActiveBaseProps({"name":"phos_manure", "value": manure_value, "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"phos_manure_cat", "value": p_manure_cat, "type":"mang"})
-//                this.props.updateActiveBaseProps({"name":"phos_fert_options", "value": phos_options, "type":"mang"})
-                this.props.updateActiveBaseProps({"name":"phos_fertilizer", "value":phosOpt, "type":"mang"})
+//                if (phos_options.includes(parseInt(this.phos_fertilizer.current.value))){
+//                    phosOpt = this.phos_fertilizer.current.value
+//                }
+
+                let phos_optionsCont = response.response["base"]["cont"].p_choices
+                let manure_valueCont = response.response["base"]["cont"].p_manure
+                let phosOptCont = phos_optionsCont[0]
+
+                let phos_optionsCorn = response.response["base"]["corn"].p_choices
+                let manure_valueCorn = response.response["base"]["corn"].p_manure
+                let phosOptCorn = phos_optionsCorn[0]
+
+                let phos_optionsDairy = response.response["base"]["dairy"].p_choices
+                let manure_valueDairy = response.response["base"]["dairy"].p_manure
+                let phosOptDairy = phos_optionsDairy[0]
+
+                let phos_optionsPast = response.response["base"]["past"].p_choices
+                let manure_valuePast = response.response["base"]["past"].p_manure
+                let phosOptPast = phos_optionsPast[0]
+
+                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCont, "name":"managementCont"})
+                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCont, "name":"managementCont"})
+
+                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCorn, "name":"managementCorn"})
+                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCorn, "name":"managementCorn"})
+
+                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueDairy, "name":"managementDairy"})
+                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptDairy, "name":"managementDairy"})
+
+                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valuePast, "name":"managementPast"})
+                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptPast, "name":"managementPast"})
 
 //                this.phos_fert_options_holder = ["6","8","9"]
-                this.setState({phos_fert_options_holder:phos_options})
-                this.phos_manure.current.value = manure_value
-                this.phos_fertilizer.current.value = phosOpt
-                console.log(this.phos_fertilizer )
+                this.setState({phos_fert_options_holderCont:phos_optionsCont})
+                this.phos_manureCont.current.value = manure_valueCont
+                this.phos_fertilizerCont.current.value = phosOptCont
+
+                this.setState({phos_fert_options_holderCorn:phos_optionsCorn})
+                this.phos_manureCorn.current.value = manure_valueCorn
+                this.phos_fertilizerCorn.current.value = phosOptCorn
+
+                this.setState({phos_fert_options_holderDairy:phos_optionsDairy})
+                this.phos_manureDairy.current.value = manure_valueDairy
+                this.phos_fertilizerDairy.current.value = phosOptDairy
+
+                this.setState({phos_fert_options_holderPast:phos_optionsPast})
+                this.phos_manurePasture.current.value = manure_valuePast
+                this.phos_fertilizerPasture.current.value = phosOptPast
 
             },
 
@@ -987,77 +1098,156 @@ class SidePanel extends React.Component{
             }
         })
   }
-  setTillage(base_prop, e){
-        this.updateActiveBaseProps("cover", e)
-//        let rot = this.rotationType.current.value
-        let cover = this.cover.current.value
-//        let currentTill = this.tillage.current.value
-//        console.log("tillage")
-//        console.log(currentTill)
-//        console.log(this.tillage)
-//        set all till disabled to start
-        this.setState({
-                showTillageFC:false,
-                showTillageFM:false,
-                showTillageNT:false,
-                showTillageSC:false,
-                showTillageSN:false,
-                showTillageSU:false,
-                showTillageSV:false,
-            })
-
-        this.tillage.current.value = "nt"
-        this.setState({tillageBlank:false})
-        if (cover == "cc"){
-            this.setState({
-                showTillageNT:true,
-                showTillageSU:true,
-            })
-//            if (rot == "dairyRotation"){
-//                this.setState({
-//                    showTillageSC:true
-//                })
-//            }
-//            else{
-//                this.setState({
-//                    showTillageSN:true,
-//                })
-//            }
+  updateActiveBaseManagementPropsDensity(e){
+    this.updateActiveBaseManagementProps("density", "managementPast", e)
+        if(this.densityPasture.current.value == "rt_rt"){
+                this.setState({showRotFreq:true})
+            }
+        else{
+            this.setState({showRotFreq:false})
+            this.rotationTypePasture.current.value = "1"
         }
-        else if (cover == "nc"){
+  }
+  setTillage(base_prop, e, type){
+//        this.updateActiveBaseProps("cover", e)
+//        let cover = this.cover.current.value
+        let cover = null
+        if (type == "managementCont"){
+            cover = this.coverCont.current.value
+            this.tillageCont.current.value = "nt"
+            this.updateActiveBaseManagementProps("cover", "managementCont", e)
             this.setState({
-                showTillageFC:true,
-                showTillageFM:true,
-                showTillageNT:true,
-                showTillageSN:true,
-                showTillageSU:true,
-                showTillageSV:true,
+                showTillageFCCont:false,
+                showTillageFMCont:false,
+                showTillageNTCont:false,
+                showTillageSCCont:false,
+                showTillageSNCont:false,
+                showTillageSUCont:false,
+                showTillageSVCont:false,
             })
-
-        }
-        else if (cover == "gcis"){
-            this.setState({
-                showTillageNT:true,
-                showTillageSC:true,
-                showTillageSU:true,
-            })
-        }
-        else if (cover == "gcds"){
-            this.setState({
-                    showTillageNT:true,
-                    showTillageSC:true,
-                    showTillageSU:true,
+            if (cover == "cc"){
+                this.setState({
+                    showTillageNTCont:true,
+                    showTillageSUCont:true,
                 })
             }
-//        console.log(this.state["showTillage" + currentTill.toUpperCase()])
-//        console.log("showTillage" + currentTill.toUpperCase())
+            else if (cover == "nc"){
+                this.setState({
+                    showTillageFCCont:true,
+                    showTillageFMCont:true,
+                    showTillageNTCont:true,
+                    showTillageSNCont:true,
+                    showTillageSUCont:true,
+                    showTillageSVCont:true,
+                })
+            }
+            else if (cover == "gcis"){
+                this.setState({
+                    showTillageNTCont:true,
+                    showTillageSCCont:true,
+                    showTillageSUCont:true,
+                })
+            }
+            else if (cover == "gcds"){
+                this.setState({
+                    showTillageNTCont:true,
+                    showTillageSCCont:true,
+                    showTillageSUCont:true,
+                })
 
-//        console.log(this.state)
-//        if(this.state["showTillage" + currentTill.toUpperCase()] == true){
-//            this.tillage.current.value = currentTill
-//        }
+            }
+        }
+        else if (type == "managementCorn"){
+            cover = this.coverCorn.current.value
+            this.tillageCorn.current.value = "nt"
+            this.updateActiveBaseManagementProps("cover", "managementCorn", e)
+            this.setState({
+                showTillageFCCorn:false,
+                showTillageFMCorn:false,
+                showTillageNTCorn:false,
+                showTillageSCCorn:false,
+                showTillageSNCorn:false,
+                showTillageSUCorn:false,
+                showTillageSVCorn:false,
+            })
+            if (cover == "cc"){
+                this.setState({
+                    showTillageNTCorn:true,
+                    showTillageSUCorn:true,
+                })
+            }
+            else if (cover == "nc"){
+                this.setState({
+                    showTillageFCCorn:true,
+                    showTillageFMCorn:true,
+                    showTillageNTCorn:true,
+                    showTillageSNCorn:true,
+                    showTillageSUCorn:true,
+                    showTillageSVCorn:true,
+                })
+            }
+            else if (cover == "gcis"){
+                this.setState({
+                    showTillageNTCorn:true,
+                    showTillageSCCorn:true,
+                    showTillageSUCorn:true,
+                })
+            }
+            else if (cover == "gcds"){
+                this.setState({
+                    showTillageNTCorn:true,
+                    showTillageSCCorn:true,
+                    showTillageSUCorn:true,
+                })
+            }
+
+        }
+        else if (type == "managementDairy"){
+            cover = this.coverDairy.current.value
+            this.tillageDairy.current.value = "nt"
+            this.updateActiveBaseManagementProps("cover", "managementDairy", e)
+            this.setState({
+                showTillageFCDairy:false,
+                showTillageFMDairy:false,
+                showTillageNTDairy:false,
+                showTillageSCDairy:false,
+                showTillageSNDairy:false,
+                showTillageSUDairy:false,
+                showTillageSVDairy:false,
+            })
+            if (cover == "cc"){
+                this.setState({
+                    showTillageNTDairy:true,
+                    showTillageSUDairy:true,
+                })
+            }
+            else if (cover == "nc"){
+                this.setState({
+                    showTillageFCDairy:true,
+                    showTillageFMDairy:true,
+                    showTillageNTDairy:true,
+                    showTillageSNDairy:true,
+                    showTillageSUDairy:true,
+                    showTillageSVDairy:true,
+                })
+            }
+            else if (cover == "gcis"){
+                this.setState({
+                    showTillageNTDairy:true,
+                    showTillageSCDairy:true,
+                    showTillageSUDairy:true,
+                })
+            }
+            else if (cover == "gcds"){
+                this.setState({
+                    showTillageNTDairy:true,
+                    showTillageSCDairy:true,
+                    showTillageSUDairy:true,
+                })
+            }
+        }
+
       }
-
 
     printSummary(){
         var doc = new jsPDF();
@@ -2764,6 +2954,7 @@ renderModal(){
                      </Button>
                       <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
 
+
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
 
                      </Stack>
@@ -2774,28 +2965,21 @@ renderModal(){
             </Accordion>
             {/*
 
-                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             */}
-
+                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
+            <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>
                   <Modal.Title>Base Assumptions</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                                      {/*
-                    transform to: pasture
-                    cover crop
-                    tillage
-                    contour
-                    manure and fertilizier
-                  */}
 
                 <Tabs defaultActiveKey="mange" id="uncontrolled-tab-example" className="mb-3">
-                  <Tab eventKey="mange" title="Crop Land Management">
+                  <Tab eventKey="mange" title="Continuous Corn">
                     <Form.Label>Cover Crop</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.cover}
-                      onChange={(e) => this.setTillage("cover", e)}>
+                    <Form.Select aria-label="Default select example" ref={this.coverCont}
+                      onChange={(e) => this.setTillage("cover", e, "managementCont")}>
                       <option value="default">Open this select menu</option>
                       <option value="cc">Small Grain</option>
                       <option value="gcds">Grazed Cover Direct Seeded</option>
@@ -2805,51 +2989,266 @@ renderModal(){
                     </Form.Select>
 
                     <Form.Label>Tillage</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.tillage}
-                    onChange={(e) =>  this.updateActiveBaseProps("tillage", e)}>
-                      <option disabled={!this.state.showTillageFC} value="fc">Fall Chisel</option>
-                      <option disabled={!this.state.showTillageFM} value="fm">Fall Moldboard</option>
-                      <option disabled={!this.state.showTillageNT} value="nt">No Till</option>
-                      <option disabled={!this.state.showTillageSC} value="sc">Spring Chisel, Disked</option>
-                      <option disabled={!this.state.showTillageSN} value="sn">Spring Chisel, No Disk</option>
-                      <option disabled={!this.state.showTillageSU} value="su">Spring Cultivation</option>
-                      <option disabled={!this.state.showTillageSV} value="sv">Spring Vertical</option>
+                    <Form.Select aria-label="Default select example" ref={this.tillageCont}
+                    onChange={(e) =>  this.updateActiveBaseManagementProps("tillage", "managementCont", e)}>
+                      <option disabled={!this.state.showTillageFCCont} value="fc">Fall Chisel</option>
+                      <option disabled={!this.state.showTillageFMCont} value="fm">Fall Moldboard</option>
+                      <option disabled={!this.state.showTillageNTCont} value="nt">No Till</option>
+                      <option disabled={!this.state.showTillageSCCont} value="sc">Spring Chisel, Disked</option>
+                      <option disabled={!this.state.showTillageSNCont} value="sn">Spring Chisel, No Disk</option>
+                      <option disabled={!this.state.showTillageSUCont} value="su">Spring Cultivation</option>
+                      <option disabled={!this.state.showTillageSVCont} value="sv">Spring Vertical</option>
                     </Form.Select>
-                    {/*<Form.Label>Interseeded Legume</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.legume}
-                      onChange={(e) => this.updateActiveBaseProps("legume", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="false">No</option>
-                      <option value="true">Yes</option>
-                    </Form.Select>*/}
+
                     <Form.Label>On Contour</Form.Label>
-                    <Form.Select aria-label="Default select example" ref={this.contour}
-                      onChange={(e) => this.updateActiveBaseProps("contour", e)}>
+                    <Form.Select aria-label="Default select example" ref={this.contourCont}
+                      onChange={(e) => this.updateActiveBaseManagementProps("contour", "managementCont", e)}>
                       <option value="default">Open this select menu</option>
                       <option value="0">No</option>
                       <option value="1">Yes</option>
                       <option value="na">N/A</option>
                     </Form.Select>
-                    {/*
-                     <Form.Label>Manure/ Synthetic Fertilization Options</Form.Label>
-                     <Form.Select aria-label="Default select example" ref={this.fertilizer}
-                      onChange={(e) => this.updateActiveBaseProps("fertilizer", e)}>
-                      <option value="default">Open this select menu</option>
-                      <option value="0_0">0/	0</option>
-                      <option value="0_100">0/	100</option>
-                      <option value="100_0">100/	0</option>
-                      <option value="150_0">150/	0</option>
-                      <option value="200_0">200/	0</option>
-                      <option value="25_50">25/	50</option>
-                      <option value="50_50">50/	50</option>
-                    </Form.Select>
-                    */}
                     <OverlayTrigger key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
                         <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
-                     <Form.Select aria-label="Default select example" ref={this.nitrogen}
-                      onChange={(e) => this.updateActiveBaseProps("nitrogen", e)}>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogenCont}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementCont", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top2" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerCont}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementCont", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top3" placement="top"
+                            overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
+                    </OverlayTrigger>
+                    <Form.Control placeholder="0" disabled ref={this.phos_manureCont}/>
+                    <OverlayTrigger key="top4" placement="top"
+                            overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizerCont}
+                      onChange={(e) => this.updateActiveBaseManagementProps("phos_fertilizer", "managementCont", e)}>
+                       {this.state.phos_fert_options_holderCont.map((item1, index) => (
+
+                         <option  key = {item1} value={item1}>{item1}</option>
+                        ))}
+                    </Form.Select>
+                 </Tab>
+
+                  <Tab eventKey="mange1" title="Corn and Soybeans">
+                    <Form.Label>Cover Crop</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.coverCorn}
+                      onChange={(e) => this.setTillage("cover", e, "managementCorn")}>
+                      <option value="default">Open this select menu</option>
+                      <option value="cc">Small Grain</option>
+                      <option value="gcds">Grazed Cover Direct Seeded</option>
+                      <option value="gcis">Grazed Cover Interseeded</option>
+                      <option value="nc">No Cover</option>
+                      <option value="na">NA</option>
+                    </Form.Select>
+
+                    <Form.Label>Tillage</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.tillageCorn}
+                    onChange={(e) =>  this.updateActiveBaseManagementProps("tillage", "managementCorn", e)}>
+                      <option disabled={!this.state.showTillageFCCorn} value="fc">Fall Chisel</option>
+                      <option disabled={!this.state.showTillageFMCorn} value="fm">Fall Moldboard</option>
+                      <option disabled={!this.state.showTillageNTCorn} value="nt">No Till</option>
+                      <option disabled={!this.state.showTillageSCCorn} value="sc">Spring Chisel, Disked</option>
+                      <option disabled={!this.state.showTillageSNCorn} value="sn">Spring Chisel, No Disk</option>
+                      <option disabled={!this.state.showTillageSUCorn} value="su">Spring Cultivation</option>
+                      <option disabled={!this.state.showTillageSVCorn} value="sv">Spring Vertical</option>
+                    </Form.Select>
+
+                    <Form.Label>On Contour</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.contourCorn}
+                      onChange={(e) => this.updateActiveBaseManagementProps("contour", "managementCorn", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
+                      <option value="na">N/A</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top1" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogenCorn}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementCorn", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top2" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerCorn}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementCorn", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top3" placement="top"
+                            overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
+                    </OverlayTrigger>
+                    <Form.Control placeholder="0" disabled ref={this.phos_manureCorn}/>
+                    <OverlayTrigger key="top4" placement="top"
+                            overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizerCorn}
+                      onChange={(e) => this.updateActiveBaseManagementProps("phos_fertilizer", "managementCorn", e)}>
+                       {this.state.phos_fert_options_holderCorn.map((item1, index) => (
+
+                         <option  key = {item1} value={item1}>{item1}</option>
+                        ))}
+                    </Form.Select>
+                 </Tab>
+
+                  <Tab eventKey="mange2" title="Dairy Rotation">
+                    <Form.Label>Cover Crop</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.coverDairy}
+                      onChange={(e) => this.setTillage("cover", e, "managementDairy")}>
+                      <option value="default">Open this select menu</option>
+                      <option value="cc">Small Grain</option>
+                      <option value="gcds">Grazed Cover Direct Seeded</option>
+                      <option value="gcis">Grazed Cover Interseeded</option>
+                      <option value="nc">No Cover</option>
+                      <option value="na">NA</option>
+                    </Form.Select>
+
+                    <Form.Label>Tillage</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.tillageDairy}
+                    onChange={(e) =>  this.updateActiveBaseManagementProps("tillage", "managementDairy", e)}>
+                      <option disabled={!this.state.showTillageFCDairy} value="fc">Fall Chisel</option>
+                      <option disabled={!this.state.showTillageFMDairy} value="fm">Fall Moldboard</option>
+                      <option disabled={!this.state.showTillageNTDairy} value="nt">No Till</option>
+                      <option disabled={!this.state.showTillageSCDairy} value="sc">Spring Chisel, Disked</option>
+                      <option disabled={!this.state.showTillageSNDairy} value="sn">Spring Chisel, No Disk</option>
+                      <option disabled={!this.state.showTillageSUDairy} value="su">Spring Cultivation</option>
+                      <option disabled={!this.state.showTillageSVDairy} value="sv">Spring Vertical</option>
+                    </Form.Select>
+
+                    <Form.Label>On Contour</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.contourDairy}
+                      onChange={(e) => this.updateActiveBaseManagementProps("contour", "managementDairy", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
+                      <option value="na">N/A</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top1" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogenDairy}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementDairy", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top2" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerDairy}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementDairy", e)}>
+                      <option value="0">0</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                      <option value="125">125</option>
+                      <option value="150">150</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top3" placement="top"
+                            overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
+                    </OverlayTrigger>
+                    <Form.Control placeholder="0" disabled ref={this.phos_manureDairy}/>
+                    <OverlayTrigger key="top4" placement="top"
+                            overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
+                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizerDairy}
+                      onChange={(e) => this.updateActiveBaseManagementProps("phos_fertilizer",  "managementDairy", e)}>
+                       {this.state.phos_fert_options_holderDairy.map((item1, index) => (
+
+                         <option  key = {item1} value={item1}>{item1}</option>
+                        ))}
+                    </Form.Select>
+                 </Tab>
+
+                  <Tab eventKey="mange3" title="Pasture">
+                    <Form.Label>Grass Yield</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.yieldPasture}
+                      onChange={(e) => this.updateActiveBaseManagementProps("grassYield",  "managementPast", e)}>
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </Form.Select>
+
+                    <Form.Label>Pasture Management</Form.Label>
+                    <Form.Select aria-label="Default select example"ref={this.densityPasture}
+                      onChange={(e) => this.updateActiveBaseManagementPropsDensity(e)}>
+                      <option value="cn_hi">Continuous High Density</option>
+                      <option value="cn_lo">Continuous Low Density</option>
+                      <option value="rt_rt">Rotational</option>
+                    </Form.Select>
+
+                    <Form.Label hidden={!this.state.showRotFreq}>Rotational Frequency</Form.Label>
+                    <Form.Select aria-label="Default select example" hidden={!this.state.showRotFreq} ref={this.rotationTypePasture}
+                      onChange={(e) => this.updateActiveBaseManagementProps("rotFreq", "managementPast", e)}>
+                      <option value="1.2">More than once a day</option>
+                      <option value="1">Once a day</option>
+                      <option value="0.95">Every 3 days</option>
+                      <option value="0.75">Every 7 days</option>
+                    </Form.Select>
+
+                    <Form.Label >Interseeded Legume</Form.Label>
+                    <Form.Select aria-label="Default select example" ref={this.legumePasture}
+                      onChange={(e) => this.updateActiveBaseManagementProps("legume", "managementPast", e)}>
+                      <option value="default">Open this select menu</option>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </Form.Select>
+                    <OverlayTrigger key="top1" placement="top"
+                        overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
+                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                    </OverlayTrigger>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogenPasture}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementPast", e)}>
                       <option value="0">0</option>
                       <option value="25">25</option>
                       <option value="50">50</option>
@@ -2863,8 +3262,8 @@ renderModal(){
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
                         <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
-                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
-                      onChange={(e) => this.updateActiveBaseProps("nitrogen_fertilizer", e)}>
+                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerPasture}
+                      onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementPast", e)}>
                       <option value="0">0</option>
                       <option value="25">25</option>
                       <option value="50">50</option>
@@ -2874,24 +3273,28 @@ renderModal(){
                       <option value="150">150</option>
                     </Form.Select>
 
-                    <OverlayTrigger key="top3" placement="top"
+                     <OverlayTrigger key="top3" placement="top"
                             overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
                         <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
                     </OverlayTrigger>
-                    <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
+                    <Form.Control placeholder="0" disabled ref={this.phos_manurePasture}/>
 
                     <OverlayTrigger key="top4" placement="top"
                             overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
                         <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
                     </OverlayTrigger>
-                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
-                      onChange={(e) => this.updateActiveBaseProps("phos_fertilizer", e)}>
-                       {this.state.phos_fert_options_holder.map((item1, index) => (
+                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizerPasture}
+                      onChange={(e) => this.updateActiveBaseManagementProps("phos_fertilizer", e)}>
+                        {this.state.phos_fert_options_holderPast.map((item1, index) => (
 
                          <option  key = {item1} value={item1}>{item1}</option>
                         ))}
+
                     </Form.Select>
                  </Tab>
+
+
+
                  <Tab eventKey="economics" title="Economics">
 
                        <Form.Label>P2O5 per lb:</Form.Label><Form.Control type="number" ref={this.p2o5} onChange={(e) => this.updateActiveBaseEcon("p2o5", e)}/>
@@ -2922,11 +3325,12 @@ renderModal(){
                 </Tabs>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={this.handleCloseModalBase}>
-                    Save
-                  </Button>
+                  <Button variant="secondary" onClick={this.handleCloseModalBase}>Save</Button>
                 </Modal.Footer>
             </Modal>
+
+
+
             <Modal show={this.state.outputModalShow} onHide={this.handleCloseModal} dialogClassName="modal-90w">
             <Modal.Header closeButton>
               <Modal.Title>Transformation Results</Modal.Title>
