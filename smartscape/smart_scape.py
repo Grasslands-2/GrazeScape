@@ -827,7 +827,15 @@ class SmartScape:
                                 dairy_er_arr)
         pasture_yield_arr = np.where(
             np.logical_and(watershed_land_use != self.no_data, pasture_yield_arr == self.no_data), 0, pasture_yield_arr)
-        pasture_yield_arr = pasture_yield_arr * float(base_scen["managementPast"]["rotFreq"])
+
+        if base_scen["managementPast"]["density"] != "rt_rt":
+            grass_yield_factor_base = 0.65
+        else:
+            grass_yield_factor_base = float(base_scen["managementPast"]["rotFreq"])
+        
+        pasture_yield_arr = pasture_yield_arr * grass_yield_factor_base
+
+
         print("grass multiplier for base is", base_scen["managementPast"]["rotFreq"])
         base_nitrate_data = self.nitrate_calc_base(n_parameters, base_scen,
                                                    pasture_yield_arr, cont_yield, corn_yield, dairy_yield,
