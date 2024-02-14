@@ -390,12 +390,14 @@ class SidePanel extends React.Component{
                 this.props.updateActiveBaseManagementProps({"prop":"contour", "value": "1", "name":"managementCont"})
                 this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "0", "name":"managementCont"})
                 this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value":"125", "name":"managementCont"})
+                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":"100", "name":"managementCont"})
 
                 this.props.updateActiveBaseManagementProps({"prop":"cover", "value": "nc", "name":"managementCorn"})
                 this.props.updateActiveBaseManagementProps({"prop":"tillage", "value": "su", "name":"managementCorn"})
                 this.props.updateActiveBaseManagementProps({"prop":"contour", "value": "1", "name":"managementCorn"})
                 this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "0", "name":"managementCorn"})
                 this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value": "125", "name":"managementCorn"})
+                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value": "100", "name":"managementCorn"})
 
                 this.props.updateActiveBaseManagementProps({"prop":"cover", "value": "nc", "name":"managementDairy"})
                 this.props.updateActiveBaseManagementProps({"prop":"tillage", "value": "su", "name":"managementDairy"})
@@ -1051,6 +1053,19 @@ class SidePanel extends React.Component{
                 let phos_optionsPast = response.response["base"]["past"].p_choices
                 let manure_valuePast = response.response["base"]["past"].p_manure
                 let phosOptPast = phos_optionsPast[0]
+
+                if (phos_optionsCont.includes(parseInt(this.props.baseTrans.managementCont.phos_fertilizer))){
+                    phosOptCont = this.props.baseTrans.managementCont.phos_fertilizer
+                }
+                if (phos_optionsCorn.includes(parseInt(this.props.baseTrans.managementCorn.phos_fertilizer))){
+                    phosOptCorn = this.props.baseTrans.managementCorn.phos_fertilizer
+                }
+                if (phos_optionsDairy.includes(parseInt(this.props.baseTrans.managementDairy.phos_fertilizer))){
+                    phosOptDairy = this.props.baseTrans.managementDairy.phos_fertilizer
+                }
+                if (phos_optionsPast.includes(parseInt(this.props.baseTrans.managementPast.phos_fertilizer))){
+                    phosOptPast = this.props.baseTrans.managementPast.phos_fertilizer
+                }
                 console.log("Updating base phos values")
                 this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCont, "name":"managementCont"})
                 this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCont, "name":"managementCont"})
@@ -2939,8 +2954,8 @@ renderModal(){
                      <Stack gap={3}>
                      {/*
 
-                     */}
                      <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+                     */}
 
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
@@ -3276,7 +3291,7 @@ renderModal(){
                         <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.phos_fertilizerPasture}
-                      onChange={(e) => this.updateActiveBaseManagementProps("phos_fertilizer", e)}>
+                      onChange={(e) => this.updateActiveBaseManagementProps("phos_fertilizer",  "managementPast", e)}>
                         {this.state.phos_fert_options_holderPast.map((item1, index) => (
 
                          <option  key = {item1} value={item1}>{item1}</option>
