@@ -40,10 +40,10 @@ def download_base_rasters_helper(request, geo_folder):
     # download layers for base case
     base_names = ("contCorn", "cornGrain", "dairyRotation", "hayGrassland", "pastureWatershed")
     model_names_base = ("Erosion", "PI", "CN", "SCI")
+
     # contCorn
     # create name of the layer that corresponds to geoserver for base case
     # Todo fix this
-    phos_fertilizer = base_scen["managementCont"]["phos_fertilizer"]
 
     def calc_manure_level(manure):
         """
@@ -81,8 +81,9 @@ def download_base_rasters_helper(request, geo_folder):
             return 200
 
     def get_m_p_options(manure_val, phos_val, man_actual):
-        print("manure_val, phos_val, man_actual", manure_val, phos_val, man_actual)
         m1, m2, p1, p2 = 0, 0, 0, 0
+        if phos_val == "default":
+            phos_val = 0
         phos_val = float(phos_val)
         if manure_val == 0:
             if phos_val == 0:
@@ -95,6 +96,7 @@ def download_base_rasters_helper(request, geo_folder):
             else:
                 raise ValueError("P phos is wrong value")
         elif manure_val == 25:
+            # handling edge case where phos hasn't been calculated
             if phos_val == 50:
                 m1, m2, p1, p2 = 25, 50, 50, 50
             else:
@@ -130,19 +132,49 @@ def download_base_rasters_helper(request, geo_folder):
         return m1, m2, p1, p2
 
     # p manure is the same for all base
-    manure = float(manure_options["base"]["cont"]["p_manure"])
-    manure_rounded = calc_manure_level(manure)
+    print("base scen", base_scen)
+    manure_cont = float(base_scen["managementCont"]["phos_manure"])
+    manure_corn = float(base_scen["managementCorn"]["phos_manure"])
+    manure_dairy = float(base_scen["managementDairy"]["phos_manure"])
+    manure_past = float(base_scen["managementPast"]["phos_manure"])
 
-    man1, man2, phos1, phos2 = get_m_p_options(manure_rounded, phos_fertilizer, manure)
+    manure_rounded_cont = calc_manure_level(manure_cont)
+    manure_rounded_corn = calc_manure_level(manure_corn)
+    manure_rounded_dairy = calc_manure_level(manure_dairy)
+    manure_rounded_past = calc_manure_level(manure_past)
+
+    base_phos_fert_cont = float(base_scen["managementCont"]["phos_fertilizer"])
+    base_phos_fert_corn = float(base_scen["managementCorn"]["phos_fertilizer"])
+    base_phos_fert_dairy = float(base_scen["managementDairy"]["phos_fertilizer"])
+    base_phos_fert_past = float(base_scen["managementPast"]["phos_fertilizer"])
+
+    print("done getting phos values from scenario")
+
+    man1_cont, man2_cont, phos1_cont, phos2_cont = get_m_p_options(manure_rounded_cont, base_phos_fert_cont,
+                                                                   manure_cont)
+    man1_corn, man2_corn, phos1_corn, phos2_corn = get_m_p_options(manure_rounded_corn, base_phos_fert_corn,
+                                                                   manure_corn)
+    man1_dairy, man2_dairy, phos1_dairy, phos2_dairy = get_m_p_options(manure_rounded_dairy, base_phos_fert_dairy,
+                                                                       manure_dairy)
+    man1_past, man2_past, phos1_past, phos2_past = get_m_p_options(manure_rounded_past, base_phos_fert_past,
+                                                                   manure_past)
+
     print("manure values for raster baseline")
-    manure_p = str(man1) + "_" + str(phos1)
-    manure_p2 = str(man2) + "_" + str(phos2)
-    # setting our x interpolatation value
-    if man1 == man2:
-        man1 = phos1
-        man2 = phos2
-    print(manure_p)
-    print(manure_p2)
+    manure_p_cont = str(man1_cont) + "_" + str(phos1_cont)
+    manure_p2_cont = str(man2_cont) + "_" + str(phos2_cont)
+
+    manure_p_corn = str(man1_corn) + "_" + str(phos1_corn)
+    manure_p2_corn = str(man2_corn) + "_" + str(phos2_corn)
+
+    manure_p_dairy = str(man1_dairy) + "_" + str(phos1_dairy)
+    manure_p2_dairy = str(man2_dairy) + "_" + str(phos2_dairy)
+
+    manure_p_past = str(man1_past) + "_" + str(phos1_past)
+    manure_p2_past = str(man2_past) + "_" + str(phos2_past)
+
+
+    # print(manure_p)
+    # print(manure_p2)
 
     for name in base_names:
         for model in model_names_base:
@@ -153,21 +185,27 @@ def download_base_rasters_helper(request, geo_folder):
             elif name == "pastureWatershed":
                 base_layer_dic[name + "_" + model] = "pasture_" + model + "_" + \
                                                      base_scen["managementPast"]["density"] + "_" + \
-                                                     manure_p + "_" + \
+                                                     manure_p_past + "_" + \
                                                      region
                 if model == "PI":
                     base_layer_dic[name + "_" + "PI2"] = "pasture_" + model + "_" + \
                                                          base_scen["managementPast"]["density"] + "_" + \
-                                                         manure_p2 + "_" + \
+                                                         manure_p2_past + "_" + \
                                                          region
             else:
                 management_type = None
                 if name == "contCorn":
                     management_type = "managementCont"
+                    manure_p = manure_p_cont
+                    manure_p2 = manure_p2_cont
                 elif name == "cornGrain":
                     management_type = "managementCorn"
+                    manure_p = manure_p_corn
+                    manure_p2 = manure_p2_corn
                 elif name == "dairyRotation":
                     management_type = "managementDairy"
+                    manure_p = manure_p_dairy
+                    manure_p2 = manure_p2_dairy
 
                 file_name = name + "_" + \
                             model + "_" + \
@@ -196,7 +234,8 @@ def download_base_rasters_helper(request, geo_folder):
     base_layer_dic["hyd_letter"] = "" + region + "_hydgrp_30m"
     base_layer_dic["hayGrassland_Yield"] = "pasture_Yield_medium_" + region
 
-    base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_"+ base_scen["managementPast"]["grassYield"]+"_" + region
+    base_layer_dic["pastureWatershed_Yield"] = "pasture_Yield_" + base_scen["managementPast"][
+        "grassYield"] + "_" + region
     print(base_layer_dic)
     image = gdal.Open(os.path.join(geo_folder, "landuse_aoi-clipped.tif"))
     band = image.GetRasterBand(1)
@@ -260,7 +299,6 @@ def get_phos_fert_options(request, base_calc, region):
     phos_choices = {"0": [0, 50, 100], "100": [0], "150": [0], "200": [0], "25": [50], "50": [50]}
 
     request_json = js.loads(request.body)
-    # print("get phos fert options request", request_json)
     # folder id of our aoi input data
     folder_id = request_json["folderId"]
     # transformation data
@@ -311,88 +349,168 @@ def get_phos_fert_options(request, base_calc, region):
     band = image.GetRasterBand(1)
     arr = band.ReadAsArray()
 
-    def calc_phos_calc(arr, base, id):
+    def calc_phos_calc(arr, input_tran, id, base_for_tran):
+        mang_cont = "managementCont"
+        mang_corn = "managementCorn"
+        mang_dairy = "managementDairy"
+        mang_past = "managementPast"
+        cover_den_leg_dict = {
+            "managementCont": base_for_tran["managementCont"]["cover"],
+            "managementCorn": base_for_tran["managementCont"]["cover"],
+            "managementDairy": base_for_tran["managementCont"]["cover"],
+            "managementPastDensity": base_for_tran["managementPast"]["density"],
+            "managementPastLegume": base_for_tran["managementPast"]["legume"],
+        }
         if id != "base":
-            mang_cont = "management"
-            mang_corn = "management"
-            mang_dairy = "management"
-            mang_past = "management"
-            is_not_base = True
-        else:
-            mang_cont = "managementCont"
-            mang_corn = "managementCorn"
-            mang_dairy = "managementDairy"
-            mang_past = "managementPast"
-            is_not_base = False
+            rot_type = input_tran["management"]["rotationType"]
+            # use the parameters from the transformation for the selected rotation type
+            if rot_type == "pasture":
+                mang_past = "management"
+                cover_den_leg_dict["managementPastDensity"] = input_tran["management"]["density"]
+                cover_den_leg_dict["managementPastLegume"] = input_tran["management"]["legume"]
+            elif rot_type == "contCorn":
+                mang_cont = "management"
+                cover_den_leg_dict["managementCont"] = input_tran["management"]["cover"]
+            elif rot_type == "cornGrain":
+                mang_corn = "management"
+                cover_den_leg_dict["managementCorn"] = input_tran["management"]["cover"]
+            elif rot_type == "dairyRotation":
+                mang_dairy = "management"
+                cover_den_leg_dict["managementDairy"] = input_tran["management"]["cover"]
+            elif rot_type == "cornSoyOat":
+                cover_den_leg_dict["managementDairy"] = input_tran["management"]["cover"]
+                mang_dairy = "management"
 
-        output = np.copy(arr)
         cell_corn = np.count_nonzero(arr == 4)
         cell_corn_grain = np.count_nonzero(arr == 3)
         cell_dairy = np.count_nonzero(arr == 5)
         cell_pasture = np.count_nonzero(arr == 9)
 
-        total_cells = cell_corn + cell_corn_grain + cell_dairy + cell_pasture
         total_total_cell = np.count_nonzero(arr > -9999)
 
         if region == "pineRiverMN":
-            n_parameters = model.get_nitrate_params_base_mn(base, arr, total_total_cell, is_not_base)
+            n_parameters = model.get_nitrate_params_base_mn(total_total_cell, cover_den_leg_dict)
         else:
-            n_parameters = model.get_nitrate_params_base(base, arr, total_total_cell, is_not_base)
+            n_parameters = model.get_nitrate_params_base(total_total_cell, cover_den_leg_dict)
 
-        p_manure_corn = calc_p_local(base, n_parameters, "nrec_trans_cont_values", mang_cont)
-        p_manure_cash_grain = 0.5 * calc_p_local(base, n_parameters, "nrec_trans_corn_values", mang_corn) + \
-                              0.5 * calc_p_local(base, n_parameters, "nrec_trans_soy_values", mang_corn)
-        p_manure_dairy = 1 / 5 * calc_p_local(base, n_parameters, "nrec_trans_corn_dairy_values", mang_dairy) + \
-                         2 / 5 * calc_p_local(base, n_parameters, "nrec_trans_alfalfa_values", mang_dairy) + \
-                         1 / 5 * calc_p_local(base, n_parameters, "nrec_trans_alfalfa_seed_values", mang_dairy) + \
-                         1 / 5 * calc_p_local(base, n_parameters, "nrec_trans_silage_values", mang_dairy)
-        p_manure_pasture = calc_p_local(base, n_parameters, "nrec_trans_pasture_values", mang_past)
-        # only calc p_manure for the three main crop systems
-        watershed_total = {3: {"p_manure": p_manure_cash_grain},
-                           4: {"p_manure": p_manure_corn},
-                           5: {"p_manure": p_manure_dairy},
-                           1: {"p_manure": 0},
-                           2: {"p_manure": 0},
-                           6: {"p_manure": 0},
-                           7: {"p_manure": 0},
-                           8: {"p_manure": 0},
-                           9: {"p_manure": p_manure_pasture},
-                           10: {"p_manure": 0},
-                           11: {"p_manure": 0},
-                           12: {"p_manure": 0},
-                           13: {"p_manure": 0},
-                           14: {"p_manure": 0},
-                           15: {"p_manure": 0}
-                           }
-        for land_type in watershed_total:
-            output = np.where(arr == land_type, watershed_total[land_type]["p_manure"], output)
-        p_manure_arr = np.where(output == model.no_data, 0, output)
-        p_manure = np.sum(p_manure_arr) / total_cells
-        p_manure_levels = model.calc_manure_level(p_manure)
+        p_manure_corn = calc_p_local(base_for_tran, n_parameters, "nrec_trans_cont_values", mang_cont)
+
+        p_manure_cash_grain = 0.5 * calc_p_local(base_for_tran, n_parameters, "nrec_trans_corn_values", mang_corn) + \
+                              0.5 * calc_p_local(base_for_tran, n_parameters, "nrec_trans_soy_values", mang_corn)
+
+        p_manure_dairy = 1 / 5 * calc_p_local(base_for_tran, n_parameters, "nrec_trans_corn_dairy_values", mang_dairy) + \
+                         2 / 5 * calc_p_local(base_for_tran, n_parameters, "nrec_trans_alfalfa_values", mang_dairy) + \
+                         1 / 5 * calc_p_local(base_for_tran, n_parameters, "nrec_trans_alfalfa_seed_values",
+                                              mang_dairy) + \
+                         1 / 5 * calc_p_local(base_for_tran, n_parameters, "nrec_trans_silage_values", mang_dairy)
+
+        p_manure_pasture = calc_p_local(base_for_tran, n_parameters, "nrec_trans_pasture_values", mang_past)
+
+        # sub in the transformation for the corresponding base scenario
         if id != "base":
-            return_data[id] = {"p_manure": "{:,.0f}".format(p_manure), "p_choices": phos_choices[str(p_manure_levels)],
-                               "p_manure_cat": p_manure_levels}
+            rot_type = input_tran["management"]["rotationType"]
+            output_trans = np.copy(arr)
+            # use the parameters from the transformation for the selected rotation type
+            if rot_type == "pasture":
+                mang_past = "management"
+                p_manure = calc_p_local(input_tran, n_parameters, "nrec_trans_pasture_values", mang_past)
+                land_number = 9
+                cell_number = cell_pasture
+            elif rot_type == "contCorn":
+                mang_cont = "management"
+                p_manure = calc_p_local(input_tran, n_parameters, "nrec_trans_cont_values", mang_cont)
+                land_number = 4
+                cell_number = cell_corn
+            elif rot_type == "cornGrain":
+                mang_corn = "management"
+                p_manure = 0.5 * calc_p_local(input_tran, n_parameters, "nrec_trans_corn_values",
+                                              mang_corn) + \
+                           0.5 * calc_p_local(input_tran, n_parameters, "nrec_trans_soy_values",
+                                              mang_corn)
+                land_number = 3
+                cell_number = cell_corn_grain
+            elif rot_type == "dairyRotation":
+                mang_dairy = "management"
+                p_manure = 1 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_corn_dairy_values",
+                                                mang_dairy) + \
+                           2 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_alfalfa_values",
+                                                mang_dairy) + \
+                           1 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_alfalfa_seed_values",
+                                                mang_dairy) + \
+                           1 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_silage_values",
+                                                mang_dairy)
+                land_number = 5
+                cell_number = cell_dairy
+            elif rot_type == "cornSoyOat":
+                mang_dairy = "management"
+                p_manure = 1 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_corn_dairy_values",
+                                                mang_dairy) + \
+                           2 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_alfalfa_values",
+                                                mang_dairy) + \
+                           1 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_alfalfa_seed_values",
+                                                mang_dairy) + \
+                           1 / 5 * calc_p_local(input_tran, n_parameters, "nrec_trans_silage_values",
+                                                mang_dairy)
+                land_number = 5
+                cell_number = cell_dairy
+            output_trans = np.where(output_trans != land_number, 0, output_trans)
+            output_trans = np.where(output_trans == land_number, p_manure, output_trans)
+            p_manure_trans = np.sum(output_trans) / cell_number
+            p_manure_levels_trans = model.calc_manure_level(p_manure_trans)
+        output_cont = np.copy(arr)
+        output_corn = np.copy(arr)
+        output_dairy = np.copy(arr)
+        output_past = np.copy(arr)
+
+        output_cont = np.where(output_cont != 4, 0, output_cont)
+        output_cont = np.where(output_cont == 4, p_manure_corn, output_cont)
+
+        output_corn = np.where(output_corn != 3, 0, output_corn)
+        output_corn = np.where(output_corn == 3, p_manure_cash_grain, output_corn)
+
+        output_dairy = np.where(output_dairy != 5, 0, output_dairy)
+        output_dairy = np.where(output_dairy == 5, p_manure_dairy, output_dairy)
+
+        output_past = np.where(output_past != 9, 0, output_past)
+        output_past = np.where(output_past == 9, p_manure_pasture, output_past)
+
+        # total_cells = cell_corn + cell_corn_grain + cell_dairy + cell_pasture
+
+        p_manure_cont = np.sum(output_cont) / cell_corn
+        p_manure_corn = np.sum(output_corn) / cell_corn_grain
+        p_manure_dairy = np.sum(output_dairy) / cell_dairy
+        p_manure_past = np.sum(output_past) / cell_pasture
+
+        p_manure_levels_cont = model.calc_manure_level(p_manure_cont)
+        p_manure_levels_corn = model.calc_manure_level(p_manure_corn)
+        p_manure_levels_dairy = model.calc_manure_level(p_manure_dairy)
+        p_manure_levels_past = model.calc_manure_level(p_manure_past)
+
+        if id != "base":
+            return_data[id] = {"p_manure": "{:,.0f}".format(p_manure_trans),
+                               "p_choices": phos_choices[str(p_manure_levels_trans)],
+                               "p_manure_cat": p_manure_levels_trans}
         else:
             return_data["base"] = {
                 "cont": {
-                    "p_manure": "{:,.0f}".format(p_manure),
-                    "p_choices": phos_choices[str(p_manure_levels)],
-                    "p_manure_cat": p_manure_levels
+                    "p_manure": "{:,.0f}".format(p_manure_cont),
+                    "p_choices": phos_choices[str(p_manure_levels_cont)],
+                    "p_manure_cat": p_manure_levels_cont
                 },
                 "corn": {
-                    "p_manure": "{:,.0f}".format(p_manure),
-                    "p_choices": phos_choices[str(p_manure_levels)],
-                    "p_manure_cat": p_manure_levels
+                    "p_manure": "{:,.0f}".format(p_manure_corn),
+                    "p_choices": phos_choices[str(p_manure_levels_corn)],
+                    "p_manure_cat": p_manure_levels_corn
                 },
                 "dairy": {
-                    "p_manure": "{:,.0f}".format(p_manure),
-                    "p_choices": phos_choices[str(p_manure_levels)],
-                    "p_manure_cat": p_manure_levels
+                    "p_manure": "{:,.0f}".format(p_manure_dairy),
+                    "p_choices": phos_choices[str(p_manure_levels_dairy)],
+                    "p_manure_cat": p_manure_levels_dairy
                 },
                 "past": {
-                    "p_manure": "{:,.0f}".format(p_manure),
-                    "p_choices": phos_choices[str(p_manure_levels)],
-                    "p_manure_cat": p_manure_levels
+                    "p_manure": "{:,.0f}".format(p_manure_past),
+                    "p_choices": phos_choices[str(p_manure_levels_past)],
+                    "p_manure_cat": p_manure_levels_past
                 },
             }
 
@@ -401,12 +519,13 @@ def get_phos_fert_options(request, base_calc, region):
     return_data = {}
 
     if not base_calc:
+        print("calculating phos for trans")
         trans = request_json['trans']
         for tran1 in trans:
             tran = trans[tran1]
-            return_data.update(calc_phos_calc(arr, tran, tran["id"]))
+            return_data.update(calc_phos_calc(arr, tran, tran["id"], base))
     else:
-        return_data = calc_phos_calc(arr, base, "base")
+        return_data = calc_phos_calc(arr, base, "base", base)
 
     print(return_data)
     return return_data

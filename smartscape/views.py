@@ -155,7 +155,7 @@ def get_selection_raster(request):
             "folder_id": folder_id
         }
         # download base layers async
-        smartscape.helper_base.download_base_rasters_helper(request, folder_id)
+        # smartscape.helper_base.download_base_rasters_helper(request, folder_id)
     except KeyError as e:
         error = str(e)
     except ValueError as e:
@@ -200,7 +200,9 @@ def get_phos_fert_options(request):
     # print(request_json)
     base_calc = request_json['base_calc']
     region = request_json["region"]
+    print("doing base calc for phos fert options", base_calc)
     return_data = smartscape.helper_base.get_phos_fert_options(request, base_calc, region)
+    print("done getting phos fert options !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     return JsonResponse({"response": return_data}, safe=False)
 
 

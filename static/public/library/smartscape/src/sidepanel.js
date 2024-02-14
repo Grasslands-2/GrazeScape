@@ -301,6 +301,7 @@ class SidePanel extends React.Component{
             showTillageSVDairy:true,
 
         }
+
     }
     // fires anytime state or props are updated
     componentDidUpdate(prevProps) {
@@ -339,7 +340,6 @@ class SidePanel extends React.Component{
         else if (!displayNext && this.state.landTypeSelected == true && this.props.listTrans == 1){
             this.setState({landTypeSelected:false})
         }
-
         this.land1.current.checked = this.props.activeTrans.selection.landClass.land1
         this.land2.current.checked = this.props.activeTrans.selection.landClass.land2
         this.land3.current.checked = this.props.activeTrans.selection.landClass.land3
@@ -365,7 +365,6 @@ class SidePanel extends React.Component{
             this.meters.current.checked = true
             this.feet.current.checked = false
         }
-
         if(prevProps.baseTrans.managementCont.nitrogen != this.props.baseTrans.managementCont.nitrogen){
             console.log("cont Nitrogen has changed, calculate new P")
             this.getPhosValuesBase()
@@ -411,8 +410,6 @@ class SidePanel extends React.Component{
                 this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "0", "name":"managementPast"})
                 this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value": "0", "name":"managementPast"})
 
-
-
                 this.setState({showHuc12:true})
             }
         }
@@ -443,7 +440,7 @@ class SidePanel extends React.Component{
         else{
             width = window.innerWidth*.7/2
         }
-        console.log(width)
+//        console.log(width)
         this.setState({ speedometerWidth: width, speedometerHeight:width/2});
     };
 
@@ -480,13 +477,6 @@ class SidePanel extends React.Component{
         console.log("Phos fert is ", this.props.baseTrans.management.phos_fertilizer)
         this.getPhosValuesBase()
         console.log(this.props)
-//        this.cover.current.value = this.props.baseTrans.management.cover
-//        this.tillage.current.value = this.props.baseTrans.management.tillage
-//        this.contour.current.value = this.props.baseTrans.management.contour
-//        this.nitrogen.current.value = this.props.baseTrans.management.nitrogen
-//        this.nitrogen_fertilizer.current.value = this.props.baseTrans.management.nitrogen_fertilizer
-//        this.phos_fertilizer.current.value = this.props.baseTrans.management.phos_fertilizer
-
 
         this.coverCont.current.value = this.props.baseTrans.managementCont.cover
         this.tillageCont.current.value = this.props.baseTrans.managementCont.tillage
@@ -494,6 +484,7 @@ class SidePanel extends React.Component{
         this.nitrogenCont.current.value = this.props.baseTrans.managementCont.nitrogen
         this.nitrogen_fertilizerCont.current.value = this.props.baseTrans.managementCont.nitrogen_fertilizer
         this.phos_fertilizerCont.current.value = this.props.baseTrans.managementCont.phos_fertilizer
+        this.phos_manureCont.current.value = this.props.baseTrans.managementCont.phos_manure
 
         this.coverCorn.current.value = this.props.baseTrans.managementCorn.cover
         this.tillageCorn.current.value = this.props.baseTrans.managementCorn.tillage
@@ -501,6 +492,7 @@ class SidePanel extends React.Component{
         this.nitrogenCorn.current.value = this.props.baseTrans.managementCorn.nitrogen
         this.nitrogen_fertilizerCorn.current.value = this.props.baseTrans.managementCorn.nitrogen_fertilizer
         this.phos_fertilizerCorn.current.value = this.props.baseTrans.managementCorn.phos_fertilizer
+        this.phos_manureCorn.current.value = this.props.baseTrans.managementCorn.phos_manure
 
         this.coverDairy.current.value = this.props.baseTrans.managementDairy.cover
         this.tillageDairy.current.value = this.props.baseTrans.managementDairy.tillage
@@ -508,6 +500,7 @@ class SidePanel extends React.Component{
         this.nitrogenDairy.current.value = this.props.baseTrans.managementDairy.nitrogen
         this.nitrogen_fertilizerDairy.current.value = this.props.baseTrans.managementDairy.nitrogen_fertilizer
         this.phos_fertilizerDairy.current.value = this.props.baseTrans.managementDairy.phos_fertilizer
+        this.phos_manureDairy.current.value = this.props.baseTrans.managementDairy.phos_manure
 
         this.rotationTypePasture.current.value = this.props.baseTrans.managementPast.rotFreq
         this.yieldPasture.current.value = this.props.baseTrans.managementPast.grassYield
@@ -516,10 +509,7 @@ class SidePanel extends React.Component{
         this.nitrogenPasture.current.value = this.props.baseTrans.managementPast.nitrogen
         this.nitrogen_fertilizerPasture.current.value = this.props.baseTrans.managementPast.nitrogen_fertilizer
         this.phos_fertilizerPasture.current.value = this.props.baseTrans.managementPast.phos_fertilizer
-
-
-
-
+        this.phos_manurePasture.current.value = this.props.baseTrans.managementPast.phos_manure
 
         this.p2o5.current.value = this.props.baseTrans.econ.p2o5
         this.nFert.current.value = this.props.baseTrans.econ.nFert
@@ -540,21 +530,13 @@ class SidePanel extends React.Component{
         this.pastPest.current.value = this.props.baseTrans.econ.pastPest
         this.pastMach.current.value = this.props.baseTrans.econ.pastMach
 
-
-
       }
     clearSelection(selectionType){
-
         if(selectionType == "slope"){
-//             this.handleSelectionChange("slope2", {"currentTarget":{"value":this.slopeMax}})
-//             this.handleSelectionChange("slope1", {"currentTarget":{"value":0}})
-             this.handleSelectionChangeGeneralNumeric("slope1", "reg", 0, "slider")
+            this.handleSelectionChangeGeneralNumeric("slope1", "reg", 0, "slider")
             this.handleSelectionChangeGeneralNumeric("slope2", "reg", this.slopeMax, "slider")
-
         }
         else if(selectionType == "streamDist"){
-//             this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
-//             this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
              this.handleSelectionChangeGeneralNumeric("streamDist1", "reg", 0, "slider")
              this.handleSelectionChangeGeneralNumeric("streamDist2", "reg", this.distStreamMax, "slider")
         }
@@ -568,8 +550,6 @@ class SidePanel extends React.Component{
              this.handleSelectionChange("streamDist2", {"currentTarget":{"value":this.distStreamMax}})
              this.handleSelectionChange("streamDist1", {"currentTarget":{"value":0}})
         }
-
-
     }
     // activates the area selection tool
     handleAreaSelectionType(type, e){
@@ -740,6 +720,7 @@ class SidePanel extends React.Component{
             {'name':'southCentral', 'visible':false},
             {'name':'cloverBelt', 'visible':false}
             ])
+
 //        this.props.setVisibilityMapLayer()
 //        this.props.setVisibilityMapLayer({'name':'huc12', 'visible':true})
     }
@@ -775,7 +756,7 @@ class SidePanel extends React.Component{
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
-    newTrans.management.fertilizer = "0_100"
+//    newTrans.management.fertilizer = "0_100"
     newTrans.management.nitrogen = "0"
     newTrans.management.nitrogen_fertilizer = "0"
 //    newTrans.management.phos_fertilizer = "0"
@@ -786,10 +767,15 @@ class SidePanel extends React.Component{
     newTrans.management.tillage = "su"
     newTrans.management.grassYield = "medium"
     newTrans.management.rotFreq = "1"
+    newTrans.management.phos_fert_options = [0, 50, 100]
+    newTrans.management.phos_fertilizer = 0
+    newTrans.management.phos_manure = 0
+
     console.log("Adding new trans")
     console.log(newTrans)
     this.props.setActiveTrans(newTrans)
     this.props.addTrans(newTrans)
+
 //    this.props.setActiveTrans(newTrans)
   }
     handleCloseModal(){
@@ -843,6 +829,8 @@ class SidePanel extends React.Component{
             this.setState({aoiOrDisplayLoading:false})
             rasterDownloaded = true
             this.displaySelectionCriteria()
+            console.log("Running calc to update base phos")
+            this.getPhosValuesBase()
         },
         failure: function(response, opts) {
         }
@@ -1003,7 +991,8 @@ class SidePanel extends React.Component{
         })
     }
    getPhosValuesBase(){
-    console.log("side pannel")
+    console.log("getPhosValuesBase !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    console.log(this.props.aoiFolderId)
     if(this.props.aoiFolderId == null){
         return
     }
@@ -1062,7 +1051,7 @@ class SidePanel extends React.Component{
                 let phos_optionsPast = response.response["base"]["past"].p_choices
                 let manure_valuePast = response.response["base"]["past"].p_manure
                 let phosOptPast = phos_optionsPast[0]
-
+                console.log("Updating base phos values")
                 this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCont, "name":"managementCont"})
                 this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCont, "name":"managementCont"})
 
@@ -1077,24 +1066,29 @@ class SidePanel extends React.Component{
 
 //                this.phos_fert_options_holder = ["6","8","9"]
                 this.setState({phos_fert_options_holderCont:phos_optionsCont})
-                this.phos_manureCont.current.value = manure_valueCont
-                this.phos_fertilizerCont.current.value = phosOptCont
-
                 this.setState({phos_fert_options_holderCorn:phos_optionsCorn})
-                this.phos_manureCorn.current.value = manure_valueCorn
-                this.phos_fertilizerCorn.current.value = phosOptCorn
-
                 this.setState({phos_fert_options_holderDairy:phos_optionsDairy})
-                this.phos_manureDairy.current.value = manure_valueDairy
-                this.phos_fertilizerDairy.current.value = phosOptDairy
-
                 this.setState({phos_fert_options_holderPast:phos_optionsPast})
-                this.phos_manurePasture.current.value = manure_valuePast
-                this.phos_fertilizerPasture.current.value = phosOptPast
+                console.log(this.phos_manureCont)
+                if (this.phos_manureCont.current != null){
+                    this.phos_manureCont.current.value = manure_valueCont
+                    this.phos_fertilizerCont.current.value = phosOptCont
 
+                    this.phos_manureCorn.current.value = manure_valueCorn
+                    this.phos_fertilizerCorn.current.value = phosOptCorn
+
+                    this.phos_manureDairy.current.value = manure_valueDairy
+                    this.phos_fertilizerDairy.current.value = phosOptDairy
+
+                    this.phos_manurePasture.current.value = manure_valuePast
+                    this.phos_fertilizerPasture.current.value = phosOptPast
+
+                }
+          this.downloadBase()
             },
 
             failure: function(response, opts) {
+                console.log("get phos options failed")
             }
         })
   }
@@ -2947,16 +2941,14 @@ renderModal(){
 
                      */}
                      <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>
                         <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" />
                         Loading...
                      </Button>
                       <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
-
-
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
-
                      </Stack>
 
               </div>
@@ -2965,9 +2957,9 @@ renderModal(){
             </Accordion>
             {/*
 
-            */}
                 <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
+            */}
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>
