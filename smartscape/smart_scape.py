@@ -725,33 +725,71 @@ class SmartScape:
         cont_sci_image = gdal.Open(os.path.join(base_dir, "pastureWatershed_SCI.tif"))
         pasture_sci_arr = cont_sci_image.GetRasterBand(1).ReadAsArray()
 
-        # Interplotate Ploss values
-        # TODO need to handle default case
-        # Todo fix this
-        base_phos_fert = float(base_scen["managementCont"]["phos_fertilizer"])
+        manure_cont = float(base_scen["managementCont"]["phos_manure"])
+        manure_corn = float(base_scen["managementCorn"]["phos_manure"])
+        manure_dairy = float(base_scen["managementDairy"]["phos_manure"])
+        manure_past = float(base_scen["managementPast"]["phos_manure"])
 
-        # p manure is the same for all base
+        manure_rounded_cont = self.calc_manure_level(manure_cont)
+        manure_rounded_corn = self.calc_manure_level(manure_corn)
+        manure_rounded_dairy = self.calc_manure_level(manure_dairy)
+        manure_rounded_past = self.calc_manure_level(manure_past)
 
-        base_phos_man = float(base_scen["managementCont"]["phos_manure"])
+        base_phos_fert_cont = float(base_scen["managementCont"]["phos_fertilizer"])
+        base_phos_fert_corn = float(base_scen["managementCorn"]["phos_fertilizer"])
+        base_phos_fert_dairy = float(base_scen["managementDairy"]["phos_fertilizer"])
+        base_phos_fert_past = float(base_scen["managementPast"]["phos_fertilizer"])
 
-        manure_level = self.calc_manure_level(base_phos_man)
-        print("for base manure_level, base_phos_fert, base_nit_man", manure_level, base_phos_fert, base_phos_man)
-        man1, man2, phos1, phos2 = self.get_m_p_options(manure_level, base_phos_fert, base_phos_man)
-        print("base_man!!!!!!!!!!!!!!!!", man1, man2, phos1, phos2)
-        x1 = man1
-        x2 = man2
+        man1_cont, man2_cont, phos1_cont, phos2_cont = self.get_m_p_options(manure_rounded_cont, base_phos_fert_cont,
+                                                                            manure_cont)
+        man1_corn, man2_corn, phos1_corn, phos2_corn = self.get_m_p_options(manure_rounded_corn, base_phos_fert_corn,
+                                                                            manure_corn)
+        man1_dairy, man2_dairy, phos1_dairy, phos2_dairy = self.get_m_p_options(manure_rounded_dairy,
+                                                                                base_phos_fert_dairy,
+                                                                                manure_dairy)
+        man1_past, man2_past, phos1_past, phos2_past = self.get_m_p_options(manure_rounded_past, base_phos_fert_past,
+                                                                            manure_past)
 
-        x_star = base_phos_man
-        print("base x1 x2 y1 y2 x_star", x1, x2, y1, y2, base_phos_man)
+        if man1_cont == man2_cont:
+            man1_cont = phos1_cont
+            man2_cont = phos2_cont
+
+        if man1_corn == man2_corn:
+            man1_corn = phos1_corn
+            man2_corn = phos2_corn
+
+        if man1_dairy == man2_dairy:
+            man1_dairy = phos1_dairy
+            man2_dairy = phos2_dairy
+
+        if man1_past == man2_past:
+            man1_past = phos1_past
+            man2_past = phos2_past
+
+        x1 = man1_cont
+        x2 = man2_cont
+        x_star = manure_cont
         y2 = cont_pl_arr_2
         y1 = cont_pl_arr
         cont_pl_arr_avg = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
+
+        x1 = man1_corn
+        x2 = man2_corn
+        x_star = manure_corn
         y2 = corn_pl_arr_2
         y1 = corn_pl_arr
         corn_pl_arr_avg = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
+
+        x1 = man1_dairy
+        x2 = man2_dairy
+        x_star = manure_dairy
         y2 = dairy_pl_arr_2
         y1 = dairy_pl_arr
         dairy_pl_arr_avg = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
+
+        x1 = man1_past
+        x2 = man2_past
+        x_star = manure_past
         y2 = pasture_pl_arr_2
         y1 = pasture_pl_arr
         pasture_pl_arr_avg = y2 + (x_star - x2) * ((y2 - y1) / (x2 - x1))
@@ -761,10 +799,17 @@ class SmartScape:
         dairy_yield = field_yield["dairyRotation"]
         # dairy2_yield = field_yield["cornSoyOat"]
         # calculate base case parameters for nitrate
+        cover_den_leg_dict = {
+            "managementCont": base_scen["managementCont"]["cover"],
+            "managementCorn": base_scen["managementCont"]["cover"],
+            "managementDairy": base_scen["managementCont"]["cover"],
+            "managementPastDensity": base_scen["managementPast"]["density"],
+            "managementPastLegume": base_scen["managementPast"]["legume"],
+        }
         if region == "pineRiverMN":
-            n_parameters = self.get_nitrate_params_base_mn(base_scen, base_data["nitrate"], total_cells, False)
+            n_parameters = self.get_nitrate_params_base_mn(total_cells, cover_den_leg_dict)
         else:
-            n_parameters = self.get_nitrate_params_base(base_scen, base_data["nitrate"], total_cells, False)
+            n_parameters = self.get_nitrate_params_base(total_cells, cover_den_leg_dict)
 
         watershed_land_use_image = gdal.Open(os.path.join(self.geo_folder, "landuse_aoi-clipped.tif"))
         watershed_land_use_band = watershed_land_use_image.GetRasterBand(1)
@@ -1914,7 +1959,7 @@ class SmartScape:
                 "nrec_trans_oat_values": nrec_trans_oat_values,
                 }
 
-    def get_nitrate_params_base(self, tran, input_arr, total_cells, is_not_base):
+    def get_nitrate_params_base(self, total_cells, cover_den_leg_dict):
         nrec_output = {}
         # print(tran)
         om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
@@ -1960,24 +2005,23 @@ class SmartScape:
         #     legume = "legume"
         rotation_type = "pasture"
         cover_past = "nc"
-        if is_not_base:
-            cover_cont = tran["management"]["cover"]
-            cover_corn = tran["management"]["cover"]
-            cover_dairy = tran["management"]["cover"]
-            legume_text = tran["management"]["legume"]
-            density = density_nrec[tran["management"]["density"]]
-        else:
-            cover_cont = tran["managementCont"]["cover"]
-            cover_corn = tran["managementCorn"]["cover"]
-            cover_dairy = tran["managementDairy"]["cover"]
-            density = density_nrec[tran["managementPast"]["density"]]
+        # if is_not_base:
+        #     cover_cont = tran["management"]["cover"]
+        #     cover_corn = tran["management"]["cover"]
+        #     cover_dairy = tran["management"]["cover"]
+        #     legume_text = tran["management"]["legume"]
+        #     density = density_nrec[tran["management"]["density"]]
+        # else:
+        cover_cont = cover_den_leg_dict["managementCont"]
+        cover_corn = cover_den_leg_dict["managementCorn"]
+        cover_dairy = cover_den_leg_dict["managementDairy"]
+        density = density_nrec[cover_den_leg_dict["managementPastDensity"]]
+        legume_text = cover_den_leg_dict["managementPastLegume"]
 
-            legume_text = tran["managementPast"]["legume"]
         if legume_text == "false":
             legume = "nolegume"
         else:
             legume = "legume"
-
 
         # pasture only uses om
         nrec_trans = rotation_type + "_" + density + "_" + legume + "_" + rotation_type + "_" + cover_past + "_" + "om" \
@@ -2040,7 +2084,7 @@ class SmartScape:
                 "nrec_trans_corn_dairy_values": nrec_trans_corn_dairy_values
                 }
 
-    def get_nitrate_params_base_mn(self, tran, input_arr, total_cells, is_not_base):
+    def get_nitrate_params_base_mn(self, total_cells, cover_den_leg_dict):
         nrec_output = {}
         # print(tran)
         om_filepath = os.path.join(self.geo_folder, "om_aoi-clipped.tif")
@@ -2077,20 +2121,19 @@ class SmartScape:
         # get parameters and  average
 
         rotation_type = "pasture"
-        # cover = "NA"
         cover_past = "NA"
-        if is_not_base:
-            cover_cont = tran["management"]["cover"]
-            cover_corn = tran["management"]["cover"]
-            cover_dairy = tran["management"]["cover"]
-            legume_text = tran["management"]["legume"]
-            density = density_nrec[tran["management"]["density"]]
-        else:
-            cover_cont = tran["managementCont"]["cover"]
-            cover_corn = tran["managementCorn"]["cover"]
-            cover_dairy = tran["managementDairy"]["cover"]
-            legume_text = tran["managementPast"]["legume"]
-            density = density_nrec[tran["managementPast"]["density"]]
+        # if is_not_base:
+        #     cover_cont = tran["management"]["cover"]
+        #     cover_corn = tran["management"]["cover"]
+        #     cover_dairy = tran["management"]["cover"]
+        #     legume_text = tran["management"]["legume"]
+        #     density = density_nrec[tran["management"]["density"]]
+        # else:
+        cover_cont = cover_den_leg_dict["managementCont"]
+        cover_corn = cover_den_leg_dict["managementCorn"]
+        cover_dairy = cover_den_leg_dict["managementDairy"]
+        density = density_nrec[cover_den_leg_dict["managementPastDensity"]]
+        legume_text = cover_den_leg_dict["managementPastLegume"]
 
         if legume_text == "false":
             legume = "nolegume"
@@ -2567,12 +2610,9 @@ class SmartScape:
                           pasture_yield_arr, cont_yield, corn_yield, dairy_yield,
                           pasture_er_arr, cont_er_arr, corn_er_arr, dairy_er_arr,
                           om_input, total_cells, watershed_land_use):
-        # total_cells2_classify = np.where(
-        #     np.logical_and(watershed_land_use != self.no_data, dairy_er_arr != self.no_data), 1, self.no_data
-        # )
+
         nitrate_cover_dict = {"cc": .75, "gcds": .6, "gcis": .5, "nc": 1}
 
-        # total_cells2 = np.count_nonzero(total_cells2_classify > 0)
         print("n_parameters for base", n_parameters)
 
         nitrate_sum_dict = {}
