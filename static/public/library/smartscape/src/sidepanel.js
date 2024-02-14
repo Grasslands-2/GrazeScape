@@ -1084,7 +1084,7 @@ class SidePanel extends React.Component{
                     this.phos_fertilizerPasture.current.value = phosOptPast
 
                 }
-//
+          this.downloadBase()
             },
 
             failure: function(response, opts) {

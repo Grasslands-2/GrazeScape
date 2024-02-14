@@ -832,7 +832,7 @@ class SmartScape:
             grass_yield_factor_base = 0.65
         else:
             grass_yield_factor_base = float(base_scen["managementPast"]["rotFreq"])
-        
+
         pasture_yield_arr = pasture_yield_arr * grass_yield_factor_base
 
 
