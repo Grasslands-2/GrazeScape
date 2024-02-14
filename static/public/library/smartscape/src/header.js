@@ -19,13 +19,19 @@ class Header extends React.Component{
     render(){
         return(
         <Navbar bg="light" variant="light">
-            <Container>
-                <Navbar.Brand>
-                <img alt="" src= {static_logo} width="30%" className="d-inline-block align-top"/>
-                v 1.0
+            <Container fluid>
+                <Navbar.Brand >
+                    <div className="container-text">
+                        <img alt="" src= {static_logo} height="50"  className="d-inline-block align-top"/>
+                        <div className="text-in-container">
+                            v1.1
+                        </div>
+                    </div>
                 </Navbar.Brand>
-                <Nav className="justify-content-center ">
+                <Nav>
                   <Nav.Link href="/">Main Menu</Nav.Link>
+                </Nav>
+                <Nav>
                   <Nav.Link href="https://github.com/Grasslands-2" target="_blank">Source Code</Nav.Link>
                 </Nav>
                 <Nav>
@@ -34,9 +40,7 @@ class Header extends React.Component{
                     </Navbar.Text>
 
                </Nav>
-                <Nav>
-                   </Nav>
-                   <Nav className="justify-content-right ">
+               <Nav className="justify-content-right ">
                    <Form method="POST" className="d-flex">
                    <CSRFToken />
                     <input type="hidden" name="logout" value="True" />

@@ -33,7 +33,7 @@ urlpatterns = [
     path('accounts/', include('homepage.urls')),
     path('homepage/', include('homepage.urls')),
     path('geocode/', geocode),
-    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('grazescape/public/images/Grasslands_icon.PNG')))
+    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('grazescape/public/app_images/Grasslands_icon.png')))
 
     # path('accounts/', include('django.contrib.auth.urls')),
     # path('accounts/register', )

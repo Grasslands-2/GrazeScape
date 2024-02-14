@@ -69,11 +69,11 @@ div.image {
 }
 
 .image:hover {
-  background-color: green;
+  background-color: #C6FF99;
 }
 
-.image {
-  padding: 20px;
+.image-padded {
+  padding: 40px;
 }
 
 .center {

@@ -56,7 +56,13 @@ background-image: linear-gradient(#EFF4CF, white);
   text-align: left;
 }
 
-
+.container-text {
+    display: flex;
+    align-items: center; /* Vertically center items */
+}
+.text-in-container{
+    margin-left:10px
+}
 
 .image:hover{
   opacity: 0.3;
