@@ -410,7 +410,8 @@ class SidePanel extends React.Component{
                 this.props.updateActiveBaseManagementProps({"prop":"rotFreq", "value": "1", "name":"managementPast"})
                 this.props.updateActiveBaseManagementProps({"prop":"legume", "value": "false", "name":"managementPast"})
                 this.props.updateActiveBaseManagementProps({"prop":"nitrogen", "value": "0", "name":"managementPast"})
-                this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value": "0", "name":"managementPast"})
+                this.props.updateActiveBaseManagementProps({"prop":"nitrogen_fertilizer", "value": "50", "name":"managementPast"})
+
 
                 this.setState({showHuc12:true})
             }
@@ -3017,7 +3018,7 @@ renderModal(){
                     </Form.Select>
                     <OverlayTrigger key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                        <Form.Label>Percent Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogenCont}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementCont", e)}>
@@ -3031,7 +3032,7 @@ renderModal(){
                     </Form.Select>
                     <OverlayTrigger key="top2" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerCont}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementCont", e)}>
@@ -3095,7 +3096,7 @@ renderModal(){
                     </Form.Select>
                     <OverlayTrigger key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                        <Form.Label>Percent Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogenCorn}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementCorn", e)}>
@@ -3109,7 +3110,7 @@ renderModal(){
                     </Form.Select>
                     <OverlayTrigger key="top2" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerCorn}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementCorn", e)}>
@@ -3173,7 +3174,7 @@ renderModal(){
                     </Form.Select>
                     <OverlayTrigger key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                        <Form.Label>Percent Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogenDairy}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementDairy", e)}>
@@ -3187,7 +3188,7 @@ renderModal(){
                     </Form.Select>
                     <OverlayTrigger key="top2" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerDairy}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementDairy", e)}>
@@ -3252,7 +3253,7 @@ renderModal(){
                     </Form.Select>
                     <OverlayTrigger key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                        <Form.Label>Percent Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogenPasture}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen", "managementPast", e)}>
@@ -3267,7 +3268,7 @@ renderModal(){
 
                     <OverlayTrigger key="top2" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizerPasture}
                       onChange={(e) => this.updateActiveBaseManagementProps("nitrogen_fertilizer", "managementPast", e)}>

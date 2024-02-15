@@ -605,7 +605,7 @@ class TransformationTable extends Component {
 
                     <OverlayTrigger key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                        <Form.Label>Percent Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen}
                       onChange={(e) => this.handleSelectionChange("nitrogen", e)}>
@@ -620,7 +620,7 @@ class TransformationTable extends Component {
 
                     <OverlayTrigger key="top2" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
                       onChange={(e) => this.handleSelectionChange("nitrogen_fertilizer", e)}>
