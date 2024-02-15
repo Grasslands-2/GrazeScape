@@ -61,6 +61,12 @@ def index(request):
         "northeastWI_Huc12",
         "redCedarWI_Huc12",
         "pineRiverMN_Huc12",
+        "cloverBeltWI_HUC08",
+        "southWestWI_HUC08",
+        "uplandsWI_HUC08",
+        "northeastWI_HUC08",
+        "redCedarWI_HUC08",
+        "pineRiverMN_HUC08",
     ]
     threads = []
     for name in file_names:
