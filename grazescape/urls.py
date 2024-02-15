@@ -1,7 +1,8 @@
 from django.urls import include, path
 from django.contrib import admin
 from . import views
-
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 from . import views
 
@@ -18,7 +19,7 @@ urlpatterns = [
     path('run_InfraTrueLength',views.run_InfraTrueLength, name='run_InfraTrueLength'),
     #path('manage_raster_visuals',views.manage_raster_visuals, name='manage_raster_visuals'),
     path('heiferFeedBreakDown',views.heiferFeedBreakDown, name='heiferFeedBreakDown'),
-    path('adjust_field_yields',views.adjust_field_yields, name='adjust_field_yields'),
+    # path('adjust_field_yields',views.adjust_field_yields, name='adjust_field_yields'),
     path('geoserver_request', views.geoserver_request, name='geoserver_request'),
     path('get_default_om', views.get_default_om, name='get_default_om'),
     path('outside_geojson_coord_pull', views.outside_geojson_coord_pull, name='outside_geojson_coord_pull'),

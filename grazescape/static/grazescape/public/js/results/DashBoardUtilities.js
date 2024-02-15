@@ -284,15 +284,18 @@ function format_chart_data(model_data){
     }
     let fieldIndex = chartDatasetContainer.indexField(model_data.field_id)
     let scenIndex = chartDatasetContainer.indexScenario(model_data.scen_id)
+    console.log("field and scen index", fieldIndex, scenIndex)
+    console.log(model_data.field_id, model_data.scen_id)
     chartTypeField = null
     chartTypeFarm = null
     if (fieldIndex == undefined || scenIndex == undefined){
         console.log("data is not part of a valid field or scenario")
+        console.log("Bad model data", model_data)
         return
     }
     //setting up each model run
     modelTypeString = model_data.value_type +'_'+ model_data.crop_ro
-    console.log("value type ", model_data.value_type)
+//    console.log("value type ", model_data.value_type)
     switch (model_data.model_type) {
         case 'yield':
             switch (model_data.value_type){
@@ -1590,6 +1593,7 @@ function retrieveAllFieldsDataGeoserver(){
 	'outputformat=application/json&'+
 	'srsname=EPSG:3857';
     let responsesField = []
+    console.log("retrieving all fields associated with farm", fieldUrl1)
     return geoServer.makeRequest(fieldUrl1,"","", geoServer).then(function(returnData){
         let responses =JSON.parse(returnData.geojson)
         for(response in responses.features){
@@ -1840,15 +1844,16 @@ function downloadRasters(fieldIter){
         let numFields = fieldIter.length
         for(item in fieldIter){
             f = fieldIter[item].properties
-//            if(f["is_dirty"] == false){
-//                downloadCount = downloadCount + 1
-//                 if(downloadCount==numFields){
-//                    console.log(downloadCount, numFields)
-//                    console.log("All files downloaded")
-//                    resolve(downloadCount)
-//                }
-//                continue
-//            }
+            if(f["is_dirty"] == false){
+                downloadCount = downloadCount + 1
+                console.log("field has not been updated")
+                 if(downloadCount==numFields){
+                    console.log(downloadCount, numFields)
+                    console.log("All files downloaded")
+                    resolve(downloadCount)
+                }
+                continue
+            }
             geometry = fieldIter[item]
             model_para = {
                 f_name: f["field_name"],
@@ -1896,32 +1901,38 @@ class ChartDatasetContainer{
         this.fields = []
         this.scenarios = []
         this.farmName = ""
-//        arrow function keeps 'this' of calling function
-         retrieveFarmGeoserver().then(returnData =>{
-            this.farmName =  returnData
-         })
-        this.farmID = DSS.activeFarm
+//
+    }
+    getFieldsFarms(){
+        return new Promise(function(resolve) {
+              //arrow function keeps 'this' of calling function
+             retrieveFarmGeoserver().then(returnData =>{
+                this.farmName =  returnData
+             })
+            this.farmID = DSS.activeFarm
 
-        this.colorIndex = 0
-        this.getScenarios().then(returnData =>{
-            this.scenarios.sort(function(a, b){return a.dbID - b.dbID})
+            this.colorIndex = 0
+            this.getScenarios().then(returnData =>{
+                this.scenarios.sort(function(a, b){return a.dbID - b.dbID})
 
-            for(let scen in this.scenarios){
-                 if(this.scenarios[scen].dbID == DSS.activeScenario){
-                    var first = this.scenarios[scen]
-                    this.scenarios.sort(function(x,y){ return x.dbID == first.dbID ? -1 : y.dbID == first.dbID ? 1 : 0; });
+                for(let scen in this.scenarios){
+                     if(this.scenarios[scen].dbID == DSS.activeScenario){
+                        var first = this.scenarios[scen]
+                        this.scenarios.sort(function(x,y){ return x.dbID == first.dbID ? -1 : y.dbID == first.dbID ? 1 : 0; });
+                     }
                  }
-             }
-            //End addition
-            this.getFields().then(returnData =>{
-                populateChartObj(this.getScenarioList(), this.getFieldList(),this.fields, this.scenarios)
-                this.setCheckBoxes()
+                //End addition
+                this.getFields().then(returnData =>{
+                    populateChartObj(this.getScenarioList(), this.getFieldList(),this.fields, this.scenarios)
+                    this.setCheckBoxes()
+                })
             })
-        })
-        this.allFields
-        retrieveAllFieldsFarmGeoserver().then(returnData =>{
-            this.allFields = returnData
-        })
+            this.allFields
+            retrieveAllFieldsFarmGeoserver().then(returnData =>{
+                this.allFields = returnData
+                resolve("done")
+            })
+        }.bind(this))
     }
     setCheckBoxes(){
         let counter = 0
@@ -2026,7 +2037,7 @@ class ChartDatasetContainer{
         let sets = null
         if (type == "field"){
             sets  = this.fields
-            console.log(this.fields)
+//            console.log(this.fields)
         }
         else if (type == "scen"){
             sets  = this.scenarios

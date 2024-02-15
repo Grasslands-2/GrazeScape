@@ -112,7 +112,7 @@ Ext.define('DSS.state.ApplicationFlow', {
 				},
 				{
 					xtype: 'component',
-					html: '  v 1.0',
+					html: '  v 1.1',
 					cls: 'information med-text',
 				},
 			]

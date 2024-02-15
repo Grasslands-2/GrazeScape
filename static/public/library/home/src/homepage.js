@@ -54,7 +54,7 @@ manageSignIn();
 const App = (props) => (
     <div id='main'>
         <Navbar bg="light" variant="light">
-            <Container className="flex-wrap">
+            <Container fluid className="flex-wrap">
                 <Navbar.Brand className="justify-content-left " href="https://grasslandag.org/" target="_blank">
                     <img
                         alt="Grassland 2.0 Logo"
@@ -162,8 +162,8 @@ const App = (props) => (
                         <h2 className="header h5">Please select an app to begin</h2>
                         <Row className="appSelect">
                             <a href="/grazescape">
-                                <Image className="shadow-lg app_click image" 
-                                    src="static/public/library/images/graze-logo.png" 
+                                <Image className="shadow-lg app_click image"
+                                    src="static/grazescape/public/app_images/GrazeScape-horizontal.png"
                                     alt="GrazeScape Logo"
                                     fluid 
                                     rounded />
@@ -177,8 +177,8 @@ const App = (props) => (
                         <Row > </Row>
                         <Row className="appSelect">
                             <a href="/smartscape">
-                                <Image className="shadow-lg app_click image" 
-                                    src="static/public/library/images/dss_logo.png" 
+                                <Image className="shadow-lg app_click image"
+                                    src="static/grazescape/public/app_images/SmartScape_Horizontal.png"
                                     alt="SmartScape Logo"
                                     fluid 
                                     rounded /></a>

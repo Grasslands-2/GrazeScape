@@ -139,20 +139,6 @@ class TransformationTable extends Component {
         this.getPhosValues()
     }
 
-
-
-
-
-
-
-//    else if(prevProps.newTrans == undefined && this.props.newTrans != undefined){
-//        console.log("adding new trans")
-//        this.addTransformation(this.props.newTrans)
-//
-//    }
-//    else if(prevProps.newTrans.id != this.props.newTrans.id){
-//        this.addTransformation(this.props.newTrans)
-//    }
   }
     async handleOpenModalTrans(e){
         console.log("handling opening modal!!!!")
@@ -543,13 +529,6 @@ class TransformationTable extends Component {
                   <Modal.Title>Transformation Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                                      {/*
-                    transform to: pasture
-                    cover crop
-                    tillage
-                    contour
-                    manure and fertilizier
-                  */}
                   <Form.Label>New Land Cover</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.rotationType}
                       onChange={(e) => this.handleSelectionChange("rotationType", e)}>

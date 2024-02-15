@@ -12,8 +12,8 @@ import {
     Vector as VectorLayer,
 } from 'ol/layer'
 
-function Transformation(name, id, rank){
-    return {
+function Transformation(name, id, rank, type){
+    let transformationBody =  {
         name:name,
         id:id,
         rank: 99,
@@ -75,18 +75,21 @@ function Transformation(name, id, rank){
             cover:"default",
             tillage:"default",
             contour:"default",
+
             fertilizer:"default",
+            p_manure_cat:"default",
+
             nitrogen:"default",
             nitrogen_fertilizer:"default",
             phos_manure:"default",
-            p_manure_cat:"default",
             phos_fertilizer:"default",
+            phos_fert_options:[],
+
             legume:"default",
             // only for pasture
             density:"default",
             grassYield:"default",
             rotFreq:"default",
-            phos_fert_options:[],
 
         },
         econ:{
@@ -114,5 +117,12 @@ function Transformation(name, id, rank){
             pastMach:19.7,
         }
     }
+    if (type == "base"){
+        transformationBody["managementCont"] = transformationBody["management"]
+        transformationBody["managementCorn"] = transformationBody["management"]
+        transformationBody["managementDairy"] = transformationBody["management"]
+        transformationBody["managementPast"] = transformationBody["management"]
+    }
+    return transformationBody
 }
 export  {Transformation}

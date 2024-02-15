@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.contrib.auth import views as auth_views
 from .geocode import geocode
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 urlpatterns = [
@@ -30,7 +32,9 @@ urlpatterns = [
     # handles the login and logout requests
     path('accounts/', include('homepage.urls')),
     path('homepage/', include('homepage.urls')),
-    path('geocode/', geocode)
+    path('geocode/', geocode),
+    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('grazescape/public/app_images/Grasslands_icon.png')))
+
     # path('accounts/', include('django.contrib.auth.urls')),
     # path('accounts/register', )
 ]
