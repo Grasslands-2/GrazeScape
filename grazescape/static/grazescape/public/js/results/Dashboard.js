@@ -484,11 +484,14 @@ function field_png_lookup(data,layer,extents){
     $.ajax({
     'url' : '/grazescape/field_png_lookup',
     'type' : 'POST',
-    'data' : data,
+    'data' : JSON.stringify({"data":data}),
     success: function(responses) {
+        console.log(responses)
+//                let url = location.origin + "/smartscape/get_image?file_name="+region_8+ "&time="+Date.now()
+            let file = responses.file
+            let folder = responses.folder
+//        let url = location.origin + "/smartscape/get_image?file_name="+plossPNGFile+ "&time="+Date.now()
         if(layer == 'ploss'){
-            plossPNGFile = responses[0]
-            console.log(plossPNGFile)
             //-------------------------------------Ploss--------------------------------------
             DSS.layer.ploss_field = new ol.layer.Image({
                 visible: false,
@@ -497,7 +500,7 @@ function field_png_lookup(data,layer,extents){
                 updateWhileInteracting: true,
                 source: new ol.source.ImageStatic({
                 //url:'/static/grazescape/public/images/ploss'+ plossPNGFile[0]/*'String(fId) + '_' + modelruntimeFromDB + */'.png',
-                url:'/static/grazescape/public/images/'+ plossPNGFile/*'String(fId) + '_' + modelruntimeFromDB + */,
+                url:location.origin + "/grazescape/get_image?file_name="+file+ "&folder="+folder +"&time="+Date.now(),
                 imageExtent: extents
                 })
             })
@@ -517,7 +520,8 @@ function field_png_lookup(data,layer,extents){
                 updateWhileInteracting: true,
                 source: new ol.source.ImageStatic({
                 //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                url: '/static/grazescape/public/images/' + eroPNGFile,
+//                url: '/static/grazescape/public/images/' + eroPNGFile,
+                url:location.origin + "/grazescape/get_image?file_name="+file+ "&folder="+folder +"&time="+Date.now(),
                 imageExtent: extents
                 })
             })
@@ -534,7 +538,8 @@ function field_png_lookup(data,layer,extents){
                 updateWhileInteracting: true,
                 source: new ol.source.ImageStatic({
                 //url: '/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                url: '/static/grazescape/public/images/' + nleachingPNGFile,
+//                url: '/static/grazescape/public/images/' + nleachingPNGFile,
+                url:location.origin + "/grazescape/get_image?file_name="+file+ "&folder="+folder +"&time="+Date.now(),
                 imageExtent: extents
                 })
             })
@@ -550,7 +555,8 @@ function field_png_lookup(data,layer,extents){
                 updateWhileInteracting: true,
                 source: new ol.source.ImageStatic({
                 //url: '/static/grazescape/public/images/Rotational Average'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                url: '/static/grazescape/public/images/'+ yieldPNGFile,
+//                url: '/static/grazescape/public/images/'+ yieldPNGFile,
+                url:location.origin + "/grazescape/get_image?file_name="+file+ "&folder="+folder +"&time="+Date.now(),
                 imageExtent: extents
                 })
             })
@@ -569,29 +575,29 @@ function field_png_lookup(data,layer,extents){
 	})
 }
 
-function get_results_image(data){
-    return new Promise(function(resolve) {
-    var csrftoken = Cookies.get('csrftoken');
-	console.log('data coming into ajax call')
-	console.log(data)
-    $.ajaxSetup({
-            headers: { "X-CSRFToken": csrftoken }
-        });
-    $.ajax({
-    'url' : '/grazescape/get_results_image',
-    'type' : 'POST',
-    'data' : data,
-    success: function(responses) {
-		console.log(responses)
-		resolve([])
-	},
-	error: function(responses) {
-		console.log('python tool call error')
-		console.log(responses)
-	}
-	})
-	})
-}
+//function get_results_image(data){
+//    return new Promise(function(resolve) {
+//    var csrftoken = Cookies.get('csrftoken');
+//	console.log('data coming into ajax call')
+//	console.log(data)
+//    $.ajaxSetup({
+//            headers: { "X-CSRFToken": csrftoken }
+//        });
+//    $.ajax({
+//    'url' : '/grazescape/get_results_image',
+//    'type' : 'POST',
+//    'data' : data,
+//    success: function(responses) {
+//		console.log(responses)
+//		resolve([])
+//	},
+//	error: function(responses) {
+//		console.log('python tool call error')
+//		console.log(responses)
+//	}
+//	})
+//	})
+//}
 
 function timeout(){
     console.log('timeout')
@@ -3233,10 +3239,13 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         console.log(fExtentsNum)
                         //console.log(fId)
                         console.log(modelruntimeFromDB)
-                        field_png_lookup({model_field:['ploss'+ String(fArray[i].values_.gid)]},'ploss',fExtentsNum)
-                        field_png_lookup({model_field:['ero'+ String(fArray[i].values_.gid)]},'ero',fExtentsNum)
-                        field_png_lookup({model_field:['Rotational Average'+ String(fArray[i].values_.gid)]},'yield',fExtentsNum)
-                        field_png_lookup({model_field:['nleaching'+ String(fArray[i].values_.gid)]},'nleaching',fExtentsNum)
+//                        field_png_lookup({model_field:['ploss'+ String(fArray[i].values_.gid)]},'ploss',fExtentsNum)
+//                        field_png_lookup({model_field:['ero'+ String(fArray[i].values_.gid)]},'ero',fExtentsNum)
+//                        field_png_lookup({model_field:['Rotational Average'+ String(fArray[i].values_.gid)]},'yield',fExtentsNum)
+                        field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_ploss","folder":String(fArray[i].values_.gid)},'ploss',fExtentsNum)
+                        field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_ero","folder":String(fArray[i].values_.gid)},'ero',fExtentsNum)
+                        field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_Rotational Averag","folder":String(fArray[i].values_.gid)},'Rotational Averag',fExtentsNum)
+                        field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_nleaching","folder":String(fArray[i].values_.gid)},'nleaching',fExtentsNum)
                         setTimeout(() => {console.log('sup')},100)
 
                     }
@@ -3245,351 +3254,8 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 
                 // AFTER 3/9/2022 THIS ELSE SHOULD NEVER GET HIT!  KEPT FOR LEGACY EXAMPLE!!! Might remove next dev push
 
-                }else{
-                    console.log("PNGs present")
-                    //Since PNGs are present in the layer groups, this series of functions edits the layer's urls with the latest
-                    //modelruntime value to make sure the latest model run is being shown to the user.
-                    var fArray = []
-                    var fExtents = []
-                    DSS.layer.fields_1.getSource().getFeatures().forEach(function(f) {
-                        fArray.push(f);
-                    })
-                    console.log(fArray);
-                    DSS.map.removeLayer(DSS.layer.PLossGroup);
-                    DSS.map.addLayer(DSS.layer.PLossGroup)
-                    DSS.map.removeLayer(DSS.layer.erosionGroup);
-                    DSS.map.addLayer(DSS.layer.erosionGroup)
-                    DSS.map.removeLayer(DSS.layer.nleachingGroup);
-                    DSS.map.addLayer(DSS.layer.nleachingGroup)
-                    DSS.map.removeLayer(DSS.layer.runoffGroup);
-                    DSS.map.addLayer(DSS.layer.runoffGroup)
-                    DSS.map.removeLayer(DSS.layer.yieldGroup);
-                    DSS.map.addLayer(DSS.layer.yieldGroup)
-                    for (i in fArray){
-                        DSS.layer.PLossGroup.getLayers().forEach(function(layer){
-                            console.log(layer)
-                            var gidFromName = layer.values_.name.slice(5)
-                            console.log(gidFromName)
-                            modelruntime = fArray[i].values_.model_time_stamp
-                            console.log(modelruntime)
-                            if (String(fArray[i].values_.gid)==gidFromName){
-                                var extents = layer.values_.source.imageExtent_
-                                //Use this form when you have unique model run ids.
-                                layer.setSource(new ol.source.ImageStatic({
-                                    url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                                    imageExtent: extents
-                                }))
-                                layer.getSource().changed();
-                            }else{
-                                modelruntimeFromDB = fArray[i].values_.model_time_stamp
-                                fExtents = fArray[i].values_.geometry.extent_
-                                for(e in fExtents){
-                                    console.log(fExtents[e])
-                                    console.log(typeof fExtents[e])
-                                    fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
-                                }
-                                fExtentsNum = fExtents.map(Number);
-                                var fId = fArray[i].values_.gid
-                                console.log(fExtentsNum)
-                                console.log(fId)
-                                DSS.layer.ploss_field = new ol.layer.Image({
-                                    visible: false,
-                                    opacity: 1,
-                                    updateWhileAnimating: true,
-                                    updateWhileInteracting: true,
-                                    source: new ol.source.ImageStatic({
-                                    url:'/static/grazescape/public/images/ploss'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                                    imageExtent: fExtentsNum
-                                    })
-                                })
-                                DSS.layer.ploss_field.set('name', 'ploss'+ String(fId));
-                                DSS.layer.ploss_field.getSource().refresh();
-                                DSS.layer.ploss_field.getSource().changed();
-                                DSS.map.addLayer(DSS.layer.ploss_field)
-                                var plossGroupLayers = DSS.layer.PLossGroup.getLayers().getArray();
-                                if(plossGroupLayers.length == 0){
-                                    plossGroupLayers.push(DSS.layer.ploss_field);
-                                }
-                                else{
-                                    for(l in plossGroupLayers){
-                                        console.log(plossGroupLayers[l].values_.name)
-                                        console.log(DSS.layer.ploss_field.values_.name)
-                                        if(plossGroupLayers[l].values_.name == DSS.layer.ploss_field.values_.name){
-                                            const index = plossGroupLayers.indexOf(plossGroupLayers[l]);
-                                            if(index > -1) {
-                                                plossGroupLayers.splice(index,1);
-                                                console.log("SPLICED :" + DSS.layer.ploss_field.values_.name)
-                                            }
-                                            plossGroupLayers.push(DSS.layer.ploss_field);
-                                        }
-                                    }
-                                plossGroupLayers.push(DSS.layer.ploss_field);
-                                }
-                                DSS.map.removeLayer(DSS.layer.ploss_field)
-                            }
-                        })
-                    }
-                    for (i in fArray){
-                        console.log("IN NLEACHING LOOK THROUGH LAYERS")
-                        DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
-                            console.log(layer)
-                            var gidFromName = layer.values_.name.slice(9)
-                            console.log(gidFromName)
-                            modelruntime = fArray[i].values_.model_time_stamp
-                            console.log(modelruntime)
-                            if (String(fArray[i].values_.gid)==gidFromName){
-                                var extents = layer.values_.source.imageExtent_
-
-                                //Use this form when you have unique model run ids.
-                                layer.setSource(new ol.source.ImageStatic({
-                                    url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                                    imageExtent: extents
-                                }))
-                                layer.getSource().changed();
-                            }else{
-                                modelruntimeFromDB = fArray[i].values_.model_time_stamp
-                                fExtents = fArray[i].values_.geometry.extent_
-                                for(e in fExtents){
-                                    console.log(fExtents[e])
-                                    console.log(typeof fExtents[e])
-                                    fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
-                                }
-                                fExtentsNum = fExtents.map(Number);
-                                var fId = fArray[i].values_.gid
-                                console.log(fExtentsNum)
-                                console.log(fId)
-                                DSS.layer.nleaching_field = new ol.layer.Image({
-                                    visible: false,
-                                    opacity: 1,
-                                    updateWhileAnimating: true,
-                                    updateWhileInteracting: true,
-                                    source: new ol.source.ImageStatic({
-                                    url:'/static/grazescape/public/images/nleaching'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                                    imageExtent: fExtentsNum
-                                    })
-                                })
-                                DSS.layer.nleaching_field.set('name', 'nleaching'+ String(fId));
-                                DSS.layer.nleaching_field.getSource().refresh();
-                                DSS.layer.nleaching_field.getSource().changed();
-                                DSS.map.addLayer(DSS.layer.nleaching_field)
-                                var nleachingGroupLayers = DSS.layer.nleachingGroup.getLayers().getArray();
-                                if(nleachingGroupLayers.length == 0){
-                                    nleachingGroupLayers.push(DSS.layer.nleaching_field);
-                                }
-                                else{
-                                    for(l in nleachingGroupLayers){
-                                        console.log(nleachingGroupLayers[l].values_.name)
-                                        console.log(DSS.layer.nleaching_field.values_.name)
-                                        if(nleachingGroupLayers[l].values_.name == DSS.layer.nleaching_field.values_.name){
-                                            const index = nleachingGroupLayers.indexOf(nleachingGroupLayers[l]);
-                                            if(index > -1) {
-                                                nleachingGroupLayers.splice(index,1);
-                                                console.log("SPLICED :" + DSS.layer.nleaching_field.values_.name)
-                                            }
-                                            nleachingGroupLayers.push(DSS.layer.nleaching_field);
-                                        }
-                                    }
-                                nleachingGroupLayers.push(DSS.layer.nleaching_field);
-                                }
-                                DSS.map.removeLayer(DSS.layer.nleaching_field)
-                            }
-                        })
-                    }
-                    for (i in fArray){
-                        DSS.layer.erosionGroup.getLayers().forEach(function(layer){
-                            console.log(layer)
-                            var gidFromName = layer.values_.name.slice(7)
-                            console.log(gidFromName)
-                            modelruntime = fArray[i].values_.model_time_stamp
-                            console.log(modelruntime)
-                            if (String(fArray[i].values_.gid)==gidFromName){
-                                var extents = layer.values_.source.imageExtent_
-                                //Use this form when you have unique model run ids.
-                                layer.setSource(new ol.source.ImageStatic({
-                                    url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                                    imageExtent: extents
-                                }))
-                                layer.getSource().changed();
-                            }else{
-                                modelruntimeFromDB = fArray[i].values_.model_time_stamp
-                                fExtents = fArray[i].values_.geometry.extent_
-                                for(e in fExtents){
-                                    console.log(fExtents[e])
-                                    console.log(typeof fExtents[e])
-                                    fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
-                                }
-                                fExtentsNum = fExtents.map(Number);
-                                var fId = fArray[i].values_.gid
-                                console.log(fExtentsNum)
-                                console.log(fId)
-                                DSS.layer.erosion_field = new ol.layer.Image({
-                                    visible: false,
-                                    opacity: 1,
-                                    updateWhileAnimating: true,
-                                    updateWhileInteracting: true,
-                                    source: new ol.source.ImageStatic({
-                                    url:'/static/grazescape/public/images/ero'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                                    imageExtent: fExtentsNum
-                                    })
-                                })
-                                DSS.layer.erosion_field.set('name', 'ero'+ String(fId));
-                                DSS.layer.erosion_field.getSource().refresh();
-                                DSS.layer.erosion_field.getSource().changed();
-                                DSS.map.addLayer(DSS.layer.erosion_field)
-                                var erosionGroupLayers = DSS.layer.erosionGroup.getLayers().getArray();
-                                if(erosionGroupLayers.length == 0){
-                                    erosionGroupLayers.push(DSS.layer.erosion_field);
-                                }
-                                else{
-                                    for(l in erosionGroupLayers){
-                                        console.log(erosionGroupLayers[l].values_.name)
-                                        console.log(DSS.layer.erosion_field.values_.name)
-                                        if(erosionGroupLayers[l].values_.name == DSS.layer.erosion_field.values_.name){
-                                            const index = erosionGroupLayers.indexOf(erosionGroupLayers[l]);
-                                            if(index > -1) {
-                                                erosionGroupLayers.splice(index,1);
-                                                console.log("SPLICED :" + DSS.layer.erosion_field.values_.name)
-                                            }
-                                            erosionGroupLayers.push(DSS.layer.erosion_field);
-                                        }
-                                    }
-                                erosionGroupLayers.push(DSS.layer.erosion_field);
-                                }
-                                DSS.map.removeLayer(DSS.layer.erosion_field)
-                            }
-                        })
-                    }
-                    for (i in fArray){
-                        DSS.layer.runoffGroup.getLayers().forEach(function(layer){
-                            console.log(layer)
-                            var gidFromName = layer.values_.name.slice(6)
-                            console.log(gidFromName)
-                            modelruntime = fArray[i].values_.model_time_stamp
-                            console.log(modelruntime)
-                            if (String(fArray[i].values_.gid)==gidFromName){
-                                var extents = layer.values_.source.imageExtent_
-                                //Use this form when you have unique model run ids.
-                                layer.setSource(new ol.source.ImageStatic({
-                                    url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                                    imageExtent: extents
-                                }))
-                                layer.getSource().changed();
-                            }else{
-                                modelruntimeFromDB = fArray[i].values_.model_time_stamp
-                                fExtents = fArray[i].values_.geometry.extent_
-                                for(e in fExtents){
-                                    console.log(fExtents[e])
-                                    console.log(typeof fExtents[e])
-                                    fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
-                                }
-                                fExtentsNum = fExtents.map(Number);
-                                var fId = fArray[i].values_.gid
-                                console.log(fExtentsNum)
-                                console.log(fId)
-                                DSS.layer.runoff_field = new ol.layer.Image({
-                                    visible: false,
-                                    opacity: 1,
-                                    updateWhileAnimating: true,
-                                    updateWhileInteracting: true,
-                                    source: new ol.source.ImageStatic({
-                                    url:'/static/grazescape/public/images/runoff'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                                    imageExtent: fExtentsNum
-                                    })
-                                })
-                                DSS.layer.runoff_field.set('name', 'runoff'+ String(fId));
-                                DSS.layer.runoff_field.getSource().refresh();
-                                DSS.layer.runoff_field.getSource().changed();
-                                DSS.map.addLayer(DSS.layer.runoff_field)
-                                var runoffGroupLayers = DSS.layer.runoffGroup.getLayers().getArray();
-                                if(runoffGroupLayers.length == 0){
-                                    runoffGroupLayers.push(DSS.layer.runoff_field);
-                                }
-                                else{
-                                    for(l in runoffGroupLayers){
-                                        console.log(runoffGroupLayers[l].values_.name)
-                                        console.log(DSS.layer.runoff_field.values_.name)
-                                        if(runoffGroupLayers[l].values_.name == DSS.layer.runoff_field.values_.name){
-                                            const index = runoffGroupLayers.indexOf(runoffGroupLayers[l]);
-                                            if(index > -1) {
-                                                runoffGroupLayers.splice(index,1);
-                                                console.log("SPLICED :" + DSS.layer.runoff_field.values_.name)
-                                            }
-                                            runoffGroupLayers.push(DSS.layer.runoff_field);
-                                        }
-                                    }
-                                runoffGroupLayers.push(DSS.layer.runoff_field);
-                                }
-                                DSS.map.removeLayer(DSS.layer.runoff_field)
-                            }
-                        })
-                    }
-                    for (i in fArray){
-                        DSS.layer.yieldGroup.getLayers().forEach(function(layer){
-                            console.log(layer)
-                            var gidFromName = layer.values_.name.slice(5)
-                            console.log(gidFromName)
-                            modelruntime = fArray[i].values_.model_time_stamp
-                            console.log(modelruntime)
-                            if (String(fArray[i].values_.gid)==gidFromName){
-                                var extents = layer.values_.source.imageExtent_
-                                //Use this form when you have unique model run ids.
-                                layer.setSource(new ol.source.ImageStatic({
-                                    url: '/static/grazescape/public/images/'+ layer.values_.name + '_'+ modelruntime + '.png',
-                                    imageExtent: extents
-                                }))
-                                layer.getSource().changed();
-                            }else{
-                                modelruntimeFromDB = fArray[i].values_.model_time_stamp
-                                fExtents = fArray[i].values_.geometry.extent_
-                                for(e in fExtents){
-                                    console.log(fExtents[e])
-                                    console.log(typeof fExtents[e])
-                                    fExtents[e] = parseFloat(fExtents[e]).toFixed(4)
-                                }
-                                fExtentsNum = fExtents.map(Number);
-                                var fId = fArray[i].values_.gid
-                                console.log(fExtentsNum)
-                                console.log(fId)
-                                DSS.layer.yield_field = new ol.layer.Image({
-                                    visible: false,
-                                    opacity: 1,
-                                    updateWhileAnimating: true,
-                                    updateWhileInteracting: true,
-                                    source: new ol.source.ImageStatic({
-                                    url:'/static/grazescape/public/images/yield'+ String(fId) + '_' + modelruntimeFromDB + '.png',
-                                    imageExtent: fExtentsNum
-                                    })
-                                })
-                                DSS.layer.yield_field.set('name', 'yield'+ String(fId));
-                                DSS.layer.yield_field.getSource().refresh();
-                                DSS.layer.yield_field.getSource().changed();
-                                DSS.map.addLayer(DSS.layer.yield_field)
-                                var yieldGroupLayers = DSS.layer.yieldGroup.getLayers().getArray();
-                                if(yieldGroupLayers.length == 0){
-                                    yieldGroupLayers.push(DSS.layer.yield_field);
-                                }
-                                else{
-                                    for(l in yieldGroupLayers){
-                                        console.log(yieldGroupLayers[l].values_.name)
-                                        console.log(DSS.layer.yield_field.values_.name)
-                                        if(yieldGroupLayers[l].values_.name == DSS.layer.yield_field.values_.name){
-                                            const index = yieldGroupLayers.indexOf(yieldGroupLayers[l]);
-                                            if(index > -1) {
-                                                yieldGroupLayers.splice(index,1);
-                                                console.log("SPLICED :" + DSS.layer.yield_field.values_.name)
-                                            }
-                                            yieldGroupLayers.push(DSS.layer.yield_field);
-                                        }
-                                    }
-                                yieldGroupLayers.push(DSS.layer.yield_field);
-                                }
-                                DSS.map.removeLayer(DSS.layer.yield_field)
-                            }
-                        })
-                    }
-                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setHeight('40%')
-                    Ext.ComponentQuery.query('window[name="dashboardWindow"]')[0].setWidth('60%')
                 }
+
             },
             //--------------------------------------DEACTIVATED-----------------------------------
             deactivate: function() {
@@ -3677,6 +3343,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                             layer.setVisible(true);
                                             layer.getSource().changed();
                                             layer.getSource().refresh();
+                                            console.log("ero layer", layer)
                                         })
                                         DSS.layer.erosionGroup.setVisible(true);
                                         //To FORCE a redraw of the map
@@ -3689,57 +3356,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 								}
 							}
 						},
-                        // {
-						// 	boxLabel: 'Nitrate Leaching',
-						// 	listeners:{change: async function(checked)
-						// 		{
-						// 			if(this.checked){
-						// 				console.log('Nitrate clicked')
-                        //                 DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray,'lbs/acre');
-                        //                 await DSS.layer.nleachingGroup.getLayers().forEach(function(layer){
-                        //                     layer.setVisible(true);
-                        //                     layer.getSource().changed();
-                        //                     layer.getSource().refresh();
-                        //                 })
-                        //                 DSS.layer.nleachingGroup.setVisible(true);
-                        //                 //To FORCE a redraw of the map
-                        //                 DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
-                        //                 setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 90);
-						// 			}
-						// 			else{
-						// 				DSS.layer.nleachingGroup.setVisible(false);
-						// 			}
-						// 		}
-						// 	}
-						// },
 
-                        // {
-						// 	boxLabel: 'Runoff',
-						// 	listeners:{change: async function(checked)
-						// 		{
-						// 			if(this.checked){
-						// 				console.log('Runoff clicked')
-                        //                 //DSS.MapState.showContinuousLegend(pLossColorArray, pLossValueArray);
-                        //                 DSS.MapState.destroyLegend();
-                        //                 console.log(DSS.layer.yieldGroup)
-                        //                 DSS.layer.runoffGroup.setVisible(true);
-                        //                 DSS.layer.runoffGroup.setVisible(false);
-                        //                 await DSS.layer.runoffGroup.getLayers().forEach(function(layer){
-                                                //layer.setVisible(true);
-                        //                     layer.getSource().changed();
-                        //                     layer.getSource().refresh();
-                        //                 })
-                        //                 DSS.layer.runoffGroup.setVisible(true);
-                        //                 //To FORCE a redraw of the map
-                        //                 DSS.map.getView().setZoom(DSS.map.getView().getZoom() - 1)
-                        //                 setTimeout(() => {DSS.map.getView().setZoom(DSS.map.getView().getZoom() + 1)}, 75);
-						// 			}
-						// 			else{
-						// 				DSS.layer.runoffGroup.setVisible(false);
-						// 			}
-						// 		}
-						// 	}
-						// },
 						{
 							boxLabel: 'Yield',
 							listeners:{change: async function(checked)
@@ -3753,6 +3370,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                                             layer.setVisible(true);
                                             layer.getSource().changed();
                                             layer.getSource().refresh();
+                                            console.log("yield layer", layer)
                                         })
                                         DSS.layer.yieldGroup.setVisible(true);
                                         //To FORCE a redraw of the map

@@ -29,6 +29,7 @@ from grazescape.db_connect import *
 import pandas as pd
 import fiona as fiona
 import time
+import json as js
 import shutil
 from datetime import datetime
 import tracemalloc
@@ -110,21 +111,29 @@ def upload_file_test(request):
 
 # Used to set up heifer feed break down calculations
 def field_png_lookup(request):
-    print("POST!!!!!!!!!!!")
-    print(request.POST.getlist('model_field[]')[0])
-    try:
-        # starts_with = 'ploss791'
-        starts_with = request.POST.getlist('model_field[]')[0]
-        print(starts_with)
-        source_folder = os.path.join(settings.BASE_DIR, 'grazescape', 'static', 'grazescape', 'public', 'images')
-        for file in os.listdir(source_folder):
-            if file.startswith(starts_with):
-                print("FOUND MODELFILE!!!!!!!")
-                filestr = str(file)
-                print(filestr)
-                return (JsonResponse([filestr], safe=False))
-    except AttributeError:
-        pass
+    # print(request.body)
+    request_json = js.loads(request.body)["data"]
+    # print(request_json)
+
+    # try:
+    # starts_with = 'ploss791'
+    starts_with = request_json["model_field"]
+    folder = "field_"+request_json["folder"]
+    # print(starts_with)
+    # print(folder)
+    source_folder = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs', folder)
+    # source_folder = os.path.join(settings.BASE_DIR, 'grazescape', 'static', 'grazescape', 'public', 'images')
+    for file in os.listdir(source_folder):
+        if file.startswith(starts_with):
+            # print("FOUND MODELFILE!!!!!!!")
+            filestr = str(file)
+            # print(filestr)
+            data = {"folder":folder, "file":filestr}
+            print(data)
+            return (JsonResponse(data, safe=False))
+    return JsonResponse("{error:true}", safe=False)
+    # except AttributeError:
+    #     pass
     # Downloads model results from GCS bucket
 
 
@@ -642,7 +651,9 @@ def get_model_results(request):
 @csrf_protect
 def get_image(response):
     file_name = response.GET.get('file_name')
-    file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs', file_name)
+    folder = response.GET.get('folder')
+    file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs', folder, file_name)
+    print(file_path)
     img = open(file_path, 'rb')
     response = FileResponse(img)
     return response
@@ -650,7 +661,7 @@ def get_image(response):
 
 def get_results_image(response):
     file_name = response.GET.get('file_name')
-    file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'static', 'grazescape', 'public', 'images', file_name)
+    file_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_outputs', file_name)
     # img = open(file_path, 'r')
     response = FileResponse(file_path)
     return response
