@@ -3244,7 +3244,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
 //                        field_png_lookup({model_field:['Rotational Average'+ String(fArray[i].values_.gid)]},'yield',fExtentsNum)
                         field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_ploss","folder":String(fArray[i].values_.gid)},'ploss',fExtentsNum)
                         field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_ero","folder":String(fArray[i].values_.gid)},'ero',fExtentsNum)
-                        field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_Rotational Averag","folder":String(fArray[i].values_.gid)},'Rotational Averag',fExtentsNum)
+                        field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_Rotational Average","folder":String(fArray[i].values_.gid)},'yield',fExtentsNum)
                         field_png_lookup({model_field:'field_'+ String(fArray[i].values_.gid)+"_nleaching","folder":String(fArray[i].values_.gid)},'nleaching',fExtentsNum)
                         setTimeout(() => {console.log('sup')},100)
 
