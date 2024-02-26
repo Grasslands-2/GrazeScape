@@ -217,6 +217,7 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                     console.log(assembledArray)
                 }
             }
+            
             break;
             case "cg":
             for(i in fieldArray){
