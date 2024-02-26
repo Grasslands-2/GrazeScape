@@ -129,6 +129,7 @@ class CalcManureP(ModelBase):
 
                                          }
         self.nrec_dict = output_dict
+        print(self.nrec_dict)
 
     def getfertNrec_values(self, rot_yrs_crop, crop, legume_text, animal_density_text, om_text, cell_nresponse,
                            cover_crop, manure_n_perc, sand_string, om_mn_string, mn):
@@ -154,8 +155,9 @@ class CalcManureP(ModelBase):
             "Nharv_content": Nharv_content,
             "NH3loss": NH3loss,
         }}
-        crop_key = crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + cell_nresponse + "_" + om_text
+        # crop_key = crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + cell_nresponse + "_" + om_text
         for i in rot_yrs_crop:
+            print("looping through to create crop key", i)
             if mn:
                 if i == 'pt_rt':
                     crop_key = f"{crop}_{legume_text}_{crop}_{legume_text}_NA_NA_NA"
@@ -163,7 +165,6 @@ class CalcManureP(ModelBase):
                     crop_key = f"{crop}_{animal_density_text}_{legume_text}_{crop}_{animal_density_text}_{legume_text}_NA_NA_NA"
                 elif i == 'dl':
                     crop_key = f"{crop}_{animal_density_text}_{crop}_{animal_density_text}_NA_NA_NA"
-
                 elif crop == "cg" and i != 'sb':
                     crop_key = f"{crop}_{i}_{cover_crop}_{sand_string}_NA"
                 elif crop == "cc":
@@ -182,7 +183,7 @@ class CalcManureP(ModelBase):
                 elif i == 'pt_cn':
                     crop_key = crop + "_" + animal_density_text + "_" + legume_text + "_" + crop + "_" + animal_density_text + "_" + legume_text + "_" + cover_crop + "_" + om_text
                 elif i == 'dl':
-                    crop_key = crop + "_" + animal_density_text + "_" + cover_crop + "_" + cell_nresponse
+                    crop_key = crop + "_" + animal_density_text + "_" + crop + "_" + animal_density_text + "_" + cover_crop + "_" + cell_nresponse
                 else:
                     if i == 'ot' or i == 'as':
                         crop_key = crop + "_" + i + "_" + cover_crop + "_" + om_text
@@ -190,7 +191,7 @@ class CalcManureP(ModelBase):
                         crop_key = crop + "_" + i + "_" + cover_crop + "_" + cell_nresponse
 
             # alfalfa has two rotation years
-
+            print("crop_key", crop_key)
             nrecValue = float(self.nrec_dict[crop_key]["fertN"])
             nManureValue = float(self.nrec_dict[crop_key]["ManureN"])
             pNeedsValue = float(self.nrec_dict[crop_key]["Pneeds"])

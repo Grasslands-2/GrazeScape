@@ -62,12 +62,16 @@ def run_parallel(model_yield, model_rain, model_ero, model_phos, model_nit, p_ma
     grass_array = []
 
     for val in results_dict:
+        print(val)
         if "Bluegrass-clover" == val or "Orchardgrass-clover" == val or "Timothy-clover" == val:
             is_grass = True
             if len(results_dict[val]) == 2:
                 yield_data = results_dict[val]
             else:
                 grass_array.append(results_dict[val][0])
+        if val == "DryLot":
+            yield_data = results_dict[val]
+            is_grass = True
     if not is_grass:
         yield_data = results_dict["CropYield"]
 

@@ -296,6 +296,7 @@ function format_chart_data(model_data){
     //setting up each model run
     modelTypeString = model_data.value_type +'_'+ model_data.crop_ro
 //    console.log("value type ", model_data.value_type)
+    console.log("mmodel_data", model_data)
     switch (model_data.model_type) {
         case 'yield':
             switch (model_data.value_type){
@@ -307,11 +308,11 @@ function format_chart_data(model_data){
                 }
                 break
             case 'Dry Lot':
-//                chartTypeField = chartObj.grass_yield_field
-//                chartTypeFarm = chartObj.grass_yield_farm
-//                if(model_data.scen_id == DSS.activeScenario){
-//                    gatherArrayForYieldAdjustment(model_data)
-//                }
+                chartTypeField = chartObj.grass_yield_field
+                chartTypeFarm = chartObj.grass_yield_farm
+                if(model_data.scen_id == DSS.activeScenario){
+                    gatherArrayForYieldAdjustment(model_data)
+                }
                 break
             case 'Corn Grain':
                 chartTypeField = chartObj.corn_yield_field
@@ -547,7 +548,7 @@ function format_chart_data(model_data){
     let chartVal = null
     let chartCells = null
     let chartArea = null
-    if(model_data.sum_cells != null && model_data.crop_ro != 'dl'){
+    if(model_data.sum_cells != null ){
         chartTypeFarm.show = true
         if(chartTypeFarm == chartObj.econ_farm){
             chartVal = model_data.sum_cells * model_data.counted_cells
