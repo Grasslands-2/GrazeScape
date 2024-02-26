@@ -176,6 +176,48 @@ function Assemblefieldsummarry(fieldArray,pmanureReturn_array){
                 }
             }
             break;
+//            todo update fields for dry lot
+            case "dl":
+            for(i in fieldArray){
+                slicedId = fieldArray[i].id.slice(8)
+                console.log(slicedId)
+                console.log(pmr[1])
+                if(slicedId == pmr[1]){
+                    console.log("in if for fieldarray")
+                    fieldArrayItem = fieldArray[i]
+                    console.log("pmr", pmr)
+                    assembledArray.push({
+                        field_name: pmr[0],
+                        crop_ro: "Dry Lot",
+                        area:fieldArrayItem.area,
+                        year: 1,
+                        crop: "Dry Lot",
+                        soilP: fieldArrayItem.soilP,
+                        soilOM: fieldArrayItem.soilOM,
+                        Nrec: pmr[4].dl.n_rec,
+                        manuPercN: fieldArrayItem.manuPercN,
+                        fertPercN: fieldArrayItem.fertPercN,
+                        manuAppliedN: (fieldArrayItem.manuPercN/100) * pmr[4].dl.n_man,
+                        fertAppliedN: (fieldArrayItem.fertPercN/100) * pmr[4].dl.n_rec,
+                        pNeeds: pmr[4].dl.p_needs,
+                        manuPercP: pmr[4].dl.man_p_per,
+                        nManure: pmr[4].dl.n_man,
+                        fertPercP: fieldArrayItem.fertPercP,
+                        manuAppliedP:(pmr[4].dl.man_p_per/100) * pmr[4].dl.p_needs,
+                        fertAppliedP: (fieldArrayItem.fertPercP/100) * pmr[4].dl.p_needs,
+                        tillageDisp: fieldArrayItem.tillageDisp,
+                        coverCropDisp: fieldArrayItem.coverCropDisp,
+                        onContour: fieldArrayItem.onContour,
+                        grassSpeciesDisp: "NA",
+                        interseededClover: "NA",
+                        grazeDensityDisp: fieldArrayItem.grazeDensityDisp,
+                        rotationFreqDisp: "NA",
+                        landCost:fieldArrayItem.landCost,
+                    })
+                    console.log(assembledArray)
+                }
+            }
+            break;
             case "cg":
             for(i in fieldArray){
                 slicedId = fieldArray[i].id.slice(8)

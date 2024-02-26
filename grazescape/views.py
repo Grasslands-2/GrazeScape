@@ -450,7 +450,9 @@ def get_model_results(request):
 
             clipped_rasters, bounds = geo_data.get_clipped_rasters()
             print("done downloading ", time.time() - start)
+
             p_manure_Results = get_P_Manure_Results(request, clipped_rasters)
+            print(p_manure_Results)
             is_grass = False
             model_grass1 = None
             model_grass2 = None
@@ -529,7 +531,6 @@ def get_model_results(request):
             # probably use threads here and use numpy in the png creation
             print("models done running ", time.time() - start)
             # todo store results from model runs into model_results and change is_dirty to false
-            # print(p_manure_Results)
             sql_data_package = {"area": area, "no_data": geo_data.no_data_aray, "x_bound": geo_data.bounds["x"],
                                 "y_bound": geo_data.bounds["y"], "p_needs": p_manure_Results}
 
