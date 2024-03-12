@@ -8,7 +8,7 @@ Ext.create('Ext.data.Store', {
 	fields:['display', 'value'],
 	data: [{
 		value: '1.2',
-		display: 'More then once a day'
+		display: 'More than once a day'
 	},{ 
 		value: '1',
 		display: 'Once a day'
@@ -80,7 +80,7 @@ let rotationFreq = Ext.create('Ext.data.Store', {
 	fields:[ 'label', 'enum'],
 	data: [{
 		enum: 1.2,
-		label: 'More then once a day'
+		label: 'More than once a day'
 	},{ 
 		enum: 1,
 		label: 'Once a day'

@@ -28,27 +28,15 @@ Ext.define('DSS.view.AppViewport', {
 	requires: [
 		'DSS.state.ApplicationFlow',
         'DSS.map.Main',
-		//'DSS.inspector.Main',
 		'DSS.map.LayerMenu',
-
-		'DSS.field_shapes.DrawAndApply',
 		'DSS.field_shapes.Split',
 		'DSS.field_shapes.Join',
 		'DSS.field_shapes.Delete',
 		'DSS.field_shapes.ModelRunning',
 		'DSS.results.Dashboard',
-
-		'DSS.infra_shapes.DrawLine',
 		'DSS.infra_shapes.SplitLine',
 		'DSS.infra_shapes.JoinLine',
 		'DSS.infra_shapes.DeleteLine',
-		//'DSS.view.exporter',
-		
-//		'DSS.state.scenario.PerimeterDialog',
-		//'DSS.field_shapes.ModelRunning',
-
-//		'DSS.results.ResultsMain',
-//		'DSS.results.test_window'
 	],
 
 	minWidth: 900,
@@ -156,12 +144,12 @@ Ext.define('DSS.view.AppViewport', {
 		DSS_viewport = me;
 		
 		// Terrible image cache
-		Ext.create('Ext.container.Container', {
-			style: 'background:url("/static/grazescape/public/images/graze_logo.png")',
-			width: 1, height: 1,
-			floating: true, 
-			shadow: false,
-		}).showAt(-1,-1);
+//		Ext.create('Ext.container.Container', {
+//			style: 'background:url("/static/grazescape/public/images/graze_logo.png")',
+//			width: 1, height: 1,
+//			floating: true,
+//			shadow: false,
+//		}).showAt(-1,-1);
 		
 		/*setTimeout(function() {
 			Ext.create('DSS.results.ResultsMain').show().center().maximize(true);

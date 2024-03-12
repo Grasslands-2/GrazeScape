@@ -6,6 +6,11 @@ import configparser
 import os
 from django.conf import settings
 from psycopg2.errors import UniqueViolation
+import threading
+import json
+from grazescape.model_defintions.model_base import OutputDataNode
+import numpy as np
+
 def multifindcoordsJson(string):
     values = []
     # while True:
@@ -18,19 +23,21 @@ def multifindcoordsJson(string):
     print(values)
     return values
 
-#Splits up each incoming polygon from the shapefile into a seperate field.
+
+# Splits up each incoming polygon from the shapefile into a seperate field.
 def multifindcoordsshp(string):
     values = []
-    #print(string)
+    # print(string)
     begstring = 'array([['
     endstring = ']])'
     tmp = string.split(begstring)
     for par in tmp:
         if endstring in par:
-            par = par.replace('\n','')
+            par = par.replace('\n', '')
             values.append(par.split(endstring)[0])
     print(values)
     return values
+
 
 def config(filename='database.ini', section='postgresql'):
     """
@@ -91,6 +98,8 @@ def db_has_field(field_id):
     cur.close()
     conn.close()
     return db_result is not None
+
+
 # This collects all the operations owned by the user once the owner logs in
 def get_user_farms(user_id):
     cur, conn = get_db_conn()
@@ -103,17 +112,20 @@ def get_user_farms(user_id):
     conn.close()
     farm_id = []
     for id in db_result:
-        #print(id[0])
+        # print(id[0])
         farm_id.append(id[0])
     return farm_id
+
+
 # updates the users list of farms when they add or delete an operation.
 def update_user_farms(user_id, farm_id):
+    print("IN UPDATE USER FARMS")
     cur, conn = get_db_conn()
     try:
         cur.execute("""INSERT INTO farm_user 
         (user_id, is_owner, can_read, can_write,farm_id)
         VALUES(%s,%s,%s,%s,%s)""",
-                (user_id, True, True, True, farm_id))
+                    (user_id, True, True, True, farm_id))
     except Exception as e:
         print(e)
         print(type(e).__name__)
@@ -126,7 +138,9 @@ def update_user_farms(user_id, farm_id):
         cur.close()
         conn.commit()
         conn.close()
-# If a fields attributes have been changed.  This function updates the the fields_2 table
+
+
+# If a fields attributes have been changed.  This function updates the fields_2 table
 def update_field_dirty(field_id, scenario_id, farm_id):
     """
 
@@ -147,7 +161,7 @@ def update_field_dirty(field_id, scenario_id, farm_id):
     -------
 
     """
-    print("updating dirty field")
+    print("updating dirty field", field_id, scenario_id, farm_id)
     cur, conn = get_db_conn()
     values = [field_id, scenario_id, farm_id]
     update_text = "UPDATE field_2 SET is_dirty = false WHERE gid = %s and scenario_id = %s and farm_id = %s"
@@ -165,40 +179,17 @@ def update_field_dirty(field_id, scenario_id, farm_id):
         conn.commit()
         conn.close()
     # Not in use
-def null_out_yield_results(data):
-    if data['crop_ro'] == 'pt' and data['value_type'] != 'Grass':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'cc' and data['value_type'] != 'Corn Grain':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'cg' and data['value_type'] != 'Corn Grain' or 'Soy':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'dr' and data['value_type'] != 'Corn Silage' or'Corn Grain' or 'Alfalfa':
-        data['sum_cells'] = None
-    if data['crop_ro'] == 'cso' and data['value_type'] != 'Corn Silage' or'Soy' or 'Oats':
-        data['sum_cells'] = None
-# Nulls out yeild totals before new models are run.  This is to ensure that no old yield data is being held onto
-def clear_yield_values(field_id):
-    cur, conn = get_db_conn()
-    nullvalue_list = "grass_yield_tons_per_ac = null, corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
-    nullout_text = "UPDATE field_model_results SET "
-    sql_where_text = " WHERE field_id = "+ field_id
-    yield_clear_text = nullout_text + nullvalue_list + sql_where_text
-    print(yield_clear_text)
-    try:
-        cur.execute(yield_clear_text)
-    except Exception as e:
-        print(e)
-        print(type(e).__name__)
-        error = str(e)
-        print(error)
-        raise
-    finally:
-        cur.close()
-        #actual push to db
-        conn.commit()
-        conn.close()
-#Used to update field model results when models are rerun 
-def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
+
+
+def update_field_results_async(field_id, scenario_id, farm_id, data, insert_field):
+    download_thread = threading.Thread(target=update_field_results,
+                                       args=(field_id, scenario_id, farm_id, data, insert_field))
+    download_thread.start()
+    # self.threads.append(download_thread)
+
+
+# Used to update field model results when models are rerun
+def update_field_results(field_id, scenario_id, data, sql_data_package, insert_field):
     """
 
     Parameters
@@ -207,8 +198,6 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         The primary key of the field
     scenario_id : int
         The primary key of the current scenario
-    farm_id : int
-        The primary key of the current farm
     data : request object
         The POST request containing the input parameters to the model
     insert_field : bool
@@ -218,117 +207,160 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
     -------
 
     """
+    # create values input
+    results_dict = {}
+    # print("sql_data_package", sql_data_package)
+    for model_output in data:
+        results_dict[model_output.model_type] = model_output
+
+
+    grass = []
+    grass_blue = []
+    grass_tim = []
+    grass_orch = []
+    corn = []
+    soy = []
+    corn_silage = []
+    alfalfa = []
+    oats = []
+    dry_matter = results_dict["Rotational Average"].data[0].tolist()
+    if "Grass" in results_dict:
+        grass = results_dict["Grass"].data[0].tolist()
+    if "Corn Grain" in results_dict:
+        corn = results_dict["Corn Grain"].data[0].tolist()
+    if "Soy" in results_dict:
+        soy = results_dict["Soy"].data[0].tolist()
+    if "Corn Silage" in results_dict:
+        corn_silage = results_dict["Corn Silage"].data[0].tolist()
+    if "Alfalfa" in results_dict:
+        alfalfa = results_dict["Alfalfa"].data[0].tolist()
+    if "Oats" in results_dict:
+        oats = results_dict["Oats"].data[0].tolist()
+
+    if "grass_matrix_Bluegrass-clover" in results_dict:
+        grass_blue = results_dict["grass_matrix_Bluegrass-clover"].data[0].tolist()
+    if "grass_matrix_Timothy-clover" in results_dict:
+        grass_tim = results_dict["grass_matrix_Timothy-clover"].data[0].tolist()
+    if "grass_matrix_Orchardgrass-clover" in results_dict:
+        grass_orch = results_dict["grass_matrix_Orchardgrass-clover"].data[0].tolist()
+
+    ero = results_dict["ero"].data[0].tolist()
+    sci = results_dict["soil_index"].data[0].tolist()
+    ploss = results_dict["ploss"].data[0].tolist()
+    n_water = results_dict["nwater"].data[0].tolist()
+    n_leach = results_dict["nleaching"].data[0].tolist()
+    runoff = results_dict["Runoff"].data
+    cn = results_dict["Curve Number"].data[0].tolist()
+    insect = results_dict["insect"].data[0]
+    cost = results_dict["econ"].data[0]
+
+    no_data = sql_data_package["no_data"].tolist()
+    x_bound = sql_data_package["x_bound"]
+    y_bound = sql_data_package["y_bound"]
+    area = sql_data_package["area"]
+    p_needs = json.dumps(sql_data_package["p_needs"])
+
+    grass = [float(value) for value in grass]
+    grass_blue = [float(value) for value in grass_blue]
+    grass_tim = [float(value) for value in grass_tim]
+    grass_orch = [float(value) for value in grass_orch]
+
+    dry_matter = [float(value) for value in dry_matter]
+    corn = [float(value) for value in corn]
+    soy = [float(value) for value in soy]
+    corn_silage = [float(value) for value in corn_silage]
+    alfalfa = [float(value) for value in alfalfa]
+    oats = [float(value) for value in oats]
+
+    ero = [float(value) for value in ero]
+    sci = [float(value) for value in sci]
+    ploss = [float(value) for value in ploss]
+
+    n_water = [float(value) for value in n_water]
+    n_leach = [float(value) for value in n_leach]
+    runoff_float = []
+    for sublist in runoff:
+        float_sublist = [float(number) for number in sublist]
+        runoff_float.append(float_sublist)
+
+    cn = [float(value) for value in cn]
+    no_data_float = []
+    for sublist in no_data:
+        float_sublist = [float(number) for number in sublist]
+        no_data_float.append(float_sublist)
+
     cur, conn = get_db_conn()
-    sql_where = " WHERE field_id = %s and scenario_id = %s and farm_id = %s"
-    sql_values = ""
-    col_name = []
-    values = []
-    nullvalue_list = "grass_yield_tons_per_ac = null, corn_yield_brus_per_ac = null, corn_silage_tons_per_ac = null, soy_yield_brus_per_ac = null, alfalfa_yield_tons_per_acre = null, oat_yield_brus_per_ac = null"
-    nullout_text = "UPDATE field_model_results SET "
-    update_text = "UPDATE field_model_results SET "
-    if insert_field:
-        update_text = "INSERT INTO field_model_results("
-        sql_values = " VALUES ("
-    values.append(data["sum_cells"])
-    if data["value_type"] == 'Grass':
-        col_name.append("grass_yield_tons_per_ac")
-    if data["value_type"] == 'Corn Grain':
-        col_name.append("corn_yield_brus_per_ac")
 
-    if data["value_type"] == 'Corn Silage':
-        col_name.append("corn_silage_tons_per_ac")
+    values = [
+        field_id,
+        scenario_id,
 
-    if data["value_type"] == 'Soy':
-        col_name.append("soy_yield_brus_per_ac")
+        dry_matter,
+        grass,
+        corn,
+        soy,
+        corn_silage,
+        alfalfa,
+        oats,
+        ero,
+        sci,
+        ploss,
+        n_water,
+        n_leach,
+        runoff_float,
+        cn,
+        float(insect),
+        float(cost),
+        no_data_float,
+        float(x_bound),
+        float(y_bound),
+        float(area),
+        p_needs,
+        grass_blue,
+        grass_tim,
+        grass_orch
+    ]
 
-    if data["value_type"] == 'Alfalfa':
-        col_name.append("alfalfa_yield_tons_per_acre")
+    def convert_to_float(value):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            # If the conversion fails, return the original value
+            return value
 
-    if data["value_type"] == 'Oats':
-        col_name.append("oat_yield_brus_per_ac")
+    float_list = [convert_to_float(value) for value in values]
 
-    if data["value_type"] == 'Rotational Average':
-        col_name.append('"rotation_dry_matter_yield_kg-DM/ac/year"')
-
-    if data["value_type"] == 'ploss':
-        col_name.append('"P_runoff_lbs_per_acre"')
-
-    if data["value_type"] == 'ero':
-        col_name.append("soil_erosion_tons_per_acre")
-
-    if data["value_type"] == 'Curve Number':
-        col_name.append("runoff_curve_number")
-
-    if data["value_type"] == 'Runoff':
-        rain_event = values[0]
-        col_name.append('"event_runoff_0.5_inch"')
-        col_name.append('event_runoff_1_inch')
-        col_name.append('"event_runoff_1.5_inch"')
-        col_name.append('event_runoff_2_inch')
-        col_name.append('"event_runoff_2.5_inch"')
-        col_name.append('event_runoff_3_inch')
-        col_name.append('"event_runoff_3.5_inch"')
-        col_name.append('event_runoff_4_inch')
-        col_name.append('"event_runoff_4.5_inch"')
-        col_name.append('event_runoff_5_inch')
-        col_name.append('"event_runoff_5.5_inch"')
-        col_name.append('event_runoff_6_inch')
-        values = []
-        for event in rain_event:
-            values.append(event)
-
-    if data["value_type"] == 'insect':
-        col_name.append("honey_bee_toxicity")
-    if data["value_type"] == 'econ':
-        col_name.append("costs_per_acre")
-    else:
-        col_name.append("cell_count")
-        values.append(data['counted_cells'])
-        col_name.append("area")
-        values.append(data['area'])
-
-
-    col_name.append("field_id")
-    col_name.append("scenario_id")
-    col_name.append("farm_id")
-
-    values.append(field_id)
-    values.append(scenario_id)
-    values.append(farm_id)
-    if not insert_field:
-        values.append(field_id)
-        values.append(scenario_id)
-        values.append(farm_id)
-
-    sql_request = update_text
-    for index, col in enumerate(col_name):
-        if insert_field:
-            sql_request = sql_request + col + ","
-            sql_values = sql_values + "%s" + ","
-            pass
-        else:
-            sql_values = sql_values + col + " = %s,"
-            pass
+    sql_where = f" field_id = {field_id} and scen= {scenario_id}"
+    # raise TypeError("test")
+    update_script = f"""
+        UPDATE
+        model_results
+        SET
+        field_id =%s, scen =%s, 
+        dry_matter =%s, grass =%s, corn =%s, soy =%s, corn_silage =%s, alfalfa =%s, oats =%s, ero =%s, sci =%s, 
+        ploss =%s, 
+        n_water =%s, n_leach =%s, runoff =%s, cn =%s, insect =%s, cost =%s, no_data =%s, x_bound =%s, y_bound =%s, 
+        area =%s, p_needs =%s, grass_blue =%s, grass_tim =%s, grass_orch =%s
+        WHERE {sql_where};
+    """
 
     if insert_field:
-        # replace last comma in list with a )
-        sql_request = sql_request[:-1]
-        sql_request = sql_request + ")"
-        sql_values = sql_values[:-1]
-        sql_values = sql_values + ")"
-        sql_request = sql_request + sql_values
-
-    else:
-        sql_values = sql_values[:-1]
-        sql_values = sql_values + ""
-        sql_request = sql_request + sql_values + sql_where
+        update_script = """
+    INSERT INTO model_results(
+        field_id, scen, dry_matter, grass, corn, soy, corn_silage, alfalfa, oats,
+        ero, sci, ploss, n_water, n_leach, runoff, cn, insect, cost, no_data, x_bound,
+        y_bound, area, p_needs, grass_blue, grass_tim, grass_orch)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s)
+"""
     # https://stackoverflow.com/questions/29186112/postgresql-python-ignore-duplicate-key-exception
     try:
-
-        cur.execute(sql_request, values)
+        cur.execute(update_script, float_list)
+        print("saving results")
+        # raise TypeError("just a test")
     except UniqueViolation as e:
         print("field already exists in table")
-        update_field_results(field_id, scenario_id, farm_id, data, False)
+        update_field_results(field_id, scenario_id, data, False)
 
     except Exception as e:
         print(e)
@@ -339,176 +371,148 @@ def update_field_results(field_id, scenario_id, farm_id, data, insert_field):
         raise
     finally:
         cur.close()
-        #actual push to db
+        # actual push to db
         conn.commit()
         conn.close()
-#Ran if no models are ran.  This pulls the data from the model results table.
-def get_values_db(field_id, scenario_id, farm_id, request,model_run_timestamp):
+
+
+# Ran if no models are ran.  This pulls the data from the model results table.
+def get_values_db(field_id, scenario_id):
     cur, conn = get_db_conn()
-    runoff_col = ['event_runoff_0.5_inch', 'event_runoff_1_inch',
-                  'event_runoff_1.5_inch', 'event_runoff_2_inch',
-                  'event_runoff_2.5_inch', 'event_runoff_3_inch',
-                  'event_runoff_3.5_inch', 'event_runoff_4_inch',
-                  'event_runoff_4.5_inch', 'event_runoff_5_inch',
-                  'event_runoff_5.5_inch', 'event_runoff_6_inch']
-    model_types = {'yield': {
-        "grass_yield_tons_per_ac": {"units": "Yield (tons/acre/year)",
-                                    "units_alternate": "'Yield (tons/year'",
-                                    "type": "Grass"},
-        "corn_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
-                                   "units_alternate": "Yield (bushels/year)",
-                                   "type": "Corn Grain"},
-        "corn_silage_tons_per_ac": {"units": "Yield (tons/ac/year)",
-                                    "units_alternate": "Yield (tons/year)",
-                                    "type": "Corn Silage"},
-        "soy_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
-                                  "units_alternate": "Yield (bushels/year)",
-                                  "type": "Soy"},
-        "alfalfa_yield_tons_per_acre": {"units": "Yield (tons/ac/year)",
-                                        "units_alternate": "Yield (tons/year)",
-                                        "type": "Alfalfa"},
-        "oat_yield_brus_per_ac": {"units": "Yield (bushels/ac/year)",
-                                  "units_alternate": "Yield (bushels/year)",
-                                  "type": "Oats"},
-        "rotation_dry_matter_yield_kg-DM/ac/year": {
-            "units": "Yield (tons-Dry Matter/ac/year)",
-            "units_alternate": "Yield (tons-Dry Matter/year)",
-            "type": "Rotational Average"}
-    },
-        'ploss': {
-            "P_runoff_lbs_per_acre": {
-                "units": "Phosphorus Runoff (lb/acre/year)",
-                "units_alternate": "Phosphorus Runoff (lb/year)",
-                "type": "ploss"},
-            "soil_erosion_tons_per_acre": {
-                "units": "Soil Erosion (ton/acre/year)",
-                "units_alternate": "Soil Erosion (tons of soil/year",
-                "type": "ero"}
-        },
-        'runoff': {
-            "runoff": {"units": "Runoff (in)",
-                       "units_alternate": "Runoff (in)", "type": "Runoff"},
-            "runoff_curve_number": {"units": "Curve Number",
-                                    "units_alternate": "Curve Number",
-                                    "type": "Curve Number"}
-        },
-        'bio': {
-            "honey_bee_toxicity": {"units": "Insecticide Index",
-                                   "units_alternate": "Insecticide Index",
-                                   "type": "insect"}
-        },
-        'econ': {
-            "costs_per_acre": {"units": "Costs (dollars/acre/year)",
-                                    "units_alternate": "Costs (dollars/year)",
-                                    "units_alternate_2": "Costs (dollars/Tons DM)",
-                                    "type": "econ"},
-        # "costs_per_ton_dm": {"units": "Yield (dollars/ton dry matter/year)",
-        #                            "type": "'costs_per_ton_dm"},
-    },
-    }
+    result = []
+    descrip = []
+    print("getting ids", field_id, scenario_id)
+    try:
+        cur.execute('SELECT * from model_results where field_id = %s and scen = %s '
+                    ,
+                    [field_id, scenario_id])
+        result = cur.fetchone()
+        descrip = cur.description
+    except Exception as e:
+        print(e)
+        print(type(e).__name__)
 
+        error = str(e)
+        print(error)
+        raise
+    finally:
+        cur.close()
+        conn.commit()
+        conn.close()
+    return result, descrip
+
+
+def format_db_values(sql_model_data, descrip):
     return_data = []
-    cur.execute('SELECT * from field_model_results,field_2 '
-                'where field_model_results.field_id = %s '
-                'and field_model_results.scenario_id = %s '
-                'and field_model_results.farm_id = %s '
-                'and field_2.gid = %s',
-                [field_id, scenario_id, farm_id,field_id])
-    result = cur.fetchone()
-    column_names = [desc[0] for desc in cur.description]
-    for model in model_types:
-        if model == request.POST.get('model_parameters[model_type]'):
-            
-            if result is None:
-                # print("the query return no results")
-                f_name = request.POST.get('model_parameters[f_name]')
-                scen = request.POST.get('model_parameters[scen]')
-                data = {  # overall model type crop, ploss, bio, runoff
-                    "model_type": model,
-                    # specific model for runs with multiple models like corn silage
-                    # "value_type": model_types[model][col]["type"],
-                    "f_name": f_name,
-                    "scen": scen,
-                    "scen_id": scenario_id,
-                    "field_id": field_id
-                }
-                return_data.append(data)
-            else:
-                for col in model_types[model]:
-                    if col == "runoff":
-                        sum1 = []
-                        for run_col in runoff_col:
-                            col_index = column_names.index(run_col)
-                            sum1.append(result[col_index])
-                    
+    econ = OutputDataNode("econ", "Production costs ($/ac/year)", "Production costs ($/year)",
+                          "Production costs", "Production costs")
+    erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)", "Soil loss (tons/ac/yr)",
+                             "Soil loss (tons/yr)")
+    corn = OutputDataNode("Corn Grain", "Corn grain yield [bu/ac/yr]", "Corn grain production [bu/yr]",
+                          "Corn grain yield [bushels/ac/yr]", "Corn grain production [bushels/yr]")
 
-                    else:
-                        col_index = column_names.index(col)
-                        sum1 = result[col_index]
-                        if model == 'econ':
-                            print("ECON SUM1")
-                            print(sum1)
-                    units = model_types[model][col]["units"]
-                    units_alternate = model_types[model][col][
-                            "units_alternate"]
-                    if sum1 is None:
-                        sum1 = None
-                        units = ""
-                        units_alternate = ""
-                    col_index = column_names.index("area")
-                    area = result[col_index]
-                    col_index = column_names.index("cell_count")
-                    count = result[col_index]
+    soy = OutputDataNode("Soy", "Soybean yield (bushels/ac/yr)", "Soybean production (bu/yr)",
+                         'Soybean yield (bushels/ac/yr)', "Soybean production (bushels/yr)")
 
-                    grass_index = column_names.index("grass_speciesval")
-                    grass_type = result[grass_index]
-                    rot_index = column_names.index("rotation")
-                    rotation = result[rot_index]
+    silage = OutputDataNode("Corn Silage", "Corn silage yield (tons/ac/yr)", "Corn silage production (tons/yr)",
+                            "Corn silage yield (tons/ac/yr)", "Corn silage production (tons/yr)")
 
-                    till_index = column_names.index("tillage")
-                    tillage = result[till_index]
-                    grass_rotation = ""
-                    if "pt-" in rotation or "cn-" in rotation:
-                        r = rotation.split("-")
-                        # rotation = rotation.split("-")[0]
-                        grass_rotation = r[1]
-                        rotation = r[0]
-                    if model == "bio":
-                        count = 1
-                    f_name = request.POST.get('model_parameters[f_name]')
-                    # f_name = "test"
-                    scen = request.POST.get('model_parameters[scen]')
-                    # scen = "farm"
-                    data = {
-                        # "extent": [*bounds],
-                        # "palette": palette,
-                        # "url": model.file_name + ".png",
-                        # "values": values_legend,
-                        "units": units,
-                        "units_alternate": units_alternate ,
-                        # overall model type crop, ploss, bio, runoff
-                        "model_type": model,
-                        # specific model for runs with multiple models like corn silage
-                        "value_type": model_types[model][col]["type"],
-                        "f_name": f_name,
-                        "scen": scen,
-                        # "avg": round(avg, 2),
-                        "area": area,
-                        "counted_cells": count,
-                        "sum_cells": sum1,
-                        "scen_id": scenario_id,
-                        "field_id": field_id,
-                        "crop_ro": rotation,
-                        "grass_ro": grass_rotation,
-                        "grass_type": grass_type,
-                        "till": tillage,
-                        "model_run_timestamp": model_run_timestamp
+    alfalfa = OutputDataNode("Alfalfa", "Alfalfa yield (tons/ac/yr)", "Alfalfa production (tons/yr)",
+                             "Alfalfa yield (tons/ac/yr)", "Alfalfa production (tons/yr)")
 
-                    }
-                    return_data.append(data)
-    cur.close()
-    conn.close()
-    return return_data
+    oats = OutputDataNode("Oats", "Oat yield (bushels/ac/yr)", "Oat production (bu/yr)",
+                          "Oat yield (bushels/ac/yr)", "Oat production (bushels/yr)")
+    rotation_avg = OutputDataNode("Rotational Average", "Total dry matter yield (tons/ac/yr)",
+                                  "Total dry matter production (tons/yr)", "Total dry matter yield (tons/ac/yr)",
+                                  "Total dry matter production (tons/yr)")
+    grass_yield = OutputDataNode("Grass", "Grass yield (tons-dry-matter/ac/yr)",
+                                 'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                 'Grass production (tons-dry-matter/yr)')
+    grass_blue = OutputDataNode("grass_matrix_Bluegrass-clover", "Grass yield (tons-dry-matter/ac/yr)",
+                                'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                'Grass production (tons-dry-matter/yr)')
+    grass_tim = OutputDataNode("grass_matrix_Timothy-clover", "Grass yield (tons-dry-matter/ac/yr)",
+                               'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                               'Grass production (tons-dry-matter/yr)')
+    grass_orch = OutputDataNode("grass_matrix_Orchardgrass-clover", "Grass yield (tons-dry-matter/ac/yr)",
+                                'Grass production (tons-dry-matter/yr)', 'Grass yield (tons-dry-matter/ac/yr)',
+                                'Grass production (tons-dry-matter/yr)')
+
+    nitrate = OutputDataNode("nleaching", "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)",
+                             "Nitrate-N leaching (lb/ac/yr)", "Nitrate-N leaching (lb/yr)")
+    nitrate_water = OutputDataNode("nwater", "Total Nitrogen Loss To Water (lb/ac/yr)",
+                                   "Total Nitrogen Loss To Water (lb/yr)",
+                                   "Total Nitrogen Loss To Water (lb/ac/yr)",
+                                   "Total Nitrogen Loss To Water (lb/yr)")
+    pl = OutputDataNode("ploss", "P runoff (lb/ac/yr)", "P runoff (lb/yr)", "Phosphorus runoff (lb/ac/yr)",
+                        "Phosphorus runoff (lb/yr)")
+    rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)", "Storm event runoff (inches)",
+                               "Storm event runoff (inches)")
+    curve = OutputDataNode("Curve Number", "Curve Number", "Curve Number", "Composite curve number",
+                           "Composite curve number")
+    sci_output = OutputDataNode("soil_index", "Soil Condition Index (lb/ac/yr)", "Soil Condition Index (lb/yr)",
+                                "Soil Condition Index (lb/ac/yr)", "Soil Condition Index (lb/yr)")
+    insect_node = OutputDataNode("insect", "Insecticide Index", "Insecticide Index", "Honey bee toxicity",
+                                 "Honey bee toxicity")
+
+    # result = cur.fetchone()
+    column_names = [desc[0] for desc in descrip]
+    # print("model results", sql_model_data)
+    # print("columns", column_names)
+    db_dict = {}
+    for index, val in enumerate(column_names):
+        # print(column_names[index], sql_model_data[index])
+        db_dict[column_names[index]] = sql_model_data[index]
+    # cur.close()
+    # conn.close()
+
+    return_data = [erosion, insect_node, sci_output, curve, rain_fall, pl, nitrate_water, nitrate, rotation_avg, econ]
+    erosion.set_data(db_dict["ero"])
+    insect_node.set_data(db_dict["insect"])
+    sci_output.set_data(db_dict["sci"])
+    curve.set_data(db_dict["cn"])
+    rain_fall.data = db_dict["runoff"]
+    pl.set_data(db_dict["ploss"])
+    nitrate_water.set_data(db_dict["n_water"])
+    nitrate.set_data(db_dict["n_leach"])
+    rotation_avg.set_data(db_dict["dry_matter"])
+    econ.set_data(db_dict["cost"])
+
+    corn.set_data(db_dict["corn"])
+    soy.set_data(db_dict["soy"])
+    silage.set_data(db_dict["corn_silage"])
+    alfalfa.set_data(db_dict["alfalfa"])
+    oats.set_data(db_dict["oats"])
+
+    grass_yield.set_data(db_dict["grass"])
+    grass_blue.set_data(db_dict["grass_blue"])
+    grass_tim.set_data(db_dict["grass_tim"])
+    grass_orch.set_data(db_dict["grass_orch"])
+
+    if db_dict["corn"]:
+        return_data.append(corn)
+    if db_dict["soy"]:
+        return_data.append(soy)
+    if db_dict["corn_silage"]:
+        return_data.append(silage)
+    if db_dict["alfalfa"]:
+        return_data.append(alfalfa)
+    if db_dict["oats"]:
+        return_data.append(oats)
+
+    if db_dict["grass"]:
+        return_data.append(grass_yield)
+    if db_dict["grass_blue"]:
+        return_data.append(grass_blue)
+    if db_dict["grass_tim"]:
+        return_data.append(grass_tim)
+    if db_dict["grass_orch"]:
+        return_data.append(grass_orch)
+
+    return return_data, {"x": int(db_dict["x_bound"]), "y": int(db_dict["y_bound"])}, db_dict["no_data"], db_dict[
+        "p_needs"]
+
+
 # SQl calls for clean data
 def clean_db():
     cur, conn = get_db_conn()
@@ -540,7 +544,9 @@ def clean_db():
     # print(result)
     cur.close()
     conn.close()
-def insert_json_coords(scenario_id,farm_id,file_data):
+
+
+def insert_json_coords(scenario_id, farm_id, file_data):
     tillage = "su"
     tillage_disp = "Spring Cultivation"
     grass_speciesdisp = "Low Yielding"
@@ -564,21 +570,21 @@ def insert_json_coords(scenario_id,farm_id,file_data):
     coord_strings = multifindcoordsJson(file_data)
     print(coord_strings)
 
-#This is how the data looks when it comes into this function.
-#[-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]
-#-10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405
-# VALUES(%s,%s,%s,ST_GeomFromText('MULTIPOLYGON(((%s)))'))""",
+    # This is how the data looks when it comes into this function.
+    # [-10115640.011618003,5414802.3536429405],[-10115648.965725254,5415103.8085870221],[-10116105.625194993,5415118.7320991009],[-10116111.594599824,5414793.3995356858],[-10115640.011618003,5414802.3536429405]
+    # -10115640.011618003 5414802.3536429405,-10115648.965725254 5415103.8085870221,-10116105.625194993 5415118.7320991009,-10116111.594599824 5414793.3995356858,-10115640.011618003 5414802.3536429405
+    # VALUES(%s,%s,%s,ST_GeomFromText('MULTIPOLYGON(((%s)))'))""",
 
-#,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
-#,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
+    # ,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+    # ,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
 
-#This goes through the coords string, and sets it up to get pushed into the GeoServer db.
+    # This goes through the coords string, and sets it up to get pushed into the GeoServer db.
     for coord in coord_strings:
-        coord = "["+coord+"]"
-        coord = coord.replace(',',' ')
-        coord = coord.replace('] [',',')
-        coord = coord.replace('[','')
-        coord = coord.replace(']','')
+        coord = "[" + coord + "]"
+        coord = coord.replace(',', ' ')
+        coord = coord.replace('] [', ',')
+        coord = coord.replace('[', '')
+        coord = coord.replace(']', '')
         coord = "MULTIPOLYGON(((" + coord + ")))"
         print("coord")
         print(coord)
@@ -586,22 +592,27 @@ def insert_json_coords(scenario_id,farm_id,file_data):
         postgreSQL_select_Query = "SELECT MAX(gid) FROM field_2;"
         cur, conn = get_db_conn()
         try:
-            #first get highest GID value
+            # first get highest GID value
             print("GETTING LAST GID!!!!!!!!!!")
             cur.execute(postgreSQL_select_Query)
             lastGID = cur.fetchall()
-            #Pushes largest GID +1 for new field
+            # Pushes largest GID +1 for new field
             next_gid = lastGID[0][0] + 1
             cur.execute("""INSERT INTO field_2 
             (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost)
             VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-            (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost))
-            
-            #Resets the GID counter for the fields_2 field in the db
-            cur.execute("""SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
-            #for ref
-            #SELECT setval(pg_get_serial_sequence('table_name', 'id'), coalesce(max(id), 0)+1 , false) FROM table_name;
-            #cur.execute("""ALTER SEQUENCE field_2_gid_seq RESTART WITH %s;"""
+                        (next_gid, scenario_id, farm_id, coord, tillage, tillage_disp, grass_speciesdisp,
+                         grass_speciesval, cover_crop, cover_crop_disp, field_name, rotation, rotation_disp,
+                         rotational_freq_disp, rotational_freq_val, grazingdensityval, grazingdensitydisp,
+                         spread_confined_manure_on_pastures, on_contour, interseeded_clover, is_dirty, soil_p, om,
+                         land_cost))
+
+            # Resets the GID counter for the fields_2 field in the db
+            cur.execute(
+                """SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
+            # for ref
+            # SELECT setval(pg_get_serial_sequence('table_name', 'id'), coalesce(max(id), 0)+1 , false) FROM table_name;
+            # cur.execute("""ALTER SEQUENCE field_2_gid_seq RESTART WITH %s;"""
 
         except Exception as e:
             print(e)
@@ -617,12 +628,13 @@ def insert_json_coords(scenario_id,farm_id,file_data):
             conn.commit()
             conn.close()
 
-def insert_shpfile_coords(scenario_id,farm_id,file_data):
+
+def insert_shpfile_coords(scenario_id, farm_id, file_data):
     print("insert_shpfile_coords")
     print(scenario_id)
     print(farm_id)
     print(file_data)
-    #attribute set up
+    # attribute set up
     tillage = "su"
     tillage_disp = "Spring Cultivation"
     grass_speciesdisp = "Low Yielding"
@@ -647,53 +659,58 @@ def insert_shpfile_coords(scenario_id,farm_id,file_data):
     coord_strings = multifindcoordsshp(coord_array_string)
     print("insert_shpfile_coords coord_strings")
 
-# [-10117019.10216057,   5375516.61168973],
-#         [-10117008.60306279,   5375090.22832491],
-#         [-10117389.19649813,   5375093.84153498],
-#         [-10117444.31690059,   5375650.31213941],
-#         [-10117370.82299353,   5375650.31213941],
-#         [-10117173.96427018,   5375538.29258033],
-#         [-10117019.10216057,   5375516.61168973]
-        
-#,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
-#,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
+    # [-10117019.10216057,   5375516.61168973],
+    #         [-10117008.60306279,   5375090.22832491],
+    #         [-10117389.19649813,   5375093.84153498],
+    #         [-10117444.31690059,   5375650.31213941],
+    #         [-10117370.82299353,   5375650.31213941],
+    #         [-10117173.96427018,   5375538.29258033],
+    #         [-10117019.10216057,   5375516.61168973]
 
-#series of string replacements 
+    # ,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+    # ,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,pasture_grazing_rot_cont,is_dirty,soil_p,om
+
+    # series of string replacements
     for coord in coord_strings:
-        coord = "["+coord+"]"
-        coord = coord.replace(',',' ')
-        coord = coord.replace(']/n         [',',')
-        coord = coord.replace('[','')
-        coord = coord.replace(']','')
-        coord = coord.replace('      ',',')
-        coord = coord.replace('    ',' ')
-        coord = coord.replace(',   ',',')
+        coord = "[" + coord + "]"
+        coord = coord.replace(',', ' ')
+        coord = coord.replace(']/n         [', ',')
+        coord = coord.replace('[', '')
+        coord = coord.replace(']', '')
+        coord = coord.replace('      ', ',')
+        coord = coord.replace('    ', ' ')
+        coord = coord.replace(',   ', ',')
         coord = "MULTIPOLYGON(((" + coord + ")))"
         print("coord")
         print(coord)
-        #setting up SQL quiry to place new field into db
+        # setting up SQL quiry to place new field into db
 
-        #Getting highest GID from fields to make sure there isnt a duplicate.
+        # Getting highest GID from fields to make sure there isnt a duplicate.
         postgreSQL_select_Query = "SELECT MAX(gid) FROM field_2;"
         cur, conn = get_db_conn()
         try:
             print("GETTING LAST GID!!!!!!!!!!")
             cur.execute(postgreSQL_select_Query)
-            #Gets all the fields data from the db
+            # Gets all the fields data from the db
             lastGID = cur.fetchall()
-            #lastGID[0][0] references the GID value in the fields table.  This gets that valu +1 to prevent a dup
+            # lastGID[0][0] references the GID value in the fields table.  This gets that valu +1 to prevent a dup
             next_gid = lastGID[0][0] + 1
-            #actual excution of SQL query to place fields.
+            # actual excution of SQL query to place fields.
             cur.execute("""INSERT INTO field_2 
             (gid,scenario_id,farm_id, geom, tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost)
             VALUES(%s,%s,%s,ST_GeomFromText(%s),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-            (next_gid,scenario_id,farm_id,coord,tillage,tillage_disp,grass_speciesdisp,grass_speciesval,cover_crop,cover_crop_disp,field_name,rotation,rotation_disp,rotational_freq_disp,rotational_freq_val,grazingdensityval,grazingdensitydisp,spread_confined_manure_on_pastures,on_contour,interseeded_clover,is_dirty,soil_p,om,land_cost))
-            #Resets the primary key value for the field_2 table after insert of new fields.  This makes sure that new fields being created
-            #on other farms do not end up with a duplicate GID to the ones just inserted via shapefile.
-            cur.execute("""SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
-            
+                        (next_gid, scenario_id, farm_id, coord, tillage, tillage_disp, grass_speciesdisp,
+                         grass_speciesval, cover_crop, cover_crop_disp, field_name, rotation, rotation_disp,
+                         rotational_freq_disp, rotational_freq_val, grazingdensityval, grazingdensitydisp,
+                         spread_confined_manure_on_pastures, on_contour, interseeded_clover, is_dirty, soil_p, om,
+                         land_cost))
+            # Resets the primary key value for the field_2 table after insert of new fields.  This makes sure that new fields being created
+            # on other farms do not end up with a duplicate GID to the ones just inserted via shapefile.
+            cur.execute(
+                """SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
 
-            
+
+
 
         except Exception as e:
             print(e)

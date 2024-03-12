@@ -13,9 +13,6 @@ let context = canvas.getContext('2d');
 
 var fields_1Source = new ol.source.Vector({
 	format: new ol.format.GeoJSON(),
-	// url: function(extent) {
-	// 	return geoserverURL + geoServer.geoField_Url
-	// },
 });
 //import {getArea, getDistance} from 'ol/sphere';
 //------------------------------------------------------------------------------
@@ -95,6 +92,12 @@ Ext.define('DSS.map.Main', {
 								Ext.create('DSS.map.LayerMenuUL').showAt(rect.left-2, rect.top-2);
 							}
 							if(DSS.activeRegion == "southWestWI"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
+							if(DSS.activeRegion == "redCedarWI"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
+							if(DSS.activeRegion == "pineRiverMN"){
 								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
 							}
 						}
@@ -191,10 +194,7 @@ Ext.define('DSS.map.Main', {
 		}
 		
 		DSS.layer = {};
-		
-		// Cookie-based settings persistence, when available
 		me.manageMapLayerCookies();
-		
 		//---------------------------------------------------------
 		DSS.layer.bingAerial = new ol.layer.Tile({
 			visible: true,
@@ -255,14 +255,14 @@ Ext.define('DSS.map.Main', {
 		//---------------------------Region Label Layer-----------------
 		let regionLabel = new ol.style.Style({
 			text: new ol.style.Text({
-				font: '26px Calibri,sans-serif',
+				font: '30px Calibri,sans-serif',
 				overflow: true,
 				fill: new ol.style.Fill({
 				  color: 'rgba(0,0,0,1)',
 				}),
 				stroke: new ol.style.Stroke({
-				  color: 'rgba(255, 255, 255, 0.7)',
-				  width: 1,
+				  color: 'rgba(255, 255, 255, 2.5)',
+				  width: 2,
 				}),
 			  }),
 			zIndex: 0
@@ -290,6 +290,43 @@ Ext.define('DSS.map.Main', {
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
 				url: '/static/grazescape/public/shapeFiles/Clover_Belt_Border2.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
+
+		DSS.layer.redCedarBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/redCedarWI.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
+		DSS.layer.pineRiverBorder = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/pineRiverMN.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
@@ -358,6 +395,23 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+
+		// Utility to reference all the regions, since they are each in their own layers.
+		DSS.allRegionLayers = [
+			DSS.layer.cloverBeltBorder,
+			DSS.layer.redCedarBorder,
+			DSS.layer.pineRiverBorder,
+			DSS.layer.northeastBorder,
+			DSS.layer.uplandBorder,
+			DSS.layer.swwiBorder
+		];
+		
+		for(var region of DSS.allRegionLayers) {
+			region.getSource().on("addfeature", function() {
+				DSS.utils.assignFarmsToRegions()
+			})
+		}
+
 		//--------------------------------------------------------------		
 		DSS.layer.tainterwatershed = new ol.layer.Vector({
 			visible: false,//DSS.layer['tainterwatershed:visible'],
@@ -409,7 +463,6 @@ Ext.define('DSS.map.Main', {
 			})
 		});
 		var extent = [ -10168100, 5454227, -10055830, 5318380];
-		var mrextent = [-10135469.3149,5405765.3492,-10135319.3149,5406075.3492];
 
 		DSS.layer.hillshade = new ol.layer.Image({
 			visible: DSS.layer['hillshade:visible'],
@@ -1316,6 +1369,10 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
+		DSS.layer.nleachingGroup = new ol.layer.Group({
+			visible: false,
+			layers:[]
+		})
 		DSS.layer.runoffGroup = new ol.layer.Group({
 			visible: false,
 			layers:[]
@@ -1324,36 +1381,6 @@ Ext.define('DSS.map.Main', {
 			visible: false,
 			layers:[]
 		})
-		var pointStyle = new ol.style.Style({
-			image: new ol.style.Circle({
-			  radius: 7,
-			  stroke: new ol.style.Stroke({
-					color: 'orange',
-					width: 1
-			  }),
-			  fill: new ol.style.Fill({
-					color: '#ffe4b3'
-			  })
-			})
-		});
-		var getText = function(feature, resolution) {
-			var text =feature.get('field_name');
-			return text;
-		}
-		var createTextStyle = function(feature,resolution){
-			return new ol.style.Text({
-				text: getText(feature, resolution),
-				font: '12px Calibri,sans-serif',
-				overflow: true,
-				fill: new ol.style.Fill({
-				  color: '#000',
-				}),
-				stroke: new ol.style.Stroke({
-				  color: '#fff',
-				  width: 3,
-				}),
-			  })
-		}
 
 		//---------------------------------------
 		let fieldLabel = new ol.style.Style({
@@ -1371,16 +1398,6 @@ Ext.define('DSS.map.Main', {
 			zIndex: 0
 		});
 		//------------------------------------------------
-		let defaultFieldStyle = new ol.style.Style({
-			stroke: new ol.style.Stroke({
-				color: 'rgba(255,200,32,0.8)',
-				width: 5
-			}),
-			fill: new ol.style.Fill({
-				color: 'rgba(0,0,0,0.5)',
-			}),
-			zIndex: 0
-		});
 		
 		DSS['layerSource'] = {};
 		DSS.layerSource['fields'] = new ol.source.Vector({
@@ -1425,7 +1442,7 @@ Ext.define('DSS.map.Main', {
 				width: 4,
 			})
 		})
-		function infraStyle(feature, resolution){
+		function infraStyle(feature){
 			var infraType = feature.get("infra_type");
 			//var fenceMat = feature.get('fence_material');
 			if(infraType == 'fl'){
@@ -1441,15 +1458,7 @@ Ext.define('DSS.map.Main', {
 				return infraDefaultStyle
 			}
 		};
-		let iconStyle = new ol.style.Style({
-			image: new ol.style.Icon({
-				size: 100000,
-				//anchor: [0,0],
-				//anchorXUnits: 'fraction',
-				//anchorYUnits: 'pixels',
-				src: '/static/grazescape/public/images/NicePng_barn-silhouette-png_7969174.png',
-			}),
-		  });
+
 		DEMExtent = [-10177440, 5490396, -10040090, 5310186]
 		console.log("setFieldSource in Main")
 		geoServer.setFieldSource()
@@ -1457,8 +1466,6 @@ Ext.define('DSS.map.Main', {
 		console.log("setFarmSource in Main.js")
 		geoServer.setInfrastructureSource()
 		geoServer.setScenariosSource()
-		//geoServer.setDEMSource()
-
 		
 		//-------------------------------------------------------------------------
 		DSS.layer.infrastructure = new ol.layer.Vector({
@@ -1470,6 +1477,14 @@ Ext.define('DSS.map.Main', {
 			style: infraStyle		
 		});
 		//-------------------------------------------------------------------------
+		DSS.farms_1_style = function(feature, resolution) {
+			let r = 4.0 - resolution / 94.0;
+			if (r < 0) r = 0
+			else if (r > 1) r = 1
+			// value from 3 to 16
+			r = Math.round(Math.pow(r, 3) * 13 + 3)
+			return me.DSS_zoomStyles['style' + r];
+		}
 		DSS.layer.farms_1 = new ol.layer.Vector({
 			title: 'farms_1',
 			visible: false,
@@ -1477,14 +1492,7 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: farms_1Source,
 			//style: iconStyle
-			style: function(feature, resolution) {
-				let r = 4.0 - resolution / 94.0;
-				if (r < 0) r = 0
-				else if (r > 1) r = 1
-				// value from 3 to 16
-				r = Math.round(Math.pow(r, 3) * 13 + 3)
-				return me.DSS_zoomStyles['style' + r];
-			}
+			style: DSS.farms_1_style
 		})
 		DSS.layer.scenarios = new ol.layer.Vector({
 			title: 'scenarios_2',
@@ -1643,6 +1651,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.northeastBorder,
 				DSS.layer.uplandBorder,
 				DSS.layer.cloverBeltBorder,
+				DSS.layer.redCedarBorder,
+				DSS.layer.pineRiverBorder,
 				DSS.layer.kickapoowatershed,
 				//DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
@@ -1652,6 +1662,7 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.regionLabels,
 				DSS.layer.fields_1,
 				DSS.layer.erosionGroup,
+				DSS.layer.nleachingGroup,
 				DSS.layer.PLossGroup,
 				DSS.layer.runoffGroup,
 				DSS.layer.yieldGroup
@@ -1659,17 +1670,10 @@ Ext.define('DSS.map.Main', {
 				],
 				//------------------------------------------------------------------------
 			view: new ol.View({
-				center: [-9941844.56,5428891.48],
-				//10000312.33 5506092.31 
-				//9,941,844.56W 5,428,891.48N m 
+				center: [-10090575.706307484, 5552204.392540871],
 				zoom: 8,
 				maxZoom: 30,
-				minZoom: 4,//10,
-			//	constrainRotation: false,
-			//	rotation: 0.009,
-				//constrainOnlyCenter: false,
-				//extent:[-10155160, 5323674, -10065237, 5450767]
-				//extent:[ -10168100, 5318380, -10055830, 5454227]
+				minZoom: 4,
 				extent:[-10132000, 5353000, -10103000, 5397000]
 			})
 		});
@@ -1678,8 +1682,8 @@ Ext.define('DSS.map.Main', {
 			bar: true, 
 			minwidth: 112,
 			units: 'us',
-//			units: 'metric'
 		}));
+//		me.map.addControl(new ol.control.MousePosition({}));
 		proj4.defs('urn:ogc:def:crs:EPSG::3071', "+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 		proj4.defs('EPSG:3071', "+proj=tmerc +lat_0=0 +lon_0=-90 +k=0.9996 +x_0=520000 +y_0=-4480000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 		ol.proj.proj4.register(proj4);	
@@ -1708,18 +1712,9 @@ Ext.define('DSS.map.Main', {
 		
 		//-----------------------------------------------------------
 		me.map.on('click', function(e) {
-			//document.getElementById('info').innerHTML = '';
-			let coords = me.map.getEventCoordinate(e.originalEvent);
-        var view = me.map.getView();
-        var viewResolution = view.getResolution();
-		
-		var value = {};
-		
-        console.log(view)
-        console.log(viewResolution)
-		
-        var pixel1 = me.map.getPixelFromCoordinate(coords);
-        console.log(pixel1)
+			let coords = me.map.getEventCoordinate(e.originalEvent);			
+			var pixel1 = me.map.getPixelFromCoordinate(coords);
+			console.log(pixel1)
 			console.log(e, coords, ol.proj.transform(coords, 'EPSG:3857', 'EPSG:3071'));  
 			if (DSS.mapClickFunction) DSS.mapClickFunction(e, coords);
 		});
@@ -1731,25 +1726,21 @@ Ext.define('DSS.map.Main', {
 				return;
 			}
 		});
-		me.drawTools 	= Ext.create('DSS.map.DrawAndModify').instantiate(me.map, fields_1Source);
+
+		me.drawTools = Ext.create('DSS.map.DrawAndModify').instantiate(me.map, fields_1Source);
 		
 		me.boxModelTool = Ext.create('DSS.map.BoxModel').instantiate(me.map);
 		
 		me.addMarkerLayer(me.map);
-		//me.addWorkAreaMask(me.map);
 		me.addSelectionTools(me.map);
-		//me.map.addLayer(DSS.layer.fields_1);
 		
 		me.cropRotationOverlay = Ext.create('DSS.map.RotationLayer').instantiate(me.map);
 		me.map.addLayer(DSS.layer.fieldsLabels);
 		me.map.addLayer(DSS.layer.infrastructure);
-		//Ext.create('DSS.map.LayerMenu')
 	},
-	
 	
 	//---------------------------------------------------------------
 	addWorkAreaMask: function(map) {
-		let me = this;
 		let spotStyle = new ol.style.Style({
 		    stroke: new ol.style.Stroke({
 		        color: 'rgba(0, 0, 0, 0.9)',
@@ -1786,7 +1777,6 @@ Ext.define('DSS.map.Main', {
 		]];
 		
 		var spot = new ol.geom.MultiPolygon(multiPoly);
-	    //console.log(spot);
 		DSS.layer.mask.getSource().addFeature(new ol.Feature(spot));
 		map.addLayer(DSS.layer.mask);                        
 	},
@@ -1902,7 +1892,7 @@ var CanvasLayer = /*@__PURE__*/(function (Layer) {
 	
 	    var center = ol.proj.toLonLat(ol.extent.getCenter(frameState.extent), projection);
 	    d3Projection.scale(scale).center(center).translate([width / 2, height / 2]);
-	
+
 	    d3Path = d3Path.projection(d3Projection);
 	    d3Path(this.features);
 	

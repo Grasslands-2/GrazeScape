@@ -22,6 +22,8 @@ from django.conf import settings
 import math
 import threading
 import shutil
+import traceback
+
 
 class RasterDataSmartScape:
     """
@@ -33,6 +35,7 @@ class RasterDataSmartScape:
     layer_dic : str
         dict of local layer names and their names on geoserver
     """
+
     def __init__(self, extents, field_geom_array, field_id, region):
         """
         Constructor.
@@ -50,23 +53,28 @@ class RasterDataSmartScape:
         self.dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
                                      'data_files', 'raster_inputs',
                                      self.file_name)
-        self.layer_dic = {
-            "slope": "SmartScapeRaster:" + region + "_slopePer_30m",
-            "landuse": "SmartScapeRaster:" + region + "_WiscLand_30m",
-            "stream_dist": "SmartScapeRaster:" + region + "_distanceToWaterWays",
-            "land_class": "SmartScapeRaster:" + region + "_landClass_30m",
-            "farm_class": "SmartScapeRaster:" + region + "_farmClass_30m",
-            "om": "SmartScapeRaster:" + region + "_om_30m",
-            "drainClass": "SmartScapeRaster:" + region + "_drainClass_30m",
-            "nResponse": "SmartScapeRaster:" + region + "_nResponse_30m",
 
+        self.layer_dic = {
+            "slope": "SmartScapeRaster_" + region + ":" + region + "_slopePer_30m",
+            "landuse": "SmartScapeRaster_" + region + ":" + region + "_WiscLand_30m",
+            "stream_dist": "SmartScapeRaster_" + region + ":" + region + "_distanceToWaterWays",
+            "land_class": "SmartScapeRaster_" + region + ":" + region + "_landClass_30m",
+            "farm_class": "SmartScapeRaster_" + region + ":" + region + "_farmClass_30m",
+            "om": "SmartScapeRaster_" + region + ":" + region + "_om_30m",
+            "drainClass": "SmartScapeRaster_" + region + ":" + region + "_drainClass_30m",
+            # "nResponse": "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m",
+            "hydgrp": "SmartScapeRaster_" + region + ":" + region + "_hydgrp_30m",
+            "pDel": "SmartScapeRaster_" + region + ":" + region + "_pDelivFactor_30m",
+            "sand": "SmartScapeRaster_" + region + ":" + region + "_sand_30m",
         }
+        if region != "pineRiverMN":
+            self.layer_dic["nResponse"] = "SmartScapeRaster_" + region + ":" + region + "_nResponse_30m"
         self.extents = extents
         self.field_id = field_id
         geo_server_url = settings.GEOSERVER_URL
 
         self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
-                             "request=GetCoverage&CoverageId="
+                                              "request=GetCoverage&CoverageId="
         self.field_geom_array = field_geom_array
         self.extents_string_x = ""
         self.extents_string_y = ""
@@ -74,8 +82,10 @@ class RasterDataSmartScape:
         self.no_data_aray = []
 
         if extents is not None:
-            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
-            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(
+                math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
+                math.ceil(float(extents[3]))) + ")"
         self.crs = "epsg:3857"
 
         self.no_data = -9999
@@ -83,6 +93,7 @@ class RasterDataSmartScape:
             os.makedirs(self.dir_path)
 
         self.threads = []
+        self.na_om = 20
 
     def create_clip(self):
         """
@@ -103,6 +114,9 @@ class RasterDataSmartScape:
         df = pd.DataFrame({'geometry': poly_list})
         crs = {'init': self.crs}
         polygon = gpd.GeoDataFrame(df, crs=crs, geometry='geometry')
+        invalid_polygons = polygon[~polygon.geometry.is_valid]
+        fixed_polygons = invalid_polygons.geometry.buffer(0)
+        polygon.loc[invalid_polygons.index, 'geometry'] = fixed_polygons
         print(polygon)
         polygon.to_file(filename=os.path.join(self.dir_path, self.file_name + ".shp"), driver="ESRI Shapefile")
 
@@ -111,10 +125,9 @@ class RasterDataSmartScape:
         raster_shape = raster_dic[raster_dic_key_list[0]].shape
         for raster in raster_dic_key_list:
             if raster_shape != raster_dic[raster].shape:
-                print(raster_shape)
+                print("raster shape to match", raster_shape)
                 print(raster_dic[raster].shape)
-                raise ValueError(raster +
-                                 " dimensions do not match other rasters")
+                raise ValueError(raster + " dimensions do not match other rasters")
 
         self.bounds["y"], self.bounds["x"] = raster_shape
         return
@@ -130,12 +143,11 @@ class RasterDataSmartScape:
         # layers.json")
 
         for layer in self.layer_dic:
-
-            print("downloading layer ", layer)
+            print("downloading base layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
             print(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            print("done downloading")
+            # print("done downloading")
             print("raster_file_path", raster_file_path)
             self.createNewDownloadThread(url, raster_file_path)
 
@@ -175,6 +187,22 @@ class RasterDataSmartScape:
             if '.tif' in file and "clipped.tif" not in file:
                 data_name = file.split(".")[0]
                 image = gdal.Open(os.path.join(self.dir_path, file))
+                if data_name == "om":
+                    input_array = image.GetRasterBand(1).ReadAsArray()
+                    input_array = np.where(input_array == -9999, self.na_om, input_array)
+                    [rows, cols] = input_array.shape
+                    driver = gdal.GetDriverByName("GTiff")
+                    outdata = driver.Create(os.path.join(self.dir_path, "om_filled" + ".tif"), cols, rows, 1,
+                                            gdal.GDT_Float32)
+                    outdata.SetGeoTransform(image.GetGeoTransform())  ##sets same geotransform as input
+                    outdata.SetProjection(image.GetProjection())  ##sets same projection as input
+                    outdata.GetRasterBand(1).WriteArray(input_array)
+                    outdata.GetRasterBand(1).SetNoDataValue(-9999)
+                    # write to disk
+                    outdata.FlushCache()
+                    outdata = None
+                    image = gdal.Open(os.path.join(self.dir_path, "om_filled.tif"))
+
                 # band = image.GetRasterBand(1)
                 # arr1 = np.asarray(band.ReadAsArray())
 
@@ -200,18 +228,29 @@ class RasterDataSmartScape:
                 # print("file paths!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 # print(os.path.join(self.dir_path, file))
                 # ds_clip = gdal.Open(os.path.join(self.dir_path, data_name + "_clipped.tif"))
-                ds_clip = gdal.Open(os.path.join(self.dir_path, file))
-                geoTransform = ds_clip.GetGeoTransform()
-                minx = geoTransform[0]
-                maxy = geoTransform[3]
-                maxx = minx + geoTransform[1] * ds_clip.RasterXSize
-                miny = maxy + geoTransform[5] * ds_clip.RasterYSize
-                bounds = [minx, miny, maxx, maxy]
-                band = ds_clip.GetRasterBand(1)
-                arr = np.asarray(band.ReadAsArray())
-                raster_data_dic[data_name] = arr
+                file_path = os.path.join(self.dir_path, file)
+                try:
+                    ds_clip = gdal.Open(file_path)
+                    # print("clippled file path", file_path)
+                    # print("ds_clip", ds_clip)
+                    geoTransform = ds_clip.GetGeoTransform()
+                    minx = geoTransform[0]
+                    maxy = geoTransform[3]
+                    maxx = minx + geoTransform[1] * ds_clip.RasterXSize
+                    miny = maxy + geoTransform[5] * ds_clip.RasterYSize
+                    bounds = [minx, miny, maxx, maxy]
+                    band = ds_clip.GetRasterBand(1)
+                    arr = np.asarray(band.ReadAsArray())
+                    raster_data_dic[data_name] = arr
 
-                ds_clip = None
-                band = None
+                    ds_clip = None
+                    band = None
+                except FileNotFoundError as e:
+                    print(e)
+                    print("file not found", file_path)
+                except Exception as e:
+                    print("Exception type:", type(e).__name__)
+                    traceback.print_exc()
+
         self.check_raster_data(raster_data_dic)
         return raster_data_dic, bounds

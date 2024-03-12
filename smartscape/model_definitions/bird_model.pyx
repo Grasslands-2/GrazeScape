@@ -10,19 +10,16 @@ cimport cython
 @cython.boundscheck(False) # turn off bounds-checking for entire function
 @cython.wraparound(False)  # turn off negative index wrapping for entire function
 def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
-                                                  numpy.ndarray[numpy.float32_t, ndim=2] selection,
-                                                 int padding_size,
-                                                 numpy.ndarray[numpy.float32_t, ndim=2] selected_landuse,
-                                                 int num_trans):
-    print("starting window")
+                                                  numpy.ndarray[numpy.float32_t, ndim=2] selection, int padding_size,
+                                                 numpy.ndarray[numpy.float32_t, ndim=2] selected_landuse,int num_tr ans):
     results_holder = []
     cdef int count
     for count in range(num_trans + 1):
         results_holder.append(0)
-    print(results_holder)
     window_size = padding_size * 2 + 1
     no_data = -9999
     total_window_cells = window_size * window_size
+    # add no data cells to pad out input raster depending on the size of the computation block
     padded = np.pad(np.copy(input_data), (padding_size, padding_size),
                     'constant', constant_values=(-9999, -9999))
     cdef numpy.ndarray[numpy.float32_t, ndim=4] window_raster = \
@@ -68,6 +65,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
                         bb = b[iy2,ix2]
                         if bb == -9999:
                             arr_9999[iy, ix] = arr_9999[iy, ix] + 1
+                        # these are land use codes
                         elif 3 <= bb <= 7:
                             arr_ag[iy, ix] = arr_ag[iy, ix]+ 1
                         elif 8 <= bb <= 10:
@@ -79,7 +77,7 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
             # check if center cell is valid
             cc = selection[iy, ix]
             if arr_is_9999[iy, ix] != 1:
-
+                # only calc if the center cell is valid
                 if cc > 0:
                     index_count = index_count + 1
                     valid_cells = total_window_cells - arr_9999[iy, ix]
@@ -96,18 +94,5 @@ def window(numpy.ndarray[numpy.float32_t, ndim=2] input_data,
                         results_holder[land_code] = results_holder[land_code] + arr_index[iy, ix]
                     else:
                         index_sum = index_sum + inner3 / 0.67
-                    # print(arr_index[iy, ix])
-                    # print("######")
 
-    # print(arr_ag)
-    # print("########")
-    # print(arr_grass)
-    # print("########")
-    # print(arr_9999)
-    # print(arr_index)
-    # print(index_sum/index_count)
-    # print("done with bird")
-    print("results new ", results_holder)
-    print("results old ", index_sum)
-    print(index_count)
     return [index_sum,results_holder]

@@ -2,6 +2,8 @@
 var chartPopup
 var barChartData
 var barChart;
+var fields_1Source_loc = ""
+
 function runModels(layer,modelChoice) {
     console.log("running model")
 

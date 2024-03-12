@@ -1,0 +1,22 @@
+OM,DrainClass_num,DrainClass_char,Denitr
+<2,1,Excessively drained,3
+2-5.0,1,Excessively drained,6
+>5,1,Excessively drained,8
+<2,2,Moderately well drained,9
+2-5.0,2,Moderately well drained,13
+>5,2,Moderately well drained,17.5
+<2,3,Poorly drained,20
+2-5.0,3,Poorly drained,30
+>5,3,Poorly drained,40
+<2,4,Somewhat excessively drained,3
+2-5.0,4,Somewhat excessively drained,6
+>5,4,Somewhat excessively drained,8
+<2,5,Somewhat poorly drained,13
+2-5.0,5,Somewhat poorly drained,17.5
+>5,5,Somewhat poorly drained,25
+<2,6,Very poorly drained,20
+2-5.0,6,Very poorly drained,30
+>5,6,Very poorly drained,40
+<2,7,Well drained,6
+2-5.0,7,Well drained,10
+>5,7,Well drained,13

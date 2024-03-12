@@ -8,6 +8,7 @@ import os
 from django.conf import settings
 import math
 import shutil
+import threading
 
 """
 This class will manage retrieving data from geoserver and manage the clipping of extents to fields
@@ -34,7 +35,7 @@ class RasterData:
         geo_server_url = settings.GEOSERVER_URL
 
         self.geoserver_url = geo_server_url + "/geoserver/ows?service=WCS&version=2.0.1&" \
-                             "request=GetCoverage&CoverageId="
+                                              "request=GetCoverage&CoverageId="
 
         # self.file_name = str(uuid.uuid4())
         self.file_name = "field_" + field_id
@@ -45,112 +46,37 @@ class RasterData:
         self.extents_string_x = ""
         self.extents_string_y = ""
         if extents is not None:
-            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(math.ceil(float(extents[2]))) + ")"
-            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(math.ceil(float(extents[3]))) + ")"
+            self.extents_string_x = "&subset=X(" + str(math.floor(float(extents[0]))) + "," + str(
+                math.ceil(float(extents[2]))) + ")"
+            self.extents_string_y = "&subset=Y(" + str(math.floor(float(extents[1]))) + "," + str(
+                math.ceil(float(extents[3]))) + ")"
         self.crs = "epsg:3857"
-
+        self.threads = []
         self.no_data = -9999
-        if self.active_region == "cloverBeltWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:cloverBelt_DEM_10m_v2",
-                "slope": "InputRasters:cloverBelt_slope_10m_v2",
-                "sand": "InputRasters:cloverBelt_sand_10m_v2",
-                "silt": "InputRasters:cloverBelt_silt_10m_v2",
-                "clay": "InputRasters:cloverBelt_clay_10m_v2",
-                "k": "InputRasters:cloverBelt_kfact_10m_v2",
-                "ksat": "InputRasters:cloverBelt_ksat_10m_v2",
-                "om": "InputRasters:cloverBelt_om_10m_v2",
-                #"cec": "InputRasters:cloverBelt_cec_10m_v2",
-                "ph": "InputRasters:cloverBelt_ph_10m_v2",
-                "total_depth": "InputRasters:cloverBelt_depth_10m_v2",
-                "slope_length": "InputRasters:cloverBelt_slopelen_10m_v2",
-                "awc": "InputRasters:cloverBelt_awc_10m_v2",
-                "ls": "InputRasters:cloverBelt_LS_10m_v2",
-                "corn": "InputRasters:cloverBelt_corn_10m_v2",
-                "soy": "InputRasters:cloverBelt_soy_10m_v2",
-                "hydgrp":"InputRasters:cloverBelt_hydgrp_10m_v2",
-            }
-        # else:
-        #     self.layer_dic = {
-        #         "elevation": "InputRasters:southWestWI_DEM_10m_2",
-        #         "slope": "InputRasters:southWestWI_slopePer_10m_2",
-        #         "sand": "InputRasters:southWestWI_sand10m",
-        #         "silt": "InputRasters:southWestWI_silt_10m",
-        #         "clay": "InputRasters:southWestWI_clay_10m_2",
-        #         "k": "InputRasters:southWestWI_kfact_10m",
-        #         "ksat": "InputRasters:southWestWI_ksat_10m",
-        #         "om": "InputRasters:southWestWI_om_10m",
-        #         #"cec": "InputRasters:southWestWI_cec_10m",
-        #         "ph": "InputRasters:southWestWI_ph_10m_2",
-        #         "total_depth": "InputRasters:southWestWI_depth_10m",
-        #         "slope_length": "InputRasters:southWestWI_slopelen_10m",
-        #         "awc": "InputRasters:southWestWI_awc_10m",
-        #         "ls": "InputRasters:southWestWI_LS_10m_2",
-        #         "corn": "InputRasters:southWestWIcorn_10m2",
-        #         "soy": "InputRasters:southWestWIsoy_10m2",
-        #         "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
-        #     }
-        if self.active_region == "southWestWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:southWestWI_DEM_10m_2",
-                "slope": "InputRasters:southWestWI_slopePer_10m_2",
-                "sand": "InputRasters:southWestWI_sand10m",
-                "silt": "InputRasters:southWestWI_silt_10m",
-                "clay": "InputRasters:southWestWI_clay_10m_2",
-                "k": "InputRasters:southWestWI_kfact_10m",
-                "ksat": "InputRasters:southWestWI_ksat_10m",
-                "om": "InputRasters:southWestWI_om_10m",
-                #"cec": "InputRasters:southWestWI_cec_10m",
-                "ph": "InputRasters:southWestWI_ph_10m_2",
-                "total_depth": "InputRasters:southWestWI_depth_10m",
-                "slope_length": "InputRasters:southWestWI_slopelen_10m",
-                "awc": "InputRasters:southWestWI_awc_10m",
-                "ls": "InputRasters:southWestWI_LS_10m_2",
-                "corn": "InputRasters:southWestWIcorn_10m2",
-                "soy": "InputRasters:southWestWIsoy_10m2",
-                "hydgrp":"InputRasters:southWestWI_hydgrp_10m",
-            }
-        if self.active_region == "northeastWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:northeastWI_elev_10m",
-                "slope": "InputRasters:northeastWI_slopePer_10m",
-                "sand": "InputRasters:northeastWI_sand_10m",
-                "silt": "InputRasters:northeastWI_silt_10m",
-                "clay": "InputRasters:northeastWI_clay_10m",
-                "k": "InputRasters:northeastWI_kfact_10m",
-                "ksat": "InputRasters:northeastWI_ksat_10m",
-                "om": "InputRasters:northeastWI_om_10m",
-                #"cec": "InputRasters:northeastWI_cec_10m",
-                "ph": "InputRasters:northeastWI_ph_10m",
-                "total_depth": "InputRasters:northeastWI_depth_10m",
-                "slope_length": "InputRasters:northeastWI_slopelen_10m",
-                "awc": "InputRasters:northeastWI_awc_10m",
-                "ls": "InputRasters:northeastWI_ls_10m",
-                "corn": "InputRasters:northeastWI_corn_10m",
-                "soy": "InputRasters:northeastWI_soy_10m",
-                "hydgrp":"InputRasters:northeastWI_hydgrp_10m",
-            }
-        if self.active_region == "uplandsWI":
-            self.layer_dic = {
-                "elevation": "InputRasters:uplandsWI_elev_10m",
-                "slope": "InputRasters:uplandsWI_slopePer_10m",
-                "sand": "InputRasters:uplandsWI_sand_10m",
-                "silt": "InputRasters:uplandsWI_silt_10m",
-                "clay": "InputRasters:uplandsWI_clay_10m",
-                "k": "InputRasters:uplandsWI_kfact_10m",
-                "ksat": "InputRasters:uplandsWI_ksat_10m",
-                "om": "InputRasters:uplandsWI_om_10m",
-                #"cec": "InputRasters:uplandsWI_cec_10m",
-                "ph": "InputRasters:uplandsWI_ph_10m",
-                "total_depth": "InputRasters:uplandsWI_depth_10m",
-                "slope_length": "InputRasters:uplandsWI_slopelen_10m",
-                "awc": "InputRasters:uplandsWI_awc_10m",
-                "ls": "InputRasters:uplandsWI_ls_10m",
-                "corn": "InputRasters:uplandsWI_corn_10m",
-                "soy": "InputRasters:uplandsWI_soy_10m",
-                "hydgrp":"InputRasters:uplandsWI_hydgrp_10m",
-            }
-         # self.layer_dic = {"corn_yield": "InputRasters:awc"}
+        self.layer_dic = {
+            "elevation": "InputRasters:" + self.active_region + "_elev_10m",
+            "slope": "InputRasters:" + self.active_region + "_slopePer_10m",
+            "sand": "InputRasters:" + self.active_region + "_sand_10m",
+            "silt": "InputRasters:" + self.active_region + "_silt_10m",
+            "clay": "InputRasters:" + self.active_region + "_clay_10m",
+            "k": "InputRasters:" + self.active_region + "_kfact_10m",
+            "ksat": "InputRasters:" + self.active_region + "_ksat_10m",
+            "om": "InputRasters:" + self.active_region + "_om_10m",
+            # "cec": "InputRasters:cloverBelt_cec_10m_v2",
+            "ph": "InputRasters:" + self.active_region + "_ph_10m",
+            "total_depth": "InputRasters:" + self.active_region + "_depth_10m",
+            "slope_length": "InputRasters:" + self.active_region + "_slopelen_10m",
+            "awc": "InputRasters:" + self.active_region + "_awc_10m",
+            "ls": "InputRasters:" + self.active_region + "_ls_10m",
+            "corn": "InputRasters:" + self.active_region + "_corn_10m",
+            "soy": "InputRasters:" + self.active_region + "_soy_10m",
+            "hydgrp": "InputRasters:" + self.active_region + "_hydgrp_10m",
+            "drain_class": "InputRasters:" + self.active_region + "_drainClass_10m",
+            # "Nresponse": "InputRasters:" + self.active_region + "_nResponse_10m",
+        }
+        if self.active_region != "pineRiverMN":
+            self.layer_dic["Nresponse"] = "InputRasters:" + self.active_region + "_nResponse_10m"
+
         self.bounds = {"x": 0, "y": 0}
         self.no_data_aray = []
         if first_time:
@@ -160,8 +86,25 @@ class RasterData:
             # if not os.path.exists(self.dir_path):
             os.makedirs(self.dir_path)
             self.load_layers(only_om)
+            print("done loading layers")
             self.create_clip(field_geom_array)
             self.clip_rasters()
+
+    def createNewDownloadThread(self, link, filelocation):
+        download_thread = threading.Thread(target=self.download, args=(link, filelocation))
+        download_thread.start()
+        self.threads.append(download_thread)
+
+    def download(self, link, filelocation):
+        r = requests.get(link, stream=True)
+        with open(filelocation, 'wb') as f:
+            for chunk in r.iter_content(1024):
+                if chunk:
+                    f.write(chunk)
+
+    def joinThreads(self):
+        for thread in self.threads:
+            thread.join()
 
     def field_already_loaded(self):
         """
@@ -188,13 +131,12 @@ class RasterData:
                     continue
             print("downloading layer ", layer)
             url = self.geoserver_url + self.layer_dic[layer] + self.extents_string_x + self.extents_string_y
-            r = requests.get(url)
+            # r = requests.get(url)
             raster_file_path = os.path.join(self.dir_path, layer + ".tif")
-            print("done downloading")
-            print("raster_file_path", raster_file_path)
-            with open(raster_file_path, "wb") as f:
-                f.write(r.content)
-            print("done writing")
+            self.createNewDownloadThread(url, raster_file_path)
+        self.joinThreads()
+
+        print("done writing")
 
     def create_clip(self, field_geom_array):
         """
@@ -239,12 +181,21 @@ class RasterData:
                 # print("clipping raster ", data_name)
                 ds_clip = gdal.Warp(os.path.join(self.dir_path, data_name + "-clipped.tif"), image,
                                     cutlineDSName=os.path.join(self.dir_path, self.file_name + ".shp"),
-                                    cropToCutline=True, dstNodata=self.no_data,outputType=gc.GDT_Float32)
+                                    cropToCutline=True, dstNodata=self.no_data, outputType=gc.GDT_Float32)
         print("done clipping")
 
     def get_clipped_rasters(self):
         raster_data_dic = {}
         bounds = 0
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', self.file_name)):
+            print("field raster_input folder exists")
+            # self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape',
+            #                          'data_files', 'raster_inputs',
+            #                          self.file_name)
+        else:
+            os.mkdir(os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', self.file_name))
+
+        self.dir_path = os.path.join(settings.BASE_DIR, 'grazescape', 'data_files', 'raster_inputs', self.file_name)
         for file in os.listdir(self.dir_path):
             if '-clipped.tif' in file:
                 data_name = file.split(".")[0]
@@ -281,15 +232,18 @@ class RasterData:
                         raster_data_dic[val][y][x] = 0.5
                     elif val == "slope" and raster_val > 65:
                         raster_data_dic[val][y][x] = 65
+                    # if k is no data set it to 0.02, ph is 5.5, slope length 76
+                    elif val == "k" and raster_val == self.no_data:
+                        raster_data_dic[val][y][x] = 0.02
+                    elif val == "ph" and raster_val == self.no_data:
+                        raster_data_dic[val][y][x] = 5.5
+                    elif val == "slope_length" and raster_val == self.no_data:
+                        raster_data_dic[val][y][x] = 76
                     # two nodata values for curve number see get_hyro_letter in runoff.py
                     elif val == 'hydgrp' and raster_data_dic[val][y][x] == 6:
                         self.no_data_aray[y][x] = 1
                         break
                     elif raster_data_dic[val][y][x] == self.no_data:
-                        self.no_data_aray[y][x] = 1
-                        break
-                    #For later once you have models working in Clover_belt
-                    elif self.active_region == 'cloverBeltWI' and val == 'om' and raster_val > 20:
                         self.no_data_aray[y][x] = 1
                         break
 

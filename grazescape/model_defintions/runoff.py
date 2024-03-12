@@ -1,7 +1,7 @@
 from abc import ABC
 
 from grazescape.model_defintions.model_base import ModelBase, OutputDataNode
-from pyper import R
+from grazescape.model_defintions.pyper_local import R
 from django.conf import settings
 import os
 import numpy as np
@@ -9,7 +9,7 @@ import math
 
 
 class Runoff(ModelBase):
-    def __init__(self, request,active_region, file_name=None):
+    def __init__(self, request, active_region, file_name=None):
         super().__init__(request, active_region, file_name)
 
     def get_hyro_letter(self, group_num):
@@ -26,10 +26,9 @@ class Runoff(ModelBase):
         }
         return hyro_dic[group_num]
 
-    def run_model(self,active_region):
+    def run_model(self, manure_results):
         # path to R instance
         r = R(RCMD=self.r_file_path, use_pandas=True)
-
         slope = self.raster_inputs["slope"].flatten()
         slope_length = self.raster_inputs["slope_length"].flatten()
         sand = self.raster_inputs["sand"].flatten()
@@ -61,7 +60,7 @@ class Runoff(ModelBase):
         pastureTidyffcn = "pt_ffcn_"
         dryLotTidyffcn = "dl_ffcn_"
 
-        regionRDS = active_region + '.rds'
+        regionRDS = self.active_region + '.rds'
 
         r.assign("slope", slope)
         r.assign("slope_length", slope_length)
@@ -73,34 +72,36 @@ class Runoff(ModelBase):
         r.assign("ls", ls)
         r.assign("hydgrp", hydrp_letter)
 
-        r.assign("p_need", self.model_parameters["p_need"])
-        r.assign("dm", self.model_parameters["dm"])
-        r.assign("p205", self.model_parameters["p205"])
-        r.assign("manure", self.model_parameters["manure"])
-        r.assign("fert", self.model_parameters["fert"])
+        r.assign("p_need", float(manure_results["avg"]["p_needs"]))
+        r.assign("manure", float(manure_results["avg"]["man_p_per"]))
+        r.assign("dm", float(manure_results["avg"]["grazed_dm"]))
+        r.assign("p205", float(manure_results["avg"]["grazed_p205"]))
+
+        # r.assign("manure", self.model_parameters["manure"])
+        r.assign("fert", float(self.model_parameters["fert"]))
         r.assign("crop", self.model_parameters["crop"])
         r.assign("cover", self.model_parameters["crop_cover"])
         r.assign("contour", self.model_parameters["contour"])
         r.assign("tillage", self.model_parameters["tillage"])
         r.assign("rotational", self.model_parameters["rotation"])
         r.assign("density", self.model_parameters["density"])
-        r.assign("initialP", self.model_parameters["soil_p"])
-        r.assign("om", self.model_parameters["om"])
+        r.assign("initialP", float(self.model_parameters["soil_p"]))
+        r.assign("om", float(self.model_parameters["om"]))
 
-        r.assign("cc_erosion_file",os.path.join(self.model_file_path, ContCornErosion + regionRDS))
-        r.assign("cg_erosion_file",os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
-        r.assign("cso_erosion_file",os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
-        r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
-        r.assign("ps_erosion_file", os.path.join(self.model_file_path,pastureSeedingErosion + regionRDS))
-        r.assign("pt_erosion_file",os.path.join(self.model_file_path, pastureErosion + regionRDS))
-        r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
+        # r.assign("cc_erosion_file", os.path.join(self.model_file_path, ContCornErosion + regionRDS))
+        # r.assign("cg_erosion_file", os.path.join(self.model_file_path, cornGrainErosion + regionRDS))
+        # r.assign("cso_erosion_file", os.path.join(self.model_file_path, cornSoyOatErosion + regionRDS))
+        # r.assign("dr_erosion_file", os.path.join(self.model_file_path, dairyRotationErosion + regionRDS))
+        # r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
+        # r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
+        # r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
 
-        r.assign("cc_cn_file",os.path.join(self.model_file_path, ContCornTidyffcn + regionRDS))
-        r.assign("cg_cn_file",os.path.join(self.model_file_path, cornGrainTidyffcn + regionRDS))
+        r.assign("cc_cn_file", os.path.join(self.model_file_path, ContCornTidyffcn + regionRDS))
+        r.assign("cg_cn_file", os.path.join(self.model_file_path, cornGrainTidyffcn + regionRDS))
         r.assign("cso_cn_file", os.path.join(self.model_file_path, cornSoyOatTidyffcn + regionRDS))
         r.assign("dr_cn_file", os.path.join(self.model_file_path, dairyRotationTidyffcn + regionRDS))
         r.assign("ps_cn_file", os.path.join(self.model_file_path, pastureSeedingTidyffcn + regionRDS))
-        r.assign("pt_cn_file",os.path.join(self.model_file_path, pastureTidyffcn + regionRDS))
+        r.assign("pt_cn_file", os.path.join(self.model_file_path, pastureTidyffcn + regionRDS))
         r.assign("dl_cn_file", os.path.join(self.model_file_path, dryLotTidyffcn + regionRDS))
         r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
@@ -121,7 +122,7 @@ class Runoff(ModelBase):
         # countour = 0,1
         # rotational = cn, rt 
         # density = hi or lo
-        user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), Contour = c(contour), 
+        user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), 
         rotational = c(rotational), density = c(density),initialP = c(initialP), OM = c(om))
         soil_df <- tibble(hydgrp = unlist(hydgrp), slope =  unlist(slope), slopelenusle.r = unlist(slope_length), sand = unlist(sand), silt = unlist(silt), clay = unlist(clay), k = unlist(k),
                            total.depth = unlist(total_depth), LSsurgo = unlist(ls))
@@ -144,18 +145,16 @@ class Runoff(ModelBase):
         # run models for different crops
         
         if (full_df$crop == "cc") {{
-            cc_cn <- readRDS(cc_cn_file);
-            cc_erosion <- readRDS(cc_erosion_file);
+          cc_cn <- readRDS(cc_cn_file)
 
           #create factor levels
-          tillage <- factor(cc_erosion$preproc$xlevels$tillage)
-          cover <- factor(cc_erosion$preproc$xlevels$cover)
-          Contour <- factor(cc_erosion$preproc$xlevels$Contour)
-          level_df <- expand_grid(cover, tillage, Contour)
+          tillage <- factor(cc_cn$preproc$xlevels$tillage)
+          cover <- factor(cc_cn$preproc$xlevels$cover)
+          level_df <- expand_grid(cover, tillage)
 
           #remove factor levels from full_df and repeat row as many times as there are level combinations
           df <- full_df %>%
-            select(-c(crop, tillage, cover, Contour)) %>% 
+            select(-c(crop, tillage, cover)) %>% 
             slice(rep(1:n(), each=nrow(level_df)))
 
           #bind all level combinations with df
@@ -164,19 +163,16 @@ class Runoff(ModelBase):
           #subset all combinations data set to just the user input
 
           pred_df <- df %>%
-            filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
+            filter(cover == full_df$cover, tillage == full_df$tillage)
           curve_num <- round(predict(cc_cn, pred_df),2)
 
 
         }} else if (full_df$crop == "cg") {{
         cg_cn <- readRDS(cg_cn_file)
-        cg_erosion <- readRDS(cg_erosion_file)
 
-          cover <- factor(cg_erosion$preproc$xlevels$cover)
-          tillage <- factor(cg_erosion$preproc$xlevels$tillage)
-          Contour <- factor(cg_erosion$preproc$xlevels$Contour)
-
-          level_df <- expand_grid(cover, tillage, Contour)
+          cover <- factor(cg_cn$preproc$xlevels$cover)
+          tillage <- factor(cg_cn$preproc$xlevels$tillage)
+          level_df <- expand_grid(cover, tillage)
 
           df <- full_df %>%
           select(c(total_DM_lbs:LSsurgo)) %>% 
@@ -185,20 +181,18 @@ class Runoff(ModelBase):
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
+            filter(cover == full_df$cover, tillage == full_df$tillage)
 
           curve_num <- round(predict(cg_cn, pred_df),2)
 
 
         }} else if (full_df$crop == "cso") {{
         cso_cn <- readRDS(cso_cn_file)
-        cso_erosion <- readRDS(cso_erosion_file)
 
-          cover <- factor(cso_erosion$preproc$xlevels$cover)
-          tillage <- factor(cso_erosion$preproc$xlevels$tillage)
-          Contour <- factor(cso_erosion$preproc$xlevels$Contour)
+          cover <- factor(cso_cn$preproc$xlevels$cover)
+          tillage <- factor(cso_cn$preproc$xlevels$tillage)
 
-          level_df <- expand_grid(cover, tillage, Contour)
+          level_df <- expand_grid(cover, tillage)
 
           df <- full_df %>%
           select(c(total_DM_lbs:LSsurgo)) %>% 
@@ -207,20 +201,18 @@ class Runoff(ModelBase):
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
+            filter(cover == full_df$cover, tillage == full_df$tillage)
 
           curve_num <- round(predict(cso_cn, pred_df),2)
 
 
         }} else if (full_df$crop == "dr") {{
-            dr_cn <- readRDS(dr_cn_file)
-        dr_erosion <- readRDS(dr_erosion_file)
+          dr_cn <- readRDS(dr_cn_file)
 
-          cover <- factor(dr_erosion$preproc$xlevels$cover)
-          tillage <- factor(dr_erosion$preproc$xlevels$tillage)
-          Contour <- factor(dr_erosion$preproc$xlevels$Contour)
+          cover <- factor(dr_cn$preproc$xlevels$cover)
+          tillage <- factor(dr_cn$preproc$xlevels$tillage)
 
-          level_df <- expand_grid(cover, tillage, Contour)
+          level_df <- expand_grid(cover, tillage)
 
          df <- full_df %>%
           select(c(total_DM_lbs:LSsurgo)) %>% 
@@ -229,20 +221,18 @@ class Runoff(ModelBase):
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(cover == full_df$cover, tillage == full_df$tillage, Contour == full_df$Contour)
+            filter(cover == full_df$cover, tillage == full_df$tillage)
 
           curve_num <- round(predict(dr_cn, pred_df),2)
 
 
         }} else if (full_df$crop == "ps") {{
         ps_cn <- readRDS(ps_cn_file)
-        ps_erosion <- readRDS(ps_erosion_file)
 
 
-          tillage <- factor(ps_erosion$preproc$xlevels$tillage)
-          Contour <- factor(ps_erosion$preproc$xlevels$Contour)
+          tillage <- factor(ps_cn$preproc$xlevels$tillage)
 
-          level_df <- expand_grid(tillage, Contour)
+          level_df <- expand_grid(tillage)
 
           df <- full_df %>%
           select(c(initialP:LSsurgo)) %>% 
@@ -251,17 +241,16 @@ class Runoff(ModelBase):
           df <- cbind(level_df, df)
 
           pred_df <- df %>%
-            filter(tillage == full_df$tillage, Contour == full_df$Contour)
+            filter(tillage == full_df$tillage)
 
           curve_num <- round(predict(ps_cn, pred_df),2)
 
 
         }} else if (full_df$crop == "pt") {{
         pt_cn <- readRDS(pt_cn_file)
-        pt_erosion <- readRDS(pt_erosion_file)
 
-          density <- factor(pt_erosion$preproc$xlevels$density)
-          rotational <- factor(pt_erosion$preproc$xlevels$rotational)
+          density <- factor(pt_cn$preproc$xlevels$density)
+          rotational <- factor(pt_cn$preproc$xlevels$rotational)
 
           level_df <- expand_grid(rotational, density)
 
@@ -284,9 +273,8 @@ class Runoff(ModelBase):
 
         }} else if (full_df$crop == "dl") {{
         dl_cn <- readRDS(dl_cn_file)
-        dl_erosion <- readRDS(dl_erosion_file)
 
-          density <- factor(dl_erosion$preproc$xlevels$density)
+          density <- factor(dl_cn$preproc$xlevels$density)
             level_df <- expand_grid(density)
           df <- full_df %>%
               select(c(initialP:LSsurgo)) %>% 
@@ -305,10 +293,10 @@ class Runoff(ModelBase):
         """)
 
         pred = r.get("curve_num").to_numpy()
-        rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)")
-        curve = OutputDataNode("Curve Number", "Curve Number", "Curve Number")
-        curve.set_data(pred)
-        cn_adj = {"A":0,"B":0,"C":0,"D":0}
+        rain_fall = OutputDataNode("Runoff", "Runoff (in)", "Runoff (in)","Storm event runoff (inches)","Storm event runoff (inches)")
+        curve = OutputDataNode("Curve Number", "Curve Number", "Curve Number","Composite curve number","Composite curve number")
+        curve.set_data(pred.flatten())
+        cn_adj = {"A": 0, "B": 0, "C": 0, "D": 0}
         crop = self.model_parameters["crop"]
         cover = self.model_parameters["crop_cover"]
         tillage = self.model_parameters["tillage"]
@@ -340,6 +328,7 @@ class Runoff(ModelBase):
                 event.append(round(runoff, 2))
                 # CNout(i, 2) = runoff;
             rain_fall.set_data(event)
+        del r
         return [curve, rain_fall]
 
     def get_cn_ad(self, id):

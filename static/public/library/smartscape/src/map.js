@@ -145,7 +145,6 @@ class OLMapFragment extends React.Component {
 //        this.drawRectangleBoundary = this.drawRectangleBoundary.bind(this)
         // binding function to class so they share scope
         this.updateAreaSelectionType = this.updateAreaSelectionType.bind(this)
-//        this.getHuc12FromHuc10 = this.getHuc12FromHuc10.bind(this)
         this.addLayer = this.addLayer.bind(this)
         this.getMapLayer = this.getMapLayer.bind(this)
 
@@ -226,14 +225,16 @@ class OLMapFragment extends React.Component {
                     }
                 }
             }
-            if(this.props.layerVisible[0].name == "subHuc12" && this.props.layerVisible[0].visible == true){
-//                this.getHuc12FromHuc10()
-            }
+
     //        zoomm in on aoi
             if(this.props.layerVisible[0].name == "huc12" && this.props.layerVisible[0].visible == false){
                     var extent = this.boundaryLayerAOI.getSource().getExtent()
                     extent = this.add10PerExtent(extent)
                     this.map.getView().fit(extent,{"duration":500});
+                    this.huc8.setVisible(false)
+            }
+            if(this.props.layerVisible[0].name == "huc12" && this.props.layerVisible[0].visible == true){
+                this.huc8.setVisible(true)
             }
 //          user has pressed the reset button
             if(this.props.layerVisible[0].name == "southWest" && this.props.layerVisible[0].visible == true){
@@ -241,8 +242,8 @@ class OLMapFragment extends React.Component {
                 console.log("resetting to beginning")
                 this.props.reset();
                 this.selectedFeatures.clear();
-//                this.huc10.getSource().clear()
                 this.huc12.getSource().clear()
+                this.huc8.getSource().clear()
                 this.boundaryLayerAOI.setVisible(false)
                 this.map.addInteraction(this.select);
                 this.props.setVisibilityTransAcc(true)
@@ -342,41 +343,7 @@ class OLMapFragment extends React.Component {
             }
         }
     }
-    //   clip  the huc 12 watersheds to our aoi
 
-    getHuc12FromHuc10(){
-        let vectorSource = new VectorSource({projection: 'EPSG:3071',});
-        this.map.removeInteraction(this.select)
-        this.selectedFeatures.clear();
-        this.map.addInteraction(this.select);
-        let huc12Features = this.huc12.getSource().getFeatures()
-        let aoiFeatures = this.boundaryLayerAOI.getSource().getFeatures()
-//        console.log(jsts)
-         const parser = new jsts.io.OL3Parser();
-         parser.inject(
-          Point,
-          LineString,
-          LinearRing,
-          Polygon,
-          MultiPoint,
-          MultiLineString,
-          MultiPolygon
-        );
-
-//        vectorSource.addFeature(feature)
-        for (let feature in huc12Features){
-            for (let aoiFeature in aoiFeatures){
-                let jstsGeomAoi = parser.read(aoiFeatures[aoiFeature].getGeometry());
-                let jstsGeom = parser.read(huc12Features[feature].getGeometry());
-                var contains = jstsGeomAoi.contains(jstsGeom); // should work
-                if (contains){
-                    vectorSource.addFeature(huc12Features[feature])
-                    break
-                }
-            }
-        }
-        this.subSelectHuc12.setSource(vectorSource)
-    }
     addLayer(layer){
         this.map.addLayer(layer);
     }
@@ -425,9 +392,17 @@ class OLMapFragment extends React.Component {
         return extents
     }
     setActiveRegion(region){
-        let region_10 = region + "_Huc10.geojson"
-        let url = location.origin + "/smartscape/get_image?file_name="+region_10+ "&time="+Date.now()
+        let region_8 = region + "_HUC08.geojson"
+        let url = location.origin + "/smartscape/get_image?file_name="+region_8+ "&time="+Date.now()
         let source = new VectorSource({
+              url: url,
+              format: new GeoJSON(),
+               projection: 'EPSG:3857',
+            })
+        this.huc8.setSource(source)
+         let region_10 = region + "_Huc10.geojson"
+         url = location.origin + "/smartscape/get_image?file_name="+region_10+ "&time="+Date.now()
+         source = new VectorSource({
               url: url,
               format: new GeoJSON(),
                projection: 'EPSG:3071',
@@ -452,28 +427,7 @@ class OLMapFragment extends React.Component {
 
 
     }
-    // allows user to draw selection polygon
-    // tied to button click right now so it checks state
-//    drawBoundary(){
 
-//        if(!this.state.isDrawing){
-//            this.setState({isDrawing:true})
-//            this.map.addInteraction(this.draw);
-//        }
-//        else{
-//            this.setState({isDrawing:false})
-//            this.map.removeInteraction(this.draw)
-//        }
-//    }
-//    drawRectangleBoundary(dragBox){
-
-////        if(dragBox.getGeometry() == null){
-////            return
-////        }
-//        const extent = dragBox.getGeometry().getExtent();
-//        const coors = dragBox.getGeometry().getCoordinates();
-//        this.props.handleBoundaryChange(extent,coors)
-//    }
     // fires after react has created the base component
     componentDidMount(){
         const attribution = new Attribution({
@@ -496,6 +450,15 @@ class OLMapFragment extends React.Component {
             }),
             fill: new Fill({
               color: 'rgba(0, 0, 255, 0.0)',
+            }),
+          })
+           this.styleHuc8 = new Style({
+            stroke: new Stroke({
+              color: '#1BADE4',
+              width: 3,
+            }),
+            fill: new Fill({
+              color: 'rgba(0, 0, 0, 0.0)',
             }),
           })
           this.nullStyle = new Style(null)
@@ -537,18 +500,21 @@ class OLMapFragment extends React.Component {
             }),
             style: styles,
         });
+        this.huc8 = new VectorLayer({
+            name:'huc8',
+            renderMode: 'image',
+//            visible: false,
+
+
+            style: this.styleHuc8,
+        });
         // layer to hold huc 10 watersheds
          this.huc10 = new VectorLayer({
             name:'huc10',
             renderMode: 'image',
             visible: false,
 
-//          source:new VectorSource({
-//              url: static_global_folder + 'smartscape/gis/Watersheds/WI_Huc_10_trim.geojson',
-////              url: "http://grazescape-dev1.glbrc.org:8080/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3AWI_Huc_10&bbox=-10177405.371529581,5310171.353307071,-10040067.4011019,5490394.616539205&maxFeatures=5000&outputFormat=application%2Fjson",
-//              format: new GeoJSON(),
-//               projection: 'EPSG:3857',
-//            }),
+
             style: styles,
         });
         // layer to hold huc 10 watersheds
@@ -589,7 +555,7 @@ class OLMapFragment extends React.Component {
         this.cloverBelt = new VectorLayer({
             renderMode: 'image',
             name: "cloverBelt",
-          source:new VectorSource({
+            source:new VectorSource({
               url: static_global_folder + 'smartscape/gis/LearningHubs/cloverBelt.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
@@ -601,6 +567,26 @@ class OLMapFragment extends React.Component {
             name: "Driftless",
             source:new VectorSource({
                 url: static_global_folder + 'smartscape/gis/LearningHubs/uplandsWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
+        this.redCedar = new VectorLayer({
+            renderMode: 'image',
+            name: "redCedar",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/redCedarWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
+        this.pineRiver = new VectorLayer({
+            renderMode: 'image',
+            name: "redCedar",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/pineRiverMN.geojson',
                 format: new GeoJSON(),
                 projection: 'EPSG:3857',
             }),
@@ -618,10 +604,13 @@ class OLMapFragment extends React.Component {
               }),
             }),
 
+            this.huc8,
             this.cloverBelt,
             this.northEast,
             this.southWest,
             this.uplands,
+            this.redCedar,
+            this.pineRiver,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
@@ -682,11 +671,13 @@ class OLMapFragment extends React.Component {
 //               if (layer.get('name') == "aoi"){
 //                    return false
 //                }
+                console.log("selecting layer", layer.get('name'))
                 if (layer.get('name') == "subHuc12" || layer.get('name') == "huc10" ||
                     layer.get('name') == "huc12"||
                     layer.get('name') == "southWest"||
                     layer.get('name') == "cloverBelt"||
                     layer.get('name') == "northEast"||
+                    layer.get('name') == "redCedar"||
                     layer.get('name') == "Driftless"){
                     return true
                 }
@@ -730,11 +721,13 @@ class OLMapFragment extends React.Component {
             let area = 0
 //            console.log(f.target.item(0).getGeometry())
 //          selecting by county
-            console.log(f.target)
+            console.log("getting target", f.target)
+            console.log('f.target.item(0)', f.target.item(0))
+            console.log('f.target.item(0).get("NAME")', f.target.item(0).get("NAME"))
             if(f.target.item(0).get("NAME") != undefined){
                 console.log("selecting a county!!!!!")
                 var extent = f.target.item(0).getGeometry().getExtent()
-                console.log(extent)
+//                console.log(extent)
                 extent = this.add10PerExtent(extent)
                 console.log(extent)
 
@@ -743,7 +736,7 @@ class OLMapFragment extends React.Component {
                     region = "southWestWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Clark"){
-                    region = "CloverBeltWI"
+                    region = "cloverBeltWI"
                 }
                 else if (f.target.item(0).get("NAME") == "Kewaunee"){
                     region = "northeastWI"
@@ -751,6 +744,16 @@ class OLMapFragment extends React.Component {
                 else if (f.target.item(0).get("NAME") == "Grant"){
                     region = "uplandsWI"
                 }
+                else if (f.target.item(0).get("NAME") == "Barron"){
+                    region = "redCedarWI"
+                }
+                 else if (f.target.item(0).get("NAME") == "pineRiverMN"){
+                    region = "pineRiverMN"
+                }
+                else{
+                    throw new Error("Invalid region");
+                }
+                console.log("region@@@@@@@@@@@@@", f.target.item(0).get("NAME"), region)
                 this.setActiveRegion(region)
 
                 return

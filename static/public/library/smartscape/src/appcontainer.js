@@ -123,8 +123,6 @@ componentDidUpdate(prevProps) {
 //    console.log("compoenet mounted")
 
   }
-
-
     render(){
         return(
           <div id='main'>

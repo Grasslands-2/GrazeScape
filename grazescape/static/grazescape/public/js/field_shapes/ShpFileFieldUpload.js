@@ -11,14 +11,11 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 	extend: 'Ext.window.Window',
 	alias: 'widget.field_apply_panel',
 	id: "ShpFileFieldUpload",
-//	autoDestroy: false,
-//	closeAction: 'hide',
 	constrain: false,
 	modal: true,
 	width: 500,
 	resizable: true,
 	bodyPadding: 8,
-	//singleton: true,	
     autoDestroy: false,
     scrollable: 'y',
 	titleAlign: 'center',
@@ -44,12 +41,10 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 				html: "Imported file must be a Shapefile!",
 			},{ //------------------------------------------
 				xtype: 'component',
-				//id: 'scenIDpanel',
 				cls: 'information',
 				html: 'The Shapefile needs to be unprojected and in the WGS 84/Pseudo-Mercator CRS (EPSG:3857).  More flexiblty coming to this tool soon.',
 			},{
 				xtype:'form',
-                //xtype: 'fieldset',
                 title: 'Browse and upload file',
                 items: [
                     {
@@ -60,7 +55,7 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 						listeners:{
 							afterrender:function(cmp){
 								cmp.fileInputEl.set({
-									//Allows for more then one file to be selected.  Important for shapefiles
+									//Allows for more than one file to be selected.  Important for shapefiles
 									multiple:'multiple'
 								});
 							}
@@ -114,52 +109,6 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 									me.stopWorkerAnimation();
 								}
 							})
-							//var reader = new FileReader();
-							// reader.onload = (function(theFile) {
-                                // return async function(e) {
-								// 	console.log(e)
-								// 	readerData = e.target.result
-								// 	console.log(readerData)
-								// 	formData.append('file',readerData)
-								// 	console.log(formData.values)
-								// 	var csrftoken = Cookies.get('csrftoken');
-								// 	$.ajaxSetup({
-								// 		headers: { "X-CSRFToken": csrftoken }
-								// 	});
-								// 	$.ajax({
-								// 		'url':'/grazescape/upload_file',
-								// 		//'url' : '/grazescape/outside_shpfile_field_insert',
-								// 		'type' : 'POST',
-								// 		'data' : formData,
-								// 		'mimeType': "multipart/form-data",
-								// 		'contentType': false, // NEEDED, DON'T OMIT THIS (requires jQuery 1.6+)
-								// 		'processData': false, // NEEDED, DON'T OMIT THIS
-								// 		success: async function(responses, opts) {
-								// 			console.log(responses)
-								// 			console.log("SUCCESS!")
-								// 			delete $.ajaxSetup().headers
-								// 			//await resolve({shpfile:responses.data})
-											
-								// 			// getNewFieldArea()
-								// 			// DSS.layer.fields_1.getSource().refresh();
-								// 			// DSS.layer.fieldsLabels.getSource().refresh();
-										
-								// 		},
-								// 		failure: function(response, opts) {
-								// 			console.log(responses)
-								// 			me.stopWorkerAnimation();
-								// 		}
-								// 	})
-								// };
-                            //})(file);
-							//console.log(file)
-                            //reader.readAsBinaryString(file);
-							// Attach file
-							
-							// formData.append('file',file)
-							// console.log(formData.values)
-							// var csrftoken = Cookies.get('csrftoken');
-							
 							this.up('window').destroy();
             			}
 					}
@@ -170,13 +119,7 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 		AppEvents.registerListener("viewport_resize", function(opts) {
 		//	me.center();
 		})
-                
      },
-			
-		
-		
-		
-	
 	//--------------------------------------------------------------------------
 	addModeControl: function() {
 		let me = this;
