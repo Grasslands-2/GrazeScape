@@ -40,15 +40,18 @@ def index(request):
     HTTP Response
         Return the page render
     """
+    print("testing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     # if request.user.is_athenticated:
     user_name = request.user.username
     context = {
         "user_info": {"user_name": user_name}
     }
-    # dir_path = os.path.join(settings.BASE_DIR, 'floodscape',
-    #                         'data_files', 'raster_inputs')
-    # if not os.path.exists(dir_path):
-    #     os.makedirs(dir_path)
+    dir_path = os.path.join(settings.BASE_DIR, 'floodscape',
+                            'data_files', 'raster_inputs')
+    print(os.path.exists(dir_path))
+    if not os.path.exists(dir_path):
+        print("making dir path")
+        os.makedirs(dir_path)
     # # download the watersheds for the learning hubs
     # file_names = [
     #     "southWestWI_Huc10", "CloverBeltWI_Huc12", "CloverBeltWI_Huc10", "southWestWI_Huc12",
