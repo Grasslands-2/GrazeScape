@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'grazescape',
     'smartscape',
+    'floodscape',
 
 ]
 MIDDLEWARE = [

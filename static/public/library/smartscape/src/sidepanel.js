@@ -385,6 +385,7 @@ class SidePanel extends React.Component{
         if (prevProps.region != this.props.region){
             if(this.props.region != null){
 
+
                 this.props.updateActiveBaseManagementProps({"prop":"cover", "value": "nc", "name":"managementCont"})
                 this.props.updateActiveBaseManagementProps({"prop":"tillage", "value": "su", "name":"managementCont"})
                 this.props.updateActiveBaseManagementProps({"prop":"contour", "value": "1", "name":"managementCont"})
