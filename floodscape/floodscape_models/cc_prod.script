@@ -1,0 +1,8 @@
+from hms.model.JythonHms import *
+print("hello")
+#storm_list = ["CC_2yrStorm"]
+storm_list = ["CC_2yrStorm","CC_5yrStorm","CC_10yrStorm","CC_25yrStorm","CC_50yrStorm","CoonCreek_100yrStorm","CC_200yrStorm","CC_500yrStorm"]
+for storm in storm_list:
+    #/tmp/floodScape/HMS_CC_Final
+    OpenProject(storm, "/tmp/floodScape/HMS_CC_Final"+storm)
+    Compute("MSE4 No Dams")
