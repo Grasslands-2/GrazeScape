@@ -1743,14 +1743,13 @@ class SmartScape:
                            "_" + row["rasterVals"]
                 dict_key = dict_key.replace(" ", "")
 
-                output_dict[dict_key] = {"fertN": row["fertN"], "ManureN": row["ManureN"], "Pneeds": row["Pneeds"],
+                output_dict[dict_key] = {"fertN": row["FertN"], "ManureN": row["ManureN"], "Pneeds": row["Pneeds"],
                                          "grazedManureN": row["grazedManureN"],
                                          "NfixPct": row["NfixPct"],
                                          "Nharv_content": row["Nharv_content"],
                                          "NH3loss": row["NH3loss"],
-
                                          }
-        self.nrec_dict = output_dict
+            self.nrec_dict = output_dict
 
     #
     def download_rasters(self, geoTransform, image, layer_dic,
