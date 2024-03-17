@@ -608,7 +608,7 @@ class OLMapFragment extends React.Component {
           renderMode: 'image',
           name: "ccRivers",
           source:new VectorSource({
-              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_rivers.geojson',
+              url: static_global_folder + 'floodscape/gis/CC_GIS/CC_Rivers.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
@@ -618,7 +618,7 @@ class OLMapFragment extends React.Component {
           renderMode: 'image',
           name: "wfkRivers",
           source:new VectorSource({
-              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_rivers.geojson',
+              url: static_global_folder + 'floodscape/gis/WKF_GIS/WFK_Rivers.geojson',
               format: new GeoJSON(),
                projection: 'EPSG:3857',
             }),
