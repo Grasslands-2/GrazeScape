@@ -1729,7 +1729,7 @@ class SmartScape:
 
     def load_nrec(self):
 
-        csv_filename = os.path.join("floodscape", "NmodelInputs_final.csv")
+        csv_filename = os.path.join("smartscape", "WI_Nitrogen.csv")
         output_dict = {}
 
         # fertNrec_soil1	fertNrec_soil2	fertNrec_soil3	fertNrec_om1	fertNrec_om2 fertNrec_om3
@@ -1742,9 +1742,6 @@ class SmartScape:
                 dict_key = row["RotationName"] + "_" + row["CropName"] + "_" + cover + "_" + row["rasterLookup"] + \
                            "_" + row["rasterVals"]
                 dict_key = dict_key.replace(" ", "")
-                # print(dict_key)
-                # NfixPct  # (Ninputs tab)
-                # NH3loss  # (Ninputs tab)
 
                 output_dict[dict_key] = {"fertN": row["fertN"], "ManureN": row["ManureN"], "Pneeds": row["Pneeds"],
                                          "grazedManureN": row["grazedManureN"],
@@ -1753,8 +1750,6 @@ class SmartScape:
                                          "NH3loss": row["NH3loss"],
 
                                          }
-        # print("$$$$$$")
-        # print(output_dict)
         self.nrec_dict = output_dict
 
     #

@@ -2329,7 +2329,6 @@ class SmartScape:
                                          "Nharv_content": row["Nharv_content"],
                                          "NH3loss": row["NH3loss"],
                                          }
-        # print(output_dict)
         self.nrec_dict = output_dict
 
     #
