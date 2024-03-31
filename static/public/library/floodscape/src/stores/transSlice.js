@@ -12,7 +12,7 @@ export const transSlice = createSlice({
   initialState: {
 //    value: new Transformation("intial11",-1,-1),
     // active transformation
-    activeTrans:Transformation(" ",-1, -1),
+    activeTrans:Transformation(" ",-1, -1, "transformation"),
     // tracks new transformation
     addTrans: null,
     // transformation to remove
@@ -26,7 +26,7 @@ export const transSlice = createSlice({
     // list of all transformations
     listTrans:[],
     // base case transformations holds the initial conditions
-    baseTrans:Transformation("base",-1, -1),
+    baseTrans:Transformation("base",-1, -1, "base"),
   },
   // functions to interact with redux store
   reducers: {
@@ -39,7 +39,7 @@ export const transSlice = createSlice({
     },
     reset: (state, action) => {
         // active transformation
-        state.activeTrans =Transformation(" ",-1, -1)
+        state.activeTrans =Transformation(" ",-1, -1, "transformation")
         // tracks new transformation
 //        state.addTrans = null
         // transformation to remove
@@ -147,6 +147,7 @@ export const transSlice = createSlice({
         let value = action.payload
         let base = state.baseTrans
         // change selection criteria
+        console.log("state", state, action)
         if(action.payload.type === "reg"){
             base.selection[value.name] = value.value
         }
@@ -157,10 +158,21 @@ export const transSlice = createSlice({
         else if (action.payload.type === "econ"){
             base.econ[value.name] = value.value
         }
+        else if (action.payload.type === "base"){
+            console.log("updating a base value")
+            base[value.name] = value.value
+        }
         // land cover is being updated
         else{
             base.selection.landCover[value.name] = value.value
         }
+        state.baseTrans = base
+    },
+    updateActiveBaseManagementProps(state,action){
+        console.log(action.payload)
+        let value = action.payload
+        let base = state.baseTrans
+        base[value.name][value.prop] = value.value
         state.baseTrans = base
     }
   },
@@ -178,6 +190,7 @@ export const { setActiveTrans,
                 setVisibilityMapLayer,
                 setActiveTransDisplay,
                 updateActiveBaseProps,
+                updateActiveBaseManagementProps,
                 reset,
                  } = transSlice.actions
 

@@ -61,6 +61,7 @@ const mapStateToProps = state => {
         listTrans: state.transformation.listTrans,
         baseTrans:state.transformation.baseTrans,
         aoiFolderId:state.main.aoiFolderId,
+        region:state.main.region,
 
 }}
 
@@ -126,27 +127,18 @@ class TransformationTable extends Component {
     this.phos_fert_options_holder = []
   }
   componentDidUpdate(prevProps) {
-        console.log("old values", prevProps)
-        console.log("new values", this.props)
+    console.log("old values", prevProps)
+    console.log("new values", this.props)
     if(prevProps.activeTrans.management.nitrogen != this.props.activeTrans.management.nitrogen){
+        if (prevProps.aoiFolderId == null){
+            return
+        }
         console.log("Nitrogen has changed, calculate new P")
+        console.log("Nitrogen has changed, calculate new P", prevProps.activeTrans.management.nitrogen)
+        console.log("Nitrogen has changed, calculate new P", this.props.activeTrans.management.nitrogen)
         this.getPhosValues()
     }
 
-
-
-
-
-
-
-//    else if(prevProps.newTrans == undefined && this.props.newTrans != undefined){
-//        console.log("adding new trans")
-//        this.addTransformation(this.props.newTrans)
-//
-//    }
-//    else if(prevProps.newTrans.id != this.props.newTrans.id){
-//        this.addTransformation(this.props.newTrans)
-//    }
   }
     async handleOpenModalTrans(e){
         console.log("handling opening modal!!!!")
@@ -196,13 +188,13 @@ class TransformationTable extends Component {
             })
 
         this.tillage.current.value = "na"
-         this.setState({tillageBlank:false})
+        this.setState({tillageBlank:false})
         if (cover == "cc"){
             this.setState({
                 showTillageNT:true,
                 showTillageSU:true,
             })
-            if (rot == "dairyRotation"){
+            if (rot == "dairyRotation" || rot == "cornSoyOat"){
                 this.setState({
                     showTillageSC:true
                 })
@@ -320,6 +312,10 @@ class TransformationTable extends Component {
                    nitrogen = "100"
                    nitrogen_fert = "25"
                    break;
+                case "cornSoyOat":
+                   nitrogen = "100"
+                   nitrogen_fert = "25"
+                   break;
 
             }
             console.log("value is ", nitrogen, nitrogen_fert)
@@ -394,6 +390,7 @@ class TransformationTable extends Component {
     this.props.removeTrans(removeTransId)
   }
   getPhosValues(){
+    console.log("transformation ")
     let transPayload = {}
     let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
     let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
@@ -416,6 +413,7 @@ class TransformationTable extends Component {
                 baseTrans:this.props.baseTrans,
                 folderId: this.props.aoiFolderId,
                 base_calc: false,
+                region: this.props.region,
             }
         console.log(payload)
         payload = JSON.stringify(payload)
@@ -442,13 +440,23 @@ class TransformationTable extends Component {
                     list[item].management.phos_manure = manure_value
 
                     list[item].management.phos_fert_options = phos_options
-                    list[item].management.phos_fertilizer = phos_options[0]
+                    let phosOpt = phos_options[0]
+
+
+                    if (phos_options.includes(parseInt(list[item].management.phos_fertilizer))){
+                            console.log("phos was a match")
+                            phosOpt = list[item].management.phos_fertilizer
+                    }
+
+
+                    list[item].management.phos_fertilizer = phosOpt
 //                    if (this.props.activeTrans.id == item.id){
 //                  update active trans with new phos options
                     if (this.props.activeTrans.id == transId){
                         this.phos_fert_options_holder = phos_options
                         this.phos_manure.current.value = manure_value
-                        this.phos_fertilizer.current.value = phos_options[0]
+                        this.phos_fertilizer.current.value = phosOpt
+//                        list[item].management.phos_fertilizer = phosOpt
                     }
                 }
                  this.props.updateTransList(list);
@@ -516,13 +524,6 @@ class TransformationTable extends Component {
                   <Modal.Title>Transformation Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                                      {/*
-                    transform to: pasture
-                    cover crop
-                    tillage
-                    contour
-                    manure and fertilizier
-                  */}
                   <Form.Label>New Land Cover</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.rotationType}
                       onChange={(e) => this.handleSelectionChange("rotationType", e)}>
@@ -530,6 +531,7 @@ class TransformationTable extends Component {
                       <option value="contCorn">Continuous Corn</option>
                       <option value="cornGrain">Cash Grain</option>
                       <option value="dairyRotation">Dairy Rotation (Corn Silage to Corn Grain to Alfalfa 3 yrs)</option>
+                      <option value="cornSoyOat">Dairy Rotation II (Corn Silage to Soy Beans to Oats)</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
 
@@ -552,7 +554,7 @@ class TransformationTable extends Component {
                     <Form.Label hidden={!this.state.showRotFreq}>Rotational Frequency</Form.Label>
                     <Form.Select aria-label="Default select example" hidden={!this.state.showRotFreq} ref={this.rotFreq}
                       onChange={(e) => this.handleSelectionChange("rotFreq", e)}>
-                      <option value="1.2">More then once a day</option>
+                      <option value="1.2">More than once a day</option>
                       <option value="1">Once a day</option>
                       <option value="0.95">Every 3 days</option>
                       <option value="0.75">Every 7 days</option>
@@ -598,7 +600,7 @@ class TransformationTable extends Component {
 
                     <OverlayTrigger key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Manure</Form.Label>
+                        <Form.Label>Percent Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen}
                       onChange={(e) => this.handleSelectionChange("nitrogen", e)}>
@@ -613,7 +615,7 @@ class TransformationTable extends Component {
 
                     <OverlayTrigger key="top2" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Recommended Nitrogen Fertilizer</Form.Label>
+                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
                       onChange={(e) => this.handleSelectionChange("nitrogen_fertilizer", e)}>
@@ -628,7 +630,7 @@ class TransformationTable extends Component {
 
                      <OverlayTrigger key="top3" placement="top"
                             overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Manure</Form.Label>
+                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
                     </OverlayTrigger>
                     <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
 
