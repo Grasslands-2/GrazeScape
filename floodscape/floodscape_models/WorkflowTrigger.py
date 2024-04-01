@@ -24,7 +24,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
             script_name = "cc.script"
         command_path = os.path.join(command_path, script_name)
         command = hms_ex + " -s " + command_path
-        cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
+        # cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
 
     elif watershed == "West Fork Kickapoo Main":
         project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_WFK_Final")
@@ -49,8 +49,8 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
 
     # Print each file name
     for file in files:
-        print("   ", file)
-    print(command)
+        print("   ", file,flush=True)
+    print(command,flush=True)
 
     # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
     # Run the command and capture the output-
