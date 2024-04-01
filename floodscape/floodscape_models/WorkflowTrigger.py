@@ -44,7 +44,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     os.chdir(hms_exe)
     print("current dir", os.getcwd())
     # List all files in the directory
-    files = os.listdir(debug_path)
+    files = os.listdir(os.getcwd())
     print(script_name in files)
 
     # Print each file name
@@ -54,30 +54,32 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
 
     # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
     # Run the command and capture the output-
-    try:
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
-        # output = subprocess.check_output(command, shell=True, universal_newlines=True, stderr=subprocess.STDOUT)
-
-        print("HEC-HMS execution successful.")
-        print("Output:")
-        # print(result.stdout)
-        # print(output)
-    except subprocess.CalledProcessError as e:
-        print(f"HEC-HMS execution failed with error: {e}")
-        print("Error output:")
-        print(e.stderr)
-        os.chdir(cur_dir)
-
-    if watershed == "COON CREEK Main":
-        output = DSSOutput(project_dir)
-        output.run()
-        model_file_path = compile_data.compile_data_to_json(project_dir)
-        base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
-    elif watershed == "West Fork Kickapoo Main":
-        # output = WFKDSSOutput(project_dir)
-        # output.run()
-        model_file_path = wfk_compile_data.compile_data_to_json(project_dir)
-        base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
+    # try:
+    #     result = subprocess.run(command, capture_output=True, text=True, check=True)
+    #     # output = subprocess.check_output(command, shell=True, universal_newlines=True, stderr=subprocess.STDOUT)
+    #
+    #     print("HEC-HMS execution successful.")
+    #     print("Output:")
+    #     # print(result.stdout)
+    #     # print(output)
+    # except subprocess.CalledProcessError as e:
+    #     print(f"HEC-HMS execution failed with error: {e}")
+    #     print("Error output:")
+    #     print(e.stderr)
+    #     os.chdir(cur_dir)
+    #
+    # if watershed == "COON CREEK Main":
+    #     output = DSSOutput(project_dir)
+    #     output.run()
+    #     model_file_path = compile_data.compile_data_to_json(project_dir)
+    #     base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
+    # elif watershed == "West Fork Kickapoo Main":
+    #     # output = WFKDSSOutput(project_dir)
+    #     # output.run()
+    #     model_file_path = wfk_compile_data.compile_data_to_json(project_dir)
+    #     base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
     os.chdir(cur_dir)
+    model_file_path = ""
+    base_file_path = ""
     return model_file_path, base_file_path
 
