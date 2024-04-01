@@ -1806,11 +1806,11 @@ class SmartScape:
 
     def load_nrec(self, region):
         if region == "pineRiverMN":
-            csv_filename = os.path.join("smartscape", "MN_Nitrogen.csv")
+            csv_filename = os.path.join("floodscape", "MN_Nitrogen.csv")
             nitrate_define_char = "sand_percent"
             nitrate_define_char2 = "om_percent"
         else:
-            csv_filename = os.path.join("smartscape", "WI_Nitrogen.csv")
+            csv_filename = os.path.join("floodscape", "WI_Nitrogen.csv")
         output_dict = {}
 
         # fertNrec_soil1	fertNrec_soil2	fertNrec_soil3	fertNrec_om1	fertNrec_om2 fertNrec_om3
