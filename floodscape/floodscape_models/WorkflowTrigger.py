@@ -39,6 +39,12 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     cur_dir = os.getcwd()
     os.chdir(hms_exe)
     print("current dir", os.getcwd())
+    # List all files in the directory
+    files = os.listdir(command_path)
+
+    # Print each file name
+    for file in files:
+        print("   ", file)
 
     # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
     # Run the command and capture the output-
