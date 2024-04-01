@@ -23,6 +23,8 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
             hms_ex = "hec-hms.exe"
             script_name = "cc.script"
         command_path = os.path.join(command_path, script_name)
+
+        command_path = "test.script"
         command = hms_ex + " -s " + command_path
         # cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
 
@@ -37,6 +39,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         wfk_cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
     else:
         raise ValueError("watershed region is not correct")
+
     hms_exe = settings.HMS_PATH
     print("hms model directory", project_dir)
     print("current dir", os.getcwd())
@@ -51,7 +54,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     for file in files:
         print("   ", file,flush=True)
     print(command,flush=True)
-
+    print("current dir", os.getcwd())
     # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
     # Run the command and capture the output-
     try:
