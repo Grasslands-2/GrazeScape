@@ -12,16 +12,14 @@ import {
     Vector as VectorLayer,
 } from 'ol/layer'
 
-function Transformation(name, id, rank){
-    return {
+function Transformation(name, id, rank, type){
+    let transformationBody =  {
         name:name,
         id:id,
         rank: 99,
         areaSelected: 0,
         areaSelectedPerWorkArea: 0,
         area:0,
-//        which watershed we are using (only used with base case)
-        watershed:"",
         // the open layers id of the selection display layer
         displayLayerID:-99,
         // ol id of the layer containing the boundary information
@@ -77,17 +75,21 @@ function Transformation(name, id, rank){
             cover:"default",
             tillage:"default",
             contour:"default",
+
             fertilizer:"default",
+            p_manure_cat:"default",
+
             nitrogen:"default",
             nitrogen_fertilizer:"default",
             phos_manure:"default",
             phos_fertilizer:"default",
+            phos_fert_options:[],
+
             legume:"default",
             // only for pasture
             density:"default",
             grassYield:"default",
             rotFreq:"default",
-            phos_fert_options:[],
 
         },
         econ:{
@@ -115,5 +117,13 @@ function Transformation(name, id, rank){
             pastMach:19.7,
         }
     }
+    console.log("type!!!!!!!!!!", type)
+    if (type == "base"){
+        transformationBody["managementCont"] = transformationBody["management"]
+        transformationBody["managementCorn"] = transformationBody["management"]
+        transformationBody["managementDairy"] = transformationBody["management"]
+        transformationBody["managementPast"] = transformationBody["management"]
+    }
+    return transformationBody
 }
 export  {Transformation}

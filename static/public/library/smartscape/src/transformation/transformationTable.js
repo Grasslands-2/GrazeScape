@@ -441,18 +441,13 @@ class TransformationTable extends Component {
 
                     list[item].management.phos_fert_options = phos_options
                     let phosOpt = phos_options[0]
-                    console.log("phosOpt")
-                    console.log(phosOpt)
-                    console.log(list[item].management.phos_fertilizer)
 
-                    console.log(parseInt(list[item].management.phos_fertilizer))
-                    console.log(phos_options.includes(parseInt(list[item].management.phos_fertilizer)))
 
                     if (phos_options.includes(parseInt(list[item].management.phos_fertilizer))){
                             console.log("phos was a match")
                             phosOpt = list[item].management.phos_fertilizer
                     }
-                     console.log("after if check", phosOpt)
+
 
                     list[item].management.phos_fertilizer = phosOpt
 //                    if (this.props.activeTrans.id == item.id){

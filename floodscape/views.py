@@ -147,7 +147,7 @@ def get_selection_raster(request):
             "folder_id": folder_id
         }
         # download base layers async
-        floodscape.helper_base.download_base_rasters_helper(request, folder_id)
+        # floodscape.helper_base.download_base_rasters_helper(request, folder_id)
     except KeyError as e:
         error = str(e)
     except ValueError as e:
@@ -190,7 +190,9 @@ def get_phos_fert_options(request):
     """
     request_json = js.loads(request.body)
     base_calc = request_json['base_calc']
-    return_data = floodscape.helper_base.get_phos_fert_options(request, base_calc)
+    # region = request_json["region"]
+    region = "southWestWI"
+    return_data = floodscape.helper_base.get_phos_fert_options(request, base_calc, region)
     return JsonResponse({"response": return_data}, safe=False)
 
 

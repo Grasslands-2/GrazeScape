@@ -160,8 +160,7 @@ def get_selection_raster(request):
             "get_data": "success",
             "folder_id": folder_id
         }
-        # download base layers async
-        # smartscape.helper_base.download_base_rasters_helper(request, folder_id)
+
     except KeyError as e:
         error = str(e)
     except ValueError as e:

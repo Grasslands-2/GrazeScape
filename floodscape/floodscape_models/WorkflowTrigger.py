@@ -54,17 +54,17 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         print(f"HEC-HMS execution failed with error: {e}")
         print("Error output:")
         print(e.stderr)
-    #
-    # if watershed == "COON CREEK Main":
-    #     output = DSSOutput(project_dir)
-    #     output.run()
-    #     model_file_path = compile_data.compile_data_to_json(project_dir)
-    #     base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
-    # elif watershed == "West Fork Kickapoo Main":
-    #     # output = WFKDSSOutput(project_dir)
-    #     # output.run()
-    #     model_file_path = wfk_compile_data.compile_data_to_json(project_dir)
-    #     base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
+
+    if watershed == "COON CREEK Main":
+        output = DSSOutput(project_dir)
+        output.run()
+        model_file_path = compile_data.compile_data_to_json(project_dir)
+        base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
+    elif watershed == "West Fork Kickapoo Main":
+        # output = WFKDSSOutput(project_dir)
+        # output.run()
+        model_file_path = wfk_compile_data.compile_data_to_json(project_dir)
+        base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
     os.chdir(cur_dir)
     return model_file_path, base_file_path
 
