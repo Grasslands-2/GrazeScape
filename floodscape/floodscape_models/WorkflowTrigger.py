@@ -18,7 +18,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_CC_Final")
         if settings.HMS_MODEL_PATH == "/tmp/floodScape":
             script_name = "cc_prod.script"
-            hms_ex = "./hec-hms.sh"
+            hms_ex = "hec-hms.sh"
         else:
             hms_ex = "hec-hms.exe"
             script_name = "cc.script"
