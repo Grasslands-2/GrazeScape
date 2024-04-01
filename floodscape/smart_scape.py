@@ -520,8 +520,8 @@ class SmartScape:
                     cn_final = np.where(model_data[model] == layer, model_arr, 0)
                     # only looking at 3 in storm
                     inter_data = self.get_runoff_vectorized(cn_final, 3)
-                    inter_data = np.sum(
-                        np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
+                    # inter_data = np.sum(
+                    #     np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data))
                     if cell_count_trans > 0:
                         model_data_gross[layer]["selection"]["runoff"] = inter_data
                     inter_data = cn_final
@@ -529,7 +529,7 @@ class SmartScape:
 
                 # sci can have negative values
                 sum_values = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
-                inter_data = np.sum(sum_values)
+                # inter_data = np.sum(sum_values)
 
 
                 if cell_count_trans > 0 and model != "ploss":
@@ -761,83 +761,27 @@ class SmartScape:
                     # sci can have negative values
                     inter_data = np.sum(np.where(inter_data == self.no_data, 0, inter_data))
                 else:
-                    zero_value = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
+                    inter_data = np.where(np.logical_or(inter_data == self.no_data, inter_data < 0), 0, inter_data)
                     # if model == "ploss":
                     #     zero_value = zero_value
                     #     zero_value_water = zero_value * p_del_array
                     #     model_data_gross[layer]["base"]["ploss"]["ploss"] = np.sum(zero_value)
                     #     model_data_gross[layer]["base"]["ploss"]["ploss_water"] = np.sum(zero_value_water)
-                    inter_data = np.sum(zero_value)
+                    # inter_data = np.sum(zero_value)
                 if model != "ploss":
                     model_data_gross[layer]["base"][model] = inter_data
 
-        base_cn = np.where(
-            np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
-            0, (base_data["cn"]))
-        sum_base_cn = np.sum(base_cn)
+        # base_cn = np.where(
+        #     np.logical_or(base_data["cn"] == self.no_data, base_data["cn"] < 0),
+        #     0, (base_data["cn"]))
+        # sum_base_cn = np.sum(base_cn)
 
-        # base_runoff = np.where(
-        #     np.logical_or(base_data["runoff"] == self.no_data, base_data["runoff"] < 0),
-        #     0, (base_data["runoff"]))
-        # sum_base_runoff = np.sum(base_runoff)
-        # base_data["ero"] = np.where(
-        #     np.logical_or(base_data["ero"] == self.no_data, base_data["ero"] < 0),
-        #     0, base_data["ero"])
-        # sum_base_ero = np.sum(base_data["ero"])
-        # base_data["insect"] = np.where(
-        #     np.logical_or(base_data["insect"] == self.no_data, base_data["insect"] < 0),
-        #     0, (base_data["insect"]))
-        # sum_base_insect = np.sum(base_data["insect"])
-        #
-        # base_data["sci"] = np.where(
-        #     np.logical_or(base_data["sci"] == self.no_data, base_data["sci"] == -88),
-        #     0, base_data["sci"])
-        # sum_base_sci = np.sum(base_data["sci"])
-        #
-        # landuse_yield = np.where(
-        #     np.logical_or(base_data["yield"] == self.no_data, base_data["yield"] < 0),
-        #     0, base_data["yield"])
-        # sum_base_yield = np.sum(landuse_yield)
-        #
-        # landuse_arr_sel = np.where(
-        #     np.logical_or(base_data["ploss"] == self.no_data, base_data["ploss"] < 0),
-        #     0, base_data["ploss"])
-        # sum_base = np.sum(landuse_arr_sel)
-        # sum_base_pl_water = np.sum(landuse_arr_sel * p_del_array)
-        #
-        # landuse_arr_sel = np.where(
-        #     np.logical_or(base_data["econ"] == self.no_data, base_data["econ"] < 0),
-        #     0, base_data["econ"])
-        # sum_base_econ = np.sum(landuse_arr_sel)
-        # landuse_arr_sel = np.where(
-        #     np.logical_or(base_data["nitrate"] == self.no_data, base_data["nitrate"] < 0),
-        #     0, base_data["nitrate"])
-        # sum_base_nitrate = np.sum(landuse_arr_sel)
-        # sum_base_nitrate = sum_base_nitrate * nitrate_cover_mod
-        # for each land type in the region we are going to replace cells (the land codes)
-        # in the base case with model outputs for each model (the base model not the transformed model)
+
         for land_type in watershed_total:
-            # base_data_watershed["yield"] = np.where(base_data_watershed["yield"] == land_type,
-            #                                         watershed_total[land_type]["yield"], base_data_watershed["yield"])
-            # base_data_watershed["ero"] = np.where(base_data_watershed["ero"] == land_type,
-            #                                       watershed_total[land_type]["ero"], base_data_watershed["ero"])
-            # base_data_watershed["ploss"] = np.where(base_data_watershed["ploss"] == land_type,
-            #                                         watershed_total[land_type]["ploss"], base_data_watershed["ploss"])
+
             base_data_watershed["cn"] = np.where(base_data_watershed["cn"] == land_type,
                                                  watershed_total[land_type]["cn"], base_data_watershed["cn"])
-            # base_data_watershed["insect"] = np.where(base_data_watershed["insect"] == land_type,
-            #                                          watershed_total[land_type]["insect"],
-            #                                          base_data_watershed["insect"])
-            # base_data_watershed["econ"] = np.where(base_data_watershed["econ"] == land_type,
-            #                                        watershed_total[land_type]["econ"],
-            #                                        base_data_watershed["econ"])
-            # base_data_watershed["nitrate"] = np.where(base_data_watershed["nitrate"] == land_type,
-            #                                           watershed_total[land_type]["nitrate"],
-            #                                           base_data_watershed["nitrate"])
-            # base_data_watershed["runoff"] = self.get_runoff_vectorized(base_data_watershed["cn"], 3)
-            # base_data_watershed["sci"] = np.where(base_data_watershed["sci"] == land_type,
-            #                                       watershed_total[land_type]["sci"], base_data_watershed["sci"])
-        # copy the base condition model files, so we can eventually replace the selected cells.
+
         model_data_watershed = {
             # "yield": np.copy(base_data_watershed["yield"]),
             # "ero": np.copy(base_data_watershed["ero"]),
@@ -875,7 +819,7 @@ class SmartScape:
                 #     inter_data_water = inter_data * p_del_array
                 #     model_data_gross[1]["selection_watershed"]["ploss"]["ploss"] = np.sum(inter_data)
                 #     model_data_gross[1]["selection_watershed"]["ploss"]["ploss_water"] = np.sum(inter_data_water)
-            inter_data = np.sum(inter_data)
+            # inter_data = np.sum(inter_data)
             #
             # put all data in first trans because already calculated the data for each tran
             if model != "ploss":

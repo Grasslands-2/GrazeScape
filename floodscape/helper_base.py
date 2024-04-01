@@ -29,6 +29,9 @@ def download_base_rasters_helper(request, geo_folder):
     # manure_options = get_phos_fert_options(request, True, region)
     # print("manure options", manure_options)
     base_scen = request_json['baseTrans']
+
+    print(settings.BASE_DIR, 'floodscape', 'data_files',
+                              'raster_inputs', geo_folder)
     geo_folder = os.path.join(settings.BASE_DIR, 'floodscape', 'data_files',
                               'raster_inputs', geo_folder)
     base_layer_dic = {}

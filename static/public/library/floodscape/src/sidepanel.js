@@ -152,7 +152,7 @@ class SidePanel extends React.Component{
         this.reset = this.reset.bind(this);
         this.sliderChangeSlope = this.sliderChangeSlope.bind(this);
         this.sliderChangeStream = this.sliderChangeStream.bind(this);
-        this.getPhosValuesBase = this.getPhosValuesBase.bind(this);
+//        this.getPhosValuesBase = this.getPhosValuesBase.bind(this);
         // selection criteria
 
         this.contCorn = React.createRef();
@@ -703,6 +703,8 @@ class SidePanel extends React.Component{
 
         this.loadSelectionRaster()
 
+
+
         // turn off huc 10
         this.props.setVisibilityMapLayer([
 //            {'name':'huc10', 'visible':false},
@@ -746,21 +748,26 @@ class SidePanel extends React.Component{
     let newTrans = Transformation(" ",tempId, 5)
     newTrans.management.rotationType = "pasture"
     newTrans.management.density = "rt_rt"
-    newTrans.management.fertilizer = "0_100"
+//    newTrans.management.fertilizer = "0_100"
     newTrans.management.nitrogen = "0"
     newTrans.management.nitrogen_fertilizer = "0"
 //    newTrans.management.phos_fertilizer = "0"
 //    newTrans.management.phos_manure = "0"
-    newTrans.management.legume = "false"
+    newTrans.management.legume = "true"
     newTrans.management.contour = "1"
     newTrans.management.cover = "nc"
     newTrans.management.tillage = "su"
     newTrans.management.grassYield = "medium"
     newTrans.management.rotFreq = "1"
+    newTrans.management.phos_fert_options = [0, 50, 100]
+    newTrans.management.phos_fertilizer = 0
+    newTrans.management.phos_manure = 0
+
     console.log("Adding new trans")
     console.log(newTrans)
     this.props.setActiveTrans(newTrans)
     this.props.addTrans(newTrans)
+
 //    this.props.setActiveTrans(newTrans)
   }
     handleCloseModal(){
@@ -816,6 +823,7 @@ class SidePanel extends React.Component{
             rasterDownloaded = true
             this.displaySelectionCriteria()
 //            this.getPhosValuesBase()
+            this.downloadBase()
         },
         failure: function(response, opts) {
         }
@@ -964,110 +972,110 @@ class SidePanel extends React.Component{
             }
         })
     }
-   getPhosValuesBase(){
-    let transPayload = {}
-    let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
-    let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
-    let lengthTrans = transValues.length
-//        give the transformations the correct ranking
-    for(let trans in transValues){
-        transValues[trans].rank = lengthTrans;
-        transValues1[trans].rank = lengthTrans;
-        transValues[trans].selection.field_coors = []
-        transPayload[lengthTrans] = transValues[trans]
-        lengthTrans--;
-    }
-    this.props.updateTransList(transValues1);
-    var csrftoken = Cookies.get('csrftoken');
-        $.ajaxSetup({
-            headers: { "X-CSRFToken": csrftoken }
-        });
-        let payload = {
-                trans: transPayload,
-                baseTrans:this.props.baseTrans,
-                folderId: this.props.aoiFolderId,
-                base_calc: true,
-                region: this.props.region,
-            }
-        console.log(payload)
-        payload = JSON.stringify(payload)
-        $.ajax({
-            url : '/floodscape/get_phos_fert_options',
-            type : 'POST',
-            data : payload,
-            success: (response, opts) => {
-                delete $.ajaxSetup().headers
-                console.log("done with model runs")
-                console.log(response)
-                let phos_optionsCont = response.response["base"]["cont"].p_choices
-                let manure_valueCont = response.response["base"]["cont"].p_manure
-                let phosOptCont = phos_optionsCont[0]
-
-                let phos_optionsCorn = response.response["base"]["corn"].p_choices
-                let manure_valueCorn = response.response["base"]["corn"].p_manure
-                let phosOptCorn = phos_optionsCorn[0]
-
-                let phos_optionsDairy = response.response["base"]["dairy"].p_choices
-                let manure_valueDairy = response.response["base"]["dairy"].p_manure
-                let phosOptDairy = phos_optionsDairy[0]
-
-                let phos_optionsPast = response.response["base"]["past"].p_choices
-                let manure_valuePast = response.response["base"]["past"].p_manure
-                let phosOptPast = phos_optionsPast[0]
-
-                if (phos_optionsCont.includes(parseInt(this.props.baseTrans.managementCont.phos_fertilizer))){
-                    phosOptCont = this.props.baseTrans.managementCont.phos_fertilizer
-                }
-                if (phos_optionsCorn.includes(parseInt(this.props.baseTrans.managementCorn.phos_fertilizer))){
-                    phosOptCorn = this.props.baseTrans.managementCorn.phos_fertilizer
-                }
-                if (phos_optionsDairy.includes(parseInt(this.props.baseTrans.managementDairy.phos_fertilizer))){
-                    phosOptDairy = this.props.baseTrans.managementDairy.phos_fertilizer
-                }
-                if (phos_optionsPast.includes(parseInt(this.props.baseTrans.managementPast.phos_fertilizer))){
-                    phosOptPast = this.props.baseTrans.managementPast.phos_fertilizer
-                }
-                console.log("Updating base phos values")
-                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCont, "name":"managementCont"})
-                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCont, "name":"managementCont"})
-
-                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCorn, "name":"managementCorn"})
-                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCorn, "name":"managementCorn"})
-
-                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueDairy, "name":"managementDairy"})
-                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptDairy, "name":"managementDairy"})
-
-                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valuePast, "name":"managementPast"})
-                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptPast, "name":"managementPast"})
-
-//                this.phos_fert_options_holder = ["6","8","9"]
-                this.setState({phos_fert_options_holderCont:phos_optionsCont})
-                this.setState({phos_fert_options_holderCorn:phos_optionsCorn})
-                this.setState({phos_fert_options_holderDairy:phos_optionsDairy})
-                this.setState({phos_fert_options_holderPast:phos_optionsPast})
-                console.log(this.phos_manureCont)
-                if (this.phos_manureCont.current != null){
-                    this.phos_manureCont.current.value = manure_valueCont
-                    this.phos_fertilizerCont.current.value = phosOptCont
-
-                    this.phos_manureCorn.current.value = manure_valueCorn
-                    this.phos_fertilizerCorn.current.value = phosOptCorn
-
-                    this.phos_manureDairy.current.value = manure_valueDairy
-                    this.phos_fertilizerDairy.current.value = phosOptDairy
-
-                    this.phos_manurePasture.current.value = manure_valuePast
-                    this.phos_fertilizerPasture.current.value = phosOptPast
-
-                }
-          this.downloadBase()
-
-            },
-
-            failure: function(response, opts) {
-            }
-        })
-  }
+//   getPhosValuesBase(){
+//    let transPayload = {}
+//    let transValues = JSON.parse(JSON.stringify(this.props.listTrans))
+//    let transValues1 = JSON.parse(JSON.stringify(this.props.listTrans))
+//    let lengthTrans = transValues.length
+////        give the transformations the correct ranking
+//    for(let trans in transValues){
+//        transValues[trans].rank = lengthTrans;
+//        transValues1[trans].rank = lengthTrans;
+//        transValues[trans].selection.field_coors = []
+//        transPayload[lengthTrans] = transValues[trans]
+//        lengthTrans--;
+//    }
+//    this.props.updateTransList(transValues1);
+//    var csrftoken = Cookies.get('csrftoken');
+//        $.ajaxSetup({
+//            headers: { "X-CSRFToken": csrftoken }
+//        });
+//        let payload = {
+//                trans: transPayload,
+//                baseTrans:this.props.baseTrans,
+//                folderId: this.props.aoiFolderId,
+//                base_calc: true,
+//                region: this.props.region,
+//            }
+//        console.log(payload)
+//        payload = JSON.stringify(payload)
+//        $.ajax({
+//            url : '/floodscape/get_phos_fert_options',
+//            type : 'POST',
+//            data : payload,
+//            success: (response, opts) => {
+//                delete $.ajaxSetup().headers
+//                console.log("done with model runs")
+//                console.log(response)
+//                let phos_optionsCont = response.response["base"]["cont"].p_choices
+//                let manure_valueCont = response.response["base"]["cont"].p_manure
+//                let phosOptCont = phos_optionsCont[0]
+//
+//                let phos_optionsCorn = response.response["base"]["corn"].p_choices
+//                let manure_valueCorn = response.response["base"]["corn"].p_manure
+//                let phosOptCorn = phos_optionsCorn[0]
+//
+//                let phos_optionsDairy = response.response["base"]["dairy"].p_choices
+//                let manure_valueDairy = response.response["base"]["dairy"].p_manure
+//                let phosOptDairy = phos_optionsDairy[0]
+//
+//                let phos_optionsPast = response.response["base"]["past"].p_choices
+//                let manure_valuePast = response.response["base"]["past"].p_manure
+//                let phosOptPast = phos_optionsPast[0]
+//
+//                if (phos_optionsCont.includes(parseInt(this.props.baseTrans.managementCont.phos_fertilizer))){
+//                    phosOptCont = this.props.baseTrans.managementCont.phos_fertilizer
+//                }
+//                if (phos_optionsCorn.includes(parseInt(this.props.baseTrans.managementCorn.phos_fertilizer))){
+//                    phosOptCorn = this.props.baseTrans.managementCorn.phos_fertilizer
+//                }
+//                if (phos_optionsDairy.includes(parseInt(this.props.baseTrans.managementDairy.phos_fertilizer))){
+//                    phosOptDairy = this.props.baseTrans.managementDairy.phos_fertilizer
+//                }
+//                if (phos_optionsPast.includes(parseInt(this.props.baseTrans.managementPast.phos_fertilizer))){
+//                    phosOptPast = this.props.baseTrans.managementPast.phos_fertilizer
+//                }
+//                console.log("Updating base phos values")
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCont, "name":"managementCont"})
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCont, "name":"managementCont"})
+//
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueCorn, "name":"managementCorn"})
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptCorn, "name":"managementCorn"})
+//
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valueDairy, "name":"managementDairy"})
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptDairy, "name":"managementDairy"})
+//
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_manure", "value": manure_valuePast, "name":"managementPast"})
+//                this.props.updateActiveBaseManagementProps({"prop":"phos_fertilizer", "value":phosOptPast, "name":"managementPast"})
+//
+////                this.phos_fert_options_holder = ["6","8","9"]
+//                this.setState({phos_fert_options_holderCont:phos_optionsCont})
+//                this.setState({phos_fert_options_holderCorn:phos_optionsCorn})
+//                this.setState({phos_fert_options_holderDairy:phos_optionsDairy})
+//                this.setState({phos_fert_options_holderPast:phos_optionsPast})
+//                console.log(this.phos_manureCont)
+//                if (this.phos_manureCont.current != null){
+//                    this.phos_manureCont.current.value = manure_valueCont
+//                    this.phos_fertilizerCont.current.value = phosOptCont
+//
+//                    this.phos_manureCorn.current.value = manure_valueCorn
+//                    this.phos_fertilizerCorn.current.value = phosOptCorn
+//
+//                    this.phos_manureDairy.current.value = manure_valueDairy
+//                    this.phos_fertilizerDairy.current.value = phosOptDairy
+//
+//                    this.phos_manurePasture.current.value = manure_valuePast
+//                    this.phos_fertilizerPasture.current.value = phosOptPast
+//
+//                }
+//          this.downloadBase()
+//
+//            },
+//
+//            failure: function(response, opts) {
+//            }
+//        })
+//  }
    chartChange(){
         let data_table = formatChartData(this.state.reach_data_model, this.state.reach_data_base, this.props.station)
         if (data_table == null){
@@ -1558,8 +1566,8 @@ renderModal(){
                      <Stack gap={3}>
                      {/*
 
-                     */}
                       <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
+                     */}
                      <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>

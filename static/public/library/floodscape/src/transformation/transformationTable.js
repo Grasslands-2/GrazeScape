@@ -598,11 +598,11 @@ class TransformationTable extends Component {
                       <option value="true">Yes</option>
                     </Form.Select>
 
-                    <OverlayTrigger key="top1" placement="top"
+                    <OverlayTrigger hidden={true} key="top1" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Nitrogen Manure</Form.Label>
+                        <Form.Label hidden={true}>Percent Nitrogen Manure</Form.Label>
                     </OverlayTrigger>
-                     <Form.Select aria-label="Default select example" ref={this.nitrogen}
+                     <Form.Select hidden={true} aria-label="Default select example" ref={this.nitrogen}
                       onChange={(e) => this.handleSelectionChange("nitrogen", e)}>
                       <option value="0">0</option>
                       <option value="25">25</option>
@@ -613,11 +613,11 @@ class TransformationTable extends Component {
                       <option value="150">150</option>
                     </Form.Select>
 
-                    <OverlayTrigger key="top2" placement="top"
+                    <OverlayTrigger hidden={true} key="top2" placement="top"
                         overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
+                        <Form.Label hidden={true}>Percent Nitrogen Fertilizer</Form.Label>
                     </OverlayTrigger>
-                     <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
+                     <Form.Select hidden={true} aria-label="Default select example" ref={this.nitrogen_fertilizer}
                       onChange={(e) => this.handleSelectionChange("nitrogen_fertilizer", e)}>
                       <option value="0">0</option>
                       <option value="25">25</option>
@@ -628,17 +628,17 @@ class TransformationTable extends Component {
                       <option value="150">150</option>
                     </Form.Select>
 
-                     <OverlayTrigger key="top3" placement="top"
+                     <OverlayTrigger hidden={true} key="top3" placement="top"
                             overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
+                        <Form.Label hidden={true}>Percent Phosphorous Manure (Calculated)</Form.Label>
                     </OverlayTrigger>
-                    <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
+                    <Form.Control hidden={true} placeholder="0" disabled ref={this.phos_manure}/>
 
-                    <OverlayTrigger key="top4" placement="top"
+                    <OverlayTrigger hidden={true} key="top4" placement="top"
                             overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                        <Form.Label hidden={true}>Percent Phosphorous Fertilizer</Form.Label>
                     </OverlayTrigger>
-                     <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
+                     <Form.Select hidden={true} aria-label="Default select example" ref={this.phos_fertilizer}
                       onChange={(e) => this.handleSelectionChange("phos_fertilizer", e)}>
                         {this.phos_fert_options_holder.map((item1, index) => (
 
