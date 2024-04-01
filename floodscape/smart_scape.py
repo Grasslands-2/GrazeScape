@@ -1805,6 +1805,11 @@ class SmartScape:
             return 3
 
     def load_nrec(self, region):
+        # Get the current working directory
+        current_dir = os.getcwd()
+
+        # Print the current directory
+        print("Current directory:", current_dir)
         if region == "pineRiverMN":
             csv_filename = os.path.join("floodscape", "MN_Nitrogen.csv")
             nitrate_define_char = "sand_percent"
