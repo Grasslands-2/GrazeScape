@@ -42,6 +42,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     print("current dir", os.getcwd())
     # List all files in the directory
     files = os.listdir(debug_path)
+    print(script_name in files)
 
     # Print each file name
     for file in files:
@@ -50,12 +51,12 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
     # Run the command and capture the output-
     try:
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        # result = subprocess.run(command, capture_output=True, text=True, check=True)
         # output = subprocess.check_output(command, shell=True, universal_newlines=True, stderr=subprocess.STDOUT)
 
         print("HEC-HMS execution successful.")
         print("Output:")
-        print(result.stdout)
+        # print(result.stdout)
         # print(output)
     except subprocess.CalledProcessError as e:
         print(f"HEC-HMS execution failed with error: {e}")
