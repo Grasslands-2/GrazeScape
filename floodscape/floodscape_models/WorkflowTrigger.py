@@ -19,13 +19,15 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         if settings.HMS_MODEL_PATH == "/tmp/floodScape":
             script_name = "cc_prod.script"
             hms_ex = "hec-hms.sh"
+            command = "/tmp/hec-hms/hec-hms.sh -s /tmp/hec-hms/test.script"
         else:
             hms_ex = "hec-hms.exe"
             script_name = "cc.script"
-        command_path = os.path.join(command_path, script_name)
+            command = "& 'C:\\Program Files\HEC\HEC-HMS\\4.9\\HEC-HMS.exe' - s test.script"
+        # command_path = os.path.join(command_path, script_name)
 
-        command_path = "test.script"
-        command = hms_ex + " -s " + command_path
+        # command_path = "test.script"
+        # command = hms_ex + " -s " + command_path
         # cn_adjust.prepare_model_runs(project_dir, cn_dict_model, cn_dict_base)
 
     elif watershed == "West Fork Kickapoo Main":
@@ -40,21 +42,21 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     else:
         raise ValueError("watershed region is not correct")
 
-    hms_exe = settings.HMS_PATH
-    print("hms model directory", project_dir)
-    print("current dir", os.getcwd())
-    cur_dir = os.getcwd()
-    os.chdir(hms_exe)
-    print("current dir", os.getcwd())
-    # List all files in the directory
-    files = os.listdir(os.getcwd())
-    print(script_name in files)
-
-    # Print each file name
-    for file in files:
-        print("   ", file,flush=True)
-    print(command,flush=True)
-    print("current dir", os.getcwd())
+    # hms_exe = settings.HMS_PATH
+    # print("hms model directory", project_dir)
+    # print("current dir", os.getcwd())
+    # cur_dir = os.getcwd()
+    # os.chdir(hms_exe)
+    # print("current dir", os.getcwd())
+    # # List all files in the directory
+    # files = os.listdir(os.getcwd())
+    # print(script_name in files)
+    #
+    # # Print each file name
+    # for file in files:
+    #     print("   ", file,flush=True)
+    print("console command", command,flush=True)
+    # print("current dir", os.getcwd())
     # command = "hec-hms.exe -s C://Users/mmbay/Work/GrazeScape/floodscape/floodscape_models/test.script"
     # Run the command and capture the output-
     try:
@@ -69,7 +71,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         print(f"HEC-HMS execution failed with error: {e}")
         print("Error output:")
         print(e.stderr)
-        os.chdir(cur_dir)
+        # os.chdir(cur_dir)
 
     if watershed == "COON CREEK Main":
         output = DSSOutput(project_dir)
@@ -81,6 +83,6 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         # output.run()
         model_file_path = wfk_compile_data.compile_data_to_json(project_dir)
         base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
-    os.chdir(cur_dir)
+    # os.chdir(cur_dir)
     return model_file_path, base_file_path
 
