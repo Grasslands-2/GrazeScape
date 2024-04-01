@@ -13,6 +13,7 @@ from django.conf import settings
 
 def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     command_path = os.path.join(settings.BASE_DIR, 'floodscape', 'floodscape_models')
+    debug_path = os.path.join(settings.BASE_DIR, 'floodscape', 'floodscape_models')
     if watershed == "COON CREEK Main":
         project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_CC_Final")
         if settings.HMS_MODEL_PATH == "/tmp/floodScape":
@@ -40,7 +41,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     os.chdir(hms_exe)
     print("current dir", os.getcwd())
     # List all files in the directory
-    files = os.listdir(command_path)
+    files = os.listdir(debug_path)
 
     # Print each file name
     for file in files:
