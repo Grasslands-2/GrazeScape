@@ -19,7 +19,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         if settings.HMS_MODEL_PATH == "/tmp/floodScape":
             script_name = "cc_prod.script"
             hms_ex = "hec-hms.sh"
-            command = "/tmp/hec-hms/hec-hms.sh -s /tmp/hec-hms/test.script"
+            command = ["/tmp/hec-hms/hec-hms.sh", "-s", "/tmp/hec-hms/test.script"]
         else:
             hms_ex = "hec-hms.exe"
             script_name = "cc.script"
