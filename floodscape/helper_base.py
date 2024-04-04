@@ -131,7 +131,6 @@ def download_base_rasters_helper(request, geo_folder):
         return m1, m2, p1, p2
 
     # p manure is the same for all base
-    print("base scen", base_scen)
     manure_cont = float(base_scen["managementCont"]["phos_manure"])
     manure_corn = float(base_scen["managementCorn"]["phos_manure"])
     manure_dairy = float(base_scen["managementDairy"]["phos_manure"])
