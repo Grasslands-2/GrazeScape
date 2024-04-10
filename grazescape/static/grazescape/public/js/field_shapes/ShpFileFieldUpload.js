@@ -75,6 +75,7 @@ Ext.define('DSS.field_shapes.ShpFileFieldUpload', {
 							formData.append('scenario_id', DSS.activeScenario);
 							formData.append('farm_id', DSS.activeFarm);
 							var csrftoken = Cookies.get('csrftoken');
+							console.log("formData",formData)
 							$.ajaxSetup({
 								headers: { "X-CSRFToken": csrftoken }
 							});
