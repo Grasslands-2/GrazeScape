@@ -18,7 +18,9 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     if watershed == "COON CREEK Main":
         project_dir = os.path.join(settings.HMS_MODEL_PATH, "HMS_CC_Final")
         if settings.HMS_MODEL_PATH == "/tmp/floodScape":
-            command = ["/tmp/hec-hms/hec-hms.sh", "-s", "/tmp/hec-hms/test.script"]
+            script_name = "cc_prod.script"
+            script_file_path = os.path.join(debug_path, script_name)
+            command = ["/tmp/hec-hms/hec-hms.sh", "-s", f"{script_file_path}"]
         else:
 
             script_name = "cc.script"
