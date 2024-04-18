@@ -90,7 +90,7 @@ def upload_file(request):
 
         traceback.print_exc()
         print("in upload error handling")
-        error =e
+        error = e
         # message = "The request is not valid.  upload_files"
         # what is the most appropriate way to pass both error status and custom message
         # How do I list all possible error types here (instead of ExpectedError to make the exception handling block as DRY and reusable as possible
