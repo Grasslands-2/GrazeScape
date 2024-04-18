@@ -85,12 +85,16 @@ def upload_file(request):
         insert_shpfile_coords(scenario_id, farm_id, coords)
         return JsonResponse({"Insert": "Upload Complete upload_file"})
 
-    except:
+    except Exception as e:
+        print(type(e).__name__)
+
+        traceback.print_exc()
         print("in upload error handling")
+        error = e
         # message = "The request is not valid.  upload_files"
         # what is the most appropriate way to pass both error status and custom message
         # How do I list all possible error types here (instead of ExpectedError to make the exception handling block as DRY and reusable as possible
-        return JsonResponse({'status': 'false'})
+        return JsonResponse({'status': 'false', 'message':"error"})
         # return('message')
 
 

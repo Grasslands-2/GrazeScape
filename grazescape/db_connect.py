@@ -709,9 +709,6 @@ def insert_shpfile_coords(scenario_id, farm_id, file_data):
             cur.execute(
                 """SELECT setval(pg_get_serial_sequence('field_2','gid'), coalesce(max(gid), 0) , false) FROM field_2;""")
 
-
-
-
         except Exception as e:
             print(e)
             print(type(e).__name__)
