@@ -36,7 +36,8 @@ GEOSERVER_URL = "http://geoserver:8080"
 R_PATH = "/opt/conda/envs/gscape/bin/R"
 MODEL_PATH = "/tmp/GrazeScape/grazescape/data_files/input_models"
 
-HMS_PATH = "/tmp/hec-hms"
+# HMS_PATH = "/tmp/hec-hms"
+HMS_PATH = "/tmp/hec-hms-beta"
 HMS_MODEL_PATH = "/tmp/floodScape"
 
 GCS_BUCKET_NAME = "dev_container_model_results"
