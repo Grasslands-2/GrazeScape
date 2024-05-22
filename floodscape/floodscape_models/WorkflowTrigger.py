@@ -22,7 +22,6 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
             script_file_path = os.path.join(debug_path, script_name)
             command = ["/tmp/hec-hms/hec-hms.sh", "-s", f"{script_file_path}"]
         else:
-
             script_name = "cc.script"
             script_file_path = os.path.join(debug_path,script_name)
             command = ["C:\\Program Files\\HEC\\HEC-HMS\\4.9\\HEC-HMS.exe", "-s", f"{script_file_path}"]
