@@ -20,7 +20,7 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         if settings.HMS_MODEL_PATH == "/tmp/floodScape":
             script_name = "cc_prod.script"
             script_file_path = os.path.join(debug_path, script_name)
-            command = ["/tmp/hec-hms/hec-hms.sh", "-s", f"{script_file_path}"]
+            command = ["/tmp/hec-hms/hec-hms-4.9.sh", "-s", f"{script_file_path}"]
         else:
             script_name = "cc.script"
             script_file_path = os.path.join(debug_path,script_name)
