@@ -40,14 +40,14 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
     else:
         raise ValueError("watershed region is not correct")
 
-    print("console command", command,flush=True)
+    print("console command", command, flush=True)
 
     # Run the command and capture the output-
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
         print("HEC-HMS execution successful.")
         print("Output:")
-        # print(result.stdout)
+        print(result.stdout)
         # print(output)
     except subprocess.CalledProcessError as e:
         print(f"HEC-HMS execution failed with error: {e}")
@@ -65,6 +65,8 @@ def hms_trigger(cn_dict_model, cn_dict_base, watershed):
         # output.run()
         model_file_path = wfk_compile_data.compile_data_to_json(project_dir)
         base_file_path = os.path.join(project_dir, "BaseLineStorms","CompiledRiverStationData_Base.json")
-    # os.chdir(cur_dir)
+
+    # model_file_path = ""
+    # base_file_path = ""
     return model_file_path, base_file_path
 

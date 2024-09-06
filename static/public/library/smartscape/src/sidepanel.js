@@ -810,7 +810,7 @@ class SidePanel extends React.Component{
     this.props.setAoiFolderId(downloadFolder)
     this.setState({aoiOrDisplayLoading:true})
     $.ajax({
-        url : '/smartscape/get_selection_raster',
+        url : 'http://localhost:8080/api/get_selection_raster',
         type : 'POST',
         data : JSON.stringify({
             geometry:{
@@ -856,10 +856,9 @@ class SidePanel extends React.Component{
         headers: { "X-CSRFToken": csrftoken }
     });
     $.ajax({
-        url : '/smartscape/get_selection_criteria_raster',
+        url : 'http://localhost:8080/api/get_selection_criteria_raster',
         type : 'POST',
         data : JSON.stringify({
-//            selectionCrit:selectionCrit,
             selectionCrit:transPayload,
             geometry:{
                 extent:this.props.activeTrans.selection.extent,
@@ -874,7 +873,7 @@ class SidePanel extends React.Component{
         success: (responses, opts) => {
             delete $.ajaxSetup().headers
             console.log(responses)
-            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            let url = "http://localhost:8080/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
             console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
@@ -907,7 +906,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/download_base_rasters',
+            url : 'http://localhost:8080/api/download_base_rasters',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -960,7 +959,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_transformed_land',
+            url : 'http://localhost:8080/api/get_transformed_land',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -1028,7 +1027,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_phos_fert_options',
+            url : 'http://localhost:8080/api/get_phos_fert_options',
             type : 'POST',
             data : payload,
             success: (response, opts) => {
