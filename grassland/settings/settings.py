@@ -46,7 +46,7 @@ DEBUG = True
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 ALLOWED_HOSTS = ['*']
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
