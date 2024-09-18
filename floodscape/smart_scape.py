@@ -923,9 +923,6 @@ class SmartScape:
         return_data = self.run_region_cn(watershed_region)
         return return_data
 
-
-
-
     def run_region_cn(self, watershed_region):
         print("running cn for region")
         start = time.time()
@@ -1161,7 +1158,8 @@ class SmartScape:
             total_cells = np.count_nonzero(base_data_watershed_local["cn"] > self.no_data)
 
             base_data_watershed_local["cn"] = np.where(
-                np.logical_or(base_data_watershed_local["cn"] == self.no_data, base_data_watershed_local["cn"] < 0),
+                np.logical_or(base_data_watershed_local["cn"] == self.no_data,
+                              base_data_watershed_local["cn"] < 0),
                 0, base_data_watershed_local["cn"])
 
             base_data_watershed_local["cn_model"] = np.where(
@@ -1215,7 +1213,7 @@ class SmartScape:
             data_model = json.load(f)
         with open(base_path) as f:
             data_base = json.load(f)
-        return {"base": data_base, "model": data_model}
+        return {"base": data_base, "model": data_model, "cn":{"model":model_cn_dict, "base":base_cn_dict}}
 
     def get_runoff_vectorized(self, cn, rain):
         cn = np.where(cn < 1, 1, cn)

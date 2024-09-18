@@ -801,17 +801,29 @@ class SidePanel extends React.Component{
         return
      }
     var csrftoken = Cookies.get('csrftoken');
-    $.ajaxSetup({
-        headers: { "X-CSRFToken": csrftoken }
-    });
+    // $.ajaxSetup({
+    //     headers: { "X-CSRFToken": csrftoken }
+    // });
     console.log("coordsa")
     console.log(this.state.aoiCoors)
     let downloadFolder = uuidv4();
     this.props.setAoiFolderId(downloadFolder)
     this.setState({aoiOrDisplayLoading:true})
+  //   fetch("http://3.137.122.184:5000/api/get_selection_raster", {
+  //     method: "POST",
+  //     headers: {
+  //         "Content-Type": "application/json",
+  //         'Accept': '*/*'
+  //     },
+  //     body: JSON.stringify({ key: "value" })
+  // })
+  // .then(response => response.json())
+  // .then(data => console.log(data))
+  // .catch(error => console.error("Error:", error));
     $.ajax({
-        url : '/smartscape/get_selection_raster',
+        url : 'http://3.137.122.184:5000/api/get_selection_raster',
         type : 'POST',
+        contentType: "application/json",
         data : JSON.stringify({
             geometry:{
                 // this is the aoi extent; saved to appcontainer local storage
@@ -856,10 +868,9 @@ class SidePanel extends React.Component{
         headers: { "X-CSRFToken": csrftoken }
     });
     $.ajax({
-        url : '/smartscape/get_selection_criteria_raster',
+        url : 'http://3.137.122.184:5000/api/get_selection_criteria_raster',
         type : 'POST',
         data : JSON.stringify({
-//            selectionCrit:selectionCrit,
             selectionCrit:transPayload,
             geometry:{
                 extent:this.props.activeTrans.selection.extent,
@@ -874,7 +885,7 @@ class SidePanel extends React.Component{
         success: (responses, opts) => {
             delete $.ajaxSetup().headers
             console.log(responses)
-            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            let url = "http://3.137.122.184:5000/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
             console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
@@ -907,7 +918,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/download_base_rasters',
+            url : 'http://3.137.122.184:5000/api/download_base_rasters',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -960,7 +971,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_transformed_land',
+            url : 'http://3.137.122.184:5000/api/get_transformed_land',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -1028,7 +1039,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_phos_fert_options',
+            url : 'http://3.137.122.184:5000/api/get_phos_fert_options',
             type : 'POST',
             data : payload,
             success: (response, opts) => {

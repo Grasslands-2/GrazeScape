@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class SmartscapeConfig(AppConfig):
-    name = 'smartscape'
+class FloodscapeConfig(AppConfig):
+    name = 'floodscape'
