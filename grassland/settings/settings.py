@@ -17,6 +17,7 @@ from grassland.settings import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -46,7 +47,7 @@ DEBUG = True
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 ALLOWED_HOSTS = ['*']
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'grazescape',
     'smartscape',
+    'floodscape',
 
 ]
 MIDDLEWARE = [

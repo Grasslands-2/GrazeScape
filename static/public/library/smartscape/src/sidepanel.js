@@ -21,10 +21,11 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Table from 'react-bootstrap/Table'
 import ListGroup from 'react-bootstrap/ListGroup'
-import { DoorOpen,PlusLg } from 'react-bootstrap-icons';
+import { DoorOpen,PlusLg, InfoCircle } from 'react-bootstrap-icons';
 import Stack from 'react-bootstrap/Stack'
 import TransformationTable from './transformation/transformationTable.js'
 import RangeSlider from 'react-bootstrap-range-slider';
+import Toast from 'react-bootstrap/Toast';
 import './App.css';
 import {Transformation} from './transformation/transformation.js'
 import{setActiveTrans, addTrans,updateAreaSelectionType,updateActiveTransProps,
@@ -128,6 +129,8 @@ class SidePanel extends React.Component{
     constructor(props){
         super(props)
         this.user = props.user
+        this.selectionInfoText = 'The data below presents the average results for only the land that was transformed (shown in purple on map).'
+        this.watersheddInfoText = 'The data below presents the average results across the entire work area (set of watersheds) including land that was transformed (show in purple on map) as well as land that was unchanged.'
         this.runModels = this.runModels.bind(this);
         this.downloadBase = this.downloadBase.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
@@ -138,10 +141,14 @@ class SidePanel extends React.Component{
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleOpenModalBase = this.handleOpenModalBase.bind(this);
         this.showModal = this.showModal.bind(this);
+        // this.showInfoSelection = this.showInfoSelection.bind(this);
+        // this.showInfoWaterShed = this.showInfoWaterShed.bind(this);
         this.handleCloseModalBase = this.handleCloseModalBase.bind(this);
         this.handleOpenModal = this.handleOpenModal.bind(this);
         this.renderModal = this.renderModal.bind(this);
         this.printSummary = this.printSummary.bind(this);
+        this.copyTable = this.copyTable.bind(this);
+        this.copyTableCSV = this.copyTableCSV.bind(this);
         this.loadSelectionRaster = this.loadSelectionRaster.bind(this);
         this.displaySelectionCriteria = this.displaySelectionCriteria.bind(this);
         this.clearSelection = this.clearSelection.bind(this);
@@ -384,6 +391,7 @@ class SidePanel extends React.Component{
 //        if region is changed show huc 10
         if (prevProps.region != this.props.region){
             if(this.props.region != null){
+
 
                 this.props.updateActiveBaseManagementProps({"prop":"cover", "value": "nc", "name":"managementCont"})
                 this.props.updateActiveBaseManagementProps({"prop":"tillage", "value": "su", "name":"managementCont"})
@@ -800,17 +808,29 @@ class SidePanel extends React.Component{
         return
      }
     var csrftoken = Cookies.get('csrftoken');
-    $.ajaxSetup({
-        headers: { "X-CSRFToken": csrftoken }
-    });
+    // $.ajaxSetup({
+    //     headers: { "X-CSRFToken": csrftoken }
+    // });
     console.log("coordsa")
     console.log(this.state.aoiCoors)
     let downloadFolder = uuidv4();
     this.props.setAoiFolderId(downloadFolder)
     this.setState({aoiOrDisplayLoading:true})
+  //   fetch("http://3.137.122.184:5000/api/get_selection_raster", {
+  //     method: "POST",
+  //     headers: {
+  //         "Content-Type": "application/json",
+  //         'Accept': '*/*'
+  //     },
+  //     body: JSON.stringify({ key: "value" })
+  // })
+  // .then(response => response.json())
+  // .then(data => console.log(data))
+  // .catch(error => console.error("Error:", error));
     $.ajax({
-        url : '/smartscape/get_selection_raster',
+        url : 'https://api.smartscape.grasslandag.org/api/get_selection_raster',
         type : 'POST',
+        contentType: "application/json",
         data : JSON.stringify({
             geometry:{
                 // this is the aoi extent; saved to appcontainer local storage
@@ -855,10 +875,9 @@ class SidePanel extends React.Component{
         headers: { "X-CSRFToken": csrftoken }
     });
     $.ajax({
-        url : '/smartscape/get_selection_criteria_raster',
+        url : 'https://api.smartscape.grasslandag.org/api/get_selection_criteria_raster',
         type : 'POST',
         data : JSON.stringify({
-//            selectionCrit:selectionCrit,
             selectionCrit:transPayload,
             geometry:{
                 extent:this.props.activeTrans.selection.extent,
@@ -873,7 +892,7 @@ class SidePanel extends React.Component{
         success: (responses, opts) => {
             delete $.ajaxSetup().headers
             console.log(responses)
-            let url = location.origin + "/smartscape/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            let url = "https://api.smartscape.grasslandag.org/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
             console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
@@ -906,7 +925,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/download_base_rasters',
+            url : 'https://api.smartscape.grasslandag.org/api/download_base_rasters',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -959,7 +978,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_transformed_land',
+            url : 'https://api.smartscape.grasslandag.org/api/get_transformed_land',
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -1027,7 +1046,7 @@ class SidePanel extends React.Component{
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : '/smartscape/get_phos_fert_options',
+            url : 'https://api.smartscape.grasslandag.org/api/get_phos_fert_options',
             type : 'POST',
             data : payload,
             success: (response, opts) => {
@@ -1260,21 +1279,10 @@ class SidePanel extends React.Component{
       }
 
     printSummary(){
+
         var doc = new jsPDF();
-//        var node = document.getElementById("map")
-//        var clone = node.cloneNode(true);
-//        doc.html(document.getElementById("map"), {
-//           callback: function (doc) {
-//             doc.save("test1.pdf");
-//           }
-//        });
-
-
         this.setState({printingPDF:true})
         var pdf = new jsPDF('p', 'pt',"letter" )
-//        var pdf = new jsPDF('p', 'pt',[4000, 4000] )
-
-
         console.log(pdf)
         console.log(pdf.getCurrentPageInfo().pageContext.mediaBox)
         var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
@@ -1319,26 +1327,6 @@ class SidePanel extends React.Component{
                 }
                 )
                 pdf.setFontSize(fontSize)
-//
-//                var newCanvas = canvasMap.cloneNode(true);
-//                var ctx = newCanvas.getContext('2d');
-//                console.log(newCanvas.width)
-//                var ratio1 = (pageWidth / newCanvas.width)
-//                var ratio1 = 2
-//                console.log(ratio1)
-//                console.log(newCanvas)
-//                newCanvas.width =pageWidth;
-//                newCanvas.height = pageHeight;
-//                newCanvas.style.width = pageWidth+ "px";
-//                newCanvas.style.height = pageHeight+ "px";
-////                ctx.setTransform(ratio1,0,0,ratio1,0,0);
-//                console.log(newCanvas)
-//                var imgData = canvasMap.toDataURL("image/png", 1);
-//                pdf.addPage("letter",'p')
-//                pdf.addImage(imgData, 'png', 0, 0,0,0);
-//
-////                document.body.appendChild(canvas);
-//
                 pdf.addPage("p",'p')
                 pdf.text("By Selection", 20, 20)
                 for (let i = 1; i <= 8; i++) {
@@ -1433,6 +1421,59 @@ class SidePanel extends React.Component{
         this.setState({printingPDF:false})
         }.bind(this), 3000)
 
+    }
+    copyTable(tableName){
+      console.log(tableName)
+      const table = document.getElementById(tableName);
+      let tableText = "";
+
+      // Loop through rows
+      for (let row of table.rows) {
+          let rowData = [];
+          // Loop through cells in each row
+          for (let cell of row.cells) {
+            rowData.push(cell.innerText.replace(/,/g, ''));
+          }
+          // Join row data with tab spaces and add a newline after each row
+          tableText += rowData.join("\t") + "\n";
+      }
+
+      // Copy the text to the clipboard
+      navigator.clipboard.writeText(tableText).then(() => {
+          console.log("Table copied to clipboard!");
+      }).catch(err => {
+          console.error("Failed to copy table:", err);
+      });
+    }
+    copyTableCSV(tableName){
+      console.log(tableName)
+      const table = document.getElementById(tableName);
+      let csvText = "";
+
+      // Loop through rows
+      for (let row of table.rows) {
+          let rowData = [];
+          // Loop through cells in each row
+          for (let cell of row.cells) {
+            rowData.push(cell.innerText.replace(/,/g, ''));
+          }
+          // Join row data with commas and add a newline after each row
+          csvText += rowData.join(",") + "\n";
+      }
+      const blob = new Blob([csvText], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+  
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = "smartscape_" + tableName;
+  
+      // Programmatically click the link to trigger the download
+      link.click();
+  
+      // Clean up the URL object
+      window.URL.revokeObjectURL(url);
+      // console.error(`Table with ID "${tableId}" not found.`);
     }
 renderModal(){
 //     let width = document.getElementById("modalResults").offsetWidth
@@ -1699,6 +1740,7 @@ renderModal(){
         areaCalc = this.state.modelOutputs.land_stats.area_calc
         areaWatershed = this.state.modelOutputs.land_stats.area_watershed
         areaWatershedCalc = this.state.modelOutputs.land_stats.area_watershed_calc
+        console.log("ploss to wataer",modelWatershed.ploss_water/baseWatershed.ploss_water,modelWatershed.ploss_water,baseWatershed.ploss_water,)
 
         dataRadar = {
           labels: labels,
@@ -1716,7 +1758,7 @@ renderModal(){
                   model.yield/base.yield,
                   model.ero/base.ero,
                   model.ploss/base.ploss,
-                  model.ploss_water/base.ploss_water,
+                  model.ploss_del/base.ploss_del,
                   model.runoff/base.runoff ,
                   model.insect/base.insect,
                   model.cn/base.cn,
@@ -1747,7 +1789,7 @@ renderModal(){
                   modelWatershed.yield/baseWatershed.yield,
                   modelWatershed.ero/baseWatershed.ero,
                   modelWatershed.ploss/baseWatershed.ploss,
-                  modelWatershed.ploss_water/baseWatershed.ploss_water,
+                  modelWatershed.ploss_del/baseWatershed.ploss_del,
                   modelWatershed.runoff/baseWatershed.runoff ,
                   modelWatershed.insect/baseWatershed.insect,
                   modelWatershed.cn/baseWatershed.cn,
@@ -2011,121 +2053,130 @@ renderModal(){
             </Accordion>
             <Tabs defaultActiveKey="chartsBar" id="uncontrolled-tab-example" className="mb-3" onSelect={(k) => this.tabControlResults(k)}>
               <Tab eventKey="chartsBar" title="Bar Charts">
-              <h4>By Selection</h4>
+              <h4>By Selection
+                    <OverlayTrigger key="top1" placement="top"
+                    overlay={<TooltipBootstrap>{this.selectionInfoText}</TooltipBootstrap>}>
+                    <InfoCircle color="royalblue"/>
+                    </OverlayTrigger>
+                  </h4>
                  <Row>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {this.optionsYield} data={this.dataYield}/>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsEcon} data={dataEcon}/>
                     </Col>
-                 </Row>
-                 <Row>
-                    <Col xs={6}>
+                
+                    <Col xs={3}>
                         <Bar options = {optionsEro} data={dataEro}/>
 
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsSCI} data={dataSCI}/>
 
                     </Col>
                  </Row>
                  <Row>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsPloss} data={dataPloss}/>
 
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                     <Bar options = {optionsPlossDel} data={dataPlossDel}/>
                     </Col>
-                </Row>
-                 <Row>
-                    <Col xs={6}>
+                
+                    <Col xs={3}>
                         <Bar options = {optionsNitrate} data={dataNitrate}/>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                       <Bar options = {optionsRun} data={dataRun}/>
 
                     </Col>
 
                 </Row>
                 <Row>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsCN} data={dataCN}/>
 
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsInsect} data={dataInsect}/>
                     </Col>
 
-                </Row>
-                <Row>
-                    <Col xs={6}>
+                
+                    <Col xs={3}>
                         <Bar options = {optionsBird} data={dataBird}/>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                     </Col>
                 </Row>
 
-                  <h4>By Watershed</h4>
+                <h4>By Watershed<OverlayTrigger key="top1" placement="top"
+                    overlay={<TooltipBootstrap>{this.watersheddInfoText}</TooltipBootstrap>}>
+                    <InfoCircle color="royalblue"/>
+                    </OverlayTrigger>
+                  </h4>
 
                  <Row>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {this.optionsYield} data={dataYieldWatershed}/>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsEcon} data={dataEconWatershed}/>
 
                     </Col>
-                 </Row>
-                 <Row>
-                    <Col xs={6}>
+                 
+                    <Col xs={3}>
                          <Bar options = {optionsEro} data={dataEroWatershed}/>
 
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsSCI} data={dataSCIWatershed}/>
 
                     </Col>
                  </Row>
                  <Row>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsPloss} data={dataPlossWatershed}/>
 
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsPlossDel} data={dataPlossDelWatershed}/>
 
                     </Col>
-                </Row>
-                <Row>
-                    <Col xs={6}>
+                
+                    <Col xs={3}>
                         <Bar options = {optionsNitrate} data={dataNitrateWatershed}/>
 
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsRun} data={dataRunWatershed}/>
                     </Col>
                 </Row>
                 <Row>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsCN} data={dataCNWatershed}/>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                         <Bar options = {optionsInsect} data={dataInsectWatershed}/>
                     </Col>
-                </Row>
-                <Row>
-                    <Col xs={6}>
+                
+                    <Col xs={3}>
                         <Bar options = {optionsBird} data={dataBirdWatershed}/>
                     </Col>
-                    <Col xs={6}>
+                    <Col xs={3}>
                     </Col>
                 </Row>
               </Tab>
 
               <Tab eventKey="chart" title="Summary Charts">
-              <h4>By Selection</h4>
+              <h4>By Selection
+                    <OverlayTrigger key="top1" placement="top"
+                    overlay={<TooltipBootstrap>{this.selectionInfoText}</TooltipBootstrap>}>
+                    <InfoCircle color="royalblue"/>
+                    </OverlayTrigger>
+                  </h4>
+              
                <Row>
                 <Col xs={6}>
                     <Radar data={dataRadar}/>
@@ -2134,7 +2185,11 @@ renderModal(){
                     <Bar options = {optionsBarPercent} data={dataBarPercent}/>
                 </Col>
                 </Row>
-                <h4>By Watershed</h4>
+                <h4>By Watershed<OverlayTrigger key="top1" placement="top"
+                    overlay={<TooltipBootstrap>{this.watersheddInfoText}</TooltipBootstrap>}>
+                    <InfoCircle color="royalblue"/>
+                    </OverlayTrigger>
+                  </h4>
                 <Row>
                 <Col xs={6}>
                     <Radar data={dataRadarWatershed}/>
@@ -2146,8 +2201,15 @@ renderModal(){
 
             </Tab>
               <Tab eventKey="tabular" title="Tabular">
-                  <h4>By Selection</h4>
-                <Table id = "summaryTable" bordered hover size="sm" responsive>
+                  <h4>By Selection
+                    <OverlayTrigger key="top1" placement="top"
+                    overlay={<TooltipBootstrap>{this.selectionInfoText}</TooltipBootstrap>}>
+                    <InfoCircle color="royalblue"/>
+                    </OverlayTrigger>
+                  </h4>
+                  <Button variant="primary" onClick={() => this.copyTable('summaryTableSelection')} >Copy Table</Button>
+                  <Button variant="primary" onClick={() => this.copyTableCSV('summaryTableSelection')} >Download CSV</Button>
+                <Table id = "summaryTableSelection" bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
                       <th></th>
@@ -2334,8 +2396,14 @@ renderModal(){
                   </tbody>
                 </Table>
 
-            <h4>By Watershed</h4>
-              <Table id = "summaryTable2" bordered hover size="sm" responsive>
+                  <h4>By Watershed<OverlayTrigger key="top1" placement="top"
+                    overlay={<TooltipBootstrap>{this.watersheddInfoText}</TooltipBootstrap>}>
+                    <InfoCircle color="royalblue"/>
+                    </OverlayTrigger>
+                  </h4>
+                  <Button variant="primary" onClick={() => this.copyTable('summaryTableWatershed')} >Copy Table</Button>
+                  <Button variant="primary" onClick={() => this.copyTableCSV('summaryTableWatershed')} >Download CSV</Button>
+              <Table id = "summaryTableWatershed" bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
                       <th></th>
@@ -2582,8 +2650,8 @@ renderModal(){
             <Container className='progress_bar'>
              <ProgressBar variant="success" now={40} label='Progress'/>
             </Container>
+            <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             */}
-
               <Accordion  defaultActiveKey="aoi" id="uncontrolled-tab-example" className="mb-3" onSelect={(e) => this.tabControl(e)}>
               <Accordion.Item eventKey="aoi" title="Area of Interest" hidden={this.props.hideAOIAcc}>
                   <Accordion.Header>Select Work Area</Accordion.Header>
@@ -2973,9 +3041,9 @@ renderModal(){
             </Accordion>
             {/*
 
-                <Button variant="primary"  onClick={this.handleOpenModal}>View Results</Button>
             <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
             */}
+            
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
                 <Modal.Header closeButton>

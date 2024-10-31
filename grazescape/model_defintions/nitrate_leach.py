@@ -216,7 +216,6 @@ class NitrateLeeching(ModelBase):
                                      0)
             # set no data and negatives values to zero
 
-
             leachN_avg = np.sum(leachN_Calced) / cell_count
             # rotation avg is not less than zero
             if leachN_avg < 0:
@@ -229,7 +228,6 @@ class NitrateLeeching(ModelBase):
 
         elif crop_ro == "dl":
 
-            yield_crop_data = 0
             for i in rot_yrs_crop:
                 yield_crop_data = yield_dic[i].alternate_data
                 fertN = PctFertN * manure_results[i]["n_rec"]

@@ -121,7 +121,11 @@ export function getOptionsBarPercent(){
                         }
                        return 1
                     }
-                }
+                },
+                title:{
+                  display: true,
+                  text: "% Change"
+              },
               }
             }
 
