@@ -129,8 +129,8 @@ class SidePanel extends React.Component{
     constructor(props){
         super(props)
         this.user = props.user
-        this.selectionInfoText = 'This section deals with the cells directly selected by the users input (shown in purple)'
-        this.watersheddInfoText = 'This section deals with all cells in the selected watershed(s) known as the work area'
+        this.selectionInfoText = 'The data below presents the average results for only the land that was transformed (shown in purple on map).'
+        this.watersheddInfoText = 'The data below presents the average results across the entire work area (set of watersheds) including land that was transformed (show in purple on map) as well as land that was unchanged.'
         this.runModels = this.runModels.bind(this);
         this.downloadBase = this.downloadBase.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
@@ -1425,25 +1425,25 @@ class SidePanel extends React.Component{
     copyTable(tableName){
       console.log(tableName)
       const table = document.getElementById(tableName);
-    let tableText = "";
+      let tableText = "";
 
-    // Loop through rows
-    for (let row of table.rows) {
-        let rowData = [];
-        // Loop through cells in each row
-        for (let cell of row.cells) {
-          rowData.push(cell.innerText.replace(/,/g, ''));
-        }
-        // Join row data with tab spaces and add a newline after each row
-        tableText += rowData.join("\t") + "\n";
-    }
+      // Loop through rows
+      for (let row of table.rows) {
+          let rowData = [];
+          // Loop through cells in each row
+          for (let cell of row.cells) {
+            rowData.push(cell.innerText.replace(/,/g, ''));
+          }
+          // Join row data with tab spaces and add a newline after each row
+          tableText += rowData.join("\t") + "\n";
+      }
 
-    // Copy the text to the clipboard
-    navigator.clipboard.writeText(tableText).then(() => {
-        alert("Table copied to clipboard!");
-    }).catch(err => {
-        console.error("Failed to copy table:", err);
-    });
+      // Copy the text to the clipboard
+      navigator.clipboard.writeText(tableText).then(() => {
+          console.log("Table copied to clipboard!");
+      }).catch(err => {
+          console.error("Failed to copy table:", err);
+      });
     }
     copyTableCSV(tableName){
       console.log(tableName)
@@ -1460,13 +1460,20 @@ class SidePanel extends React.Component{
           // Join row data with commas and add a newline after each row
           csvText += rowData.join(",") + "\n";
       }
-
-      // Copy the CSV text to the clipboard
-      navigator.clipboard.writeText(csvText).then(() => {
-          alert("Table copied as CSV to clipboard!");
-      }).catch(err => {
-          console.error("Failed to copy table as CSV:", err);
-      });
+      const blob = new Blob([csvText], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+  
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = "smartscape_" + tableName;
+  
+      // Programmatically click the link to trigger the download
+      link.click();
+  
+      // Clean up the URL object
+      window.URL.revokeObjectURL(url);
+      // console.error(`Table with ID "${tableId}" not found.`);
     }
 renderModal(){
 //     let width = document.getElementById("modalResults").offsetWidth
@@ -2200,9 +2207,9 @@ renderModal(){
                     <InfoCircle color="royalblue"/>
                     </OverlayTrigger>
                   </h4>
-                  <Button variant="primary" onClick={() => this.copyTable('summaryTable')} >Copy Table</Button>
-                  <Button variant="primary" onClick={() => this.copyTableCSV('summaryTable')} >Copy CSV</Button>
-                <Table id = "summaryTable" bordered hover size="sm" responsive>
+                  <Button variant="primary" onClick={() => this.copyTable('summaryTableSelection')} >Copy Table</Button>
+                  <Button variant="primary" onClick={() => this.copyTableCSV('summaryTableSelection')} >Download CSV</Button>
+                <Table id = "summaryTableSelection" bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
                       <th></th>
@@ -2394,9 +2401,9 @@ renderModal(){
                     <InfoCircle color="royalblue"/>
                     </OverlayTrigger>
                   </h4>
-                  <Button variant="primary" onClick={() => this.copyTable('summaryTable2')} >Copy Table</Button>
-                  <Button variant="primary" onClick={() => this.copyTableCSV('summaryTable2')} >Copy CSV</Button>
-              <Table id = "summaryTable2" bordered hover size="sm" responsive>
+                  <Button variant="primary" onClick={() => this.copyTable('summaryTableWatershed')} >Copy Table</Button>
+                  <Button variant="primary" onClick={() => this.copyTableCSV('summaryTableWatershed')} >Download CSV</Button>
+              <Table id = "summaryTableWatershed" bordered hover size="sm" responsive>
                   <thead>
                   <tr style={{textAlign:"center"}}>
                       <th></th>
