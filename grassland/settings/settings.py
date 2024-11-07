@@ -147,3 +147,12 @@ STATICFILES_DIRS = (
 
 if parser.has_section("google_cloud"):
     GOOGLE_CLOUD_API_KEY= parser.items("google_cloud")[0][1]
+if parser.has_section("gmail"):
+    email_password = parser.items("gmail")[0][1].strip()
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587  # Standard SMTP port for TLS
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False  # Only use SSL or TLS, not both
+EMAIL_HOST_USER = 'noreply.scapetools@gmail.com'  # Your Gmail address
+DEFAULT_FROM_EMAIL = 'noreply.scapetools@gmail.com'  # Default from address

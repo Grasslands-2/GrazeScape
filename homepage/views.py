@@ -13,9 +13,17 @@ import traceback
 from django.conf import settings
 import requests
 from django.shortcuts import redirect
-
+from django.core.mail import send_mail
 
 def home(request):
+        # Commented out email send example (you can use this for password reset later)
+    # send_mail(
+    #     'Test Email from Django',
+    #     'This is a test email. 1234',
+    #     'noreply.scapetools@gmail.com',  # From email
+    #     ['mmbayles@gmail.com'],  # To email
+    #     fail_silently=False,
+    # )
     is_new_user = request.POST.get("new_user")
     user_name = "Not signed in"
     is_logged_in = "False"
@@ -51,9 +59,12 @@ def home(request):
                 email = request.POST['email']
                 show_register = "True"
                 try:
-
-                    # if User.objects.filter(username=user_name).exists():
-                    #     raise ValueError("user name already exists")
+                    if User.objects.filter(username=user_name).exists():
+                        raise ValueError("user name already exists")
+                    if User.objects.filter(email=email).exists():
+                        raise ValueError("An account with this email already exists")
+                    if not email:  # This checks if email is empty or None
+                        raise ValueError("Email cannot be blank")
                     for validator in validators:
                         validator().validate(password)
                     if password != password2:
@@ -82,6 +93,8 @@ def home(request):
                     error = str(e)
                     print(type(e).__name__)
                     traceback.print_exc()
+                finally:
+                    user_name = "Not signed in"
                 # check if passwords match
 
             # login current user

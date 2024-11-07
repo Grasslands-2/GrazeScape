@@ -113,6 +113,10 @@ const App = (props) => (
                                 <Form.Text className="text-muted">
                                     <a href='/?register=true'>Create new account </a>
                                 </Form.Text>
+                                <p></p>
+                                <Form.Text className="text-muted">
+                                    <a href='password_reset/'>Forgot Password </a>
+                                </Form.Text>
                             </Form.Group>
                             <Button variant="primary" type="Submit">
                                 Log In
@@ -138,7 +142,7 @@ const App = (props) => (
                                 <Form.Control name='password2' type="password" placeholder="Password" />
                             </Form.Group>
                             <Form.Group className="" controlId="formBasicEmail">
-                                <Form.Label>Email</Form.Label>
+                                <Form.Label>Email*</Form.Label>
                                 <Form.Control name='email' type="email" placeholder="Enter email" />
                                 <Form.Text className="text-muted">
                                     *Required
