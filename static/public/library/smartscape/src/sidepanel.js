@@ -131,7 +131,7 @@ class SidePanel extends React.Component{
         super(props)
         this.user = props.user
         this.selectionInfoText = 'The data below presents the average results for only the land that was transformed (shown in purple on map).'
-        this.watersheddInfoText = 'The data below presents the average results across the entire work area (set of watersheds) including land that was transformed (show in purple on map) as well as land that was unchanged.'
+        this.watersheddInfoText = 'The data below presents the average results across the entire work area (set of watersheds) including land that was transformed (shown in purple on map) as well as land that was unchanged.'
         this.runModels = this.runModels.bind(this);
         this.downloadBase = this.downloadBase.bind(this);
         this.handleSelectionChange = this.handleSelectionChange.bind(this);
