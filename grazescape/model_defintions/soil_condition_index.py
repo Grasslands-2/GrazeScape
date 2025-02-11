@@ -153,7 +153,7 @@ class SoilIndex(ModelBase):
 
             # cc ----------------------------------------------------------------------
             # run models for different crops
-            if (full_df$crop == "cc") {{
+            if (full_df$crop[1] == "cc") {{
 
               cc_sci <- readRDS(cc_sci_file)
 
@@ -178,7 +178,7 @@ class SoilIndex(ModelBase):
               #make SCI prediction
               sci <- round(predict(cc_sci, pred_df),2)
 
-            }} else if (full_df$crop == "cg") {{
+            }} else if (full_df$crop[1] == "cg") {{
 
               cg_sci <- readRDS(cg_sci_file)
 
@@ -200,7 +200,7 @@ class SoilIndex(ModelBase):
 
               sci <- round(predict(cg_sci, pred_df),2)
 
-            }} else if (full_df$crop == "cso") {{
+            }} else if (full_df$crop[1] == "cso") {{
 
               cso_sci <- readRDS(cso_sci_file)
               # cso ---------------------------------------------------------------------
@@ -221,7 +221,7 @@ class SoilIndex(ModelBase):
 
               sci <- round(predict(cso_sci, pred_df),2)
 
-            }} else if (full_df$crop == "dr") {{
+            }} else if (full_df$crop[1] == "dr") {{
 
               dr_sci <- readRDS(dr_sci_file)
 
@@ -244,7 +244,7 @@ class SoilIndex(ModelBase):
 
               sci <- round(predict(dr_sci, pred_df),2)
 
-            }} else if (full_df$crop == "ps") {{
+            }} else if (full_df$crop[1] == "ps") {{
 
               ps_sci <- readRDS(ps_sci_file)
 
@@ -266,7 +266,7 @@ class SoilIndex(ModelBase):
 
               sci <- round(predict(ps_sci, pred_df),2)
 
-            }} else if (full_df$crop == "pt") {{
+            }} else if (full_df$crop[1] == "pt") {{
 
               pt_sci <- readRDS(pt_sci_file)
 
@@ -283,7 +283,7 @@ class SoilIndex(ModelBase):
 
               df <- cbind(level_df, df) 
 
-              if(full_df$rotational == "rt"){{
+              if(full_df$rotational[1] == "rt"){{
                 pred_df <- df %>%
                   filter(rotational == full_df$rotational, density == "rt")
               }} else{{
@@ -293,7 +293,7 @@ class SoilIndex(ModelBase):
 
               sci <- round(predict(pt_sci, pred_df),3)
 
-            }} else if (full_df$crop == "dl") {{
+            }} else if (full_df$crop[1] == "dl") {{
 
               dl_sci <- readRDS(dl_sci_file)
 

@@ -149,7 +149,6 @@ if parser.has_section("google_cloud"):
     GOOGLE_CLOUD_API_KEY= parser.items("google_cloud")[0][1]
 if parser.has_section("gmail"):
     email_password = parser.items("gmail")[0][1]
-print("email_password", email_password)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587  # Standard SMTP port for TLS

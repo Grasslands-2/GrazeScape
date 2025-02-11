@@ -19,6 +19,8 @@ import 'regenerator-runtime/runtime'
 import Alert from 'react-bootstrap/Alert'
 import RangeSlider from 'react-bootstrap-range-slider';
 import Col from 'react-bootstrap/Col'
+import Popover from 'react-bootstrap/Popover';
+
 
 // reordering the table
 let reorder = (list, startIndex, endIndex) => {
@@ -419,6 +421,7 @@ class TransformationTable extends Component {
         payload = JSON.stringify(payload)
         $.ajax({
             url : 'https://api.smartscape.grasslandag.org/api/get_phos_fert_options',
+            // url : 'http://localhost:9000/api/get_phos_fert_options',
             type : 'POST',
             data : payload,
             success: (response, opts) => {
@@ -524,7 +527,7 @@ class TransformationTable extends Component {
                   <Modal.Title>Transformation Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                  <Form.Label>New Land Cover</Form.Label>
+                  <Form.Label>New Land Cover/ Land Use for this Selected Area</Form.Label>
                     <Form.Select aria-label="Default select example" ref={this.rotationType}
                       onChange={(e) => this.handleSelectionChange("rotationType", e)}>
                       <option value="pasture">Pasture</option>
@@ -534,16 +537,37 @@ class TransformationTable extends Component {
                       <option value="cornSoyOat">Dairy Rotation II (Corn Silage to Soy Beans to Oats)</option>
                       {/*<option value="ps">Pasture Seeding</option>*/}
                     </Form.Select>
+                 
+                    <OverlayTrigger
+                      trigger="hover"
+                      placement="bottom-start"
+                      overlay={
+                        <Popover id="popover-basic" style={{ maxWidth: "500px" }}>
+                          <Popover.Header as="h3">Grass Species Yield Groups</Popover.Header>
+                          <Popover.Body style={{ maxHeight: "200px", overflowY: "auto" }}>
+                            <strong>Low Yielding:</strong> Italian ryegrass, Kentucky bluegrass, Quackgrass, Meadow fescue (older varieties) <br />
+                            <strong>Medium Yielding:</strong> Meadow fescue (newer varieties), Smooth bromegrass, Timothy, Perennial ryegrass <br />
+                            <strong>High Yielding:</strong> Orchardgrass, Reed canary grass, Tall fescue, Festulolium, Hybrid and Meadow bromegrass
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                      <span> {/* Wrapping in a span ensures both elements trigger the popover */}
+                      <Form.Label hidden={!this.state.showGrassYield}>Grass Species Yield Groups</Form.Label>
+                        <Form.Select
+                          aria-label="Default select example"
+                          hidden={!this.state.showGrassYield}
+                          ref={this.grassYield}
+                          onChange={(e) => this.handleSelectionChange("grassYield", e)}
+                        >
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </Form.Select>
+                      </span>
+                    </OverlayTrigger>
 
-                    <Form.Label hidden={!this.state.showGrassYield}>Grass Yield</Form.Label>
-                    <Form.Select aria-label="Default select example" hidden={!this.state.showGrassYield} ref={this.grassYield}
-                      onChange={(e) => this.handleSelectionChange("grassYield", e)}>
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </Form.Select>
-
-                    <Form.Label hidden={!this.state.showPastureMang}>Pasture Management</Form.Label>
+                    <Form.Label hidden={!this.state.showPastureMang}>Grazing System</Form.Label>
                     <Form.Select aria-label="Default select example" hidden={!this.state.showPastureMang} ref={this.density}
                       onChange={(e) => this.handleSelectionChange("density", e)}>
                       <option value="cn_hi">Continuous High Density</option>
@@ -593,15 +617,25 @@ class TransformationTable extends Component {
                     <Form.Label hidden={!this.state.showGrassYield}>Interseeded Legume</Form.Label>
                     <Form.Select hidden={!this.state.showGrassYield} aria-label="Default select example" ref={this.legume}
                       onChange={(e) => this.handleSelectionChange("legume", e)}>
-                      <option value="default">Open this select menu</option>
                       <option value="false">No</option>
                       <option value="true">Yes</option>
                     </Form.Select>
 
-                    <OverlayTrigger key="top1" placement="top"
-                        overlay={<TooltipBootstrap>Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Nitrogen Manure</Form.Label>
-                    </OverlayTrigger>
+                    <OverlayTrigger
+                      trigger="hover"
+                      placement="bottom-start"
+                      overlay={
+                        <Popover id="popover-basic" style={{ maxWidth: "500px" }}>
+                          <Popover.Header as="h3">Percent Nitrogen Manure</Popover.Header>
+                          <Popover.Body style={{ maxHeight: "200px", overflowY: "auto" }}>
+                          Enter the amount of manure N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809) (for legumes, the percentage is based on manure N allowable). <br />
+                          For example, a value of 100% would indicate that N applications are identical to recommendations. Note that in grazed systems, manure N is already applied and does not need to be accounted for here.
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                    <span>
+                    <Form.Label>Percent Nitrogen Manure</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen}
                       onChange={(e) => this.handleSelectionChange("nitrogen", e)}>
                       <option value="0">0</option>
@@ -612,11 +646,24 @@ class TransformationTable extends Component {
                       <option value="125">125</option>
                       <option value="150">150</option>
                     </Form.Select>
-
-                    <OverlayTrigger key="top2" placement="top"
-                        overlay={<TooltipBootstrap>Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). For example, a value of 100% would indicate that N applications are identical to recommendations.</TooltipBootstrap>}>
-                        <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
+                    </span>
                     </OverlayTrigger>
+
+                    <OverlayTrigger
+                      trigger="hover"
+                      placement="bottom-start"
+                      overlay={
+                        <Popover id="popover-basic" style={{ maxWidth: "500px" }}>
+                          <Popover.Header as="h3">Percent Nitrogen Fertilizer</Popover.Header>
+                          <Popover.Body style={{ maxHeight: "200px", overflowY: "auto" }}>
+                          Enter the amount of fertilizer N applied to the crop rotation as a percentage of the N recommended based on UW-Extension guidelines (A2809). <br />
+                          For example, a value of 100% would indicate that N applications are identical to recommendations.
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                    <span>
+                      <Form.Label>Percent Nitrogen Fertilizer</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.nitrogen_fertilizer}
                       onChange={(e) => this.handleSelectionChange("nitrogen_fertilizer", e)}>
                       <option value="0">0</option>
@@ -627,29 +674,67 @@ class TransformationTable extends Component {
                       <option value="125">125</option>
                       <option value="150">150</option>
                     </Form.Select>
-
-                     <OverlayTrigger key="top3" placement="top"
-                            overlay={<TooltipBootstrap>The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). Note that in grazed systems, manure P is already applied and does not need to be accounted for here.</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
+                    </span>
                     </OverlayTrigger>
+
+                    <OverlayTrigger
+                      trigger="hover"
+                      placement="top-start"
+                      overlay={
+                        <Popover id="popover-basic" style={{ maxWidth: "500px" }}>
+                          <Popover.Header as="h3">Percent Phosphorous Manure (Calculated)</Popover.Header>
+                          <Popover.Body style={{ maxHeight: "200px", overflowY: "auto" }}>
+                          The amount of manure P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced). <br />
+                          Note that in grazed systems, manure P is already applied and does not need to be accounted for here.
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                    <span>
+                    <Form.Label>Percent Phosphorous Manure (Calculated)</Form.Label>
                     <Form.Control placeholder="0" disabled ref={this.phos_manure}/>
-
-                    <OverlayTrigger key="top4" placement="top"
-                            overlay={<TooltipBootstrap> Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).</TooltipBootstrap>}>
-                        <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
+                    </span>
                     </OverlayTrigger>
+
+                    <OverlayTrigger
+                      trigger="hover"
+                      placement="top-start"
+                      overlay={
+                        <Popover id="popover-basic" style={{ maxWidth: "500px" }}>
+                          <Popover.Header as="h3">Percent Phosphorous Fertilizer</Popover.Header>
+                          <Popover.Body style={{ maxHeight: "200px", overflowY: "auto" }}>
+                          Enter the amount of fertilizer P applied to the crop rotation as a percentage of the P removed by the crop rotation harvest (e.g., value of 100 means that P inputs and outputs are balanced).
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                    <span>
+                     <Form.Label>Percent Phosphorous Fertilizer</Form.Label>
                      <Form.Select aria-label="Default select example" ref={this.phos_fertilizer}
                       onChange={(e) => this.handleSelectionChange("phos_fertilizer", e)}>
                         {this.phos_fert_options_holder.map((item1, index) => (
-
-                         <option  key = {item1} value={item1}>{item1}</option>
+                          
+                          <option  key = {item1} value={item1}>{item1}</option>
                         ))}
 
                     </Form.Select>
+                    </span>
+                    </OverlayTrigger>
 
 
-
-                    <OverlayTrigger key="top111111" placement="top" overlay={<Tooltip>The percentage of land in the Transformation to change</Tooltip>}>
+                    <OverlayTrigger
+                      trigger="hover"
+                      placement="top-start"
+                      overlay={
+                        <Popover id="popover-basic" style={{ maxWidth: "500px" }}>
+                          <Popover.Header as="h3">Adoption Rate</Popover.Header>
+                          <Popover.Body style={{ maxHeight: "200px", overflowY: "auto" }}>
+                          The percentage of land in the Transformation to change
+                          </Popover.Body>
+                        </Popover>
+                      }
+                    >
+                    <span>
                     <Row>
                         <Col sm={2}>
                           <Form.Label>Adoption Rate</Form.Label>
@@ -668,6 +753,7 @@ class TransformationTable extends Component {
                           />
                         </Col>
                     </Row>
+                    </span>
                     </OverlayTrigger>
 
 

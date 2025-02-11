@@ -144,7 +144,7 @@ class Runoff(ModelBase):
         ##TODO the current output for Erosion and PI are tibbles (data frames) so we need to extract the data point from the tibble 
         # run models for different crops
         
-        if (full_df$crop == "cc") {{
+        if (full_df$crop[1] == "cc") {{
           cc_cn <- readRDS(cc_cn_file)
 
           #create factor levels
@@ -167,7 +167,7 @@ class Runoff(ModelBase):
           curve_num <- round(predict(cc_cn, pred_df),2)
 
 
-        }} else if (full_df$crop == "cg") {{
+        }} else if (full_df$crop[1] == "cg") {{
         cg_cn <- readRDS(cg_cn_file)
 
           cover <- factor(cg_cn$preproc$xlevels$cover)
@@ -186,7 +186,7 @@ class Runoff(ModelBase):
           curve_num <- round(predict(cg_cn, pred_df),2)
 
 
-        }} else if (full_df$crop == "cso") {{
+        }} else if (full_df$crop[1] == "cso") {{
         cso_cn <- readRDS(cso_cn_file)
 
           cover <- factor(cso_cn$preproc$xlevels$cover)
@@ -206,7 +206,7 @@ class Runoff(ModelBase):
           curve_num <- round(predict(cso_cn, pred_df),2)
 
 
-        }} else if (full_df$crop == "dr") {{
+        }} else if (full_df$crop[1] == "dr") {{
           dr_cn <- readRDS(dr_cn_file)
 
           cover <- factor(dr_cn$preproc$xlevels$cover)
@@ -226,7 +226,7 @@ class Runoff(ModelBase):
           curve_num <- round(predict(dr_cn, pred_df),2)
 
 
-        }} else if (full_df$crop == "ps") {{
+        }} else if (full_df$crop[1] == "ps") {{
         ps_cn <- readRDS(ps_cn_file)
 
 
@@ -246,7 +246,7 @@ class Runoff(ModelBase):
           curve_num <- round(predict(ps_cn, pred_df),2)
 
 
-        }} else if (full_df$crop == "pt") {{
+        }} else if (full_df$crop[1] == "pt") {{
         pt_cn <- readRDS(pt_cn_file)
 
           density <- factor(pt_cn$preproc$xlevels$density)
@@ -260,7 +260,7 @@ class Runoff(ModelBase):
 
           df <- cbind(level_df, df) 
 
-          if(full_df$rotational == "rt"){{
+          if(full_df$rotational[1] == "rt"){{
             pred_df <- df %>%
               filter(rotational == full_df$rotational, density == "rt")
           }} else{{
@@ -271,7 +271,7 @@ class Runoff(ModelBase):
           curve_num <- round(predict(pt_cn, pred_df),3)
 
 
-        }} else if (full_df$crop == "dl") {{
+        }} else if (full_df$crop[1] == "dl") {{
         dl_cn <- readRDS(dl_cn_file)
 
           density <- factor(dl_cn$preproc$xlevels$density)
