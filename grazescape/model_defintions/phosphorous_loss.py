@@ -115,7 +115,7 @@ class PhosphorousLoss(ModelBase):
 
                     # cc ----------------------------------------------------------------------
                     # run models for different crops
-                    if (full_df$crop == "cc") {{
+                    if (full_df$crop[1] == "cc") {{
 
                       cc_pi <- readRDS(cc_pi_file)
 
@@ -140,7 +140,7 @@ class PhosphorousLoss(ModelBase):
                       #make P Loss prediction
                       pi <- round(predict(cc_pi, pred_df),2)
 
-                    }} else if (full_df$crop == "cg") {{
+                    }} else if (full_df$crop[1] == "cg") {{
 
                       cg_pi <- readRDS(cg_pi_file)
 
@@ -162,7 +162,7 @@ class PhosphorousLoss(ModelBase):
                         
                       pi <- round(predict(cg_pi, pred_df),2)
 
-                    }} else if (full_df$crop == "cso") {{
+                    }} else if (full_df$crop[1] == "cso") {{
 
                       cso_pi <- readRDS(cso_pi_file)
                     # cso ---------------------------------------------------------------------
@@ -183,7 +183,7 @@ class PhosphorousLoss(ModelBase):
 
                       pi <- round(predict(cso_pi, pred_df),2)
 
-                    }} else if (full_df$crop == "dr") {{
+                    }} else if (full_df$crop[1] == "dr") {{
 
                       dr_pi <- readRDS(dr_pi_file)
 
@@ -206,7 +206,7 @@ class PhosphorousLoss(ModelBase):
 
                       pi <- round(predict(dr_pi, pred_df),2)
 
-                    }} else if (full_df$crop == "ps") {{
+                    }} else if (full_df$crop[1] == "ps") {{
 
                       ps_pi <- readRDS(ps_pi_file)
 
@@ -228,7 +228,7 @@ class PhosphorousLoss(ModelBase):
 
                       pi <- round(predict(ps_pi, pred_df),2)
 
-                    }} else if (full_df$crop == "pt") {{
+                    }} else if (full_df$crop[1] == "pt") {{
 
                       pt_pi <- readRDS(pt_pi_file)
 
@@ -245,7 +245,7 @@ class PhosphorousLoss(ModelBase):
 
                       df <- cbind(level_df, df) 
                         
-                      if(full_df$rotational == "rt"){{
+                      if(full_df$rotational[1] == "rt"){{
                         pred_df <- df %>%
                           filter(rotational == full_df$rotational, density == "rt")
                       }} else{{
@@ -255,7 +255,7 @@ class PhosphorousLoss(ModelBase):
 
                       pi <- round(predict(pt_pi, pred_df),3)
 
-                    }} else if (full_df$crop == "dl") {{
+                    }} else if (full_df$crop[1] == "dl") {{
 
                       dl_pi <- readRDS(dl_pi_file)
 

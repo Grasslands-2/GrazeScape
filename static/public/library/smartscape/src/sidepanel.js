@@ -16,6 +16,7 @@ import CSRFToken from './csrf';
 import Spinner from 'react-bootstrap/Spinner'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import TooltipBootstrap from 'react-bootstrap/Tooltip'
+import Popover from 'react-bootstrap/Popover';
 
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -306,6 +307,11 @@ class SidePanel extends React.Component{
             showTillageSNDairy:true,
             showTillageSUDairy:true,
             showTillageSVDairy:true,
+
+            popovers: {
+              landCap: false,
+              farmClass: false,
+            },
 
         }
 
@@ -808,28 +814,19 @@ class SidePanel extends React.Component{
         return
      }
     var csrftoken = Cookies.get('csrftoken');
-    // $.ajaxSetup({
-    //     headers: { "X-CSRFToken": csrftoken }
-    // });
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": csrftoken }
+    });
     console.log("coordsa")
     console.log(this.state.aoiCoors)
     let downloadFolder = uuidv4();
     this.props.setAoiFolderId(downloadFolder)
     this.setState({aoiOrDisplayLoading:true})
-  //   fetch("http://3.137.122.184:5000/api/get_selection_raster", {
-  //     method: "POST",
-  //     headers: {
-  //         "Content-Type": "application/json",
-  //         'Accept': '*/*'
-  //     },
-  //     body: JSON.stringify({ key: "value" })
-  // })
-  // .then(response => response.json())
-  // .then(data => console.log(data))
-  // .catch(error => console.error("Error:", error));
+
     $.ajax({
-        url : 'https://api.smartscape.grasslandag.org/api/get_selection_raster',
-        type : 'POST',
+      url : 'https://api.smartscape.grasslandag.org/api/get_selection_raster', 
+      // url : 'http://localhost:9000/api/get_selection_raster', 
+      type : 'POST',
         contentType: "application/json",
         data : JSON.stringify({
             geometry:{
@@ -876,6 +873,7 @@ class SidePanel extends React.Component{
     });
     $.ajax({
         url : 'https://api.smartscape.grasslandag.org/api/get_selection_criteria_raster',
+        // url : 'http://localhost:9000/api/get_selection_criteria_raster', 
         type : 'POST',
         data : JSON.stringify({
             selectionCrit:transPayload,
@@ -893,6 +891,7 @@ class SidePanel extends React.Component{
             delete $.ajaxSetup().headers
             console.log(responses)
             let url = "https://api.smartscape.grasslandag.org/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            // let url = "http://localhost:9000/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
             console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
@@ -926,6 +925,7 @@ class SidePanel extends React.Component{
         payload = JSON.stringify(payload)
         $.ajax({
             url : 'https://api.smartscape.grasslandag.org/api/download_base_rasters',
+            // url : 'http://localhost:9000/api/download_base_rasters', 
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -979,6 +979,7 @@ class SidePanel extends React.Component{
         payload = JSON.stringify(payload)
         $.ajax({
             url : 'https://api.smartscape.grasslandag.org/api/get_transformed_land',
+            // url : 'http://localhost:9000/api/get_transformed_land', 
             type : 'POST',
             data : payload,
             success: (responses, opts) => {
@@ -1047,6 +1048,7 @@ class SidePanel extends React.Component{
         payload = JSON.stringify(payload)
         $.ajax({
             url : 'https://api.smartscape.grasslandag.org/api/get_phos_fert_options',
+            // url : 'http://localhost:9000/api/get_phos_fert_options', 
             type : 'POST',
             data : payload,
             success: (response, opts) => {
@@ -1426,16 +1428,28 @@ class SidePanel extends React.Component{
       console.log(tableName)
       const table = document.getElementById(tableName);
       let tableText = "";
-
+      let skipRows = [0,2,5,8,12,15]
       // Loop through rows
+      let counterRow = 0;
       for (let row of table.rows) {
           let rowData = [];
-          // Loop through cells in each row
+          let skip = false
+          for (let a in skipRows){
+            if (skipRows[a] === counterRow){
+              skip = true
+              break
+            }
+          }
+          counterRow++ 
+          if (skip){
+            continue
+          }
           for (let cell of row.cells) {
             rowData.push(cell.innerText.replace(/,/g, ''));
           }
           // Join row data with tab spaces and add a newline after each row
           tableText += rowData.join("\t") + "\n";
+          
       }
 
       // Copy the text to the clipboard
@@ -1449,10 +1463,25 @@ class SidePanel extends React.Component{
       console.log(tableName)
       const table = document.getElementById(tableName);
       let csvText = "";
+      let skipRows = [0,2,5,8,12,15]
+      // Loop through rows
+      let counterRow = 0;
 
       // Loop through rows
       for (let row of table.rows) {
           let rowData = [];
+          let skip = false
+          for (let a in skipRows){
+            if (skipRows[a] === counterRow){
+              skip = true
+              break
+            }
+          }
+          counterRow++ 
+          if (skip){
+            continue
+          }
+
           // Loop through cells in each row
           for (let cell of row.cells) {
             rowData.push(cell.innerText.replace(/,/g, ''));
@@ -1475,6 +1504,44 @@ class SidePanel extends React.Component{
       window.URL.revokeObjectURL(url);
       // console.error(`Table with ID "${tableId}" not found.`);
     }
+    handleMouseEnter = (key) => {
+      this.setState((prevState) => ({
+        popovers: { ...prevState.popovers, [key]: true },
+      }));
+    };
+  
+    handleMouseLeave = (key) => {
+      this.setState((prevState) => ({
+        popovers: { ...prevState.popovers, [key]: false },
+      }));
+    };
+    renderPopover = (key, title, content) => (
+      <Popover
+        onMouseEnter={() => this.handleMouseEnter(key)}
+        onMouseLeave={() => this.handleMouseLeave(key)}
+      >
+        <Popover.Header as="h3">{title}</Popover.Header>
+        <Popover.Body>
+          <span dangerouslySetInnerHTML={{ __html: content }} />
+        </Popover.Body>
+      </Popover>
+    );
+    renderOverlayTrigger = (key, headerText, popoverTitle, popoverContent) => (
+      <OverlayTrigger
+        show={this.state.popovers[key]}
+        placement="top"
+        delay={{ show: 0, hide: 100 }}
+        overlay={this.renderPopover(key, popoverTitle, popoverContent)}
+      >
+        <span
+          onMouseEnter={() => this.handleMouseEnter(key)}
+          onMouseLeave={() => this.handleMouseLeave(key)}
+        >
+          <Accordion.Header>{headerText}</Accordion.Header>
+        </span>
+      </OverlayTrigger>
+    );
+
 renderModal(){
 //     let width = document.getElementById("modalResults").offsetWidth
 //     this.setState({ speedometerWidth: width});
@@ -1482,7 +1549,7 @@ renderModal(){
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'P Delivery to Water','Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Economics", "Total Nitrogen Loss to Water", "Soil Conditioning Index"
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Cost per Ton-Dry Matter", "Total Nitrogen Loss to Water", "Soil Conditioning Index"
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
@@ -2669,68 +2736,58 @@ renderModal(){
                      {/*<Button hidden={!this.state.showHuc12} onClick={this.reset}  size="sm" variant="primary">Reset Work Area</Button>*/}
               </Row>
 
-
-
-
               </Accordion.Body>
               </Accordion.Item>
               <Accordion.Item eventKey="selection" title="Selection" hidden={this.props.hideTransAcc}>
-              {/*<Accordion.Item eventKey="selection" title="Selection" >*/}
+              {/* <Accordion.Item eventKey="test"> */}
                   <Accordion.Header>Build Scenario</Accordion.Header>
 
               <Accordion.Body>
-
-
                 <div className = "criteriaSections">
-                <Form.Label>1) Select at least one Land Type<sup>*</sup></Form.Label>
-                    <Form >
-                      <Form.Check
-                        disabled={false} ref={this.contCorn} type="switch" label="Continuous Corn"
-                        onChange={(e) => this.handleSelectionChangeLand("contCorn", e)}
-                      />
-                      <Form.Check
-                        ref={this.cashGrain} type="switch" label="Cash Grain"
-                        onChange={(e) => this.handleSelectionChangeLand("cashGrain", e)}
-                      />
-                      <Form.Check
-                        ref={this.dairy} type="switch" label="Dairy Rotation"
-                        onChange={(e) => this.handleSelectionChangeLand("dairy", e)}
-                      />
-                      <Form.Check
-                        ref={this.potato} type="switch" label="Potato and Vegetable"
-                        onChange={(e) => this.handleSelectionChangeLand("potato", e)}
-                      />
-                      {/*
-
-
-                        <Form.Check
-                        hidden = {true}
-                        ref={this.cranberry} type="switch" label="Cranberries"
-                        onChange={(e) => this.handleSelectionChangeLand("cranberry", e)}
-                      />
-*/}
-
-                      <Form.Check
-                        ref={this.hay} type="switch" label="Hay"
-                        onChange={(e) => this.handleSelectionChangeLand("hay", e)}
-                      />
-                      <Form.Check
-                        ref={this.pasture} type="switch" label="Pasture"
-                        onChange={(e) => this.handleSelectionChangeLand("pasture", e)}
-                      />
-                      <Form.Check
-                        ref={this.grasslandIdle} type="switch" label="Idle Grassland"
-                        onChange={(e) => this.handleSelectionChangeLand("grasslandIdle", e)}
-                      />
-                    </Form>
+                <Form.Label>1) Select at least one Land Cover/Land Use<sup>*</sup></Form.Label>
+                    {[
+                      { key: "contCorn", label: "Continuous Corn", tooltip: "Corn grain grown every year" },
+                      { key: "cashGrain", label: "Cash Grain", tooltip: "Corn grain and soybean plantings alternate each year" },
+                      { key: "dairy", label: "Dairy Rotation", tooltip: "Corn grain, corn silage, and alfalfa in a 5-year rotation" },
+                      { key: "potato", label: "Potato and Vegetable", tooltip: "Potato and vegetable plantings alternate each year" },
+                      { key: "hay", label: "Hay", tooltip: "Lands covered by planted perennial herbaceous vegetation and harvested for use as livestock forage" },
+                      { key: "pasture", label: "Pasture", tooltip: "Lands covered by herbaceous vegetation, primarily perennial grasses, used for grazing livestock" },
+                      { key: "grasslandIdle", label: "Idle Grassland", tooltip: "Lands covered primarily by perennial herbaceous vegetation NOT used for livestock forage" },
+                    ].map((item) => (
+                      <OverlayTrigger
+                        key={item.key}
+                        placement="top"
+                        overlay={<TooltipBootstrap>{item.tooltip}</TooltipBootstrap>}
+                      >
+                        <span> {/* Wrapping in a span ensures the tooltip applies to both label & checkbox */}
+                          <Form.Check
+                            ref={this[item.key]}
+                            type="switch"
+                            label={item.label}
+                            onChange={(e) => this.handleSelectionChangeLand(item.key, e)}
+                          />
+                        </span>
+                      </OverlayTrigger>
+                    ))}
                     <a className = "wisc_link" target="_blank" href="https://www.arcgis.com/home/item.html?id=b6cff8bd00304b73bb1d32f7678ecf34"><sup>*</sup>From Wiscland 2 (2019)</a>
                 </div>
                 <div hidden ={!this.state.landTypeSelected}>
+                {/* <div> */}
                 <div className = "criteriaSections">
                     <Form.Label>2) Additional Selection Options</Form.Label>
                      <Accordion>
                       <Accordion.Item eventKey="4">
-                        <Accordion.Header>Land Classification</Accordion.Header>
+    
+                        {/* the according header is contained in the output of the render function */}
+
+                        {this.renderOverlayTrigger(
+                          "landCap",
+                          "Land Capability",
+                          "Land Capability",
+                          "USDA Designated Land Capability Classification - <a href='https://efotg.sc.egov.usda.gov/references/Delete/2004-3-27/landcap.htm' target='_blank' rel='noopener noreferrer'>more info</a>"
+                        )}
+
+
                         <Accordion.Body>
                              <Form.Check
                                 ref={this.land1} type="switch" label="Well Suited for Cropland I (Best)"
@@ -2769,7 +2826,13 @@ renderModal(){
                     </Accordion>
                     <Accordion>
                       <Accordion.Item eventKey="5">
-                        <Accordion.Header>Farmland Classification</Accordion.Header>
+                      {this.renderOverlayTrigger(
+                          "farmClass",
+                          "Farmland Classification",
+                          "Farmland Classification",
+                          "USDA Designated Prime and other Important Farmlands - <a href='https://efotg.sc.egov.usda.gov/references/public/LA/Prime_and_other_Important_Farmland.html' target='_blank' rel='noopener noreferrer'>more info</a>"
+                        )}
+                        {/* <Accordion.Header>Farmland Classification</Accordion.Header> */}
                         <Accordion.Body>
                             <Form.Check
                                 ref={this.prime} type="switch" label="All Areas are Prime Farmland"
@@ -2798,6 +2861,7 @@ renderModal(){
                         </Accordion.Body>
                       </Accordion.Item>
                     </Accordion>
+
                     <Accordion>
                       <Accordion.Item eventKey="3">
                         <Accordion.Header>Slope</Accordion.Header>
@@ -3009,7 +3073,7 @@ renderModal(){
                        </tbody>
                         ))}
                     </Table>
-                <Form.Label>3) Manage Your Land Transformations</Form.Label>
+                <Form.Label>3) Transform the land you've selected</Form.Label>
 
                   <TransformationTable/>
                   <Stack gap={3}>
@@ -3023,8 +3087,9 @@ renderModal(){
                      <Stack gap={3}>
                      {/*
 
-                     <Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
-                     */}
+<Button onClick={this.runModels} variant="success" >Assess Scenario</Button>
+<Button variant="primary" onClick={this.handleOpenModal}>View Results</Button>
+*/}
 
                      <Button onClick={this.runModels} variant="success" hidden={this.state.modelsLoading}>Assess Scenario</Button>
                      <Button id="btnModelsLoading" variant="success" disabled hidden={!this.state.modelsLoading}>

@@ -12,6 +12,7 @@ class Erosion(ModelBase):
 
     @ModelBase.log_start_end
     def run_model(self, manure_results):
+        
         r = R(RCMD=self.r_file_path, use_pandas=True)
         erosion = OutputDataNode("ero", "Soil loss (tons/ac/yr)", "Soil loss (tons/yr)", "Soil loss (tons/ac/yr)",
                                  "Soil loss (tons/yr)")
@@ -81,9 +82,9 @@ class Erosion(ModelBase):
         r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
         r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
         r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
+        print("erosion model",os.path.join(self.model_file_path, ContCornErosion + regionRDS) )
 
-
-        r(f"""
+        print(r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
             #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
             #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
@@ -97,7 +98,7 @@ class Erosion(ModelBase):
             # Define the function to be parallelized
 
 
-
+            print("running erosion")
 
             # input/load data
             user_input_df <- tibble(crop = c(crop), cover = c(cover), tillage = c(tillage), Contour = c(contour), rotational = c(rotational), density = c(density))
@@ -120,9 +121,10 @@ class Erosion(ModelBase):
               select(where(~!all(is.na(.)))) # remove NAs
             full_df <- bind_cols(crop_df, fert_df, soil_df)
 
-
+            print(full_df)
+            print("happasdfsdfsdsdfafd8794398534905783475983053048958437893457435943493857843758435793845894357")
             # run models for different crops
-            if (full_df$crop == "cc") {{
+            if (full_df$crop[1] == "cc") {{
 
               cc_erosion <- readRDS(cc_erosion_file)
 
@@ -147,7 +149,7 @@ class Erosion(ModelBase):
               #make erosion prediction
               erosion <- round(predict(cc_erosion, pred_df),2)
 
-            }} else if (full_df$crop == "cg") {{
+            }} else if (full_df$crop[1] == "cg") {{
 
               cg_erosion <- readRDS(cg_erosion_file)
 
@@ -168,7 +170,7 @@ class Erosion(ModelBase):
 
               erosion <- round(predict(cg_erosion, pred_df),2)
 
-            }} else if (full_df$crop == "cso") {{
+            }} else if (full_df$crop[1] == "cso") {{
 
               cso_erosion <- readRDS(cso_erosion_file)
 
@@ -189,7 +191,7 @@ class Erosion(ModelBase):
 
               erosion <- round(predict(cso_erosion, pred_df),2)
 
-            }} else if (full_df$crop == "dr") {{
+            }} else if (full_df$crop[1] == "dr") {{
 
               dr_erosion <- readRDS(dr_erosion_file)
 
@@ -220,7 +222,7 @@ class Erosion(ModelBase):
 
 
 
-            }} else if (full_df$crop == "ps") {{
+            }} else if (full_df$crop[1] == "ps") {{
 
               ps_erosion <- readRDS(ps_erosion_file)
 
@@ -239,7 +241,7 @@ class Erosion(ModelBase):
                 filter(tillage == full_df$tillage, Contour == full_df$Contour)
               erosion <- round(predict(ps_erosion, pred_df),2)
 
-            }} else if (full_df$crop == "pt") {{
+            }} else if (full_df$crop[1] == "pt") {{
 
               pt_erosion <- readRDS(pt_erosion_file)
               pt_erosion
@@ -254,7 +256,7 @@ class Erosion(ModelBase):
 
               df <- cbind(level_df, df) 
 
-              if(full_df$rotational == "rt"){{
+              if(full_df$rotational[1] == "rt"){{
                 pred_df <- df %>%
                   filter(rotational == full_df$rotational, density == "rt")
               }} else{{
@@ -264,7 +266,7 @@ class Erosion(ModelBase):
 
               erosion <- round(predict(pt_erosion, pred_df),3)
 
-            }} else if (full_df$crop == "dl") {{
+            }} else if (full_df$crop[1] == "dl") {{
 
               dl_erosion <- readRDS(dl_erosion_file)
 
@@ -281,13 +283,15 @@ class Erosion(ModelBase):
                 erosion <- round(predict(dl_erosion, pred_df),2)
 
             }} 
-                      pred_df_na_omit <- na_if(pred_df, -9999)
-                    print(pred_df_na_omit)
-                    print(summary(pred_df_na_omit))
+                pred_df_na_omit <- na_if(pred_df, -9999)
+              print(pred_df_na_omit)
+              print(summary(pred_df_na_omit))
+                print("done")
               """
-                )
+                ))
         ero = r.get("erosion").to_numpy()
         ero = ero.flatten()
+        print(ero)
         # ero = np.where(ero < 0.01, .01, ero)
         erosion.set_data(ero)
         del r

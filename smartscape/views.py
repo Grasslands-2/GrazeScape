@@ -270,23 +270,23 @@ def download(link, filelocation):
 #     print("return data", data)
 #     return_data.append(data)
 #     return JsonResponse(return_data, safe=False)
-    # except KeyError as e:
-    #     error = str(e) + " while running models for field " + f_name
-    # except ValueError as e:
-    #     error = str(e) + " while running models for field " + f_name
-    # except TypeError as e:
-    #     print("type error")
-    #     error = str(e) + " while running models for field " + f_name
-    # except FileNotFoundError as e:
-    #     error = str(e)
-    # except Exception as e:
-    #     error = str(e) + " while running models for field " + f_name
-    #     print(type(e).__name__)
-    #     print(traceback.format_exc())
-    #     traceback.print_exc()
-    #     # error = "Unexpected error:", sys.exc_info()[0]
-    #     # error = "Unexpected error"
-    # print(error)
+#     # except KeyError as e:
+#     #     error = str(e) + " while running models for field " + f_name
+#     # except ValueError as e:
+#     #     error = str(e) + " while running models for field " + f_name
+#     # except TypeError as e:
+#     #     print("type error")
+#     #     error = str(e) + " while running models for field " + f_name
+#     # except FileNotFoundError as e:
+#     #     error = str(e)
+#     # except Exception as e:
+#     #     error = str(e) + " while running models for field " + f_name
+#     #     print(type(e).__name__)
+#     #     print(traceback.format_exc())
+#     #     traceback.print_exc()
+#     #     # error = "Unexpected error:", sys.exc_info()[0]
+#     #     # error = "Unexpected error"
+#     # print(error)
 
 
 # def get_transformed_land(request):
