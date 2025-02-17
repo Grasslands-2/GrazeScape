@@ -61,17 +61,21 @@ def index(request):
         "northeastWI_Huc12",
         "redCedarWI_Huc12",
         "pineRiverMN_Huc12",
+        "eastCentralWI_Huc12",
+        "southEastWI_Huc12",
         "cloverBeltWI_HUC08",
         "southWestWI_HUC08",
         "uplandsWI_HUC08",
         "northeastWI_HUC08",
         "redCedarWI_HUC08",
         "pineRiverMN_HUC08",
+        "eastCentralWI_HUC08",
+        "southEastWI_HUC08",
     ]
     threads = []
     for name in file_names:
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
-        print("downloading", url)
+        print("downloading: ",name, url)
         raster_file_path = os.path.join(dir_path, name + ".geojson")
         thread = createNewDownloadThread(url, raster_file_path)
         threads.append(thread)
@@ -83,13 +87,13 @@ def index(request):
     input_path = os.path.join(settings.BASE_DIR, 'smartscape', 'data_files',
                               'raster_inputs')
     now = time.time()
-    for f in os.listdir(input_path):
-        try:
-            f = os.path.join(input_path, f)
-            if os.stat(f).st_mtime < now - 3600:
-                shutil.rmtree(f)
-        except OSError as e:
-            print("Error: %s : %s" % (f, e.strerror))
+    # for f in os.listdir(input_path):
+    #     try:
+    #         f = os.path.join(input_path, f)
+    #         if os.stat(f).st_mtime < now - 3600:
+    #             shutil.rmtree(f)
+    #     except OSError as e:
+    #         print("Error: %s : %s" % (f, e.strerror))
 
     return render(request, 'smartscape_home.html', context=context)
 
