@@ -592,6 +592,26 @@ class OLMapFragment extends React.Component {
             }),
             style: this.stylesBoundary,
         });
+        this.eastCentral = new VectorLayer({
+            renderMode: 'image',
+            name: "eastCentral",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/eastCentralWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
+        this.southEast = new VectorLayer({
+            renderMode: 'image',
+            name: "southEast",
+            source:new VectorSource({
+                url: static_global_folder + 'smartscape/gis/LearningHubs/southEastWI.geojson',
+                format: new GeoJSON(),
+                projection: 'EPSG:3857',
+            }),
+            style: this.stylesBoundary,
+        });
         // base map
         this.layers = [
             new TileLayer({
@@ -611,6 +631,8 @@ class OLMapFragment extends React.Component {
             this.uplands,
             this.redCedar,
             this.pineRiver,
+            this.eastCentral,
+            this.southEast,
             this.huc10,
             this.huc12,
             this.subSelectHuc12,
@@ -678,9 +700,12 @@ class OLMapFragment extends React.Component {
                     layer.get('name') == "cloverBelt"||
                     layer.get('name') == "northEast"||
                     layer.get('name') == "redCedar"||
-                    layer.get('name') == "Driftless"){
-                    return true
-                }
+                    layer.get('name') == "eastCentral"||
+                    layer.get('name') == "southEast"||
+                    layer.get('name') == "Driftless")
+                    {
+                        return true
+                    }
 //                console.log(layer)
             return false
            },
@@ -747,8 +772,14 @@ class OLMapFragment extends React.Component {
                 else if (f.target.item(0).get("NAME") == "Barron"){
                     region = "redCedarWI"
                 }
-                 else if (f.target.item(0).get("NAME") == "pineRiverMN"){
+                else if (f.target.item(0).get("NAME") == "pineRiverMN"){
                     region = "pineRiverMN"
+                }
+                else if (f.target.item(0).get("NAME") == "Oconto"){
+                    region = "eastCentralWI"
+                }
+                else if (f.target.item(0).get("NAME") == "Calumet"){
+                    region = "southEastWI"
                 }
                 else{
                     throw new Error("Invalid region");
