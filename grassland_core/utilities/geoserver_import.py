@@ -13,7 +13,8 @@ print(user)
 print(password)
 # GeoServer Configuration
 
-TIF_DIRECTORY = r"/opt/geoserver/gsdata/GeoserverFiles/SmartScape/southEastWI/modelOutputs/"
+# TIF_DIRECTORY = r"/opt/geoserver/gsdata/GeoserverFiles/SmartScape/southEastWI/modelOutputs/"
+TIF_DIRECTORY = r"/opt/geoserver/gsdata/GeoserverFiles/SmartScape/eastCentralWI/modelOutputs/"
 # print(os.listdir(TIF_DIRECTORY))
 
 # base_url = "http://localhost:8080/geoserver/rest/imports"
@@ -24,8 +25,8 @@ data = {
     "import": {
         "targetWorkspace": {
             "workspace": {
-                # "name": "SmartScapeRaster_eastCentralWI"
-                "name": "SmartScapeRaster_southEastWI"
+                "name": "SmartScapeRaster_eastCentralWI"
+                # "name": "SmartScapeRaster_southEastWI"
             }
         },
         "data": {

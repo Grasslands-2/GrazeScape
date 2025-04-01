@@ -395,6 +395,42 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
+		DSS.layer.eastCentral = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/southWestWI2.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
+		DSS.layer.southEast = new ol.layer.Vector({
+			visible: true,
+			updateWhileAnimating: true,
+			updateWhileInteracting: true,
+			source: new ol.source.Vector({
+				format: new ol.format.GeoJSON(),
+				url: '/static/grazescape/public/shapeFiles/southWestWI2.geojson',
+			}),
+			style: new ol.style.Style({
+				stroke: new ol.style.Stroke({
+					color: '#EE6677',
+					width: 4
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(32,96,160,0)'
+				})
+			})
+		});
 
 		// Utility to reference all the regions, since they are each in their own layers.
 		DSS.allRegionLayers = [
@@ -403,7 +439,9 @@ Ext.define('DSS.map.Main', {
 			DSS.layer.pineRiverBorder,
 			DSS.layer.northeastBorder,
 			DSS.layer.uplandBorder,
-			DSS.layer.swwiBorder
+			DSS.layer.swwiBorder,
+			DSS.layer.eastCentral,
+			DSS.layer.southEast,
 		];
 		
 		for(var region of DSS.allRegionLayers) {
