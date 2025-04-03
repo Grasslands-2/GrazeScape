@@ -88,6 +88,10 @@ def get_region_precip(active_region):
         return 39
     elif active_region == 'pineRiverMN':
         return 39
+    elif active_region == 'eastCentralWI':
+        return 39
+    elif active_region == 'southEastWI':
+        return 39
 
 
 class NitrateLeeching(ModelBase):

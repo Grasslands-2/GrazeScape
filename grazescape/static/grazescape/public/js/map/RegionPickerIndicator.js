@@ -7,7 +7,9 @@ var regionHighlighter = function(e) {
 		DSS.layer.northeastBorder,
 		DSS.layer.uplandBorder,
 		DSS.layer.redCedarBorder,
-		DSS.layer.pineRiverBorder
+		DSS.layer.pineRiverBorder,
+		DSS.layer.eastCentralBorder,
+		DSS.layer.southEastBorder
 	]
 	let regionToHighlight = null;
 
@@ -30,7 +32,14 @@ var regionHighlighter = function(e) {
 		}
 		else if(region_name == 'pineRiverMN'){
 			regionToHighlight = DSS.layer.pineRiverBorder;
-		} else {
+		}
+		else if(region_name == 'eastCentralWI'){
+			regionToHighlight = DSS.layer.eastCentralBorder;
+		} 
+		else if(region_name == 'southEastWI'){
+			regionToHighlight = DSS.layer.southEastBorder;
+		} 
+		else {
 			return;
 		}
 	}

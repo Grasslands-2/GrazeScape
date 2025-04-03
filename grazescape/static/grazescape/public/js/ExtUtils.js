@@ -102,6 +102,8 @@ Ext.define('DSS.utils', {
 				DSS.layer.uplandBorder.setVisible(false)
 				DSS.layer.redCedarBorder.setVisible(false)
 				DSS.layer.pineRiverBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(false)
+				DSS.layer.southEastBorder.setVisible(false)
 
 				view = new ol.View({
 					center: [-10030031, 5610033],
@@ -122,6 +124,9 @@ Ext.define('DSS.utils', {
 				DSS.layer.uplandBorder.setVisible(false)
 				DSS.layer.cloverBeltBorder.setVisible(false)
 				DSS.layer.pineRiverBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(false)
+				DSS.layer.southEastBorder.setVisible(false)
+
 
 				extent = [-10364871.915906506, 5523673.41766168, -10069499.539759004, 5831321.534259069]
 				view = new ol.View({
@@ -142,6 +147,9 @@ Ext.define('DSS.utils', {
 				DSS.layer.northeastBorder.setVisible(false)
 				DSS.layer.uplandBorder.setVisible(false)
 				DSS.layer.cloverBeltBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(false)
+				DSS.layer.southEastBorder.setVisible(false)
+
 
 				extent = [-10595719.33, 5805080.059, -10358718.96, 6020899.352]
 				view = new ol.View({
@@ -162,6 +170,9 @@ Ext.define('DSS.utils', {
 				DSS.layer.uplandBorder.setVisible(false)
 				DSS.layer.redCedarBorder.setVisible(false)
 				DSS.layer.pineRiverBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(false)
+				DSS.layer.southEastBorder.setVisible(false)
+
 
 				view = new ol.View({
 					center: [-10106698, 5391875],
@@ -182,6 +193,9 @@ Ext.define('DSS.utils', {
 				DSS.layer.uplandBorder.setVisible(false)
 				DSS.layer.redCedarBorder.setVisible(false)
 				DSS.layer.pineRiverBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(false)
+				DSS.layer.southEastBorder.setVisible(false)
+
 
 				view = new ol.View({
 					center: [-9786795, 5508847],
@@ -202,6 +216,9 @@ Ext.define('DSS.utils', {
 				DSS.layer.uplandBorder.setVisible(true)
 				DSS.layer.redCedarBorder.setVisible(false)
 				DSS.layer.pineRiverBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(false)
+				DSS.layer.southEastBorder.setVisible(false)
+
 
 				view = new ol.View({
 					center: [-10039400, 5305041],
@@ -212,7 +229,53 @@ Ext.define('DSS.utils', {
 					extent: [-10247529, 5226215, -9938170, 5420242]
 				})
 				extent = [-10247529, 5226215, -9938170, 5420242]
-			} else {
+			} else if (region_name == 'eastCentralWI') {
+				selectedRegion = DSS.layer.uplandBorder.getSource().getFeatures()[0];
+				DSS.activeRegion = "eastCentralWI";
+
+				DSS.layer.cloverBeltBorder.setVisible(false)
+				DSS.layer.swwiBorder.setVisible(false)
+				DSS.layer.northeastBorder.setVisible(false)
+				DSS.layer.uplandBorder.setVisible(true)
+				DSS.layer.redCedarBorder.setVisible(false)
+				DSS.layer.pineRiverBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(true)
+				DSS.layer.southEastBorder.setVisible(false)
+
+
+				view = new ol.View({
+					center: [-10039400, 5305041],
+					zoom: 6,
+					maxZoom: 30,
+					minZoom: 6,
+					constrainOnlyCenter: false,
+					extent: [-10247529, 5226215, -9938170, 5420242]
+				})
+				extent = [-10247529, 5226215, -9938170, 5420242]
+			}else if (region_name == 'southEastWI') {
+				selectedRegion = DSS.layer.uplandBorder.getSource().getFeatures()[0];
+				DSS.activeRegion = "southEastWI";
+
+				DSS.layer.cloverBeltBorder.setVisible(false)
+				DSS.layer.swwiBorder.setVisible(false)
+				DSS.layer.northeastBorder.setVisible(false)
+				DSS.layer.uplandBorder.setVisible(true)
+				DSS.layer.redCedarBorder.setVisible(false)
+				DSS.layer.pineRiverBorder.setVisible(false)
+				DSS.layer.eastCentralBorder.setVisible(false)
+				DSS.layer.southEastBorder.setVisible(true)
+
+
+				view = new ol.View({
+					center: [-10039400, 5305041],
+					zoom: 6,
+					maxZoom: 30,
+					minZoom: 6,
+					constrainOnlyCenter: false,
+					extent: [-10247529, 5226215, -9938170, 5420242]
+				})
+				extent = [-10247529, 5226215, -9938170, 5420242]
+			}else {
 				throw new Error(`Error! Unknown region: ${region_name}`);
 			}
 

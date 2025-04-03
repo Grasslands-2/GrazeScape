@@ -100,6 +100,12 @@ Ext.define('DSS.map.Main', {
 							if(DSS.activeRegion == "pineRiverMN"){
 								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
 							}
+							if(DSS.activeRegion == "eastCentralWI"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
+							if(DSS.activeRegion == "southEastWI"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
 						}
 					});
 				}
@@ -395,7 +401,7 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		DSS.layer.eastCentral = new ol.layer.Vector({
+		DSS.layer.eastCentralBorder = new ol.layer.Vector({
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
@@ -413,7 +419,7 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		DSS.layer.southEast = new ol.layer.Vector({
+		DSS.layer.southEastBorder = new ol.layer.Vector({
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
@@ -440,8 +446,8 @@ Ext.define('DSS.map.Main', {
 			DSS.layer.northeastBorder,
 			DSS.layer.uplandBorder,
 			DSS.layer.swwiBorder,
-			DSS.layer.eastCentral,
-			DSS.layer.southEast,
+			DSS.layer.eastCentralBorder,
+			DSS.layer.southEastBorder,
 		];
 		
 		for(var region of DSS.allRegionLayers) {
@@ -1691,6 +1697,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.cloverBeltBorder,
 				DSS.layer.redCedarBorder,
 				DSS.layer.pineRiverBorder,
+				DSS.layer.southEastBorder,
+				DSS.layer.eastCentralBorder,
 				DSS.layer.kickapoowatershed,
 				//DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,

@@ -6,6 +6,8 @@ var regionsList = [
 	{text: "Northeast", regionCode: "NE_WI"},
 	{text: "Red Cedar", regionCode: "redCedarWI"}, 
 	{text: "Pine River", regionCode: "pineRiverMN"}
+	{text: "East Central", regionCode: "eastCentralWI"}
+	{text: "Southeast", regionCode: "southEastWI"}
 ];
 
 //------------------------------------------------------------------------------
