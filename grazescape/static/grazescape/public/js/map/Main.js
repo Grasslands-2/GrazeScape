@@ -261,7 +261,7 @@ Ext.define('DSS.map.Main', {
 		//---------------------------Region Label Layer-----------------
 		let regionLabel = new ol.style.Style({
 			text: new ol.style.Text({
-				font: '30px Calibri,sans-serif',
+				font: '25px Calibri,sans-serif',
 				overflow: true,
 				fill: new ol.style.Fill({
 				  color: 'rgba(0,0,0,1)',
@@ -407,7 +407,7 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/southWestWI2.geojson',
+				url: '/static/grazescape/public/shapeFiles/eastCentralWI.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
@@ -425,7 +425,7 @@ Ext.define('DSS.map.Main', {
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/southWestWI2.geojson',
+				url: '/static/grazescape/public/shapeFiles/southEastWI.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({

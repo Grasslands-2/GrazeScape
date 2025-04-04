@@ -230,7 +230,7 @@ Ext.define('DSS.utils', {
 				})
 				extent = [-10247529, 5226215, -9938170, 5420242]
 			} else if (region_name == 'eastCentralWI') {
-				selectedRegion = DSS.layer.uplandBorder.getSource().getFeatures()[0];
+				selectedRegion = DSS.layer.eastCentralBorder.getSource().getFeatures()[0];
 				DSS.activeRegion = "eastCentralWI";
 
 				DSS.layer.cloverBeltBorder.setVisible(false)
@@ -244,16 +244,16 @@ Ext.define('DSS.utils', {
 
 
 				view = new ol.View({
-					center: [-10039400, 5305041],
+					center: [-9836974, 5571993],
 					zoom: 6,
 					maxZoom: 30,
 					minZoom: 6,
 					constrainOnlyCenter: false,
-					extent: [-10247529, 5226215, -9938170, 5420242]
+					extent: [-9932411.1007921621203423,5448895.0374743631109595, -9769406.4157015364617109,5681335.5344292288646102]
 				})
-				extent = [-10247529, 5226215, -9938170, 5420242]
+				extent = [-9932411.1007921621203423,5448895.0374743631109595, -9769406.4157015364617109,5681335.5344292288646102]
 			}else if (region_name == 'southEastWI') {
-				selectedRegion = DSS.layer.uplandBorder.getSource().getFeatures()[0];
+				selectedRegion = DSS.layer.southEastBorder.getSource().getFeatures()[0];
 				DSS.activeRegion = "southEastWI";
 
 				DSS.layer.cloverBeltBorder.setVisible(false)
@@ -267,18 +267,19 @@ Ext.define('DSS.utils', {
 
 
 				view = new ol.View({
-					center: [-10039400, 5305041],
+					center: [-9839986, 5390950],
 					zoom: 6,
 					maxZoom: 30,
 					minZoom: 6,
 					constrainOnlyCenter: false,
-					extent: [-10247529, 5226215, -9938170, 5420242]
+					extent: [-9934773.6343452613800764,5287862.8377964682877064, -9762728.8047268036752939,5503295.5664239171892405]
 				})
-				extent = [-10247529, 5226215, -9938170, 5420242]
+				extent = [-9934773.6343452613800764,5287862.8377964682877064, -9762728.8047268036752939,5503295.5664239171892405]
 			}else {
 				throw new Error(`Error! Unknown region: ${region_name}`);
 			}
-
+			console.log("active region" + DSS.activeRegion)
+			console.log("active region2" +selectedRegion)
 			DSS.ApplicationFlow.instance.showFarmPickerPage();
 			DSS.map.un('pointermove', regionHighlighter);
 			DSS.map.removeInteraction(DSS.selectRP);

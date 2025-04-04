@@ -12,9 +12,8 @@ var regionHighlighter = function(e) {
 		DSS.layer.southEastBorder
 	]
 	let regionToHighlight = null;
-
 	if(fs.length > 0){
-        let region_name = fs[0].get("Name") || fs[0].get("NAME");
+		let region_name = fs[0].get("Name") || fs[0].get("NAME");
 		if(region_name == 'CB_WI'){
 			regionToHighlight = DSS.layer.cloverBeltBorder;
 		}
