@@ -5,7 +5,9 @@ var regionsList = [
 	{text: "Driftless", regionCode: "UL_WI"},
 	{text: "Northeast", regionCode: "NE_WI"},
 	{text: "Red Cedar", regionCode: "redCedarWI"}, 
-	{text: "Pine River", regionCode: "pineRiverMN"}
+	{text: "Pine River", regionCode: "pineRiverMN"},
+	{text: "East Central", regionCode: "eastCentralWI"},
+	{text: "Southeast", regionCode: "southEastWI"}
 ];
 
 //------------------------------------------------------------------------------

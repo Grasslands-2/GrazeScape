@@ -111,6 +111,14 @@ async function createFieldAP(e,lac,non_lac,beef,crop,rotfreq,tillageInput,soil_p
 		console.log("Pine River has hit")
 		soil_pInput = 50
 	}
+	else if(DSS.activeRegion == "eastCentralWI"){
+		console.log("southWestWI has hit")
+		soil_pInput = 45
+	}
+	else if(DSS.activeRegion == "southEastWI"){
+		console.log("southWestWI has hit")
+		soil_pInput = 47
+	}
 	console.log("active region", DSS.activeRegion, soil_pInput)
 	addFieldProps(e,lac,non_lac,beef,crop,tillageInput,soil_pInput,field_nameInput,)
 }
