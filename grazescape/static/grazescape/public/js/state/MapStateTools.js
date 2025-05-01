@@ -371,7 +371,9 @@ Ext.define('DSS.state.MapStateTools', {
 				DSS.layer.northeastBorder,
 				DSS.layer.uplandBorder,
 				DSS.layer.redCedarBorder,
-				DSS.layer.pineRiverBorder
+				DSS.layer.pineRiverBorder,
+				DSS.layer.eastCentralBorder,
+				DSS.layer.southEastBorder,
 			],
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
@@ -397,6 +399,8 @@ Ext.define('DSS.state.MapStateTools', {
 			DSS.layer.northeastBorder.setStyle(unslectStyle)
 			DSS.layer.redCedarBorder.setStyle(unslectStyle)
 			DSS.layer.pineRiverBorder.setStyle(unslectStyle)
+			DSS.layer.eastCentralBorder.setStyle(unslectStyle)
+			DSS.layer.southEastBorder.setStyle(unslectStyle)
 			
 			await DSS.utils.selectRegion(region_name);
 			

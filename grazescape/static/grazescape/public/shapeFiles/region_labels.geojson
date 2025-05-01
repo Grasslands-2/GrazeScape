@@ -8,6 +8,8 @@
 { "type": "Feature", "properties": { "id": 2, "Name": "Driftless" }, "geometry": { "type": "Point", "coordinates": [ -10039400.676750063151121, 5305041.646750063151121 ] } },
 { "type": "Feature", "properties": { "id": 3, "Name": "Northeast" }, "geometry": { "type": "Point", "coordinates": [ -9786696.73, 5509118.34 ] } },
 { "type": "Feature", "properties": { "id": 3, "Name": "Pine River" }, "geometry": { "type": "Point", "coordinates": [ -10477219.14,	5912989.705] } },
-{ "type": "Feature", "properties": { "id": 4, "Name": "Red Cedar" }, "geometry": { "type": "Point", "coordinates": [ -10217185.73, 5677497.476 ] } }
+{ "type": "Feature", "properties": { "id": 4, "Name": "Red Cedar" }, "geometry": { "type": "Point", "coordinates": [ -10217185.73, 5677497.476 ] } },
+{ "type": "Feature", "properties": { "id": 5, "Name": "East Central" }, "geometry": { "type": "Point", "coordinates": [-9836974, 5571993 ] } },
+{ "type": "Feature", "properties": { "id": 6, "Name": "Southeast" }, "geometry": { "type": "Point", "coordinates": [ -9839986, 5390950 ] } }
 ]
 }

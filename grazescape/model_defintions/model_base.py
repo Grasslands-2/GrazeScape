@@ -51,6 +51,10 @@ class ModelBase:
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'redCedarWI')
         if active_region == "pineRiverMN":
             self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'pineRiverMN')
+        if active_region == "eastCentralWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'eastCentralWI')
+        if active_region == "southEastWI":
+            self.model_file_path = os.path.join(settings.MODEL_PATH, 'GrazeScape', 'southEastWI')
 
         self.color_ramp_hex = []
         self.data_range = []

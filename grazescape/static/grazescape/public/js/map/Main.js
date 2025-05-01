@@ -100,6 +100,12 @@ Ext.define('DSS.map.Main', {
 							if(DSS.activeRegion == "pineRiverMN"){
 								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
 							}
+							if(DSS.activeRegion == "eastCentralWI"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
+							if(DSS.activeRegion == "southEastWI"){
+								Ext.create('DSS.map.LayerMenu').showAt(rect.left-2, rect.top-2);
+							}
 						}
 					});
 				}
@@ -255,7 +261,7 @@ Ext.define('DSS.map.Main', {
 		//---------------------------Region Label Layer-----------------
 		let regionLabel = new ol.style.Style({
 			text: new ol.style.Text({
-				font: '30px Calibri,sans-serif',
+				font: '25px Calibri,sans-serif',
 				overflow: true,
 				fill: new ol.style.Fill({
 				  color: 'rgba(0,0,0,1)',
@@ -395,13 +401,13 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		DSS.layer.eastCentral = new ol.layer.Vector({
+		DSS.layer.eastCentralBorder = new ol.layer.Vector({
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/southWestWI2.geojson',
+				url: '/static/grazescape/public/shapeFiles/eastCentralWI.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
@@ -413,13 +419,13 @@ Ext.define('DSS.map.Main', {
 				})
 			})
 		});
-		DSS.layer.southEast = new ol.layer.Vector({
+		DSS.layer.southEastBorder = new ol.layer.Vector({
 			visible: true,
 			updateWhileAnimating: true,
 			updateWhileInteracting: true,
 			source: new ol.source.Vector({
 				format: new ol.format.GeoJSON(),
-				url: '/static/grazescape/public/shapeFiles/southWestWI2.geojson',
+				url: '/static/grazescape/public/shapeFiles/southEastWI.geojson',
 			}),
 			style: new ol.style.Style({
 				stroke: new ol.style.Stroke({
@@ -440,8 +446,8 @@ Ext.define('DSS.map.Main', {
 			DSS.layer.northeastBorder,
 			DSS.layer.uplandBorder,
 			DSS.layer.swwiBorder,
-			DSS.layer.eastCentral,
-			DSS.layer.southEast,
+			DSS.layer.eastCentralBorder,
+			DSS.layer.southEastBorder,
 		];
 		
 		for(var region of DSS.allRegionLayers) {
@@ -1691,6 +1697,8 @@ Ext.define('DSS.map.Main', {
 				DSS.layer.cloverBeltBorder,
 				DSS.layer.redCedarBorder,
 				DSS.layer.pineRiverBorder,
+				DSS.layer.southEastBorder,
+				DSS.layer.eastCentralBorder,
 				DSS.layer.kickapoowatershed,
 				//DSS.layer.rullandsCouleewshed,
 				DSS.layer.tainterwatershed,
