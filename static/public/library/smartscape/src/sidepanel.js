@@ -779,9 +779,9 @@ class SidePanel extends React.Component{
 //    newTrans.management.phos_fertilizer = "0"
 //    newTrans.management.phos_manure = "0"
     newTrans.management.legume = "true"
-    newTrans.management.contour = "1"
-    newTrans.management.cover = "nc"
-    newTrans.management.tillage = "su"
+    newTrans.management.contour = "NA"
+    newTrans.management.cover = "NA"
+    newTrans.management.tillage = "NA"
     newTrans.management.grassYield = "medium"
     newTrans.management.rotFreq = "1"
     newTrans.management.phos_fert_options = [0, 50, 100]
@@ -1503,6 +1503,279 @@ class SidePanel extends React.Component{
       // Clean up the URL object
       window.URL.revokeObjectURL(url);
       // console.error(`Table with ID "${tableId}" not found.`);
+    }
+    
+    exportModelSettings(){
+      let baseColumnHeader = [
+        "Name",
+        "New Land Cover", 
+        "Grass Species Yield Groups", 
+        "Grazing System", 
+        "Rotational Frequency", 
+        "Interseeded Legume", 
+        "Cover Crop", 
+        "Tillage", 
+        "On Contour",
+        "Percent Nitrogen Manure", 
+        "Percent Nitrogen Fertilizer", 
+        "Percent Phosphorous Manure (Calculated)", 
+        "Percent Phosphorous Fertilizer"
+      ]
+      let economicHeader = [
+        "P2O5 per lb",
+        "N per lb",
+        "Corn Seed Cost Per Acre",
+        "Corn Pesticide Cost Per Acre",
+        "Corn Machinery Cost Per Acre",
+        "Soy Seed Cost Per Acre",
+        "Soy Pesticide Cost Per Acre",
+        "Soy Machinery Cost Per Acre",
+        "Alfalfa Seed Cost Per Acre",
+        "Alfalfa Pesticide Cost Per Acre",
+        "Alfalfa Machinery Cost Per Acre",
+        "Alfalfa Machinery Cost First Year",
+        "Oat Seed Cost Per Acre",
+        "Oat Pesticide Cost Per Acre",
+        "Oat Machinery Cost Per Acre",
+        "Pasture Seed Cost Per Acre",
+        "Pasture Pesticide Cost Per Acre",
+        "Pasture Machinery Cost Per Acre"
+      ]
+      let transformOnlyHeader = [
+        "Adoption Rate", 
+        "Current Land Covers", 
+        "Well Suited for Cropland I (Best)",
+        "Well Suited for Cropland II",
+        "Well Suited for Cropland III",
+        "Well Suited for Cropland IV",
+        "Generally Unsuited for Agriculture V",
+        "Generally Unsuited for Agriculture VI",
+        "Generally Unsuited for Agriculture VII",
+        "Generally Unsuited for Agriculture VIII (Worst)",
+        "All Areas are Prime Farmland",
+        "Farmland of Statewide Importance",
+        "Not Prime Farmland",
+        "Prime Farmland if Modified I",
+        "Prime Farmland if Modified II",
+        "Prime Farmland if Modified III",
+        "Min Slope(%)",
+        "Max Slope(%)",
+        "Minimum Distance to Stream (ft)",
+        "Maximum Distance to Stream (ft)"
+      ]
+      // Exporting base transformation data
+      console.log(this.props.baseTrans)
+      let contData = []
+      let cornData = []
+      let dairyData = []
+      let pastData = []
+      let econData = []
+      let transData = []
+      let finalOutput = []
+
+      contData.push("Base Continous Corn")
+      contData.push("NA")
+      contData.push("NA")
+      contData.push("NA")
+      contData.push("NA")
+      contData.push("NA")
+      contData.push(this.props.baseTrans.managementCont.cover)
+      contData.push(this.props.baseTrans.managementCont.tillage)
+      contData.push(this.props.baseTrans.managementCont.contour)
+      contData.push( this.props.baseTrans.managementCont.nitrogen)
+      contData.push( this.props.baseTrans.managementCont.nitrogen_fertilizer)
+      contData.push( this.props.baseTrans.managementCont.phos_fertilizer)
+      contData.push( this.props.baseTrans.managementCont.phos_manure)
+
+      cornData.push("Base Corn and Soybeans")
+      cornData.push( "NA")
+      cornData.push( "NA")
+      cornData.push( "NA")
+      cornData.push( "NA")
+      cornData.push( "NA")
+      cornData.push(this.props.baseTrans.managementCorn.cover)
+      cornData.push(this.props.baseTrans.managementCorn.tillage)
+      cornData.push(this.props.baseTrans.managementCorn.contour)
+      cornData.push( this.props.baseTrans.managementCorn.nitrogen)
+      cornData.push( this.props.baseTrans.managementCorn.nitrogen_fertilizer)
+      cornData.push( this.props.baseTrans.managementCorn.phos_fertilizer)
+      cornData.push( this.props.baseTrans.managementCorn.phos_manure)
+
+      dairyData.push("Base Dairy Rotation")
+      dairyData.push("NA")
+      dairyData.push("NA")
+      dairyData.push("NA")
+      dairyData.push("NA")
+      dairyData.push("NA")
+      dairyData.push(this.props.baseTrans.managementDairy.cover)
+      dairyData.push(this.props.baseTrans.managementDairy.tillage)
+      dairyData.push(this.props.baseTrans.managementDairy.contour)
+      dairyData.push( this.props.baseTrans.managementDairy.nitrogen)
+      dairyData.push( this.props.baseTrans.managementDairy.nitrogen_fertilizer)
+      dairyData.push( this.props.baseTrans.managementDairy.phos_fertilizer)
+      dairyData.push( this.props.baseTrans.managementDairy.phos_manure)
+
+      pastData.push("Base Pasture")
+      pastData.push("NA")
+      pastData.push(this.props.baseTrans.managementPast.grassYield)
+      pastData.push(this.props.baseTrans.managementPast.density)
+      pastData.push(this.props.baseTrans.managementPast.rotFreq)
+      pastData.push(this.props.baseTrans.managementPast.legume)
+      pastData.push(this.props.baseTrans.managementDairy.cover)
+      pastData.push(this.props.baseTrans.managementDairy.tillage)
+      pastData.push("NA")
+      pastData.push( this.props.baseTrans.managementDairy.nitrogen)
+      pastData.push( this.props.baseTrans.managementDairy.nitrogen_fertilizer)
+      pastData.push( this.props.baseTrans.managementDairy.phos_fertilizer)
+      pastData.push( this.props.baseTrans.managementDairy.phos_manure)
+
+      econData[0] = this.props.baseTrans.econ.p2o5
+      econData[1] = this.props.baseTrans.econ.nFert
+      econData[2] = this.props.baseTrans.econ.cornSeed
+      econData[3] = this.props.baseTrans.econ.cornPest
+      econData[4] = this.props.baseTrans.econ.cornMach
+      econData[5] = this.props.baseTrans.econ.soySeed
+      econData[6] = this.props.baseTrans.econ.soyPest
+      econData[7] = this.props.baseTrans.econ.soyMach
+      econData[8] = this.props.baseTrans.econ.alfaSeed
+      econData[9] = this.props.baseTrans.econ.alfaPest
+      econData[10] = this.props.baseTrans.econ.alfaMach
+      econData[11] = this.props.baseTrans.econ.alfaFirstYear
+      econData[12] = this.props.baseTrans.econ.oatSeed
+      econData[13] = this.props.baseTrans.econ.oatPest
+      econData[14] = this.props.baseTrans.econ.oatMach
+      econData[15] = this.props.baseTrans.econ.pastSeed
+      econData[16] = this.props.baseTrans.econ.pastPest
+      econData[17] = this.props.baseTrans.econ.pastMach
+      function getRotation(){
+        return {
+          pasture:"Pasture",
+          contCorn:"Continuous Corn",
+          cornGrain:"Cash Grain",
+          // used different keys for corn grain on accident
+          cashGrain:"Cash Grain",
+          dairyRotation:"Dairy Rotation (Corn Silage to Corn Grain to Alfalfa 3 yrs)",
+          cornSoyOat:"Dairy Rotation II (Corn Silage to Soy Beans to Oats)",
+          // wiscland only has one dairy value so this value is specific to the user choosing cover
+          dairy: "Dairy Rotation",
+          NA:"NA", default:"NA",
+          potato:"Potato and Vegetable",
+          hay:"Hay",
+          grasslandIdle:"Idle Grassland"
+        }
+      }
+      
+      function formatBase(row){
+        console.log(row)
+        let rotationType = getRotation()
+        let grassMap = {low:"Low", medium:"Medium", high:"High", NA:"NA", default:"NA"}
+        let grazeSys = {cn_hi:"Continuous High Density", cn_lo:"Continuous Low Density", rt_rt:"Rotational", NA:"NA", default:"NA"}
+        let rotFre = {1.2:"More than once a day",1:"Once a day", 0.95:"Every 3 days", 0.75:"Every 7 days", NA:"NA", default:"NA"}
+        let coverCrop = {cc:"Small Grain", gcds:"Grazed Cover Direct Seeded", gcis:"Grazed Cover Interseeded", nc:"No Cover", NA:"NA", default:"NA"}
+        let tillage = {
+          fc:"Fall Chisel",
+          fm:"Fall Moldboard",
+          nt:"No Till",
+          sc:"Spring Chisel, Disked",
+          sn:"Spring Chisel, No Disk",
+          su:"Spring Cultivation",
+          sv:"Spring Vertical",
+          NA:"NA", default:"NA"
+        }
+        let interseed = {false:"false", true:"true",NA:"NA", default:"NA"}
+        let onCont = {0:"No", 1:"Yes",NA:"NA", default:"NA"}
+
+        row[1] =  rotationType[row[1]]
+        row[2] =  grassMap[row[2]]
+        row[3] =  grazeSys[row[3]]
+        row[4] =  rotFre[row[4]]
+        row[5] =  interseed[row[5]]
+        row[6] =  coverCrop[row[6]]
+        row[7] =  tillage[row[7]]
+        row[8] =  onCont[row[8]]
+        console.log(row)
+        return row
+      }
+      contData = formatBase(contData)
+      cornData = formatBase(cornData)
+      dairyData = formatBase(dairyData)
+      pastData = formatBase(pastData)
+      // let csvRows = [contData, cornData, dairyData, pastData]
+      // let name = "smartscape_base_model_parameters";
+      
+
+      function writeCsv(csvData, name){
+        console.log(csvData)
+        // const csvContent = [
+        //   columnHeader.join(','),                   // header row
+        //   ...csvRows.map(csvRows => csvRows.join(','))    // data rows
+        //     ].join('\n');
+        const csvContent = csvData
+          .map(row => Array.isArray(row) ? row.join(',') : row) // insert blank line for non-array (like "\n")
+          .join('\n');
+        console.log(contData)
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download =name + ".csv";
+        link.click();
+        window.URL.revokeObjectURL(url);
+      }
+     
+      // writeCsv(baseColumnHeader, csvRows, name)
+      // Exporting transformation data
+      for (let trans in this.props.listTrans){
+        let currTransArray = []
+        console.log(this.props.listTrans[trans])
+        currTransArray.push(this.props.listTrans[trans].name)
+        currTransArray.push(this.props.listTrans[trans].management.rotationType)
+        currTransArray.push(this.props.listTrans[trans].management.grassYield)
+        currTransArray.push(this.props.listTrans[trans].management.density)
+        currTransArray.push(this.props.listTrans[trans].management.rotFreq)
+        currTransArray.push(this.props.listTrans[trans].management.legume)
+        currTransArray.push(this.props.listTrans[trans].management.cover)
+        currTransArray.push(this.props.listTrans[trans].management.tillage)
+        currTransArray.push(this.props.listTrans[trans].management.contour)
+        currTransArray.push(this.props.listTrans[trans].management.nitrogen)
+        currTransArray.push(this.props.listTrans[trans].management.nitrogen_fertilizer)
+        currTransArray.push(this.props.listTrans[trans].management.phos_fertilizer)
+        currTransArray.push(this.props.listTrans[trans].management.phos_manure)
+        currTransArray.push(this.props.listTrans[trans].selection.adoptionRate)
+
+        let rotationType = getRotation()
+        console.log(rotationType)
+        const selectedLand = Object.entries(this.props.listTrans[trans].selection.landCover)
+          .filter(([_, value]) => value === true)
+          .map(([key]) => rotationType[key]) // Fallback to key if not found in rotationType
+          .join('; ');
+        currTransArray.push(selectedLand)
+        for (let land in this.props.listTrans[trans].selection.landClass){
+          currTransArray.push(this.props.listTrans[trans].selection.landClass[land])
+        }
+        for (let land in this.props.listTrans[trans].selection.farmClass){
+          currTransArray.push(this.props.listTrans[trans].selection.farmClass[land])
+        }
+        currTransArray.push(this.props.listTrans[trans].selection.slope1)
+        currTransArray.push(this.props.listTrans[trans].selection.slope2)
+        currTransArray.push(this.props.listTrans[trans].selection.streamDist1)
+        currTransArray.push(this.props.listTrans[trans].selection.streamDist2)
+        // if stream distance is in meters switch units in header
+        if (this.props.listTrans[trans].selection.useFt == false){
+          transformOnlyHeader = transformOnlyHeader.map(header =>
+            header.replace('(ft)', '(m)')
+          );
+        }
+        currTransArray = formatBase(currTransArray)
+        transData.push(currTransArray)
+        
+      }
+      finalOutput = ["Base Assummptions", baseColumnHeader, contData, cornData, dairyData, pastData, "", "Economic Assummptions", economicHeader, econData, "","Transformation Assummptions",
+        baseColumnHeader.concat(transformOnlyHeader), ...transData
+      ]
+
+      writeCsv(finalOutput, "testTrans")
+
     }
     handleMouseEnter = (key) => {
       this.setState((prevState) => ({
@@ -3098,6 +3371,8 @@ renderModal(){
                      </Button>
                       <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
+                      <Button variant="primary" onClick={() => this.exportModelSettings()} >Download Model Assumptions</Button>
+
                      </Stack>
 
               </div>
@@ -3107,7 +3382,9 @@ renderModal(){
             {/*
 
             <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
+            <Button variant="primary" onClick={() => this.exportModelSettings()} >Download Model Settings</Button>
             */}
+
             
 
             <Modal size="lg" show={this.state.baseModalShow} onHide={this.handleCloseModalBase} onShow={this.showModal}>
