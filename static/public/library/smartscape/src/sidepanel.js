@@ -1774,7 +1774,7 @@ class SidePanel extends React.Component{
         baseColumnHeader.concat(transformOnlyHeader), ...transData
       ]
 
-      writeCsv(finalOutput, "testTrans")
+      writeCsv(finalOutput, "scenario_inputs")
 
     }
     handleMouseEnter = (key) => {
