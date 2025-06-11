@@ -54,9 +54,9 @@ function Transformation(name, id, rank, type){
                 land6:false,
                 land7:false,
                 land8:false,
-                landErosion:false,
-                landRoot:false,
-                landWater:false,
+                // landErosion:false,
+                // landRoot:false,
+                // landWater:false,
             },
             farmClass:{
                 prime:false,
