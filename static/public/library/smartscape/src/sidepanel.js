@@ -3371,7 +3371,7 @@ renderModal(){
                      </Button>
                       <Button onClick={this.handleOpenModalBase} variant="info">Base Assumptions</Button>
                       <Button variant="primary" hidden={!this.state.showViewResults} onClick={this.handleOpenModal}>View Results</Button>
-                      <Button variant="primary" onClick={() => this.exportModelSettings()} >Download Model Assumptions</Button>
+                      <Button variant="primary" onClick={() => this.exportModelSettings()} >Download Scenario Inputs</Button>
 
                      </Stack>
 
