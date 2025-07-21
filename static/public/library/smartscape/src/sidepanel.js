@@ -779,7 +779,7 @@ class SidePanel extends React.Component{
 //    newTrans.management.phos_fertilizer = "0"
 //    newTrans.management.phos_manure = "0"
     newTrans.management.legume = "true"
-    newTrans.management.contour = "NA"
+    newTrans.management.contour = "0"
     newTrans.management.cover = "NA"
     newTrans.management.tillage = "NA"
     newTrans.management.grassYield = "medium"
@@ -1676,8 +1676,8 @@ class SidePanel extends React.Component{
           fc:"Fall Chisel",
           fm:"Fall Moldboard",
           nt:"No Till",
-          sc:"Spring Chisel, Disked",
-          sn:"Spring Chisel, No Disk",
+          sc:"Spring Chisel Disked",
+          sn:"Spring Chisel No Disk",
           su:"Spring Cultivation",
           sv:"Spring Vertical",
           NA:"NA", default:"NA"

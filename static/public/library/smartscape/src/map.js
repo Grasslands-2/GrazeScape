@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component, createRef } from 'react'
 import Button from 'react-bootstrap/Button';
 
 // Start Openlayers imports
@@ -141,6 +141,7 @@ class OLMapFragment extends React.Component {
     constructor(props) {
         super(props)
         console.log(props)
+        this.tooltipRef = createRef();
 //        this.drawBoundary = this.drawBoundary.bind(this)
 //        this.drawRectangleBoundary = this.drawRectangleBoundary.bind(this)
         // binding function to class so they share scope
@@ -614,15 +615,33 @@ class OLMapFragment extends React.Component {
         });
         // base map
         this.layers = [
+            // new TileLayer({
+            //    source: new BingMaps({
+            //     key: this.bing_key,
+            //     imagerySet: 'AerialWithLabelsOnDemand',
+            //   }),
+            // }),
             new TileLayer({
-               source: new BingMaps({
-                key: this.bing_key,
-                imagerySet: 'AerialWithLabelsOnDemand',
-                // use maxZoom 19 to see stretched tiles instead of the BingMaps
-                // "no photos at this zoom level" tiles
-                // maxZoom: 19
-              }),
-            }),
+                source: new XYZSource({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    attributions: 'Tiles © Esri — Source: Esri, Earthstar Geographics',
+                    // maxZoom: 19
+               }),
+             }),
+             new TileLayer({
+                source: new XYZSource({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+                    attributions: 'Labels © Esri',
+                    // maxZoom: 19
+               }),
+             }),
+             new TileLayer({
+                source: new XYZSource({
+                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+                        attributions: '© Esri, HERE, Garmin, FAO, NOAA, USGS'
+                    // maxZoom: 19
+               }),
+             }),
 
             this.huc8,
             this.cloverBelt,
@@ -644,15 +663,19 @@ class OLMapFragment extends React.Component {
 
         ]
         var overlay2 = new Overlay({
-            position: [-10008338,5525100],
+            // position: [-10008338,5525100],
             element: document.getElementById('overlay2')
+        });
+        this.overlay = new Overlay({
+            // position: [-10008338,5525100],
+            element:this.tooltipRef.current,
         });
         // Create an Openlayer Map instance
         this.map = new Map({
             //  Display the map in the div with the id of map
             target: 'map',
             layers: this.layers,
-//            overlays: [overlay2],
+           overlays: [overlay2, this.overlay],
             // Add in the following map controls
 //            controls: [
 //                new ZoomSlider(),
@@ -711,28 +734,9 @@ class OLMapFragment extends React.Component {
            },
 
         });
-        // select interaction working on "click"
-//        const selectClick = new Select({
-//          condition: click,
-//           multi: true,
-//           layers:function(layer){
-//                console.log(layer)
-//               console.log("hello32$$#$#$#$#$$###$")
-//               return false
-//           },
 
-//          filter: function(layer){
-//                        console.log("in the select condition@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-//                console.log(layer)
-//                return false
-//                    },
-//          layerFilter: function(layer) {
-//            console.log("in the select condition@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-//                console.log(layer)
-//              return layer.get('typename') == 'layerDIST';
-//            },
-//        });
         // get selected features from map
+        // this.map.on('pointermove', this.handlePointerMove);
         this.selectedFeatures = this.select.getFeatures();
         this.selectedFeatures.on(['remove'], (f)=> {
             console.log("remove selected feature")
@@ -790,6 +794,19 @@ class OLMapFragment extends React.Component {
                 return
             }
 
+            console.log('mvo')
+            console.log(f.target.item(0).get("name"))
+            if (f.target.item(0).get("name")) {
+                const name = f.target.item(0).get("name");
+                this.tooltipRef.current.innerHTML = name || 'Unnamed';
+                this.tooltipRef.current.style.display = 'block';
+                let geo = f.target.item(0).get("geometry").getExtent()
+                console.log(geo)
+                let coords = [geo[0], geo[1]]
+                this.overlay.setPosition(coords);
+            } else {
+                this.tooltipRef.current.style.display = 'none';
+            }
             // get active trans boundary layer
             let layer = this.getActiveBounLay()
             // setting the aoi boundary because we don't have any trans yet
@@ -825,9 +842,7 @@ class OLMapFragment extends React.Component {
             }
             console.log("done with add selection")
           });
-
-
-
+        
         // a DragBox interaction used to select features by drawing boxes
         this.dragBox = new DragBox({
 //          condition: platformModifierKeyOnly,
@@ -837,42 +852,33 @@ class OLMapFragment extends React.Component {
         // clear selection when drawing a new box and when clicking on the map
         this.dragBox.on('boxstart', function () {
 //          this.selectedFeatures.clear();
-
         });
         const value = "Polygon";
-//        this.source = new VectorSource({
-//            projection: 'EPSG:3857',
-//        })
-//        this.boundaryLayer.setSource(this.source)
+
         this.draw = new Draw({
           source: this.source,
           type: value,
         });
-//        this.source.on('addfeature', function(evt){
-////            start_drawing = true;
-//        });
+
         this.draw.on('drawstart', function(evt){
 //            start_drawing = true;
         });
-        this.draw.on('drawend', (evt) => {})
-        // fire when we add a new polygon
-//        this.source.on('addfeature', (evt) => {
-////            start_drawing = false;
-//            let aoiExtents = createEmpty();
-//            let aoiCoors = []
-//
-//            this.boundaryLayer.getSource().forEachFeature(function (lyr) {
 
-//                aoiExtents = extend(aoiExtents, lyr.getGeometry().getExtent())
-//                aoiCoors.push(lyr.getGeometry().getCoordinates())
-//            })
-
-//            this.props.handleBoundaryChange(aoiExtents,aoiCoors)
-//
-//
-//        });
-    this.map.addInteraction(this.select);
+        this.map.addInteraction(this.select);
     }
+    handlePointerMove = (evt) => {
+        console.log('mvo')
+        const feature = this.map.forEachFeatureAtPixel(evt.pixel, f => f);
+        console.log(feature)
+        // if (feature) {
+        //   const name = feature.get('NAME');
+        //   this.tooltipRef.current.innerHTML = name || 'Unnamed';
+        //   this.tooltipRef.current.style.display = 'block';
+        //   this.overlay.setPosition(evt.coordinate);
+        // } else {
+        //   this.tooltipRef.current.style.display = 'none';
+        // }
+      };
     render(){
 //        size of loader
         let loaderSize = 100
@@ -942,6 +948,18 @@ class OLMapFragment extends React.Component {
 			</div>
 
             <div id="overlay2" >hizsfdsfafasdfsadfasdfsadfdf3434343</div>
+            <div
+                ref={this.tooltipRef}
+                style={{
+                    position: 'absolute',
+                    backgroundColor: 'white',
+                    border: '1px solid black',
+                    padding: '4px 8px',
+                    fontSize: '12px',
+                    pointerEvents: 'none',
+                    display: 'none',
+                }}
+                />
             </div>
 
         )
