@@ -615,15 +615,33 @@ class OLMapFragment extends React.Component {
         });
         // base map
         this.layers = [
+            // new TileLayer({
+            //    source: new BingMaps({
+            //     key: this.bing_key,
+            //     imagerySet: 'AerialWithLabelsOnDemand',
+            //   }),
+            // }),
             new TileLayer({
-               source: new BingMaps({
-                key: this.bing_key,
-                imagerySet: 'AerialWithLabelsOnDemand',
-                // use maxZoom 19 to see stretched tiles instead of the BingMaps
-                // "no photos at this zoom level" tiles
-                // maxZoom: 19
-              }),
-            }),
+                source: new XYZSource({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                    attributions: 'Tiles © Esri — Source: Esri, Earthstar Geographics',
+                    // maxZoom: 19
+               }),
+             }),
+             new TileLayer({
+                source: new XYZSource({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+                    attributions: 'Labels © Esri',
+                    // maxZoom: 19
+               }),
+             }),
+             new TileLayer({
+                source: new XYZSource({
+                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+                        attributions: '© Esri, HERE, Garmin, FAO, NOAA, USGS'
+                    // maxZoom: 19
+               }),
+             }),
 
             this.huc8,
             this.cloverBelt,
