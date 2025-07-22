@@ -594,78 +594,78 @@ Ext.define('DSS.map.LayerMenu', {
 					group: 'base-layer'
 				},
 				items: [
-				{
-					boxLabel: 'Hybrid',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.bingAerial.setVisible(true);
-								DSS.layer.osm_streets.setVisible(false);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_satellite.setVisible(false);
-							}
-						}
-					}
-				},
-				{
-					boxLabel: 'Streets',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.osm_streets.setVisible(true);
-								DSS.layer.bingAerial.setVisible(false);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_satellite.setVisible(false);
-							}
-						}
-					}
-				},
-				{
-					boxLabel: 'Topo',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.osm_topo.setVisible(true);
-								DSS.layer.bingAerial.setVisible(false);
-								DSS.layer.osm_streets.setVisible(false);
-								DSS.layer.osm_satellite.setVisible(false);
-							}
-						}
-					}
-				},
-				{
-					boxLabel: 'satellite',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.osm_satellite.setVisible(true);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.bingAerial.setVisible(false);
-								DSS.layer.osm_streets.setVisible(false);
-							}
-						}
-					}
-				},
-				{ 
-					boxLabel: 'No Base Map', 
-	                text: 'Bing Aerial',
-	                DSS_layer: 'bing-aerial',
-					listeners:{change: function(checked)
-						{
-							if(this.checked){
-								console.log(this.checked)
-								DSS.layer.bingAerial.setVisible(true);
-								DSS.layer.osm_satellite.setVisible(false);
-								DSS.layer.osm_topo.setVisible(false);
-								DSS.layer.osm_streets.setVisible(false);
-							}
-						}
-					}
-				},
+				// {
+				// 	boxLabel: 'Hybrid',
+				// 	listeners:{change: function(checked)
+				// 		{
+				// 			if(this.checked){
+				// 				console.log(this.checked)
+				// 				DSS.layer.bingAerial.setVisible(true);
+				// 				DSS.layer.osm_streets.setVisible(false);
+				// 				DSS.layer.osm_topo.setVisible(false);
+				// 				DSS.layer.osm_satellite.setVisible(false);
+				// 			}
+				// 		}
+				// 	}
+				// },
+				// {
+				// 	boxLabel: 'Streets',
+				// 	listeners:{change: function(checked)
+				// 		{
+				// 			if(this.checked){
+				// 				console.log(this.checked)
+				// 				DSS.layer.osm_streets.setVisible(true);
+				// 				DSS.layer.bingAerial.setVisible(false);
+				// 				DSS.layer.osm_topo.setVisible(false);
+				// 				DSS.layer.osm_satellite.setVisible(false);
+				// 			}
+				// 		}
+				// 	}
+				// },
+				// {
+				// 	boxLabel: 'Topo',
+				// 	listeners:{change: function(checked)
+				// 		{
+				// 			if(this.checked){
+				// 				console.log(this.checked)
+				// 				DSS.layer.osm_topo.setVisible(true);
+				// 				DSS.layer.bingAerial.setVisible(false);
+				// 				DSS.layer.osm_streets.setVisible(false);
+				// 				DSS.layer.osm_satellite.setVisible(false);
+				// 			}
+				// 		}
+				// 	}
+				// },
+				// {
+				// 	boxLabel: 'satellite',
+				// 	listeners:{change: function(checked)
+				// 		{
+				// 			if(this.checked){
+				// 				console.log(this.checked)
+				// 				DSS.layer.osm_satellite.setVisible(true);
+				// 				DSS.layer.osm_topo.setVisible(false);
+				// 				DSS.layer.bingAerial.setVisible(false);
+				// 				DSS.layer.osm_streets.setVisible(false);
+				// 			}
+				// 		}
+				// 	}
+				// },
+				// { 
+				// 	boxLabel: 'No Base Map', 
+	            //     text: 'Bing Aerial',
+	            //     DSS_layer: 'bing-aerial',
+				// 	listeners:{change: function(checked)
+				// 		{
+				// 			if(this.checked){
+				// 				console.log(this.checked)
+				// 				DSS.layer.bingAerial.setVisible(true);
+				// 				DSS.layer.osm_satellite.setVisible(false);
+				// 				DSS.layer.osm_topo.setVisible(false);
+				// 				DSS.layer.osm_streets.setVisible(false);
+				// 			}
+				// 		}
+				// 	}
+				// },
 			]
 			},
 		]

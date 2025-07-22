@@ -202,62 +202,88 @@ Ext.define('DSS.map.Main', {
 		DSS.layer = {};
 		me.manageMapLayerCookies();
 		//---------------------------------------------------------
-		DSS.layer.bingAerial = new ol.layer.Tile({
+		console.log(ol.source)
+		DSS.layer.esriSat = new ol.layer.Tile({
 			visible: true,
-			source: new ol.source.BingMaps({
-				key: me.BING_KEY,
-				imagerySet: 'AerialWithLabelsOnDemand',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey
-				//hidpi:true,
-				//maxZoom:18,
-				//minZoom:11,
+			source: new ol.source.XYZ({
+				url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+				attributions: 'Tiles © Esri — Source: Esri, Earthstar Geographics',
+				// maxZoom: 19
 			})
-		});
+		})
+		DSS.layer.esriBound = new ol.layer.Tile({
+			visible: true,
+			source: new ol.source.XYZ({
+				url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+				attributions: 'Tiles © Esri — Source: Esri, Earthstar Geographics',
+				// maxZoom: 19
+			})
+		})
+		DSS.layer.esriRoad = new ol.layer.Tile({
+			visible: true,
+			source: new ol.source.XYZ({
+				url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',
+				attributions: 'Tiles © Esri — Source: Esri, Earthstar Geographics',
+				// maxZoom: 19
+			})
+		})
+		
+		// DSS.layer.bingAerial = new ol.layer.Tile({
+		// 	visible: true,
+		// 	source: new ol.source.BingMaps({
+		// 		key: me.BING_KEY,
+		// 		imagerySet: 'AerialWithLabelsOnDemand',// can be: Aerial, Road, RoadOnDemand, AerialWithLabels, AerialWithLabelsOnDemand, CanvasDark, OrdnanceSurvey
+		// 		//hidpi:true,
+		// 		//maxZoom:18,
+		// 		//minZoom:11,
+		// 	})
+		// });
 		//---------------------------------------------------------
-		DSS.layer.bingRoad = new ol.layer.Tile({
-			visible: false,
-			source: new ol.source.BingMaps({
-				key: me.BING_KEY,
-				imagerySet: 'Road',  
-				maxZoom:18,
-				minZoom:11,
-			})
-		});		
-		//--------------------------------------------------------------		
-		DSS.layer.osm_hybrid = new ol.layer.Tile({
-			visible: true,
-			source: new ol.source.TileJSON({
-				url: 'https://api.maptiler.com/maps/hybrid/tiles.json?key=' + me.OSM_KEY,
-				tileSize: 400,
-				crossOrigin: 'anonymous'
-			})
-		})	;
-		//--------------------------------------------------------------	
-		DSS.layer.osm_satellite = new ol.layer.Tile({
-			visible: false,
-			source: new ol.source.TileJSON({
-				url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
-				tileSize: 400,
-				crossOrigin: 'anonymous'
-			})
-		})	;
-		//--------------------------------------------------------------	
-		DSS.layer.osm_streets = new ol.layer.Tile({
-			visible: false,
-			source: new ol.source.TileJSON({
-				url: 'https://api.maptiler.com/maps/streets/tiles.json?key=' + me.OSM_KEY,
-				tileSize: 400,
-				crossOrigin: 'anonymous'
-			})
-		})	;
-		DSS.layer.osm_topo = new ol.layer.Tile({
-			visible: false,
-			//visible: true,
-			source: new ol.source.TileJSON({
-				url: 'https://api.maptiler.com/maps/topo/tiles.json?key=' + me.OSM_KEY,
-				tileSize: 400,
-				crossOrigin: 'anonymous'
-			})
-		})	;
+		// DSS.layer.bingRoad = new ol.layer.Tile({
+		// 	visible: false,
+		// 	source: new ol.source.BingMaps({
+		// 		key: me.BING_KEY,
+		// 		imagerySet: 'Road',  
+		// 		maxZoom:18,
+		// 		minZoom:11,
+		// 	})
+		// });		
+		// //--------------------------------------------------------------		
+		// DSS.layer.osm_hybrid = new ol.layer.Tile({
+		// 	visible: true,
+		// 	source: new ol.source.TileJSON({
+		// 		url: 'https://api.maptiler.com/maps/hybrid/tiles.json?key=' + me.OSM_KEY,
+		// 		tileSize: 400,
+		// 		crossOrigin: 'anonymous'
+		// 	})
+		// })	;
+		// //--------------------------------------------------------------	
+		// DSS.layer.osm_satellite = new ol.layer.Tile({
+		// 	visible: false,
+		// 	source: new ol.source.TileJSON({
+		// 		url: 'https://api.maptiler.com/tiles/satellite/tiles.json?key=' + me.OSM_KEY,
+		// 		tileSize: 400,
+		// 		crossOrigin: 'anonymous'
+		// 	})
+		// })	;
+		// //--------------------------------------------------------------	
+		// DSS.layer.osm_streets = new ol.layer.Tile({
+		// 	visible: false,
+		// 	source: new ol.source.TileJSON({
+		// 		url: 'https://api.maptiler.com/maps/streets/tiles.json?key=' + me.OSM_KEY,
+		// 		tileSize: 400,
+		// 		crossOrigin: 'anonymous'
+		// 	})
+		// })	;
+		// DSS.layer.osm_topo = new ol.layer.Tile({
+		// 	visible: false,
+		// 	//visible: true,
+		// 	source: new ol.source.TileJSON({
+		// 		url: 'https://api.maptiler.com/maps/topo/tiles.json?key=' + me.OSM_KEY,
+		// 		tileSize: 400,
+		// 		crossOrigin: 'anonymous'
+		// 	})
+		// })	;
 		//---------------------------Region Label Layer-----------------
 		let regionLabel = new ol.style.Style({
 			text: new ol.style.Text({
@@ -1592,11 +1618,14 @@ Ext.define('DSS.map.Main', {
 			interactions : ol.interaction.defaults({doubleClickZoom :false}),
 			target: me.down('#ol_map').getEl().dom,
 			layers: [
-				DSS.layer.bingAerial,
+				DSS.layer.esriSat,
+				DSS.layer.esriBound,
+				DSS.layer.esriRoad,
+				// DSS.layer.bingAerial,
 				//DSS.layer.osm_hybrid,
-				DSS.layer.osm_satellite,
-				DSS.layer.osm_streets,
-				DSS.layer.osm_topo,
+				// DSS.layer.osm_satellite,
+				// DSS.layer.osm_streets,
+				// DSS.layer.osm_topo,
 				DSS.layer.CBDEM_image0,
 				DSS.layer.CBDEM_image1,
 				DSS.layer.CBDEM_image2,
