@@ -13,7 +13,7 @@ if parser.has_section("geoserver_local"):
 print(user)
 print(password)
 # GeoServer Configuration
-region = {"cloverBeltWI":"cloverBelt",
+regions = {"cloverBeltWI":"cloverBelt",
     "eastCentralWI":"eastCentralWI",
     "northeastWI":"northeast",
     "pineRiverMN":"pineRiverMN",
@@ -24,55 +24,54 @@ region = {"cloverBeltWI":"cloverBelt",
 }
 # TIF_DIRECTORY = r"/opt/geoserver/gsdata/GeoserverFiles/SmartScape/southEastWI/modelOutputs/"
 # TIF_DIRECTORY = r"/opt/geoserver/gsdata/GeoserverFiles/SmartScape/eastCentralWI/modelOutputs/"
-TIF_DIRECTORY = r"/mnt/rclone_geoserver/" + region["southWestWI"] + r"/modelOutputs"
+
 # print(os.listdir(TIF_DIRECTORY))
+
 
 base_url = "http://localhost:8080/geoserver/rest/imports"
 # base_url = "http://144.92.32.223:8080/geoserver/rest/imports"
 # base_url = "http://144.92.32.223:8081/geoserver/rest/imports"
+for region in regions:
+    # TIF_DIRECTORY = r"/mnt/rclone_geoserver/" + regions[region] + r"/modelOutputs"
+    # TIF_DIRECTORY = r"/mnt/rclone_geoserver/" + regions[region] + r"/modelInputs"
+    TIF_DIRECTORY = r"/mnt/rclone_geoserver/" + regions[region] + r"/HUC"
+    data = {
+        "import": {
+            "targetWorkspace": {
+                "workspace": {
+                    # "name": "SmartScapeRaster_" + region
+                    "name": "SmartScapeVector"
 
-data = {
-    "import": {
-        "targetWorkspace": {
-            "workspace": {
-                "name": "SmartScapeRaster_" + "southWestWI"
-
+                }
+            },
+            "data": {
+                "type": "directory",
+                "location": TIF_DIRECTORY
             }
-        },
-        "data": {
-            "type": "directory",
-            "location": TIF_DIRECTORY
         }
     }
-}
 
-print(data)
+    print(data)
 
-headers = {"Content-Type": "application/json"}
-auth = (user, password)
-
+    headers = {"Content-Type": "application/json"}
+    auth = (user, password)
 
 
 
 
 
-create_response = requests.post(base_url, json=data, headers=headers, auth=auth)
-if create_response.status_code != 201:
-    print("Failed to create import:", create_response.text)
-    exit()
 
-import_id = create_response.json()["import"]["id"]
+    create_response = requests.post(base_url, json=data, headers=headers, auth=auth)
+    if create_response.status_code != 201:
+        print("Failed to create import:", create_response.text)
+        exit()
 
+    import_id = create_response.json()["import"]["id"]
 
+    # Step 2: Execute Import
+    execute_url = f"{base_url}/{import_id}"
+    execute_data = {"execute": "true"}
+    execute_response = requests.post(execute_url, json=execute_data, headers=headers, auth=auth)
 
-# import_id = 1
-# print(f"Import created with ID: {import_id}")
-
-
-# # Step 2: Execute Import
-# execute_url = f"{base_url}/{import_id}"
-# execute_data = {"execute": "true"}
-# execute_response = requests.post(execute_url, json=execute_data, headers=headers, auth=auth)
-
-# print("Execute Status Code:", execute_response.status_code)
-# print("Execute Response:", execute_response.text)
+    print("Execute Status Code:", execute_response.status_code)
+    print("Execute Response:", execute_response.text)

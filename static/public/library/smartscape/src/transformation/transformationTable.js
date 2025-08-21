@@ -131,7 +131,7 @@ class TransformationTable extends Component {
   componentDidUpdate(prevProps) {
     console.log("old values", prevProps)
     console.log("new values", this.props)
-    if(prevProps.activeTrans.management.nitrogen != this.props.activeTrans.management.nitrogen){
+    if(prevProps.activeTrans.management.nitrogen != this.props.activeTrans.management.nitrogen || prevProps.activeTrans.management.cover != this.props.activeTrans.management.cover){
         if (prevProps.aoiFolderId == null){
             return
         }
@@ -340,7 +340,7 @@ class TransformationTable extends Component {
          this.handleTransMangement()
 //      update active transformation with new value
         this.props.updateActiveTransProps({"name":type, "value":e.currentTarget.value, "type":"mang"})
-        }
+    }
     handleSelectionChangeGeneral(name, e, type){
             this.props.updateActiveTransProps({"name":name, "value":e.currentTarget.value, "type":type})
 
@@ -420,8 +420,8 @@ class TransformationTable extends Component {
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            url : 'https://api.smartscape.grasslandag.org/api/get_phos_fert_options',
-            // url : 'http://localhost:9000/api/get_phos_fert_options',
+            // url : 'https://api.smartscape.grasslandag.org/api/get_phos_fert_options',
+            url : 'http://localhost:9000/api/get_phos_fert_options',
             type : 'POST',
             data : payload,
             success: (response, opts) => {
