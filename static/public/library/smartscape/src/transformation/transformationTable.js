@@ -420,8 +420,8 @@ class TransformationTable extends Component {
         console.log(payload)
         payload = JSON.stringify(payload)
         $.ajax({
-            // url : 'https://api.smartscape.grasslandag.org/api/get_phos_fert_options',
-            url : 'http://localhost:9000/api/get_phos_fert_options',
+            url : 'https://api.smartscape.grasslandag.org/api/get_phos_fert_options',
+            // url : 'http://localhost:9000/api/get_phos_fert_options',
             type : 'POST',
             data : payload,
             success: (response, opts) => {
