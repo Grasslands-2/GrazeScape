@@ -23,6 +23,7 @@ from grazescape.model_defintions.runoff import Runoff
 from grazescape.model_defintions.nitrate_leach import NitrateLeeching
 from grazescape.model_defintions.insecticide import Insecticide
 from grazescape.model_defintions.soil_condition_index import SoilIndex
+from grazescape.model_defintions.soc import SOC
 from grazescape.geoserver_connect import GeoServer
 from grazescape.multiprocessing_helper import run_parallel
 from grazescape.db_connect import *
@@ -33,6 +34,20 @@ import json as js
 import shutil
 from datetime import datetime
 import tracemalloc
+import logging
+
+# Configure root logger
+logging.basicConfig(
+    level=logging.INFO,  # could be DEBUG, WARNING, ERROR, CRITICAL
+    format="%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
+    handlers=[
+        # logging.FileHandler("app.log"),  # log to file
+        logging.StreamHandler()          # log to console
+    ]
+)
+logger = logging.getLogger(__name__)
+logger.info("Application started")
+
 
 credential_path = os.path.join(settings.BASE_DIR, 'keys', 'cals-grazescape-files-63e6-4f2fc53201e6.json')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
@@ -423,8 +438,20 @@ def get_model_results(request):
     need_download_rasters = False
     try:
         db_results, db_des = get_values_db(field_id, scenario_id)
-        # print(db_results, db_des)
+        print(db_results, db_des)
         # raise ValueError("teting")
+        # is_dirty = True
+        if db_results is not None:
+            for val in db_results:
+                if val is None:
+                    is_dirty = "true"
+                    need_download_rasters = True
+                    break
+        else:
+             is_dirty = "true"
+             need_download_rasters = True
+        # logger.info(f"db results {db_results}")
+
         if is_dirty == "false" and db_results is not None:
             # todo access database to retrieve results
             print("accessing stored model results")
@@ -503,6 +530,10 @@ def get_model_results(request):
             model_rain.raster_inputs = clipped_rasters
             model_insect = Insecticide(request)
             model_insect.raster_inputs = clipped_rasters
+
+            model_soc = SOC(request)
+            model_insect.raster_inputs = clipped_rasters
+            
             model_econ = Econ(request)
             model_econ.raster_inputs = clipped_rasters
 
@@ -528,8 +559,10 @@ def get_model_results(request):
 
                 econ_results = model_econ.run_model()
                 insect_results = model_insect.run_model()
+                soc_results = model_soc.run_model()
                 results.append(econ_results[0])
                 results.append(insect_results[0])
+                results.append(soc_results[0])
             # convert area from sq meters to acres
 
             # probably use threads here and use numpy in the png creation
@@ -548,7 +581,7 @@ def get_model_results(request):
 
         for result in results:
             # print(result.model_type)
-            if result.model_type == "insect" or result.model_type == "econ":
+            if result.model_type == "insect" or result.model_type == "econ" or result.model_type == "soc":
                 sum = result.data[0]
                 avg = sum
                 count = 1

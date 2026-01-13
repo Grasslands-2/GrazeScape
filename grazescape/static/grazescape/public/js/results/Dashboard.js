@@ -1,47 +1,3 @@
-//
-//// Define an object to hold the variable
-//var variableObject = {
-//  value: 'Initial value',
-//  onChange: null, // Custom event handler
-//  set value(newValue) {
-//    this._value = newValue;
-//    if (typeof this.onChange === 'function') {
-//      this.onChange(newValue);
-//    }
-//  },
-//  get value() {
-//    return this._value;
-//  }
-//};
-//
-//// Custom event handler
-//variableObject.onChange = function(newValue) {
-//  console.log('Variable value changed:', newValue);
-//};
-//
-//// Update the variable value
-//variableObject.value = 'New value';
-//
-//function createHTMLTable(valuesList){
-//    let tableHeader = "<table id='test1'><tr>"+
-//        "<th style='border:1px solid black'>Occupancy</th>"+
-//        "<th style='border:1px solid black'>Low Yielding Variety</th>"+
-//        "<th style='border:1px solid black'>Medium Yielding Variety</th>"+
-//        "<th style='border:1px solid black'>High Yielding Variety</th></tr>"
-//    tableFooter = "</table>"
-//    for (let row in valuesList){
-//        console.log(row)
-//        tableHeader = tableHeader + "<tr>"
-//        for (let col in valuesList[row]){
-//            tableHeader = tableHeader +  "<th style='border:1px solid black'>"+valuesList[row][col]+"</th>"
-//        }
-//        tableHeader = tableHeader + "</tr>"
-//    }
-//    tableHeader = tableHeader + tableFooter
-//    return tableHeader
-//}
-//testTable113 = createHTMLTable([[0,1,2,3], [5,6,7]])
-
 var fieldArraystandin = []
 Ext.create('Ext.data.Store', {
 	storeId: 'fieldSummaryStore',
@@ -618,30 +574,6 @@ function field_png_lookup(data,layer,extents){
 	})
 }
 
-//function get_results_image(data){
-//    return new Promise(function(resolve) {
-//    var csrftoken = Cookies.get('csrftoken');
-//	console.log('data coming into ajax call')
-//	console.log(data)
-//    $.ajaxSetup({
-//            headers: { "X-CSRFToken": csrftoken }
-//        });
-//    $.ajax({
-//    'url' : '/grazescape/get_results_image',
-//    'type' : 'POST',
-//    'data' : data,
-//    success: function(responses) {
-//		console.log(responses)
-//		resolve([])
-//	},
-//	error: function(responses) {
-//		console.log('python tool call error')
-//		console.log(responses)
-//	}
-//	})
-//	})
-//}
-
 function timeout(){
     console.log('timeout')
 }
@@ -804,6 +736,8 @@ var chartList = [
     'nwater_farm',
     'sci_field',
     'sci_farm',
+    'soc_field',
+    'soc_farm',
     'cn_num_farm',
     'runoff_farm',
     'compare_farm',
@@ -885,6 +819,12 @@ var additionalChartInfo = {
         group: 'Erosion'
     },
     'sci_farm': {
+        group: 'Erosion'
+    },
+    'soc_field': {
+        group: 'Erosion'
+    },
+    'soc_farm': {
         group: 'Erosion'
     },
     'cn_num_farm': {
@@ -1343,12 +1283,12 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
             //TODO update
         var erosion = {
 
-                title: '<i class="fas fa-mountain"></i>  Erosion <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=ero_pb >50%</progress>',
+                title: '<i class="fas fa-mountain"></i>  Soil <br/> <progress class = "progres_bar" hidden = true value="0" max="100" id=ero_pb >50%</progress>',
                 plain: true,
                 id:"eroTab",
                 disabled:true,
                 tabConfig:{
-                    tooltip: "Erosion",
+                    tooltip: "Soil",
 //                    cls: "myBar"
                 },
                 tabBar : {
@@ -1398,7 +1338,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         ],
                          listeners:{change: function(e, newValue, oldValue, eOpts) {
                             displayAlternate("soil_loss_farm", e.id)
-//                            displayAlternate("sci_farm", e.id)
+                            displayAlternate("soc_farm", e.id)
                          }},
                     },
                     {
@@ -1408,6 +1348,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                      {
                         xtype: 'container',
                         html: '<div id="container" ><canvas id="sci_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                    },
+                    {
+                        xtype: 'container',
+                        html: '<div id="container" ><canvas id="soc_farm" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                     },
 
                     ],
@@ -1419,6 +1363,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }
                       chartObj.soil_loss_farm.chart = create_graph(chartObj.soil_loss_farm, 'Soil Loss', document.getElementById('soil_loss_farm').getContext('2d'));
                       chartObj.sci_farm.chart = create_graph(chartObj.sci_farm, 'Soil Condition Index', document.getElementById('sci_farm').getContext('2d'));
+                      chartObj.soc_farm.chart = create_graph(chartObj.soc_farm, 'Soil Condition Index', document.getElementById('soc_farm').getContext('2d'));
 
 
                     }}
@@ -1458,6 +1403,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             ],
                              listeners:{change: function(e, newValue, oldValue, eOpts) {
                                 displayAlternate("soil_loss_field", e.id)
+                                displayAlternate("soc_field", e.id)
     //                            displayAlternate("sci_field", e.id)
                              }},
                         },
@@ -1470,6 +1416,10 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             xtype: 'container',
                             html: '<div id="container" ><canvas id="sci_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
                         },
+                        {
+                            xtype: 'container',
+                            html: '<div id="container" ><canvas id="soc_field" style = "width:'+chart_width_double+';height:'+chart_height_double+';"></canvas></div>',
+                        },
 
                         ],
                         listeners:{activate: function() {
@@ -1480,6 +1430,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                             console.log("chartObj", chartObj)
                             chartObj.soil_loss_field.chart = create_graph(chartObj.soil_loss_field, 'Soil Loss', document.getElementById('soil_loss_field').getContext('2d'));
                             chartObj.sci_field.chart = create_graph(chartObj.sci_field, 'Soil Condition Index', document.getElementById('sci_field').getContext('2d'));
+                            chartObj.soc_field.chart = create_graph(chartObj.soc_field, 'Soil Condition Index', document.getElementById('soc_field').getContext('2d'));
 
                         }}
                     },
@@ -2400,7 +2351,7 @@ var dashBoardDialog = Ext.define('DSS.results.Dashboard', {
                         }]
                     },
                     {
-                        title: "Erosion",
+                        title: "Soil",
                         xtype: 'panel',
                         width: chart_width,
                         collapsible: true,

@@ -366,10 +366,7 @@ function format_chart_data(model_data){
                 break
             case 'feed breakdown':
                 chartTypeField = chartObj.feed_breakdown
-//            case 'nitrate':
-//                chartTypeField = chartObj.nleaching_field
-//                chartTypeFarm = chartObj.nleaching_farm
-//                break
+
             case 'ploss':
             
                 chartTypeField = chartObj.ploss_field
@@ -428,25 +425,15 @@ function format_chart_data(model_data){
             case 'nwater':
                 chartTypeField = chartObj.nwater_field
                 chartTypeFarm = chartObj.nwater_farm
-//                if(model_data.scen_id == DSS.activeScenario){
-//                    if(model_data.extent !== undefined){
-//                        DSS.nleachingBol = false
-//                        var plextent = model_data.extent
-//                        DSS.layer.nleaching_field = new ol.layer.Image({
-//                            visible: false,
-//                            source: new ol.source.ImageStatic({
-//                            url: '/static/grazescape/public/images/nleaching'+ model_data.field_id + '.png',
-//                            imageExtent: plextent
-//                            })
-//                        })
-//                        DSS.layer.nleaching_field.set('name', 'nleaching'+ model_data.field_id);
-//                    }
-//                }
+
                 break
             case 'soil_index':
-                console.log("running soil index")
                 chartTypeField = chartObj.sci_field
                 chartTypeFarm = chartObj.sci_farm
+                break
+            case 'soc':
+                chartTypeField = chartObj.soc_field
+                chartTypeFarm = chartObj.soc_farm
                 break
             case 'Runoff':
                 chartTypeFarm = chartObj.runoff_farm
@@ -1161,10 +1148,10 @@ function displayAlternate(chartName, btnId){
                     continue
                 }
                 if(divideArea){
-                    chartDatasets[data].data[set] = +((chartDatasets[data].data[set]/chartData.area[data]).toFixed(2))
+                    chartDatasets[data].data[set] = +((chartDatasets[data].data[set]/chartData.area[data]).toFixed(4))
                 }
                 else{
-                    chartDatasets[data].data[set] = +((chartDatasets[data].data[set] * chartData.area[data]).toFixed(2))
+                    chartDatasets[data].data[set] = +((chartDatasets[data].data[set] * chartData.area[data]).toFixed(4))
                 }
             }
         }
@@ -1322,7 +1309,9 @@ function compareChartCheckBox(){
         ],
     erosionVar : [
         ["Soil Erosion / Area  ",'soil_loss_farm', false, false],
-        ["Soil Erosion Total",'soil_loss_farm', true, false]
+        ["Soil Erosion Total",'soil_loss_farm', true, false],
+        ["SOC / Area  ",'soc_farm', false, false],
+        ["SOC Total",'soc_farm', true, false]
     ],
     nutrientsVar : [
         ["Phosphorus Runoff / Area  " , 'ploss_farm', false, false],
@@ -1608,8 +1597,8 @@ function retrieveAllFieldsDataGeoserver(){
 //runs the print summary in the dashboard
 function downloadSummaryCSV(chartObj){
     var refinedData = []
-    var fieldkeys = ["rotation_yield_field","alfalfa_yield_field","corn_silage_yield_field","corn_yield_field","grass_yield_field","oat_yield_field","econ_field","insecticide_field","nleaching_field","nwater_field","sci_field","ploss_field","soil_loss_field"]
-    var farmkeys = ["rotation_yield_farm","alfalfa_yield_farm","corn_silage_yield_farm","corn_yield_farm","grass_yield_farm","oat_yield_farm","econ_farm","insecticide_farm","nleaching_farm","nwater_farm", "sci_farm","ploss_farm","soil_loss_farm"]
+    var fieldkeys = ["rotation_yield_field","alfalfa_yield_field","corn_silage_yield_field","corn_yield_field","grass_yield_field","oat_yield_field","econ_field","insecticide_field","nleaching_field","nwater_field","sci_field","ploss_field","soil_loss_field", "soc_field"]
+    var farmkeys = ["rotation_yield_farm","alfalfa_yield_farm","corn_silage_yield_farm","corn_yield_farm","grass_yield_farm","oat_yield_farm","econ_farm","insecticide_farm","nleaching_farm","nwater_farm", "sci_farm","ploss_farm","soil_loss_farm", "soc_farm"]
 
     refinedData.push(["All data shown as per acre"])
     refinedData.push([""])
