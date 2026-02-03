@@ -2097,7 +2097,74 @@ renderModal(){
         areaWatershed = this.state.modelOutputs.land_stats.area_watershed
         areaWatershedCalc = this.state.modelOutputs.land_stats.area_watershed_calc
 
-        dataRadar = {
+
+
+
+
+        let v1, v2 = 0
+        let model_name = ""
+//        calculate percent difference
+        function percentDiff(v1, v2){
+          // Handle the special case where both values are 0
+          if (v1 === 0 && v2 === 0) {
+            return 0;
+          }
+         
+          if (v1 != 0){
+            return Math.round((v2 - v1) / Math.abs(v1) * 100);
+          }
+          else{
+            return 100;
+          }
+          
+        }
+        for (let m in models) {
+            model_name = models[m]
+            v2 = parseFloat(model[model_name])
+            v1 = parseFloat(base[model_name])
+            console.log("calculating percent difference for " + model_name)
+            console.log(v1, v2)
+            // console.log(((v1 + v2)/2))
+//            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
+//            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
+            // let perDif = Math.round(((v1-v2)/v2) * 100)
+            let perDif = percentDiff(v1, v2)
+//            console.log(model_name)
+//            console.log("percent different " + perDif)
+            if (isNaN(perDif)){
+                model[model_name + "_per_diff"] = 0
+            }
+            else{
+
+                model[model_name + "_per_diff"] = perDif
+            }
+        }
+
+        for (let m in models) {
+            model_name = models[m]
+            v2 = parseFloat(modelWatershed[model_name])
+            v1 = parseFloat(baseWatershed[model_name])
+//            console.log(v1, v2)
+//            console.log(((v1 + v2)/2))
+//            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
+//            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
+//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
+            // let perDif = Math.round(((v1-v2)/v2) * 100)
+            let perDif = percentDiff(v1, v2)
+
+            if (isNaN(perDif)){
+                modelWatershed[model_name + "_per_diff"] = 0
+            }
+            else{
+
+                modelWatershed[model_name + "_per_diff"] = perDif
+            }
+//            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
+        }
+                dataRadar = {
           labels: labels,
           datasets: [
             {
@@ -2110,18 +2177,18 @@ renderModal(){
                     {
               label: 'Transformation',
               data: [
-                  model.yield/base.yield,
-                  model.ero/base.ero,
-                  model.ploss/base.ploss,
-                  model.ploss_del/base.ploss_del,
-                  model.runoff/base.runoff ,
-                  model.insect/base.insect,
-                  model.cn/base.cn,
-                  model.bird/base.bird,
-                  model.econ/base.econ,
-                  model.nitrate/base.nitrate,
-                  model.sci/base.sci,
-                  model.soc/base.soc,
+                  model.yield_per_diff/100,
+                model.ero_per_diff/100,
+                model.ploss_per_diff/100,
+                model.ploss_del_per_diff/100,
+                model.runoff_per_diff/100,
+                model.insect_per_diff/100,
+                model.cn_per_diff/100,
+                model.bird_per_diff/100,
+                model.econ_per_diff/100,
+                model.nitrate_per_diff/100,
+                model.sci_per_diff/100,
+                model.soc_per_diff/100,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -2142,18 +2209,18 @@ renderModal(){
                     {
               label: 'Transformation',
               data: [
-                  modelWatershed.yield/baseWatershed.yield,
-                  modelWatershed.ero/baseWatershed.ero,
-                  modelWatershed.ploss/baseWatershed.ploss,
-                  modelWatershed.ploss_del/baseWatershed.ploss_del,
-                  modelWatershed.runoff/baseWatershed.runoff ,
-                  modelWatershed.insect/baseWatershed.insect,
-                  modelWatershed.cn/baseWatershed.cn,
-                  modelWatershed.bird/baseWatershed.bird,
-                  modelWatershed.econ/baseWatershed.econ,
-                  modelWatershed.nitrate/baseWatershed.nitrate,
-                  modelWatershed.sci/baseWatershed.sci,
-                  modelWatershed.soc/baseWatershed.soc,
+                modelWatershed.yield_per_diff /100,
+                modelWatershed.ero_per_diff/100,
+                modelWatershed.ploss_per_diff/100,
+                modelWatershed.ploss_del_per_diff/100,
+                modelWatershed.runoff_per_diff/100,
+                modelWatershed.insect_per_diff/100,
+                modelWatershed.cn_per_diff/100,
+                modelWatershed.bird_per_diff/100,
+                modelWatershed.econ_per_diff/100,
+                modelWatershed.nitrate_per_diff/100,
+                modelWatershed.sci_per_diff/100,
+                modelWatershed.soc_per_diff/100,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -2161,55 +2228,6 @@ renderModal(){
             },
           ],
         };
-
-
-
-        let v1, v2 = 0
-        let model_name = ""
-//        calculate percent difference
-        for (let m in models) {
-            model_name = models[m]
-            v1 = parseFloat(model[model_name])
-            v2 = parseFloat(base[model_name])
-//            console.log(v1, v2)
-//            console.log(((v1 + v2)/2))
-//            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
-//            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            let perDif = Math.round(((v1-v2)/v2) * 100)
-//            console.log(model_name)
-//            console.log("percent different " + perDif)
-            if (isNaN(perDif)){
-                model[model_name + "_per_diff"] = 0
-            }
-            else{
-
-                model[model_name + "_per_diff"] = perDif
-            }
-        }
-
-        for (let m in models) {
-            model_name = models[m]
-            v1 = parseFloat(modelWatershed[model_name])
-            v2 = parseFloat(baseWatershed[model_name])
-//            console.log(v1, v2)
-//            console.log(((v1 + v2)/2))
-//            console.log(((v1-v2) / ((v1 + v2)/2)) * 100)
-//            console.log(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round(Math.abs((v1-v2) / ((v1 + v2)/2)) * 100)
-//            model[model_name + "_per_diff"] = Math.round((v1-v2) / ((v1 + v2)/2) * 100)
-            let perDif = Math.round(((v1-v2)/v2) * 100)
-
-            if (isNaN(perDif)){
-                modelWatershed[model_name + "_per_diff"] = 0
-            }
-            else{
-
-                modelWatershed[model_name + "_per_diff"] = perDif
-            }
-//            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
-        }
         dataBarPercent ={ labels: labels,
           datasets: [{
             axis: 'y',
@@ -2655,13 +2673,13 @@ renderModal(){
 
                     </tr>
                     <tr>
-                      <td style={variableStyle}>Soil Organic Carbon</td>
+                      <td style={variableStyle}>Soil Organic Carbon Change</td>
                       <td className="table-cell-left">{base.soc}</td>
                       <td>{model.soc}</td>
-                      <td>mg/acre/yr</td>
+                      <td>Mg/acre/yr</td>
                       <td className="table-cell-left">{base.soc_total}</td>
                       <td>{model.soc_total}</td>
-                      <td>mg/year</td>
+                      <td>Mg/year</td>
                       <td className="table-cell-left">{model.soc_per_diff}</td>
                     </tr>
                     <tr style={rowColor}>
@@ -2859,13 +2877,13 @@ renderModal(){
                       <td className="table-cell-left">{modelWatershed.sci_per_diff}</td>
                     </tr>
                      <tr>
-                      <td style={variableStyle}>Soil Organic Carbon</td>
+                      <td style={variableStyle}>Soil Organic Carbon Change</td>
                       <td className="table-cell-left">{baseWatershed.soc}</td>
-                      <td>{modelWatershed.ero}</td>
-                      <td>mg/acre/yr</td>
+                      <td>{modelWatershed.soc}</td>
+                      <td>Mg/acre/yr</td>
                       <td className="table-cell-left">{baseWatershed.soc_total}</td>
                       <td>{modelWatershed.soc_total}</td>
-                      <td>mg/year</td>
+                      <td>Mg/year</td>
                       <td className="table-cell-left">{modelWatershed.soc_per_diff}</td>
                     </tr>
                     <tr style={rowColor}>
