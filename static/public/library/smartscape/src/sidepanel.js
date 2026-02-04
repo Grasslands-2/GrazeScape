@@ -1822,7 +1822,7 @@ renderModal(){
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'P Delivery to Water','Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Cost per Ton-Dry Matter", "Total Nitrogen Loss to Water", "Soil Conditioning Index","Soil Organic Carbon",
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Cost per Ton-Dry Matter", "Total Nitrogen Loss to Water", "Soil Conditioning Index","Soil Organic Carbon Chanage",
     ]
 //    console.log(this.state.modelOutputs)
     let model = {
@@ -2370,7 +2370,7 @@ renderModal(){
         optionsEcon = charts.getOptionsBar("Cost per Ton-Dry Matter", "$/acre/year")
         optionsNitrate = charts.getOptionsBar("Total Nitrogen Loss to Water", "lb/acre/year")
         optionsSCI = charts.getOptionsBar("Soil Conditioning Index", "sci")
-        optionsSOC = charts.getOptionsBar("Soil Organic Carbon", "mg/acre/yr")
+        optionsSOC = charts.getOptionsBar("Soil Organic Carbon Change", "Mg/acre/yr")
         configErosionGauge = {
               type: "gauge",
               'scale-r': {
