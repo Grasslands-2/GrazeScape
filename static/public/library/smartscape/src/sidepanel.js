@@ -1819,12 +1819,17 @@ renderModal(){
 //     let width = document.getElementById("modalResults").offsetWidth
 //     this.setState({ speedometerWidth: width});
     var pdf = new jsPDF('p', 'pt',"letter" )
+    let isSoc = user_info.user_groups.includes("soc");
     var pageWidth = pdf.getCurrentPageInfo().pageContext.mediaBox.topRightX
     var labels = ['Yield', 'Erosion',
         'Phosphorus Loss', 'P Delivery to Water','Runoff',
-        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Cost per Ton-Dry Matter", "Total Nitrogen Loss to Water", "Soil Conditioning Index","Soil Organic Carbon Chanage",
+        'Honey Bee Toxicity', 'Curve Number', "Bird Friendliness", "Cost per Ton-Dry Matter", "Total Nitrogen Loss to Water", "Soil Conditioning Index"
     ]
-//    console.log(this.state.modelOutputs)
+
+    if (isSoc) {
+      labels.push("Soil Organic Carbon Change");
+    }
+
     let model = {
         "yield":null, "yield_total":null, "yield_per_diff":null,
         "ero":null, "ero_total":null,"ero_per_diff":null,
@@ -1996,7 +2001,11 @@ renderModal(){
     let configPhosGauge =  structuredClone(configErosionGauge)
     configPhosGauge.title.text = "Phosphorus Loss"
     configPhosGauge.series[1].values[0] = 5
-    let models = ["yield","ero","ploss","ploss_del","cn","insect","runoff","bird","econ","nitrate", "sci", "soc"]
+    let models = ["yield","ero","ploss","ploss_del","cn","insect","runoff","bird","econ","nitrate","sci"];
+
+    if (isSoc) {
+        models.push("soc");
+    }
 
 //    populate data if we have model outputs
     if (this.state.modelOutputs.hasOwnProperty("base")){
@@ -2164,44 +2173,44 @@ renderModal(){
             }
 //            modelWatershed[model_name + "_per_diff"] = Math.round(((v1-v2)/v2) * 100)
         }
-                dataRadar = {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1,1,1,1],
-              backgroundColor: 'rgba(238, 119, 51,.2)',
-              borderColor: 'rgba(238, 119, 51,1)',
-              borderWidth: 1,
-            },
-                    {
-              label: 'Transformation',
-              data: [
+        dataRadar = {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Base',
+                data: Array(labels.length).fill(0),
+                backgroundColor: 'rgba(238, 119, 51,.2)',
+                borderColor: 'rgba(238, 119, 51,1)',
+                borderWidth: 1,
+              },
+              {
+                label: 'Transformation',
+                data: [
                   model.yield_per_diff/100,
-                model.ero_per_diff/100,
-                model.ploss_per_diff/100,
-                model.ploss_del_per_diff/100,
-                model.runoff_per_diff/100,
-                model.insect_per_diff/100,
-                model.cn_per_diff/100,
-                model.bird_per_diff/100,
-                model.econ_per_diff/100,
-                model.nitrate_per_diff/100,
-                model.sci_per_diff/100,
-                model.soc_per_diff/100,
-              ],
-              backgroundColor: 'rgba(0, 119, 187,.2)',
-              borderColor: 'rgba(0, 119, 187,1)',
-              borderWidth: 1,
-            },
-          ],
+                  model.ero_per_diff/100,
+                  model.ploss_per_diff/100,
+                  model.ploss_del_per_diff/100,
+                  model.runoff_per_diff/100,
+                  model.insect_per_diff/100,
+                  model.cn_per_diff/100,
+                  model.bird_per_diff/100,
+                  model.econ_per_diff/100,
+                  model.nitrate_per_diff/100,
+                  model.sci_per_diff/100,
+                  // model.soc_per_diff/100,
+                ],
+                backgroundColor: 'rgba(0, 119, 187,.2)',
+                borderColor: 'rgba(0, 119, 187,1)',
+                borderWidth: 1,
+              },
+            ],
         };
         dataRadarWatershed = {
           labels: labels,
           datasets: [
             {
               label: 'Base',
-              data: [1,1,1,1,1,1,1,1,1,1,1,1],
+              data: Array(labels.length).fill(0),
               backgroundColor: 'rgba(238, 119, 51,.2)',
               borderColor: 'rgba(238, 119, 51,1)',
               borderWidth: 1,
@@ -2220,7 +2229,7 @@ renderModal(){
                 modelWatershed.econ_per_diff/100,
                 modelWatershed.nitrate_per_diff/100,
                 modelWatershed.sci_per_diff/100,
-                modelWatershed.soc_per_diff/100,
+                // modelWatershed.soc_per_diff/100,
               ],
               backgroundColor: 'rgba(0, 119, 187,.2)',
               borderColor: 'rgba(0, 119, 187,1)',
@@ -2245,7 +2254,7 @@ renderModal(){
                 model.econ_per_diff,
                 model.nitrate_per_diff,
                 model.sci_per_diff,
-                model.soc_per_diff,
+                // model.soc_per_diff,
 
             ],
             fill: false,
@@ -2297,7 +2306,7 @@ renderModal(){
                 modelWatershed.econ_per_diff,
                 modelWatershed.nitrate_per_diff,
                 modelWatershed.sci_per_diff,
-                modelWatershed.soc_per_diff,
+                // modelWatershed.soc_per_diff,
 
             ],
             fill: false,
@@ -2333,6 +2342,14 @@ renderModal(){
             borderWidth: 1
           }]
         };
+
+        if (isSoc) {
+            dataRadar.datasets[1].data.push(model.soc_per_diff/100);
+            dataRadarWatershed.datasets[1].data.push(modelWatershed.soc_per_diff/100);
+            dataBarPercent.datasets[0].data.push(model.soc_per_diff);
+            dataBarPercentWatershed.datasets[0].data.push( modelWatershed.soc_per_diff);
+        }
+
         this.dataYield = charts.getChartDataBar([base.yield,null], [null,model.yield])
         dataEro= charts.getChartDataBar([base.ero,null],[ null,model.ero])
         dataPloss= charts.getChartDataBar([base.ploss,null], [null,model.ploss])
@@ -2404,7 +2421,7 @@ renderModal(){
           { options: optionsEcon, data: dataEcon },
           { options: optionsEro, data: dataEro },
           { options: optionsSCI, data: dataSCI },
-          { options: optionsSOC, data: dataSOC },
+          // { options: optionsSOC, data: dataSOC },
 
           { options: optionsPloss, data: dataPloss },
           { options: optionsPlossDel, data: dataPlossDel },
@@ -2421,7 +2438,7 @@ renderModal(){
           { options: optionsEcon, data: dataEconWatershed },
           { options: optionsEro, data: dataEroWatershed },
           { options: optionsSCI, data: dataSCIWatershed },
-          { options: optionsSOC, data: dataSOCWatershed },
+          // { options: optionsSOC, data: dataSOCWatershed },
 
           { options: optionsPloss, data: dataPlossWatershed },
           { options: optionsPlossDel, data: dataPlossDelWatershed },
@@ -2433,6 +2450,12 @@ renderModal(){
           { options: optionsBird, data: dataBirdWatershed },
 
         ];
+
+        if (isSoc) {
+            chartItems.splice(4, 0, { options: optionsSOC, data: dataSOC });
+            chartItemsWatershed.splice(4, 0, { options: optionsSOC, data: dataSOCWatershed });
+          
+        }
 
     return(
             <div>
@@ -2477,55 +2500,7 @@ renderModal(){
                     <InfoCircle color="royalblue"/>
                     </OverlayTrigger>
                   </h4>
-                 {/* <Row>
-                    <Col xs={3}>
-                        <Bar options = {this.optionsYield} data={this.dataYield}/>
-                    </Col>
-                    <Col xs={3}>
-                        <Bar options = {optionsEcon} data={dataEcon}/>
-                    </Col>
-                
-                    <Col xs={3}>
-                        <Bar options = {optionsEro} data={dataEro}/>
-
-                    </Col>
-                    <Col xs={3}>
-                        <Bar options = {optionsSCI} data={dataSCI}/>
-
-                    </Col>
-                 </Row>
                  <Row>
-                    <Col xs={3}>
-                        <Bar options = {optionsPloss} data={dataPloss}/>
-
-                    </Col>
-                    <Col xs={3}>
-                    <Bar options = {optionsPlossDel} data={dataPlossDel}/>
-                    </Col>
-                
-                    <Col xs={3}>
-                        <Bar options = {optionsNitrate} data={dataNitrate}/>
-                    </Col>
-                    <Col xs={3}>
-                      <Bar options = {optionsRun} data={dataRun}/>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col xs={3}>
-                        <Bar options = {optionsCN} data={dataCN}/>
-                    </Col>
-                    <Col xs={3}>
-                        <Bar options = {optionsInsect} data={dataInsect}/>
-                    </Col>
-                    <Col xs={3}>
-                        <Bar options = {optionsBird} data={dataBird}/>
-                    </Col>
-                    <Col xs={3}>
-                        <Bar options = {optionsSOC} data={dataSOC}/>
-
-                    </Col>
-                </Row> */}
-                <Row>
                 {chartItems.map((item, index) => (
                   <Col xs={12} sm={6} md={3} key={index} className="mb-4">
                     <Bar options={item.options} data={item.data} />
@@ -2672,6 +2647,7 @@ renderModal(){
                       <td className="table-cell-left">{model.sci_per_diff}</td>
 
                     </tr>
+                    {isSoc && (
                     <tr>
                       <td style={variableStyle}>Soil Organic Carbon Change</td>
                       <td className="table-cell-left">{base.soc}</td>
@@ -2682,6 +2658,7 @@ renderModal(){
                       <td>Mg/year</td>
                       <td className="table-cell-left">{model.soc_per_diff}</td>
                     </tr>
+                    )}
                     <tr style={rowColor}>
                       <td >Nutrients</td>
                       <td className="table-cell-left"></td>
@@ -2876,6 +2853,7 @@ renderModal(){
                       <td>NA</td>
                       <td className="table-cell-left">{modelWatershed.sci_per_diff}</td>
                     </tr>
+                     {isSoc && (
                      <tr>
                       <td style={variableStyle}>Soil Organic Carbon Change</td>
                       <td className="table-cell-left">{baseWatershed.soc}</td>
@@ -2886,6 +2864,7 @@ renderModal(){
                       <td>Mg/year</td>
                       <td className="table-cell-left">{modelWatershed.soc_per_diff}</td>
                     </tr>
+                     )}
                     <tr style={rowColor}>
                       <td >Nutrients</td>
                       <td className="table-cell-left"></td>
