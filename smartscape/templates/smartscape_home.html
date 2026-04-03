@@ -2,7 +2,7 @@
 <html lang="en">
 {% load static%}
 {% csrf_token %}
-
+{{ user_info|json_script:"user-info-data" }}
 <head>
     <meta charset="UTF-8">
     <title>SmartScape</title>
@@ -11,7 +11,9 @@
 <body>
     <div id="root"></div>
     <script>
-     var user_info = {{user_info|safe}}
+     const user_info = JSON.parse(
+        document.getElementById('user-info-data').textContent
+    );
      var map11 = 'test'
     // working with the variable courses
     </script>

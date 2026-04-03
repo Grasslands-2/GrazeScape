@@ -47,8 +47,9 @@ def index(request):
     # if request.user.is_athenticated:
     user_name = request.user.username
     context = {
-        "user_info": {"user_name": user_name}
+        "user_info": {"user_name": user_name, "user_groups":tuple(request.user.groups.values_list('name', flat=True))},
     }
+    # print("groups",(request.user.groups.values_list('name', flat=True))
     dir_path = os.path.join(settings.BASE_DIR, 'smartscape',
                             'data_files', 'raster_inputs')
     if not os.path.exists(dir_path):
@@ -75,7 +76,7 @@ def index(request):
     threads = []
     for name in file_names:
         url = settings.GEOSERVER_URL + "/geoserver/SmartScapeVector/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SmartScapeVector%3A" + name + "&outputFormat=application%2Fjson"
-        print("downloading: ",name, url)
+        # print("downloading: ",name, url)
         raster_file_path = os.path.join(dir_path, name + ".geojson")
         thread = createNewDownloadThread(url, raster_file_path)
         threads.append(thread)
