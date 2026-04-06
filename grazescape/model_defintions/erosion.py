@@ -82,9 +82,8 @@ class Erosion(ModelBase):
         r.assign("ps_erosion_file", os.path.join(self.model_file_path, pastureSeedingErosion + regionRDS))
         r.assign("pt_erosion_file", os.path.join(self.model_file_path, pastureErosion + regionRDS))
         r.assign("dl_erosion_file", os.path.join(self.model_file_path, dryLotErosion + regionRDS))
-        print("erosion model",os.path.join(self.model_file_path, ContCornErosion + regionRDS) )
 
-        print(r(f"""
+        r(f"""
             #if (!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
             #if (!require(tidymodels)) install.packages("tidymodels", repos = "http://cran.us.r-project.org")
             #if (!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
@@ -288,7 +287,7 @@ class Erosion(ModelBase):
               print(summary(pred_df_na_omit))
                 print("done")
               """
-                ))
+                )
         ero = r.get("erosion").to_numpy()
         ero = ero.flatten()
         print(ero)

@@ -246,6 +246,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
 
     ero = results_dict["ero"].data[0].tolist()
     sci = results_dict["soil_index"].data[0].tolist()
+    
     ploss = results_dict["ploss"].data[0].tolist()
     n_water = results_dict["nwater"].data[0].tolist()
     n_leach = results_dict["nleaching"].data[0].tolist()
@@ -253,6 +254,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     cn = results_dict["Curve Number"].data[0].tolist()
     insect = results_dict["insect"].data[0]
     cost = results_dict["econ"].data[0]
+    soc = results_dict["soc"].data[0]
 
     no_data = sql_data_package["no_data"].tolist()
     x_bound = sql_data_package["x_bound"]
@@ -318,7 +320,8 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
         p_needs,
         grass_blue,
         grass_tim,
-        grass_orch
+        grass_orch,
+        soc,
     ]
 
     def convert_to_float(value):
@@ -340,7 +343,7 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
         dry_matter =%s, grass =%s, corn =%s, soy =%s, corn_silage =%s, alfalfa =%s, oats =%s, ero =%s, sci =%s, 
         ploss =%s, 
         n_water =%s, n_leach =%s, runoff =%s, cn =%s, insect =%s, cost =%s, no_data =%s, x_bound =%s, y_bound =%s, 
-        area =%s, p_needs =%s, grass_blue =%s, grass_tim =%s, grass_orch =%s
+        area =%s, p_needs =%s, grass_blue =%s, grass_tim =%s, grass_orch =%s, soc =%s
         WHERE {sql_where};
     """
 
@@ -349,9 +352,9 @@ def update_field_results(field_id, scenario_id, data, sql_data_package, insert_f
     INSERT INTO model_results(
         field_id, scen, dry_matter, grass, corn, soy, corn_silage, alfalfa, oats,
         ero, sci, ploss, n_water, n_leach, runoff, cn, insect, cost, no_data, x_bound,
-        y_bound, area, p_needs, grass_blue, grass_tim, grass_orch)
+        y_bound, area, p_needs, grass_blue, grass_tim, grass_orch, soc)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s, %s, %s, %s, %s)
+            %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
     # https://stackoverflow.com/questions/29186112/postgresql-python-ignore-duplicate-key-exception
     try:
@@ -454,6 +457,7 @@ def format_db_values(sql_model_data, descrip):
                                 "Soil Condition Index (lb/ac/yr)", "Soil Condition Index (lb/yr)")
     insect_node = OutputDataNode("insect", "Insecticide Index", "Insecticide Index", "Honey bee toxicity",
                                  "Honey bee toxicity")
+    soc_node = OutputDataNode("soc", "SOC change (Mg/ac/yr)", "SOC change (Mg/yr)", "SOC change (Mg/ac/yr)", "SOC change (Mg/yr)")
 
     # result = cur.fetchone()
     column_names = [desc[0] for desc in descrip]
@@ -466,7 +470,7 @@ def format_db_values(sql_model_data, descrip):
     # cur.close()
     # conn.close()
 
-    return_data = [erosion, insect_node, sci_output, curve, rain_fall, pl, nitrate_water, nitrate, rotation_avg, econ]
+    return_data = [erosion, insect_node, sci_output, curve, rain_fall, pl, nitrate_water, nitrate, rotation_avg, econ, soc_node]
     erosion.set_data(db_dict["ero"])
     insect_node.set_data(db_dict["insect"])
     sci_output.set_data(db_dict["sci"])
@@ -488,6 +492,7 @@ def format_db_values(sql_model_data, descrip):
     grass_blue.set_data(db_dict["grass_blue"])
     grass_tim.set_data(db_dict["grass_tim"])
     grass_orch.set_data(db_dict["grass_orch"])
+    soc_node.set_data(db_dict["soc"])
 
     if db_dict["corn"]:
         return_data.append(corn)

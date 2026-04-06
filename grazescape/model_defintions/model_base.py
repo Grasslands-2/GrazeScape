@@ -5,6 +5,9 @@ from django.conf import settings
 import os
 import functools
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ModelBase:
@@ -126,6 +129,7 @@ class ModelBase:
             "manure_p_perc": request.POST.getlist("model_parameters[manure_p_perc]")[0],
             "manure_n_perc": request.POST.getlist("model_parameters[manure_n_perc]")[0],
         }
+        logger.info(f"SOC string: {parameters}")
 
         numeric_para = ["soil_p", "fert", "manure"]
         # soil_p, fert, manure
