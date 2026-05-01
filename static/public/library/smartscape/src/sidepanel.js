@@ -893,8 +893,8 @@ class SidePanel extends React.Component{
         success: (responses, opts) => {
             delete $.ajaxSetup().headers
             console.log(responses)
-            // let url = "https://api.smartscape.grasslandag.org/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
-            let url = "http://localhost:9000/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            let url = "https://api.smartscape.grasslandag.org/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
+            // let url = "http://localhost:9000/api/get_image?file_name="+responses[0]["url"]+ "&time="+Date.now()
             // console.log(url)
             this.props.setActiveTransDisplay({'url':url, 'extents':responses[0]["extent"],'transId':responses[0]["transId"]})
             this.setState({aoiOrDisplayLoading:false})
