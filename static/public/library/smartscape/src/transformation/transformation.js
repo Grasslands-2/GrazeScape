@@ -32,6 +32,7 @@ function Transformation(name, id, rank, type){
             streamDist1:0,
             streamDist2:16000,
             useFt:true,
+            crp:false,
             extent:[],
             field_coors:[],
             adoptionRate:100,
