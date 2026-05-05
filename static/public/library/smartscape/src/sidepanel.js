@@ -178,6 +178,7 @@ class SidePanel extends React.Component{
         this.land6 = React.createRef();
         this.land7 = React.createRef();
         this.land8 = React.createRef();
+        this.crp = React.createRef();
 //        this.landErosion = React.createRef();
 //        this.landRoot = React.createRef();
 //        this.landWater = React.createRef();
@@ -360,6 +361,8 @@ class SidePanel extends React.Component{
         this.land6.current.checked = this.props.activeTrans.selection.landClass.land6
         this.land7.current.checked = this.props.activeTrans.selection.landClass.land7
         this.land8.current.checked = this.props.activeTrans.selection.landClass.land8
+
+        this.crp.current.checked = this.props.activeTrans.selection.crp
 
         this.prime.current.checked = this.props.activeTrans.selection.farmClass.prime
         this.stateFarm.current.checked = this.props.activeTrans.selection.farmClass.stateFarm
@@ -1742,6 +1745,7 @@ class SidePanel extends React.Component{
         currTransArray.push(this.props.listTrans[trans].management.phos_fertilizer)
         currTransArray.push(this.props.listTrans[trans].management.phos_manure)
         currTransArray.push(this.props.listTrans[trans].selection.adoptionRate)
+        currTransArray.push(this.props.listTrans[trans].selection.crp)
 
         let rotationType = getRotation()
         console.log(rotationType)
@@ -3026,6 +3030,8 @@ renderModal(){
     )
   }
     render(){
+        let isCrf = user_info.user_groups.includes("crf");
+
         return(
         <Container className='side_pannel_style'>
             <h4>Selection Parameters</h4>
@@ -3094,7 +3100,26 @@ renderModal(){
                 {/* <div> */}
                 <div className = "criteriaSections">
                     <Form.Label>2) Additional Selection Options</Form.Label>
-                     <Accordion>
+                    <Accordion>
+                      <Accordion.Item eventKey="6" hidden ={!isCrf}>
+                        {this.renderOverlayTrigger(
+                          "crp",
+                          "Conservation Reserve Program",
+                          "Conservation Reserve Program",
+                          "Conservation Reserve Program"
+                        )}
+
+
+                        <Accordion.Body>
+                             <Form.Check
+                                ref={this.crp} type="switch" label="Select CRP Land"
+                                onChange={(e) => this.handleSelectionChangeGeneral("crp","reg", e)}
+                             />
+                           
+                        </Accordion.Body>
+                      </Accordion.Item>
+                    </Accordion>
+                    <Accordion>
                       <Accordion.Item eventKey="4">
     
                         {/* the according header is contained in the output of the render function */}
